@@ -1,6 +1,7 @@
 "use client";
 
 import type { Spot } from "@/lib/types";
+import { categoryMeta } from "@/lib/categories";
 
 interface OptionCardProps {
   spot: Spot;
@@ -20,6 +21,7 @@ export default function OptionCard({
   onToggle,
 }: OptionCardProps) {
   const dimmed = decided && !isWinner;
+  const cat = categoryMeta(spot.category);
 
   return (
     <button
@@ -28,15 +30,14 @@ export default function OptionCard({
       disabled={decided}
       aria-pressed={voted}
       className={[
-        "opt token relative rounded-[20px] border-2 bg-card p-4 text-left",
+        "opt token relative flex w-full flex-col rounded-[20px] border-2 bg-card p-4 text-left",
         "disabled:cursor-default",
-        isWinner
-          ? "border-punch [--tw-shadow-color:var(--color-punch)] z-[3]"
-          : "border-ink",
+        isWinner ? "border-punch z-[3]" : "border-ink",
         dimmed ? "opacity-55" : "",
       ].join(" ")}
-      // token shadow color follows the winner state
-      style={{ boxShadow: `5px 6px 0 ${isWinner ? "var(--color-punch)" : "var(--color-ink)"}` }}
+      style={{
+        boxShadow: `5px 6px 0 ${isWinner ? "var(--color-punch)" : "var(--color-ink)"}`,
+      }}
     >
       {/* Winner rosette — the signature stamp */}
       <svg
@@ -71,23 +72,34 @@ export default function OptionCard({
         </text>
       </svg>
 
-      <div className="font-display text-lg font-extrabold tracking-tight">
+      {/* Category strip: the designed visual — glyph + type in the category accent */}
+      <div className="flex items-center justify-between gap-2">
+        <span
+          className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold"
+          style={{
+            background: `color-mix(in srgb, ${cat.accent} 14%, transparent)`,
+            color: cat.accent,
+          }}
+        >
+          <span aria-hidden="true">{cat.glyph}</span>
+          {spot.cuisine}
+        </span>
+        <span className="rounded-full bg-ink/[0.06] px-2 py-0.5 text-xs font-semibold text-muted">
+          {spot.price_band}
+        </span>
+      </div>
+
+      <h3 className="mt-2.5 font-display text-lg font-extrabold leading-tight tracking-tight">
         {spot.name}
-      </div>
+      </h3>
+      <p className="mt-0.5 text-xs font-medium text-muted">{spot.area}</p>
 
-      <div className="mt-2 flex flex-wrap gap-1.5">
-        {[spot.area, spot.cuisine, spot.price_band].map((t) => (
-          <span
-            key={t}
-            className="rounded-full bg-ink/[0.07] px-2 py-0.5 text-xs font-semibold text-muted"
-          >
-            {t}
-          </span>
-        ))}
-      </div>
+      {/* The "review" blurb — why you'd go */}
+      <p className="mt-2 text-sm leading-snug text-ink/80">
+        {spot.description ?? spot.vibe}
+      </p>
 
-      <p className="mt-2.5 text-sm text-muted">{spot.vibe}</p>
-      <p className="mt-1 text-xs text-muted">
+      <p className="mt-2 text-xs text-muted">
         Open till {spot.open_till} · from AED {spot.min_spend}pp
       </p>
 
@@ -111,9 +123,7 @@ export default function OptionCard({
           <span
             className={[
               "rounded-full px-3 py-1 text-xs font-bold",
-              voted
-                ? "bg-mint text-white"
-                : "border-2 border-ink/15 text-ink",
+              voted ? "bg-mint text-white" : "border-2 border-ink/15 text-ink",
             ].join(" ")}
           >
             {voted ? "You're in ✓" : "I'm in"}
