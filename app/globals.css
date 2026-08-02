@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+/* ── Design tokens (approved design pass) ──────────────────────────
+   Palette: calm lilac ground, plum ink, three loud accents held in
+   reserve, mint as reserved semantics for a "yes" vote.            */
+@theme {
+  --color-paper: #f4f1fa; /* ground — picked lilac-grey, faint grape bias */
+  --color-card: #ffffff;
+  --color-ink: #241b2e; /* plum-black: text + the token shadow */
+  --color-muted: #6b6478;
+  --color-line: rgba(36, 27, 46, 0.12);
+
+  --color-grape: #6b34e0; /* primary action, focus */
+  --color-punch: #ff2e88; /* the winner — signature */
+  --color-zest: #ffce2e; /* celebration, confetti */
+  --color-mint: #17c79a; /* semantic — a yes vote */
+
+  --font-display: var(--font-bricolage), system-ui, sans-serif;
+  --font-body: var(--font-hanken), system-ui, sans-serif;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+/* ── The signature element: the token shadow ───────────────────────
+   A hard, solid offset shadow — like an arcade button / board-game
+   token. Presses physically sink into the page. Quiet everywhere;
+   it's the thread that makes the whole app feel tappable.          */
+@layer components {
+  .token {
+    box-shadow: 5px 6px 0 var(--color-ink);
+    transition:
+      transform 0.12s ease,
+      box-shadow 0.12s ease;
+  }
+  .token:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 7px 8px 0 var(--color-ink);
+  }
+  .token:active {
+    transform: translate(4px, 5px);
+    box-shadow: 1px 1px 0 var(--color-ink);
+  }
+}
+
+/* ── The signature moment: shuffle tension + rosette stamp ─────────
+   Loud lives here and nowhere else. The winner's token flips to Punch
+   and a rosette springs on. Reduced-motion strips both (below).     */
+@layer components {
+  .deck-shuffling .opt {
+    animation: jit 0.16s ease infinite;
+  }
+  @keyframes jit {
+    0%,
+    100% {
+      transform: translate(0, 0);
+    }
+    25% {
+      transform: translate(-2px, 1px);
+    }
+    75% {
+      transform: translate(2px, -1px);
+    }
+  }
+
+  .rosette {
+    transform: scale(0) rotate(-24deg);
+    opacity: 0;
+  }
+  .rosette-show {
+    animation: stamp 0.5s cubic-bezier(0.18, 1.5, 0.5, 1) forwards;
+  }
+  @keyframes stamp {
+    0% {
+      transform: scale(0) rotate(-24deg);
+      opacity: 0;
+    }
+    60% {
+      transform: scale(1.18) rotate(6deg);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1) rotate(-8deg);
+      opacity: 1;
+    }
+  }
+}
+
+/* Visible keyboard focus everywhere (quality floor). */
+:focus-visible {
+  outline: 3px solid var(--color-grape);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
