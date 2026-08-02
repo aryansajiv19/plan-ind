@@ -313,9 +313,13 @@ export default function VotePage() {
   }
 
   async function copyLink() {
-    await navigator.clipboard.writeText(window.location.href);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1800);
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch {
+      return; // clipboard blocked — leave the button unchanged
+    }
   }
 
   // ── States ───────────────────────────────────────────────────────

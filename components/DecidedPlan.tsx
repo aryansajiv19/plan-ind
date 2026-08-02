@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Plan, Rating, Rsvp, Spot } from "@/lib/types";
 import { googleCalUrl, icsHref } from "@/lib/calendar";
+import { categoryMeta } from "@/lib/categories";
 
 interface DecidedPlanProps {
   plan: Plan;
@@ -47,9 +48,31 @@ export default function DecidedPlan({
   onRate,
 }: DecidedPlanProps) {
   const [editingTime, setEditingTime] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const cat = categoryMeta(winner.category);
 
   const coming = rsvps.filter((r) => r.coming);
   const imIn = coming.some((r) => r.voter_name === voterName);
+
+  async function copyForChat() {
+    const line2 = [winner.area];
+    if (plan.event_time) line2.push(prettyTime(plan.event_time));
+    if (coming.length) line2.push(`${coming.length} in`);
+    const text = [
+      `${cat.glyph} We're going to ${winner.name}!`,
+      line2.join(" · "),
+      typeof window !== "undefined" ? window.location.href : "",
+    ]
+      .filter(Boolean)
+      .join("\n");
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard blocked (e.g. no focus / permissions) — don't claim success.
+    }
+  }
   const gcal = googleCalUrl(plan, winner);
   const ics = icsHref(plan, winner);
 
@@ -67,10 +90,38 @@ export default function DecidedPlan({
 
   return (
     <div className="mt-6 rounded-2xl border-2 border-punch bg-punch/5 p-4 sm:p-5">
-      <p className="font-display text-xl font-extrabold">It’s {winner.name}.</p>
-      <p className="mt-1 text-sm text-muted">
+      {/* Ticket header — the celebratory payoff */}
+      <div className="flex items-center gap-3">
+        <span
+          className="grid h-12 w-12 shrink-0 place-items-center rounded-xl text-2xl"
+          style={{ background: `color-mix(in srgb, ${cat.accent} 16%, transparent)` }}
+          aria-hidden="true"
+        >
+          {cat.glyph}
+        </span>
+        <div>
+          <p
+            className="text-xs font-bold uppercase tracking-wide"
+            style={{ color: cat.accent }}
+          >
+            Decided · you’re going
+          </p>
+          <p className="font-display text-xl font-extrabold leading-tight">
+            It’s {winner.name}.
+          </p>
+        </div>
+      </div>
+      <p className="mt-2 text-sm text-muted">
         The group’s headed to {winner.area}. Now let’s make it happen.
       </p>
+
+      <button
+        type="button"
+        onClick={copyForChat}
+        className="token mt-3 w-full rounded-2xl border-2 border-ink bg-zest px-5 py-3 font-display font-extrabold text-ink"
+      >
+        {copied ? "Copied — paste it in the chat ✓" : "Copy for the group chat"}
+      </button>
 
       {/* When */}
       <div className="mt-4 border-t border-line pt-4">
