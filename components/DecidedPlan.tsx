@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { Plan, Rsvp, Spot } from "@/lib/types";
+import type { Plan, Rating, Rsvp, Spot } from "@/lib/types";
 import { googleCalUrl, icsHref } from "@/lib/calendar";
 
 interface DecidedPlanProps {
@@ -9,10 +9,12 @@ interface DecidedPlanProps {
   winner: Spot;
   voterName: string;
   rsvps: Rsvp[];
+  ratings: Rating[];
   onSetTime: (iso: string) => void;
   onToggleRsvp: () => void;
   onClaimBooking: () => void;
   onMarkBooked: () => void;
+  onRate: (partial: { stars?: number; again?: boolean }) => void;
 }
 
 // ISO (UTC) → the value a <input type="datetime-local"> expects (local wall time).
@@ -37,10 +39,12 @@ export default function DecidedPlan({
   winner,
   voterName,
   rsvps,
+  ratings,
   onSetTime,
   onToggleRsvp,
   onClaimBooking,
   onMarkBooked,
+  onRate,
 }: DecidedPlanProps) {
   const [editingTime, setEditingTime] = useState(false);
 
@@ -48,6 +52,18 @@ export default function DecidedPlan({
   const imIn = coming.some((r) => r.voter_name === voterName);
   const gcal = googleCalUrl(plan, winner);
   const ics = icsHref(plan, winner);
+
+  const myRating = ratings.find((r) => r.voter_name === voterName);
+  const avgStars =
+    ratings.length > 0
+      ? ratings.reduce((s, r) => s + r.stars, 0) / ratings.length
+      : 0;
+  const againPct =
+    ratings.length > 0
+      ? Math.round(
+          (ratings.filter((r) => r.again).length / ratings.length) * 100,
+        )
+      : 0;
 
   return (
     <div className="mt-6 rounded-2xl border-2 border-punch bg-punch/5 p-4 sm:p-5">
@@ -192,6 +208,67 @@ export default function DecidedPlan({
           )}
         </div>
       )}
+
+      {/* After the visit: rate it */}
+      <div className="mt-4 border-t border-line pt-4">
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-xs font-bold uppercase tracking-wide text-muted">
+            Been? Rate it
+          </p>
+          {ratings.length > 0 && (
+            <p className="text-xs font-semibold text-muted tabular-nums">
+              ★ {avgStars.toFixed(1)} · {ratings.length} rated · {againPct}% would go again
+            </p>
+          )}
+        </div>
+
+        <div className="mt-2 flex items-center gap-1">
+          {[1, 2, 3, 4, 5].map((n) => (
+            <button
+              key={n}
+              type="button"
+              onClick={() => onRate({ stars: n })}
+              aria-label={`${n} star${n > 1 ? "s" : ""}`}
+              aria-pressed={(myRating?.stars ?? 0) >= n}
+              className="text-2xl leading-none"
+              style={{ color: (myRating?.stars ?? 0) >= n ? "#ffce2e" : "var(--color-line)" }}
+            >
+              ★
+            </button>
+          ))}
+          {myRating && (
+            <span className="ml-1 text-sm text-muted">your rating</span>
+          )}
+        </div>
+
+        {myRating && (
+          <div className="mt-2 flex items-center gap-2">
+            <span className="text-sm text-muted">Would you go again?</span>
+            <button
+              type="button"
+              onClick={() => onRate({ again: true })}
+              aria-pressed={myRating.again}
+              className={[
+                "rounded-full border-2 px-3 py-1 text-xs font-bold",
+                myRating.again ? "border-ink bg-mint text-white" : "border-ink/15 text-ink",
+              ].join(" ")}
+            >
+              Yes
+            </button>
+            <button
+              type="button"
+              onClick={() => onRate({ again: false })}
+              aria-pressed={!myRating.again}
+              className={[
+                "rounded-full border-2 px-3 py-1 text-xs font-bold",
+                !myRating.again ? "border-ink bg-ink text-white" : "border-ink/15 text-ink",
+              ].join(" ")}
+            >
+              Not really
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

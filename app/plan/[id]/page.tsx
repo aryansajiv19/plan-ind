@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import type { Plan, Rsvp, Spot, Vote } from "@/lib/types";
+import type { Plan, Rating, Rsvp, Spot, Vote } from "@/lib/types";
 import OptionCard from "@/components/OptionCard";
 import NameGate from "@/components/NameGate";
 import DecidedPlan from "@/components/DecidedPlan";
@@ -28,6 +28,7 @@ export default function VotePage() {
   const [spots, setSpots] = useState<Spot[]>([]);
   const [votes, setVotes] = useState<Vote[]>([]);
   const [rsvps, setRsvps] = useState<Rsvp[]>([]);
+  const [ratings, setRatings] = useState<Rating[]>([]);
   const [voterName, setVoterName] = useState<string | null>(null);
   const [deciding, setDeciding] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
@@ -51,6 +52,11 @@ export default function VotePage() {
   const refetchRsvps = useCallback(async () => {
     const { data } = await supabase.from("rsvps").select("*").eq("plan_id", id);
     if (data) setRsvps(data as Rsvp[]);
+  }, [id]);
+
+  const refetchRatings = useCallback(async () => {
+    const { data } = await supabase.from("ratings").select("*").eq("plan_id", id);
+    if (data) setRatings(data as Rating[]);
   }, [id]);
 
   useEffect(() => {
@@ -97,12 +103,13 @@ export default function VotePage() {
       setSpots(ordered);
       await refetchVotes();
       await refetchRsvps();
+      await refetchRatings();
       setLoad("ready");
     })();
     return () => {
       active = false;
     };
-  }, [id, refetchVotes, refetchRsvps, reloadKey]);
+  }, [id, refetchVotes, refetchRsvps, refetchRatings, reloadKey]);
 
   // ── Restore this voter's name (once, per plan) ───────────────────
   useEffect(() => {
@@ -132,11 +139,16 @@ export default function VotePage() {
         { event: "*", schema: "public", table: "rsvps", filter: `plan_id=eq.${id}` },
         () => refetchRsvps(),
       )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "ratings", filter: `plan_id=eq.${id}` },
+        () => refetchRatings(),
+      )
       .subscribe();
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [id, refetchVotes, refetchRsvps]);
+  }, [id, refetchVotes, refetchRsvps, refetchRatings]);
 
   // ── Tallies + this voter's picks ─────────────────────────────────
   const yesCount = (spotId: string) =>
@@ -275,6 +287,29 @@ export default function VotePage() {
     }
   }
 
+  // Rate the winner after the visit. First tap fills in a sensible "again"
+  // so one interaction writes a valid row; each control merges with the rest.
+  async function rateWinner(partial: { stars?: number; again?: boolean }) {
+    if (!voterName || !winnerId) return;
+    const mine = ratings.find((r) => r.voter_name === voterName);
+    const stars = partial.stars ?? mine?.stars ?? 5;
+    const again = partial.again ?? mine?.again ?? stars >= 4;
+    setRatings((cur) => [
+      ...cur.filter((r) => r.voter_name !== voterName),
+      { id: mine?.id ?? `local-${voterName}`, plan_id: id, spot_id: winnerId, voter_name: voterName, stars, again },
+    ]);
+    const { error } = await supabase
+      .from("ratings")
+      .upsert(
+        { plan_id: id, spot_id: winnerId, voter_name: voterName, stars, again },
+        { onConflict: "plan_id,voter_name" },
+      );
+    if (error) {
+      await refetchRatings();
+      setNotice("Couldn't save your rating. Try again.");
+    }
+  }
+
   async function copyLink() {
     await navigator.clipboard.writeText(window.location.href);
     setCopied(true);
@@ -403,10 +438,12 @@ export default function VotePage() {
               winner={winnerSpot}
               voterName={voterName}
               rsvps={rsvps}
+              ratings={ratings}
               onSetTime={(iso) => patchPlan({ event_time: iso })}
               onToggleRsvp={toggleRsvp}
               onClaimBooking={() => patchPlan({ booking_owner: voterName })}
               onMarkBooked={() => patchPlan({ booked: true })}
+              onRate={rateWinner}
             />
           )
         )}

@@ -4,6 +4,7 @@
 -- Safe to re-run: it drops and recreates the four tables.
 -- ─────────────────────────────────────────────────────────────────
 
+drop table if exists ratings cascade;
 drop table if exists rsvps cascade;
 drop table if exists votes cascade;
 drop table if exists plan_spots cascade;
@@ -78,6 +79,21 @@ create table rsvps (
 
 create index rsvps_plan_idx on rsvps (plan_id);
 
+-- One rating per (plan, voter) after the visit: stars + "would go again?".
+create table ratings (
+  id         uuid primary key default gen_random_uuid(),
+  plan_id    uuid not null references plans(id) on delete cascade,
+  spot_id    uuid not null references spots(id) on delete cascade,
+  voter_name text not null,
+  stars      int  not null check (stars between 1 and 5),
+  again      boolean not null,
+  created_at timestamptz not null default now(),
+  unique (plan_id, voter_name)
+);
+
+create index ratings_plan_idx on ratings (plan_id);
+create index ratings_spot_idx on ratings (spot_id);
+
 -- ── Row Level Security ─────────────────────────────────────────────
 -- No auth in v1. Access is "you have the link." We turn RLS on so the
 -- database isn't wide open by default, then grant exactly what the loop
@@ -90,6 +106,7 @@ alter table plans      enable row level security;
 alter table plan_spots enable row level security;
 alter table votes      enable row level security;
 alter table rsvps      enable row level security;
+alter table ratings    enable row level security;
 
 -- Everyone can read everything (the app is public by link).
 create policy "read spots"      on spots      for select using (true);
@@ -106,6 +123,11 @@ create policy "read rsvps"   on rsvps for select using (true);
 create policy "cast rsvps"   on rsvps for insert with check (true);
 create policy "change rsvps" on rsvps for update using (true) with check (true);
 
+-- Ratings: rate the winner after the visit; change your mind.
+create policy "read ratings"   on ratings for select using (true);
+create policy "cast ratings"   on ratings for insert with check (true);
+create policy "change ratings" on ratings for update using (true) with check (true);
+
 -- Starting a plan (used by the create flow) + "decide for us" updates.
 create policy "create plans"      on plans      for insert with check (true);
 create policy "decide plans"      on plans      for update using (true) with check (true);
@@ -116,3 +138,4 @@ create policy "attach plan_spots" on plan_spots for insert with check (true);
 alter publication supabase_realtime add table votes;
 alter publication supabase_realtime add table plans;
 alter publication supabase_realtime add table rsvps;
+alter publication supabase_realtime add table ratings;

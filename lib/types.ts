@@ -56,3 +56,14 @@ export interface Rsvp {
   voter_name: string;
   coming: boolean;
 }
+
+// After the visit: how was it? Closes the loop and (later) feeds "haven't
+// been yet" + smarter suggestions. One per (plan, voter).
+export interface Rating {
+  id: string;
+  plan_id: string;
+  spot_id: string;
+  voter_name: string;
+  stars: number; // 1–5
+  again: boolean; // would you go again?
+}
