@@ -53,7 +53,7 @@ export default function DecidedPlan({
     <div className="mt-6 rounded-2xl border-2 border-punch bg-punch/5 p-4 sm:p-5">
       <p className="font-display text-xl font-extrabold">It’s {winner.name}.</p>
       <p className="mt-1 text-sm text-muted">
-        The group’s eating in {winner.area}. Now let’s make it happen.
+        The group’s headed to {winner.area}. Now let’s make it happen.
       </p>
 
       {/* When */}

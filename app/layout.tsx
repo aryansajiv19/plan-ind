@@ -17,8 +17,8 @@ const hanken = Hanken_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Deal three — Dubai dinner decider",
-  description: "Stop deciding, start eating. Deal three spots, vote, let the app call it.",
+  title: "Deal three — Dubai hangout decider",
+  description: "Stop deciding, start doing. Pick a vibe, deal three spots, vote, let the app call it.",
 };
 
 export default function RootLayout({

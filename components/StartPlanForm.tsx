@@ -10,6 +10,25 @@ const PRESETS = [
   { label: "Tomorrow", hours: 24 },
 ] as const;
 
+// The hangout types you can plan. Each carries a default title so the
+// prompt reads right the moment you pick it.
+const CATEGORIES = [
+  { key: "dinner", label: "Dinner", title: "Where should we eat?" },
+  { key: "cafe", label: "Cafe", title: "Where for coffee?" },
+  { key: "brunch", label: "Brunch", title: "Where's brunch?" },
+  { key: "dessert", label: "Dessert", title: "Where for dessert?" },
+  { key: "shisha", label: "Shisha", title: "Where for shisha?" },
+  { key: "vibes", label: "Vibes", title: "Where's the vibe?" },
+  { key: "beach", label: "Beach", title: "Which beach spot?" },
+  { key: "outdoors", label: "Outdoors", title: "What's the outdoor plan?" },
+  { key: "movie", label: "Movie", title: "What are we watching?" },
+  { key: "games", label: "Games", title: "What are we playing?" },
+  { key: "sports", label: "Sports", title: "Where to watch the match?" },
+  { key: "karaoke", label: "Karaoke", title: "Where for karaoke?" },
+] as const;
+
+type CategoryKey = (typeof CATEGORIES)[number]["key"];
+
 // Deal exactly three random spots from the curated pool. The whole point:
 // nobody researches — the app hands you the options.
 function dealThree<T>(pool: T[]): T[] {
@@ -23,10 +42,18 @@ function dealThree<T>(pool: T[]): T[] {
 
 export default function StartPlanForm() {
   const router = useRouter();
-  const [title, setTitle] = useState("Where should we eat?");
+  const [category, setCategory] = useState<CategoryKey>("dinner");
+  const [title, setTitle] = useState<string>(CATEGORIES[0].title);
+  const [titleEdited, setTitleEdited] = useState(false);
   const [presetIdx, setPresetIdx] = useState(0);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Picking a type swaps in its default prompt — unless you've written your own.
+  function pickCategory(cat: (typeof CATEGORIES)[number]) {
+    setCategory(cat.key);
+    if (!titleEdited) setTitle(cat.title);
+  }
 
   async function start(e: React.FormEvent) {
     e.preventDefault();
@@ -35,12 +62,19 @@ export default function StartPlanForm() {
     setCreating(true);
     setError(null);
 
-    // 1. Grab the pool and deal three.
+    // 1. Grab the pool for this category and deal three.
     const { data: pool, error: poolErr } = await supabase
       .from("spots")
-      .select("id");
-    if (poolErr || !pool || pool.length < 3) {
-      setError("Couldn't find enough spots to deal. Seed the spots table first.");
+      .select("id")
+      .eq("category", category);
+    if (poolErr) {
+      setError("Couldn't reach the spots. Check your connection and try again.");
+      setCreating(false);
+      return;
+    }
+    if (!pool || pool.length < 3) {
+      const label = CATEGORIES.find((c) => c.key === category)?.label ?? category;
+      setError(`Not enough ${label.toLowerCase()} spots yet — try another type.`);
       setCreating(false);
       return;
     }
@@ -52,13 +86,7 @@ export default function StartPlanForm() {
     ).toISOString();
     const { data: plan, error: planErr } = await supabase
       .from("plans")
-      .insert({
-        title: clean,
-        category: "dinner",
-        area: "Dubai",
-        deadline,
-        status: "open",
-      })
+      .insert({ title: clean, category, area: "Dubai", deadline, status: "open" })
       .select("id")
       .single();
     if (planErr || !plan) {
@@ -82,13 +110,36 @@ export default function StartPlanForm() {
 
   return (
     <form onSubmit={start} className="mx-auto w-full max-w-sm text-left">
-      <label htmlFor="plan-title" className="block text-sm text-muted">
-        What are you deciding?
+      <p className="text-sm text-muted">What kind of hangout?</p>
+      <div className="mt-2 flex flex-wrap gap-2">
+        {CATEGORIES.map((c) => (
+          <button
+            key={c.key}
+            type="button"
+            onClick={() => pickCategory(c)}
+            aria-pressed={category === c.key}
+            className={[
+              "rounded-full border-2 px-4 py-2 text-sm font-bold transition",
+              category === c.key
+                ? "border-ink bg-grape text-white"
+                : "border-ink/15 text-ink",
+            ].join(" ")}
+          >
+            {c.label}
+          </button>
+        ))}
+      </div>
+
+      <label htmlFor="plan-title" className="mt-5 block text-sm text-muted">
+        Give it a title
       </label>
       <input
         id="plan-title"
         value={title}
-        onChange={(e) => setTitle(e.target.value)}
+        onChange={(e) => {
+          setTitle(e.target.value);
+          setTitleEdited(true);
+        }}
         maxLength={60}
         className="mt-2 w-full rounded-2xl border-2 border-ink bg-card px-4 py-3 text-lg font-medium outline-none"
       />

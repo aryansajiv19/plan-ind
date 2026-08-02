@@ -9,15 +9,15 @@ export default function Home() {
     <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-6 py-12">
       <div className="text-center">
         <p className="font-display text-sm font-bold uppercase tracking-[0.14em] text-grape">
-          Dubai dinner decider
+          Dubai hangout decider
         </p>
         <h1 className="mt-3 text-5xl font-extrabold leading-[0.95]">
           Stop deciding.
           <br />
-          Start <span className="text-punch">eating.</span>
+          Start <span className="text-punch">doing.</span>
         </h1>
         <p className="mt-4 text-muted">
-          Deal three spots, let friends vote, and let the app break the tie.
+          Pick a vibe, deal three spots, let friends vote — the app breaks the tie.
         </p>
       </div>
 
