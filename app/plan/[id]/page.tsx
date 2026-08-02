@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { addBeen } from "@/lib/device";
 import type { Plan, Rating, Rsvp, Spot, Vote } from "@/lib/types";
 import OptionCard from "@/components/OptionCard";
 import NameGate from "@/components/NameGate";
@@ -245,6 +246,7 @@ export default function VotePage() {
   useEffect(() => {
     if (!decided || !winnerId || revealFired.current) return;
     revealFired.current = true;
+    addBeen(winnerId); // remember on this device — feeds "haven't been yet"
     const el = cardRefs.current[winnerId];
     const stage = stageRef.current;
     if (el && stage) {

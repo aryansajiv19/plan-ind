@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { getBeen } from "@/lib/device";
 
 const PRESETS = [
   { label: "In 3 hours", hours: 3 },
@@ -78,7 +79,35 @@ export default function StartPlanForm() {
       setCreating(false);
       return;
     }
-    const three = dealThree(pool).map((s) => s.id);
+    // Prefer spots you haven't been dealt yet (on-device memory), then rank by
+    // how past groups rated them, then take three with a little variety.
+    const been = new Set(getBeen());
+    let eligible = pool.filter((s) => !been.has(s.id));
+    if (eligible.length < 3) eligible = pool; // never block on "been"
+
+    const ids = eligible.map((s) => s.id);
+    const { data: rs } = await supabase
+      .from("ratings")
+      .select("spot_id,stars,again")
+      .in("spot_id", ids);
+    const agg = new Map<string, { n: number; stars: number; again: number }>();
+    ((rs ?? []) as { spot_id: string; stars: number; again: boolean }[]).forEach(
+      (r) => {
+        const e = agg.get(r.spot_id) ?? { n: 0, stars: 0, again: 0 };
+        e.n += 1;
+        e.stars += r.stars;
+        e.again += r.again ? 1 : 0;
+        agg.set(r.spot_id, e);
+      },
+    );
+    // Unrated spots score 3.6 — above a mediocre rating, so fresh places surface.
+    const score = (id: string) => {
+      const e = agg.get(id);
+      return e && e.n > 0 ? e.stars / e.n + e.again / e.n : 3.6;
+    };
+    const ranked = [...eligible].sort((a, b) => score(b.id) - score(a.id));
+    const shortlist = ranked.slice(0, Math.min(6, Math.max(3, ranked.length)));
+    const three = dealThree(shortlist).map((s) => s.id);
 
     // 2. Create the plan (its uuid becomes the share link).
     const deadline = new Date(
