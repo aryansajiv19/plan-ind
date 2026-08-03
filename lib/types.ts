@@ -1,5 +1,8 @@
-// Row shapes for our four tables. Kept hand-written (small schema, no
-// generated types yet) so the data model reads at a glance.
+// Row shapes for our tables. Kept hand-written (small schema, no generated
+// types yet) so the data model reads at a glance.
+//
+// THESE MIRROR supabase/schema.sql EXACTLY. They are hand-synced: if you
+// change one, change the other in the same edit.
 
 export type PriceBand = "$" | "$$" | "$$$";
 export type PlanStatus = "open" | "decided";
@@ -66,4 +69,86 @@ export interface Rating {
   voter_name: string;
   stars: number; // 1–5
   again: boolean; // would you go again?
+}
+
+// ─── The social layer ──────────────────────────────────────────────
+// A device profile, still no auth. The browser mints `id` once and keeps
+// it in localStorage (lib/device.ts), then upserts the row. Note this does
+// NOT replace `voter_name` — votes/rsvps/ratings above are still keyed by a
+// free-typed name, and plans in flight are unaffected.
+
+export interface Person {
+  // READ-ONLY to clients. A DB trigger (people_before_write) pins `id` and
+  // `auth_user_id` on any anon/authenticated write, because RLS is
+  // row-level and `update people using (true)` would otherwise expose them.
+  id: string; // uuid — minted on the device, and the profile-link slug
+  display_name: string; // 1–40 chars, TRIMMED on write by the DB
+  emoji: string; // 1–8 chars, trimmed; no controls or bidi overrides
+  color: string; // "#rrggbb" — validated by the DB, LOWERCASED on write
+  auth_user_id: string | null; // always null in v1; the Supabase Auth upgrade seam
+  created_at: string; // ISO timestamp
+  updated_at: string; // ISO timestamp
+}
+
+// Friendship is SYMMETRIC and stored as two directed rows (a→b and b→a),
+// mirrored by a DB trigger. Write ONE row and let the trigger create the
+// other; never write both yourself.
+export interface Friendship {
+  person_id: string;
+  friend_id: string;
+  created_at: string;
+}
+
+// "I went to this place." Stands alone, or originates from a decided plan.
+// NOTE: `visits` has no UPDATE policy on purpose, so a visit is never
+// edited in place — logVisit() replaces the row. A re-logged plan visit
+// therefore gets a NEW `id` and `created_at`. Don't cache a visit id
+// across a re-log.
+export interface Visit {
+  id: string;
+  person_id: string; // whose log this is
+  spot_id: string;
+  plan_id: string | null; // set when it came from a decided plan; null if logged by hand
+  visited_at: string; // ISO timestamp
+  group_label: string | null; // 1–40 chars; trimmed on write, blank becomes null
+  note: string | null; // up to 280 chars; trimmed on write, blank becomes null
+  created_at: string;
+}
+
+// Exactly one of `person_id` / `companion_name` is set, enforced by a CHECK.
+//   person_id set    → a tagged profile (name comes live from `people`)
+//   companion_name   → a free-typed name, for companions with no profile
+// `companion_name` is trimmed on write and unique per visit
+// case-insensitively, so "Sara" / "sara" / "Sara " are one companion.
+// Display casing is preserved as typed.
+export interface VisitCompanion {
+  id: string;
+  visit_id: string;
+  person_id: string | null;
+  companion_name: string | null;
+  created_at: string;
+}
+
+// ─── Read shapes (what the queries in lib/social.ts return) ────────
+// Not tables — these are the joined shapes the UI codes against.
+
+// The public face of a person: everything except the auth seam.
+export type PersonCard = Pick<
+  Person,
+  "id" | "display_name" | "emoji" | "color"
+>;
+
+// A companion resolved for display. `person` is non-null when the companion
+// has a profile (tap through to it); otherwise fall back to `name`.
+export interface CompanionView {
+  id: string; // visit_companions.id — React key, and the arg to untagCompanion()
+  person: PersonCard | null;
+  name: string; // always renderable: the profile's display_name, or the typed name
+}
+
+// One row of a profile feed. `spot` is non-null in practice (the FK is NOT
+// NULL) but stays nullable so a failed embed degrades instead of crashing.
+export interface ProfileVisit extends Visit {
+  spot: Spot | null;
+  companions: CompanionView[];
 }
