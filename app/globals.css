@@ -104,6 +104,264 @@ h3 {
   outline-offset: 3px;
 }
 
+/* ── The Dubai backdrop: a skyline that keeps Dubai time ───────────
+   Registered so the phase change *interpolates* instead of snapping —
+   a plain custom property can't be transitioned.
+
+   Every colour below was solved against --color-muted (#6b6478), the
+   palette's lowest-contrast body text, and clears 4.5:1 in all seven
+   phases (worst case 4.55:1). That's the ceiling on how deep this can
+   go: a literal indigo night behind 13px muted copy is unreadable, so
+   night reads through hue + lit windows rather than darkness.       */
+@property --sky-1 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #e3f4ff;
+}
+@property --sky-2 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #eff8ff;
+}
+@property --sky-3 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #f7fafe;
+}
+@property --twr-far {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #e3f0fd;
+}
+@property --twr-near {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #dce8f9;
+}
+@property --glow-c {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(255, 255, 255, 0.7);
+}
+@property --glow-x {
+  syntax: "<percentage>";
+  inherits: true;
+  initial-value: 62%;
+}
+@property --glow-y {
+  syntax: "<percentage>";
+  inherits: true;
+  initial-value: 20%;
+}
+@property --haze-c {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(255, 255, 255, 0.5);
+}
+@property --win-a {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+.sky-root {
+  position: fixed;
+  inset: 0;
+  height: 100lvh; /* don't uncover when a mobile URL bar collapses */
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+  transition:
+    --sky-1 1.8s linear,
+    --sky-2 1.8s linear,
+    --sky-3 1.8s linear,
+    --twr-far 1.8s linear,
+    --twr-near 1.8s linear,
+    --glow-c 1.8s linear,
+    --glow-x 1.8s linear,
+    --glow-y 1.8s linear,
+    --haze-c 1.8s linear,
+    --win-a 1.8s linear;
+}
+
+.sky-wash {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    var(--sky-1) 0%,
+    var(--sky-2) 46%,
+    var(--sky-3) 100%
+  );
+}
+
+/* Sun by day, moon by night — it moves across the phases. */
+.sky-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    58vmax 44vmax at var(--glow-x) var(--glow-y),
+    var(--glow-c),
+    transparent 70%
+  );
+}
+
+/* Wider than the viewport so the parallax drift never exposes an edge.
+   The height floor makes narrow phones crop inwards (`slice`) onto the
+   Burj cluster instead of shrinking the whole skyline to a hairline;
+   from ~tablet up the two terms meet and the full panorama shows. */
+.sky-svg {
+  position: absolute;
+  bottom: 0;
+  /* 3% of overhang each side covers the widest drift (8px) even at 360px. */
+  left: -3%;
+  width: 106%;
+  height: max(32vh, 38vw);
+  max-height: 82vh;
+  display: block;
+}
+
+.sky-far {
+  fill: var(--twr-far);
+  animation: sky-drift-far 96s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.sky-near {
+  fill: var(--twr-near);
+  animation: sky-drift-near 64s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.sky-win {
+  fill: #fff6dd;
+  opacity: var(--win-a);
+}
+
+.sky-haze {
+  position: absolute;
+  inset: auto -22% 0 -22%;
+  height: 38%;
+  background: radial-gradient(
+    72% 100% at 50% 100%,
+    var(--haze-c),
+    transparent 72%
+  );
+  animation: sky-haze-drift 150s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes sky-drift-far {
+  from {
+    transform: translate3d(-4px, 0, 0);
+  }
+  to {
+    transform: translate3d(5px, 0, 0);
+  }
+}
+@keyframes sky-drift-near {
+  from {
+    transform: translate3d(7px, 0, 0);
+  }
+  to {
+    transform: translate3d(-8px, 0, 0);
+  }
+}
+@keyframes sky-haze-drift {
+  from {
+    transform: translate3d(-4%, 0, 0);
+  }
+  to {
+    transform: translate3d(4%, 0, 0);
+  }
+}
+
+/* Phase palettes. Dubai time, resolved in the browser. */
+[data-phase="night"] {
+  --sky-1: #e8e9ff;
+  --sky-2: #edecff;
+  --sky-3: #fcebfa;
+  --twr-far: #ececff;
+  --twr-near: #e3e5ff;
+  --glow-c: rgba(255, 255, 255, 0.5);
+  --glow-x: 76%;
+  --glow-y: 13%;
+  --haze-c: rgba(255, 244, 224, 0.42);
+  --win-a: 1;
+}
+[data-phase="predawn"] {
+  --sky-1: #e7ebff;
+  --sky-2: #efecff;
+  --sky-3: #f9eefc;
+  --twr-far: #eaedff;
+  --twr-near: #e1e6fe;
+  --glow-c: rgba(255, 255, 255, 0.42);
+  --glow-x: 18%;
+  --glow-y: 74%;
+  --haze-c: rgba(245, 240, 255, 0.5);
+  --win-a: 0.85;
+}
+[data-phase="dawn"] {
+  --sky-1: #e8ecfd;
+  --sky-2: #ffe9f4;
+  --sky-3: #ffeedc;
+  --twr-far: #f1ecfe;
+  --twr-near: #eae4f9;
+  --glow-c: rgba(255, 234, 200, 0.75);
+  --glow-x: 20%;
+  --glow-y: 76%;
+  --haze-c: rgba(255, 240, 226, 0.55);
+  --win-a: 0.3;
+}
+[data-phase="morning"] {
+  --sky-1: #e5f2ff;
+  --sky-2: #eff5fe;
+  --sky-3: #fdf6ef;
+  --twr-far: #e5effc;
+  --twr-near: #dee7f7;
+  --glow-c: rgba(255, 255, 255, 0.6);
+  --glow-x: 32%;
+  --glow-y: 40%;
+  --haze-c: rgba(255, 255, 255, 0.6);
+  --win-a: 0;
+}
+[data-phase="day"] {
+  --sky-1: #e3f4ff;
+  --sky-2: #eff8ff;
+  --sky-3: #f7fafe;
+  --twr-far: #e3f0fd;
+  --twr-near: #dce8f9;
+  --glow-c: rgba(255, 255, 255, 0.75);
+  --glow-x: 62%;
+  --glow-y: 18%;
+  --haze-c: rgba(255, 255, 255, 0.55);
+  --win-a: 0;
+}
+[data-phase="golden"] {
+  --sky-1: #e5efff;
+  --sky-2: #fff0de;
+  --sky-3: #fff0d8;
+  --twr-far: #f1ecfd;
+  --twr-near: #f1e2f5;
+  --glow-c: rgba(255, 228, 176, 0.8);
+  --glow-x: 80%;
+  --glow-y: 52%;
+  --haze-c: rgba(255, 238, 214, 0.55);
+  --win-a: 0.18;
+}
+[data-phase="dusk"] {
+  --sky-1: #eae8ff;
+  --sky-2: #ffe7f6;
+  --sky-3: #ffe9e3;
+  --twr-far: #f2ebff;
+  --twr-near: #ebe3fe;
+  --glow-c: rgba(255, 226, 216, 0.7);
+  --glow-x: 88%;
+  --glow-y: 68%;
+  --haze-c: rgba(255, 232, 236, 0.5);
+  --win-a: 0.6;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -111,5 +369,16 @@ h3 {
     animation-duration: 0.001ms !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
+  }
+
+  /* The rule above only zeroes durations, which would leave these
+     infinite alternating drifts flickering between keyframes. Kill
+     them outright — the skyline still re-tints, it just holds still. */
+  .sky-far,
+  .sky-near,
+  .sky-haze {
+    animation: none !important;
+    transform: none !important;
+    will-change: auto;
   }
 }
