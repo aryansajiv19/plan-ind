@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { getBeen } from "@/lib/device";
+import { dealThreeForCategory } from "@/lib/deal";
 
 const PRESETS = [
   { label: "In 3 hours", hours: 3 },
@@ -30,17 +30,6 @@ const CATEGORIES = [
 
 type CategoryKey = (typeof CATEGORIES)[number]["key"];
 
-// Deal exactly three random spots from the curated pool. The whole point:
-// nobody researches — the app hands you the options.
-function dealThree<T>(pool: T[]): T[] {
-  const copy = [...pool];
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
-  }
-  return copy.slice(0, 3);
-}
-
 export default function StartPlanForm() {
   const router = useRouter();
   const [category, setCategory] = useState<CategoryKey>("dinner");
@@ -63,51 +52,14 @@ export default function StartPlanForm() {
     setCreating(true);
     setError(null);
 
-    // 1. Grab the pool for this category and deal three.
-    const { data: pool, error: poolErr } = await supabase
-      .from("spots")
-      .select("id")
-      .eq("category", category);
-    if (poolErr) {
-      setError("Couldn't reach the spots. Check your connection and try again.");
-      setCreating(false);
-      return;
-    }
-    if (!pool || pool.length < 3) {
+    // 1. Deal three for this category (skips places you've been, ranks by rating).
+    const three = await dealThreeForCategory(category);
+    if (!three) {
       const label = CATEGORIES.find((c) => c.key === category)?.label ?? category;
       setError(`Not enough ${label.toLowerCase()} spots yet — try another type.`);
       setCreating(false);
       return;
     }
-    // Prefer spots you haven't been dealt yet (on-device memory), then rank by
-    // how past groups rated them, then take three with a little variety.
-    const been = new Set(getBeen());
-    let eligible = pool.filter((s) => !been.has(s.id));
-    if (eligible.length < 3) eligible = pool; // never block on "been"
-
-    const ids = eligible.map((s) => s.id);
-    const { data: rs } = await supabase
-      .from("ratings")
-      .select("spot_id,stars,again")
-      .in("spot_id", ids);
-    const agg = new Map<string, { n: number; stars: number; again: number }>();
-    ((rs ?? []) as { spot_id: string; stars: number; again: boolean }[]).forEach(
-      (r) => {
-        const e = agg.get(r.spot_id) ?? { n: 0, stars: 0, again: 0 };
-        e.n += 1;
-        e.stars += r.stars;
-        e.again += r.again ? 1 : 0;
-        agg.set(r.spot_id, e);
-      },
-    );
-    // Unrated spots score 3.6 — above a mediocre rating, so fresh places surface.
-    const score = (id: string) => {
-      const e = agg.get(id);
-      return e && e.n > 0 ? e.stars / e.n + e.again / e.n : 3.6;
-    };
-    const ranked = [...eligible].sort((a, b) => score(b.id) - score(a.id));
-    const shortlist = ranked.slice(0, Math.min(6, Math.max(3, ranked.length)));
-    const three = dealThree(shortlist).map((s) => s.id);
 
     // 2. Create the plan (its uuid becomes the share link).
     const deadline = new Date(

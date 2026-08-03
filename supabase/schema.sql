@@ -133,6 +133,10 @@ create policy "create plans"      on plans      for insert with check (true);
 create policy "decide plans"      on plans      for update using (true) with check (true);
 create policy "attach plan_spots" on plan_spots for insert with check (true);
 
+-- "Shake it up": re-dealing a plan clears its old spots + votes.
+create policy "clear plan_spots"  on plan_spots for delete using (true);
+create policy "clear votes"       on votes      for delete using (true);
+
 -- ── Realtime ───────────────────────────────────────────────────────
 -- Broadcast row changes so the vote screen updates live.
 alter publication supabase_realtime add table votes;
