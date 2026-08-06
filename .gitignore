@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Graphify keeps dated safety backups when rebuilding a curated graph.
+/graphify-out/20*/
