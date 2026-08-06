@@ -2,15 +2,12 @@
 // both safe to call during SSR (they no-op / return empty on the server):
 //
 //   1. the "been" list — spots this browser has already been dealt/decided
-//   2. the device profile — the person uuid + display name + avatar
+//   2. a cached profile — the person uuid + display name + avatar
 //
-// The profile is the app's identity model: no auth, no passwords, no email.
-// The browser mints a uuid once, keeps it here, and syncs the row to the
-// `people` table (see lib/social.ts — this file never touches the network).
-//
-// Accepted tradeoffs: clearing browser storage or switching device loses the
-// identity, and because the id is just a string in a public table, the model
-// is impersonable by design. `people.auth_user_id` is the upgrade seam.
+// Supabase Auth is now the identity model. Existing local profiles are used
+// only to seed the signed-in profile's display fields; their public UUID is
+// never treated as proof of ownership. This file still never touches the
+// network, and the cache keeps client-only social UI responsive.
 
 import type { PersonCard } from "./types";
 
@@ -38,7 +35,7 @@ export function addBeen(spotId: string | null): void {
   localStorage.setItem(BEEN_KEY, JSON.stringify([...set]));
 }
 
-// ─── The device profile ────────────────────────────────────────────
+// ─── The cached profile ────────────────────────────────────────────
 
 // Exactly the public shape of a `people` row. Kept as an alias so the two
 // can't drift: what we store locally is what we sync up.
@@ -97,7 +94,7 @@ export function newPersonId(): string {
   });
 }
 
-/** This device's profile, or null if the user hasn't set one up yet. */
+/** This device's cached profile, or null if one has not been stored yet. */
 export function getMe(): DeviceProfile | null {
   if (typeof window === "undefined") return null;
   try {
@@ -144,6 +141,16 @@ export function saveMe(
   if (!next.display_name) return existing; // a nameless profile is not a profile
   localStorage.setItem(ME_KEY, JSON.stringify(next));
   return next;
+}
+
+/**
+ * Cache a server-authoritative profile after authentication. Unlike saveMe(),
+ * this may replace the old device UUID because Supabase Auth now owns identity.
+ */
+export function cacheMe(profile: DeviceProfile): void {
+  if (typeof window === "undefined") return;
+  if (!profile.id || !profile.display_name.trim()) return;
+  localStorage.setItem(ME_KEY, JSON.stringify(profile));
 }
 
 /** Forget this device's identity. The server row (and its visits) survive. */

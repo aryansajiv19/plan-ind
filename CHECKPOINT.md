@@ -1,0 +1,166 @@
+# plan-ind Working Checkpoint
+
+Last updated: 2026-08-07 (Asia/Dubai)
+
+## Latest implementation: progressive pools + saved custom places
+
+- The active request is implemented: new plans deal 9 places across 3 pools. Each voter makes one exclusive choice per pool, one winner from each pool advances, and the final vote chooses the outing.
+- `components/StartPlanForm.tsx` now deals nine related-category places, distributes them evenly across pools, and explains the `9 places -> 3 pools -> 3 finalists -> 1 plan` format. It also loads the signed-in member's saved custom places, lets them pin up to three, and includes a compact editor for name, area, map/address, note, and private/friends/community visibility.
+- `app/plan/[id]/page.tsx` now renders one pool of three at a time with completed-pool navigation, phase-aware exclusive voting, deterministic pool winners, a final shortlist, and deterministic final tie-breaking. Existing plans remain backward-compatible as one-round finals.
+- `lib/deal.ts` can deal an arbitrary count from related category families while preferring the exact requested category and avoiding pinned custom IDs. This is necessary because several exact catalog categories currently contain fewer than nine entries.
+- `lib/types.ts` includes plan stages, pool metadata, vote phases, and saved custom-place ownership/location fields.
+- `supabase/migration-009-pools-custom-spots.sql` is the additive production migration. It must be applied after migrations 007 and 008 before testing plan creation. `supabase/schema.sql` and `supabase/setup.sql` mirror the resulting core schema.
+- UI additions in `app/globals.css` use the established architectural ivory/graphite/champagne system, include night mode, visible focus treatment, and mobile single-column form layout. No green/glowing states were introduced.
+- Validation on 2026-08-07: ESLint passed, `tsc --noEmit` passed, and the Next.js 16.2.12 production build passed. The existing live preview at `http://localhost:3001/home-preview` returns HTTP 200.
+- Known prototype constraints: promotion from pools to the final is currently a two-step client write rather than a database transaction; any participant with the link can trigger progression, matching the existing permissive shared-link trust model. Custom-place friend visibility still needs a membership-aware read policy; migration 010 adds that policy for visit photos specifically.
+
+## Latest implementation: budget, distance and Been collections
+
+- The plan composer now treats affordability and travel as recommendation inputs. Members can choose an AED-per-person ceiling, a starting area (Downtown/DIFC, Marina, Jumeirah, Al Quoz or Dubai Creek), and a 10/20/35 km or unrestricted radius.
+- `lib/deal.ts` filters the curated catalog before ranking/dealing. It uses stored spot coordinates where present and otherwise falls back to the Dubai-area centroids in `lib/dubai-areas.ts`. Pinned custom places remain explicit overrides and are not randomly drawn into other plans.
+- New plans persist `budget_per_person`, `origin_label`, origin coordinates and `radius_km`; the shared vote header repeats the constraint and venue cards show approximate distance when available.
+- The Been demo is now organized as an archive rather than one flat grid. It ships with populated example collections, supports user-named collections, filtering, adding/removing visits, empty states and selecting the visit a new photo belongs to. Demo collection membership persists under `deal-three:demo-collections` in localStorage.
+- `supabase/migration-010-recommendations-collections.sql` adds the plan constraints, authenticated `visit_collections`, many-to-many `visit_collection_items`, private `visit_photos` metadata, a private Storage bucket and owner/friend/community policies. Apply it after migration 009. The current image picker remains a local preview until its upload call is connected to that bucket.
+- `supabase/schema.sql`, `supabase/setup.sql` (plan fields) and `lib/types.ts` mirror the new database shape.
+- Verification on 2026-08-07: ESLint, TypeScript, `git diff --check` and the Next.js 16.2.12 production build pass. `http://localhost:3001/home-preview` returns 200.
+
+## Latest implementation: Luna smart search
+
+- A server-only smart-search route now lives at `app/api/smart-search/route.ts`. It uses the official `openai` SDK, Responses API, strict structured output and explicitly sets `model: "gpt-5.6-luna"` with low reasoning effort.
+- The route requires an authenticated account in production, permits the unauthenticated development preview, limits each stable privacy-preserving identifier to 10 requests/minute, sends `store: false`, and never exposes `OPENAI_API_KEY` to the browser.
+- Luna interprets natural Dubai requests into category, title, summary, budget, origin/radius, occasion, vibe terms and avoid terms. It is prohibited from returning venue names. Server normalization bounds every returned value before it reaches the client.
+- `components/StartPlanForm.tsx` now has a polished natural-language search composer and parsed-intent summary. Applying intent updates the existing category, budget, area, radius and title controls. The API's returned model identifier is displayed so model usage is verifiable.
+- `lib/deal.ts` remains the source of truth for real venues. It enforces budget/radius against Supabase and uses Luna's vibe/avoid terms only to rank/filter catalog text; the LLM cannot invent places, coordinates or prices.
+- `supabase/migration-011-smart-search.sql` persists `smart_brief`, vibe/avoid preferences and `intelligence_model` on a plan. Apply it after migration 010. Canonical schema, setup schema and TypeScript types are synchronized.
+- The corrected `OPENAI_API_KEY` is detected. A real API request reached OpenAI and received request ID `req_f7490e7ba4a34d0c82b8614196cc9fe3`, proving authentication/routing, but the account returned `credit_balance_exhausted`. Add OpenAI API credits before the live interpretation can succeed.
+- Verification: ESLint, TypeScript, `git diff --check`, and the Next.js 16.2.12 production build pass. The build includes dynamic route `/api/smart-search`; the preview remains HTTP 200 on port 3001.
+
+## Latest refinement: plain copy and personal city patterns
+
+- The user again rejected technical filler. All visible “Powered by Luna,” model identifiers, “signals,” and “active” marketing language were removed. Luna remains an internal implementation detail. Internal home/demo class and field names using `signal` were also renamed to vote/context language so the old terminology does not return accidentally.
+- Copy should use simple sentences and avoid frequent dashes. “Get active” is now “Move and play,” sports examples say Sports, and the profile heading is “What you usually choose.”
+- Been now surfaces a restrained six weekend outing streak alongside annual visits, rating and photo count.
+- Profile now includes “Your Dubai,” led by “Jumeirah is 31% of your city.” It shows current streak, personal best and the user’s visit distribution across Jumeirah, Al Quoz, Marina/JBR, Downtown/DIFC and elsewhere. Styling uses quiet typographic hierarchy and thin progress bars, without badges, glow, confetti or arcade language.
+- These area affinities are derived conceptually from visit and spot area data; the current populated demo uses coherent fixed values until the account views are connected to live Supabase visits.
+- Verification after this pass: ESLint, TypeScript, `git diff --check`, production build and the live preview health check all pass.
+
+## End of day checkpoint: social place links
+
+- The user identified social post to place resolution as a flagship feature. A member should paste an Instagram, TikTok, Facebook, Reddit, YouTube or normal web link, receive sourced venue details, then save the result to “Want to try” or “Planning.”
+- A safe first framework is implemented. `components/PlaceLinkImporter.tsx` is now in Discover with URL input, destination list selection, loading/error/success states and a recent saved list. Preview persistence uses `deal-three:place-links` in local storage.
+- `app/api/place-import/route.ts` is the authenticated production boundary. It does not fetch arbitrary pages. It validates the request and calls `lib/place-import.ts`, which classifies providers, removes common tracking parameters, clears fragments, and rejects malformed links, non web protocols and credential bearing URLs.
+- `supabase/migration-012-place-link-imports.sql` adds owner scoped `place_imports`, `place_collections`, and `place_collection_items`. It creates “Want to try” and “Planning” for existing and future profiles. Apply after migration 011.
+- `PLACE_IMPORT_ARCHITECTURE.md` is the complete handoff for the next agent. It defines the resolution pipeline, confidence handling, provider adapter boundary, screenshot fallback, source freshness, image rights, SSRF protections, next implementation sequence and acceptance criteria.
+- Important boundary: current code saves working preview links locally and validates them server side. It does not yet scrape posts, resolve venues, fetch pictures, enrich pricing/reviews, or persist imports to Supabase. Do not claim those stages are complete.
+- Verification: Instagram URL normalization removed `utm_source` and `igshid` correctly, `/api/place-import` returned `status: ready`, preview returned 200, ESLint passed, TypeScript passed, `git diff --check` passed, and the production build passed with both API routes.
+
+## Immediate user direction after the latest review
+
+- The user rejected tabs that merely explain what each area will eventually do. Every tab must look and behave like a genuinely used demo account, populated with Dubai places, visits, ratings, friends and personal-looking photos.
+- Treat `/home-preview` as Aryan's established demo account. Populate it with coherent history and relationships so the end-to-end product flow is visible without requiring a real Supabase account.
+- The intended information architecture remains: Plan, Discover, Been, Friends and Profile. Photos and ratings are contextual content inside venue and visit views, not separate top-level destinations.
+- The next active implementation is replacing the current `LIBRARY_VIEWS` explanatory panels in `components/HomeExperience.tsx` with real demo-account UI:
+  - Discover: photographic venue cards, rating/friend signals, price/area/category and selection affordances.
+  - Been: photographic visit timeline/grid, personal score, date, companions, note and an add-photo affordance.
+  - Friends: populated friend list, shared-place counts, recent shared outings and start-plan affordance.
+  - Profile: Aryan's account summary, stats, preferences, privacy and sign-out.
+- Four original demo images were generated using the built-in image generation skill. Copy them into `public/demo/` before referencing them in code:
+  - dinner: `/Users/aryansajiv/.codex/generated_images/019fd85e-7627-7691-ac0e-13e4c3dde045/exec-5db9be21-d1a5-4da6-8b0f-51eab35c278e.png`
+  - beach club: `/Users/aryansajiv/.codex/generated_images/019fd85e-7627-7691-ac0e-13e4c3dde045/exec-34b2c496-4c03-4bd2-84f6-53dc55b7d918.png`
+  - padel: `/Users/aryansajiv/.codex/generated_images/019fd85e-7627-7691-ac0e-13e4c3dde045/exec-e76233eb-634a-42c5-bead-ebdd49344021.png`
+  - Al Qudra: `/Users/aryansajiv/.codex/generated_images/019fd85e-7627-7691-ac0e-13e4c3dde045/exec-ad882d93-464e-4000-b3a6-078bfc27ad03.png`
+- Image style: believable original user-generated Dubai photography, faces not identifiable, restrained editorial realism, no logos/text/watermarks and no green glow.
+- Preserve the explicit permanent preference: no green glowing dots or pulsing status lights anywhere. This is also recorded in `FRONTEND_DESIGN_STANDARDS.md`.
+- The user requested a cool night mode. A persistent day/night toggle already exists in `HomeExperience` via local storage key `deal-three:theme`; retain and refine it while building populated views.
+- The user is about to compact the conversation. Read this section first after compaction and continue without asking them to restate the product flow.
+- Completed after this checkpoint was started: `components/DemoAccountViews.tsx` now replaces all explanatory tab panels with a populated Aryan demo account. Discover has searchable/filterable photographic place cards and working “start a vote” actions; Been has four photographic visits, scores, notes, companion stacks and a local photo-picker preview; Friends has five populated relationships, taste-match/shared-visit data and crew planning actions; Profile has real-looking account statistics, taste signals, interactive photo privacy and a recent-photo strip.
+- The four generated images are now project assets in `public/demo/`: `alserkal-dinner.png`, `beach-club.png`, `padel-night.png`, and `al-qudra-morning.png`.
+- A `next/image fill` containment bug briefly made images cover the full viewport because the CSS pass was interrupted between the component and style edits. It is fixed: every fill wrapper is positioned, isolated, overflow-hidden and explicitly sized/aspect-ratio constrained in `app/globals.css`.
+- Latest verification after the populated-account pass: ESLint passed, `tsc --noEmit` passed, and the Next.js 16.2.12 production build passed. The live server remains at `http://localhost:3001` and `/home-preview` returns 200.
+- Latest visual direction feedback: the user likes the product and populated-account flow but found it too basic; the requested direction is sleek, luxurious and modern in a distinctly Dubai way. Interpret this as contemporary architecture/hospitality—not black-and-gold cliché, neon, excessive glass or decorative luxury tropes.
+- The luxury refinement pass is implemented across `app/layout.tsx` and `app/globals.css`: Manrope replaces the chunkier Bricolage display treatment; the home surface is warm architectural ivory with graphite type and restrained champagne-metal detailing; navigation is sticky and uses a fine active line rather than filled tabs; hero weight/spacing is calmer; the decision console is obsidian with metallic hierarchy; cards use wider photographic crops and more deliberate spacing; controls, plan form and account views use finer borders and quieter elevation.
+- Night mode was refined to an obsidian, warm-white and champagne system, removing the prior purple/pink impression while preserving the no-green-glow rule. Mobile navigation remains a safe-area-aware five-tab bottom bar.
+- Verification after the luxury refinement: ESLint passed, `tsc --noEmit` passed and the full Next.js production build passed. The live server remains open at `http://localhost:3001`.
+- The user explicitly rejected pseudo-technical filler copy such as “Live decision network,” “Signal active,” “Session 001,” numbered modules and slogan-like statistics. Permanent copy rule: associate the product with Dubai through real neighborhoods, venues, activities, timing and local context—not invented system language.
+- The home hero now reads “Dubai plans, without the group chat,” with practical DIFC/Al Quoz/Palm copy. The console uses Ninive, The Guild and Koko Bay with real Dubai areas, vote counts and deadlines. The filler ticker/stats section was removed; plan composer labels now use plain language; footer is simply brand/year/Dubai.
+- Demo account references to the fictional “Aster Courtyard” were replaced with Ninive at Emirates Towers. The Guild was verified against its official Dubai site and Visit Dubai; Kokoro/other current venue references should continue to be verified before catalog use.
+- Consistency correction: the user noticed the public `/plan/[id]` voting flow still used the old playful visual system. The landing/home design is now the product-wide source of truth.
+- `app/plan/[id]/page.tsx`, `components/NameGate.tsx`, `components/OptionCard.tsx`, `components/DecidedPlan.tsx`, and `app/globals.css` were aligned to the home system without changing vote/realtime/decision logic. Shared plans now use the same architectural ivory/graphite/champagne palette, Manrope typography, fine borders, square precision and quiet elevation. They inherit the saved `deal-three:theme` night preference.
+- Removed legacy vote-page cues: token shadows, thick rounded cards, grape/pink/mint action states, the colorful winner rosette, excessive pills, checkmark symbols and star-glyph rating controls. Winner/selection/RSVP/rating states now use restrained metallic styling and numbered 1–5 rating controls.
+- Verification after the cross-flow consistency pass: ESLint passed, `tsc --noEmit` passed, and the full Next.js production build passed. The running server compiled `/plan/11111111-1111-1111-1111-111111111111` and returned 200.
+
+## Current state
+
+- Baseline architecture review completed through the existing Graphify index in `graphify-out/`.
+- Supabase Auth is implemented with Google OAuth, email OTP, cookie-backed SSR sessions, `/login`, `/auth/callback`, protected `/home`, and sign-out.
+- Root `/` now redirects based on the verified user. Public `/plan/[id]` sharing remains intact.
+- `supabase/migration-007-auth.sql` binds profiles to `auth.users` and owner-scopes social writes. It still needs to be applied in the Supabase project.
+- Existing local profile display fields seed the authenticated profile, but the old public UUID/history is not claimed because it cannot prove ownership.
+- The pre-auth home content now lives at `/home` as a temporary protected screen. The next feature is its mobile-first redesign.
+- The protected `/home` landing page has now been redesigned as a kinetic night-out launchpad in `components/HomeExperience.tsx`, while `StartPlanForm` remains the unchanged plan-creation engine.
+- Landing direction was revised after user feedback that the first pass felt sparse, kiddish, and "vibecoded." The current visual language is sharper and more editorial/architectural: strict grid, controlled asymmetry, technical metadata, restrained accents, and denser hierarchy.
+- The emoji cards, colorful glow blobs, cursive annotations, and central decision wheel were replaced by a structured decision console with coordinates, numbered option channels, time/signal data, selection state, and a controlled scan animation.
+- A third refinement moved the same direction toward a more minimal, posh hospitality feel: secondary annotations were removed, grid/pink intensity reduced, shadows softened, scan motion slowed, typography given more breathing room, and arcade-style depth replaced with quiet elevation.
+- Motion still includes staggered hero typography, pointer parallax, the decision-system scan, a continuous information ticker, and animated CTA details. The global reduced-motion rule disables infinite landing animations.
+- `app/home-preview/page.tsx` provides an unauthenticated development-only preview at `/home-preview`; it returns `notFound()` in production.
+- Dashboard/provider setup is documented in `AUTH_SETUP.md`.
+- The development server is running at `http://localhost:3001` in the current session because port 3000 was already occupied.
+- Product scope is now explicitly both responsive web/PWA and a future native mobile app. Native should use Expo/React Native with shared Supabase/domain logic rather than wrapping the Next.js UI in a generic webview.
+- The catalog must support every hangout type, not only dining. Use a multidimensional place/experience taxonomy rather than continually extending one flat category enum.
+- Frontend standards now live in `FRONTEND_DESIGN_STANDARDS.md` and are referenced by `AGENTS.md`. The user explicitly excluded the original Product quality and Color sections; all other recorded sections are active.
+- The home plan composer now presents 23 selectable Dubai plan types across five compact groups: Food & drink, After dark, Sun & water, Get active, and Culture & reset. Eleven new functional catalog categories were added: nightlife, live music, beach clubs, water activities, padel, adventure, arts and culture, wellness, shopping, family days, and city escapes.
+- `supabase/migration-008-expanded-dubai-categories.sql` provides three starter spots for each new category and must be applied to the Supabase project before those new choices can create plans. `seed-categories.sql` was made non-destructive toward later category expansions.
+- The landing now follows the calmer motion standard: pointer parallax, scan animation, looping ticker, pulsing live indicator, animated text arrow, and decorative noise markup were removed. The one-time page entrance and interaction feedback remain, with reduced-motion support.
+- Category visuals in result cards now use short typographic codes rather than emoji interface icons.
+- The authenticated home now has a responsive product navigation: Plan, Discover, Been, Friends, and Profile. It is inline on desktop/tablet and becomes a safe-area-aware bottom tab bar on mobile. The avatar opens Profile; sign-out moved into the Profile panel.
+- Discover explains place detail, contextual ratings and tonight-fit signals. Been owns visits, user photos and personal ratings. Friends owns the friend list, shared history and crew-first planning. Photos and ratings intentionally remain contextual child views rather than cluttering the top-level navigation.
+- A persistent Day/Night toggle is implemented in `HomeExperience` using `deal-three:theme` in local storage. Night mode uses a restrained deep neutral treatment rather than glow-heavy styling.
+- Excessive space above the hero was reduced. All green glowing status dots were removed from the home console and voting cards, and `FRONTEND_DESIGN_STANDARDS.md` now permanently prohibits them.
+- Competitive research and the recommended moat are documented in `PRODUCT_STRATEGY.md`. The positioning is the group decision layer for going out, not another inventory directory or booking marketplace.
+- Do not scan the full repository. Start with a targeted Graphify query, then open only the files needed for the active feature.
+- Before changing Next.js code, read the relevant guide under `node_modules/next/dist/docs/`; this repo's Next.js version has breaking changes from familiar conventions.
+
+## Product and architecture map
+
+- Product: a low-friction Dubai group-plan decider. A creator deals three pools of three, shares a link, the group shortlists one per pool, then votes on the final three.
+- Main entry flow: `app/page.tsx` -> `components/StartPlanForm.tsx` -> Supabase-backed plan creation.
+- Shared plan flow: `app/plan/[id]/page.tsx` coordinates name capture, voting, live tallies, deciding, and the decided state.
+- Key plan UI: `components/NameGate.tsx`, `components/OptionCard.tsx`, `components/DecidedPlan.tsx`, and `components/ConfettiCanvas.tsx`.
+- Core client/data modules: `lib/supabase.ts`, `lib/types.ts`, `lib/deal.ts`, `lib/device.ts`, `lib/calendar.ts`, `lib/categories.ts`, and `lib/social.ts`.
+- Persistence is Supabase. The original planning domain centers on `spots`, `plans`, `plan_spots`, and `votes`; the graph also shows a newer social/profile domain in `lib/social.ts` and related types.
+- Account/profile identity is Supabase Auth-backed; public shared-plan voting remains name-based and link-trusted. RLS is intentionally permissive for that voting loop, so do not claim stronger server enforcement than exists.
+- Realtime subscriptions drive vote/plan updates and must be cleaned up on unmount.
+- Winner selection is expected to use deterministic tie-breaking. `Plan.status` is exactly `open | decided`.
+- `lib/types.ts` and Supabase schema/migrations must remain synchronized when data shapes change.
+
+## Known risks and constraints
+
+- Legacy device profiles remain readable but are no longer client-writable after migration 007. Their history is intentionally not auto-claimed.
+- The shared-plan domain remains public and name-based; authentication currently secures profile/social ownership, not voting identity.
+- Public profile and social-history reads remain intentional. Social mutations are owner-scoped after migration 007.
+- Deadline and exactly-three-options rules may be app-enforced rather than database-enforced.
+- Voter names may not be normalized.
+- There is still no dedicated test runner. Verification currently uses ESLint, TypeScript, the production build, and live route checks.
+- Preserve the user's existing untracked `.claude`, `.serena`, and `graphify-out` content.
+
+## Workflow for the next feature
+
+1. Query Graphify for the feature, affected symbols, and data flow.
+2. Inspect only the resulting source files plus the relevant local Next.js docs.
+3. Implement the smallest coherent change, preserving current invariants and unrelated work.
+4. Run focused checks first, then broader checks in proportion to risk.
+5. Update this checkpoint with the request, decisions, changed files, checks, unresolved issues, and exact next action.
+
+## Next action
+
+Read `PLACE_IMPORT_ARCHITECTURE.md` first. Apply migrations 009 through 012 in order. Connect the place importer to Supabase persistence, then build one compliant provider adapter plus screenshot fallback and confidence based confirmation. Separately add OpenAI API credits before testing smart search. After that, test a constrained multi pool plan with two identities, connect Been collections/photos to migration 010, and make pool advancement transactional. Keep the dev server open at `http://localhost:3001`.
+
+## Authentication verification
+
+- `npm run lint` — passed.
+- `npx tsc --noEmit --pretty false` — passed.
+- `npm run build` — passed on Next.js 16.2.12; dynamic routes include `/`, `/login`, `/home`, `/auth/callback`, and `/plan/[id]`, with Proxy enabled.
+- After the landing redesign: `npm run lint`, `npx tsc --noEmit --pretty false`, and `npm run build` all pass. The build also confirms the development-preview route compiles as a production 404 surface.
+- After the sharper second pass: lint, TypeScript, and the full Next.js production build pass again.
+- After the minimal-posh refinement: lint, TypeScript, and the full Next.js production build pass again.
+- After the grouped 23-category picker and restrained-motion pass: lint, TypeScript, and the full Next.js production build pass again.

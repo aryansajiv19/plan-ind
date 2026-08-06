@@ -19,10 +19,10 @@ export default function NameGate({ planTitle, onSubmit }: NameGateProps) {
         e.preventDefault();
         if (trimmed) onSubmit(trimmed);
       }}
-      className="mx-auto w-full max-w-sm"
+      className="vote-name-gate mx-auto w-full max-w-sm"
     >
-      <p className="font-display text-sm font-bold uppercase tracking-[0.14em] text-grape">
-        You’re invited to decide
+      <p className="vote-kicker font-display text-sm font-bold uppercase tracking-[0.14em] text-grape">
+        A Dubai plan is waiting
       </p>
       <h1 className="mt-2 text-3xl font-extrabold">{planTitle}</h1>
       <label htmlFor="voter-name" className="mt-6 block text-sm text-muted">
@@ -35,12 +35,12 @@ export default function NameGate({ planTitle, onSubmit }: NameGateProps) {
         onChange={(e) => setName(e.target.value)}
         placeholder="Your name"
         maxLength={24}
-        className="mt-2 w-full rounded-2xl border-2 border-ink bg-card px-4 py-3 text-lg font-medium outline-none placeholder:text-muted/60"
+        className="vote-field mt-2 w-full rounded-2xl border-2 border-ink bg-card px-4 py-3 text-lg font-medium outline-none placeholder:text-muted/60"
       />
       <button
         type="submit"
         disabled={!trimmed}
-        className="token mt-4 w-full rounded-2xl border-2 border-ink bg-grape px-6 py-3.5 font-display text-lg font-extrabold text-white disabled:opacity-40"
+        className="vote-primary-action mt-4 w-full rounded-2xl border-2 border-ink bg-grape px-6 py-3.5 font-display text-lg font-extrabold text-white disabled:opacity-40"
       >
         Start voting
       </button>

@@ -59,7 +59,7 @@ export default function DecidedPlan({
     if (plan.event_time) line2.push(prettyTime(plan.event_time));
     if (coming.length) line2.push(`${coming.length} in`);
     const text = [
-      `${cat.glyph} We're going to ${winner.name}!`,
+      `We're going to ${winner.name}!`,
       line2.join(" · "),
       typeof window !== "undefined" ? window.location.href : "",
     ]
@@ -89,21 +89,17 @@ export default function DecidedPlan({
       : 0;
 
   return (
-    <div className="mt-6 rounded-2xl border-2 border-punch bg-punch/5 p-4 sm:p-5">
+    <div className="vote-result mt-6 rounded-2xl border-2 border-punch bg-punch/5 p-4 sm:p-5">
       {/* Ticket header — the celebratory payoff */}
       <div className="flex items-center gap-3">
         <span
-          className="grid h-12 w-12 shrink-0 place-items-center rounded-xl text-2xl"
-          style={{ background: `color-mix(in srgb, ${cat.accent} 16%, transparent)` }}
+          className="vote-result__category grid h-12 w-12 shrink-0 place-items-center rounded-xl text-2xl"
           aria-hidden="true"
         >
-          {cat.glyph}
+          {cat.code}
         </span>
         <div>
-          <p
-            className="text-xs font-bold uppercase tracking-wide"
-            style={{ color: cat.accent }}
-          >
+          <p className="vote-kicker text-xs font-bold uppercase tracking-wide">
             Decided · you’re going
           </p>
           <p className="font-display text-xl font-extrabold leading-tight">
@@ -118,9 +114,9 @@ export default function DecidedPlan({
       <button
         type="button"
         onClick={copyForChat}
-        className="token mt-3 w-full rounded-2xl border-2 border-ink bg-zest px-5 py-3 font-display font-extrabold text-ink"
+        className="vote-result__primary mt-3 w-full rounded-2xl border-2 border-ink bg-zest px-5 py-3 font-display font-extrabold text-ink"
       >
-        {copied ? "Copied — paste it in the chat ✓" : "Copy for the group chat"}
+        {copied ? "Copied — paste it in the chat" : "Copy for the group chat"}
       </button>
 
       {/* When */}
@@ -150,7 +146,7 @@ export default function DecidedPlan({
                   setEditingTime(false);
                 }
               }}
-              className="flex-1 rounded-xl border-2 border-ink bg-card px-3 py-2 font-medium outline-none"
+              className="vote-field flex-1 rounded-xl border-2 border-ink bg-card px-3 py-2 font-medium outline-none"
             />
           </div>
         )}
@@ -181,11 +177,11 @@ export default function DecidedPlan({
             onClick={onToggleRsvp}
             aria-pressed={imIn}
             className={[
-              "token shrink-0 rounded-xl border-2 border-ink px-4 py-2.5 font-display font-extrabold",
+              "vote-result__button shrink-0 rounded-xl border-2 border-ink px-4 py-2.5 font-display font-extrabold",
               imIn ? "bg-mint text-white" : "bg-card",
             ].join(" ")}
           >
-            {imIn ? "You’re in ✓" : "I’m in"}
+            {imIn ? "You’re in" : "I’m in"}
           </button>
         </div>
       </div>
@@ -197,8 +193,8 @@ export default function DecidedPlan({
         </p>
         <div className="mt-2 flex flex-wrap items-center gap-2">
           {plan.booked ? (
-            <span className="rounded-full bg-mint/15 px-3 py-1.5 text-sm font-bold text-mint">
-              Booked ✓{plan.booking_owner ? ` by ${plan.booking_owner}` : ""}
+            <span className="vote-result__booked rounded-full bg-mint/15 px-3 py-1.5 text-sm font-bold text-mint">
+              Booked{plan.booking_owner ? ` by ${plan.booking_owner}` : ""}
             </span>
           ) : plan.booking_owner ? (
             <>
@@ -211,7 +207,7 @@ export default function DecidedPlan({
                 <button
                   type="button"
                   onClick={onMarkBooked}
-                  className="token rounded-xl border-2 border-ink bg-grape px-4 py-2 text-sm font-display font-extrabold text-white"
+                  className="vote-result__button rounded-xl border-2 border-ink bg-grape px-4 py-2 text-sm font-display font-extrabold text-white"
                 >
                   Mark as booked
                 </button>
@@ -221,7 +217,7 @@ export default function DecidedPlan({
             <button
               type="button"
               onClick={onClaimBooking}
-              className="token rounded-xl border-2 border-ink bg-card px-4 py-2 text-sm font-display font-extrabold"
+              className="vote-result__button rounded-xl border-2 border-ink bg-card px-4 py-2 text-sm font-display font-extrabold"
             >
               I’ll book it
             </button>
@@ -233,7 +229,7 @@ export default function DecidedPlan({
               rel="noopener noreferrer"
               className="text-sm font-bold text-grape underline"
             >
-              Book a table ↗
+              Book a table
             </a>
           )}
         </div>
@@ -268,7 +264,7 @@ export default function DecidedPlan({
           </p>
           {ratings.length > 0 && (
             <p className="text-xs font-semibold text-muted tabular-nums">
-              ★ {avgStars.toFixed(1)} · {ratings.length} rated · {againPct}% would go again
+              {avgStars.toFixed(1)} / 5 · {ratings.length} rated · {againPct}% would go again
             </p>
           )}
         </div>
@@ -279,12 +275,11 @@ export default function DecidedPlan({
               key={n}
               type="button"
               onClick={() => onRate({ stars: n })}
-              aria-label={`${n} star${n > 1 ? "s" : ""}`}
+              aria-label={`Rate ${n} out of 5`}
               aria-pressed={(myRating?.stars ?? 0) >= n}
-              className="text-2xl leading-none"
-              style={{ color: (myRating?.stars ?? 0) >= n ? "#ffce2e" : "var(--color-line)" }}
+              className="vote-rating-button"
             >
-              ★
+              {n}
             </button>
           ))}
           {myRating && (

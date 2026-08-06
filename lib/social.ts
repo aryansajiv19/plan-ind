@@ -1,7 +1,8 @@
 // The social layer's data access: profiles, friends, visits, companions.
-// Everything here runs in the browser against the public anon key, exactly
-// like the rest of the app (see lib/supabase.ts). There is no service-role
-// key in this project and there must not be one.
+// Everything here runs in the browser with the current Supabase session
+// (see lib/supabase.ts). Public reads remain available, while social writes
+// are owner-scoped by RLS. There is no service-role key in this project and
+// there must not be one.
 //
 // The contract the UI codes against lives in lib/types.ts:
 //   PersonCard, CompanionView, ProfileVisit, Visit, Friendship.
@@ -9,9 +10,9 @@
 // syntax and the FK disambiguation hints are fiddly and belong in one place.
 //
 // One setup rule: `visits.person_id` and `friendships.*` are foreign keys to
-// `people`, so this device's row must exist on the server before it can log
-// a visit or add a friend. Call upsertMe(getMe()) once when the app boots
-// with a profile present; it's idempotent and cheap.
+// `people`, so the authenticated profile must exist before logging a visit
+// or adding a friend. AuthProfileBridge calls ensure_authenticated_profile()
+// when the protected app boots and caches the returned profile locally.
 
 import { supabase } from "./supabase";
 import type { DeviceProfile } from "./device";
@@ -85,8 +86,8 @@ function toProfileVisit(v: RawVisit): ProfileVisit {
 // ─── Profiles ──────────────────────────────────────────────────────
 
 /**
- * Push this device's profile up to `people`. Idempotent: the id is minted
- * on the device, so this is an upsert on the primary key.
+ * Push the cached authenticated profile up to `people`. Idempotent: RLS and
+ * people_before_write pin the row to the current Supabase user.
  * Returns false if the write failed (the caller can retry on next boot).
  */
 export async function upsertMe(me: DeviceProfile | null): Promise<boolean> {

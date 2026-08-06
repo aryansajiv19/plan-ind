@@ -4,7 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { addBeen } from "@/lib/device";
-import type { Plan, Rating, Rsvp, Spot, Vote } from "@/lib/types";
+import { coordinatesForArea, distanceKm } from "@/lib/dubai-areas";
+import type { Plan, PlanSpot, Rating, Rsvp, Spot, Vote } from "@/lib/types";
 import OptionCard from "@/components/OptionCard";
 import NameGate from "@/components/NameGate";
 import DecidedPlan from "@/components/DecidedPlan";
@@ -27,6 +28,7 @@ export default function VotePage() {
   const [load, setLoad] = useState<Load>("loading");
   const [plan, setPlan] = useState<Plan | null>(null);
   const [spots, setSpots] = useState<Spot[]>([]);
+  const [planSpots, setPlanSpots] = useState<PlanSpot[]>([]);
   const [votes, setVotes] = useState<Vote[]>([]);
   const [rsvps, setRsvps] = useState<Rsvp[]>([]);
   const [ratings, setRatings] = useState<Rating[]>([]);
@@ -35,6 +37,8 @@ export default function VotePage() {
   const [notice, setNotice] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [reloadKey, setReloadKey] = useState(0); // bump to retry the load
+  const [nightMode, setNightMode] = useState(false);
+  const [activePool, setActivePool] = useState(1);
 
   const confettiRef = useRef<ConfettiHandle>(null);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -43,6 +47,15 @@ export default function VotePage() {
 
   const decided = plan?.status === "decided";
   const winnerId = plan?.winner_spot_id ?? null;
+  const stage = plan?.stage ?? (decided ? "decided" : "final");
+  const poolCount = plan?.pool_count ?? 1;
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      setNightMode(window.localStorage.getItem("deal-three:theme") === "night");
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
 
   // ── Load plan + its three spots + existing votes ─────────────────
   const refetchVotes = useCallback(async () => {
@@ -58,6 +71,11 @@ export default function VotePage() {
   const refetchRatings = useCallback(async () => {
     const { data } = await supabase.from("ratings").select("*").eq("plan_id", id);
     if (data) setRatings(data as Rating[]);
+  }, [id]);
+
+  const refetchPlanSpots = useCallback(async () => {
+    const { data } = await supabase.from("plan_spots").select("*").eq("plan_id", id);
+    if (data) setPlanSpots(data as PlanSpot[]);
   }, [id]);
 
   useEffect(() => {
@@ -80,7 +98,7 @@ export default function VotePage() {
 
       const { data: links, error: linksErr } = await supabase
         .from("plan_spots")
-        .select("spot_id")
+        .select("*")
         .eq("plan_id", id);
       const spotIds = (links ?? []).map((l) => l.spot_id);
 
@@ -102,6 +120,7 @@ export default function VotePage() {
       }
       setPlan(planRow as Plan);
       setSpots(ordered);
+      setPlanSpots((links ?? []) as PlanSpot[]);
       await refetchVotes();
       await refetchRsvps();
       await refetchRatings();
@@ -145,21 +164,31 @@ export default function VotePage() {
         { event: "*", schema: "public", table: "ratings", filter: `plan_id=eq.${id}` },
         () => refetchRatings(),
       )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "plan_spots", filter: `plan_id=eq.${id}` },
+        () => refetchPlanSpots(),
+      )
       .subscribe();
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [id, refetchVotes, refetchRsvps, refetchRatings]);
+  }, [id, refetchVotes, refetchRsvps, refetchRatings, refetchPlanSpots]);
 
   // ── Tallies + this voter's picks ─────────────────────────────────
+  const currentPhase = stage === "pool" ? "pool" : "final";
+  const currentPoolNumber = stage === "pool" ? activePool : 0;
+  const voteIsInCurrentRound = (vote: Vote) =>
+    (vote.phase ?? "final") === currentPhase &&
+    (vote.pool_number ?? 0) === currentPoolNumber;
   const yesCount = (spotId: string) =>
-    votes.filter((v) => v.spot_id === spotId && v.value).length;
+    votes.filter((v) => v.spot_id === spotId && v.value && voteIsInCurrentRound(v)).length;
   const iVotedYes = (spotId: string) =>
     votes.some(
-      (v) => v.spot_id === spotId && v.voter_name === voterName && v.value,
+      (v) => v.spot_id === spotId && v.voter_name === voterName && v.value && voteIsInCurrentRound(v),
     );
 
-  // ── Cast / retract a yes (optimistic, then upsert) ───────────────
+  // One choice per voter per pool/final. Picking another card replaces it.
   async function toggleVote(spotId: string) {
     if (!voterName || decided) return;
     const next = !iVotedYes(spotId);
@@ -167,24 +196,44 @@ export default function VotePage() {
     const prev = votes;
     setVotes((cur) => {
       const rest = cur.filter(
-        (v) => !(v.spot_id === spotId && v.voter_name === voterName),
+        (v) => !(
+          v.voter_name === voterName &&
+          (v.phase ?? "final") === currentPhase &&
+          (v.pool_number ?? 0) === currentPoolNumber
+        ),
       );
-      return [
+      return next ? [
         ...rest,
         {
-          id: `local-${spotId}-${voterName}`,
+          id: `local-${currentPhase}-${currentPoolNumber}-${spotId}-${voterName}`,
           plan_id: id,
           spot_id: spotId,
           voter_name: voterName,
-          value: next,
+          value: true,
+          phase: currentPhase,
+          pool_number: currentPoolNumber,
         },
-      ];
+      ] : rest;
     });
 
-    const { error } = await supabase.from("votes").upsert(
-      { plan_id: id, spot_id: spotId, voter_name: voterName, value: next },
-      { onConflict: "plan_id,spot_id,voter_name" },
-    );
+    const { error: clearError } = await supabase
+      .from("votes")
+      .delete()
+      .eq("plan_id", id)
+      .eq("voter_name", voterName)
+      .eq("phase", currentPhase)
+      .eq("pool_number", currentPoolNumber);
+    const { error: insertError } = next && !clearError
+      ? await supabase.from("votes").insert({
+          plan_id: id,
+          spot_id: spotId,
+          voter_name: voterName,
+          value: true,
+          phase: currentPhase,
+          pool_number: currentPoolNumber,
+        })
+      : { error: null };
+    const error = clearError ?? insertError;
     if (error) {
       setVotes(prev); // roll back
       setNotice("That vote didn't save. Check your connection and tap again.");
@@ -193,22 +242,82 @@ export default function VotePage() {
     }
   }
 
-  // ── Decide for us: random among the top-voted; settle the plan ───
+  const advanceToFinal = useCallback(async () => {
+    if (!plan || plan.status !== "open" || stage !== "pool") return;
+    const { data: fresh } = await supabase
+      .from("votes")
+      .select("spot_id,value,phase,pool_number")
+      .eq("plan_id", id)
+      .eq("phase", "pool");
+
+    const finalists: string[] = [];
+    for (let poolNumber = 1; poolNumber <= poolCount; poolNumber += 1) {
+      const candidateIds = planSpots
+        .filter((link) => (link.pool_number ?? 1) === poolNumber)
+        .map((link) => link.spot_id);
+      if (candidateIds.length === 0) continue;
+      const ranked = candidateIds
+        .map((spotId) => ({
+          spotId,
+          votes: (fresh ?? []).filter(
+            (vote) => vote.spot_id === spotId && vote.value && (vote.pool_number ?? 0) === poolNumber,
+          ).length,
+        }))
+        .sort((a, b) => b.votes - a.votes || a.spotId.localeCompare(b.spotId));
+      finalists.push(ranked[0].spotId);
+    }
+    if (finalists.length !== poolCount) {
+      setNotice("The final shortlist couldn’t be built yet. Try again.");
+      return;
+    }
+
+    setDeciding(true);
+    await supabase.from("plan_spots").update({ advanced: false }).eq("plan_id", id);
+    const { error: advanceError } = await supabase
+      .from("plan_spots")
+      .update({ advanced: true })
+      .eq("plan_id", id)
+      .in("spot_id", finalists);
+    const { error: stageError } = await supabase
+      .from("plans")
+      .update({ stage: "final" })
+      .eq("id", id)
+      .eq("status", "open");
+    if (advanceError || stageError) {
+      setNotice("The shortlist didn’t save. Check your connection and try again.");
+      setDeciding(false);
+      return;
+    }
+    setPlanSpots((current) => current.map((link) => ({ ...link, advanced: finalists.includes(link.spot_id) })));
+    setPlan((current) => current ? { ...current, stage: "final" } : current);
+    setNotice(null);
+    setDeciding(false);
+  }, [id, plan, planSpots, poolCount, stage]);
+
+  // Finalists only; stable spot-id tie-break means every client picks the same.
   const decide = useCallback(async () => {
     if (!plan || plan.status !== "open" || spots.length === 0) return;
+
+    const advanced = planSpots.filter((link) => link.advanced).map((link) => link.spot_id);
+    const candidates = stage === "final" && advanced.length > 0
+      ? spots.filter((spot) => advanced.includes(spot.id))
+      : spots;
 
     // Read fresh tallies so the call is correct even from a stale client
     // (e.g. a deadline firing hours later).
     const { data: fresh } = await supabase
       .from("votes")
       .select("spot_id,value")
-      .eq("plan_id", id);
-    const counts = spots.map(
+      .eq("plan_id", id)
+      .eq("phase", "final")
+      .eq("pool_number", 0);
+    const counts = candidates.map(
       (s) => (fresh ?? []).filter((v) => v.spot_id === s.id && v.value).length,
     );
     const max = Math.max(...counts);
-    const leaders = spots.filter((_, i) => counts[i] === max);
-    const winner = leaders[Math.floor(Math.random() * leaders.length)];
+    const winner = candidates
+      .filter((_, i) => counts[i] === max)
+      .sort((a, b) => a.id.localeCompare(b.id))[0];
 
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     setDeciding(true);
@@ -217,7 +326,7 @@ export default function VotePage() {
       // the authoritative result so everyone reveals the same spot.
       await supabase
         .from("plans")
-        .update({ status: "decided", winner_spot_id: winner.id })
+        .update({ status: "decided", stage: "decided", winner_spot_id: winner.id })
         .eq("id", id)
         .eq("status", "open");
       const { data } = await supabase
@@ -230,7 +339,7 @@ export default function VotePage() {
     };
     if (reduce) commit();
     else setTimeout(commit, 700);
-  }, [plan, spots, id]);
+  }, [plan, spots, planSpots, stage, id]);
 
   // ── Deadline auto-pick ───────────────────────────────────────────
   useEffect(() => {
@@ -238,9 +347,12 @@ export default function VotePage() {
     const ms = new Date(plan.deadline).getTime() - Date.now();
     // setTimeout(…, 0) defers even a past deadline, so we never call
     // setState synchronously in the effect body.
-    const t = setTimeout(() => decide(), Math.max(0, ms));
+    const t = setTimeout(() => {
+      if (stage === "pool") void advanceToFinal();
+      else void decide();
+    }, Math.max(0, ms));
     return () => clearTimeout(t);
-  }, [plan, decide]);
+  }, [plan, stage, decide, advanceToFinal]);
 
   // ── The reveal: confetti on the winner, once ─────────────────────
   useEffect(() => {
@@ -325,15 +437,15 @@ export default function VotePage() {
   // ── States ───────────────────────────────────────────────────────
   if (load === "loading") {
     return (
-      <main className="mx-auto grid min-h-dvh max-w-md place-items-center px-5">
-        <p className="text-muted">Dealing three spots…</p>
+      <main className={`vote-experience ${nightMode ? "vote-experience--night" : ""} mx-auto grid min-h-dvh max-w-md place-items-center px-5`}>
+        <p className="text-muted">Loading the plan…</p>
       </main>
     );
   }
 
   if (load === "notfound") {
     return (
-      <main className="mx-auto grid min-h-dvh max-w-md place-items-center px-5 text-center">
+      <main className={`vote-experience ${nightMode ? "vote-experience--night" : ""} mx-auto grid min-h-dvh max-w-md place-items-center px-5 text-center`}>
         <div>
           <h1 className="text-3xl font-extrabold">This link’s gone cold</h1>
           <p className="mt-3 text-muted">
@@ -346,7 +458,7 @@ export default function VotePage() {
 
   if (load === "error") {
     return (
-      <main className="mx-auto grid min-h-dvh max-w-md place-items-center px-5 text-center">
+      <main className={`vote-experience ${nightMode ? "vote-experience--night" : ""} mx-auto grid min-h-dvh max-w-md place-items-center px-5 text-center`}>
         <div>
           <h1 className="text-3xl font-extrabold">Couldn’t load the spots</h1>
           <p className="mt-3 text-muted">
@@ -358,7 +470,7 @@ export default function VotePage() {
               setLoad("loading");
               setReloadKey((k) => k + 1);
             }}
-            className="token mt-6 rounded-2xl border-2 border-ink bg-grape px-6 py-3 font-display font-extrabold text-white"
+            className="vote-primary-action mt-6 rounded-2xl border-2 border-ink bg-grape px-6 py-3 font-display font-extrabold text-white"
           >
             Try again
           </button>
@@ -369,7 +481,7 @@ export default function VotePage() {
 
   if (!voterName) {
     return (
-      <main className="mx-auto grid min-h-dvh max-w-md place-items-center px-5">
+      <main className={`vote-experience ${nightMode ? "vote-experience--night" : ""} mx-auto grid min-h-dvh max-w-md place-items-center px-5`}>
         <NameGate planTitle={plan!.title} onSubmit={saveName} />
       </main>
     );
@@ -377,13 +489,29 @@ export default function VotePage() {
 
   const voters = new Set(votes.map((v) => v.voter_name)).size;
   const winnerSpot = spots.find((s) => s.id === winnerId) ?? null;
+  const advancedIds = planSpots.filter((link) => link.advanced).map((link) => link.spot_id);
+  const visibleSpots = stage === "pool"
+    ? spots.filter((spot) => planSpots.some(
+        (link) => link.spot_id === spot.id && (link.pool_number ?? 1) === activePool,
+      ))
+    : advancedIds.length > 0
+      ? spots.filter((spot) => advancedIds.includes(spot.id))
+      : spots;
+  const hasCurrentSelection = visibleSpots.some((spot) => iVotedYes(spot.id));
+  const poolsChosenByMe = new Set(
+    votes
+      .filter((vote) => vote.voter_name === voterName && vote.value && (vote.phase ?? "final") === "pool")
+      .map((vote) => vote.pool_number),
+  );
+  const allPoolsChosen = Array.from({ length: poolCount }, (_, index) => index + 1)
+    .every((poolNumber) => poolsChosenByMe.has(poolNumber));
 
   return (
-    <main className="mx-auto w-full max-w-2xl px-4 py-6 sm:py-10">
+    <main className={`vote-experience ${nightMode ? "vote-experience--night" : ""} mx-auto w-full max-w-4xl px-4 py-6 sm:py-10`}>
       <div
         ref={stageRef}
         className={[
-          "relative overflow-hidden rounded-[26px] border border-line bg-card p-4 sm:p-6",
+          "vote-shell relative overflow-hidden border border-line bg-card p-4 sm:p-7",
           deciding ? "deck-shuffling" : "",
         ].join(" ")}
       >
@@ -396,15 +524,42 @@ export default function VotePage() {
             <p className="mt-1 text-sm text-muted">
               Hey {voterName} · {voters} {voters === 1 ? "person" : "people"} voting
             </p>
+            {(plan!.budget_per_person != null || plan!.radius_km != null) && (
+              <p className="vote-plan-constraints">
+                {plan!.budget_per_person != null ? `Up to AED ${plan!.budget_per_person} per person` : "Any budget"}
+                {plan!.radius_km != null ? ` · within ${plan!.radius_km} km of ${plan!.origin_label ?? "the starting point"}` : ""}
+              </p>
+            )}
+            {!decided && (
+              <p className="vote-round-label">
+                {stage === "pool" ? `Pool ${activePool} of ${poolCount} · choose one` : "Final shortlist · choose one"}
+              </p>
+            )}
           </div>
-          <span className="shrink-0 whitespace-nowrap rounded-full bg-grape/10 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-grape">
+          <span className="vote-deadline shrink-0 whitespace-nowrap px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-grape">
             {decided ? "Decided" : closesLabel(plan!.deadline)}
           </span>
         </div>
 
-        {/* The dealt hand */}
-        <div className="mt-5 grid gap-3.5 sm:grid-cols-3">
-          {spots.map((spot) => (
+        {stage === "pool" && !decided && (
+          <nav className="vote-pool-progress" aria-label="Voting pools">
+            {Array.from({ length: poolCount }, (_, index) => index + 1).map((poolNumber) => (
+              <button
+                key={poolNumber}
+                type="button"
+                onClick={() => setActivePool(poolNumber)}
+                aria-current={activePool === poolNumber ? "step" : undefined}
+                data-complete={poolsChosenByMe.has(poolNumber) || undefined}
+              >
+                Pool {poolNumber}
+              </button>
+            ))}
+          </nav>
+        )}
+
+        {/* Three places in the current pool, or the three finalists. */}
+        <div className="vote-options-grid mt-6 grid gap-3.5 sm:grid-cols-3">
+          {visibleSpots.map((spot) => (
             <div key={spot.id} ref={(el) => { cardRefs.current[spot.id] = el; }}>
               <OptionCard
                 spot={spot}
@@ -412,6 +567,14 @@ export default function VotePage() {
                 voted={iVotedYes(spot.id)}
                 isWinner={winnerId === spot.id}
                 decided={decided}
+                distanceKm={plan!.origin_latitude != null && plan!.origin_longitude != null
+                  ? (() => {
+                      const destination = spot.latitude != null && spot.longitude != null
+                        ? { latitude: spot.latitude, longitude: spot.longitude }
+                        : coordinatesForArea(spot.area);
+                      return destination ? distanceKm({ latitude: plan!.origin_latitude!, longitude: plan!.origin_longitude! }, destination) : null;
+                    })()
+                  : null}
                 onToggle={() => toggleVote(spot.id)}
               />
             </div>
@@ -421,20 +584,38 @@ export default function VotePage() {
         {/* Controls / result */}
         {!decided ? (
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <button
-              type="button"
-              onClick={decide}
-              disabled={deciding}
-              className="token flex-1 rounded-2xl border-2 border-ink bg-punch px-6 py-3.5 font-display text-lg font-extrabold text-white disabled:opacity-60"
-            >
-              {deciding ? "Deciding…" : "Decide for us"}
-            </button>
+            {stage === "pool" ? (
+              <button
+                type="button"
+                onClick={() => {
+                  if (activePool < poolCount) setActivePool((pool) => pool + 1);
+                  else void advanceToFinal();
+                }}
+                disabled={deciding || !hasCurrentSelection || (activePool === poolCount && !allPoolsChosen)}
+                className="vote-primary-action flex-1 rounded-2xl border-2 border-ink bg-punch px-6 py-3.5 font-display text-lg font-extrabold text-white disabled:opacity-40"
+              >
+                {deciding
+                  ? "Building the shortlist…"
+                  : activePool < poolCount
+                    ? `Continue to pool ${activePool + 1}`
+                    : "Build the final shortlist"}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={decide}
+                disabled={deciding || !hasCurrentSelection}
+                className="vote-primary-action flex-1 rounded-2xl border-2 border-ink bg-punch px-6 py-3.5 font-display text-lg font-extrabold text-white disabled:opacity-40"
+              >
+                {deciding ? "Choosing…" : "Choose the final place"}
+              </button>
+            )}
             <button
               type="button"
               onClick={copyLink}
-              className="token rounded-2xl border-2 border-ink bg-card px-6 py-3.5 font-display font-extrabold"
+              className="vote-secondary-action rounded-2xl border-2 border-ink bg-card px-6 py-3.5 font-display font-extrabold"
             >
-              {copied ? "Link copied ✓" : "Copy link"}
+              {copied ? "Link copied" : "Copy link"}
             </button>
           </div>
         ) : (
@@ -462,7 +643,7 @@ export default function VotePage() {
       </div>
 
       <p className="mt-4 px-1 text-center text-xs text-muted">
-        No account needed. Tap the spots you’d go to — the app breaks the tie.
+        No account needed. Choose one place from each pool, then vote on the final three.
       </p>
     </main>
   );

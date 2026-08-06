@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import { Bricolage_Grotesque, Hanken_Grotesk } from "next/font/google";
+import { Hanken_Grotesk, Manrope } from "next/font/google";
 import SkylineBackdrop from "@/components/SkylineBackdrop";
 import "./globals.css";
 
-// Display face — chunky, a little irregular: confident without being a gimmick.
-const bricolage = Bricolage_Grotesque({
+// Display face — precise and architectural, with enough warmth for hospitality.
+const bricolage = Manrope({
   variable: "--font-bricolage",
   subsets: ["latin"],
-  weight: ["700", "800"],
+  weight: ["500", "600", "700", "800"],
 });
 
 // Body face — a clean, friendly workhorse that stays quiet under the display.

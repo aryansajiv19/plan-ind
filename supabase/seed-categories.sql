@@ -1,12 +1,15 @@
 -- ─────────────────────────────────────────────────────────────────
 -- Curated places for the multi-category picker (v1 starter set).
--- Additive & re-run safe: clears only the non-dinner categories, then
--- re-inserts them. Dinner spots + existing plans are untouched.
+-- Additive & re-run safe: refreshes only this seed file's categories, then
+-- re-inserts them. Dinner and later expansion migrations are untouched.
 -- Run AFTER migration-002 (needs spots.category).
 -- NOTE: venue details are a starter curation — refine as needed.
 -- ─────────────────────────────────────────────────────────────────
 
-delete from spots where category <> 'dinner';
+delete from spots where category in (
+  'cafe', 'shisha', 'movie', 'games', 'brunch', 'dessert',
+  'vibes', 'beach', 'outdoors', 'sports', 'karaoke'
+);
 
 insert into spots (id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, booking_url) values
   -- cafe

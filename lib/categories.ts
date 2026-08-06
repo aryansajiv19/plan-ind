@@ -5,25 +5,36 @@
 
 export interface CategoryMeta {
   accent: string;
-  glyph: string;
+  code: string;
 }
 
 const META: Record<string, CategoryMeta> = {
-  dinner: { accent: "#B0468C", glyph: "🍽️" },
-  cafe: { accent: "#C98A4B", glyph: "☕" },
-  brunch: { accent: "#E08A3C", glyph: "🥞" },
-  dessert: { accent: "#D6608A", glyph: "🍰" },
-  shisha: { accent: "#7A5BD6", glyph: "💨" },
-  vibes: { accent: "#5B54D6", glyph: "✨" },
-  beach: { accent: "#0FA6B8", glyph: "🏖️" },
-  outdoors: { accent: "#3FA96A", glyph: "🌿" },
-  movie: { accent: "#6B34E0", glyph: "🎬" },
-  games: { accent: "#C79212", glyph: "🎮" },
-  sports: { accent: "#1E9E6A", glyph: "⚽" },
-  karaoke: { accent: "#9B4DCA", glyph: "🎤" },
+  dinner: { accent: "#B0468C", code: "DIN" },
+  cafe: { accent: "#C98A4B", code: "CAF" },
+  brunch: { accent: "#E08A3C", code: "BRN" },
+  dessert: { accent: "#D6608A", code: "DES" },
+  shisha: { accent: "#7A5BD6", code: "SHI" },
+  vibes: { accent: "#5B54D6", code: "LNG" },
+  nightlife: { accent: "#59406F", code: "NGT" },
+  live_music: { accent: "#8C4B68", code: "LIV" },
+  beach: { accent: "#0FA6B8", code: "BCH" },
+  beach_club: { accent: "#217D95", code: "CLB" },
+  water: { accent: "#237BAA", code: "WTR" },
+  outdoors: { accent: "#3FA96A", code: "OUT" },
+  sports: { accent: "#1E9E6A", code: "SPT" },
+  padel: { accent: "#448B60", code: "PDL" },
+  adventure: { accent: "#A45E32", code: "ADV" },
+  games: { accent: "#C79212", code: "GME" },
+  movie: { accent: "#6B34E0", code: "CIN" },
+  culture: { accent: "#8A5547", code: "ART" },
+  wellness: { accent: "#4B8379", code: "WEL" },
+  shopping: { accent: "#7A607F", code: "SHP" },
+  family: { accent: "#4E7699", code: "FAM" },
+  escape: { accent: "#796342", code: "ESC" },
+  karaoke: { accent: "#9B4DCA", code: "KAR" },
 };
 
-const FALLBACK: CategoryMeta = { accent: "#6B34E0", glyph: "📍" };
+const FALLBACK: CategoryMeta = { accent: "#6B34E0", code: "PLN" };
 
 export function categoryMeta(category: string): CategoryMeta {
   return META[category] ?? FALLBACK;

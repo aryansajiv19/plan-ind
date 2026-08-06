@@ -12,6 +12,12 @@
 -- ─────────────────────────────────────────────────────────────────
 
 -- Social layer first: it references spots and plans.
+drop table if exists place_collection_items cascade;
+drop table if exists place_imports cascade;
+drop table if exists place_collections cascade;
+drop table if exists visit_photos cascade;
+drop table if exists visit_collection_items cascade;
+drop table if exists visit_collections cascade;
 drop table if exists visit_companions cascade;
 drop table if exists visits cascade;
 drop table if exists friendships cascade;
@@ -37,8 +43,17 @@ create table spots (
   vibe        text not null,
   photo_url   text,                     -- curated now; places-API-ready later
   description text,                     -- a review blurb to help people decide
-  booking_url text
+  booking_url text,
+  source      text not null default 'curated' check (source in ('curated', 'custom')),
+  visibility  text not null default 'community' check (visibility in ('private', 'friends', 'community')),
+  created_by_user_id uuid references auth.users(id) on delete cascade,
+  address     text,
+  latitude    double precision,
+  longitude   double precision,
+  constraint spots_custom_owner_check check (source = 'curated' or created_by_user_id is not null)
 );
+
+create index spots_owner_idx on spots (created_by_user_id) where source = 'custom';
 
 -- A plan == one share link. The uuid IS the slug in the URL.
 create table plans (
@@ -48,6 +63,17 @@ create table plans (
   area           text,
   deadline       timestamptz,
   status         text not null default 'open' check (status in ('open', 'decided')),
+  stage          text not null default 'final' check (stage in ('pool', 'final', 'decided')),
+  pool_count     smallint not null default 1 check (pool_count between 1 and 6),
+  budget_per_person int check (budget_per_person is null or budget_per_person between 0 and 10000),
+  origin_label   text,
+  origin_latitude double precision,
+  origin_longitude double precision,
+  radius_km      int check (radius_km is null or radius_km between 1 and 500),
+  smart_brief    text check (smart_brief is null or char_length(smart_brief) between 8 and 600),
+  vibe_preferences text[] not null default '{}' check (cardinality(vibe_preferences) <= 6),
+  avoid_preferences text[] not null default '{}' check (cardinality(avoid_preferences) <= 5),
+  intelligence_model text,
   winner_spot_id uuid references spots(id),
   -- the last mile: a decision becomes a real, committed event
   event_time     timestamptz,           -- when the outing actually is
@@ -56,28 +82,34 @@ create table plans (
   created_at     timestamptz not null default now()
 );
 
--- The exactly-three options shown for a plan. (The "exactly 3" rule is
--- enforced in app logic + seed; the table itself just links them.)
+-- Candidate places for a plan. New plans use three pools of three while
+-- legacy plans remain a single final round.
 create table plan_spots (
-  plan_id uuid not null references plans(id) on delete cascade,
-  spot_id uuid not null references spots(id) on delete cascade,
+  plan_id     uuid not null references plans(id) on delete cascade,
+  spot_id     uuid not null references spots(id) on delete cascade,
+  pool_number smallint not null default 1 check (pool_number between 1 and 6),
+  advanced    boolean not null default false,
   primary key (plan_id, spot_id)
 );
 
--- One row per (voter, spot). value = true means "yes".
--- The unique key lets us upsert, so a voter can change their mind and
--- vote once per spot without creating duplicates.
+create index plan_spots_pool_idx on plan_spots (plan_id, pool_number);
+
+-- One row per voter choice in a pool or final. The round-aware unique key
+-- prevents duplicate rows while preserving the complete tournament vote.
 create table votes (
   id         uuid primary key default gen_random_uuid(),
   plan_id    uuid not null references plans(id) on delete cascade,
   spot_id    uuid not null references spots(id) on delete cascade,
   voter_name text not null,
   value      boolean not null,
+  phase      text not null default 'final' check (phase in ('pool', 'final')),
+  pool_number smallint not null default 0 check (pool_number between 0 and 6),
   created_at timestamptz not null default now(),
-  unique (plan_id, spot_id, voter_name)
+  unique (plan_id, spot_id, voter_name, phase, pool_number)
 );
 
 create index votes_plan_idx on votes (plan_id);
+create index votes_round_idx on votes (plan_id, phase, pool_number);
 
 -- One row per (voter, plan). coming = true means "I'm actually coming".
 -- Headcount (not vote count) is what the booking uses.
@@ -126,7 +158,7 @@ create table people (
   emoji        text not null default '🙂',       -- lightweight avatar, no uploads
   color        text not null default '#6b34e0'   -- hex, matches the app palette
                  check (color ~ '^#[0-9a-fA-F]{6}$'),
-  auth_user_id uuid unique,                      -- null in v1; the upgrade seam
+  auth_user_id uuid unique references auth.users(id) on delete cascade,
   created_at   timestamptz not null default now(),
   updated_at   timestamptz not null default now(),
 
@@ -182,9 +214,17 @@ begin
   new.emoji        := trim(new.emoji);
   new.color        := lower(trim(new.color));
 
-  if current_user in ('anon', 'authenticated') then
+  if current_user = 'anon' then
     if tg_op = 'INSERT' then
       new.auth_user_id := null;
+    else
+      new.id           := old.id;
+      new.auth_user_id := old.auth_user_id;
+    end if;
+  elsif current_user = 'authenticated' then
+    if tg_op = 'INSERT' then
+      new.id           := auth.uid();
+      new.auth_user_id := auth.uid();
     else
       new.id           := old.id;
       new.auth_user_id := old.auth_user_id;
@@ -197,6 +237,37 @@ end $$;
 create trigger people_before_write
   before insert or update on people
   for each row execute function people_before_write();
+
+create or replace function ensure_authenticated_profile(
+  p_display_name text,
+  p_emoji text default '🙂',
+  p_color text default '#6b34e0'
+) returns uuid
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  user_id uuid := auth.uid();
+  profile_id uuid;
+  safe_name text := left(coalesce(nullif(trim(p_display_name), ''), 'Friend'), 40);
+  safe_emoji text := left(coalesce(nullif(trim(p_emoji), ''), '🙂'), 8);
+  safe_color text := lower(coalesce(nullif(trim(p_color), ''), '#6b34e0'));
+begin
+  if user_id is null then
+    raise exception 'Authentication required' using errcode = '42501';
+  end if;
+  select id into profile_id from people where auth_user_id = user_id;
+  if profile_id is not null then return profile_id; end if;
+  insert into people (id, display_name, emoji, color, auth_user_id)
+  values (user_id, safe_name, safe_emoji, safe_color, user_id)
+  on conflict (auth_user_id) do update set auth_user_id = excluded.auth_user_id
+  returning id into profile_id;
+  return profile_id;
+end $$;
+
+revoke all on function ensure_authenticated_profile(text, text, text) from public;
+grant execute on function ensure_authenticated_profile(text, text, text) to authenticated;
 
 -- SYMMETRIC friendship, materialised as two directed rows (a→b and b→a),
 -- kept in sync by the trigger below.
@@ -228,7 +299,10 @@ create index friendships_friend_idx on friendships (friend_id);
 -- Terminates: the mirrored write is a no-op the second time round
 -- (on conflict do nothing / 0 rows deleted), so no trigger fires again.
 create or replace function mirror_friendship() returns trigger
-language plpgsql as $$
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
 begin
   if tg_op = 'INSERT' then
     insert into friendships (person_id, friend_id)
@@ -351,6 +425,101 @@ create trigger visit_companions_before_write
 create unique index visit_companions_name_ci_idx
   on visit_companions (visit_id, lower(companion_name));
 
+-- Personal, user-named folders for organizing visit history. The item table
+-- is many-to-many so one visit can appear in several useful collections.
+create table visit_collections (
+  id         uuid primary key default gen_random_uuid(),
+  person_id  uuid not null references people(id) on delete cascade,
+  name       text not null check (char_length(trim(name)) between 1 and 40),
+  created_at timestamptz not null default now()
+);
+create unique index visit_collections_name_ci_idx
+  on visit_collections (person_id, lower(trim(name)));
+
+create table visit_collection_items (
+  collection_id uuid not null references visit_collections(id) on delete cascade,
+  visit_id      uuid not null references visits(id) on delete cascade,
+  created_at    timestamptz not null default now(),
+  primary key (collection_id, visit_id)
+);
+create index visit_collection_items_visit_idx on visit_collection_items (visit_id);
+
+-- Photo bytes live in the private `visit-photos` Storage bucket; this table
+-- owns their visit relationship, caption and audience.
+create table visit_photos (
+  id           uuid primary key default gen_random_uuid(),
+  visit_id     uuid not null references visits(id) on delete cascade,
+  person_id    uuid not null references people(id) on delete cascade,
+  storage_path text not null unique,
+  caption      text check (caption is null or char_length(caption) <= 160),
+  visibility   text not null default 'friends' check (visibility in ('private', 'friends', 'community')),
+  created_at   timestamptz not null default now()
+);
+create index visit_photos_visit_idx on visit_photos (visit_id, created_at);
+create index visit_photos_person_idx on visit_photos (person_id, created_at desc);
+
+-- Links discovered on social platforms enter as imports, then resolve to a
+-- real spot. Lists can hold either a resolved spot or an import still waiting
+-- for identification, so the user never loses the original post.
+create table place_collections (
+  id         uuid primary key default gen_random_uuid(),
+  person_id  uuid not null references people(id) on delete cascade,
+  name       text not null check (char_length(trim(name)) between 1 and 40),
+  kind       text not null default 'custom' check (kind in ('want_to_try', 'planning', 'custom')),
+  created_at timestamptz not null default now()
+);
+create unique index place_collections_name_ci_idx on place_collections (person_id, lower(trim(name)));
+create unique index place_collections_system_kind_idx on place_collections (person_id, kind) where kind <> 'custom';
+
+create table place_imports (
+  id               uuid primary key default gen_random_uuid(),
+  person_id        uuid not null references people(id) on delete cascade,
+  source_url       text not null check (char_length(source_url) between 8 and 2048),
+  normalized_url   text not null check (char_length(normalized_url) between 8 and 2048),
+  provider         text not null check (provider in ('instagram', 'tiktok', 'facebook', 'reddit', 'youtube', 'web')),
+  status           text not null default 'pending' check (status in ('pending', 'resolving', 'resolved', 'needs_input', 'failed')),
+  resolved_spot_id uuid references spots(id) on delete set null,
+  extracted_data   jsonb not null default '{}'::jsonb,
+  error_code       text,
+  created_at       timestamptz not null default now(),
+  updated_at       timestamptz not null default now(),
+  unique (person_id, normalized_url)
+);
+create index place_imports_person_idx on place_imports (person_id, created_at desc);
+create index place_imports_status_idx on place_imports (status, created_at) where status <> 'resolved';
+
+create table place_collection_items (
+  id            uuid primary key default gen_random_uuid(),
+  collection_id uuid not null references place_collections(id) on delete cascade,
+  spot_id       uuid references spots(id) on delete cascade,
+  import_id     uuid references place_imports(id) on delete cascade,
+  note          text check (note is null or char_length(note) <= 280),
+  created_at    timestamptz not null default now(),
+  constraint place_collection_items_one_source check (
+    (spot_id is not null and import_id is null) or (spot_id is null and import_id is not null)
+  )
+);
+create unique index place_collection_items_spot_idx on place_collection_items (collection_id, spot_id) where spot_id is not null;
+create unique index place_collection_items_import_idx on place_collection_items (collection_id, import_id) where import_id is not null;
+
+create or replace function ensure_default_place_collections(profile_id uuid) returns void
+language plpgsql security definer set search_path = public, pg_temp as $$
+begin
+  insert into place_collections (person_id, name, kind)
+  values (profile_id, 'Want to try', 'want_to_try'), (profile_id, 'Planning', 'planning')
+  on conflict do nothing;
+end $$;
+revoke all on function ensure_default_place_collections(uuid) from public;
+
+create or replace function people_default_place_collections() returns trigger
+language plpgsql security definer set search_path = public, pg_temp as $$
+begin
+  perform ensure_default_place_collections(new.id);
+  return new;
+end $$;
+create trigger people_default_place_collections_after_insert
+  after insert on people for each row execute function people_default_place_collections();
+
 -- ── Row Level Security ─────────────────────────────────────────────
 -- No auth in v1. Access is "you have the link." We turn RLS on so the
 -- database isn't wide open by default, then grant exactly what the loop
@@ -369,9 +538,21 @@ alter table people           enable row level security;
 alter table friendships      enable row level security;
 alter table visits           enable row level security;
 alter table visit_companions enable row level security;
+alter table visit_collections enable row level security;
+alter table visit_collection_items enable row level security;
+alter table visit_photos enable row level security;
+alter table place_collections enable row level security;
+alter table place_imports enable row level security;
+alter table place_collection_items enable row level security;
 
--- Everyone can read everything (the app is public by link).
-create policy "read spots"      on spots      for select using (true);
+-- Curated/community places are discoverable. A private custom place is only
+-- visible to its owner or to someone holding a plan link that includes it.
+create policy "read spots" on spots for select using (
+  source = 'curated'
+  or visibility = 'community'
+  or created_by_user_id = auth.uid()
+  or exists (select 1 from plan_spots ps where ps.spot_id = spots.id)
+);
 create policy "read plans"      on plans      for select using (true);
 create policy "read plan_spots" on plan_spots for select using (true);
 create policy "read votes"      on votes      for select using (true);
@@ -394,6 +575,17 @@ create policy "change ratings" on ratings for update using (true) with check (tr
 create policy "create plans"      on plans      for insert with check (true);
 create policy "decide plans"      on plans      for update using (true) with check (true);
 create policy "attach plan_spots" on plan_spots for insert with check (true);
+create policy "advance plan_spots" on plan_spots for update using (true) with check (true);
+
+-- Signed-in members can maintain their own saved custom-place library.
+create policy "create custom spots" on spots for insert with check (
+  source = 'custom' and created_by_user_id = auth.uid()
+);
+create policy "update own custom spots" on spots for update
+  using (source = 'custom' and created_by_user_id = auth.uid())
+  with check (source = 'custom' and created_by_user_id = auth.uid());
+create policy "delete own custom spots" on spots for delete
+  using (source = 'custom' and created_by_user_id = auth.uid());
 
 -- "Shake it up": re-dealing a plan clears its old spots + votes.
 create policy "clear plan_spots"  on plan_spots for delete using (true);
@@ -443,21 +635,100 @@ create policy "clear votes"       on votes      for delete using (true);
 -- RLS is row-level. `people_before_write()` above is what makes `id` and
 -- `auth_user_id` unwritable by anon.
 
-create policy "read people"   on people for select using (true);
-create policy "create people" on people for insert with check (true);
-create policy "update people" on people for update using (true) with check (true);
+create policy "read people" on people for select to anon, authenticated using (true);
+create policy "create own profile" on people for insert to authenticated
+  with check (id = (select auth.uid()) and auth_user_id = (select auth.uid()));
+create policy "update own profile" on people for update to authenticated
+  using (auth_user_id = (select auth.uid())) with check (auth_user_id = (select auth.uid()));
 
-create policy "read friendships"   on friendships for select using (true);
-create policy "add friendships"    on friendships for insert with check (true);
-create policy "remove friendships" on friendships for delete using (true);
+create policy "read friendships" on friendships for select to anon, authenticated using (true);
+create policy "add own friendships" on friendships for insert to authenticated
+  with check (exists (select 1 from people p where p.id = person_id and p.auth_user_id = (select auth.uid())));
+create policy "remove own friendships" on friendships for delete to authenticated
+  using (exists (select 1 from people p where p.id = person_id and p.auth_user_id = (select auth.uid())));
 
-create policy "read visits"   on visits for select using (true);
-create policy "log visits"    on visits for insert with check (true);
-create policy "delete visits" on visits for delete using (true);
+create policy "read visits" on visits for select to anon, authenticated using (true);
+create policy "log own visits" on visits for insert to authenticated
+  with check (exists (select 1 from people p where p.id = person_id and p.auth_user_id = (select auth.uid())));
+create policy "delete own visits" on visits for delete to authenticated
+  using (exists (select 1 from people p where p.id = person_id and p.auth_user_id = (select auth.uid())));
 
-create policy "read companions"  on visit_companions for select using (true);
-create policy "tag companions"   on visit_companions for insert with check (true);
-create policy "untag companions" on visit_companions for delete using (true);
+create policy "read companions" on visit_companions for select to anon, authenticated using (true);
+create policy "tag own visit companions" on visit_companions for insert to authenticated
+  with check (exists (select 1 from visits v join people p on p.id = v.person_id where v.id = visit_id and p.auth_user_id = (select auth.uid())));
+create policy "untag own visit companions" on visit_companions for delete to authenticated
+  using (exists (select 1 from visits v join people p on p.id = v.person_id where v.id = visit_id and p.auth_user_id = (select auth.uid())));
+
+create policy "manage own visit collections" on visit_collections for all to authenticated
+  using (exists (select 1 from people p where p.id = person_id and p.auth_user_id = (select auth.uid())))
+  with check (exists (select 1 from people p where p.id = person_id and p.auth_user_id = (select auth.uid())));
+
+create policy "manage own visit collection items" on visit_collection_items for all to authenticated
+  using (exists (
+    select 1 from visit_collections c join people p on p.id = c.person_id
+    where c.id = collection_id and p.auth_user_id = (select auth.uid())
+  ))
+  with check (exists (
+    select 1 from visit_collections c
+    join visits v on v.id = visit_id and v.person_id = c.person_id
+    join people p on p.id = c.person_id
+    where c.id = collection_id and p.auth_user_id = (select auth.uid())
+  ));
+
+create policy "read permitted visit photos" on visit_photos for select to anon, authenticated using (
+  visibility = 'community'
+  or exists (select 1 from people owner where owner.id = person_id and owner.auth_user_id = (select auth.uid()))
+  or (
+    visibility = 'friends' and exists (
+      select 1 from people owner
+      join friendships f on f.person_id = owner.id
+      join people viewer on viewer.id = f.friend_id
+      where owner.id = person_id and viewer.auth_user_id = (select auth.uid())
+    )
+  )
+);
+create policy "manage own visit photos" on visit_photos for all to authenticated
+  using (exists (select 1 from people p where p.id = person_id and p.auth_user_id = (select auth.uid())))
+  with check (
+    exists (select 1 from people p where p.id = person_id and p.auth_user_id = (select auth.uid()))
+    and exists (select 1 from visits v where v.id = visit_id and v.person_id = visit_photos.person_id)
+  );
+
+insert into storage.buckets (id, name, public)
+values ('visit-photos', 'visit-photos', false)
+on conflict (id) do nothing;
+create policy "read permitted visit photo files" on storage.objects for select to anon, authenticated
+  using (bucket_id = 'visit-photos' and exists (
+    select 1 from public.visit_photos photo where photo.storage_path = name
+  ));
+create policy "upload own visit photos" on storage.objects for insert to authenticated
+  with check (bucket_id = 'visit-photos' and (storage.foldername(name))[1] = (select auth.uid())::text);
+create policy "manage own visit photo files" on storage.objects for update to authenticated
+  using (bucket_id = 'visit-photos' and owner_id = (select auth.uid())::text)
+  with check (bucket_id = 'visit-photos' and owner_id = (select auth.uid())::text);
+create policy "delete own visit photo files" on storage.objects for delete to authenticated
+  using (bucket_id = 'visit-photos' and owner_id = (select auth.uid())::text);
+
+create policy "manage own place collections" on place_collections for all to authenticated
+  using (exists (select 1 from people p where p.id = person_id and p.auth_user_id = (select auth.uid())))
+  with check (exists (select 1 from people p where p.id = person_id and p.auth_user_id = (select auth.uid())));
+create policy "manage own place imports" on place_imports for all to authenticated
+  using (exists (select 1 from people p where p.id = person_id and p.auth_user_id = (select auth.uid())))
+  with check (exists (select 1 from people p where p.id = person_id and p.auth_user_id = (select auth.uid())));
+create policy "manage own place collection items" on place_collection_items for all to authenticated
+  using (exists (
+    select 1 from place_collections c join people p on p.id = c.person_id
+    where c.id = collection_id and p.auth_user_id = (select auth.uid())
+  ))
+  with check (exists (
+    select 1 from place_collections c join people p on p.id = c.person_id
+    where c.id = collection_id and p.auth_user_id = (select auth.uid())
+  ) and (
+    import_id is null or exists (
+      select 1 from place_imports i join people owner on owner.id = i.person_id
+      where i.id = import_id and owner.auth_user_id = (select auth.uid())
+    )
+  ));
 
 -- ── Realtime ───────────────────────────────────────────────────────
 -- Broadcast row changes so the vote screen updates live.

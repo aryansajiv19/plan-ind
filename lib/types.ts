@@ -6,6 +6,9 @@
 
 export type PriceBand = "$" | "$$" | "$$$";
 export type PlanStatus = "open" | "decided";
+export type PlanStage = "pool" | "final" | "decided";
+export type SpotSource = "curated" | "custom";
+export type SpotVisibility = "private" | "friends" | "community";
 
 // A "spot" is any hangout place, of any category. Kept table name `spots`
 // internally; `category` is what makes it multi-type.
@@ -22,6 +25,12 @@ export interface Spot {
   photo_url: string | null; // curated now; a places API can fill this later
   description: string | null; // a review blurb to help people decide
   booking_url: string | null;
+  source: SpotSource;
+  visibility: SpotVisibility;
+  created_by_user_id: string | null;
+  address: string | null;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 export interface Plan {
@@ -36,11 +45,24 @@ export interface Plan {
   event_time: string | null; // ISO timestamp — when the outing actually is
   booking_owner: string | null; // voter_name of whoever's booking
   booked: boolean;
+  stage: PlanStage;
+  pool_count: number;
+  budget_per_person: number | null;
+  origin_label: string | null;
+  origin_latitude: number | null;
+  origin_longitude: number | null;
+  radius_km: number | null;
+  smart_brief: string | null;
+  vibe_preferences: string[];
+  avoid_preferences: string[];
+  intelligence_model: string | null;
 }
 
 export interface PlanSpot {
   plan_id: string;
   spot_id: string;
+  pool_number: number;
+  advanced: boolean;
 }
 
 export interface Vote {
@@ -49,6 +71,8 @@ export interface Vote {
   spot_id: string;
   voter_name: string;
   value: boolean; // true = yes
+  phase: "pool" | "final";
+  pool_number: number;
 }
 
 // After the decision: who's actually coming. A vote is an opinion; an RSVP
@@ -72,10 +96,10 @@ export interface Rating {
 }
 
 // ─── The social layer ──────────────────────────────────────────────
-// A device profile, still no auth. The browser mints `id` once and keeps
-// it in localStorage (lib/device.ts), then upserts the row. Note this does
-// NOT replace `voter_name` — votes/rsvps/ratings above are still keyed by a
-// free-typed name, and plans in flight are unaffected.
+// Authenticated profile. The browser caches the public card in localStorage,
+// while Supabase Auth and `auth_user_id` own identity. This does NOT replace
+// `voter_name`: shared-plan votes/rsvps/ratings remain keyed by a free-typed
+// name, so public plan links and plans in flight are unaffected.
 
 export interface Person {
   // READ-ONLY to clients. A DB trigger (people_before_write) pins `id` and
@@ -85,7 +109,7 @@ export interface Person {
   display_name: string; // 1–40 chars, TRIMMED on write by the DB
   emoji: string; // 1–8 chars, trimmed; no controls or bidi overrides
   color: string; // "#rrggbb" — validated by the DB, LOWERCASED on write
-  auth_user_id: string | null; // always null in v1; the Supabase Auth upgrade seam
+  auth_user_id: string | null; // auth.users.id for signed-in profiles; null on legacy rows
   created_at: string; // ISO timestamp
   updated_at: string; // ISO timestamp
 }
@@ -126,6 +150,60 @@ export interface VisitCompanion {
   visit_id: string;
   person_id: string | null;
   companion_name: string | null;
+  created_at: string;
+}
+
+export interface VisitCollection {
+  id: string;
+  person_id: string;
+  name: string;
+  created_at: string;
+}
+
+export interface VisitCollectionItem {
+  collection_id: string;
+  visit_id: string;
+  created_at: string;
+}
+
+export interface VisitPhoto {
+  id: string;
+  visit_id: string;
+  person_id: string;
+  storage_path: string;
+  caption: string | null;
+  visibility: SpotVisibility;
+  created_at: string;
+}
+
+export interface PlaceCollection {
+  id: string;
+  person_id: string;
+  name: string;
+  kind: "want_to_try" | "planning" | "custom";
+  created_at: string;
+}
+
+export interface PlaceImport {
+  id: string;
+  person_id: string;
+  source_url: string;
+  normalized_url: string;
+  provider: "instagram" | "tiktok" | "facebook" | "reddit" | "youtube" | "web";
+  status: "pending" | "resolving" | "resolved" | "needs_input" | "failed";
+  resolved_spot_id: string | null;
+  extracted_data: Record<string, unknown>;
+  error_code: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PlaceCollectionItem {
+  id: string;
+  collection_id: string;
+  spot_id: string | null;
+  import_id: string | null;
+  note: string | null;
   created_at: string;
 }
 
