@@ -263,135 +263,52 @@ export default function VotePage() {
     }
   }
 
+  // Both transitions run entirely inside execute_plan_command: it holds the
+  // row lock, does the tally and applies the same stable spot-id tie-break.
+  // The client used to recompute all of that to feed a direct-write fallback,
+  // which migration 015 revoked — one tally, server-side, is the whole point.
   const advanceToFinal = useCallback(async () => {
     if (!plan || plan.status !== "open" || stage !== "pool") return;
-    if (hostToken) {
-      setDeciding(true);
-      try {
-        const result = await runHostCommand("advance");
-        if (result?.finalists) setPlanSpots((current) => current.map((link) => ({ ...link, advanced: result.finalists!.includes(link.spot_id) })));
-        if (result?.plan) setPlan(result.plan);
-        setNotice(null);
-      } catch (error) {
-        setNotice(error instanceof Error ? error.message : "The shortlist didn’t save. Try again.");
-      } finally {
-        setDeciding(false);
-      }
+    if (!hostToken) {
+      setNotice("Only the person who started this plan can close the rounds.");
       return;
     }
-    const { data: fresh } = await supabase
-      .from("votes")
-      .select("spot_id,value,phase,pool_number")
-      .eq("plan_id", id)
-      .eq("phase", "pool");
-
-    const finalists: string[] = [];
-    for (let poolNumber = 1; poolNumber <= poolCount; poolNumber += 1) {
-      const candidateIds = planSpots
-        .filter((link) => (link.pool_number ?? 1) === poolNumber)
-        .map((link) => link.spot_id);
-      if (candidateIds.length === 0) continue;
-      const ranked = candidateIds
-        .map((spotId) => ({
-          spotId,
-          votes: (fresh ?? []).filter(
-            (vote) => vote.spot_id === spotId && vote.value && (vote.pool_number ?? 0) === poolNumber,
-          ).length,
-        }))
-        .sort((a, b) => b.votes - a.votes || a.spotId.localeCompare(b.spotId));
-      finalists.push(ranked[0].spotId);
-    }
-    if (finalists.length !== poolCount) {
-      setNotice("The final shortlist couldn’t be built yet. Try again.");
-      return;
-    }
-
     setDeciding(true);
-    await supabase.from("plan_spots").update({ advanced: false }).eq("plan_id", id);
-    const { error: advanceError } = await supabase
-      .from("plan_spots")
-      .update({ advanced: true })
-      .eq("plan_id", id)
-      .in("spot_id", finalists);
-    const { error: stageError } = await supabase
-      .from("plans")
-      .update({ stage: "final" })
-      .eq("id", id)
-      .eq("status", "open");
-    if (advanceError || stageError) {
-      setNotice("The shortlist didn’t save. Check your connection and try again.");
+    try {
+      const result = await runHostCommand("advance");
+      if (result?.finalists) setPlanSpots((current) => current.map((link) => ({ ...link, advanced: result.finalists!.includes(link.spot_id) })));
+      if (result?.plan) setPlan(result.plan);
+      setNotice(null);
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "The shortlist didn’t save. Try again.");
+    } finally {
       setDeciding(false);
-      return;
     }
-    setPlanSpots((current) => current.map((link) => ({ ...link, advanced: finalists.includes(link.spot_id) })));
-    setPlan((current) => current ? { ...current, stage: "final" } : current);
-    setNotice(null);
-    setDeciding(false);
-  }, [id, plan, planSpots, poolCount, stage, hostToken, runHostCommand]);
+  }, [plan, stage, hostToken, runHostCommand]);
 
-  // Finalists only; stable spot-id tie-break means every client picks the same.
   const decide = useCallback(async () => {
     if (!plan || plan.status !== "open" || spots.length === 0) return;
-    if (hostToken) {
-      setDeciding(true);
-      try {
-        const result = await runHostCommand("decide");
-        if (result?.plan) setPlan(result.plan);
-        setNotice(null);
-      } catch (error) {
-        setNotice(error instanceof Error ? error.message : "The plan couldn’t be decided. Try again.");
-      } finally {
-        setDeciding(false);
-      }
+    if (!hostToken) {
+      setNotice("Only the person who started this plan can decide it.");
       return;
     }
-
-    const advanced = planSpots.filter((link) => link.advanced).map((link) => link.spot_id);
-    const candidates = stage === "final" && advanced.length > 0
-      ? spots.filter((spot) => advanced.includes(spot.id))
-      : spots;
-
-    // Read fresh tallies so the call is correct even from a stale client
-    // (e.g. a deadline firing hours later).
-    const { data: fresh } = await supabase
-      .from("votes")
-      .select("spot_id,value")
-      .eq("plan_id", id)
-      .eq("phase", "final")
-      .eq("pool_number", 0);
-    const counts = candidates.map(
-      (s) => (fresh ?? []).filter((v) => v.spot_id === s.id && v.value).length,
-    );
-    const max = Math.max(...counts);
-    const winner = candidates
-      .filter((_, i) => counts[i] === max)
-      .sort((a, b) => a.id.localeCompare(b.id))[0];
-
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     setDeciding(true);
-    const commit = async () => {
-      // Guard the race: only the first "decide" wins; then read back
-      // the authoritative result so everyone reveals the same spot.
-      await supabase
-        .from("plans")
-        .update({ status: "decided", stage: "decided", winner_spot_id: winner.id })
-        .eq("id", id)
-        .eq("status", "open");
-      const { data } = await supabase
-        .from("plans")
-        .select("*")
-        .eq("id", id)
-        .maybeSingle();
-      if (data) setPlan(data as Plan);
+    try {
+      const result = await runHostCommand("decide");
+      if (result?.plan) setPlan(result.plan);
+      setNotice(null);
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "The plan couldn’t be decided. Try again.");
+    } finally {
       setDeciding(false);
-    };
-    if (reduce) commit();
-    else setTimeout(commit, 700);
-  }, [plan, spots, planSpots, stage, id, hostToken, runHostCommand]);
+    }
+  }, [plan, spots.length, hostToken, runHostCommand]);
 
   // ── Deadline auto-pick ───────────────────────────────────────────
+  // Host only. Everyone else receives the transition over realtime, so a
+  // participant's browser never fires a command it isn't allowed to run.
   useEffect(() => {
-    if (!plan || plan.status !== "open" || !plan.deadline) return;
+    if (!plan || plan.status !== "open" || !plan.deadline || !hostToken) return;
     const ms = new Date(plan.deadline).getTime() - Date.now();
     // setTimeout(…, 0) defers even a past deadline, so we never call
     // setState synchronously in the effect body.
@@ -400,7 +317,7 @@ export default function VotePage() {
       else void decide();
     }, Math.max(0, ms));
     return () => clearTimeout(t);
-  }, [plan, stage, decide, advanceToFinal]);
+  }, [plan, stage, hostToken, decide, advanceToFinal]);
 
   // ── The reveal: confetti on the winner, once ─────────────────────
   useEffect(() => {
@@ -424,18 +341,20 @@ export default function VotePage() {
   // ── The last mile: set time, RSVP, claim/mark booking ────────────
   async function patchPlan(fields: Partial<Plan>) {
     if (!plan) return;
+    const previous = plan;
     setPlan({ ...plan, ...fields }); // optimistic
-    if (hostToken) {
-      try {
-        const result = await runHostCommand("patch", fields);
-        if (result?.plan) setPlan(result.plan);
-      } catch (error) {
-        setNotice(error instanceof Error ? error.message : "That didn't save. Check your connection and try again.");
-      }
+    if (!hostToken) {
+      setPlan(previous);
+      setNotice("Only the person who started this plan can change these details.");
       return;
     }
-    const { error } = await supabase.from("plans").update(fields).eq("id", id);
-    if (error) setNotice("That didn't save. Check your connection and try again.");
+    try {
+      const result = await runHostCommand("patch", fields);
+      if (result?.plan) setPlan(result.plan);
+    } catch (error) {
+      setPlan(previous); // roll the optimistic update back
+      setNotice(error instanceof Error ? error.message : "That didn't save. Check your connection and try again.");
+    }
   }
 
   async function setRsvp(choice: "coming" | "maybe" | "no") {

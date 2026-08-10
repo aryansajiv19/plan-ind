@@ -293,8 +293,8 @@ export default function DecidedPlan({
               onClick={() => onRate({ again: true })}
               aria-pressed={myRating.again}
               className={[
-                "rounded-full border-2 px-3 py-1 text-xs font-bold",
-                myRating.again ? "border-ink bg-mint text-white" : "border-ink/15 text-ink",
+                "vote-toggle",
+                myRating.again ? "vote-toggle--on" : "",
               ].join(" ")}
             >
               Yes
@@ -304,8 +304,8 @@ export default function DecidedPlan({
               onClick={() => onRate({ again: false })}
               aria-pressed={!myRating.again}
               className={[
-                "rounded-full border-2 px-3 py-1 text-xs font-bold",
-                !myRating.again ? "border-ink bg-ink text-white" : "border-ink/15 text-ink",
+                "vote-toggle",
+                !myRating.again ? "vote-toggle--on" : "",
               ].join(" ")}
             >
               Not really

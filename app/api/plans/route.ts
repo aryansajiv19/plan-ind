@@ -1,6 +1,6 @@
 import { createHash, randomBytes } from "node:crypto";
 import { createClient } from "@/lib/supabase/server";
-import { minimumAgeForCategory, prohibitedVenueReason, safeAgeFromMetadata } from "@/lib/age-policy";
+import { memberAge, minimumAgeForCategory, prohibitedVenueReason } from "@/lib/age-policy";
 
 export const runtime = "nodejs";
 
@@ -42,7 +42,7 @@ export async function POST(request: Request) {
   if (!title || !category || spotIds.length !== 9 || new Set(spotIds).size !== 9) {
     return Response.json({ error: "A plan needs a title, category, and nine different places." }, { status: 400 });
   }
-  const age = safeAgeFromMetadata(user.user_metadata);
+  const age = await memberAge(supabase, user.id);
   if (age === null) return Response.json({ error: "Complete your age details before starting a plan." }, { status: 403 });
   if (age < minimumAgeForCategory(category)) return Response.json({ error: "That category has an age requirement that does not match this account." }, { status: 403 });
 
@@ -75,11 +75,23 @@ export async function POST(request: Request) {
     avoid_preferences: Array.isArray(raw.avoidPreferences) ? raw.avoidPreferences.filter((v): v is string => typeof v === "string").slice(0, 5) : [],
     intelligence_model: text(raw.intelligenceModel, 80) || null,
     created_by_user_id: user.id,
-    host_token_hash: hostTokenHash,
   }).select("id").single();
   if (planError || !plan) return Response.json({ error: "Couldn't start the plan. Try again in a moment." }, { status: 500 });
 
+  // A plan without its host token or its places is unusable, so roll the plan
+  // row back rather than leaving a permanently broken share link behind.
+  // ponytail: cleanup-on-failure, not atomic — an RPC if partial writes ever matter.
+  const abort = async (error: string) => {
+    await supabase.from("plans").delete().eq("id", plan.id);
+    return Response.json({ error }, { status: 500 });
+  };
+
+  const { error: tokenError } = await supabase
+    .from("plan_host_tokens")
+    .insert({ plan_id: plan.id, token_hash: hostTokenHash });
+  if (tokenError) return abort("Couldn't start the plan. Try again in a moment.");
+
   const { error: linksError } = await supabase.from("plan_spots").insert(spotIds.map((spot_id, index) => ({ plan_id: plan.id, spot_id, pool_number: (index % 3) + 1, advanced: false })));
-  if (linksError) return Response.json({ error: "The plan started but its places could not be attached." }, { status: 500 });
+  if (linksError) return abort("Couldn't attach the places to that plan. Try again in a moment.");
   return Response.json({ id: plan.id, hostToken }, { headers: { "Cache-Control": "no-store" } });
 }
