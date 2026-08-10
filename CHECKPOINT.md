@@ -361,3 +361,39 @@ Required verification after each stage: ESLint, TypeScript, `git diff --check`, 
 - Build caveat: production build can fail only because Google Fonts cannot be fetched in the restricted environment.
 - Pending: authenticated visit collections/photos, friend invites, distributed rate limiting, browser-based 390px verification, and persisted drag/reorder flows.
 - Read `NEXT_AGENT.md` and the latest `worklog.md` before editing. Do not recreate migrations 017–019.
+
+## Colour-for-state and swipeable voting — 2026-08-11 (Claude)
+
+Request: the app felt "too sleek and modern" for young adults — keep the sleek
+base, add energy, and make it genuinely interactive.
+
+- Added one live accent, `--color-live`, used for **state only**. `you and now`
+  takes the accent (your vote, your finished round, a count that just changed);
+  `the outcome` keeps champagne (winner, decided plan). These were previously
+  the same champagne, so your own pick was indistinguishable from the winner.
+- The accent is theme-scoped because no single hue clears AA on both grounds:
+  cobalt `#2f4bd6` is 6.00:1 on ivory, 2.91:1 on obsidian, so night uses
+  `#8aa0ff` at 8.02:1. Selected chip measures 6.49:1 day / 7.51:1 night.
+- The rule is now recorded in `FRONTEND_DESIGN_STANDARDS.md` under Colour so it
+  does not drift back into decorative colour.
+- Voting round on phones is a CSS `scroll-snap` carousel with the next card
+  peeking. Native scroll-snap rather than a drag library: the browser supplies
+  momentum and touch physics, the cards stay real buttons so keyboard and screen
+  reader behaviour is unchanged, and peeking neighbours keep it a comparison
+  rather than a blind swipe.
+- Round progress is now dots; finished rounds carry the accent. The round
+  animates in once on change. A tally arriving over realtime bumps and clears.
+- Removed `active-row-pulse` — it animated infinitely, against the standing
+  "no constant movement" rule, and this project had already removed a pulsing
+  indicator once by explicit decision.
+- Mirrored the previous pass's hover tilts onto `:active`. They were hover-only,
+  so on the phone this app targets the whole feedback layer never fired.
+- Note for whoever picks this up: `navigator.vibrate` (the haptics helper in
+  `lib/interaction.ts`) is **not supported on iOS Safari**. It is harmless on
+  Android but must never be the only feedback for an action.
+- Verification: ESLint, TypeScript, production build and all 13 live smoke
+  guards pass.
+- **Not verified visually:** the carousel and the round dots. The browser in
+  this environment will not resize below 1342px, and the seeded demo plan
+  (`11111111-…`) is a legacy single-round plan so it renders no round dots.
+  Both need a real device or DevTools device mode.

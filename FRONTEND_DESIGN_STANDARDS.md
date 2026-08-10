@@ -10,6 +10,29 @@ Do not produce generic landing-page templates. Avoid excessive gradients, generi
 
 Do not use green glowing dots or pulsing status lights anywhere in the product. Communicate status with clear text and restrained semantic styling.
 
+## Colour
+
+The base is architectural ivory, graphite and champagne metal. It stays that way.
+
+There is exactly **one** live accent, `--color-live`, and it marks **state only**:
+
+| Meaning | Colour |
+|---|---|
+| **You, and now** — your vote, your finished round, a count that just changed | `--color-live` |
+| **The outcome** — the winner, a decided plan | champagne (`--vote-metal`) |
+| Everything else | ivory and graphite |
+
+Rules:
+
+- Never use colour decoratively. If it does not mark a state, it is ivory or graphite.
+- The accent is **theme-scoped**. No single hue clears WCAG AA on both the ivory
+  ground and the obsidian night ground — cobalt `#2f4bd6` is 6.00:1 on ivory but
+  2.91:1 on night, so night uses `#8aa0ff` at 8.02:1. If you change the accent,
+  change both and check both.
+- Do not tint focus rings with it. Those are graphite for contrast reasons.
+- Do not add a second accent. If something needs to stand out and is not "you",
+  "now" or "the outcome", the answer is hierarchy, not another colour.
+
 ## Layout
 
 - Use clear hierarchy, strong alignment, deliberate spacing, and restrained content widths.

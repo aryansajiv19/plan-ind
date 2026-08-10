@@ -327,3 +327,31 @@ npm run lint
 npx tsc --noEmit --pretty false
 npm run build
 ```
+
+## Colour-for-state and swipeable voting — 2026-08-11
+
+- One live accent `--color-live` for state only; champagne reserved for the
+  outcome. Theme-scoped (`#2f4bd6` day / `#8aa0ff` night) because no single hue
+  clears AA on both grounds. Rule recorded in `FRONTEND_DESIGN_STANDARDS.md`.
+- Voting round is a native `scroll-snap` carousel on phones; round progress is
+  dots; the round animates in once; live tallies bump and clear.
+- Removed the infinite `active-row-pulse`; mirrored hover-only tilts onto
+  `:active` so touch devices get press feedback at all.
+- Committed the previous agent's pending work first (`5a66ae6`) so the two
+  passes are separable: importer persistence, swipe tabs, haptics, motion CSS.
+- Verification: ESLint, TypeScript, build, 13/13 smoke guards.
+
+### Still open (highest value first)
+
+1. **See it on a phone.** The `<=520px` layout, the voting carousel and the
+   round dots have never been observed rendering. This is the top item.
+2. **Seed a multi-round plan** for testing. The only seeded plan is legacy
+   single-round, so the pool flow cannot be exercised locally.
+3. Visit collections and photos (migration 010 tables still unused).
+4. A way to add a friend (`addFriend` and 8 other `lib/social.ts` functions
+   still have zero callers).
+5. Distributed rate limiting; the OTP map is still unbounded.
+6. A test runner — `node --test` is stdlib; start with `lib/age-policy.ts`.
+
+Full instructions, hard rules and the list of traps that have already caused
+bugs here are in `NEXT_AGENT.md`. Read that first.
