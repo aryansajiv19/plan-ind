@@ -27,6 +27,14 @@ const VIEW_LABELS: Record<AppView, string> = {
   profile: "Profile",
 };
 
+function greetingFor(now: Date): string {
+  const hour = now.getHours();
+  if (hour < 5) return "Still up";
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
+}
+
 export default function HomeExperience({
   name,
   age = 21,
@@ -44,6 +52,10 @@ export default function HomeExperience({
   friends?: PersonCard[];
 }) {
   const [ready, setReady] = useState(false);
+  // Resolved after mount so it matches the reader's clock rather than the
+  // server's, and so the markup is stable for hydration. The hero has always
+  // said "Good evening" regardless of the hour.
+  const greeting = ready ? greetingFor(new Date()) : "Hello";
   const [activeView, setActiveView] = useState<AppView>("plan");
   const [nightMode, setNightMode] = useState(false);
 
@@ -118,6 +130,11 @@ export default function HomeExperience({
 
       {activeView === "plan" ? (
       <div id="workspace">
+      {/* The hero is the signed-out pitch. A signed-in account opens straight
+          onto the composer the way an app opens onto its first screen —
+          scrolling past a marketing headline to reach your own tool is a
+          website habit, and on a phone it costs the whole first screen. */}
+      {demoMode ? (
       <section id="top" className="home-hero" aria-labelledby="home-title">
         <div className="home-hero__copy">
           <p className="home-hello home-reveal" style={{ "--delay": "80ms" } as React.CSSProperties}>
@@ -193,11 +210,17 @@ export default function HomeExperience({
 
         </div>
       </section>
+      ) : (
+        <section id="top" className="home-appbar" aria-labelledby="home-title">
+          <p className="home-appbar__hello">{greeting}, {name}.</p>
+          <h1 id="home-title" className="home-appbar__title">What are we doing?</h1>
+        </section>
+      )}
 
       <section id="plan-lab" className="home-plan-section">
         <div className="home-plan-section__intro">
           <p className="home-section-kicker">Create a plan</p>
-          <h2>What does the group feel like doing?</h2>
+          <h2>{demoMode ? "What does the group feel like doing?" : "Set the shape of the night"}</h2>
           <p>Choose the category, budget and travel radius. We’ll deal nine relevant places across three quick rounds.</p>
         </div>
 

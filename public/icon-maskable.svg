@@ -1,0 +1,9 @@
+<!-- Maskable: the mark sits inside the 40% safe circle, so Android can crop
+     this to any shape without clipping the wordmark. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Deal three">
+  <rect width="512" height="512" fill="#17181b"/>
+  <text x="256" y="278" fill="#f6f3ed" font-family="Manrope, system-ui, -apple-system, sans-serif"
+        font-size="150" font-weight="800" letter-spacing="-18" text-anchor="middle">D/</text>
+  <text x="256" y="346" fill="#c3a573" font-family="Manrope, system-ui, -apple-system, sans-serif"
+        font-size="70" font-weight="800" letter-spacing="-3" text-anchor="middle">03</text>
+</svg>

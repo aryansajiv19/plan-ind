@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Deal three">
+  <rect width="512" height="512" fill="#17181b"/>
+  <g fill="#f6f3ed" font-family="Manrope, system-ui, -apple-system, sans-serif" font-weight="800" letter-spacing="-24">
+    <text x="256" y="300" font-size="200" text-anchor="middle">D/</text>
+  </g>
+  <text x="256" y="386" fill="#c3a573" font-family="Manrope, system-ui, -apple-system, sans-serif"
+        font-size="92" font-weight="800" letter-spacing="-4" text-anchor="middle">03</text>
+</svg>

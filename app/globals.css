@@ -2408,3 +2408,52 @@ h3 {
 
   .home-stage { transform: none !important; }
 }
+
+/* ── App shell (signed in) ─────────────────────────────────────────
+   The signed-out landing keeps its hero. Signed in, the product opens
+   on its first screen instead, so the top of the viewport is the tool
+   rather than a headline about the tool. */
+.home-appbar {
+  width: min(100% - 3rem, 76rem);
+  margin: 0 auto;
+  padding: 1.6rem 0 0.4rem;
+}
+.home-appbar__hello {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+.home-appbar__title {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 5vw, 2.9rem);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+}
+
+/* Curated spots frequently have no photograph. A typographic category
+   block is honest about that; a stock image would not be. */
+.demo-place-card__code {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 9;
+  border-bottom: 1px solid var(--color-line);
+  background: color-mix(in srgb, var(--color-ink) 4%, transparent);
+  color: var(--color-muted);
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+}
+
+@media (max-width: 520px) {
+  .home-appbar { width: 100%; padding: 1.1rem 0.95rem 0.2rem; }
+  /* Phone: the app fills the screen rather than sitting in a page. */
+  .home-plan-section,
+  .demo-view { width: 100%; padding-inline: 0.95rem; }
+  .home-plan-section__intro h2 { font-size: 1.35rem; }
+  .home-plan-card { border-radius: 0; }
+  .demo-place-card__code { aspect-ratio: 21 / 9; font-size: 1.15rem; }
+}
