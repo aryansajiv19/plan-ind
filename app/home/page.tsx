@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { memberAge } from "@/lib/age-policy";
 import { createClient } from "@/lib/supabase/server";
-import { getFriends, getProfileVisits } from "@/lib/social";
+import { getPlannedWith, getProfileVisits } from "@/lib/social";
 import type { Spot } from "@/lib/types";
 
 const APP_VIEWS = ["plan", "discover", "been", "friends", "profile"] as const;
@@ -47,7 +47,7 @@ export default async function HomePage({
   const [spots, visits, friends] = await Promise.all([
     supabase.from("spots").select("*").order("name").limit(120),
     person ? getProfileVisits(person, 50, supabase) : Promise.resolve([]),
-    person ? getFriends(person, supabase) : Promise.resolve([]),
+    person ? getPlannedWith(person, supabase) : Promise.resolve([]),
   ]);
 
   return (
@@ -60,7 +60,7 @@ export default async function HomePage({
         personId={person}
         spots={(spots.data as Spot[] | null) ?? []}
         visits={visits}
-        friends={friends}
+        plannedWith={friends}
       />
     </>
   );

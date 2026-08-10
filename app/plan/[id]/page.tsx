@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { addBeen } from "@/lib/device";
 import { logVisit } from "@/lib/social";
+import { avatarStyle, initialsOf } from "@/lib/avatar";
 import { participantTokenHash } from "@/lib/participant";
 import { coordinatesForArea, distanceKm } from "@/lib/dubai-areas";
 import type { Plan, PlanSpot, Rating, Rsvp, Spot, Vote } from "@/lib/types";
@@ -38,6 +39,7 @@ export default function VotePage() {
   const [deciding, setDeciding] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [visitSaved, setVisitSaved] = useState<"saved" | "failed" | null>(null);
+  const [presentNames, setPresentNames] = useState<string[]>([]);
   const [copied, setCopied] = useState(false);
   const [reloadKey, setReloadKey] = useState(0); // bump to retry the load
   const [nightMode, setNightMode] = useState(false);
@@ -204,6 +206,39 @@ export default function VotePage() {
     };
   }, [id, refetchVotes, refetchRsvps, refetchRatings, refetchPlanSpots]);
 
+  // ── Who else has this plan open right now ────────────────────────
+  // A separate channel from the data subscriptions above: presence depends on
+  // the typed name, and folding it in would tear down every postgres_changes
+  // listener each time the name resolves.
+  //
+  // The presence key is a throwaway per-tab id, NOT the participant token
+  // hash. Presence keys and payloads are broadcast to every subscriber on the
+  // channel, so keying by the token would hand every link visitor the
+  // credential the write RPCs authorise against. The payload carries the
+  // typed name only — exactly what the vote list already shows publicly.
+  useEffect(() => {
+    if (!voterName) return;
+    const sessionKey = crypto.randomUUID();
+    const channel = supabase.channel(`plan-presence:${id}`, {
+      config: { presence: { key: sessionKey } },
+    });
+    channel
+      .on("presence", { event: "sync" }, () => {
+        const state = channel.presenceState<{ name?: string }>();
+        const names = Object.values(state)
+          .flat()
+          .map((entry) => entry.name)
+          .filter((name): name is string => Boolean(name));
+        setPresentNames([...new Set(names)].sort((a, b) => a.localeCompare(b)));
+      })
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED") void channel.track({ name: voterName });
+      });
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [id, voterName]);
+
   // ── Tallies + this voter's picks ─────────────────────────────────
   const currentPhase = stage === "pool" ? "pool" : "final";
   const currentPoolNumber = stage === "pool" ? activePool : 0;
@@ -212,6 +247,13 @@ export default function VotePage() {
     (vote.pool_number ?? 0) === currentPoolNumber;
   const yesCount = (spotId: string) =>
     votes.filter((v) => v.spot_id === spotId && v.value && voteIsInCurrentRound(v)).length;
+  // Sorted so a re-render never reshuffles the faces; only genuinely new
+  // names should move, and OptionCard decides that by diffing this list.
+  const votersFor = (spotId: string) =>
+    votes
+      .filter((v) => v.spot_id === spotId && v.value && voteIsInCurrentRound(v))
+      .map((v) => v.voter_name)
+      .sort((a, b) => a.localeCompare(b));
   const iVotedYes = (spotId: string) =>
     votes.some(
       (v) => v.spot_id === spotId && v.voter_name === voterName && (!v.participant_token_hash || v.participant_token_hash === participantHash) && v.value && voteIsInCurrentRound(v),
@@ -545,7 +587,22 @@ export default function VotePage() {
             )}
             {!decided && (
               <p className="vote-round-label">
-                {stage === "pool" ? `Pool ${activePool} of ${poolCount} · choose one` : "Final shortlist · choose one"}
+                {stage === "pool" ? `Round ${activePool} of ${poolCount} · choose one` : "Final shortlist · choose one"}
+              </p>
+            )}
+            {/* Only worth showing when someone else is here — "you are here"
+                is not news, and a solo row would just be permanent chrome. */}
+            {presentNames.length > 1 && (
+              <p className="vote-presence">
+                <span className="vote-face-stack" aria-hidden="true">
+                  {presentNames.slice(0, 5).map((name) => (
+                    <span key={name} style={avatarStyle(name)}>{initialsOf(name)}</span>
+                  ))}
+                </span>
+                <span>
+                  {presentNames.filter((name) => name !== voterName).join(", ")}
+                  {presentNames.length > 5 ? " and others" : ""} here now
+                </span>
               </p>
             )}
           </div>
@@ -580,6 +637,7 @@ export default function VotePage() {
             <div key={spot.id} ref={(el) => { cardRefs.current[spot.id] = el; }}>
               <OptionCard
                 spot={spot}
+                voters={votersFor(spot.id)}
                 yesCount={yesCount(spot.id)}
                 voted={iVotedYes(spot.id)}
                 isWinner={winnerId === spot.id}

@@ -33,6 +33,20 @@ Rules:
 - Do not add a second accent. If something needs to stand out and is not "you",
   "now" or "the outcome", the answer is hierarchy, not another colour.
 
+## People
+
+Most participants on a shared plan link have **no account and no photo** — a
+typed name is everything the app knows about them.
+
+- An avatar is **initials on a hue derived from the name** (`lib/avatar.ts`).
+  Never a stock photo, never a generated face. Attaching an invented likeness
+  to a real person's name is fabricating an identity, and this product does not
+  do that.
+- Avatar colour identifies a *person*. It must never reuse the live accent or
+  champagne, which carry state meaning ("you and now", "the outcome").
+- Show faces wherever the data exists. A count says how many; a face says who,
+  and "who" is the reason a group is looking at the screen together.
+
 ## Layout
 
 - Use clear hierarchy, strong alignment, deliberate spacing, and restrained content widths.

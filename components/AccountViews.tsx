@@ -13,7 +13,9 @@ import Image from "next/image";
 import { useMemo, useState } from "react";
 import PlaceLinkImporter from "@/components/PlaceLinkImporter";
 import { categoryMeta } from "@/lib/categories";
-import type { PersonCard, ProfileVisit, Spot } from "@/lib/types";
+import { avatarStyle, initialsOf } from "@/lib/avatar";
+import type { PlannedWith } from "@/lib/social";
+import type { ProfileVisit, Spot } from "@/lib/types";
 
 type AccountView = "discover" | "been" | "friends" | "profile";
 
@@ -22,15 +24,6 @@ const DATE_FORMAT = new Intl.DateTimeFormat("en-GB", {
   month: "short",
   year: "numeric",
 });
-
-function initialsOf(name: string): string {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("") || "?";
-}
 
 function priceLabel(spot: Spot): string {
   return spot.min_spend > 0 ? `AED ${spot.min_spend} pp` : spot.price_band;
@@ -80,14 +73,14 @@ export default function AccountViews({
   name,
   spots,
   visits,
-  friends,
+  plannedWith,
   onStartPlan,
 }: {
   view: AccountView;
   name: string;
   spots: Spot[];
   visits: ProfileVisit[];
-  friends: PersonCard[];
+  plannedWith: PlannedWith[];
   onStartPlan: () => void;
 }) {
   const [query, setQuery] = useState("");
@@ -228,29 +221,31 @@ export default function AccountViews({
           <button type="button" className="demo-primary-action" onClick={onStartPlan}>Start a group plan</button>
         </header>
 
-        {friends.length === 0 ? (
+        {plannedWith.length === 0 ? (
           <div className="demo-collection-empty">
-            <strong>No friends connected yet.</strong>
-            <p>People you tag as companions on a visit show up here once they have an account.</p>
-            <button type="button" onClick={onStartPlan}>Start a plan and share the link</button>
+            <strong>Nobody here yet.</strong>
+            <p>Everyone who comes along on a plan lands here once you rate it. Start one and share the link.</p>
+            <button type="button" onClick={onStartPlan}>Start a plan</button>
           </div>
         ) : (
           <div className="demo-friend-layout">
             <div className="demo-friend-list">
-              {friends.map((friend) => {
-                const shared = visits.filter((visit) =>
-                  visit.companions.some((c) => c.person?.id === friend.id)).length;
-                return (
-                  <article key={friend.id} className="demo-friend-row">
-                    <span className="demo-friend-avatar" aria-hidden="true">{friend.emoji || initialsOf(friend.display_name)}</span>
-                    <div><h2>{friend.display_name}</h2></div>
-                    <div className="demo-friend-row__numbers">
-                      <strong>{shared}</strong><span>shared visits</span>
-                    </div>
-                    <button type="button" onClick={onStartPlan}>Plan together</button>
-                  </article>
-                );
-              })}
+              {plannedWith.map((friend) => (
+                <article key={friend.name} className="demo-friend-row">
+                  <span className="demo-friend-avatar" aria-hidden="true" style={avatarStyle(friend.name)}>
+                    {friend.person?.emoji || initialsOf(friend.name)}
+                  </span>
+                  <div>
+                    <h2>{friend.name}</h2>
+                    {!friend.person && <p>Came along · no account yet</p>}
+                  </div>
+                  <div className="demo-friend-row__numbers">
+                    <strong>{friend.shared}</strong>
+                    <span>{friend.shared === 1 ? "outing" : "outings"}</span>
+                  </div>
+                  <button type="button" onClick={onStartPlan}>Plan together</button>
+                </article>
+              ))}
             </div>
           </div>
         )}
@@ -268,7 +263,7 @@ export default function AccountViews({
       <div className="demo-profile-stats">
         <span><strong>{stats.places}</strong> places</span>
         <span><strong>{stats.total}</strong> visits</span>
-        <span><strong>{friends.length}</strong> friends</span>
+        <span><strong>{plannedWith.length}</strong> people</span>
       </div>
 
       {stats.areas.length > 0 ? (

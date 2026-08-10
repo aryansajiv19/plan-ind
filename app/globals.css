@@ -2627,3 +2627,46 @@ h3 {
   /* Footer link is a block, so it can take the height without hurting copy. */
   .home-footer a { display: inline-block; padding-block: 0.7rem; }
 }
+
+/* ── Faces ─────────────────────────────────────────────────────────
+   Participants on a share link have no account and no photo, so an
+   avatar is initials on a hue derived from the name (lib/avatar.ts).
+   Deliberately not the live accent or champagne: those two carry
+   meaning, and identity must not read as state. */
+.vote-face-stack { display: inline-flex; }
+.vote-face-stack > span {
+  display: grid;
+  place-items: center;
+  width: 1.55rem;
+  height: 1.55rem;
+  margin-left: -0.4rem;
+  border: 1px solid var(--color-card);
+  border-radius: 50%;
+  font-size: 0.56rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+.vote-face-stack > span:first-child { margin-left: 0; }
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Only names that were not on the card a moment ago. One shot. */
+  .vote-face--arriving { animation: vote-face-in 460ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+  @keyframes vote-face-in {
+    from { opacity: 0; transform: scale(0.4) translateY(0.35rem); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+}
+
+/* ── Who is on the plan right now ──────────────────────────────────
+   Presence carries the typed name only — the same thing the vote list
+   already shows publicly. Never a token, never account data. */
+.vote-presence {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+  color: var(--color-muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+.vote-presence .vote-face-stack > span { width: 1.35rem; height: 1.35rem; font-size: 0.5rem; }

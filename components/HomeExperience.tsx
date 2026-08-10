@@ -5,7 +5,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { signOut } from "@/app/auth/actions";
 import DemoAccountViews from "@/components/DemoAccountViews";
 import AccountViews from "@/components/AccountViews";
-import type { PersonCard, ProfileVisit, Spot } from "@/lib/types";
+import type { ProfileVisit, Spot } from "@/lib/types";
+import type { PlannedWith } from "@/lib/social";
 import StartPlanForm from "@/components/StartPlanForm";
 import { haptic } from "@/lib/interaction";
 
@@ -47,7 +48,7 @@ export default function HomeExperience({
   initialView = "plan",
   spots = [],
   visits = [],
-  friends = [],
+  plannedWith = [],
 }: {
   name: string;
   age?: number;
@@ -56,7 +57,7 @@ export default function HomeExperience({
   personId?: string | null;
   spots?: Spot[];
   visits?: ProfileVisit[];
-  friends?: PersonCard[];
+  plannedWith?: PlannedWith[];
 }) {
   const [ready, setReady] = useState(false);
   // Resolved after mount so it matches the reader's clock rather than the
@@ -307,7 +308,7 @@ export default function HomeExperience({
           {demoMode ? (
             <DemoAccountViews view={activeView} name={name} onStartPlan={() => showView("plan")} />
           ) : (
-            <AccountViews view={activeView} name={name} spots={spots} visits={visits} friends={friends} onStartPlan={() => showView("plan")} />
+            <AccountViews view={activeView} name={name} spots={spots} visits={visits} plannedWith={plannedWith} onStartPlan={() => showView("plan")} />
           )}
           {activeView === "profile" && (
             <form action={signOut} className="home-profile-actions">

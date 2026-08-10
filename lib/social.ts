@@ -426,6 +426,65 @@ export async function getTaggedVisits(
   return (data as unknown as RawVisit[]).map(toProfileVisit);
 }
 
+export interface PlannedWith {
+  /** Display name. A companion may be a typed name with no account at all. */
+  name: string;
+  /** Their profile, when they have one. */
+  person: PersonCard | null;
+  /** How many of your visits they were on. */
+  shared: number;
+}
+
+/**
+ * People you have actually been out with, derived from the companions on your
+ * own visits.
+ *
+ * This exists because `getFriends()` reads `friendships`, and **nothing in the
+ * app ever writes that table** — so the Friends tab was empty by construction
+ * and stayed empty forever. Companions, by contrast, are written by
+ * `logVisit()` from the coming RSVPs every time someone rates a decided plan,
+ * so this fills up after a single completed outing.
+ *
+ * Typed names and real profiles are both included: most people on a shared
+ * plan link have no account, and leaving them out would hide the majority of
+ * who you actually went with.
+ */
+export async function getPlannedWith(
+  personId: string,
+  db: Db = supabase,
+): Promise<PlannedWith[]> {
+  const { data, error } = await db
+    .from("visit_companions")
+    .select(`companion_name, person:people(${PERSON_FIELDS}), visit:visits!inner(person_id)`)
+    .eq("visit.person_id", personId);
+  if (error || !data) return [];
+
+  const tally = new Map<string, PlannedWith>();
+  for (const row of data as unknown as {
+    companion_name: string | null;
+    person: PersonCard | null;
+  }[]) {
+    const name = row.person?.display_name ?? row.companion_name;
+    if (!name) continue;
+    // Fold by display name so the same person tagged sometimes by profile and
+    // sometimes by typed name counts once.
+    const key = name.toLowerCase();
+    const seen = tally.get(key);
+    if (seen) {
+      seen.shared += 1;
+      seen.person = seen.person ?? row.person ?? null;
+    } else {
+      tally.set(key, { name, person: row.person ?? null, shared: 1 });
+    }
+  }
+  // Most-shared first; accounts win ties so real profiles surface.
+  return [...tally.values()].sort(
+    (a, b) => b.shared - a.shared
+      || Number(Boolean(b.person)) - Number(Boolean(a.person))
+      || a.name.localeCompare(b.name),
+  );
+}
+
 export interface SpotVisitor {
   visit_id: string;
   visited_at: string;

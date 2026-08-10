@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { avatarStyle, initialsOf } from "@/lib/avatar";
 import type { Spot } from "@/lib/types";
 import { categoryMeta } from "@/lib/categories";
 
 interface OptionCardProps {
   spot: Spot;
+  /** Everyone who picked this place in the current round, newest last. */
+  voters: string[];
   yesCount: number;
   voted: boolean; // has the current voter said yes?
   isWinner: boolean;
@@ -16,6 +19,7 @@ interface OptionCardProps {
 
 export default function OptionCard({
   spot,
+  voters,
   yesCount,
   voted,
   isWinner,
@@ -26,10 +30,10 @@ export default function OptionCard({
   const dimmed = decided && !isWinner;
   const cat = categoryMeta(spot.category);
 
-  // A tally arriving over realtime is the only "someone else is here" signal
+  // A vote arriving over realtime is the only "someone else is here" signal
   // this screen has. Acknowledge it once, then clear — a permanent highlight
   // would just become another colour, and a loop is forbidden by the
-  // standards. Skipped on first render so counts do not flash on load.
+  // standards. Skipped on first render so nothing flashes on load.
   const [bumped, setBumped] = useState(false);
   const previousCount = useRef<number | null>(null);
   useEffect(() => {
@@ -40,6 +44,21 @@ export default function OptionCard({
     const timer = setTimeout(() => setBumped(false), 460);
     return () => clearTimeout(timer);
   }, [yesCount]);
+
+  // Which names are new since the last render. Only those animate in — a
+  // re-render for any other reason must not replay the whole stack.
+  const [arriving, setArriving] = useState<string[]>([]);
+  const previousVoters = useRef<string[] | null>(null);
+  useEffect(() => {
+    const seen = previousVoters.current;
+    previousVoters.current = voters;
+    if (seen === null) return; // first paint: everyone is already here
+    const fresh = voters.filter((name) => !seen.includes(name));
+    if (fresh.length === 0) return;
+    setArriving(fresh);
+    const timer = setTimeout(() => setArriving([]), 520);
+    return () => clearTimeout(timer);
+  }, [voters]);
 
   return (
     <button
@@ -82,14 +101,36 @@ export default function OptionCard({
       </p>
 
       <div className="mt-3 flex items-center justify-between">
-        <span
-          className={[
-            "inline-flex items-center gap-1.5 text-sm font-bold tabular-nums",
-            yesCount > 0 ? "vote-option__votes" : "text-muted",
-            bumped ? "vote-count--changed" : "",
-          ].join(" ")}
-        >
-          {yesCount} yes
+        <span className="inline-flex items-center gap-2">
+          {/* Who picked this. Faces rather than a number: a count says how
+              many, a face says who — and "who" is the whole reason a group
+              is looking at this screen together. */}
+          {voters.length > 0 && (
+            <span className="vote-face-stack" aria-hidden="true">
+              {voters.slice(-4).map((name) => (
+                <span
+                  key={name}
+                  style={avatarStyle(name)}
+                  className={arriving.includes(name) ? "vote-face--arriving" : ""}
+                >
+                  {initialsOf(name)}
+                </span>
+              ))}
+            </span>
+          )}
+          <span
+            className={[
+              "text-sm font-bold tabular-nums",
+              yesCount > 0 ? "vote-option__votes" : "text-muted",
+              bumped ? "vote-count--changed" : "",
+            ].join(" ")}
+          >
+            {/* The names carry the meaning; screen readers get them here. */}
+            <span className="sr-only">
+              {voters.length > 0 ? `${voters.join(", ")} picked this` : "No votes yet"}
+            </span>
+            <span aria-hidden="true">{yesCount} yes</span>
+          </span>
         </span>
 
         {!decided && (
