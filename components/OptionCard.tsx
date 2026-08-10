@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import type { Spot } from "@/lib/types";
 import { categoryMeta } from "@/lib/categories";
 
@@ -24,6 +25,21 @@ export default function OptionCard({
 }: OptionCardProps) {
   const dimmed = decided && !isWinner;
   const cat = categoryMeta(spot.category);
+
+  // A tally arriving over realtime is the only "someone else is here" signal
+  // this screen has. Acknowledge it once, then clear — a permanent highlight
+  // would just become another colour, and a loop is forbidden by the
+  // standards. Skipped on first render so counts do not flash on load.
+  const [bumped, setBumped] = useState(false);
+  const previousCount = useRef<number | null>(null);
+  useEffect(() => {
+    const seen = previousCount.current;
+    previousCount.current = yesCount;
+    if (seen === null || seen === yesCount) return;
+    setBumped(true);
+    const timer = setTimeout(() => setBumped(false), 460);
+    return () => clearTimeout(timer);
+  }, [yesCount]);
 
   return (
     <button
@@ -70,6 +86,7 @@ export default function OptionCard({
           className={[
             "inline-flex items-center gap-1.5 text-sm font-bold tabular-nums",
             yesCount > 0 ? "vote-option__votes" : "text-muted",
+            bumped ? "vote-count--changed" : "",
           ].join(" ")}
         >
           {yesCount} yes

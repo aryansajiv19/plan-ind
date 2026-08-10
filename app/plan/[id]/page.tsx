@@ -563,15 +563,19 @@ export default function VotePage() {
                 onClick={() => setActivePool(poolNumber)}
                 aria-current={activePool === poolNumber ? "step" : undefined}
                 data-complete={poolsChosenByMe.has(poolNumber) || undefined}
+                aria-label={`Round ${poolNumber} of ${poolCount}${poolsChosenByMe.has(poolNumber) ? ", chosen" : ""}`}
               >
-                Pool {poolNumber}
+                <span aria-hidden="true">{poolNumber}</span>
               </button>
             ))}
           </nav>
         )}
 
-        {/* Three places in the current pool, or the three finalists. */}
-        <div className="vote-options-grid mt-6 grid gap-3.5 sm:grid-cols-3">
+        {/* Three places in the current round, or the three finalists. On a
+            phone this is a snap carousel (see .vote-options-grid); the key
+            re-mounts it per round so the next set animates in rather than
+            swapping in place. */}
+        <div key={`round-${currentPoolNumber}`} className="vote-options-grid vote-round mt-6 grid gap-3.5 sm:grid-cols-3">
           {visibleSpots.map((spot) => (
             <div key={spot.id} ref={(el) => { cardRefs.current[spot.id] = el; }}>
               <OptionCard

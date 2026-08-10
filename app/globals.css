@@ -24,6 +24,16 @@
   --color-zest: #c5ad84; /* celebration, confetti */
   --color-mint: #9b7d4e; /* semantic — a yes vote */
 
+  /* The one live accent. It marks STATE and never decorates:
+       --color-live  = you, and now (your vote, your completed round, a
+                       count that just changed)
+       champagne     = the outcome (the winner, a decided plan)
+     Everything else stays ivory and graphite. Cobalt is deliberate — cool
+     against the warm base, so it reads as interactive rather than blending
+     into the metal. 6.00:1 on the ivory ground; the night scopes below flip
+     it to a light tint because no single hue clears AA on both. */
+  --color-live: #2f4bd6;
+
   --font-display: var(--font-display-family), system-ui, sans-serif;
   --font-body: var(--font-hanken), system-ui, sans-serif;
 }
@@ -599,13 +609,19 @@ h3 {
   .plan-category-option:hover,
   .demo-board-items > div:hover,
   .demo-friend-row:hover { transform: translateY(-3px) rotate(.25deg); }
+  /* :active as well — a phone has no hover, so without this the entire
+     press-feedback layer is invisible on the primary target device. */
+  .demo-friend-row:active { transform: translateY(-1px) scale(.995); }
+  .home-app-tab:active { transform: translateY(-1px); }
+  .place-link-importer__field button:active:not(:disabled) { transform: translateY(0) scale(.98); }
+  .demo-reaction-row button:active { transform: scale(.94); }
+  .vote-option:active:not(:disabled) { transform: scale(.985); }
   .plan-category-option,
   .demo-board-items > div,
   .demo-friend-row,
   .place-link-importer__saved a { transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease; }
   .demo-reaction-row button:hover { transform: translateY(-2px) rotate(-1deg); }
   .demo-reaction-row button[aria-pressed="true"] { animation: reaction-pop 260ms ease both; }
-  .home-system-row--active { animation: active-row-pulse 2.8s ease-in-out infinite; }
 }
 
 @keyframes reaction-pop {
@@ -614,10 +630,6 @@ h3 {
   100% { transform: scale(1); }
 }
 
-@keyframes active-row-pulse {
-  0%, 100% { box-shadow: inset 3px 0 0 var(--home-metal); }
-  50% { box-shadow: inset 5px 0 0 var(--home-metal); }
-}
 
 .home-hero {
   width: min(100% - 2rem, 76rem);
@@ -1910,6 +1922,8 @@ h3 {
 @media (max-width: 760px) { .auth-shell { padding: 0; } .auth-frame { display: block; min-height: 100dvh; border: 0; } .auth-intro { min-height: 43vh; padding: 1.25rem; border-right: 0; border-bottom: 1px solid var(--auth-line); } .auth-intro h1 { margin-top: auto; font-size: clamp(3.4rem, 16vw, 5.8rem); } .auth-copy { font-size: .84rem; } .auth-panel { padding: 2rem 1.25rem 2.5rem; } }
 
 .home-experience--night {
+  /* 8.02:1 on obsidian; the day cobalt is only 2.91:1 here. */
+  --color-live: #8aa0ff;
   --color-paper: #090b0e;
   --color-card: #121418;
   --color-ink: #f0ece4;
@@ -1981,6 +1995,8 @@ h3 {
 }
 
 .vote-experience--night {
+  /* 8.02:1 on obsidian; the day cobalt is only 2.91:1 here. */
+  --color-live: #8aa0ff;
   --color-paper: #090b0e;
   --color-card: #121418;
   --color-ink: #f0ece4;
@@ -2022,37 +2038,73 @@ h3 {
 
 .vote-plan-constraints { margin-top: 0.35rem; color: var(--color-muted); font-size: 0.68rem; }
 
+/* Round progress. Dots rather than a segmented bar: three rounds is a short
+   journey and the shape of it should be readable in one glance. They stay
+   real buttons so a round can still be revisited by keyboard. */
 .vote-pool-progress {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: flex;
+  justify-content: center;
+  gap: 0.55rem;
   margin-top: 1.5rem;
-  border-block: 1px solid var(--color-line);
 }
 
 .vote-pool-progress button {
   position: relative;
-  min-height: 2.7rem;
-  border: 0;
-  border-left: 1px solid var(--color-line);
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border: 1px solid var(--color-line);
+  border-radius: 50%;
   background: transparent;
   color: var(--color-muted);
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   font-weight: 700;
   cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
 }
 
-.vote-pool-progress button:first-child { border-left: 0; }
-.vote-pool-progress button[aria-current="step"] { color: var(--color-ink); }
-.vote-pool-progress button[aria-current="step"]::after {
-  content: "";
-  position: absolute;
-  inset: auto 0 -1px;
-  height: 2px;
-  background: var(--vote-metal);
+/* A round you have already chosen in — your state, so the live accent. */
+.vote-pool-progress button[data-complete="true"] {
+  border-color: var(--color-live);
+  background: color-mix(in srgb, var(--color-live) 12%, transparent);
+  color: var(--color-live);
 }
-.vote-pool-progress button[data-complete="true"]::before { content: "Chosen · "; color: var(--vote-metal); }
+
+/* The round you are looking at now. */
+.vote-pool-progress button[aria-current="step"] {
+  border-color: var(--color-ink);
+  color: var(--color-ink);
+}
+.vote-pool-progress button[aria-current="step"][data-complete="true"] {
+  border-color: var(--color-live);
+}
 
 .vote-options-grid { gap: 0.8rem; }
+
+/* Phone: the round becomes a swipeable deck. scroll-snap is the native
+   platform feature for this — the browser supplies momentum, rubber-banding
+   and the touch physics, so there is no gesture library and no drag maths.
+   The next card peeks so it is obvious there are three, and choosing stays a
+   comparison rather than a blind swipe. The cards remain real buttons in a
+   scroll container, so keyboard and screen-reader behaviour is unchanged. */
+@media (max-width: 640px) {
+  .vote-options-grid {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 85%;
+    gap: 0.7rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 0.75rem;
+    padding-inline: 0.75rem;
+    margin-inline: -0.75rem;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+  }
+  .vote-options-grid::-webkit-scrollbar { display: none; }
+  .vote-options-grid > * { scroll-snap-align: center; }
+}
 
 .vote-option {
   min-height: 100%;
@@ -2063,8 +2115,22 @@ h3 {
 }
 
 .vote-option:hover:not(:disabled) { border-color: color-mix(in srgb, var(--vote-metal) 70%, var(--color-line)); transform: translateY(-1px); }
-.vote-option[aria-pressed="true"] { border-color: var(--vote-metal); background: color-mix(in srgb, var(--vote-metal) 7%, var(--color-card)); }
+
+/* Your pick and the group's winner used to be the same champagne, so the
+   card you chose was indistinguishable from the card that won. Your vote is
+   now the live accent; champagne is reserved for the outcome. */
+.vote-option[aria-pressed="true"] {
+  border-color: var(--color-live);
+  background: color-mix(in srgb, var(--color-live) 8%, var(--color-card));
+  box-shadow: inset 3px 0 0 var(--color-live);
+}
 .vote-option--winner { border-color: var(--vote-metal); box-shadow: inset 0 2px 0 var(--vote-metal); }
+/* Decided: the outcome wins the card even if it is also the one you picked. */
+.vote-option--winner[aria-pressed="true"] {
+  border-color: var(--vote-metal);
+  background: color-mix(in srgb, var(--vote-metal) 8%, var(--color-card));
+  box-shadow: inset 0 2px 0 var(--vote-metal);
+}
 
 .vote-option__winner-label {
   position: absolute;
@@ -2091,7 +2157,9 @@ h3 {
 .vote-option h3 { font-weight: 600; letter-spacing: -0.025em; }
 .vote-option__votes { color: var(--vote-metal); }
 .vote-option__choice { border: 1px solid var(--color-line); border-radius: 0; color: var(--color-ink); }
-.vote-option__choice--selected { border-color: var(--vote-metal); background: var(--vote-metal); color: #111218; }
+/* "Selected" is your state, so it takes the live accent, not the outcome
+   colour. White on cobalt is 6.0:1; on the night tint the ink reads. */
+.vote-option__choice--selected { border-color: var(--color-live); background: var(--color-live); color: var(--color-card); }
 
 /* Small two-state toggle ("would you go again?"). The selected state fills
    with ink rather than champagne: at 12px bold, white on champagne is 3.4:1
@@ -2516,4 +2584,23 @@ h3 {
   .home-plan-section__intro h2 { font-size: 1.35rem; }
   .home-plan-card { border-radius: 0; }
   .demo-place-card__code { aspect-ratio: 21 / 9; font-size: 1.15rem; }
+}
+
+/* Round change: the incoming set slides in once, on mount. Guarded by
+   no-preference — with reduced motion the round simply appears. */
+@media (prefers-reduced-motion: no-preference) {
+  .vote-round { animation: vote-round-in 320ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+  @keyframes vote-round-in {
+    from { opacity: 0; transform: translateX(1.25rem); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  /* A tally that just changed. Applied briefly by the vote screen, then
+     removed — a one-shot acknowledgement, never a loop. */
+  .vote-count--changed { animation: vote-count-bump 420ms ease both; color: var(--color-live); }
+  @keyframes vote-count-bump {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.18); }
+    100% { transform: scale(1); }
+  }
 }
