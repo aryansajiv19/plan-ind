@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import OpenAI from "openai";
 import { createClient } from "@/lib/supabase/server";
-import { minimumAgeForCategory, prohibitedVenueReason, safeAgeFromMetadata } from "@/lib/age-policy";
+import { memberAge, minimumAgeForCategory, prohibitedVenueReason } from "@/lib/age-policy";
 
 export const runtime = "nodejs";
 
@@ -101,7 +101,7 @@ export async function POST(request: Request) {
   if (prohibitedVenueReason(query)) {
     return Response.json({ error: "Deal three does not recommend sexually explicit or adult-entertainment venues." }, { status: 400 });
   }
-  const age = safeAgeFromMetadata(user?.user_metadata) ?? 21;
+  const age = (user ? await memberAge(supabase, user.id) : null) ?? 21;
 
   const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
   const safetyIdentifier = privateIdentifier(user?.id ?? forwarded);

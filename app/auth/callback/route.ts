@@ -17,7 +17,9 @@ export async function GET(request: NextRequest) {
       const pendingDob = request.cookies.get("deal-three-pending-dob")?.value;
       const birth = pendingDob ? validateBirthDate(pendingDob) : null;
       if (birth && !('error' in birth)) {
-        await supabase.auth.updateUser({ data: { date_of_birth: birth.dateOfBirth } });
+        // Write-once: a returning Google user already has a row, and the
+        // rejection is the correct outcome, so the error is not surfaced.
+        await supabase.rpc("set_birth_date", { p_date_of_birth: birth.dateOfBirth });
       }
       const response = NextResponse.redirect(new URL(next, request.url));
       response.cookies.delete("deal-three-pending-dob");

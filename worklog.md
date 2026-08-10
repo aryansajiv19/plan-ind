@@ -1,6 +1,75 @@
 # Deal three worklog
 
-Last updated: 2026-08-09 (Asia/Dubai)
+Last updated: 2026-08-10 (Asia/Dubai)
+
+## Migration runbook
+
+The single source of truth for what is applied where. Update the status column
+the same day you run something — prose scattered through checkpoints stopped
+being trustworthy at 014.
+
+Apply in order. Every migration is additive and re-run safe unless noted.
+
+| # | File | Applied to live project |
+|---|------|-------------------------|
+| 002 | `migration-002-lastmile-categories.sql` | yes |
+| 003 | `migration-003-ratings.sql` | yes |
+| 004 | `migration-004-swap.sql` | yes |
+| 005 | `migration-005-social.sql` | yes |
+| 006 | `migration-006-social-hardening.sql` | yes |
+| 007 | `migration-007-auth.sql` | yes |
+| 008 | `migration-008-expanded-dubai-categories.sql` | yes |
+| 009 | `migration-009-pools-custom-spots.sql` | yes — verified live 2026-08-10 |
+| 010 | `migration-010-recommendations-collections.sql` | yes |
+| 011 | `migration-011-smart-search.sql` | yes |
+| 012 | `migration-012-place-link-imports.sql` | yes |
+| 013 | `migration-013-age-safe-venues.sql` | yes — 2026-08-09 |
+| 014 | `migration-014-secure-plan-creation.sql` | yes — 2026-08-09 |
+| 015 | `migration-015-host-plan-commands.sql` | yes — verified live 2026-08-10 |
+| 016 | `migration-016-rsvp-choices.sql` | yes — verified live 2026-08-10 |
+| 017 | `migration-017-participant-token-seam.sql` | yes — verified live 2026-08-10 |
+| 018 | `migration-018-participant-write-rpcs.sql` | yes — verified live 2026-08-10 |
+| 019 | `migration-019-secret-isolation-and-rpc-integrity.sql` | **NOT YET — required** |
+
+`npm run test:smoke` asserts the 019 guards against the live project. While it
+reports `plans still exposes host_token_hash to the anon key`, 019 is not applied.
+
+`schema.sql` is the end-state description for a scratch project, not an update
+path. It now includes the RPCs, which it was missing — a project built from the
+old copy could be read but never written to. `setup.sql` was deleted: it was a
+drifted subset of the same thing.
+
+## Security hardening — 2026-08-10
+
+Closed the P0/P1 findings the previous review recorded but did not implement.
+All of them were still open; the shape of each fix is the same, moving a secret
+or a rule somewhere the client cannot reach.
+
+- **Host token.** `plans.host_token_hash` was readable by anyone with a share
+  link (`read plans` is `using (true)`) and was broadcast over realtime on every
+  host command. Moved to `plan_host_tokens`, insert-only, no select policy.
+  Patching the individual `select("*")` calls was rejected as a fix: the next one
+  would reintroduce it.
+- **Participant RPCs.** Migration 018 validated a token-hash regex and nothing
+  else — no function read `plans` at all. Added spot-in-plan membership, plan
+  status, stage/phase agreement, pool bounds, winner-only rating, and non-empty
+  names.
+- **Date of birth.** Lived in auth `user_metadata`, which any signed-in browser
+  can rewrite, so the 13/18/21 gates were self-certified. Now `member_ages`,
+  written only by the write-once `set_birth_date` RPC. Existing accounts are
+  carried over by the migration. `safeAgeFromMetadata` is replaced by
+  `memberAge()` so no caller can read the age from metadata again.
+- **Legacy write paths.** The three direct-write fallbacks in
+  `app/plan/[id]/page.tsx` were revoked by 015 and failing silently — the decide
+  fallback did not check its error at all. Deleted, along with the duplicate
+  client-side tally that only existed to feed them. `execute_plan_command` is now
+  the sole tally. The deadline auto-pick is host-only, so participant browsers no
+  longer race to fire commands they cannot run.
+- **Plan creation.** A failed `plan_spots` insert left an unusable plan behind a
+  live share link. The plan row is now rolled back on failure.
+
+Still open, deliberately: rate limiters are in-process `Map`s that reset on cold
+start, and the OTP one grows unbounded on attacker-supplied emails.
 
 ## Architecture foundation — 2026-08-10
 

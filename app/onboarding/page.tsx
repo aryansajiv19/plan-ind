@@ -1,10 +1,15 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
+import { memberAge } from "@/lib/age-policy";
+import { createClient } from "@/lib/supabase/server";
 import AgeForm from "@/components/AgeForm";
 
 export default async function OnboardingPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
+  // Date of birth is write-once, so this form has nothing left to do once it
+  // is on file. Without this the page stays reachable forever.
+  if (await memberAge(await createClient(), user.id) !== null) redirect("/home");
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-5 py-10">
       <div className="mb-7">

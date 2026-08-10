@@ -1,3 +1,5 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+
 export const MIN_ACCOUNT_AGE = 13;
 
 export const CATEGORY_MINIMUM_AGE: Record<string, number> = {
@@ -44,7 +46,21 @@ export function venueAllowedForAge(age: number, minimumAge: number | null | unde
   return age >= (minimumAge ?? 0);
 }
 
-export function safeAgeFromMetadata(metadata: Record<string, unknown> | undefined): number | null {
-  const value = metadata?.date_of_birth;
+/**
+ * The account's age, read from the server-owned `member_ages` table.
+ *
+ * Never read date of birth from `auth` user_metadata: the browser can rewrite
+ * that with `supabase.auth.updateUser({ data })`, so an age taken from it is
+ * certified by the same account it is supposed to gate. `member_ages` has no
+ * insert or update policy — the only write path is the `set_birth_date` RPC,
+ * which refuses to overwrite an existing row.
+ */
+export async function memberAge(supabase: SupabaseClient, userId: string): Promise<number | null> {
+  const { data } = await supabase
+    .from("member_ages")
+    .select("date_of_birth")
+    .eq("user_id", userId)
+    .maybeSingle();
+  const value = (data as { date_of_birth?: unknown } | null)?.date_of_birth;
   return typeof value === "string" ? ageOnDate(value) : null;
 }

@@ -111,7 +111,7 @@ export async function verifyEmailCode(
 
   const birth = validateBirthDate(dateOfBirth);
   if ("error" in birth) return { email, dateOfBirth, sent: true, error: birth.error };
-  const { error: profileError } = await supabase.auth.updateUser({ data: { date_of_birth: birth.dateOfBirth } });
+  const { error: profileError } = await supabase.rpc("set_birth_date", { p_date_of_birth: birth.dateOfBirth });
   if (profileError) redirect("/onboarding");
 
   redirect("/home");
@@ -145,8 +145,14 @@ export async function saveBirthDate(_state: { error?: string }, formData: FormDa
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
-  const { error } = await supabase.auth.updateUser({ data: { date_of_birth: birth.dateOfBirth } });
-  if (error) return { error: "We couldn't save that yet. Please try again." };
+  // set_birth_date is write-once, so a second attempt is rejected by the
+  // database rather than silently raising the account's age.
+  const { error } = await supabase.rpc("set_birth_date", { p_date_of_birth: birth.dateOfBirth });
+  if (error) {
+    return { error: error.code === "42501"
+      ? "Your date of birth is already saved. Contact us if it needs correcting."
+      : "We couldn't save that yet. Please try again." };
+  }
   redirect("/home");
 }
 

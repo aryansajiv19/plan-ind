@@ -58,7 +58,11 @@ export interface Plan {
   vibe_preferences: string[];
   avoid_preferences: string[];
   intelligence_model: string | null;
+  created_at: string; // ISO timestamp
 }
+// NOTE: the host token hash is deliberately absent. It lives in
+// `plan_host_tokens`, which has no select policy, so it never reaches a
+// client — see supabase/migration-019-secret-isolation-and-rpc-integrity.sql.
 
 export interface PlanSpot {
   plan_id: string;
