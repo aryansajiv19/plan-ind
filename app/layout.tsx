@@ -4,8 +4,10 @@ import SkylineBackdrop from "@/components/SkylineBackdrop";
 import "./globals.css";
 
 // Display face — precise and architectural, with enough warmth for hospitality.
-const bricolage = Manrope({
-  variable: "--font-bricolage",
+// (This was Bricolage Grotesque; the variable kept that name long after the
+// face changed, which read as a lie in every stylesheet that used it.)
+const display = Manrope({
+  variable: "--font-display-family",
   subsets: ["latin"],
   weight: ["500", "600", "700", "800"],
 });
@@ -30,7 +32,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${bricolage.variable} ${hanken.variable} h-full`}
+      className={`${display.variable} ${hanken.variable} h-full`}
     >
       <body className="min-h-full flex flex-col">
         <SkylineBackdrop />

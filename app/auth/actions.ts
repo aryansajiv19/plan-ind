@@ -1,7 +1,6 @@
 "use server";
 
 import { headers } from "next/headers";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { validateBirthDate } from "@/lib/age-policy";
@@ -14,7 +13,6 @@ export interface AuthFormState {
   sent?: boolean;
 }
 
-const PENDING_BIRTH_DATE = "deal-three-pending-dob";
 const otpRequests = new Map<string, { count: number; resetsAt: number }>();
 
 function allowOtp(email: string): boolean {
@@ -57,12 +55,10 @@ export async function requestEmailCode(
   formData: FormData,
 ): Promise<AuthFormState> {
   const email = cleanEmail(formData.get("email"));
-  const birth = birthDateFrom(formData);
-  if ("error" in birth) return { email, dateOfBirth: String(formData.get("dateOfBirth") ?? ""), error: birth.error };
   if (!/^\S+@\S+\.\S+$/.test(email) || email.length > 254) {
     return { error: "Enter a valid email address." };
   }
-  if (!allowOtp(email)) return { email, dateOfBirth: birth.dateOfBirth, error: "Too many codes requested. Try again in ten minutes." };
+  if (!allowOtp(email)) return { email, error: "Too many codes requested. Try again in ten minutes." };
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithOtp({
@@ -79,7 +75,6 @@ export async function requestEmailCode(
 
   return {
     email,
-    dateOfBirth: birth.dateOfBirth,
     sent: true,
     message: `We sent a six-digit code to ${email}.`,
   };
@@ -90,12 +85,11 @@ export async function verifyEmailCode(
   formData: FormData,
 ): Promise<AuthFormState> {
   const email = cleanEmail(formData.get("email"));
-  const dateOfBirth = String(formData.get("dateOfBirth") ?? "");
   const tokenValue = formData.get("token");
   const token = typeof tokenValue === "string" ? tokenValue.trim() : "";
 
   if (!email || !/^\d{6}$/.test(token)) {
-    return { email, dateOfBirth, sent: true, error: "Enter the six-digit code from your email." };
+    return { email, sent: true, error: "Enter the six-digit code from your email." };
   }
 
   const supabase = await createClient();
@@ -106,24 +100,14 @@ export async function verifyEmailCode(
   });
 
   if (error) {
-    return { email, dateOfBirth, sent: true, error: "That code is invalid or has expired." };
+    return { email, sent: true, error: "That code is invalid or has expired." };
   }
 
-  const birth = validateBirthDate(dateOfBirth);
-  if ("error" in birth) return { email, dateOfBirth, sent: true, error: birth.error };
-  const { error: profileError } = await supabase.rpc("set_birth_date", { p_date_of_birth: birth.dateOfBirth });
-  if (profileError) redirect("/onboarding");
-
+  // /home sends anyone without a date of birth on file to /onboarding.
   redirect("/home");
 }
 
-export async function signInWithGoogle(formData: FormData) {
-  const birth = birthDateFrom(formData);
-  if ("error" in birth) redirect(`/login?error=age&message=${encodeURIComponent(birth.error)}`);
-  const cookieStore = await cookies();
-  cookieStore.set(PENDING_BIRTH_DATE, birth.dateOfBirth, {
-    httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", maxAge: 600, path: "/",
-  });
+export async function signInWithGoogle() {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",

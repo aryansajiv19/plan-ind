@@ -1,21 +1,30 @@
 @import "tailwindcss";
 
-/* ── Design tokens (approved design pass) ──────────────────────────
-   Palette: calm lilac ground, plum ink, three loud accents held in
-   reserve, mint as reserved semantics for a "yes" vote.            */
+/* ── Design tokens ─────────────────────────────────────────────────
+   Architectural ivory ground, graphite ink, champagne metal. This is
+   the product-wide system: warm neutral, restrained, contemporary
+   Dubai hospitality rather than black-and-gold cliché.
+
+   These used to be a lilac ground with plum ink and loud purple/pink/
+   yellow/green accents. `.home-experience` and `.vote-experience` each
+   redefined all of them locally, so those two surfaces looked correct
+   while anything NOT under one of those classes — /onboarding, AgeForm,
+   any new page — silently rendered in the old palette. The accent names
+   are kept so the existing `text-grape` / `bg-punch` utilities scattered
+   through the components keep working; only the values moved.       */
 @theme {
-  --color-paper: #f4f1fa; /* ground — picked lilac-grey, faint grape bias */
-  --color-card: #ffffff;
-  --color-ink: #241b2e; /* plum-black: text + the token shadow */
-  --color-muted: #6b6478;
-  --color-line: rgba(36, 27, 46, 0.12);
+  --color-paper: #f3f1ec; /* ground — warm architectural ivory */
+  --color-card: #fbfaf7;
+  --color-ink: #17181b; /* graphite: text and rules */
+  --color-muted: #66666b;
+  --color-line: rgba(23, 24, 27, 0.14);
 
-  --color-grape: #6b34e0; /* primary action, focus */
-  --color-punch: #ff2e88; /* the winner — signature */
-  --color-zest: #ffce2e; /* celebration, confetti */
-  --color-mint: #17c79a; /* semantic — a yes vote */
+  --color-grape: #76654b; /* primary action, focus — deep bronze */
+  --color-punch: #9b7d4e; /* the winner — champagne metal */
+  --color-zest: #c5ad84; /* celebration, confetti */
+  --color-mint: #9b7d4e; /* semantic — a yes vote */
 
-  --font-display: var(--font-bricolage), system-ui, sans-serif;
+  --font-display: var(--font-display-family), system-ui, sans-serif;
   --font-body: var(--font-hanken), system-ui, sans-serif;
 }
 
@@ -2026,6 +2035,32 @@ h3 {
 .vote-option__votes { color: var(--vote-metal); }
 .vote-option__choice { border: 1px solid var(--color-line); border-radius: 0; color: var(--color-ink); }
 .vote-option__choice--selected { border-color: var(--vote-metal); background: var(--vote-metal); color: #111218; }
+
+/* Small two-state toggle ("would you go again?"). The selected state fills
+   with ink rather than champagne: at 12px bold, white on champagne is 3.4:1
+   and fails AA. Only one of a pair is ever pressed, so the fill is
+   unambiguous without a second colour. */
+.vote-toggle {
+  border: 1px solid var(--color-line);
+  border-radius: 0.14rem;
+  padding: 0.3rem 0.7rem;
+  background: transparent;
+  color: var(--color-ink);
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+.vote-toggle:hover { border-color: var(--color-ink); }
+.vote-toggle--on {
+  border-color: var(--color-ink);
+  background: var(--color-ink);
+  color: var(--color-card);
+}
+.vote-toggle:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--vote-metal) 42%, transparent);
+  outline-offset: 2px;
+}
 
 .vote-primary-action,
 .vote-secondary-action,

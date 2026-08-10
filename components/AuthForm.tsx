@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import {
   requestEmailCode,
@@ -25,7 +25,6 @@ function SubmitButton({ idle, pending }: { idle: string; pending: string }) {
 }
 
 export default function AuthForm({ pageError }: { pageError?: string }) {
-  const [enteredBirthDate, setEnteredBirthDate] = useState("");
   const [requestState, requestAction] = useActionState(
     requestEmailCode,
     INITIAL_STATE,
@@ -36,30 +35,15 @@ export default function AuthForm({ pageError }: { pageError?: string }) {
   );
   const isCodeStep = requestState.sent;
   const activeError = verifyState.error ?? requestState.error;
-  const dateOfBirth = enteredBirthDate || verifyState.dateOfBirth || requestState.dateOfBirth || "";
 
+  // Date of birth is NOT collected here. It used to be a required field on
+  // this screen, which meant a returning user had to retype their birthday
+  // every time they signed in — and it is stored write-once, so the retyped
+  // value was discarded anyway. /onboarding collects it once, and /home
+  // redirects there while it is missing.
   return (
     <div className="auth-form">
-      <div className="auth-field auth-field--age">
-        <label htmlFor="dateOfBirth">
-          Date of birth
-        </label>
-        <input
-          id="dateOfBirth"
-          name="dateOfBirth"
-          type="date"
-          max={new Date().toISOString().slice(0, 10)}
-          value={dateOfBirth}
-          onChange={(event) => setEnteredBirthDate(event.target.value)}
-          required
-          className="auth-input"
-          form="email-auth"
-        />
-        <p>Used privately to keep suggestions age-appropriate. Never shown on your profile.</p>
-      </div>
-
       <form action={signInWithGoogle}>
-        <input type="hidden" name="dateOfBirth" value={dateOfBirth} />
         <button
           type="submit"
           className="auth-google"
@@ -80,7 +64,6 @@ export default function AuthForm({ pageError }: { pageError?: string }) {
       {isCodeStep ? (
         <form action={verifyAction} className="auth-fields" id="email-auth">
           <input type="hidden" name="email" value={requestState.email} />
-          <input type="hidden" name="dateOfBirth" value={dateOfBirth} />
           <div>
             <label htmlFor="token">
               Six-digit code
@@ -107,7 +90,6 @@ export default function AuthForm({ pageError }: { pageError?: string }) {
         </form>
       ) : (
         <form action={requestAction} className="auth-fields" id="email-auth">
-          <input type="hidden" name="dateOfBirth" value={dateOfBirth} />
           <div>
             <label htmlFor="email">
               Email address
