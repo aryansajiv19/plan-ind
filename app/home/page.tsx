@@ -7,7 +7,14 @@ import { createClient } from "@/lib/supabase/server";
 import { getFriends, getProfileVisits } from "@/lib/social";
 import type { Spot } from "@/lib/types";
 
-export default async function HomePage() {
+const APP_VIEWS = ["plan", "discover", "been", "friends", "profile"] as const;
+type AppView = (typeof APP_VIEWS)[number];
+
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ view?: string }>;
+}) {
   const user = await requireUser();
   const supabase = await createClient();
   const age = await memberAge(supabase, user.id);
@@ -30,6 +37,13 @@ export default async function HomePage() {
   // Fetched here rather than in the client: the account screens then render
   // with their data already present, instead of flashing an empty log that
   // fills in a moment later. All three run under this user's RLS.
+  // Resolved here so a link straight to ?view=been renders that tab, instead
+  // of painting Plan and swapping after hydration.
+  const requestedView = (await searchParams).view;
+  const initialView: AppView = APP_VIEWS.includes(requestedView as AppView)
+    ? (requestedView as AppView)
+    : "plan";
+
   const [spots, visits, friends] = await Promise.all([
     supabase.from("spots").select("*").order("name").limit(120),
     person ? getProfileVisits(person, 50, supabase) : Promise.resolve([]),
@@ -42,6 +56,7 @@ export default async function HomePage() {
       <HomeExperience
         name={fallbackName}
         age={age}
+        initialView={initialView}
         personId={person}
         spots={(spots.data as Spot[] | null) ?? []}
         visits={visits}

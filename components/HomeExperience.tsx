@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { signOut } from "@/app/auth/actions";
 import DemoAccountViews from "@/components/DemoAccountViews";
 import AccountViews from "@/components/AccountViews";
@@ -35,10 +35,15 @@ function greetingFor(now: Date): string {
   return "Good evening";
 }
 
+function viewFromParam(value: string | null | undefined): AppView {
+  return APP_VIEWS.includes(value as AppView) ? (value as AppView) : "plan";
+}
+
 export default function HomeExperience({
   name,
   age = 21,
   demoMode = false,
+  initialView = "plan",
   spots = [],
   visits = [],
   friends = [],
@@ -46,6 +51,7 @@ export default function HomeExperience({
   name: string;
   age?: number;
   demoMode?: boolean;
+  initialView?: AppView;
   personId?: string | null;
   spots?: Spot[];
   visits?: ProfileVisit[];
@@ -56,8 +62,48 @@ export default function HomeExperience({
   // server's, and so the markup is stable for hydration. The hero has always
   // said "Good evening" regardless of the hour.
   const greeting = ready ? greetingFor(new Date()) : "Hello";
-  const [activeView, setActiveView] = useState<AppView>("plan");
+  const [activeView, setActiveView] = useState<AppView>(initialView);
   const [nightMode, setNightMode] = useState(false);
+
+  // Tabs live in the URL so Back leaves the tab rather than the app, and each
+  // tab keeps its own scroll offset the way a native tab bar does.
+  //
+  // Deliberately window.history rather than router.push: this route's Server
+  // Component runs three Supabase queries, and a router navigation would
+  // re-run all of them on every tab tap. Next supports the native History API
+  // for exactly this — the URL updates with no server round trip.
+  const viewRef = useRef<AppView>(initialView);
+  const scrollOffsets = useRef<Partial<Record<AppView, number>>>({});
+
+  const goToView = useCallback((next: AppView, push: boolean) => {
+    const current = viewRef.current;
+    if (current === next) return;
+    scrollOffsets.current[current] = window.scrollY;
+    viewRef.current = next;
+    setActiveView(next);
+    if (push) {
+      const url = next === "plan"
+        ? window.location.pathname
+        : `${window.location.pathname}?view=${next}`;
+      window.history.pushState({ view: next }, "", url);
+    }
+  }, []);
+
+  // Applied after the new view has been committed, not in the click handler:
+  // scrolling before React swaps the content just gets undone when the old,
+  // taller screen unmounts. An unvisited tab opens at the top; a tab you have
+  // been in before returns to where you left it.
+  const firstRender = useRef(true);
+  useEffect(() => {
+    if (firstRender.current) {
+      // Don't fight the browser on a fresh load or a deep link.
+      firstRender.current = false;
+      return;
+    }
+    // Jump, never smooth-scroll: a tab change is a screen change, and easing
+    // between two unrelated screens reads as the page sliding under you.
+    window.scrollTo({ top: scrollOffsets.current[activeView] ?? 0, behavior: "auto" });
+  }, [activeView]);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -67,11 +113,17 @@ export default function HomeExperience({
     return () => window.cancelAnimationFrame(frame);
   }, []);
 
+  useEffect(() => {
+    const onPopState = () => {
+      const params = new URLSearchParams(window.location.search);
+      goToView(viewFromParam(params.get("view")), false);
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, [goToView]);
+
   function showView(view: AppView) {
-    setActiveView(view);
-    window.requestAnimationFrame(() => {
-      document.getElementById("workspace")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
+    goToView(view, true);
   }
 
   function toggleNightMode() {
