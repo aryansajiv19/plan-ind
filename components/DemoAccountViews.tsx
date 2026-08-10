@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import PlaceLinkImporter from "@/components/PlaceLinkImporter";
+import DemoPlanningTools from "@/components/DemoPlanningTools";
 
 type AccountView = "discover" | "been" | "friends" | "profile";
 
@@ -178,6 +179,8 @@ export default function DemoAccountViews({
 
         <PlaceLinkImporter />
 
+        <DemoPlanningTools view="discover" onStartPlan={onStartPlan} />
+
         <div className="demo-discover-tools">
           <label><span>Search places</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Area, place or category" /></label>
           <div className="demo-filter-tabs" aria-label="Filter places">
@@ -264,6 +267,7 @@ export default function DemoAccountViews({
             <label className="demo-photo-target"><span>Attach to</span><select value={uploadVisitId} onChange={(event) => setUploadVisitId(event.target.value)}>{VISITS.map((visit) => <option key={visit.id} value={visit.id}>{visit.place.name}</option>)}</select></label>
           </div>
         </div>
+        <DemoPlanningTools view="been" onStartPlan={onStartPlan} />
       </section>
     );
   }
@@ -293,6 +297,7 @@ export default function DemoAccountViews({
             <div><span>Next suggestion</span><strong>Dinner near Al Quoz, then padel</strong></div>
           </aside>
         </div>
+        <DemoPlanningTools view="friends" onStartPlan={onStartPlan} />
       </section>
     );
   }
@@ -328,6 +333,8 @@ export default function DemoAccountViews({
         <section><p className="home-section-kicker">Taste profile</p><h2>What you usually choose</h2><div className="demo-taste-list"><span>Late dinner</span><span>Beach clubs</span><span>Padel</span><span>Arts & culture</span><span>Quiet cafes</span></div><p>Usually AED 150–350 · Dubai Marina, Al Quoz and Jumeirah · prefers groups of 3–6.</p></section>
         <section><p className="home-section-kicker">Photo privacy</p><h2>Who sees your visit photos?</h2><div className="demo-privacy-options">{["Only me", "Friends", "Community"].map((option) => <button key={option} type="button" onClick={() => setPrivacy(option)} aria-pressed={privacy === option}>{option}<small>{option === "Friends" ? "Recommended" : option === "Only me" ? "Private archive" : "Helps everyone"}</small></button>)}</div></section>
       </div>
+
+      <DemoPlanningTools view="profile" onStartPlan={onStartPlan} />
 
       <section className="demo-photo-strip"><div><p className="home-section-kicker">Recent photos</p><h2>Your July in Dubai</h2></div>{PLACES.map((place) => <span key={place.name}><Image src={place.image} alt={`From ${place.name}`} fill sizes="160px" /></span>)}</section>
     </section>

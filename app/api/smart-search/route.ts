@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import OpenAI from "openai";
 import { createClient } from "@/lib/supabase/server";
+import { minimumAgeForCategory, prohibitedVenueReason, safeAgeFromMetadata } from "@/lib/age-policy";
 
 export const runtime = "nodejs";
 
@@ -14,6 +15,8 @@ const CATEGORIES = [
 const ORIGINS = ["anywhere", "downtown", "marina", "jumeirah", "al-quoz", "creek"] as const;
 
 export interface SmartSearchIntent {
+  valid: boolean;
+  invalidReason: string | null;
   category: (typeof CATEGORIES)[number];
   title: string;
   summary: string;
@@ -46,6 +49,7 @@ function privateIdentifier(value: string): string {
 function normalizeIntent(value: unknown): SmartSearchIntent {
   if (!value || typeof value !== "object") throw new Error("Model returned invalid intent.");
   const raw = value as Record<string, unknown>;
+  const valid = raw.valid !== false;
   const category = CATEGORIES.includes(raw.category as SmartSearchIntent["category"])
     ? raw.category as SmartSearchIntent["category"]
     : "dinner";
@@ -61,6 +65,8 @@ function normalizeIntent(value: unknown): SmartSearchIntent {
   const title = typeof raw.title === "string" ? raw.title.trim().slice(0, 60) : "A Dubai plan";
   const summary = typeof raw.summary === "string" ? raw.summary.trim().slice(0, 180) : "A considered match for the plan you described.";
   return {
+    valid,
+    invalidReason: typeof raw.invalidReason === "string" ? raw.invalidReason.trim().slice(0, 160) || null : null,
     category,
     origin,
     title: title || "A Dubai plan",
@@ -92,6 +98,10 @@ export async function POST(request: Request) {
   if (query.length < 8 || query.length > 600) {
     return Response.json({ error: "Describe the plan in 8 to 600 characters." }, { status: 400 });
   }
+  if (prohibitedVenueReason(query)) {
+    return Response.json({ error: "Deal three does not recommend sexually explicit or adult-entertainment venues." }, { status: 400 });
+  }
+  const age = safeAgeFromMetadata(user?.user_metadata) ?? 21;
 
   const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
   const safetyIdentifier = privateIdentifier(user?.id ?? forwarded);
@@ -114,11 +124,13 @@ export async function POST(request: Request) {
       safety_identifier: safetyIdentifier,
       instructions: [
         "Convert a Dubai hangout request into search intent for an existing venue catalog.",
+        "First classify whether the input is a coherent request for a safe Dubai social plan, place or activity. Set valid=false and explain briefly when it is gibberish, unrelated, impossible to interpret, or not a hangout request. Do not force unrelated text into dinner.",
         "Never invent or recommend venue names. Return only constraints and short search language.",
         "Choose exactly one closest category from the supplied enum.",
         "Treat explicit budgets and locations as hard constraints. Use null when the user did not specify one.",
         "Map Dubai Marina/JBR/JLT to marina; Downtown/DIFC/Business Bay to downtown; Jumeirah/Umm Suqeim to jumeirah; Al Quoz/Al Barsha to al-quoz; Creek/Deira/Bur Dubai to creek.",
         "Keep vibe and avoid keywords short, concrete, and useful against venue descriptions.",
+        `The planner is ${age}. Never choose a category with a minimum age above ${age}. Clubs and nightlife are allowed for eligible adults, but never recommend sexually explicit venues.`,
       ].join(" "),
       input: query,
       text: {
@@ -130,6 +142,8 @@ export async function POST(request: Request) {
             type: "object",
             additionalProperties: false,
             properties: {
+              valid: { type: "boolean" },
+              invalidReason: { anyOf: [{ type: "string" }, { type: "null" }] },
               category: { type: "string", enum: CATEGORIES },
               title: { type: "string" },
               summary: { type: "string" },
@@ -140,13 +154,19 @@ export async function POST(request: Request) {
               avoidKeywords: { type: "array", items: { type: "string" } },
               occasion: { anyOf: [{ type: "string" }, { type: "null" }] },
             },
-            required: ["category", "title", "summary", "maxBudget", "origin", "radiusKm", "vibeKeywords", "avoidKeywords", "occasion"],
+            required: ["valid", "invalidReason", "category", "title", "summary", "maxBudget", "origin", "radiusKm", "vibeKeywords", "avoidKeywords", "occasion"],
           },
         },
       },
     });
 
     const intent = normalizeIntent(JSON.parse(response.output_text));
+    if (!intent.valid) {
+      return Response.json({ error: intent.invalidReason ?? "Describe a real Dubai plan, place or activity so I can build the search." }, { status: 422 });
+    }
+    if (minimumAgeForCategory(intent.category) > age) {
+      return Response.json({ error: "That type of place has an age requirement that does not match this account." }, { status: 400 });
+    }
     return Response.json({ intent, model: response.model }, {
       headers: { "Cache-Control": "no-store" },
     });
@@ -154,7 +174,10 @@ export async function POST(request: Request) {
     const details = error instanceof OpenAI.APIError
       ? { requestId: error.requestID, status: error.status, code: error.code, type: error.type, message: error.message }
       : { message: error instanceof Error ? error.message : "Unknown error" };
-    console.error("Smart search request failed", details);
+    console.error("Smart search request failed", JSON.stringify(details));
+    if (error instanceof OpenAI.APIError && (error.status === 429 || error.code === "insufficient_quota")) {
+      return Response.json({ error: "Smart search is temporarily unavailable because its AI usage credits are exhausted." }, { status: 503 });
+    }
     return Response.json({ error: "Smart search couldn’t interpret that right now. Try again." }, { status: 502 });
   }
 }

@@ -16,6 +16,7 @@ create table spots (
   id          uuid primary key default gen_random_uuid(),
   name        text not null,
   category    text not null default 'dinner', -- dinner | cafe | shisha | movie | ...
+  minimum_age smallint not null default 0 check (minimum_age between 0 and 99),
   area        text not null,
   cuisine     text not null,            -- or a type label for non-food categories
   price_band  text not null check (price_band in ('$', '$$', '$$$')),
@@ -32,6 +33,7 @@ create table spots (
   latitude    double precision,
   longitude   double precision,
   constraint spots_custom_owner_check check (source = 'curated' or created_by_user_id is not null)
+  ,constraint spots_mainstream_content_check check (lower(concat_ws(' ', name, cuisine, vibe, description)) !~ '(strip[[:space:]-]*club|gentlemen''s[[:space:]]+club|adult[[:space:]-]+entertainment|erotic[[:space:]]+massage|escort[[:space:]]+service|brothel|sex[[:space:]]+club|swinger[[:space:]]+club|topless[[:space:]]+bar|nude[[:space:]]+show)')
 );
 
 create index spots_owner_idx on spots (created_by_user_id) where source = 'custom';
@@ -39,6 +41,8 @@ create index spots_owner_idx on spots (created_by_user_id) where source = 'custo
 -- A plan == one share link. The uuid IS the slug in the URL.
 create table plans (
   id             uuid primary key default gen_random_uuid(),
+  created_by_user_id uuid references auth.users(id) on delete set null,
+  host_token_hash text,
   title          text not null,
   category       text not null default 'dinner',
   area           text,
@@ -85,6 +89,7 @@ create table votes (
   value      boolean not null,
   phase      text not null default 'final' check (phase in ('pool', 'final')),
   pool_number smallint not null default 0 check (pool_number between 0 and 6),
+  participant_token_hash text,
   created_at timestamptz not null default now(),
   unique (plan_id, spot_id, voter_name, phase, pool_number)
 );
@@ -99,6 +104,8 @@ create table rsvps (
   plan_id    uuid not null references plans(id) on delete cascade,
   voter_name text not null,
   coming     boolean not null default true,
+  choice     text not null default 'coming' check (choice in ('coming', 'maybe', 'no')),
+  participant_token_hash text,
   created_at timestamptz not null default now(),
   unique (plan_id, voter_name)
 );
@@ -113,6 +120,7 @@ create table ratings (
   voter_name text not null,
   stars      int  not null check (stars between 1 and 5),
   again      boolean not null,
+  participant_token_hash text,
   created_at timestamptz not null default now(),
   unique (plan_id, voter_name)
 );
@@ -145,24 +153,19 @@ create policy "read plan_spots" on plan_spots for select using (true);
 create policy "read votes"      on votes      for select using (true);
 
 -- Voting: insert and update your own vote rows.
-create policy "cast votes"   on votes for insert with check (true);
-create policy "change votes" on votes for update using (true) with check (true);
 
 -- RSVPs: commit and change your mind.
 create policy "read rsvps"   on rsvps for select using (true);
-create policy "cast rsvps"   on rsvps for insert with check (true);
-create policy "change rsvps" on rsvps for update using (true) with check (true);
 
 -- Ratings: rate the winner after the visit; change your mind.
 create policy "read ratings"   on ratings for select using (true);
-create policy "cast ratings"   on ratings for insert with check (true);
-create policy "change ratings" on ratings for update using (true) with check (true);
 
 -- Starting a plan (used by the create flow) + "decide for us" updates.
-create policy "create plans"      on plans      for insert with check (true);
-create policy "decide plans"      on plans      for update using (true) with check (true);
-create policy "attach plan_spots" on plan_spots for insert with check (true);
-create policy "advance plan_spots" on plan_spots for update using (true) with check (true);
+create policy "create own plans" on plans for insert to authenticated with check (created_by_user_id = (select auth.uid()));
+create policy "update own plans" on plans for update to authenticated
+  using (created_by_user_id = (select auth.uid()))
+  with check (created_by_user_id = (select auth.uid()));
+create policy "attach own plan_spots" on plan_spots for insert to authenticated with check (exists (select 1 from plans p where p.id = plan_id and p.created_by_user_id = (select auth.uid())));
 
 create policy "create custom spots" on spots for insert with check (
   source = 'custom' and created_by_user_id = auth.uid()

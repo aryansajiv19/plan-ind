@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import {
   requestEmailCode,
@@ -17,7 +17,7 @@ function SubmitButton({ idle, pending }: { idle: string; pending: string }) {
     <button
       type="submit"
       disabled={status.pending}
-      className="token min-h-12 w-full rounded-2xl border-2 border-ink bg-grape px-5 py-3 font-bold text-white disabled:cursor-wait disabled:opacity-60"
+      className="auth-submit"
     >
       {status.pending ? pending : idle}
     </button>
@@ -25,6 +25,7 @@ function SubmitButton({ idle, pending }: { idle: string; pending: string }) {
 }
 
 export default function AuthForm({ pageError }: { pageError?: string }) {
+  const [enteredBirthDate, setEnteredBirthDate] = useState("");
   const [requestState, requestAction] = useActionState(
     requestEmailCode,
     INITIAL_STATE,
@@ -35,32 +36,53 @@ export default function AuthForm({ pageError }: { pageError?: string }) {
   );
   const isCodeStep = requestState.sent;
   const activeError = verifyState.error ?? requestState.error;
+  const dateOfBirth = enteredBirthDate || verifyState.dateOfBirth || requestState.dateOfBirth || "";
 
   return (
-    <div className="token rounded-[28px] border-2 border-ink bg-card p-5 sm:p-6">
+    <div className="auth-form">
+      <div className="auth-field auth-field--age">
+        <label htmlFor="dateOfBirth">
+          Date of birth
+        </label>
+        <input
+          id="dateOfBirth"
+          name="dateOfBirth"
+          type="date"
+          max={new Date().toISOString().slice(0, 10)}
+          value={dateOfBirth}
+          onChange={(event) => setEnteredBirthDate(event.target.value)}
+          required
+          className="auth-input"
+          form="email-auth"
+        />
+        <p>Used privately to keep suggestions age-appropriate. Never shown on your profile.</p>
+      </div>
+
       <form action={signInWithGoogle}>
+        <input type="hidden" name="dateOfBirth" value={dateOfBirth} />
         <button
           type="submit"
-          className="flex min-h-12 w-full items-center justify-center gap-3 rounded-2xl border-2 border-ink bg-white px-5 py-3 font-bold transition-colors hover:bg-paper"
+          className="auth-google"
         >
-          <span aria-hidden className="grid size-7 place-items-center rounded-full bg-ink text-sm text-white">
+          <span aria-hidden className="auth-google__icon">
             G
           </span>
           Continue with Google
         </button>
       </form>
 
-      <div className="my-5 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.14em] text-muted">
-        <span className="h-px flex-1 bg-line" />
+      <div className="auth-divider">
+        <span />
         or use email
-        <span className="h-px flex-1 bg-line" />
+        <span />
       </div>
 
       {isCodeStep ? (
-        <form action={verifyAction} className="space-y-4">
+        <form action={verifyAction} className="auth-fields" id="email-auth">
           <input type="hidden" name="email" value={requestState.email} />
+          <input type="hidden" name="dateOfBirth" value={dateOfBirth} />
           <div>
-            <label htmlFor="token" className="mb-2 block text-sm font-bold">
+            <label htmlFor="token">
               Six-digit code
             </label>
             <input
@@ -74,19 +96,20 @@ export default function AuthForm({ pageError }: { pageError?: string }) {
               required
               autoFocus
               placeholder="000000"
-              className="min-h-14 w-full rounded-2xl border-2 border-ink bg-paper px-4 text-center font-display text-2xl font-extrabold tracking-[0.35em]"
+              className="auth-input auth-input--code"
             />
           </div>
-          <p className="text-sm text-muted">{requestState.message}</p>
+          <p className="auth-message">{requestState.message}</p>
           <SubmitButton idle="Verify and continue" pending="Checking code…" />
-          <a href="/login" className="block text-center text-sm font-bold text-grape underline">
+          <a href="/login" className="auth-link">
             Use a different email
           </a>
         </form>
       ) : (
-        <form action={requestAction} className="space-y-4">
+        <form action={requestAction} className="auth-fields" id="email-auth">
+          <input type="hidden" name="dateOfBirth" value={dateOfBirth} />
           <div>
-            <label htmlFor="email" className="mb-2 block text-sm font-bold">
+            <label htmlFor="email">
               Email address
             </label>
             <input
@@ -96,7 +119,7 @@ export default function AuthForm({ pageError }: { pageError?: string }) {
               autoComplete="email"
               required
               placeholder="you@example.com"
-              className="min-h-12 w-full rounded-2xl border-2 border-ink bg-paper px-4 text-base"
+              className="auth-input"
             />
           </div>
           <SubmitButton idle="Email me a code" pending="Sending code…" />
@@ -104,12 +127,12 @@ export default function AuthForm({ pageError }: { pageError?: string }) {
       )}
 
       {(activeError || pageError) && (
-        <p role="alert" className="mt-4 rounded-xl bg-punch/10 px-4 py-3 text-sm font-bold text-punch">
+        <p role="alert" className="auth-error">
           {activeError ?? "Sign-in did not finish. Please try again."}
         </p>
       )}
 
-      <p className="mt-5 text-center text-xs leading-relaxed text-muted">
+      <p className="auth-footnote">
         By continuing, you agree to keep things friendly. No password to remember.
       </p>
     </div>

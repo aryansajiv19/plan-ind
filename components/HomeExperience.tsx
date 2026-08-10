@@ -25,7 +25,7 @@ const VIEW_LABELS: Record<AppView, string> = {
   profile: "Profile",
 };
 
-export default function HomeExperience({ name }: { name: string }) {
+export default function HomeExperience({ name, age = 21, demoMode = false }: { name: string; age?: number; demoMode?: boolean }) {
   const [ready, setReady] = useState(false);
   const [activeView, setActiveView] = useState<AppView>("plan");
   const [nightMode, setNightMode] = useState(false);
@@ -186,7 +186,7 @@ export default function HomeExperience({ name }: { name: string }) {
 
         <div className="home-plan-card">
           <div className="home-plan-card__tape" aria-hidden="true">New plan</div>
-          <StartPlanForm />
+          <StartPlanForm age={age} demoMode={demoMode} />
         </div>
       </section>
       </div>

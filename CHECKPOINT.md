@@ -1,6 +1,73 @@
 # plan-ind Working Checkpoint
 
-Last updated: 2026-08-07 (Asia/Dubai)
+Last updated: 2026-08-09 (Asia/Dubai)
+
+## Build-order checkpoint 1: shared planning domain and demo entry
+
+- Added `lib/planning.ts` with shared lifecycle, circle, moodboard, reminder and memory types plus versioned local-storage helpers.
+- Migrated `DemoPlanningTools` from private component-only shapes to the shared planning domain.
+- Development root now opens `/home-preview` when no user is signed in, keeping authentication deferred without hiding the product.
+- Verification: ESLint, TypeScript, `git diff --check`, smoke checks and production build pass.
+- Next action: secure plan state commands and make local/demo lifecycle behavior map cleanly to persisted plans.
+
+## Implementation checkpoint: local-first planning layer
+
+- Added `DemoPlanningTools` to the existing account views without changing the visual system.
+- Friends now supports named circles and a local plan lifecycle with idea, voting, confirmation, RSVP, date and reminder state.
+- Discover now supports moodboards containing places, links and photo-type ideas, with conversion into a plan.
+- Been now supports local memory notes and photo previews after an outing; Profile shows reminder state.
+- Demo data persists in localStorage; authentication and Supabase persistence remain intentionally deferred.
+- Verification: ESLint, TypeScript, `git diff --check`, smoke checks and production build pass.
+
+## Feature checkpoint: Planind Wrapped
+
+- Added a Profile “Create my Wrapped” action in `DemoPlanningTools`.
+- It generates a monthly local demo recap with plans, area, circle, signature plan and rating highlights, plus Share/Copy and Close actions.
+- It uses browser sharing when available and clipboard fallback otherwise. No new UI system or external media service was introduced.
+- Verification: lint, TypeScript, smoke checks and production build pass.
+- Future production work: calculate monthly stats from persisted plans, votes, RSVPs, visits, photos and circles once authentication/persistence is enabled.
+
+## Active implementation: secure plan creation and smoke checks
+
+- Added `app/api/plans/route.ts` as the authenticated plan-creation boundary. It validates account age, category minimum age, every selected spot, custom-place ownership, prohibited venue text, nine unique candidates, deadlines, and applies a per-user plan rate limit.
+- `components/StartPlanForm.tsx` now calls the server route instead of directly inserting `plans` and `plan_spots` from the browser.
+- Added `supabase/migration-014-secure-plan-creation.sql`: plan ownership is stored in `created_by_user_id`; only authenticated owners can create plans or attach candidate spots. Public plan reads/voting remain unchanged.
+- Added OTP request throttling in `app/auth/actions.ts` (three requests per email per ten minutes).
+- Added `scripts/smoke-test.mjs` and `npm run test:smoke`; it currently checks `/login`, `/home-preview`, and unauthenticated `/api/plans` protection.
+- Verification: smoke checks, ESLint, TypeScript, `git diff --check`, and production build all pass.
+- Deployment note: apply migrations 013 and 014 after migration 012 before using live age-safe plan creation. Existing legacy plans remain readable because their creator may be null.
+- User confirmation: migrations 013 and 014 were applied successfully in Supabase on 2026-08-09.
+- Post-apply verification: read-only Supabase REST check returned HTTP 200 and confirmed age-restricted catalog rows (shisha 18+, lounges 21+); smoke checks still pass.
+- OAuth verification: Supabase Auth settings currently report `external.google: false`; Google sign-in therefore cannot redirect until the provider is enabled and configured. The login page now shows a specific setup message for this case.
+- Added `worklog.md` as the concise ongoing handoff with completed work, current blockers, verification, and next steps.
+- Remaining review work: server-side enforcement for shared-plan candidate promotion, Playwright browser coverage, account deletion/export, and production-grade distributed rate limiting.
+
+## Latest refinement: auth page visual alignment
+
+- The user flagged that `/login` still looked like the older purple card UI.
+- Reworked `app/login/page.tsx`, `components/AuthForm.tsx`, and `app/globals.css` to use the same architectural ivory, graphite, champagne-metal and restrained border language as the authenticated home and voting flows.
+- The page now has a responsive editorial split layout with the Deal three mark, Dubai context, sign-in/join heading, Google/email actions, private age explanation, and mobile single-column behavior.
+- Removed the old token shadow, grape primary button, heavy rounded corners, and pink error treatment from auth.
+- Verification: ESLint, TypeScript and `git diff --check` pass. Keep the dev server at `http://localhost:3001`.
+
+## Review checkpoint: testing and security pass
+
+- Removed the decorative venue line from the auth page after review; it did not help sign-in or account creation.
+- Verification: `npm run lint`, `npx tsc --noEmit --pretty false`, `npm run build`, `git diff --check`, and local HTTP checks for `/login` and `/home-preview` all pass. The repository has no `test` script yet.
+- Security review finding: age eligibility is currently enforced in the plan composer/deal client path, while shared `plans` and `plan_spots` writes intentionally remain permissive for public-link collaboration. A direct client can therefore attach a restricted spot unless we add a server-side plan-creation RPC and creator ownership field.
+- Security review finding: the mainstream-content constraint protects database spot writes, and the OAuth callback now validates the temporary DOB cookie before metadata updates.
+- Recommended next work: add Playwright smoke coverage for auth/onboarding and plan creation; add a server-side `create_plan_with_spots` RPC that checks the creator's age and spot minimum age; add rate limiting/abuse monitoring around OTP, smart search, and public plan writes.
+
+## Active checkpoint: age-aware, mainstream recommendations
+
+- Request: collect age at sign-in, personalize venue suggestions by age, and keep the catalog suitable for a broad social app. Clubs/nightlife remain allowed; sexually explicit/adult-entertainment venues are not.
+- Decisions: collect date of birth privately in Supabase Auth metadata, require accounts to be at least 13, use 18/21 venue thresholds, and enforce the prohibited-content rule at UI/API/database boundaries.
+- Current milestone: policy/auth implementation in progress.
+- Completed milestone: age policy module, private auth metadata capture, OAuth/email/onboarding handling, category/deal filtering, smart-search and place-link safeguards, and additive Supabase migration 013.
+- Verification complete: ESLint, TypeScript, `git diff --check`, and the Next.js production build pass. The local health checks return HTTP 200 for `/home-preview` and `/login`.
+- Runtime: the existing dev server is healthy at `http://localhost:3001`; port 3000 remains occupied by another process.
+- Deployment note: apply `supabase/migration-013-age-safe-venues.sql` after migration 012. Until it is applied, live Supabase queries do not have the `minimum_age` column used by the new recommendation filter.
+- Next action: apply migration 013 in Supabase, then test email/Google age capture and an under-21 plan against the live catalog.
 
 ## Latest implementation: progressive pools + saved custom places
 
@@ -164,3 +231,93 @@ Read `PLACE_IMPORT_ARCHITECTURE.md` first. Apply migrations 009 through 012 in o
 - After the sharper second pass: lint, TypeScript, and the full Next.js production build pass again.
 - After the minimal-posh refinement: lint, TypeScript, and the full Next.js production build pass again.
 - After the grouped 23-category picker and restrained-motion pass: lint, TypeScript, and the full Next.js production build pass again.
+
+## Host-command security checkpoint — 2026-08-10
+
+- Added migration 015 and a host-token RPC for atomic pool advancement, winner decisions, and committed event edits.
+- Added the command API route and wired new-plan creators to a browser-local host token; legacy plans retain compatibility behavior.
+- Removed permissive canonical plan/plan_spots transition policies in favor of creator-scoped plan updates and RPC execution.
+- Checks passed: ESLint, TypeScript, `git diff --check`, smoke checks on the active dev server (`BASE_URL=http://localhost:3002`), and production build with network access.
+- Apply `supabase/migration-015-host-plan-commands.sql` after migration 014 before creating new plans.
+- Audit note: public vote/RSVP/rating writes remain name-based and link-trusted; participant identity and host-token recovery are still open design items.
+- Removed the legacy public `clear plan_spots` delete policy as an additional audit fix.
+
+## Smart-search validity checkpoint — 2026-08-10
+
+- Smart search now rejects incoherent, unrelated, or non-hangout prompts with an invalid-plan response rather than guessing a category.
+- The model output schema includes explicit validity and a short reason; existing safety and age checks remain in place.
+- ESLint, TypeScript, and diff checks pass.
+- Live endpoint diagnosis found the OpenAI organization has no remaining API credits (`429 insufficient_quota`); the app now surfaces this as a clear temporary-unavailable response.
+
+## UI/UX audit checkpoint — 2026-08-10
+
+- Completed the first UI/UX audit pass against the project’s design standards.
+- Improved smart-search prompt guidance and stale-state handling, added shared-vote action guidance, and made preview-mode sign-in requirements explicit.
+- ESLint, TypeScript, diff check, and live smoke checks pass.
+
+## Shared voting mobile checkpoint — 2026-08-10
+
+- Improved narrow-screen plan header wrapping, pool progress density, option-card spacing, and action guidance.
+- Voting logic and data behavior remain unchanged.
+- ESLint, TypeScript, diff check, and live smoke checks pass.
+
+## RSVP choices checkpoint — 2026-08-10
+
+- Added migration 016 for Coming / Maybe / Can’t make it attendance choices.
+- Shared plan results now use the richer RSVP state while preserving legacy boolean rows.
+- Smoke tests and production build pass.
+- Apply `supabase/migration-016-rsvp-choices.sql` after migration 015.
+- Live schema verification succeeded: Supabase REST returned RSVP `choice` data.
+
+## Participant identity seam checkpoint — 2026-08-10
+
+- Added migration 017 for nullable participant-token hashes on votes, RSVPs, and ratings.
+- New browser interactions carry a per-plan token hash while legacy name-only rows remain readable.
+- This is an intermediate compatibility seam; final server-authoritative participant enforcement remains next.
+- Apply `supabase/migration-017-participant-token-seam.sql` before testing new shared-plan interactions.
+- Smoke tests and production build pass.
+
+## Participant write enforcement checkpoint — 2026-08-10
+
+- Added migration 018 security-definer RPCs for vote, RSVP, and rating writes.
+- Removed anonymous direct write policies from the canonical schema; the shared-plan client uses RPCs with participant-token hashes.
+- Apply `supabase/migration-018-participant-write-rpcs.sql` after migration 017.
+- ESLint, TypeScript, smoke tests, and production build pass.
+- Live invalid-token verification returned 401 / SQLSTATE 42501, confirming the RPC authorization guard is active.
+
+## Participant recovery UX checkpoint — 2026-08-10
+
+- NameGate now explains device-bound participant persistence and same-browser return behavior.
+- Tokens are not placed in URLs or exposed through copy actions.
+- ESLint, TypeScript, diff check, and smoke tests pass.
+
+## Live migration-order audit — 2026-08-10
+
+- Live Supabase checks show migration 009’s prerequisite columns are missing: `plans.stage`, `plan_spots.pool_number`, `votes.phase`, and `spots.source`.
+- Token columns and the 018 invalid-token guard are present, but the pool flow is not ready until migrations 009–012 are applied in sequence.
+- Apply the missing foundation in order: 005, 006, 007, 008, 009, `010-recommendations-collections`, `011-smart-search`, then `012-place-link-imports`; then rerun shared-plan verification. Do not rerun 017/018 unless they were rolled back.
+- Foundation now verified live: stage, pool, phase, source, and participant-token columns are present; invalid-token RPC calls remain blocked with 401 / SQLSTATE 42501.
+
+## Security/code-review handoff — 2026-08-10
+
+- Completed a read-only architecture/security review. No application code was changed in this review.
+- Verified live protections: direct anonymous vote writes return 401 / SQLSTATE 42501; invalid participant RPC tokens are rejected.
+- P0/P1 findings:
+  - Public plan `select("*")` and realtime plan payloads can expose `host_token_hash`.
+  - Participant RPCs do not yet validate plan/spot membership, phase/pool values, plan status, rating winner state, or non-empty voter names.
+  - Authenticated users can change DOB metadata through `saveBirthDate`, allowing age escalation.
+  - Plan creation is not transactional; rate limits are process-local; legacy plan transition fallbacks are incompatible with migration 015.
+  - Social/profile reads remain broadly public; migration ordering needs a durable runbook.
+
+### Next-agent handoff
+
+Start with `app/plan/[id]/page.tsx`, `supabase/migration-015-host-plan-commands.sql`, `supabase/migration-018-participant-write-rpcs.sql`, and `app/auth/actions.ts`.
+
+Build order:
+
+1. Remove `host_token_hash` from every public projection and realtime payload.
+2. Add relational/state validation to all participant RPCs and negative tests.
+3. Protect DOB in a server-owned immutable profile record.
+4. Then address transactional plan creation, distributed rate limiting, legacy plans, and social privacy.
+
+Required verification after each stage: ESLint, TypeScript, `git diff --check`, smoke tests, production build, and live read-only Supabase checks.

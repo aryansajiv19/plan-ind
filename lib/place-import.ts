@@ -1,3 +1,5 @@
+import { prohibitedVenueReason } from "./age-policy";
+
 export type PlaceLinkProvider = "instagram" | "tiktok" | "facebook" | "reddit" | "youtube" | "web";
 export type PlaceCollectionKind = "want_to_try" | "planning";
 
@@ -22,6 +24,9 @@ export function classifyPlaceLink(input: string): PlaceLinkCandidate {
   if (url.username || url.password) throw new Error("Links containing credentials cannot be imported.");
 
   const host = url.hostname.toLowerCase().replace(/^www\./, "");
+  if (prohibitedVenueReason(host, url.pathname, url.search)) {
+    throw new Error("Adult-entertainment venues are not supported on Deal three.");
+  }
   const provider: PlaceLinkProvider = host === "instagram.com" || host.endsWith(".instagram.com")
     ? "instagram"
     : host === "tiktok.com" || host.endsWith(".tiktok.com")

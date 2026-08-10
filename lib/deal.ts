@@ -1,8 +1,10 @@
 import { supabase } from "./supabase";
 import { getBeen } from "./device";
 import { coordinatesForArea, distanceKm, type Coordinates } from "./dubai-areas";
+import { minimumAgeForCategory, prohibitedVenueReason } from "./age-policy";
 
 export interface DealConstraints {
+  age?: number;
   maxBudget?: number | null;
   origin?: Coordinates | null;
   radiusKm?: number | null;
@@ -40,7 +42,7 @@ export async function dealSpotsForCategory(
   ) ?? [category];
   const { data: pool, error } = await supabase
     .from("spots")
-    .select("id,name,category,area,cuisine,min_spend,vibe,description,latitude,longitude")
+    .select("id,name,category,area,cuisine,min_spend,vibe,description,latitude,longitude,minimum_age")
     .eq("source", "curated")
     .in("category", [...family]);
   if (error || !pool) return null;
@@ -48,6 +50,9 @@ export async function dealSpotsForCategory(
   const excluded = new Set(excludeIds);
   const available = pool.filter((spot) => {
     if (excluded.has(spot.id)) return false;
+    const minimumAge = Math.max(minimumAgeForCategory(spot.category), Number(spot.minimum_age ?? 0));
+    if (constraints.age != null && constraints.age < minimumAge) return false;
+    if (prohibitedVenueReason(spot.name, spot.cuisine, spot.vibe, spot.description)) return false;
     if (constraints.maxBudget != null && spot.min_spend > constraints.maxBudget) return false;
     if (constraints.origin && constraints.radiusKm != null) {
       const destination = spot.latitude != null && spot.longitude != null

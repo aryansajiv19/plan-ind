@@ -16,6 +16,7 @@ export interface Spot {
   id: string;
   name: string;
   category: string; // "dinner" | "cafe" | "shisha" | "movie" | ... (curated)
+  minimum_age: number;
   area: string;
   cuisine: string; // for non-food categories: a short type label ("cinema", "arcade")
   price_band: PriceBand;
@@ -35,6 +36,7 @@ export interface Spot {
 
 export interface Plan {
   id: string; // uuid — this is the share-link slug
+  created_by_user_id: string | null;
   title: string;
   category: string; // the hangout type chosen for this plan
   area: string | null;
@@ -73,6 +75,7 @@ export interface Vote {
   value: boolean; // true = yes
   phase: "pool" | "final";
   pool_number: number;
+  participant_token_hash?: string | null;
 }
 
 // After the decision: who's actually coming. A vote is an opinion; an RSVP
@@ -82,6 +85,8 @@ export interface Rsvp {
   plan_id: string;
   voter_name: string;
   coming: boolean;
+  choice?: "coming" | "maybe" | "no";
+  participant_token_hash?: string | null;
 }
 
 // After the visit: how was it? Closes the loop and (later) feeds "haven't
@@ -93,6 +98,7 @@ export interface Rating {
   voter_name: string;
   stars: number; // 1–5
   again: boolean; // would you go again?
+  participant_token_hash?: string | null;
 }
 
 // ─── The social layer ──────────────────────────────────────────────

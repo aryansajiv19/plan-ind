@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { addBeen } from "@/lib/device";
+import { participantTokenHash } from "@/lib/participant";
 import { coordinatesForArea, distanceKm } from "@/lib/dubai-areas";
 import type { Plan, PlanSpot, Rating, Rsvp, Spot, Vote } from "@/lib/types";
 import OptionCard from "@/components/OptionCard";
@@ -39,6 +40,8 @@ export default function VotePage() {
   const [reloadKey, setReloadKey] = useState(0); // bump to retry the load
   const [nightMode, setNightMode] = useState(false);
   const [activePool, setActivePool] = useState(1);
+  const [hostToken, setHostToken] = useState<string | null>(null);
+  const [participantHash, setParticipantHash] = useState<string | null>(null);
 
   const confettiRef = useRef<ConfettiHandle>(null);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -62,6 +65,30 @@ export default function VotePage() {
     const { data } = await supabase.from("votes").select("*").eq("plan_id", id);
     if (data) setVotes(data as Vote[]);
   }, [id]);
+
+  useEffect(() => {
+    let active = true;
+    void participantTokenHash(id).then((hash) => { if (active) setParticipantHash(hash); });
+    return () => { active = false; };
+  }, [id]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem(`plan-host:${id}`);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (saved) setHostToken(saved);
+  }, [id]);
+
+  const runHostCommand = useCallback(async (command: "advance" | "decide" | "patch", patch: Partial<Plan> = {}) => {
+    if (!hostToken) return null;
+    const response = await fetch(`/api/plans/${id}/command`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ hostToken, command, patch }),
+    });
+    const result = await response.json() as { plan?: Plan; finalists?: string[]; error?: string };
+    if (!response.ok || !result.plan) throw new Error(result.error ?? "That plan command could not be saved.");
+    return result;
+  }, [hostToken, id]);
 
   const refetchRsvps = useCallback(async () => {
     const { data } = await supabase.from("rsvps").select("*").eq("plan_id", id);
@@ -185,12 +212,13 @@ export default function VotePage() {
     votes.filter((v) => v.spot_id === spotId && v.value && voteIsInCurrentRound(v)).length;
   const iVotedYes = (spotId: string) =>
     votes.some(
-      (v) => v.spot_id === spotId && v.voter_name === voterName && v.value && voteIsInCurrentRound(v),
+      (v) => v.spot_id === spotId && v.voter_name === voterName && (!v.participant_token_hash || v.participant_token_hash === participantHash) && v.value && voteIsInCurrentRound(v),
     );
 
   // One choice per voter per pool/final. Picking another card replaces it.
   async function toggleVote(spotId: string) {
     if (!voterName || decided) return;
+    if (!participantHash) { setNotice("Preparing your private voting session…"); return; }
     const next = !iVotedYes(spotId);
 
     const prev = votes;
@@ -198,6 +226,7 @@ export default function VotePage() {
       const rest = cur.filter(
         (v) => !(
           v.voter_name === voterName &&
+          (!v.participant_token_hash || v.participant_token_hash === participantHash) &&
           (v.phase ?? "final") === currentPhase &&
           (v.pool_number ?? 0) === currentPoolNumber
         ),
@@ -212,28 +241,20 @@ export default function VotePage() {
           value: true,
           phase: currentPhase,
           pool_number: currentPoolNumber,
+          participant_token_hash: participantHash,
         },
       ] : rest;
     });
 
-    const { error: clearError } = await supabase
-      .from("votes")
-      .delete()
-      .eq("plan_id", id)
-      .eq("voter_name", voterName)
-      .eq("phase", currentPhase)
-      .eq("pool_number", currentPoolNumber);
-    const { error: insertError } = next && !clearError
-      ? await supabase.from("votes").insert({
-          plan_id: id,
-          spot_id: spotId,
-          voter_name: voterName,
-          value: true,
-          phase: currentPhase,
-          pool_number: currentPoolNumber,
-        })
-      : { error: null };
-    const error = clearError ?? insertError;
+    const { error } = await supabase.rpc("cast_plan_vote", {
+      p_plan_id: id,
+      p_spot_id: spotId,
+      p_voter_name: voterName,
+      p_value: next,
+      p_phase: currentPhase,
+      p_pool_number: currentPoolNumber,
+      p_participant_token_hash: participantHash,
+    });
     if (error) {
       setVotes(prev); // roll back
       setNotice("That vote didn't save. Check your connection and tap again.");
@@ -244,6 +265,20 @@ export default function VotePage() {
 
   const advanceToFinal = useCallback(async () => {
     if (!plan || plan.status !== "open" || stage !== "pool") return;
+    if (hostToken) {
+      setDeciding(true);
+      try {
+        const result = await runHostCommand("advance");
+        if (result?.finalists) setPlanSpots((current) => current.map((link) => ({ ...link, advanced: result.finalists!.includes(link.spot_id) })));
+        if (result?.plan) setPlan(result.plan);
+        setNotice(null);
+      } catch (error) {
+        setNotice(error instanceof Error ? error.message : "The shortlist didn’t save. Try again.");
+      } finally {
+        setDeciding(false);
+      }
+      return;
+    }
     const { data: fresh } = await supabase
       .from("votes")
       .select("spot_id,value,phase,pool_number")
@@ -292,11 +327,24 @@ export default function VotePage() {
     setPlan((current) => current ? { ...current, stage: "final" } : current);
     setNotice(null);
     setDeciding(false);
-  }, [id, plan, planSpots, poolCount, stage]);
+  }, [id, plan, planSpots, poolCount, stage, hostToken, runHostCommand]);
 
   // Finalists only; stable spot-id tie-break means every client picks the same.
   const decide = useCallback(async () => {
     if (!plan || plan.status !== "open" || spots.length === 0) return;
+    if (hostToken) {
+      setDeciding(true);
+      try {
+        const result = await runHostCommand("decide");
+        if (result?.plan) setPlan(result.plan);
+        setNotice(null);
+      } catch (error) {
+        setNotice(error instanceof Error ? error.message : "The plan couldn’t be decided. Try again.");
+      } finally {
+        setDeciding(false);
+      }
+      return;
+    }
 
     const advanced = planSpots.filter((link) => link.advanced).map((link) => link.spot_id);
     const candidates = stage === "final" && advanced.length > 0
@@ -339,7 +387,7 @@ export default function VotePage() {
     };
     if (reduce) commit();
     else setTimeout(commit, 700);
-  }, [plan, spots, planSpots, stage, id]);
+  }, [plan, spots, planSpots, stage, id, hostToken, runHostCommand]);
 
   // ── Deadline auto-pick ───────────────────────────────────────────
   useEffect(() => {
@@ -377,24 +425,34 @@ export default function VotePage() {
   async function patchPlan(fields: Partial<Plan>) {
     if (!plan) return;
     setPlan({ ...plan, ...fields }); // optimistic
+    if (hostToken) {
+      try {
+        const result = await runHostCommand("patch", fields);
+        if (result?.plan) setPlan(result.plan);
+      } catch (error) {
+        setNotice(error instanceof Error ? error.message : "That didn't save. Check your connection and try again.");
+      }
+      return;
+    }
     const { error } = await supabase.from("plans").update(fields).eq("id", id);
     if (error) setNotice("That didn't save. Check your connection and try again.");
   }
 
-  async function toggleRsvp() {
-    if (!voterName) return;
+  async function setRsvp(choice: "coming" | "maybe" | "no") {
+    if (!voterName || !participantHash) return;
     const mine = rsvps.find((r) => r.voter_name === voterName);
-    const next = !(mine?.coming ?? false);
+    const nextComing = choice === "coming";
     setRsvps((cur) => [
       ...cur.filter((r) => r.voter_name !== voterName),
-      { id: mine?.id ?? `local-${voterName}`, plan_id: id, voter_name: voterName, coming: next },
+      { id: mine?.id ?? `local-${voterName}`, plan_id: id, voter_name: voterName, coming: nextComing, choice, participant_token_hash: participantHash },
     ]);
-    const { error } = await supabase
-      .from("rsvps")
-      .upsert(
-        { plan_id: id, voter_name: voterName, coming: next },
-        { onConflict: "plan_id,voter_name" },
-      );
+    const { error } = await supabase.rpc("set_plan_rsvp", {
+      p_plan_id: id,
+      p_voter_name: voterName,
+      p_coming: nextComing,
+      p_choice: choice,
+      p_participant_token_hash: participantHash,
+    });
     if (error) {
       await refetchRsvps(); // reconcile on failure
       setNotice("Couldn't update your RSVP. Try again.");
@@ -404,20 +462,22 @@ export default function VotePage() {
   // Rate the winner after the visit. First tap fills in a sensible "again"
   // so one interaction writes a valid row; each control merges with the rest.
   async function rateWinner(partial: { stars?: number; again?: boolean }) {
-    if (!voterName || !winnerId) return;
+    if (!voterName || !winnerId || !participantHash) return;
     const mine = ratings.find((r) => r.voter_name === voterName);
     const stars = partial.stars ?? mine?.stars ?? 5;
     const again = partial.again ?? mine?.again ?? stars >= 4;
     setRatings((cur) => [
       ...cur.filter((r) => r.voter_name !== voterName),
-      { id: mine?.id ?? `local-${voterName}`, plan_id: id, spot_id: winnerId, voter_name: voterName, stars, again },
+      { id: mine?.id ?? `local-${voterName}`, plan_id: id, spot_id: winnerId, voter_name: voterName, stars, again, participant_token_hash: participantHash },
     ]);
-    const { error } = await supabase
-      .from("ratings")
-      .upsert(
-        { plan_id: id, spot_id: winnerId, voter_name: voterName, stars, again },
-        { onConflict: "plan_id,voter_name" },
-      );
+    const { error } = await supabase.rpc("rate_plan", {
+      p_plan_id: id,
+      p_spot_id: winnerId,
+      p_voter_name: voterName,
+      p_stars: stars,
+      p_again: again,
+      p_participant_token_hash: participantHash,
+    });
     if (error) {
       await refetchRatings();
       setNotice("Couldn't save your rating. Try again.");
@@ -518,7 +578,7 @@ export default function VotePage() {
         <ConfettiCanvas ref={confettiRef} />
 
         {/* Header */}
-        <div className="flex items-start justify-between gap-3">
+        <div className="vote-header flex items-start justify-between gap-3">
           <div>
             <h1 className="text-2xl font-extrabold sm:text-3xl">{plan!.title}</h1>
             <p className="mt-1 text-sm text-muted">
@@ -583,6 +643,7 @@ export default function VotePage() {
 
         {/* Controls / result */}
         {!decided ? (
+          <>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             {stage === "pool" ? (
               <button
@@ -618,6 +679,16 @@ export default function VotePage() {
               {copied ? "Link copied" : "Copy link"}
             </button>
           </div>
+          <p className="vote-action-hint" aria-live="polite">
+            {!hasCurrentSelection
+              ? "Choose one place to continue. You can change your choice before moving on."
+              : stage === "pool" && activePool < poolCount
+                ? `Pool ${activePool} is set. Continue when you’re ready.`
+                : stage === "pool"
+                  ? "All pools are set. Build the final shortlist when everyone has had a chance to vote."
+                  : "The final shortlist is ready. Choose the place the group should visit."}
+          </p>
+          </>
         ) : (
           winnerSpot && (
             <DecidedPlan
@@ -627,7 +698,7 @@ export default function VotePage() {
               rsvps={rsvps}
               ratings={ratings}
               onSetTime={(iso) => patchPlan({ event_time: iso })}
-              onToggleRsvp={toggleRsvp}
+              onSetRsvp={setRsvp}
               onClaimBooking={() => patchPlan({ booking_owner: voterName })}
               onMarkBooked={() => patchPlan({ booked: true })}
               onRate={rateWinner}

@@ -35,8 +35,12 @@ export default function NameGate({ planTitle, onSubmit }: NameGateProps) {
         onChange={(e) => setName(e.target.value)}
         placeholder="Your name"
         maxLength={24}
+        aria-describedby="voter-name-help"
         className="vote-field mt-2 w-full rounded-2xl border-2 border-ink bg-card px-4 py-3 text-lg font-medium outline-none placeholder:text-muted/60"
       />
+      <p id="voter-name-help" className="vote-name-help">
+        Your choices are remembered on this device for this plan. Use the same browser if you come back later.
+      </p>
       <button
         type="submit"
         disabled={!trimmed}

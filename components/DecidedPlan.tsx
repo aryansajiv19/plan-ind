@@ -12,7 +12,7 @@ interface DecidedPlanProps {
   rsvps: Rsvp[];
   ratings: Rating[];
   onSetTime: (iso: string) => void;
-  onToggleRsvp: () => void;
+  onSetRsvp: (choice: "coming" | "maybe" | "no") => void;
   onClaimBooking: () => void;
   onMarkBooked: () => void;
   onRate: (partial: { stars?: number; again?: boolean }) => void;
@@ -42,7 +42,7 @@ export default function DecidedPlan({
   rsvps,
   ratings,
   onSetTime,
-  onToggleRsvp,
+  onSetRsvp,
   onClaimBooking,
   onMarkBooked,
   onRate,
@@ -51,8 +51,10 @@ export default function DecidedPlan({
   const [copied, setCopied] = useState(false);
   const cat = categoryMeta(winner.category);
 
-  const coming = rsvps.filter((r) => r.coming);
-  const imIn = coming.some((r) => r.voter_name === voterName);
+  const choiceFor = (r: Rsvp) => r.choice ?? (r.coming ? "coming" : "no");
+  const coming = rsvps.filter((r) => choiceFor(r) === "coming");
+  const mine = rsvps.find((r) => r.voter_name === voterName);
+  const myChoice = mine ? choiceFor(mine) : null;
 
   async function copyForChat() {
     const line2 = [winner.area];
@@ -172,17 +174,13 @@ export default function DecidedPlan({
               )}
             </p>
           </div>
-          <button
-            type="button"
-            onClick={onToggleRsvp}
-            aria-pressed={imIn}
-            className={[
-              "vote-result__button shrink-0 rounded-xl border-2 border-ink px-4 py-2.5 font-display font-extrabold",
-              imIn ? "bg-mint text-white" : "bg-card",
-            ].join(" ")}
-          >
-            {imIn ? "You’re in" : "I’m in"}
-          </button>
+          <div className="vote-rsvp-choices" aria-label="Your attendance choice">
+            {(["coming", "maybe", "no"] as const).map((choice) => (
+              <button key={choice} type="button" onClick={() => onSetRsvp(choice)} aria-pressed={myChoice === choice} className="vote-result__button">
+                {choice === "coming" ? "Coming" : choice === "maybe" ? "Maybe" : "Can’t make it"}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

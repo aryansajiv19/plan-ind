@@ -1,32 +1,35 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import AuthForm from "@/components/AuthForm";
 import { getCurrentUser } from "@/lib/auth";
 
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; message?: string }>;
 }) {
   const [user, params] = await Promise.all([getCurrentUser(), searchParams]);
   if (user) redirect("/home");
+  const pageError = params.message ?? (params.error === "google"
+    ? "Google sign-in is not configured yet. Enable Google in Supabase Authentication, or use email instead."
+    : params.error === "callback"
+      ? "Sign-in could not be completed. Check the OAuth redirect settings and try again."
+      : params.error);
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-5 py-10">
-      <div className="mb-7 text-center">
-        <p className="font-display text-sm font-bold uppercase tracking-[0.14em] text-grape">
-          Deal three
-        </p>
-        <h1 className="mt-3 text-5xl font-extrabold leading-[0.92]">
-          Plans happen
-          <br />
-          <span className="text-punch">together.</span>
-        </h1>
-        <p className="mx-auto mt-4 max-w-sm text-muted">
-          Sign in to plan a hangout, remember your favourite spots, and keep your crew close.
-        </p>
+    <main className="auth-shell">
+      <div className="auth-frame">
+        <section className="auth-intro" aria-labelledby="auth-title">
+          <Link href="/" className="auth-mark" aria-label="Deal three home"><span>D/</span><b>03</b></Link>
+          <p className="auth-kicker">Dubai, together</p>
+          <h1 id="auth-title">Plans happen<br /><em>together.</em></h1>
+          <p className="auth-copy">A calmer way to decide where the group is going next. Pick a feeling, share the shortlist, and let everyone choose.</p>
+        </section>
+        <section className="auth-panel" aria-label="Sign in or create an account">
+          <div className="auth-panel__heading"><p>Welcome in</p><h2>Sign in or join</h2></div>
+          <AuthForm pageError={pageError} />
+        </section>
       </div>
-
-      <AuthForm pageError={params.error} />
     </main>
   );
 }

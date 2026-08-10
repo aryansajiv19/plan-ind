@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { dealSpotsForCategory } from "@/lib/deal";
 import { DUBAI_ORIGINS } from "@/lib/dubai-areas";
+import { minimumAgeForCategory, prohibitedVenueReason } from "@/lib/age-policy";
 
 const PRESETS = [
   { label: "In 3 hours", hours: 3 },
@@ -110,7 +112,7 @@ interface SmartIntent {
   occasion: string | null;
 }
 
-export default function StartPlanForm() {
+export default function StartPlanForm({ age = 21, demoMode = false }: { age?: number; demoMode?: boolean }) {
   const router = useRouter();
   const [category, setCategory] = useState<CategoryKey>("dinner");
   const [title, setTitle] = useState<string>(CATEGORIES[0].title);
@@ -144,7 +146,7 @@ export default function StartPlanForm() {
       if (!auth.user) return;
       const { data } = await supabase
         .from("spots")
-        .select("id,name,area,category,visibility")
+        .select("id,name,area,category,visibility,minimum_age")
         .eq("source", "custom")
         .eq("created_by_user_id", auth.user.id)
         .order("name");
@@ -155,6 +157,7 @@ export default function StartPlanForm() {
 
   // Picking a type swaps in its default prompt — unless you've written your own.
   function pickCategory(cat: Category) {
+    if (age < minimumAgeForCategory(cat.key)) return;
     setCategory(cat.key);
     if (!titleEdited) setTitle(cat.title);
   }
@@ -210,6 +213,10 @@ export default function StartPlanForm() {
       setError("Add a name and area for your custom place.");
       return;
     }
+    if (prohibitedVenueReason(cleanName, customNote, customAddress)) {
+      setError("That place is outside Deal three's mainstream social venue policy.");
+      return;
+    }
     setSavingCustom(true);
     setError(null);
     const { data: auth } = await supabase.auth.getUser();
@@ -236,6 +243,7 @@ export default function StartPlanForm() {
         visibility: customVisibility,
         created_by_user_id: auth.user.id,
         address: customAddress.trim() || null,
+        minimum_age: minimumAgeForCategory(category),
       })
       .select("id,name,area,category,visibility")
       .single();
@@ -259,8 +267,22 @@ export default function StartPlanForm() {
     e.preventDefault();
     const clean = title.trim();
     if (!clean) return;
+    if (demoMode) {
+      setError("This is the preview. Sign in to create and share a real plan.");
+      return;
+    }
     setCreating(true);
     setError(null);
+
+    const restrictedCustom = savedCustom.find((place) =>
+      selectedCustomIds.includes(place.id)
+      && age < Math.max(minimumAgeForCategory(place.category), Number((place as SavedCustomPlace & { minimum_age?: number }).minimum_age ?? 0)),
+    );
+    if (restrictedCustom) {
+      setError(`${restrictedCustom.name} has an age requirement that does not match this account.`);
+      setCreating(false);
+      return;
+    }
 
     // Deal nine into three pools. Up to three saved places can be pinned,
     // one into each pool; the remainder come from the ranked catalog.
@@ -272,6 +294,7 @@ export default function StartPlanForm() {
       radiusKm: selectedOrigin.coordinates ? radiusKm : null,
       vibeKeywords: smartIntent?.vibeKeywords,
       avoidKeywords: smartIntent?.avoidKeywords,
+      age,
     });
     if (!dealt) {
       const label = CATEGORIES.find((c) => c.key === category)?.label ?? category;
@@ -281,59 +304,42 @@ export default function StartPlanForm() {
     }
     const nine = [...selectedCustomIds, ...dealt];
 
-    // 2. Create the plan (its uuid becomes the share link).
     const deadline = new Date(
       Date.now() + PRESETS[presetIdx].hours * 3_600_000,
     ).toISOString();
-    const { data: plan, error: planErr } = await supabase
-      .from("plans")
-      .insert({
+    const response = await fetch("/api/plans", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
         title: clean,
         category,
         area: selectedOrigin.label,
         deadline,
-        status: "open",
-        stage: "pool",
-        pool_count: 3,
-        budget_per_person: maxBudget,
-        origin_label: selectedOrigin.label,
-        origin_latitude: selectedOrigin.coordinates?.latitude ?? null,
-        origin_longitude: selectedOrigin.coordinates?.longitude ?? null,
-        radius_km: selectedOrigin.coordinates ? radiusKm : null,
-        smart_brief: smartIntent ? smartQuery.trim() : null,
-        vibe_preferences: smartIntent?.vibeKeywords ?? [],
-        avoid_preferences: smartIntent?.avoidKeywords ?? [],
-        intelligence_model: smartModel,
-      })
-      .select("id")
-      .single();
-    if (planErr || !plan) {
-      setError("Couldn't start the plan. Try again in a moment.");
+        budgetPerPerson: maxBudget,
+        originLabel: selectedOrigin.label,
+        originLatitude: selectedOrigin.coordinates?.latitude ?? null,
+        originLongitude: selectedOrigin.coordinates?.longitude ?? null,
+        radiusKm: selectedOrigin.coordinates ? radiusKm : null,
+        smartBrief: smartIntent ? smartQuery.trim() : null,
+        vibePreferences: smartIntent?.vibeKeywords ?? [],
+        avoidPreferences: smartIntent?.avoidKeywords ?? [],
+        intelligenceModel: smartModel,
+        spotIds: nine,
+      }),
+    });
+    const result = await response.json() as { id?: string; hostToken?: string; error?: string };
+    if (!response.ok || !result.id) {
+      setError(result.error ?? "Couldn't start the plan. Try again in a moment.");
       setCreating(false);
       return;
     }
-
-    // Distribute pinned places across pools first, then fill each pool to 3.
-    const { error: linkErr } = await supabase
-      .from("plan_spots")
-      .insert(nine.map((spot_id, index) => ({
-        plan_id: plan.id,
-        spot_id,
-        pool_number: (index % 3) + 1,
-        advanced: false,
-      })));
-    if (linkErr) {
-      setError("The plan started but the spots didn't attach. Try again.");
-      setCreating(false);
-      return;
-    }
-
-    router.push(`/plan/${plan.id}`);
+    if (result.hostToken) localStorage.setItem(`plan-host:${result.id}`, result.hostToken);
+    router.push(`/plan/${result.id}`);
   }
 
   const visibleCategories = CATEGORY_GROUPS.find(
     (group) => group.key === activeGroup,
-  )?.categories as readonly Category[] | undefined;
+  )?.categories.filter((item) => age >= minimumAgeForCategory(item.key)) as readonly Category[] | undefined;
 
   return (
     <form onSubmit={start} className="plan-form">
@@ -341,7 +347,23 @@ export default function StartPlanForm() {
         <div className="plan-smart-search__heading">
           <div><p id="smart-search-heading" className="plan-form__label">Describe the place in your head</p><small>Atmosphere, occasion, budget, area—write it naturally.</small></div>
         </div>
-        <textarea value={smartQuery} onChange={(event) => setSmartQuery(event.target.value)} placeholder="A quiet terrace near Jumeirah for a date, dim lighting, around AED 250 each, somewhere we can actually talk." maxLength={600} />
+        <textarea
+          id="smart-search-input"
+          value={smartQuery}
+          onChange={(event) => {
+            setSmartQuery(event.target.value);
+            setSmartIntent(null);
+            setSmartModel(null);
+            setSmartError(null);
+          }}
+          placeholder="A quiet terrace near Jumeirah for a date, dim lighting, around AED 250 each, somewhere we can actually talk."
+          maxLength={600}
+          aria-describedby="smart-search-help smart-search-count"
+        />
+        <div className="plan-smart-search__meta">
+          <small id="smart-search-help">Use a real plan, place or activity. Include an area, mood, occasion or budget if you know it.</small>
+          <small id="smart-search-count" aria-live="polite">{smartQuery.length}/600</small>
+        </div>
         <button type="button" onClick={interpretSmartSearch} disabled={smartLoading || smartQuery.trim().length < 8}>{smartLoading ? "Understanding your plan…" : "Build my search"}</button>
         {smartError && <p className="plan-smart-search__error" role="alert">{smartError}</p>}
         {smartIntent && (
@@ -485,8 +507,14 @@ export default function StartPlanForm() {
         disabled={creating || !title.trim()}
         className="plan-submit"
       >
-        {creating ? "Building three rounds…" : "Deal 9 places in 3 rounds"}
+        {creating ? "Building three rounds…" : demoMode ? "Sign in to create a plan" : "Deal 9 places in 3 rounds"}
       </button>
+
+      {demoMode && (
+        <p className="plan-form__demo-note">
+          Exploring the preview? <Link href="/login">Sign in</Link> to save, share and vote on a real plan.
+        </p>
+      )}
 
       {error && (
         <p role="alert" className="plan-form__error">
