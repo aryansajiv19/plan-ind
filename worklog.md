@@ -345,8 +345,11 @@ npm run build
 
 1. **See it on a phone.** The `<=520px` layout, the voting carousel and the
    round dots have never been observed rendering. This is the top item.
-2. **Seed a multi-round plan** for testing. The only seeded plan is legacy
-   single-round, so the pool flow cannot be exercised locally.
+2. ~~Seed a multi-round plan~~ — done. `supabase/seed-multi-round-plan.sql`
+   creates plan `22222222-2222-2222-2222-222222222222` with three rounds of
+   three, a host token, and three votes already in round 1. Run it in the
+   Supabase SQL editor; it is re-runnable and touches only that plan id.
+   Testing instructions are in the footer of that file.
 3. Visit collections and photos (migration 010 tables still unused).
 4. A way to add a friend (`addFriend` and 8 other `lib/social.ts` functions
    still have zero callers).

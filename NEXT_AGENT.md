@@ -95,6 +95,14 @@ writing code that looks similar.
 
 Each item says what "done" means. Do one at a time and commit it.
 
+### 4.0 Test plans available
+
+- `11111111-1111-1111-1111-111111111111` — legacy **single-round** plan. Does
+  not exercise rounds, round dots or pool advancement.
+- `22222222-2222-2222-2222-222222222222` — **three rounds of three**, seeded by
+  `supabase/seed-multi-round-plan.sql`. Use this one for anything touching the
+  pool flow. The file's footer has the host token and how to test as the host.
+
 ### 4.1 Verify the phone layout (do this first — it is cheap and blocks judgement)
 
 The mobile-first pass shipped **visually unverified**: the environment's
