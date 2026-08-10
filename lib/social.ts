@@ -14,8 +14,16 @@
 // or adding a friend. AuthProfileBridge calls ensure_authenticated_profile()
 // when the protected app boots and caches the returned profile locally.
 
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { supabase } from "./supabase";
 import type { DeviceProfile } from "./device";
+
+/**
+ * Reads default to the browser client. Server Components pass their own
+ * @supabase/ssr client so the same query runs during render, under the same
+ * user's RLS, without a client-side round trip.
+ */
+type Db = SupabaseClient;
 import type { CompanionView, PersonCard, ProfileVisit, Spot } from "./types";
 
 const PERSON_FIELDS = "id, display_name, emoji, color";
@@ -134,8 +142,8 @@ export async function getPeople(ids: string[]): Promise<PersonCard[]> {
  * rows, so this is a single index scan on the friendships primary key —
  * no OR across two columns.
  */
-export async function getFriends(personId: string): Promise<PersonCard[]> {
-  const { data, error } = await supabase
+export async function getFriends(personId: string, db: Db = supabase): Promise<PersonCard[]> {
+  const { data, error } = await db
     .from("friendships")
     .select(`friend:people!friendships_friend_id_fkey(${PERSON_FIELDS})`)
     .eq("person_id", personId)
@@ -378,8 +386,9 @@ export async function untagCompanion(companionId: string): Promise<boolean> {
 export async function getProfileVisits(
   personId: string,
   limit = 50,
+  db: Db = supabase,
 ): Promise<ProfileVisit[]> {
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from("visits")
     .select(VISIT_SELECT)
     .eq("person_id", personId)

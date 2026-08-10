@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { addBeen } from "@/lib/device";
+import { logVisit } from "@/lib/social";
 import { participantTokenHash } from "@/lib/participant";
 import { coordinatesForArea, distanceKm } from "@/lib/dubai-areas";
 import type { Plan, PlanSpot, Rating, Rsvp, Spot, Vote } from "@/lib/types";
@@ -36,6 +37,7 @@ export default function VotePage() {
   const [voterName, setVoterName] = useState<string | null>(null);
   const [deciding, setDeciding] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const [visitSaved, setVisitSaved] = useState<"saved" | "failed" | null>(null);
   const [copied, setCopied] = useState(false);
   const [reloadKey, setReloadKey] = useState(0); // bump to retry the load
   const [nightMode, setNightMode] = useState(false);
@@ -400,7 +402,39 @@ export default function VotePage() {
     if (error) {
       await refetchRatings();
       setNotice("Couldn't save your rating. Try again.");
+      return;
     }
+    void rememberVisit();
+  }
+
+  // Rating the winner is the only moment the app knows for certain that
+  // someone actually went. That is what turns a decided plan into history,
+  // so it is where the visit gets written — logVisit is unique per
+  // (person, plan), so re-rating updates the same visit instead of stacking.
+  //
+  // Signed-in visitors only: `visits` is owner-scoped to a people row, and a
+  // shared link carries no account. Everyone else still rates normally; they
+  // just have nowhere personal to file it.
+  async function rememberVisit() {
+    if (!winnerId || !plan) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    // A guest arriving straight from a share link may have no profile row yet.
+    const { data: personId } = await supabase.rpc("ensure_authenticated_profile", {
+      p_display_name: voterName,
+    });
+    if (typeof personId !== "string") return;
+    const saved = await logVisit({
+      person_id: personId,
+      spot_id: winnerId,
+      plan_id: id,
+      visited_at: plan.event_time ?? undefined,
+      group_label: plan.title,
+      companions: rsvps
+        .filter((r) => (r.choice ?? (r.coming ? "coming" : "no")) === "coming" && r.voter_name !== voterName)
+        .map((r) => ({ name: r.voter_name })),
+    });
+    setVisitSaved(saved ? "saved" : "failed");
   }
 
   async function copyLink() {
@@ -628,6 +662,14 @@ export default function VotePage() {
         {notice && (
           <p role="alert" className="mt-3 text-sm font-medium text-punch">
             {notice}
+          </p>
+        )}
+
+        {visitSaved && (
+          <p role="status" className="mt-3 text-sm font-medium text-muted">
+            {visitSaved === "saved"
+              ? "Saved to your Been, with everyone who came."
+              : "Rated. We couldn't add it to your Been — open Been later to add it."}
           </p>
         )}
       </div>

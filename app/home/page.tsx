@@ -4,10 +4,13 @@ import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { memberAge } from "@/lib/age-policy";
 import { createClient } from "@/lib/supabase/server";
+import { getFriends, getProfileVisits } from "@/lib/social";
+import type { Spot } from "@/lib/types";
 
 export default async function HomePage() {
   const user = await requireUser();
-  const age = await memberAge(await createClient(), user.id);
+  const supabase = await createClient();
+  const age = await memberAge(supabase, user.id);
   if (age === null) redirect("/onboarding");
   const metadataName = user.user_metadata.full_name ?? user.user_metadata.name;
   const fallbackName =
@@ -15,10 +18,35 @@ export default async function HomePage() {
     user.email?.split("@")[0] ||
     "Friend";
 
+  // Resolve the profile here rather than waiting for AuthProfileBridge to do it
+  // in an effect: the account views key every read off this id, and a client
+  // that renders before the row exists shows an empty log that isn't empty.
+  // The RPC is idempotent and returns the existing id on every later call.
+  const { data: personId } = await supabase.rpc("ensure_authenticated_profile", {
+    p_display_name: fallbackName,
+  });
+  const person = typeof personId === "string" ? personId : null;
+
+  // Fetched here rather than in the client: the account screens then render
+  // with their data already present, instead of flashing an empty log that
+  // fills in a moment later. All three run under this user's RLS.
+  const [spots, visits, friends] = await Promise.all([
+    supabase.from("spots").select("*").order("name").limit(120),
+    person ? getProfileVisits(person, 50, supabase) : Promise.resolve([]),
+    person ? getFriends(person, supabase) : Promise.resolve([]),
+  ]);
+
   return (
     <>
       <AuthProfileBridge fallbackName={fallbackName} />
-      <HomeExperience name={fallbackName} age={age} />
+      <HomeExperience
+        name={fallbackName}
+        age={age}
+        personId={person}
+        spots={(spots.data as Spot[] | null) ?? []}
+        visits={visits}
+        friends={friends}
+      />
     </>
   );
 }

@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { signOut } from "@/app/auth/actions";
 import DemoAccountViews from "@/components/DemoAccountViews";
+import AccountViews from "@/components/AccountViews";
+import type { PersonCard, ProfileVisit, Spot } from "@/lib/types";
 import StartPlanForm from "@/components/StartPlanForm";
 
 const DEMO_PLAN_ID = "11111111-1111-1111-1111-111111111111";
@@ -25,7 +27,22 @@ const VIEW_LABELS: Record<AppView, string> = {
   profile: "Profile",
 };
 
-export default function HomeExperience({ name, age = 21, demoMode = false }: { name: string; age?: number; demoMode?: boolean }) {
+export default function HomeExperience({
+  name,
+  age = 21,
+  demoMode = false,
+  spots = [],
+  visits = [],
+  friends = [],
+}: {
+  name: string;
+  age?: number;
+  demoMode?: boolean;
+  personId?: string | null;
+  spots?: Spot[];
+  visits?: ProfileVisit[];
+  friends?: PersonCard[];
+}) {
   const [ready, setReady] = useState(false);
   const [activeView, setActiveView] = useState<AppView>("plan");
   const [nightMode, setNightMode] = useState(false);
@@ -192,7 +209,14 @@ export default function HomeExperience({ name, age = 21, demoMode = false }: { n
       </div>
       ) : (
         <div id="workspace">
-          <DemoAccountViews view={activeView} name={name} onStartPlan={() => showView("plan")} />
+          {/* Fixtures are for the signed-out preview only. A signed-in account
+              shows its own data, empty states included — presenting invented
+              friends and history as someone's own record is not a demo. */}
+          {demoMode ? (
+            <DemoAccountViews view={activeView} name={name} onStartPlan={() => showView("plan")} />
+          ) : (
+            <AccountViews view={activeView} name={name} spots={spots} visits={visits} friends={friends} onStartPlan={() => showView("plan")} />
+          )}
           {activeView === "profile" && (
             <form action={signOut} className="home-profile-actions">
               <span>Signed in as {name}</span>
