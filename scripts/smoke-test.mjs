@@ -46,9 +46,19 @@ if (!url || !anonKey) {
   if (plan && "host_token_hash" in plan) throw new Error("plans still exposes host_token_hash to the anon key");
   console.log("ok plans projection carries no host token");
 
+  // Reads: PostgREST answers 200 with [] whether RLS hid the rows or the
+  // table is simply empty, so this alone proves little. The insert below is
+  // the assertion that can actually fail.
   const tokens = await rest("plan_host_tokens?select=*&limit=1");
   if (tokens.ok && (await tokens.json()).length > 0) throw new Error("plan_host_tokens is readable with the anon key");
-  console.log(`ok plan_host_tokens is not readable (${tokens.status})`);
+  console.log(`ok plan_host_tokens returns no rows to the anon key (${tokens.status})`);
+
+  const tokenWrite = await rest("plan_host_tokens", {
+    method: "POST",
+    body: JSON.stringify({ plan_id: plan?.id ?? nowhere, token_hash: "f".repeat(64) }),
+  });
+  if (tokenWrite.ok) throw new Error("plan_host_tokens accepted an anonymous insert");
+  console.log(`ok plan_host_tokens rejects a forged host token (${tokenWrite.status})`);
 
   await rpcRejects("vote with a malformed participant token", "cast_plan_vote", {
     p_plan_id: plan?.id ?? nowhere, p_spot_id: nowhere, p_voter_name: "Smoke",

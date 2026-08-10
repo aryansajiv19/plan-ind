@@ -29,10 +29,13 @@ Apply in order. Every migration is additive and re-run safe unless noted.
 | 016 | `migration-016-rsvp-choices.sql` | yes — verified live 2026-08-10 |
 | 017 | `migration-017-participant-token-seam.sql` | yes — verified live 2026-08-10 |
 | 018 | `migration-018-participant-write-rpcs.sql` | yes — verified live 2026-08-10 |
-| 019 | `migration-019-secret-isolation-and-rpc-integrity.sql` | **NOT YET — required** |
+| 019 | `migration-019-secret-isolation-and-rpc-integrity.sql` | yes — verified live 2026-08-10 |
 
-`npm run test:smoke` asserts the 019 guards against the live project. While it
-reports `plans still exposes host_token_hash to the anon key`, 019 is not applied.
+`npm run test:smoke` asserts the 019 guards against the live project. All ten
+database guards pass as of 2026-08-10: the plans projection carries no host
+token, forged host-token and member_ages writes are refused, and every
+participant RPC rejects foreign spots, dead rounds, empty names and premature
+ratings.
 
 `schema.sql` is the end-state description for a scratch project, not an update
 path. It now includes the RPCs, which it was missing — a project built from the
