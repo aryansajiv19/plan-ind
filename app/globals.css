@@ -2604,3 +2604,26 @@ h3 {
     100% { transform: scale(1); }
   }
 }
+
+/* ── Touch targets ─────────────────────────────────────────────────
+   Found by auditing at 390px, which had never been done: the bottom tab
+   bar was 37px tall, the day/night toggle 34px, the 1–5 rating control
+   34x34, and several action buttons 18px. Apple HIG and the Android
+   guidance both put the comfortable minimum at 44px; WCAG 2.2 (2.5.8)
+   sets the floor at 24px, which these cleared while still being fiddly
+   under a thumb.
+
+   Phone-scoped so desktop keeps its density — a cursor is precise, a
+   thumb is not. Inline links inside a sentence are deliberately left
+   alone; 2.5.8 exempts them and padding them would break the text. */
+@media (max-width: 640px) {
+  .home-app-tab { min-height: 2.85rem; }
+  .home-theme-toggle,
+  .home-avatar { min-height: 2.75rem; min-width: 2.75rem; }
+  .plan-custom-place__header button,
+  .demo-collection-create button,
+  .vote-result__button { min-height: 2.75rem; padding-inline: 0.9rem; }
+  .vote-rating-button { min-height: 2.75rem; min-width: 2.75rem; }
+  /* Footer link is a block, so it can take the height without hurting copy. */
+  .home-footer a { display: inline-block; padding-block: 0.7rem; }
+}
