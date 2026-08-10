@@ -673,7 +673,7 @@ h3 {
 
 .home-title {
   margin-top: 0.45rem;
-  font-size: clamp(3.7rem, 6.25vw, 6.6rem);
+  font-size: clamp(3rem, 1.5rem + 4.2vw, 4.75rem);
   line-height: 0.9;
   letter-spacing: -0.06em;
   font-weight: 600;
@@ -1145,7 +1145,17 @@ h3 {
 
 .home-plan-section__intro { position: sticky; top: 3rem; }
 .home-section-kicker { color: var(--home-metal); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; }
-.home-plan-section h2 { max-width: 26rem; margin-top: 0.8rem; font-size: clamp(2.8rem, 5vw, 5rem); line-height: 0.9; }
+/* One clamp across every width. This heading used to be clamp(2.8rem, 5vw,
+   5rem) with separate overrides at 520px and 640px, which measured 72px on
+   desktop (wrapping to four lines) and 22px on a phone — a 3.3x swing and
+   two different design intentions. The interpolated middle term scales it
+   smoothly instead of stepping. */
+.home-plan-section h2 {
+  max-width: 26rem;
+  margin-top: 0.8rem;
+  font-size: clamp(2rem, 1.2rem + 2.6vw, 3.25rem);
+  line-height: 0.98;
+}
 .home-plan-section__intro > p:last-child { max-width: 24rem; margin-top: 1.2rem; color: var(--color-muted); }
 
 .home-plan-card {
@@ -2306,7 +2316,6 @@ h3 {
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
-  .home-title { font-size: clamp(4rem, 14vw, 6.5rem); }
   .home-stage { width: min(100%, 31rem); height: 29rem; margin: 0 auto; }
   .home-system,
   .home-system-shadow { height: 28rem; }
@@ -2359,7 +2368,7 @@ h3 {
   .home-app-tab { min-width: 0; padding: 0.7rem 0.18rem; font-size: 0.62rem; }
   .home-hero { width: min(100% - 1.5rem, 76rem); padding-top: 1.15rem; }
   .home-eyebrow { font-size: 0.61rem; }
-  .home-title { font-size: clamp(3.7rem, 17vw, 5.5rem); letter-spacing: -0.08em; }
+  .home-title { letter-spacing: -0.08em; }
   .home-title__line { white-space: normal; }
   .home-deck { margin-top: 1.5rem; font-size: 0.97rem; }
   .home-actions { align-items: stretch; flex-direction: column; }
@@ -2398,7 +2407,6 @@ h3 {
   .home-stats strong { font-size: 1.8rem; }
   .home-stats span { font-size: 0.55rem; }
   .home-plan-section { width: min(100% - 1.5rem, 68rem); padding-block: 5.5rem; }
-  .home-plan-section h2 { font-size: 3.35rem; }
   .home-plan-card { padding: 1.25rem; border-radius: 0; box-shadow: 0 1rem 2.6rem rgba(36, 27, 46, 0.12); transform: none; }
   .plan-category-group { padding-inline: 0.68rem; }
   .plan-smart-search { padding: 0.85rem; }
@@ -2581,7 +2589,6 @@ h3 {
   /* Phone: the app fills the screen rather than sitting in a page. */
   .home-plan-section,
   .demo-view { width: 100%; padding-inline: 0.95rem; }
-  .home-plan-section__intro h2 { font-size: 1.35rem; }
   .home-plan-card { border-radius: 0; }
   .demo-place-card__code { aspect-ratio: 21 / 9; font-size: 1.15rem; }
 }
@@ -2670,3 +2677,38 @@ h3 {
   font-weight: 700;
 }
 .vote-presence .vote-face-stack > span { width: 1.35rem; height: 1.35rem; font-size: 0.5rem; }
+
+/* ── Arrival ───────────────────────────────────────────────────────
+   Lists arrive one item after another rather than as a block. It is a
+   single short stagger on mount, capped so a long grid never turns into
+   a slow cascade — the last card must not feel like waiting.
+
+   The brief warned against animating for its own sake, so this is
+   limited to the three places in a voting round and the card grids in
+   the account views, which is where new content actually appears. */
+@media (prefers-reduced-motion: no-preference) {
+  .vote-options-grid > *,
+  .demo-place-grid > *,
+  .demo-visit-grid > article,
+  .demo-friend-list > * {
+    animation: list-item-in 380ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    /* Cap the index so item 12 does not wait 1.2s. */
+    animation-delay: calc(min(var(--i, 0), 6) * 45ms);
+  }
+  @keyframes list-item-in {
+    from { opacity: 0; transform: translateY(0.6rem); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* The active tab's rule grows from the left rather than cutting in. */
+  .home-app-tab::after { transform-origin: left center; transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1); }
+}
+
+/* nth-child feeds the stagger; capped at 7 so the rule set stays small. */
+.vote-options-grid > *:nth-child(1), .demo-place-grid > *:nth-child(1), .demo-visit-grid > article:nth-child(1), .demo-friend-list > *:nth-child(1) { --i: 0; }
+.vote-options-grid > *:nth-child(2), .demo-place-grid > *:nth-child(2), .demo-visit-grid > article:nth-child(2), .demo-friend-list > *:nth-child(2) { --i: 1; }
+.vote-options-grid > *:nth-child(3), .demo-place-grid > *:nth-child(3), .demo-visit-grid > article:nth-child(3), .demo-friend-list > *:nth-child(3) { --i: 2; }
+.vote-options-grid > *:nth-child(4), .demo-place-grid > *:nth-child(4), .demo-visit-grid > article:nth-child(4), .demo-friend-list > *:nth-child(4) { --i: 3; }
+.vote-options-grid > *:nth-child(5), .demo-place-grid > *:nth-child(5), .demo-visit-grid > article:nth-child(5), .demo-friend-list > *:nth-child(5) { --i: 4; }
+.vote-options-grid > *:nth-child(6), .demo-place-grid > *:nth-child(6), .demo-visit-grid > article:nth-child(6), .demo-friend-list > *:nth-child(6) { --i: 5; }
+.vote-options-grid > *:nth-child(7), .demo-place-grid > *:nth-child(7), .demo-visit-grid > article:nth-child(7), .demo-friend-list > *:nth-child(7) { --i: 6; }
