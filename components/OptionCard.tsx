@@ -40,7 +40,7 @@ export default function OptionCard({
     >
       {isWinner && <span className="vote-option__winner-label">Selected</span>}
 
-      {/* Category strip: compact typographic code + type in the category accent. */}
+      {/* Category strip: compact typographic code + type, in champagne metal. */}
       <div className="flex items-center justify-between gap-2">
         <span className="vote-option__category inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold">
           <span aria-hidden="true">{cat.code}</span>
