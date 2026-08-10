@@ -1,6 +1,6 @@
 # Deal three worklog
 
-Last updated: 2026-08-10 (Asia/Dubai)
+Last updated: 2026-08-11 (Asia/Dubai)
 
 ## Migration runbook
 
@@ -36,6 +36,12 @@ database guards pass as of 2026-08-10: the plans projection carries no host
 token, forged host-token and member_ages writes are refused, and every
 participant RPC rejects foreign spots, dead rounds, empty names and premature
 ratings.
+
+## Security handoff re-verification — 2026-08-11
+
+- Re-ran the live 019 guard suite after the security review: all 13 smoke checks passed, including host-secret isolation, forged host rejection, participant RPC validation, and immutable age storage.
+- `npm run lint`, `npx tsc --noEmit --pretty false`, `git diff --check`, and `npm run build` pass.
+- No duplicate security migration is needed. Continue from `NEXT_AGENT.md` with the 390px phone-layout verification.
 
 `schema.sql` is the end-state description for a scratch project, not an update
 path. It now includes the RPCs, which it was missing — a project built from the
@@ -241,6 +247,76 @@ This is the running implementation log. `CHECKPOINT.md` keeps the longer archite
 - `npm run build` passes.
 - `npm run test:smoke` passes: `/login` 200, `/home-preview` 200, unauthenticated `/api/plans` 401.
 - Supabase read-only check confirms age-restricted spots are live.
+
+## 390px phone layout checkpoint — 2026-08-11
+
+- Inspected the responsive rules for auth/login, onboarding, home’s five-tab navigation, and the voting surface.
+- Confirmed intentional phone behavior in CSS: auth collapses to a single-column flow at 760px; home switches to a fixed, safe-area-aware five-tab bar at 520px; voting cards and controls wrap at 640px.
+- No browser engine (Chromium/Playwright/Puppeteer) is installed in this workspace, so pixel-level rendering and tap-target inspection could not be performed honestly.
+- Local route/security smoke checks passed against the existing dev server on port 3001: all 13 guards green.
+- Next build item remains the signed-in place-link importer persistence; revisit visual verification when a browser-capable environment is available.
+
+## Signed-in importer persistence checkpoint — 2026-08-11
+
+- `/api/place-import` now persists authenticated imports in `place_imports` and associates them with the Planning collection through `place_collection_items`.
+- Added authenticated GET loading so saved links survive browser/device changes; duplicate normalized links remain idempotent.
+- Demo `/home-preview` keeps its localStorage-only behavior and now classifies links locally instead of attempting an anonymous save.
+- Import validation still strips tracking parameters and rejects adult-entertainment links before persistence.
+- Verification: ESLint, TypeScript, diff check, and all 13 live smoke guards pass. Production build is blocked only by unavailable Google Fonts network fetches in this sandbox.
+
+## Saved-link collections interaction checkpoint — 2026-08-11
+
+- Added All / Want to try / Planning filters to the saved-link list.
+- Kept the filter horizontally scrollable on narrow screens and used existing token styling for active state.
+
+## Interaction polish checkpoint — 2026-08-11
+
+- Added dependency-free horizontal swipe navigation across the five home tabs.
+- Added optional haptic feedback for tab changes; unsupported browsers safely no-op.
+- Added tactile press states and a restrained avatar focus motion.
+- Existing reduced-motion CSS remains authoritative and disables animation/transition effects.
+
+## Playful energy layer checkpoint — 2026-08-11
+
+- Added restrained spring-like hover/press moments to tabs, CTAs, category cards, moodboard items, friend rows, and reactions.
+- Added a subtle active-plan pulse and reaction pop to make progress feel rewarding.
+- Kept the palette and layout intact; all extra motion is opt-in through `prefers-reduced-motion`.
+
+## Claude handoff checkpoint — 2026-08-11
+
+### Completed in this session
+
+- Added authenticated place-link persistence through `/api/place-import` using `place_imports` and `place_collection_items`.
+- Added cross-device loading for saved links and All / Want to try / Planning filters.
+- Preserved demo mode as localStorage-only; demo imports classify links locally.
+- Added mobile swipe navigation between the five home tabs.
+- Added optional haptics with feature detection, tactile press states, reaction-pop feedback, avatar focus motion, and restrained playful hover motion.
+- Kept reduced-motion support and existing adult-entertainment restrictions.
+- Updated checkpoints throughout the session.
+
+### Verification
+
+- ESLint passes.
+- TypeScript passes.
+- `git diff --check` passes.
+- All 13 live smoke guards pass against the local server.
+- Existing server is responding at `http://localhost:3001` (`/login` returns 200).
+- Production build is currently blocked only when the sandbox cannot fetch Google Fonts; this is an environment/network issue, not a TypeScript or application error.
+
+### Important handoff context
+
+- No browser engine is installed in this workspace, so 390px visual/pixel verification is still pending.
+- Do not recreate migrations 017–019; their security fixes are already applied and verified live.
+- Do not invent signed-in data or read DOB from auth metadata.
+- `NEXT_AGENT.md` contains the broader security/schema rules and build order.
+
+### Recommended next build order
+
+1. Finish authenticated visit collections and photo memories in the Been view, including Storage/RLS verification.
+2. Add authenticated friend invites/circles without exposing broad profile data.
+3. Replace process-local rate limiting with a distributed production-safe strategy.
+4. Add browser-based 390px tests when a browser-capable environment is available.
+5. Add deeper drag/reorder interactions only where persisted ordering exists.
 
 ## Useful commands
 

@@ -7,6 +7,7 @@ import DemoAccountViews from "@/components/DemoAccountViews";
 import AccountViews from "@/components/AccountViews";
 import type { PersonCard, ProfileVisit, Spot } from "@/lib/types";
 import StartPlanForm from "@/components/StartPlanForm";
+import { haptic } from "@/lib/interaction";
 
 const DEMO_PLAN_ID = "11111111-1111-1111-1111-111111111111";
 
@@ -74,10 +75,12 @@ export default function HomeExperience({
   // for exactly this — the URL updates with no server round trip.
   const viewRef = useRef<AppView>(initialView);
   const scrollOffsets = useRef<Partial<Record<AppView, number>>>({});
+  const swipeStartX = useRef<number | null>(null);
 
   const goToView = useCallback((next: AppView, push: boolean) => {
     const current = viewRef.current;
     if (current === next) return;
+    haptic(6);
     scrollOffsets.current[current] = window.scrollY;
     viewRef.current = next;
     setActiveView(next);
@@ -126,6 +129,20 @@ export default function HomeExperience({
     goToView(view, true);
   }
 
+  function onTouchStart(event: React.TouchEvent<HTMLElement>) {
+    swipeStartX.current = event.touches[0]?.clientX ?? null;
+  }
+
+  function onTouchEnd(event: React.TouchEvent<HTMLElement>) {
+    const start = swipeStartX.current;
+    swipeStartX.current = null;
+    const end = event.changedTouches[0]?.clientX;
+    if (start === null || end === undefined || Math.abs(end - start) < 64) return;
+    const index = APP_VIEWS.indexOf(viewRef.current);
+    const nextIndex = end < start ? index + 1 : index - 1;
+    if (nextIndex >= 0 && nextIndex < APP_VIEWS.length) showView(APP_VIEWS[nextIndex]);
+  }
+
   function toggleNightMode() {
     setNightMode((current) => {
       const next = !current;
@@ -135,7 +152,7 @@ export default function HomeExperience({
   }
 
   return (
-    <main className={`home-experience ${ready ? "home-experience--ready" : ""} ${nightMode ? "home-experience--night" : ""}`}>
+    <main onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} className={`home-experience ${ready ? "home-experience--ready" : ""} ${nightMode ? "home-experience--night" : ""}`}>
       <div className="home-grid-field" aria-hidden="true" />
 
       <header className="home-nav">

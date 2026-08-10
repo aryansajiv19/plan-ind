@@ -177,7 +177,7 @@ export default function DemoAccountViews({
           <p>Real context from your circle, alongside the details that decide whether a place works tonight.</p>
         </header>
 
-        <PlaceLinkImporter />
+        <PlaceLinkImporter demoMode />
 
         <DemoPlanningTools view="discover" onStartPlan={onStartPlan} />
 

@@ -321,3 +321,43 @@ Build order:
 4. Then address transactional plan creation, distributed rate limiting, legacy plans, and social privacy.
 
 Required verification after each stage: ESLint, TypeScript, `git diff --check`, smoke tests, production build, and live read-only Supabase checks.
+
+## 390px phone layout checkpoint — 2026-08-11
+
+- Static audit covered login, onboarding, home navigation, and voting responsive rules.
+- CSS has dedicated mobile layouts and safe-area handling; no browser engine is installed here, so pixel-level verification remains pending.
+- All 13 live smoke guards passed against the running local server on port 3001.
+- Continue with signed-in place-link importer persistence, then return to browser-based layout verification when available.
+
+## Signed-in importer persistence checkpoint — 2026-08-11
+
+- Authenticated place-link imports now persist in `place_imports` and link to the Planning collection via `place_collection_items`.
+- Authenticated GET loading restores saved links across devices; normalized duplicates are idempotent.
+- Demo mode remains localStorage-only and classifies links without an anonymous API write.
+- ESLint, TypeScript, diff check, and 13 live smoke guards pass. Build is network-blocked by Google Fonts fetches only.
+
+## Saved-link collections interaction checkpoint — 2026-08-11
+
+- Saved links now have interactive All, Want to try, and Planning filters.
+- Filter controls remain compact and horizontally scrollable on phone layouts.
+
+## Interaction polish checkpoint — 2026-08-11
+
+- Home tabs now support horizontal swiping on touch devices.
+- Tab changes use optional haptics with feature detection and no dependency.
+- Buttons have subtle press feedback; avatar focus has a restrained motion cue.
+- Reduced-motion handling remains enabled globally.
+
+## Playful energy layer checkpoint — 2026-08-11
+
+- Added small spring, tilt, reaction-pop, and active-row pulse details while preserving the sleek architecture.
+- Motion is disabled for reduced-motion users and does not require a new dependency.
+
+## Claude handoff checkpoint — 2026-08-11
+
+- Latest work: authenticated importer persistence, saved-link filters, swipe tab navigation, optional haptics, tactile reactions, and playful motion polish.
+- Verification: ESLint, TypeScript, diff check, and all 13 live smoke guards pass.
+- Local server: `http://localhost:3001` is responding; `/login` returns 200.
+- Build caveat: production build can fail only because Google Fonts cannot be fetched in the restricted environment.
+- Pending: authenticated visit collections/photos, friend invites, distributed rate limiting, browser-based 390px verification, and persisted drag/reorder flows.
+- Read `NEXT_AGENT.md` and the latest `worklog.md` before editing. Do not recreate migrations 017–019.
