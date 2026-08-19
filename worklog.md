@@ -1,6 +1,6 @@
 # Deal three worklog
 
-Last updated: 2026-08-11 (Asia/Dubai)
+Last updated: 2026-08-19 (Asia/Dubai)
 
 ## Migration runbook
 
@@ -30,6 +30,7 @@ Apply in order. Every migration is additive and re-run safe unless noted.
 | 017 | `migration-017-participant-token-seam.sql` | yes — verified live 2026-08-10 |
 | 018 | `migration-018-participant-write-rpcs.sql` | yes — verified live 2026-08-10 |
 | 019 | `migration-019-secret-isolation-and-rpc-integrity.sql` | yes — verified live 2026-08-10 |
+| 020 | `migration-020-production-security.sql` | **no — implemented locally, pending live apply** |
 
 `npm run test:smoke` asserts the 019 guards against the live project. All ten
 database guards pass as of 2026-08-10: the plans projection carries no host
@@ -353,8 +354,68 @@ npm run build
 3. Visit collections and photos (migration 010 tables still unused).
 4. A way to add a friend (`addFriend` and 8 other `lib/social.ts` functions
    still have zero callers).
-5. Distributed rate limiting; the OTP map is still unbounded.
-6. A test runner — `node --test` is stdlib; start with `lib/age-policy.ts`.
+5. ~~Distributed rate limiting~~ — implemented in migration 020; pending live apply.
+6. ~~A test runner~~ — focused Node security tests now run with `npm run test:security`.
 
 Full instructions, hard rules and the list of traps that have already caused
 bugs here are in `NEXT_AGENT.md`. Read that first.
+
+## Production-hardening implementation — 2026-08-19
+
+### Implemented
+
+- Added production HTTPS/HSTS, CSP nonces, security and cookie headers,
+  restrictive permissions, CSRF protection, capped streaming JSON readers,
+  origin/Fetch Metadata checks, and client helpers for protected requests.
+- Added Cloudflare Turnstile to email OTP and anonymous shared-plan entry.
+  Email requests use enumeration-resistant responses.
+- Added Supabase anonymous guest sessions and migration-020 `plan_access`
+  membership so shared plans and private Realtime Presence are plan-scoped.
+- Replaced multi-write client plan creation with the transactional,
+  server-authoritative `create_secure_plan` RPC. It enforces permanent auth,
+  immutable age, exact same-category candidates and an allowlisted payload.
+- Added Postgres-backed request quotas, including 30 AI searches per user/day
+  and 300 globally/day, plus minimized security events and retention cleanup.
+- Restricted social reads, durable profiles, custom spots, participant writes,
+  storage MIME types and image sizes. Added client decode/dimension checks.
+- Added Terms and Privacy pages backed by required production legal variables.
+- Removed template-like skyline/confetti/grid/orb/shadow/hover decoration and
+  rendered emoji avatars. Fonts are now self-hosted and open licensed.
+- Upgraded Next.js and ESLint config to 16.3.1; resolved npm audit to zero.
+- Added `tests/security.test.ts`, expanded smoke coverage and documented hosted
+  configuration in `SECURITY_SETUP.md`.
+
+### Database status
+
+- Migration 020 exists locally and its end state is mirrored exactly in
+  `supabase/schema.sql` (apart from the migration-only heading).
+- Migration 020 is **not applied live**. Existing smoke checks prove the live
+  migration-019 guards only. Follow `SECURITY_SETUP.md` for the migration,
+  control-secret hash, Auth settings and cleanup cron.
+
+### Verification
+
+- ESLint and TypeScript pass.
+- Focused security tests pass (sanitization, double-submit CSRF, JSON/content
+  type/body caps).
+- Next 16.3.1 production build passes across 15 routes with webpack.
+- Expanded localhost smoke suite passes, including CSP/security headers,
+  missing-CSRF 403, valid-CSRF unauthenticated 401 and all prior DB guards.
+- `npm audit` reports zero vulnerabilities; `git diff --check` passes.
+- Graphify update completed: 794 nodes, 1,245 edges, 68 communities.
+
+## Cursor mobile-preview handoff — 2026-08-19
+
+- `lirobi.phone-preview` 3.1.9 is installed in Cursor.
+- `.vscode/settings.json` sets `mobile-preview.url` to
+  `http://localhost:3001` and the device to iPhone 13 Pro.
+- Local development omits X-Frame-Options, COOP/CORP and CSP frame-ancestors
+  so the extension iframe works. Those protections remain enabled in
+  production.
+- The preview is in editor column two. Hide the Secondary Sidebar to free the
+  right side. Keep the terminal visible and drag its upper divider downward;
+  the extension auto-scales the phone according to remaining vertical space.
+- Immediate next coding task: use this preview to audit real alignment,
+  wrapping, overflow and safe-area behavior at phone width. Start with the
+  home screen visible in the latest screenshot, then login, onboarding, all
+  home tabs and a multi-round shared plan.

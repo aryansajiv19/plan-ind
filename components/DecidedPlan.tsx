@@ -92,7 +92,7 @@ export default function DecidedPlan({
 
   return (
     <div className="vote-result mt-6 rounded-2xl border-2 border-punch bg-punch/5 p-4 sm:p-5">
-      {/* Ticket header — the celebratory payoff */}
+      {/* Decision summary */}
       <div className="flex items-center gap-3">
         <span
           className="vote-result__category grid h-12 w-12 shrink-0 place-items-center rounded-xl text-2xl"
@@ -118,7 +118,7 @@ export default function DecidedPlan({
         onClick={copyForChat}
         className="vote-result__primary mt-3 w-full rounded-2xl border-2 border-ink bg-zest px-5 py-3 font-display font-extrabold text-ink"
       >
-        {copied ? "Copied — paste it in the chat" : "Copy for the group chat"}
+        {copied ? "Copied. Paste it in the chat" : "Copy for the group chat"}
       </button>
 
       {/* When */}

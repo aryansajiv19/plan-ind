@@ -7,7 +7,7 @@ export const getCurrentUser = cache(async () => {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  return user;
+  return user?.is_anonymous ? null : user;
 });
 
 export async function requireUser() {

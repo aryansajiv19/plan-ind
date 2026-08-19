@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { validateBirthDate } from "@/lib/age-policy";
+import { recordSecurityEvent } from "@/lib/security/controls";
 
 export interface AuthFormState {
   email?: string;
@@ -11,20 +12,6 @@ export interface AuthFormState {
   error?: string;
   message?: string;
   sent?: boolean;
-}
-
-const otpRequests = new Map<string, { count: number; resetsAt: number }>();
-
-function allowOtp(email: string): boolean {
-  const now = Date.now();
-  const current = otpRequests.get(email);
-  if (!current || current.resetsAt <= now) {
-    otpRequests.set(email, { count: 1, resetsAt: now + 10 * 60_000 });
-    return true;
-  }
-  if (current.count >= 3) return false;
-  current.count += 1;
-  return true;
 }
 
 function birthDateFrom(formData: FormData): { dateOfBirth: string; age: number } | { error: string } {
@@ -58,7 +45,11 @@ export async function requestEmailCode(
   if (!/^\S+@\S+\.\S+$/.test(email) || email.length > 254) {
     return { error: "Enter a valid email address." };
   }
-  if (!allowOtp(email)) return { email, error: "Too many codes requested. Try again in ten minutes." };
+  const captchaTokenValue = formData.get("captchaToken");
+  const captchaToken = typeof captchaTokenValue === "string" ? captchaTokenValue : "";
+  if (process.env.NODE_ENV === "production" && !captchaToken) {
+    return { error: "Complete the security check and try again." };
+  }
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithOtp({
@@ -66,17 +57,31 @@ export async function requestEmailCode(
     options: {
       shouldCreateUser: true,
       emailRedirectTo: `${await appOrigin()}/auth/callback?next=/home`,
+      captchaToken: captchaToken || undefined,
     },
   });
 
+  const requestId = (await headers()).get("x-vercel-id");
+  await recordSecurityEvent(supabase, {
+    type: "otp_request",
+    outcome: error ? "failure" : "success",
+    subject: email,
+    requestId,
+  });
   if (error) {
-    return { email, error: "We couldn't send a code. Please try again." };
+    // Deliberately match the success response so the form cannot disclose
+    // whether an address already has an account.
+    return {
+      email,
+      sent: true,
+      message: "If that address can receive mail, a six-digit code is on its way.",
+    };
   }
 
   return {
     email,
     sent: true,
-    message: `We sent a six-digit code to ${email}.`,
+    message: "If that address can receive mail, a six-digit code is on its way.",
   };
 }
 
@@ -97,6 +102,13 @@ export async function verifyEmailCode(
     email,
     token,
     type: "email",
+  });
+
+  await recordSecurityEvent(supabase, {
+    type: "otp_verify",
+    outcome: error ? "failure" : "success",
+    subject: email,
+    requestId: (await headers()).get("x-vercel-id"),
   });
 
   if (error) {

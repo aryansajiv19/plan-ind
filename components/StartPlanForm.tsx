@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import { dealSpotsForCategory } from "@/lib/deal";
 import { DUBAI_ORIGINS } from "@/lib/dubai-areas";
 import { minimumAgeForCategory, prohibitedVenueReason } from "@/lib/age-policy";
+import { secureJsonFetch } from "@/lib/security/csrf-client";
 
 const PRESETS = [
   { label: "In 3 hours", hours: 3 },
@@ -135,7 +136,6 @@ export default function StartPlanForm({ age = 21, demoMode = false }: { age?: nu
   const [selectedCustomIds, setSelectedCustomIds] = useState<string[]>([]);
   const [smartQuery, setSmartQuery] = useState("");
   const [smartIntent, setSmartIntent] = useState<SmartIntent | null>(null);
-  const [smartModel, setSmartModel] = useState<string | null>(null);
   const [smartLoading, setSmartLoading] = useState(false);
   const [smartError, setSmartError] = useState<string | null>(null);
 
@@ -179,12 +179,12 @@ export default function StartPlanForm({ age = 21, demoMode = false }: { age?: nu
     setSmartLoading(true);
     setSmartError(null);
     try {
-      const response = await fetch("/api/smart-search", {
+      const response = await secureJsonFetch("/api/smart-search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query }),
       });
-      const result = await response.json() as { intent?: SmartIntent; model?: string; error?: string };
+      const result = await response.json() as { intent?: SmartIntent; error?: string };
       if (!response.ok || !result.intent) throw new Error(result.error ?? "Smart search failed.");
 
       const matchedCategory = CATEGORIES.find((item) => item.key === result.intent!.category);
@@ -198,7 +198,6 @@ export default function StartPlanForm({ age = 21, demoMode = false }: { age?: nu
       setTitle(result.intent.title);
       setTitleEdited(true);
       setSmartIntent(result.intent);
-      setSmartModel(result.model ?? null);
     } catch (smartSearchError) {
       setSmartError(smartSearchError instanceof Error ? smartSearchError.message : "Smart search failed.");
     } finally {
@@ -307,7 +306,7 @@ export default function StartPlanForm({ age = 21, demoMode = false }: { age?: nu
     const deadline = new Date(
       Date.now() + PRESETS[presetIdx].hours * 3_600_000,
     ).toISOString();
-    const response = await fetch("/api/plans", {
+    const response = await secureJsonFetch("/api/plans", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -323,7 +322,6 @@ export default function StartPlanForm({ age = 21, demoMode = false }: { age?: nu
         smartBrief: smartIntent ? smartQuery.trim() : null,
         vibePreferences: smartIntent?.vibeKeywords ?? [],
         avoidPreferences: smartIntent?.avoidKeywords ?? [],
-        intelligenceModel: smartModel,
         spotIds: nine,
       }),
     });
@@ -345,7 +343,7 @@ export default function StartPlanForm({ age = 21, demoMode = false }: { age?: nu
     <form onSubmit={start} className="plan-form">
       <section className="plan-smart-search" aria-labelledby="smart-search-heading">
         <div className="plan-smart-search__heading">
-          <div><p id="smart-search-heading" className="plan-form__label">Describe the place in your head</p><small>Atmosphere, occasion, budget, area—write it naturally.</small></div>
+          <div><p id="smart-search-heading" className="plan-form__label">Describe the place in your head</p><small>Atmosphere, occasion, budget, area. Write it naturally.</small></div>
         </div>
         <textarea
           id="smart-search-input"
@@ -353,7 +351,6 @@ export default function StartPlanForm({ age = 21, demoMode = false }: { age?: nu
           onChange={(event) => {
             setSmartQuery(event.target.value);
             setSmartIntent(null);
-            setSmartModel(null);
             setSmartError(null);
           }}
           placeholder="A quiet terrace near Jumeirah for a date, dim lighting, around AED 250 each, somewhere we can actually talk."

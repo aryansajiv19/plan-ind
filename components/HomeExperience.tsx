@@ -201,7 +201,7 @@ export default function HomeExperience({
       {activeView === "plan" ? (
       <div id="workspace">
       {/* The hero is the signed-out pitch. A signed-in account opens straight
-          onto the composer the way an app opens onto its first screen —
+          onto the composer the way an app opens onto its first screen.
           scrolling past a marketing headline to reach your own tool is a
           website habit, and on a phone it costs the whole first screen. */}
       {demoMode ? (
@@ -303,7 +303,7 @@ export default function HomeExperience({
       ) : (
         <div id="workspace">
           {/* Fixtures are for the signed-out preview only. A signed-in account
-              shows its own data, empty states included — presenting invented
+              shows its own data, empty states included. Presenting invented
               friends and history as someone's own record is not a demo. */}
           {demoMode ? (
             <DemoAccountViews view={activeView} name={name} onStartPlan={() => showView("plan")} />

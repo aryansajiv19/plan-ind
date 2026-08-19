@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { classifyPlaceLink, type PlaceCollectionKind, type PlaceLinkCandidate } from "@/lib/place-import";
+import { secureJsonFetch } from "@/lib/security/csrf-client";
 
 interface SavedLink extends PlaceLinkCandidate {
   id: string;
@@ -48,7 +49,7 @@ export default function PlaceLinkImporter({ demoMode = false }: { demoMode?: boo
       if (demoMode) {
         result = { candidate: classifyPlaceLink(url) };
       } else {
-        const response = await fetch("/api/place-import", {
+        const response = await secureJsonFetch("/api/place-import", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ url, collection }),

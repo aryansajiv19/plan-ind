@@ -56,11 +56,17 @@ export function venueAllowedForAge(age: number, minimumAge: number | null | unde
  * which refuses to overwrite an existing row.
  */
 export async function memberAge(supabase: SupabaseClient, userId: string): Promise<number | null> {
-  const { data } = await supabase
+  if (!userId) return null;
+  const { data, error } = await supabase.rpc("current_member_age");
+  if (!error && typeof data === "number") return data;
+
+  // Compatibility while migration 020 is being applied. This branch can be
+  // removed after every environment exposes current_member_age().
+  const legacy = await supabase
     .from("member_ages")
     .select("date_of_birth")
     .eq("user_id", userId)
     .maybeSingle();
-  const value = (data as { date_of_birth?: unknown } | null)?.date_of_birth;
+  const value = (legacy.data as { date_of_birth?: unknown } | null)?.date_of_birth;
   return typeof value === "string" ? ageOnDate(value) : null;
 }

@@ -1,8 +1,27 @@
 # Instructions for the next agent
 
-Read this file, then `worklog.md`. Do not scan the whole repository — query
-the Graphify index in `graphify-out/` first (it was rebuilt 2026-08-10 and is
-current), then open only the files the task touches.
+Read this file, then `worklog.md` and the latest section of `CHECKPOINT.md`.
+Do not scan the whole repository. Query the Graphify index in `graphify-out/`
+first (rebuilt 2026-08-19: 794 nodes / 1,245 edges), then open only the files
+the task touches.
+
+## Current handoff — 2026-08-19
+
+- A large, intentional security and visual-quality implementation is present
+  in the worktree and is **not committed**. Do not discard or reset it.
+- `supabase/migration-020-production-security.sql` is implemented and mirrored
+  in `supabase/schema.sql`, but has **not been applied to the live Supabase
+  project**. Deployment instructions are in `SECURITY_SETUP.md`.
+- The next product task is visual alignment verification in the installed
+  Mobile Preview extension at `http://localhost:3001`. Workspace defaults are
+  in `.vscode/settings.json` (iPhone 13 Pro). The phone auto-scales to remaining
+  vertical space, so keep the terminal short by dragging its top divider down.
+- Development intentionally omits anti-framing headers so the extension can
+  embed localhost. Production still sends `X-Frame-Options: DENY`, COOP/CORP,
+  and CSP `frame-ancestors 'none'`.
+- Latest green checks: ESLint, TypeScript, `npm run test:security`, webpack
+  production build, expanded HTTP/database smoke suite, `git diff --check`,
+  and `npm audit` with zero findings.
 
 ---
 
@@ -15,24 +34,25 @@ current), then open only the files the task touches.
 2. **Never read date of birth from `auth` user_metadata.** The browser can
    rewrite it. Use `memberAge(supabase, userId)` from `lib/age-policy.ts`. The
    only write path is the `set_birth_date` RPC, which is write-once.
-3. **Never add a column holding a secret to `plans`.** `read plans` is
-   `using (true)` and realtime broadcasts whole rows. Secrets go in their own
-   table with no select policy — see `plan_host_tokens`.
+3. **Never add a column holding a secret to `plans`.** Plan reads are now
+   membership-scoped by migration 020, but Realtime can still broadcast whole
+   authorized rows. Secrets stay in a separate table with no select policy —
+   see `plan_host_tokens`.
 4. **Never add a direct insert/update/delete policy on `votes`, `rsvps` or
    `ratings`.** Those writes go through the security-definer RPCs
    (`cast_plan_vote`, `set_plan_rsvp`, `rate_plan`). Adding a policy reopens
    the hole migration 018/019 closed.
 5. **`lib/types.ts` mirrors the schema.** Change them together, in one pass.
-6. **Migrations are additive and numbered.** Next is `migration-020-*.sql`.
-   Never edit an applied migration — write a new one. Record it in the runbook
-   table in `worklog.md` on the day you apply it.
+6. **Migrations are additive and numbered.** Migration 020 is pending live
+   deployment. Fix it in place only before it is applied; after deployment the
+   next number is 021. Record application in `worklog.md` that same day.
 7. **`supabase/schema.sql` is the end-state for a scratch project, not an
    update path.** It DROPS every table. Never run it against the live project.
    If you add a migration, add the same objects to `schema.sql` — including
    functions and indexes, not just columns. A previous agent added only
    columns and left the file unable to produce a working database.
-8. **No new dependencies without a reason you can state.** There is no test
-   runner and that is deliberate for now.
+8. **No new dependencies without a reason you can state.** Focused security
+   tests use Node's built-in test runner via `npm run test:security`.
 9. Do not use green glowing dots or pulsing status lights. Recorded
    permanently in `FRONTEND_DESIGN_STANDARDS.md`.
 
@@ -43,12 +63,14 @@ current), then open only the files the task touches.
 ```bash
 npm run lint
 npx tsc --noEmit --pretty false
+npm run test:security
 npm run build
 npm run test:smoke     # needs the dev server; BASE_URL=http://localhost:3001
 git diff --check
 ```
 
-`npm run test:smoke` asserts 13 live database guards with the anon key. **If
+`npm run test:smoke` asserts routes, security headers, CSRF behavior, and live
+database guards with the publishable key. **If
 any fail, stop and fix it — do not commit.** A failure there means a security
 control is off in the live project.
 
@@ -103,31 +125,23 @@ Each item says what "done" means. Do one at a time and commit it.
   `supabase/seed-multi-round-plan.sql`. Use this one for anything touching the
   pool flow. The file's footer has the host token and how to test as the host.
 
-### 4.1 Verify the phone layout (do this first — it is cheap and blocks judgement)
+### 4.1 Verify and refine the phone layout
 
-The mobile-first pass shipped **visually unverified**: the environment's
-browser would not resize below 1342px. The `@media (max-width: 520px)` rules
-parse and apply, but nobody has seen them render.
+Mobile Preview 3.1.9 is installed in Cursor and now renders the app at an
+iPhone viewport. The first screenshot confirms the home preview loads, but a
+systematic alignment pass has not happened yet.
 
 Open the app in a real phone or DevTools device mode at 390px and check:
 `/login`, `/onboarding`, `/home` (all five tabs), `/plan/[id]`. Look for
 horizontal overflow, the bottom tab bar overlapping content, and the app bar
 spacing. Fix what is broken. Done when all five screens are clean at 390px.
 
-### 4.2 Persist the place importer
+### 4.2 Deploy and verify migration 020
 
-`components/PlaceLinkImporter.tsx` saves to `localStorage`
-(`deal-three:place-links`) and `app/api/place-import/route.ts` validates a URL
-and returns it without writing anything. Migration 012 already created
-`place_imports`, `place_collections` and `place_collection_items` and **no
-code touches them**.
-
-Wire the route to insert into `place_imports` for the signed-in user, and read
-the saved list from there. Done when a saved link survives a different
-browser. Do not attempt scraping or venue resolution — see the boundary note
-in `PLACE_IMPORT_ARCHITECTURE.md`, which describes a pipeline that does not
-exist. That document overpromises; treat it as a design sketch, not a
-description of the code.
+Follow `SECURITY_SETUP.md`: apply migration 020, insert the hashed server-control
+secret, enable anonymous sign-ins and Turnstile, configure legal variables,
+and schedule cleanup. Then test one permanent user and one anonymous guest on
+a shared plan. Do not claim the new RLS/quota layer is live until this is done.
 
 ### 4.3 Been collections and photos
 
@@ -150,23 +164,17 @@ Give the Friends tab a way to add someone — the natural source is companions
 already tagged on a visit, which `logVisit` writes. Done when tagging a
 companion who has an account can become a friendship from the UI.
 
-### 4.5 Rate limiting that survives a restart
+### 4.5 Durable rate limiting (completed, verify after deployment)
 
-`app/api/plans/route.ts:7`, `app/api/smart-search/route.ts:31` and
-`app/auth/actions.ts:18` are module-level `Map`s. They reset on every cold
-start and are bypassed by fanning out across serverless instances. The OTP one
-is also **unbounded** — attacker-supplied emails are keys that are never
-evicted, which is a memory leak reachable from the internet.
+Migration 020 adds Postgres-backed per-minute/per-day quotas and a global AI
+cap. Server routes use `lib/security/controls.ts`; process-local maps are gone.
+The live database needs migration 020 and the hashed control secret before
+these RPCs enforce production traffic.
 
-Minimum fix now: cap the OTP map size. Proper fix: move all three to a shared
-store (a Postgres table with a timestamp is enough; no new service needed).
+### 4.6 Test runner (completed)
 
-### 4.6 A test runner
-
-There is none. `scripts/smoke-test.mjs` is the only automated check. `node --test`
-is in the standard library — use it before reaching for a framework. The
-highest-value first tests are the pure functions in `lib/age-policy.ts` and
-`lib/deal.ts`.
+`tests/security.test.ts` runs with Node's built-in runner. Extend it for pure
+security/request logic and keep `scripts/smoke-test.mjs` for HTTP/live guards.
 
 ---
 
@@ -191,9 +199,10 @@ highest-value first tests are the pure functions in `lib/age-policy.ts` and
 - `people.id` **equals** the auth user id for authenticated profiles. The
   profile row is created by the idempotent `ensure_authenticated_profile` RPC,
   called server-side in `app/home/page.tsx`.
-- The shared plan page (`app/plan/[id]/page.tsx`) is **anonymous**. Participants
-  are identified by a per-plan token whose SHA-256 hash is sent to the RPCs.
-  There is no account there. Do not assume `auth.uid()`.
+- The shared plan page (`app/plan/[id]/page.tsx`) now creates a Supabase
+  anonymous-auth guest session, redeems the share UUID into `plan_access`, and
+  uses authenticated participant RPCs. The typed-name token remains the
+  participant identity seam. Do not create durable social profiles for guests.
 - The host of a plan holds a one-time token in `localStorage`
   (`plan-host:<planId>`). It is never in the URL. Losing it means losing host
   control — account-based recovery is not built.

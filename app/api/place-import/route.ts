@@ -1,5 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
 import { classifyPlaceLink, type PlaceCollectionKind } from "@/lib/place-import";
+import {
+  readJsonBody,
+  requestError,
+  validateMutationRequest,
+} from "@/lib/security/request";
+import { consumeQuota, recordSecurityEvent } from "@/lib/security/controls";
 
 async function authenticatedProfile(supabase: Awaited<ReturnType<typeof createClient>>, user: { id: string; email?: string | null; user_metadata?: Record<string, unknown> }) {
   const metadataName = user.user_metadata?.full_name ?? user.user_metadata?.name;
@@ -10,18 +16,23 @@ async function authenticatedProfile(supabase: Awaited<ReturnType<typeof createCl
 }
 
 export async function POST(request: Request) {
+  let body: unknown;
+  try {
+    validateMutationRequest(request);
+    body = await readJsonBody(request, 4_096);
+  } catch (error) {
+    return requestError(error, "The request could not be read.");
+  }
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     return Response.json({ error: "Sign in to save a place." }, { status: 401 });
   }
-
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return Response.json({ error: "Send a valid link." }, { status: 400 });
+  if (!(await consumeQuota(supabase, "place-import"))) {
+    await recordSecurityEvent(supabase, { type: "rate_limit", outcome: "blocked", subject: user.id, metadata: { scope: "place-import" } });
+    return Response.json({ error: "Too many saved links. Try again later." }, { status: 429 });
   }
+
   const sourceUrl = typeof body === "object" && body !== null && "url" in body
     ? String((body as { url: unknown }).url).trim()
     : "";

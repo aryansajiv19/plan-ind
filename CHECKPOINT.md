@@ -397,3 +397,110 @@ base, add energy, and make it genuinely interactive.
   this environment will not resize below 1342px, and the seeded demo plan
   (`11111111-…`) is a legacy single-round plan so it renders no round dots.
   Both need a real device or DevTools device mode.
+
+## Production security and mobile-preview checkpoint — 2026-08-19
+
+### Worktree state
+
+- The implementation is intentionally uncommitted. Preserve all current
+  changes; do not reset the tree or treat Graphify output as accidental.
+- The previously incomplete local edits in migrations 015 and 016 were
+  restored to their committed content before this work began.
+- Graphify was queried before implementation and refreshed afterward. The
+  current graph contains 794 nodes, 1,245 edges, and 68 communities.
+
+### Security boundary implemented
+
+- `proxy.ts` and `next.config.ts` now provide CSP nonces, same-origin request
+  propagation, secure headers, production HTTPS/HSTS, restrictive browser
+  permissions, production clickjacking protection, and a double-submit CSRF
+  cookie. Development omits only the framing restrictions required by the
+  Cursor Mobile Preview iframe.
+- All mutating application routes validate origin, Fetch Metadata and CSRF,
+  stream and cap JSON request bodies, reject unsupported content types, and
+  sanitize bounded plain text. Client callers use `secureJsonFetch`.
+- Supabase cookies use explicit `Secure` production behavior, `SameSite=Lax`,
+  and root paths. Anonymous guest auth is not treated as a permanent account.
+- Email OTP uses Cloudflare Turnstile in production and deliberately returns
+  the same outward response on provider success/failure to reduce user
+  enumeration. Shared plan links use Turnstile plus Supabase anonymous auth.
+- Smart search treats user text as untrusted, uses a hashed safety identifier,
+  no longer leaks model details in responses, and consumes durable database
+  quotas: 10/minute, 30/user/day and 300/global/day.
+- Place import and plan creation also consume durable quotas. Security events
+  are minimized and stored through a secret-authorized RPC; raw emails,
+  prompts, cookies and tokens are not logged.
+- Upload inputs accept only JPEG/PNG/WebP, enforce byte limits, decode the
+  image, and reject oversized dimensions/pixel counts. The Storage bucket is
+  restricted to the same MIME types and an 8 MB ceiling by migration 020.
+
+### Database migration 020
+
+- Added plan membership through `plan_access`; the share UUID is redeemed into
+  an authenticated guest membership before tables or private Presence expose
+  a plan.
+- Replaced public plan/vote/RSVP/rating reads with authenticated membership
+  policies. Participant RPCs require authenticated membership, while a trigger
+  protects future participant write paths and another trigger sanitizes names.
+- Added `create_secure_plan(jsonb, uuid[])`: nine unique same-category spots,
+  ownership/curation checks, immutable age enforcement, future deadline,
+  bounded fields, server-generated host token, plan rows and membership are
+  created in one transaction. Direct client mutations are revoked.
+- Social reads are owner/friend scoped, anonymous guests cannot create durable
+  profiles, DOB remains server-owned, and custom-spot writes require a
+  permanent owner.
+- Added durable quotas, minimized security events, private plan Presence, and
+  a 90-day/2-day cleanup function. The entire end state is mirrored in
+  `supabase/schema.sql`.
+- **Not deployed:** migration 020 is pending in the hosted project. Follow
+  `SECURITY_SETUP.md`; do not describe the new RLS/quota layer as live yet.
+
+### Visual and product-quality cleanup
+
+- Removed the decorative skyline, confetti/rainbow treatment, radial/dot
+  decoration, prominent shadows, moving hover transforms and rendered emoji
+  avatars. Typography remains within the existing two-family design system.
+- Replaced Google-hosted fonts with open-licensed local assets in
+  `public/fonts`, eliminating network-dependent font builds.
+- Added environment-backed `/terms` and `/privacy` pages and linked them from
+  login/profile. A Vercel production build fails when legal identity variables
+  are missing rather than publishing placeholder legal information.
+- Upgraded Next.js and `eslint-config-next` to 16.3.1. The build script uses
+  the supported webpack builder because Turbopack cannot bind its internal
+  worker port in this restricted execution environment.
+
+### Mobile Preview setup and next visual task
+
+- Cursor extension: `lirobi.phone-preview` 3.1.9.
+- Workspace defaults: `.vscode/settings.json` points to
+  `http://localhost:3001` and selects iPhone 13 Pro.
+- The extension is hard-coded to editor column two. Hide Cursor's Secondary
+  Sidebar to give it the right side. Its phone scale is limited by available
+  vertical space; keep the terminal visible but drag the terminal's top border
+  downward so it is roughly 5–8 lines tall.
+- The home preview has now been seen in a phone frame. The next agent should
+  inspect alignment and overflow at `/login`, `/onboarding`, all five `/home`
+  tabs, and a real three-round `/plan/[id]` before changing layout CSS.
+
+### Verification completed
+
+- `npm run lint` passed.
+- `npx tsc --noEmit` passed.
+- `npm run test:security` passed all three focused suites.
+- `npm run build` passed for all 15 routes using Next 16.3.1 and webpack.
+- `npm run test:smoke` passed route, header, CSRF and existing live migration
+  019 database guards against `http://localhost:3001`.
+- `npm audit` reports zero vulnerabilities.
+- `git diff --check` passed and the targeted secret scan found no credentials.
+
+### Owner actions still required
+
+1. Apply migration 020 to Supabase and record the live date in `worklog.md`.
+2. Insert the bcrypt hash of `SECURITY_CONTROL_SECRET` and set the matching
+   server-only Vercel variable.
+3. Enable anonymous sign-ins and Cloudflare Turnstile in Supabase Auth; set OTP
+   expiry to ten minutes or less.
+4. Set the Turnstile site key, canonical site URL and legal operator/contact/
+   jurisdiction variables in Vercel.
+5. Schedule `purge_security_operational_data()` daily, then run an end-to-end
+   permanent-user plus anonymous-guest shared-plan test.

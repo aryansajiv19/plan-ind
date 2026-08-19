@@ -1,26 +1,30 @@
 import type { Metadata, Viewport } from "next";
-import { Hanken_Grotesk, Manrope } from "next/font/google";
-import SkylineBackdrop from "@/components/SkylineBackdrop";
+import localFont from "next/font/local";
 import "./globals.css";
 
-// Display face — precise and architectural, with enough warmth for hospitality.
-// (This was Bricolage Grotesque; the variable kept that name long after the
-// face changed, which read as a lie in every stylesheet that used it.)
-const display = Manrope({
+const display = localFont({
+  src: [
+    { path: "../public/fonts/manrope-500.ttf", weight: "500" },
+    { path: "../public/fonts/manrope-600.ttf", weight: "600" },
+    { path: "../public/fonts/manrope-700.ttf", weight: "700" },
+    { path: "../public/fonts/manrope-800.ttf", weight: "800" },
+  ],
   variable: "--font-display-family",
-  subsets: ["latin"],
-  weight: ["500", "600", "700", "800"],
+  display: "swap",
 });
 
-// Body face — a clean, friendly workhorse that stays quiet under the display.
-const hanken = Hanken_Grotesk({
+const hanken = localFont({
+  src: [
+    { path: "../public/fonts/hanken-grotesk-400.ttf", weight: "400" },
+    { path: "../public/fonts/hanken-grotesk-500.ttf", weight: "500" },
+    { path: "../public/fonts/hanken-grotesk-700.ttf", weight: "700" },
+  ],
   variable: "--font-hanken",
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Deal three — Dubai hangout decider",
+  title: "Deal three | Dubai hangout decider",
   description: "Stop deciding, start doing. Pick a vibe, deal three spots, vote, let the app call it.",
   manifest: "/manifest.webmanifest",
   applicationName: "Deal three",
@@ -58,9 +62,6 @@ export default function RootLayout({
       className={`${display.variable} ${hanken.variable} h-full`}
     >
       <body className="min-h-full flex flex-col">
-        <SkylineBackdrop />
-        {/* Own stacking context above the fixed backdrop, so the cards and
-            the confetti canvas keep their own layering inside it. */}
         <div className="relative z-10 flex flex-1 flex-col">{children}</div>
       </body>
     </html>

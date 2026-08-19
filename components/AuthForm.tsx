@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import {
   requestEmailCode,
@@ -8,15 +8,16 @@ import {
   verifyEmailCode,
   type AuthFormState,
 } from "@/app/auth/actions";
+import Turnstile from "@/components/Turnstile";
 
 const INITIAL_STATE: AuthFormState = {};
 
-function SubmitButton({ idle, pending }: { idle: string; pending: string }) {
+function SubmitButton({ idle, pending, disabled = false }: { idle: string; pending: string; disabled?: boolean }) {
   const status = useFormStatus();
   return (
     <button
       type="submit"
-      disabled={status.pending}
+      disabled={status.pending || disabled}
       className="auth-submit"
     >
       {status.pending ? pending : idle}
@@ -25,6 +26,7 @@ function SubmitButton({ idle, pending }: { idle: string; pending: string }) {
 }
 
 export default function AuthForm({ pageError }: { pageError?: string }) {
+  const [captchaToken, setCaptchaToken] = useState("");
   const [requestState, requestAction] = useActionState(
     requestEmailCode,
     INITIAL_STATE,
@@ -90,6 +92,7 @@ export default function AuthForm({ pageError }: { pageError?: string }) {
         </form>
       ) : (
         <form action={requestAction} className="auth-fields" id="email-auth">
+          <input type="hidden" name="captchaToken" value={captchaToken} />
           <div>
             <label htmlFor="email">
               Email address
@@ -104,7 +107,12 @@ export default function AuthForm({ pageError }: { pageError?: string }) {
               className="auth-input"
             />
           </div>
-          <SubmitButton idle="Email me a code" pending="Sending code…" />
+          <Turnstile action="email-login" onVerify={setCaptchaToken} />
+          <SubmitButton
+            idle="Email me a code"
+            pending="Sending code…"
+            disabled={process.env.NODE_ENV === "production" && !captchaToken}
+          />
         </form>
       )}
 
@@ -115,7 +123,7 @@ export default function AuthForm({ pageError }: { pageError?: string }) {
       )}
 
       <p className="auth-footnote">
-        By continuing, you agree to keep things friendly. No password to remember.
+        By continuing, you agree to the <a href="/terms">Terms</a> and acknowledge the <a href="/privacy">Privacy policy</a>. No password to remember.
       </p>
     </div>
   );

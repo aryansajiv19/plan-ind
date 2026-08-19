@@ -233,7 +233,7 @@ export default function AccountViews({
               {plannedWith.map((friend) => (
                 <article key={friend.name} className="demo-friend-row">
                   <span className="demo-friend-avatar" aria-hidden="true" style={avatarStyle(friend.name)}>
-                    {friend.person?.emoji || initialsOf(friend.name)}
+                    {initialsOf(friend.name)}
                   </span>
                   <div>
                     <h2>{friend.name}</h2>
@@ -286,6 +286,10 @@ export default function AccountViews({
       ) : (
         <p className="demo-empty">Your city pattern appears once you have logged a visit or two.</p>
       )}
+      <nav className="legal-links" aria-label="Legal">
+        <a href="/terms">Terms</a>
+        <a href="/privacy">Privacy</a>
+      </nav>
     </section>
   );
 }

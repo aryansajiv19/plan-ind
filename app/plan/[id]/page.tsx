@@ -7,14 +7,16 @@ import { addBeen } from "@/lib/device";
 import { logVisit } from "@/lib/social";
 import { avatarStyle, initialsOf } from "@/lib/avatar";
 import { participantTokenHash } from "@/lib/participant";
+import { secureJsonFetch } from "@/lib/security/csrf-client";
 import { coordinatesForArea, distanceKm } from "@/lib/dubai-areas";
 import type { Plan, PlanSpot, Rating, Rsvp, Spot, Vote } from "@/lib/types";
 import OptionCard from "@/components/OptionCard";
 import NameGate from "@/components/NameGate";
 import DecidedPlan from "@/components/DecidedPlan";
-import ConfettiCanvas, { type ConfettiHandle } from "@/components/ConfettiCanvas";
+import Turnstile from "@/components/Turnstile";
 
 type Load = "loading" | "ready" | "notfound" | "error";
+type Access = "checking" | "captcha" | "ready" | "error";
 
 function closesLabel(deadline: string | null): string {
   if (!deadline) return "Open";
@@ -29,6 +31,7 @@ export default function VotePage() {
   const { id } = useParams<{ id: string }>();
 
   const [load, setLoad] = useState<Load>("loading");
+  const [access, setAccess] = useState<Access>("checking");
   const [plan, setPlan] = useState<Plan | null>(null);
   const [spots, setSpots] = useState<Spot[]>([]);
   const [planSpots, setPlanSpots] = useState<PlanSpot[]>([]);
@@ -47,7 +50,6 @@ export default function VotePage() {
   const [hostToken, setHostToken] = useState<string | null>(null);
   const [participantHash, setParticipantHash] = useState<string | null>(null);
 
-  const confettiRef = useRef<ConfettiHandle>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const revealFired = useRef(false);
@@ -56,6 +58,42 @@ export default function VotePage() {
   const winnerId = plan?.winner_spot_id ?? null;
   const stage = plan?.stage ?? (decided ? "decided" : "final");
   const poolCount = plan?.pool_count ?? 1;
+
+  const bootstrapAccess = useCallback(async (captchaToken?: string) => {
+    let { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      if (process.env.NODE_ENV === "production" && !captchaToken) {
+        setAccess("captcha");
+        return;
+      }
+      const { data, error } = await supabase.auth.signInAnonymously({
+        options: captchaToken ? { captchaToken } : undefined,
+      });
+      if (error || !data.user || !data.session) {
+        setAccess("error");
+        return;
+      }
+      user = data.user;
+      await supabase.realtime.setAuth(data.session.access_token);
+    }
+    const { data: claimed, error } = await supabase.rpc("claim_plan_access", { p_plan_id: id });
+    if (error) {
+      // Migration 020 is additive. Keep local development usable while the
+      // migration is being applied, but fail closed in production.
+      if (process.env.NODE_ENV !== "production" && error.code === "PGRST202") {
+        setAccess("ready");
+        return;
+      }
+      setAccess("error");
+      return;
+    }
+    setAccess(claimed ? "ready" : "error");
+  }, [id]);
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => void bootstrapAccess());
+    return () => window.cancelAnimationFrame(frame);
+  }, [bootstrapAccess]);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -71,10 +109,11 @@ export default function VotePage() {
   }, [id]);
 
   useEffect(() => {
+    if (access !== "ready") return;
     let active = true;
     void participantTokenHash(id).then((hash) => { if (active) setParticipantHash(hash); });
     return () => { active = false; };
-  }, [id]);
+  }, [access, id]);
 
   useEffect(() => {
     const saved = localStorage.getItem(`plan-host:${id}`);
@@ -84,7 +123,7 @@ export default function VotePage() {
 
   const runHostCommand = useCallback(async (command: "advance" | "decide" | "patch", patch: Partial<Plan> = {}) => {
     if (!hostToken) return null;
-    const response = await fetch(`/api/plans/${id}/command`, {
+    const response = await secureJsonFetch(`/api/plans/${id}/command`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ hostToken, command, patch }),
@@ -160,7 +199,7 @@ export default function VotePage() {
     return () => {
       active = false;
     };
-  }, [id, refetchVotes, refetchRsvps, refetchRatings, reloadKey]);
+  }, [access, id, refetchVotes, refetchRsvps, refetchRatings, reloadKey]);
 
   // ── Restore this voter's name (once, per plan) ───────────────────
   useEffect(() => {
@@ -173,6 +212,7 @@ export default function VotePage() {
 
   // ── Realtime: live votes + live "decided" for everyone ───────────
   useEffect(() => {
+    if (access !== "ready") return;
     const channel = supabase
       .channel(`plan:${id}`)
       .on(
@@ -204,7 +244,7 @@ export default function VotePage() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [id, refetchVotes, refetchRsvps, refetchRatings, refetchPlanSpots]);
+  }, [access, id, refetchVotes, refetchRsvps, refetchRatings, refetchPlanSpots]);
 
   // ── Who else has this plan open right now ────────────────────────
   // A separate channel from the data subscriptions above: presence depends on
@@ -217,10 +257,10 @@ export default function VotePage() {
   // credential the write RPCs authorise against. The payload carries the
   // typed name only — exactly what the vote list already shows publicly.
   useEffect(() => {
-    if (!voterName) return;
+    if (access !== "ready" || !voterName) return;
     const sessionKey = crypto.randomUUID();
-    const channel = supabase.channel(`plan-presence:${id}`, {
-      config: { presence: { key: sessionKey } },
+    const channel = supabase.channel(`plan:${id}:presence`, {
+      config: { private: true, presence: { key: sessionKey } },
     });
     channel
       .on("presence", { event: "sync" }, () => {
@@ -237,7 +277,7 @@ export default function VotePage() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [id, voterName]);
+  }, [access, id, voterName]);
 
   // ── Tallies + this voter's picks ─────────────────────────────────
   const currentPhase = stage === "pool" ? "pool" : "final";
@@ -363,18 +403,11 @@ export default function VotePage() {
     return () => clearTimeout(t);
   }, [plan, stage, hostToken, decide, advanceToFinal]);
 
-  // ── The reveal: confetti on the winner, once ─────────────────────
+  // Record the winner once when the decision arrives.
   useEffect(() => {
     if (!decided || !winnerId || revealFired.current) return;
     revealFired.current = true;
-    addBeen(winnerId); // remember on this device — feeds "haven't been yet"
-    const el = cardRefs.current[winnerId];
-    const stage = stageRef.current;
-    if (el && stage) {
-      const b = el.getBoundingClientRect();
-      const s = stage.getBoundingClientRect();
-      confettiRef.current?.burst(b.left - s.left + b.width / 2, b.top - s.top + 20);
-    }
+    addBeen(winnerId);
   }, [decided, winnerId]);
 
   function saveName(name: string) {
@@ -490,6 +523,30 @@ export default function VotePage() {
   }
 
   // ── States ───────────────────────────────────────────────────────
+  if (access === "captcha") {
+    return (
+      <main className={`vote-experience ${nightMode ? "vote-experience--night" : ""} mx-auto grid min-h-dvh max-w-md place-items-center px-5 text-center`}>
+        <div>
+          <h1 className="text-3xl font-extrabold">Open this plan securely</h1>
+          <p className="mt-3 text-muted">Complete the security check to join the live vote.</p>
+          <Turnstile action="plan-access" onVerify={(token) => { if (token) void bootstrapAccess(token); }} />
+        </div>
+      </main>
+    );
+  }
+
+  if (access === "error") {
+    return (
+      <main className={`vote-experience ${nightMode ? "vote-experience--night" : ""} mx-auto grid min-h-dvh max-w-md place-items-center px-5 text-center`}>
+        <div>
+          <h1 className="text-3xl font-extrabold">This plan could not be opened</h1>
+          <p className="mt-3 text-muted">The link may be invalid, or the security check may have expired.</p>
+          <button type="button" className="vote-primary-action mt-6" onClick={() => { setAccess("checking"); void bootstrapAccess(); }}>Try again</button>
+        </div>
+      </main>
+    );
+  }
+
   if (load === "loading") {
     return (
       <main className={`vote-experience ${nightMode ? "vote-experience--night" : ""} mx-auto grid min-h-dvh max-w-md place-items-center px-5`}>
@@ -570,8 +627,6 @@ export default function VotePage() {
           deciding ? "deck-shuffling" : "",
         ].join(" ")}
       >
-        <ConfettiCanvas ref={confettiRef} />
-
         {/* Header */}
         <div className="vote-header flex items-start justify-between gap-3">
           <div>
@@ -731,7 +786,7 @@ export default function VotePage() {
           <p role="status" className="mt-3 text-sm font-medium text-muted">
             {visitSaved === "saved"
               ? "Saved to your Been, with everyone who came."
-              : "Rated. We couldn't add it to your Been — open Been later to add it."}
+              : "Rated. We couldn't add it to your Been. Open Been later to add it."}
           </p>
         )}
       </div>

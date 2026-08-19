@@ -4,11 +4,32 @@ async function check(path, expected, init) {
   const response = await fetch(`${baseUrl}${path}`, init);
   if (response.status !== expected) throw new Error(`${path}: expected ${expected}, received ${response.status}`);
   console.log(`ok ${path} (${response.status})`);
+  return response;
 }
 
-await check("/login", 200);
+const login = await check("/login", 200);
 await check("/home-preview", 200);
-await check("/api/plans", 401, { method: "POST", headers: { "content-type": "application/json" }, body: "{}" });
+for (const name of ["content-security-policy", "x-content-type-options", "referrer-policy"]) {
+  if (!login.headers.get(name)) throw new Error(`/login: missing ${name}`);
+  console.log(`ok /login includes ${name}`);
+}
+await check("/terms", 200);
+await check("/privacy", 200);
+await check("/api/plans", 403, { method: "POST", headers: { "content-type": "application/json" }, body: "{}" });
+
+const setCookie = login.headers.get("set-cookie") ?? "";
+const csrf = /(?:^|[,;]\s*)csrf=([^;,]+)/.exec(setCookie)?.[1];
+if (!csrf) throw new Error("/login: CSRF cookie was not set");
+await check("/api/plans", 401, {
+  method: "POST",
+  headers: {
+    "content-type": "application/json",
+    origin: new URL(baseUrl).origin,
+    cookie: `csrf=${csrf}`,
+    "x-csrf-token": csrf,
+  },
+  body: "{}",
+});
 
 // ── Database guards (migration 019) ───────────────────────────────
 // These run against the live project with the anon key — exactly the
@@ -23,7 +44,7 @@ const env = Object.fromEntries(
     .map((line) => [line.slice(0, line.indexOf("=")).trim(), line.slice(line.indexOf("=") + 1).trim()]),
 );
 const url = env.NEXT_PUBLIC_SUPABASE_URL;
-const anonKey = env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const anonKey = env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 if (!url || !anonKey) {
   console.log("skip database guards (no Supabase credentials in .env.local)");

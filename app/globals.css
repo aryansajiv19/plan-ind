@@ -2712,3 +2712,51 @@ h3 {
 .vote-options-grid > *:nth-child(5), .demo-place-grid > *:nth-child(5), .demo-visit-grid > article:nth-child(5), .demo-friend-list > *:nth-child(5) { --i: 4; }
 .vote-options-grid > *:nth-child(6), .demo-place-grid > *:nth-child(6), .demo-visit-grid > article:nth-child(6), .demo-friend-list > *:nth-child(6) { --i: 5; }
 .vote-options-grid > *:nth-child(7), .demo-place-grid > *:nth-child(7), .demo-visit-grid > article:nth-child(7), .demo-friend-list > *:nth-child(7) { --i: 6; }
+
+/* Restrained production finish: structure and state carry the hierarchy. */
+.sky-root,
+.home-backdrop-grid,
+.home-decision-orbit__glow { display: none !important; }
+
+.token,
+.token:hover,
+.token:active,
+.home-plan-card,
+.home-decision-orbit,
+.vote-result__button:hover:not(:disabled) { box-shadow: none !important; }
+
+@media (hover: hover) {
+  a:hover,
+  button:hover,
+  [role="button"]:hover,
+  .token:hover,
+  .vote-result__button:hover:not(:disabled) { transform: none !important; }
+}
+
+.legal-links {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2.5rem;
+  border-top: 1px solid var(--color-line);
+  padding-top: 1rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.legal-page {
+  width: min(100% - 2rem, 46rem);
+  margin: 0 auto;
+  padding: 2rem 0 4rem;
+}
+.legal-page__back { font-weight: 800; }
+.legal-page article { margin: 3rem 0; }
+.legal-page h1 { margin-top: 0.4rem; font-size: clamp(2rem, 7vw, 3.5rem); }
+.legal-page h2 { margin-top: 2rem; font-size: 1.15rem; }
+.legal-page p { margin-top: 0.7rem; line-height: 1.7; color: var(--color-muted); }
+.legal-page a { text-decoration: underline; text-underline-offset: 0.2em; }
+.legal-page__date { font-size: 0.85rem; }
+.legal-page__notice {
+  border: 1px solid var(--color-ink);
+  padding: 0.75rem;
+  color: var(--color-ink) !important;
+}

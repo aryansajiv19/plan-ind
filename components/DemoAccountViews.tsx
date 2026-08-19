@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import PlaceLinkImporter from "@/components/PlaceLinkImporter";
 import DemoPlanningTools from "@/components/DemoPlanningTools";
+import { validateImageFile } from "@/lib/upload";
 
 type AccountView = "discover" | "been" | "friends" | "profile";
 
@@ -105,6 +106,7 @@ export default function DemoAccountViews({
   const [placeFilter, setPlaceFilter] = useState("All");
   const [query, setQuery] = useState("");
   const [uploadedPhoto, setUploadedPhoto] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadVisitId, setUploadVisitId] = useState<string>(VISITS[0].id);
   const [privacy, setPrivacy] = useState("Friends");
   const [collections, setCollections] = useState<DemoCollection[]>(DEFAULT_COLLECTIONS);
@@ -253,17 +255,22 @@ export default function DemoAccountViews({
 
           <div className="demo-photo-composer">
             <label className="demo-photo-upload">
-              <input type="file" accept="image/*" onChange={(event) => {
+              <input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => {
                 const file = event.target.files?.[0];
                 if (file) {
-                  if (uploadedPhoto) URL.revokeObjectURL(uploadedPhoto);
-                  setUploadedPhoto(URL.createObjectURL(file));
+                  void validateImageFile(file).then((error) => {
+                    setUploadError(error);
+                    if (error) return;
+                    if (uploadedPhoto) URL.revokeObjectURL(uploadedPhoto);
+                    setUploadedPhoto(URL.createObjectURL(file));
+                  });
                 }
               }} />
               {uploadedPhoto ? (
                 <><span className="demo-photo-upload__preview"><Image src={uploadedPhoto} alt="New visit upload preview" fill unoptimized /></span><strong>Photo ready for {VISITS.find((visit) => visit.id === uploadVisitId)?.place.name}</strong><small>Tap the image to choose another</small></>
               ) : <><strong>Add photos from a visit</strong><small>Choose an image from this device</small></>}
             </label>
+            {uploadError && <p role="alert" className="auth-error">{uploadError}</p>}
             <label className="demo-photo-target"><span>Attach to</span><select value={uploadVisitId} onChange={(event) => setUploadVisitId(event.target.value)}>{VISITS.map((visit) => <option key={visit.id} value={visit.id}>{visit.place.name}</option>)}</select></label>
           </div>
         </div>
