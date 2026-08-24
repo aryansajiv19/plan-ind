@@ -1,6 +1,6 @@
 # Deal three worklog
 
-Last updated: 2026-08-19 (Asia/Dubai)
+Last updated: 2026-08-24 (Asia/Dubai)
 
 ## Migration runbook
 
@@ -31,7 +31,7 @@ Apply in order. Every migration is additive and re-run safe unless noted.
 | 018 | `migration-018-participant-write-rpcs.sql` | yes — verified live 2026-08-10 |
 | 019 | `migration-019-secret-isolation-and-rpc-integrity.sql` | yes — verified live 2026-08-10 |
 | 020 | `migration-020-production-security.sql` | **yes — applied and verified live 2026-08-24** |
-| 021 | `migration-021-revoke-anon-execute.sql` | **no — being written 2026-08-24, see defect below** |
+| 021 | `migration-021-revoke-anon-execute.sql` | **no — unapplied; live probe still returns `200 false` on 2026-08-24** |
 
 `npm run test:smoke` asserts the 019 guards against the live project. All ten
 database guards pass as of 2026-08-10: the plans projection carries no host
@@ -471,7 +471,8 @@ a false "secret rejected" conclusion in this session before it was caught.
 
 ### Defect 1 — `valid_control_secret` is an anon-callable brute-force oracle
 
-**Open. Migration 021 is being written for it.** Found by `qa-test`, reproduced
+**Open live. Migration 021 is committed locally but unapplied.** Found by
+`qa-test`, reproduced
 live with nothing but the publishable key and no session:
 
 ```
@@ -498,17 +499,14 @@ Practical risk today is low — the live secret is 256 bits of entropy. The dang
 is that every `revoke ... from public` line in 020 reads as protection it is not
 providing.
 
-### Defect 2 — share-link "plan not found" flash (fix in flight)
+### Defect 2 — share-link "plan not found" flash (fixed in `470ca28`)
 
-`app/plan/[id]/page.tsx` load effect lists `access` in its deps but lacks the
-`if (access !== "ready") return;` guard its three sibling effects all have. It
-fires before `bootstrapAccess` completes anonymous sign-in + `claim_plan_access`.
-Post-020 that pre-claim read is hidden by RLS, so `.maybeSingle()` returns
-`{data: null, error: null}` — indistinguishable from a missing plan — and sets
-`notfound`. Render has no `access === "checking"` gate before the notfound
-branch. A friend opening a share link sees "plan not found" for ~2 round trips.
-
-Code-read + confirmed RLS behaviour; not observed in a browser.
+The load previously ran before `bootstrapAccess` completed anonymous sign-in +
+`claim_plan_access`. Post-020 RLS hid that pre-claim read, so `.maybeSingle()`
+returned `{data: null, error: null}` and the page treated it as missing.
+`470ca28` makes the load wait for `access === "ready"` and keeps the checking
+state ahead of not-found. Live browser verification remains blocked while
+anonymous sign-ins are disabled.
 
 ### OpenAI status — verified, blocks the AI phases
 
@@ -531,3 +529,26 @@ correct `Asia/Dubai` timezone — that is the weather tool for the agent loop.
 - `npm run test:smoke` — 19/19 green against localhost:3000
 - `npm run test:smoke:020` — 10/10 deployment guards green, 1 red (defect 1)
 - Migration 020 confirmed live by direct probe, not by assumption
+
+## Shared-plan race fix + real-data Wrapped — 2026-08-24
+
+- `470ca28` fixes the post-020 access race: the plan read waits for access to be
+  ready and the render shows the checking state before not-found. Anonymous
+  sign-ins are still disabled live, so the shared-plan path is not browser-
+  verifiable and remains unavailable to guests.
+- `3d07a6a` moves Wrapped into the signed-in Profile and computes the current
+  `Asia/Dubai` month from real plans, visits, group labels, ratings and spots.
+  It has deterministic ties, honest empty/error states, group-rating labeling,
+  partial-stat omission, and accessible Web Share/clipboard feedback.
+- Security review kept all aggregation behind authenticated, RLS-scoped reads
+  and introduced no schema or new client write path. Friend invites were not
+  wired: typed RSVP companion names are not account identity, and direct
+  symmetric friendship creation lacks consent. Reserve 022 for pgvector and
+  023 for the account-link/request/acceptance seam.
+- Verification passed: lint, TypeScript, 3/3 security suites, 8/8 Wrapped tests,
+  the 15-route production build, normal smoke, and `git diff --check`.
+  `test:smoke:020` remains red only because migration 021 is unapplied.
+- Live blockers rechecked: anonymous sign-in is disabled;
+  `valid_control_secret({"p_secret":"wrong"})` returns `200 false`; and the
+  one-token embeddings call returns `429 insufficient_quota`. AI behavior is
+  not live-tested.

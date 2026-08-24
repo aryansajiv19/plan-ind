@@ -1,6 +1,6 @@
 # plan-ind Working Checkpoint
 
-Last updated: 2026-08-09 (Asia/Dubai)
+Last updated: 2026-08-24 (Asia/Dubai)
 
 ## Build-order checkpoint 1: shared planning domain and demo entry
 
@@ -614,3 +614,44 @@ body. `curl` of the same URL returns 25 KB of HTML containing `home-experience`,
 three "bugs" in an earlier session were capture artifacts. Treat this as
 unconfirmed; verify with `getComputedStyle` / `getBoundingClientRect` before
 changing any code.
+
+## Shared-plan access and real-data Wrapped checkpoint — 2026-08-24
+
+### Implementation
+
+- `470ca28` completes the shared-plan access fix. The initial `plans` read now
+  waits for `access === "ready"`, after anonymous authentication and
+  `claim_plan_access`; the render also keeps `access === "checking"` ahead of
+  the not-found branch. This prevents an RLS-hidden pre-claim read from being
+  mistaken for a missing plan.
+- `3d07a6a` moves Wrapped out of demo tooling into the real signed-in Profile.
+  It aggregates the current `Asia/Dubai` calendar month from plans, visits,
+  `visits.group_label`, ratings and spot metadata, with deterministic ties,
+  honest empty/error states, unavailable-stat omission, and explicit group-
+  average labeling for the best-rated place.
+- Wrapped sharing uses Web Share with clipboard fallback and accessible status
+  feedback. Eight focused tests cover aggregation, boundaries, ties and empty
+  data.
+
+### Security audit and sequencing
+
+- Wrapped uses authenticated, RLS-scoped reads and adds no schema or client
+  mutation path. No invented demo values enter the signed-in experience.
+- Friend invites are not a frontend-only wiring task: RSVP companions are
+  currently names rather than linked account identities, while direct
+  symmetric friendship creation lacks request/acceptance consent. Keep
+  pgvector as migration 022 and implement the account-link plus consented
+  friend-request seam as migration 023.
+
+### Verification and live blockers
+
+- Passed: `npm run lint`, `npx tsc --noEmit --pretty false`, all 3 security
+  suites, all 8 Wrapped tests, the 15-route production build, normal smoke, and
+  `git diff --check`.
+- Anonymous sign-in remains disabled, so the post-020 shared-plan vote path is
+  unavailable and the race fix is not browser-verified live.
+- Migration 021 remains unapplied. The publishable-key probe
+  `valid_control_secret({"p_secret":"wrong"})` still returns `200 false`, so
+  the brute-force oracle remains open and `test:smoke:020` remains red there.
+- A one-token `text-embedding-3-small` call still returns
+  `429 insufficient_quota`; no RAG or tool-calling behavior is live-tested.

@@ -6,16 +6,21 @@ first, then open only the files the task touches.
 
 ## Current handoff — 2026-08-24 (AI-engineering workstream)
 
-**Working branch: `ai-engineering`** (from `main` at `3dd972b`). Committed:
-`38d0138` — the `ai-engineer` agent + `openai-responses` skill.
+**Working branch: `ai-engineering`** (from `main` at `3dd972b`). Current commits:
+
+- `38d0138` — the `ai-engineer` agent + `openai-responses` skill.
+- `ece3d3d` — migration 021 implementation and migration-020 smoke guard.
+- `470ca28` — shared-plan access/RLS race fix.
+- `3d07a6a` — real-data monthly Wrapped recap.
+
 **Full plan: `~/.claude/plans/i-want-to-build-binary-heron.md`. Read it — it has
 the phase order, the design decisions and the reasoning behind each.**
 
 ### 🔴 Two live blockers the OWNER must clear, in this order
 
-**1. Enable anonymous sign-ins in Supabase Auth.** Discovered at the very end of
-this session: the live project returns `anonymous_provider_disabled`. Migration
-020 made the share-link flow redeem a UUID into `plan_access` via an anonymous
+**1. Enable anonymous sign-ins in Supabase Auth.** Live status is
+`anonymous=false`; session creation returns `anonymous_provider_disabled`.
+Migration 020 made the share-link flow redeem a UUID into `plan_access` via an anonymous
 session — so with anon sign-ins off, **no browser can reach `access === "ready"`
 and the entire shared-plan vote path is dead.** Plan *creation* works; opening a
 share link does not. This is `SECURITY_SETUP.md` §2 and it is not optional
@@ -31,25 +36,23 @@ privileges. Then set the runbook row in `worklog.md` to applied.
 Still open from `SECURITY_SETUP.md`: Turnstile, OTP expiry <= 10 min, and the
 daily `purge_security_operational_data()` cron.
 
-### Uncommitted work in flight — verify before building on it
+### Completed implementation checkpoint
 
-- `supabase/migration-021-revoke-anon-execute.sql` + `supabase/schema.sql`
-  (five grant blocks mirrored) — **complete**, by `backend-data`. Not applied.
-- `scripts/smoke-test.mjs` + `package.json` — `qa-test` added a migration-020
-  guard block behind `--020` (`npm run test:smoke:020`). 10/10 deployment guards
-  green; the 11th is red and that red **is** blocker 2 above. `npm run test:smoke`
-  still 19/19.
-- `app/plan/[id]/page.tsx` — **INCOMPLETE.** `frontend` was fixing the
-  share-link "plan not found" flash and was cut off by the session limit.
-  **Inspect this diff before trusting it; consider `git checkout` on it and
-  redoing the fix.** The bug: the load effect lists `access` in its deps but
-  lacks the `if (access !== "ready") return;` guard that its three sibling
-  effects all have, so it reads `plans` before `claim_plan_access` runs;
-  post-020 RLS hides that read, `.maybeSingle()` returns `{data:null,error:null}`,
-  and it sets `notfound`. Render also has no `access === "checking"` gate before
-  the notfound branch. Note this cannot be reproduced in a browser until
-  blocker 1 is cleared.
-- `AGENTS.md` — modified only because `next dev` regenerates its rules block.
+- `470ca28` guards the initial plan read until `access === "ready"` and renders
+  the access-checking state before the not-found branch. This prevents post-020
+  RLS from turning the pre-claim read into a false not-found result. Live browser
+  reproduction remains blocked until anonymous sign-ins are enabled.
+- `3d07a6a` moves Wrapped into the real signed-in Profile view. It computes the
+  current `Asia/Dubai` calendar month from real plans, visits, group labels,
+  ratings and spot metadata; uses deterministic tie-breaking; labels the best
+  place as a group rating; omits unavailable partial stats; and shows an honest
+  empty/error state. Share uses Web Share with clipboard fallback and accessible
+  status feedback. Demo-only hard-coded Wrapped was removed.
+- Wrapped has eight focused aggregation tests. `npm run lint`,
+  `npx tsc --noEmit --pretty false`, `npm run test:security`,
+  `npm run test:wrapped`, `npm run build`, `npm run test:smoke`, and
+  `git diff --check` passed. The build covered 15 routes. `test:smoke:020`
+  remains red only at the live migration-021 oracle guard.
 
 ### The AI phases, and what gates them
 
@@ -86,12 +89,14 @@ Recommended order (details and reasoning in the plan file):
    filters are never model-callable: the model picks what to look for, the
    server decides what it may see.
 
-Unblocked by credits and buildable any time: **friend invites** (`addFriend`,
-`removeFriend`, `areFriends`, `getPeople`, `getSpotVisitors` in `lib/social.ts`
-all still have zero callers) and **Wrapped on real data** (needs **zero** new
-schema — `plans`, `visits`, `visits.group_label`, `ratings`, `spots.area` supply
-every stat; move it out of `DemoPlanningTools` into `AccountViews` with an
-honest empty state).
+**Friend invites are not a frontend-only task.** Current RSVP companions are
+typed names, not consented account identities, and the existing direct symmetric
+friendship write has no request/acceptance seam. Preserve **022 for pgvector**.
+Build the account-linking and consent-based friend-request seam as **migration
+023**, then wire the UI. Do not expose broad profile search or infer identity by
+matching display names.
+
+Wrapped on real data is complete in `3d07a6a`.
 
 ### Probing the live database — two traps that already caused false conclusions
 
