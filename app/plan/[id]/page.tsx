@@ -10,6 +10,8 @@ import { participantTokenHash } from "@/lib/participant";
 import { secureJsonFetch } from "@/lib/security/csrf-client";
 import { coordinatesForArea, distanceKm } from "@/lib/dubai-areas";
 import type { Plan, PlanSpot, Rating, Rsvp, Spot, Vote } from "@/lib/types";
+import { haptic } from "@/lib/interaction";
+import CountUp from "@/components/CountUp";
 import OptionCard from "@/components/OptionCard";
 import NameGate from "@/components/NameGate";
 import DecidedPlan from "@/components/DecidedPlan";
@@ -48,6 +50,10 @@ export default function VotePage() {
   const [reloadKey, setReloadKey] = useState(0); // bump to retry the load
   const [nightMode, setNightMode] = useState(false);
   const [activePool, setActivePool] = useState(1);
+  // Which way the next round should enter from. Set at the two places that
+  // change rounds rather than derived, so going back to round 1 from round 3
+  // slides in from the left instead of pretending it is progress.
+  const [roundDir, setRoundDir] = useState(1);
   const [hostToken, setHostToken] = useState<string | null>(null);
   const [participantHash, setParticipantHash] = useState<string | null>(null);
 
@@ -309,6 +315,10 @@ export default function VotePage() {
     if (!voterName || decided) return;
     if (!participantHash) { setNotice("Preparing your private voting session…"); return; }
     const next = !iVotedYes(spotId);
+    // Never the only feedback: navigator.vibrate is unsupported on iOS
+    // Safari, which is most of this audience. The card's own spring is what
+    // actually confirms the pick; this is a bonus where it exists.
+    haptic(next ? 10 : 6);
 
     const prev = votes;
     setVotes((cur) => {
@@ -443,6 +453,7 @@ export default function VotePage() {
     if (!voterName || !participantHash) return;
     const mine = rsvps.find((r) => r.voter_name === voterName);
     const nextComing = choice === "coming";
+    haptic(8);
     setRsvps((cur) => [
       ...cur.filter((r) => r.voter_name !== voterName),
       { id: mine?.id ?? `local-${voterName}`, plan_id: id, voter_name: voterName, coming: nextComing, choice, participant_token_hash: participantHash },
@@ -465,6 +476,7 @@ export default function VotePage() {
   async function rateWinner(partial: { stars?: number; again?: boolean }) {
     if (!voterName || !winnerId || !participantHash) return;
     const mine = ratings.find((r) => r.voter_name === voterName);
+    haptic(8);
     const stars = partial.stars ?? mine?.stars ?? 5;
     const again = partial.again ?? mine?.again ?? stars >= 4;
     setRatings((cur) => [
@@ -520,6 +532,7 @@ export default function VotePage() {
   async function copyLink() {
     try {
       await navigator.clipboard.writeText(window.location.href);
+      haptic(10);
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
     } catch {
@@ -639,7 +652,7 @@ export default function VotePage() {
           <div>
             <h1 className="text-2xl font-extrabold sm:text-3xl">{plan!.title}</h1>
             <p className="mt-1 text-sm text-muted">
-              Hey {voterName} · {voters} {voters === 1 ? "person" : "people"} voting
+              Hey {voterName} · <CountUp value={voters} /> {voters === 1 ? "person" : "people"} voting
             </p>
             {(plan!.budget_per_person != null || plan!.radius_km != null) && (
               <p className="vote-plan-constraints">
@@ -679,7 +692,11 @@ export default function VotePage() {
               <button
                 key={poolNumber}
                 type="button"
-                onClick={() => setActivePool(poolNumber)}
+                onClick={() => {
+                  setRoundDir(poolNumber >= activePool ? 1 : -1);
+                  setActivePool(poolNumber);
+                  haptic(6);
+                }}
                 aria-current={activePool === poolNumber ? "step" : undefined}
                 data-complete={poolsChosenByMe.has(poolNumber) || undefined}
                 aria-label={`Round ${poolNumber} of ${poolCount}${poolsChosenByMe.has(poolNumber) ? ", chosen" : ""}`}
@@ -694,7 +711,11 @@ export default function VotePage() {
             phone this is a snap carousel (see .vote-options-grid); the key
             re-mounts it per round so the next set animates in rather than
             swapping in place. */}
-        <div key={`round-${currentPoolNumber}`} className="vote-options-grid vote-round mt-6 grid gap-3.5 sm:grid-cols-3">
+        <div
+          key={`round-${currentPoolNumber}`}
+          style={{ "--round-dir": roundDir } as React.CSSProperties}
+          className="vote-options-grid vote-round mt-6 grid gap-3.5 sm:grid-cols-3"
+        >
           {visibleSpots.map((spot) => (
             <div key={spot.id} ref={(el) => { cardRefs.current[spot.id] = el; }}>
               <OptionCard
@@ -726,6 +747,7 @@ export default function VotePage() {
               <button
                 type="button"
                 onClick={() => {
+                  setRoundDir(1);
                   if (activePool < poolCount) setActivePool((pool) => pool + 1);
                   else void advanceToFinal();
                 }}

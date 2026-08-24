@@ -65,6 +65,24 @@
 
   --font-display: var(--font-display-family), system-ui, sans-serif;
   --font-body: var(--font-hanken), system-ui, sans-serif;
+
+  /* ── Motion curves: two, and only two ────────────────────────────
+     --ease-spring overshoots past its target and settles back. It is
+     for a state the person just caused — picking a card, choosing a
+     category, releasing a button. The overshoot is what reads as
+     mass; a linear or ease-out curve of the same length reads as a
+     repaint. Kept mild (about 6% past target) because the elements
+     it moves are large cards, not icons.
+
+     --ease-settle does not overshoot. It is for arrival: something
+     entering the screen that the person did not push. Already in use
+     across the entrances; named here so it stops being pasted.
+
+     Presses are the exception to both — a press-in is fast and blunt
+     (90ms ease-out, set on :active) and only the RELEASE springs.
+     Symmetric spring on the way down reads as mush.                */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* The only way a surface picks up a group hue: put data-group on the nearest
@@ -792,7 +810,7 @@ h3 {
   box-shadow: none;
   font-family: var(--font-display);
   font-weight: 700;
-  transition: transform 150ms ease, box-shadow 150ms ease;
+  transition: transform 260ms var(--ease-spring), box-shadow 150ms ease;
 }
 
 .home-primary-cta:hover {
@@ -1344,7 +1362,8 @@ h3 {
   font-size: 0.78rem;
   font-weight: 700;
   cursor: pointer;
-  transition: border-color 150ms ease, background 150ms ease, color 150ms ease;
+  transition: border-color 150ms ease, background 150ms ease, color 150ms ease,
+    transform 300ms var(--ease-spring);
 }
 
 .plan-category-option:hover,
@@ -1358,12 +1377,17 @@ h3 {
   background: color-mix(in srgb, var(--group, var(--home-metal)) 12%, transparent);
   box-shadow: inset 3px 0 0 var(--group, var(--home-metal));
   color: var(--color-ink);
+  /* Same spring as the vote card. These tiles sit in a fixed 2-column
+     grid with no scroll container, so the scale can be larger than
+     the card's without moving anything else. */
+  transform: scale(1.025);
 }
 
 .plan-deadline[aria-pressed="true"] {
   border-color: var(--home-metal);
   background: color-mix(in srgb, var(--home-metal) 9%, transparent);
   color: var(--color-ink);
+  transform: scale(1.025);
 }
 
 .plan-category-group:focus-visible,
@@ -1605,7 +1629,7 @@ h3 {
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 150ms ease, opacity 150ms ease;
+  transition: transform 260ms var(--ease-spring), opacity 150ms ease;
 }
 
 .plan-submit:hover:not(:disabled) { transform: translateY(-1px); }
@@ -2200,7 +2224,10 @@ h3 {
   border: 1px solid var(--color-line);
   border-radius: 0.12rem;
   box-shadow: none;
-  transition: border-color 150ms ease, background 150ms ease, transform 150ms ease, opacity 150ms ease;
+  /* Transform gets the spring and a longer run than the colour props:
+     the border recolouring instantly while the card is still settling
+     is what makes the pick feel like it landed. */
+  transition: border-color 150ms ease, background 150ms ease, transform 320ms var(--ease-spring), opacity 150ms ease;
 }
 
 .vote-option:hover:not(:disabled) { border-color: color-mix(in srgb, var(--vote-metal) 70%, var(--color-line)); transform: translateY(-1px); }
@@ -2213,6 +2240,33 @@ h3 {
   background: color-mix(in srgb, var(--color-live) 8%, var(--color-card));
   box-shadow: inset 3px 0 0 var(--color-live);
 }
+
+/* The pick, with weight. A transition (not an animation) on purpose:
+   transitions do not fire on first paint, so a returning voter whose
+   choice is already saved sees the card in its chosen state rather
+   than watching it re-choose itself on load.
+
+   Specificity 0-3-0, ties :hover above and wins on order, so a chosen
+   card does not lose its lift to the cursor. Scale is deliberately
+   tiny — on a phone this card is 85% of the viewport inside a
+   scroll-snap track, and anything past ~1% adds real scrollable
+   width. The overshoot in --ease-spring is doing the work, not the
+   distance. */
+.vote-option[aria-pressed="true"]:not(:disabled) { transform: translateY(-2px) scale(1.008); }
+
+/* Later in the file than the press layer near the top, so this wins: a chosen
+   card must still sink when you press it again to unpick.
+
+   Deliberately NOT inside a no-preference guard. A press response is direct
+   manipulation, not decoration — removing it leaves a reduced-motion user
+   tapping a card that gives nothing back. The global reduce block below
+   zeroes the duration, so they get the same state instantly instead. */
+.vote-option:active:not(:disabled) {
+  transform: scale(0.975);
+  transition-duration: 90ms;
+  transition-timing-function: ease-out;
+}
+
 .vote-option--winner { border-color: var(--vote-metal); box-shadow: inset 0 2px 0 var(--vote-metal); }
 /* Decided: the outcome wins the card even if it is also the one you picked. */
 .vote-option--winner[aria-pressed="true"] {
@@ -2289,7 +2343,7 @@ h3 {
   border-radius: 0.12rem;
   box-shadow: none;
   font-weight: 700;
-  transition: transform 150ms ease, box-shadow 150ms ease, opacity 150ms ease;
+  transition: transform 260ms var(--ease-spring), box-shadow 150ms ease, opacity 150ms ease;
 }
 
 .vote-primary-action,
@@ -2359,6 +2413,70 @@ h3 {
 }
 
 .vote-rating-button[aria-pressed="true"] { border-color: var(--vote-metal); background: var(--vote-metal); color: #111218; }
+
+/* ── Press feedback ────────────────────────────────────────────────
+   Audited the primary actions end to end — deal, vote, continue,
+   decide, share, RSVP, claim/mark booked, rate — and these were the
+   ones that changed colour on press but never moved. A phone has no
+   hover, so on the target device they had no acknowledgement at all.
+
+   Two halves, and the asymmetry is the point:
+     down — 90ms ease-out, blunt, tracks the thumb
+     up   — 260/300ms --ease-spring, overshoots slightly, settles
+
+   Transform only. Guarded by no-preference so reduced motion gets
+   the colour change and nothing else. */
+.vote-toggle,
+.vote-rating-button,
+.vote-pool-progress button,
+.plan-choice-strip button {
+  transition-property: transform, border-color, background-color, color;
+  transition-duration: 300ms, 160ms, 160ms, 160ms;
+  transition-timing-function: var(--ease-spring), ease, ease, ease;
+}
+
+/* The round you are on lifts slightly, so moving between rounds is a
+   visible handoff rather than two borders swapping colour. */
+.vote-pool-progress button[aria-current="step"] { transform: scale(1.06); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .vote-primary-action:active:not(:disabled),
+  .vote-secondary-action:active:not(:disabled),
+  .vote-result__primary:active:not(:disabled),
+  .vote-result__button:active:not(:disabled),
+  .plan-submit:active:not(:disabled),
+  .home-primary-cta:active,
+  .auth-submit:active:not(:disabled),
+  .auth-google:active:not(:disabled) { transform: translateY(1px) scale(0.98); }
+
+  /* Small square-ish controls: no travel to give, so they just sink. */
+  .vote-toggle:active,
+  .vote-rating-button:active,
+  .vote-pool-progress button:active,
+  .plan-deadline:active,
+  .plan-choice-strip button:active,
+  .plan-category-option:active,
+  .plan-custom-place__save:active:not(:disabled) { transform: scale(0.94); }
+
+  .vote-primary-action:active,
+  .vote-secondary-action:active,
+  .vote-result__primary:active,
+  .vote-result__button:active,
+  .vote-toggle:active,
+  .vote-rating-button:active,
+  .vote-pool-progress button:active,
+  .plan-deadline:active,
+  .plan-choice-strip button:active,
+  .plan-category-option:active,
+  .plan-submit:active,
+  .home-primary-cta:active,
+  .auth-submit:active,
+  .auth-google:active,
+  .plan-custom-place__save:active {
+    transition-duration: 90ms;
+    transition-timing-function: ease-out;
+  }
+}
 
 .vote-experience--night .vote-shell,
 .vote-experience--night .vote-option,
@@ -2684,12 +2802,24 @@ h3 {
 }
 
 /* Round change: the incoming set slides in once, on mount. Guarded by
-   no-preference — with reduced motion the round simply appears. */
+   no-preference — with reduced motion the round simply appears.
+
+   --round-dir is set by the vote screen: +1 moving forward through the
+   rounds, -1 going back to one you already answered. Without it every
+   round entered from the same side and advancing felt like a repaint
+   rather than travel. The set also arrives slightly under size and
+   grows into place, which is the momentum: it is still moving when it
+   becomes readable.
+
+   Deliberately NOT a spring — this is arrival, not something the
+   person is holding, and an overshoot on a full column of cards reads
+   as a bounce. --ease-settle decelerates hard and stops. */
 @media (prefers-reduced-motion: no-preference) {
-  .vote-round { animation: vote-round-in 320ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .vote-round { animation: vote-round-in 420ms var(--ease-settle) both; }
   @keyframes vote-round-in {
-    from { opacity: 0; transform: translateX(1.25rem); }
-    to   { opacity: 1; transform: translateX(0); }
+    from { opacity: 0; transform: translateX(calc(var(--round-dir, 1) * 1.75rem)) scale(0.965); }
+    60%  { opacity: 1; }
+    to   { opacity: 1; transform: translateX(0) scale(1); }
   }
 
   /* A tally that just changed. Applied briefly by the vote screen, then

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import CountUp from "@/components/CountUp";
 import { avatarStyle, initialsOf } from "@/lib/avatar";
 import type { Spot } from "@/lib/types";
 import { categoryMeta } from "@/lib/categories";
@@ -129,7 +130,9 @@ export default function OptionCard({
             <span className="sr-only">
               {voters.length > 0 ? `${voters.join(", ")} picked this` : "No votes yet"}
             </span>
-            <span aria-hidden="true">{yesCount} yes</span>
+            <span aria-hidden="true">
+              <CountUp value={yesCount} /> yes
+            </span>
           </span>
         </span>
 
