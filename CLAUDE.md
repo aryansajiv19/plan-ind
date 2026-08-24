@@ -9,19 +9,26 @@ Supabase, **no auth in v1** — access is "you have the link."
 
 ## Agent routing
 
-Four specialized subagents live in `.claude/agents/`. Acting as orchestrator,
+Five specialized subagents live in `.claude/agents/`. Acting as orchestrator,
 route work to them rather than doing it inline:
 
 - **`frontend`** — `app/**` JSX, `components/**`, Tailwind v4 theme in
   `globals.css`, forms, browser Realtime subscriptions
-- **`backend-data`** — `supabase/schema.sql`, RLS, Realtime publication,
+- **`backend-data`** — `supabase/*.sql`, RLS, Realtime publication,
   `lib/types.ts`, `lib/supabase.ts`, spot seed data, decide/tally logic
 - **`security`** — audit-only, no write tools
-- **`qa-test`** — unit, Supabase integration, and E2E tests
+- **`qa-test`** — unit, Supabase integration, and E2E tests, `scripts/smoke-test.mjs`
+- **`ai-engineer`** — the Luna smart-search route, `lib/ai/**`,
+  `lib/spots/match.ts`, `lib/deal.ts`, embeddings, the tool loop. Writes no SQL.
 
 **Default full-stack order:** `backend-data` → `security` → `frontend` →
 `qa-test`. Single-layer tasks go straight to the one owner. Anything touching
-RLS, voting writes, or the Realtime publication always includes `security`.
+RLS, voting writes, or the Realtime publication always includes `security` —
+as does anything where model output reaches a query, a filter, or the screen.
+
+Before any change under `lib/ai/**` or the smart-search route, read the
+`openai-responses` skill: this repo uses the Responses API, not Chat
+Completions, and training data will steer you wrong.
 
 Full ownership map, handoff protocol, and known open issues:
 `.claude/agents/README.md`.

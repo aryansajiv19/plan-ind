@@ -1,14 +1,20 @@
 # plan-ind agent team
 
-Four specialized subagents, each owning a distinct slice of the work. The main
+Five specialized subagents, each owning a distinct slice of the work. The main
 Claude Code session acts as **orchestrator**: it reads a task, routes it, and
 sequences the handoffs. You can also invoke any agent directly by name.
 
-**The app:** a Dubai dinner decider. One person starts a plan and gets a share
-link; friends open it, type a name, and vote yes/no on exactly three curated
-spots on their own time; the plan resolves to a winner. Next.js 16 (App Router)
-+ React 19 + Tailwind v4 + Supabase. **No auth in v1** — access is "you have the
-link."
+**The app:** a Dubai group-plan decider. A planner deals nine places across
+three pools and gets a share link; the group votes each pool down to one, and a
+final vote picks the outing. Next.js 16 (App Router) + React 19 + Tailwind v4 +
+Supabase, plus a natural-language layer ("Luna") over the OpenAI Responses API.
+
+> **This file described the original v1 in places and is being corrected as
+> areas are touched.** The app now has Supabase Auth (Google + email OTP),
+> 20 migrations, pooled voting, and a security model far past `using (true)`.
+> The public share-link vote is still name-based and link-trusted — that part
+> of the v1 posture is real. Treat `worklog.md` as the source of truth for what
+> is applied live, and `CHECKPOINT.md` for what was built.
 
 ---
 
@@ -19,7 +25,8 @@ link."
 | **`frontend`** | `app/**` JSX, `components/**`, `globals.css` theme, forms, browser Realtime subscriptions | `supabase/schema.sql`, RLS, `lib/types.ts` shapes, decide logic |
 | **`backend-data`** | `supabase/schema.sql`, tables, RLS, Realtime publication, `lib/types.ts`, `lib/supabase.ts`, spot seed data, decide/tally logic | JSX, components, Tailwind, copy |
 | **`security`** | Audits everything. Findings only — **no write tools** | Any implementation, refactor, or test edit |
-| **`qa-test`** | `**/*.test.ts`, `e2e/**`, fixtures, test config | Production code in `app/`, `components/`, `lib/`, `supabase/` |
+| **`qa-test`** | `**/*.test.ts`, `e2e/**`, `scripts/smoke-test.mjs`, fixtures, test config | Production code in `app/`, `components/`, `lib/`, `supabase/` |
+| **`ai-engineer`** | `app/api/smart-search/**`, `lib/ai/**`, `lib/spots/match.ts`, `lib/deal.ts`, embedding backfill, `instrumentation.ts` | `supabase/**.sql`, components, styling, tests |
 
 Two rules make this work:
 
@@ -33,14 +40,25 @@ Two rules make this work:
 ## File ownership map
 
 ```
-app/**/*.tsx           → frontend
-app/globals.css        → frontend       (Tailwind v4 @theme lives here)
-components/**          → frontend
-supabase/schema.sql    → backend-data
-lib/types.ts           → backend-data   (must mirror schema.sql exactly)
-lib/supabase.ts        → backend-data
-**/*.test.ts, e2e/**   → qa-test
+app/**/*.tsx             → frontend
+app/globals.css          → frontend       (Tailwind v4 @theme lives here)
+components/**            → frontend
+supabase/*.sql           → backend-data   (migrations are additive + numbered)
+lib/types.ts             → backend-data   (must mirror schema.sql exactly)
+lib/supabase.ts          → backend-data
+**/*.test.ts, e2e/**     → qa-test
+scripts/smoke-test.mjs   → qa-test
+app/api/smart-search/**  → ai-engineer
+lib/ai/**                → ai-engineer
+lib/spots/match.ts       → ai-engineer
+lib/deal.ts              → ai-engineer
+instrumentation.ts       → ai-engineer
 ```
+
+**`ai-engineer` writes no SQL.** It needs a column, an index or an RPC → it
+files a cross-boundary request to `backend-data` naming the exact signature.
+The `.claude/skills/openai-responses` skill holds the model-call contract and
+should be read before any change under `lib/ai/**`.
 
 `lib/types.ts` and `supabase/schema.sql` are **hand-synced** — no generated
 types. They must change together, in one pass, by one agent. That pairing is the
@@ -75,8 +93,11 @@ behavior rather than guessing at the spec.
 | Add an index, seed more spots | `backend-data` only |
 | "Can someone vote as me?" | `security` only |
 | Backfill tie-break cases | `qa-test` only |
+| Tune a prompt, add a tool, change the intent schema | `ai-engineer` only |
+| Semantic retrieval / embeddings | `backend-data` (column + RPC) → `ai-engineer` (query path) → `security` |
 | Feature touching UI + data | full chain |
 | Anything touching RLS, voting writes, or the Realtime publication | full chain — **always** include `security` |
+| Anything where model output reaches a query, a filter, or the screen | include `security` — prompt injection and the age gate are its beat |
 
 ---
 
