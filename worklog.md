@@ -610,3 +610,57 @@ used to test the control secret, because its guard is
 `not valid_control_secret(...) or uid is null`, so an unauthenticated call
 raises the same `42501` either way. Use `valid_control_secret` directly — which
 is possible only because migration 021 is still unapplied.
+
+### Server-side dealing landed — `0de2fc8` + tests
+
+`lib/deal.ts` (112 lines, browser) → `lib/spots/match.ts` (pure core + I/O
+shell) + `app/api/spots/deal/route.ts`. `lib/deal.ts` is now a 40-line
+`secureJsonFetch` wrapper with byte-identical exported signatures, so
+`components/StartPlanForm.tsx` is **unchanged** — `getBeen()` still runs in the
+browser inside `deal.ts` and rides along in the request body.
+
+**Equivalence was proved, not assumed.** A fixture parity harness ran the
+pre-move algorithm verbatim against `dealFromPool` with a seeded RNG across 8
+cases (baseline, exclude+age 18, age 13, budget, vibe keywords, avoid keywords,
+origin/radius, and the `< count → null` path). Identical output on all 8.
+`tests/spots-match.test.ts` adds 14 tests; the suite is now 25 (3 security +
+8 wrapped + 14 dealing) under a consolidated `npm run test`.
+
+Deviations from the original spec, both deliberate: `readJsonBody` cap is 16 KB
+not 4 KB (200 uuids is ~7.5 KB on its own, so 4 KB would 413 anyone with a real
+`been` list), and a missing `memberAge` falls back to `MIN_ACCOUNT_AGE` (13) —
+fail closed, not open.
+
+**No quota on this route yet.** `consume_app_quota` accepts only
+`smart-search | plan-create | place-import`, and borrowing `plan-create` would
+spend the plan bucket on re-deals and lock users out of creating a plan. The
+route is an authenticated RLS-scoped read with no writes and no external I/O.
+A `"spot-deal"` scope rides along with migration 022.
+
+**The `SpotAffinity` seam** is `(spot) => number | null`, applied as
+`embed(spot) ?? keywordScore(spot)` to rows that have **already passed every
+filter** — it can reorder survivors, never admit one. That is the structural
+guarantee that similarity can't bypass the age gate.
+
+#### Correction: the sort comparator is fine
+
+The implementing agent flagged the comparator as "not a consistent ordering."
+**It is consistent.** Expanding it:
+
+```
+categoryBias*2 + affinity(b) - affinity(a) + score(b) - score(a)
+  = (2·[b matches] + affinity(b) + score(b)) − (2·[a matches] + affinity(a) + score(a))
+  = k(b) − k(a)
+```
+
+It is a single-key descending sort — antisymmetric and transitive. No action.
+Recorded so the false concern doesn't get "fixed" later.
+
+#### Real finding: the ratings signal is largely inert
+
+`read accessible ratings` scopes `ratings` to plans the caller already has
+access to, so for most users almost every spot falls back to the unrated 3.6
+prior. The "community rating" term in the ranking is effectively per-user
+today. Preserved exactly by the move (the route uses the caller's session, not
+a service role). Worth a product decision before RAG lands, since it means
+ranking currently rests almost entirely on the keyword score.

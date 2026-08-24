@@ -7,8 +7,9 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
-    "test:security": "node --experimental-strip-types --test tests/security.test.ts",
-    "test:wrapped": "node --experimental-strip-types --test tests/wrapped.test.ts",
+    "test": "node --experimental-strip-types --test \"tests/*.test.ts\"",
+    "test:security": "npm run test",
+    "test:wrapped": "npm run test",
     "test:smoke": "node scripts/smoke-test.mjs",
     "test:smoke:020": "node scripts/smoke-test.mjs --020"
   },
