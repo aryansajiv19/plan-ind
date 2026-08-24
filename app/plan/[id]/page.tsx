@@ -149,6 +149,10 @@ export default function VotePage() {
   }, [id]);
 
   useEffect(() => {
+    // Post-020 `plans` is membership-scoped: reading before claim_plan_access
+    // has redeemed the share id returns an empty set, which is indistinguishable
+    // from a deleted plan. Wait for access, like every other effect here.
+    if (access !== "ready") return;
     let active = true;
     (async () => {
       const { data: planRow, error: planErr } = await supabase
@@ -547,7 +551,9 @@ export default function VotePage() {
     );
   }
 
-  if (load === "loading") {
+  // "checking" means we haven't been allowed to look yet — not that the plan is
+  // absent. Only a load that actually ran can report notfound/error below.
+  if (access === "checking" || load === "loading") {
     return (
       <main className={`vote-experience ${nightMode ? "vote-experience--night" : ""} mx-auto grid min-h-dvh max-w-md place-items-center px-5`}>
         <p className="text-muted">Loading the plan…</p>
