@@ -552,3 +552,61 @@ correct `Asia/Dubai` timezone — that is the weather tool for the agent loop.
   `valid_control_secret({"p_secret":"wrong"})` returns `200 false`; and the
   one-token embeddings call returns `429 insufficient_quota`. AI behavior is
   not live-tested.
+
+## Blocker re-probe + two corrections — 2026-08-24 (later)
+
+### All three blockers re-probed live and still open
+
+| Blocker | Probe | Result |
+|---|---|---|
+| Migration 021 | `valid_control_secret {"p_secret":"wrong"}` | `200 false` — **oracle still live, not applied** |
+| Anonymous sign-ins | `POST /auth/v1/signup {}` | `422 anonymous_provider_disabled` |
+| OpenAI credits | 1-token `text-embedding-3-small` | `429 insufficient_quota` |
+
+The share-link vote path remains dead, so `470ca28` still cannot be
+browser-verified.
+
+### Correction: the client-supplied `age` was NOT a security hole
+
+An earlier note in this session described the client-supplied `age` in
+`lib/deal.ts` as a live hole that moving retrieval server-side would close.
+**That was overstated. Recording it so it does not propagate.**
+
+`create_secure_plan` enforces age properly server-side: it reads `age_value`
+from the server-owned write-once `member_ages` table (not from the request),
+applies the 18/21 category thresholds, and rejects the plan unless **all nine**
+spots satisfy `age_value >= greatest(s.minimum_age, category threshold)`.
+Plan creation is correctly gated. A tampered client-side age changes what the
+picker *displays*, not what can be created.
+
+The honest reasons to move retrieval server-side are: RAG requires it (a browser
+cannot embed a query — the OpenAI key is server-only), and `lib/deal.ts`
+currently ships the whole candidate pool plus every matching `ratings` row to
+the client on every deal.
+
+### Finding — age-restricted venues are enumerable. Owner decision, not fixed.
+
+`read permitted spots` (migration 020, line 68) has **no age predicate**:
+
+```sql
+create policy "read permitted spots" on spots for select to authenticated using (
+  source = 'curated' or visibility = 'community' or ...
+```
+
+Any authenticated account — including a 13-year-old — can list every
+`source = 'curated'` spot straight from `GET /rest/v1/spots`, 21+ nightlife
+venues included. Moving `lib/deal.ts` server-side does **not** change this;
+only an age-aware policy would.
+
+Severity is catalog visibility, not an authorization bypass — plan creation is
+properly gated (above). Fixing it means joining `member_ages` into the policy,
+which costs a lookup on **every** spots read. Owner chose to record and defer.
+
+### Note for the next probe
+
+Two probe traps already produced false conclusions in this project; both are
+documented in `NEXT_AGENT.md`. A third to add: `consume_app_quota` cannot be
+used to test the control secret, because its guard is
+`not valid_control_secret(...) or uid is null`, so an unauthenticated call
+raises the same `42501` either way. Use `valid_control_secret` directly — which
+is possible only because migration 021 is still unapplied.
