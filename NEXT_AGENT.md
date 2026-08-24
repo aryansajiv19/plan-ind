@@ -2,26 +2,107 @@
 
 Read this file, then `worklog.md` and the latest section of `CHECKPOINT.md`.
 Do not scan the whole repository. Query the Graphify index in `graphify-out/`
-first (rebuilt 2026-08-19: 794 nodes / 1,245 edges), then open only the files
-the task touches.
+first, then open only the files the task touches.
 
-## Current handoff — 2026-08-19
+## Current handoff — 2026-08-24 (AI-engineering workstream)
 
-- A large, intentional security and visual-quality implementation is present
-  in the worktree and is **not committed**. Do not discard or reset it.
-- `supabase/migration-020-production-security.sql` is implemented and mirrored
-  in `supabase/schema.sql`, but has **not been applied to the live Supabase
-  project**. Deployment instructions are in `SECURITY_SETUP.md`.
-- The next product task is visual alignment verification in the installed
-  Mobile Preview extension at `http://localhost:3001`. Workspace defaults are
-  in `.vscode/settings.json` (iPhone 13 Pro). The phone auto-scales to remaining
-  vertical space, so keep the terminal short by dragging its top divider down.
-- Development intentionally omits anti-framing headers so the extension can
-  embed localhost. Production still sends `X-Frame-Options: DENY`, COOP/CORP,
-  and CSP `frame-ancestors 'none'`.
-- Latest green checks: ESLint, TypeScript, `npm run test:security`, webpack
-  production build, expanded HTTP/database smoke suite, `git diff --check`,
-  and `npm audit` with zero findings.
+**Working branch: `ai-engineering`** (from `main` at `3dd972b`). Committed:
+`38d0138` — the `ai-engineer` agent + `openai-responses` skill.
+**Full plan: `~/.claude/plans/i-want-to-build-binary-heron.md`. Read it — it has
+the phase order, the design decisions and the reasoning behind each.**
+
+### 🔴 Two live blockers the OWNER must clear, in this order
+
+**1. Enable anonymous sign-ins in Supabase Auth.** Discovered at the very end of
+this session: the live project returns `anonymous_provider_disabled`. Migration
+020 made the share-link flow redeem a UUID into `plan_access` via an anonymous
+session — so with anon sign-ins off, **no browser can reach `access === "ready"`
+and the entire shared-plan vote path is dead.** Plan *creation* works; opening a
+share link does not. This is `SECURITY_SETUP.md` §2 and it is not optional
+post-020. Verify by loading `/plan/22222222-2222-2222-2222-222222222222`.
+
+**2. Paste `supabase/migration-021-revoke-anon-execute.sql`.** Fixes a live
+brute-force oracle — `valid_control_secret` is callable by `anon` and returns a
+boolean, confirming whether a guessed server-control secret is correct. Root
+cause: `revoke ... from public` does not cancel Supabase's named grants to
+`anon`/`authenticated`. The file ends with a `select` that reports the resulting
+privileges. Then set the runbook row in `worklog.md` to applied.
+
+Still open from `SECURITY_SETUP.md`: Turnstile, OTP expiry <= 10 min, and the
+daily `purge_security_operational_data()` cron.
+
+### Uncommitted work in flight — verify before building on it
+
+- `supabase/migration-021-revoke-anon-execute.sql` + `supabase/schema.sql`
+  (five grant blocks mirrored) — **complete**, by `backend-data`. Not applied.
+- `scripts/smoke-test.mjs` + `package.json` — `qa-test` added a migration-020
+  guard block behind `--020` (`npm run test:smoke:020`). 10/10 deployment guards
+  green; the 11th is red and that red **is** blocker 2 above. `npm run test:smoke`
+  still 19/19.
+- `app/plan/[id]/page.tsx` — **INCOMPLETE.** `frontend` was fixing the
+  share-link "plan not found" flash and was cut off by the session limit.
+  **Inspect this diff before trusting it; consider `git checkout` on it and
+  redoing the fix.** The bug: the load effect lists `access` in its deps but
+  lacks the `if (access !== "ready") return;` guard that its three sibling
+  effects all have, so it reads `plans` before `claim_plan_access` runs;
+  post-020 RLS hides that read, `.maybeSingle()` returns `{data:null,error:null}`,
+  and it sets `notfound`. Render also has no `access === "checking"` gate before
+  the notfound branch. Note this cannot be reproduced in a browser until
+  blocker 1 is cleared.
+- `AGENTS.md` — modified only because `next dev` regenerates its rules block.
+
+### The AI phases, and what gates them
+
+`OPENAI_API_KEY` is valid, `gpt-5.6-luna` is a real model and
+`text-embedding-3-small` is available, but **the account has zero credits** — a
+1-token embeddings call returns `429 insufficient_quota`. Backfilling the whole
+spot catalog would cost about **$0.0002**. Everything below is buildable and
+testable offline against fixtures; none of it can be demonstrated live until the
+account is topped up. Do not report a 429 as a pass.
+
+Recommended order (details and reasoning in the plan file):
+
+1. **Server-side retrieval, no AI yet.** Move the body of `dealSpotsForCategory`
+   into `POST /api/spots/deal`; reduce `lib/deal.ts` to a `secureJsonFetch` with
+   the same signature. `lib/deal.ts` runs in the **browser**, so it can never
+   embed a query. This also closes a real hole: `age` is a client-supplied prop
+   (`StartPlanForm.tsx:296`) used by a browser-side filter, so a hostile client
+   passes `age: 99`; server-side it comes from `memberAge()`.
+2. **Migration 022 — pgvector.** `vector(1536)` on `spots`, a generated
+   `embed_text` column plus `embedding_hash` for free incremental staleness, the
+   missing `spots (source, category)` btree index, and a `match_spots()` RPC that
+   is **`security invoker`** so it respects 020's `read permitted spots`.
+   **No vector index at ~100 rows.** Age/budget in `WHERE`, similarity only in
+   `ORDER BY` — ranking must never re-admit an excluded row.
+3. **Observability.** Cheap version first: `security_events` already has a
+   `metadata jsonb` column and 90-day retention; widening its type list to
+   include `ai_call` is a few lines. Only add Langfuse (~6 packages, a root
+   `instrumentation.ts`, a flush dance) if a `security_events` row stops
+   answering the question. Langfuse can only trace the *product's* LLM calls,
+   never Claude Code's subagents.
+4. **Tool-calling loop.** Two tools, one object literal, no registry
+   abstraction. `search_spots` (the RAG step) and `check_weather`
+   (**Open-Meteo — verified working with no API key and no SDK**). Security
+   filters are never model-callable: the model picks what to look for, the
+   server decides what it may see.
+
+Unblocked by credits and buildable any time: **friend invites** (`addFriend`,
+`removeFriend`, `areFriends`, `getPeople`, `getSpotVisitors` in `lib/social.ts`
+all still have zero callers) and **Wrapped on real data** (needs **zero** new
+schema — `plans`, `visits`, `visits.group_label`, `ratings`, `spots.area` supply
+every stat; move it out of `DemoPlanningTools` into `AccountViews` with an
+honest empty state).
+
+### Probing the live database — two traps that already caused false conclusions
+
+- **PostgREST resolves functions by exact parameter-name set.** A wrong arg list
+  returns `PGRST202`, identical to a missing function. Copy signatures out of the
+  migration file. A 4-arg probe of `cast_plan_vote` (it takes 7) produced a false
+  "missing" this session.
+- **Do not test the control secret through `consume_app_quota`.** Its guard is
+  `not valid_control_secret(...) or uid is null or ...`, so an unauthenticated
+  call raises the same `42501` whether the secret is right or wrong. That
+  produced a false "secret rejected" conclusion before it was caught.
 
 ---
 

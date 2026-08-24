@@ -30,7 +30,8 @@ Apply in order. Every migration is additive and re-run safe unless noted.
 | 017 | `migration-017-participant-token-seam.sql` | yes — verified live 2026-08-10 |
 | 018 | `migration-018-participant-write-rpcs.sql` | yes — verified live 2026-08-10 |
 | 019 | `migration-019-secret-isolation-and-rpc-integrity.sql` | yes — verified live 2026-08-10 |
-| 020 | `migration-020-production-security.sql` | **no — implemented locally, pending live apply** |
+| 020 | `migration-020-production-security.sql` | **yes — applied and verified live 2026-08-24** |
+| 021 | `migration-021-revoke-anon-execute.sql` | **no — being written 2026-08-24, see defect below** |
 
 `npm run test:smoke` asserts the 019 guards against the live project. All ten
 database guards pass as of 2026-08-10: the plans projection carries no host
@@ -419,3 +420,114 @@ bugs here are in `NEXT_AGENT.md`. Read that first.
   wrapping, overflow and safe-area behavior at phone width. Start with the
   home screen visible in the latest screenshot, then login, onboarding, all
   home tabs and a multi-round shared plan.
+
+## Migration 020 applied + AI-engineering workstream opened — 2026-08-24
+
+### Migration 020 is live. It was also an outage fix, not just hardening.
+
+`app/api/plans/route.ts:48` calls `create_secure_plan`, which is defined **only**
+in migration 020. Because 020 was unapplied, **plan creation had been broken
+against the live project** — every attempt hit `PGRST202`, fell into the
+`status = 500` branch, and returned "Couldn't start the plan." In production it
+would have failed one step earlier, since `consumeQuota` fails closed when
+`consume_app_quota` is missing (429). Nobody had noticed because no automated
+check covered the 020 boundary.
+
+Applying 020 exposed a **second, separate** failure: `SECURITY_CONTROL_SECRET`
+was absent from `.env.local`, so `controlSecret()` returned the dev fallback
+string, `consume_app_quota` rejected it, and plan creation returned 429 instead
+of 500. The `PGRST202` escape hatch in `consumeQuota` no longer applies once the
+function exists. **Both halves are now done:** a 32-byte secret is in
+`.env.local` and its bcrypt hash is stored as `app_control_secrets.name =
+'server-control'`. Verified matching.
+
+The same value must be set as a server-only Vercel variable before deploying.
+
+### Live verification (read-only probes with the publishable key)
+
+| Probe | Result |
+|---|---|
+| `set_birth_date` (019 control) | `42501 Sign in first` — proves the probe method |
+| `create_secure_plan` | `42501 A permanent account is required` — exists, body check reached |
+| `claim_plan_access` | `42501 Authentication required` |
+| `consume_app_quota` | `42501 Server authorization required` |
+| `purge_security_operational_data` | `42501 permission denied` — correctly revoked |
+| anon insert `plans` | `42501 permission denied for table plans` — REVOKE active |
+| anon read `spots` | `[]` — the new `to authenticated` policy |
+| `valid_control_secret(<real secret>)` | `true` — env and DB hash match |
+
+`npm run test:smoke` 19/19 green. New `npm run test:smoke:020` 10/10 deployment
+guards green (see defect 1 for the 11th).
+
+**Method note for whoever probes next:** PostgREST resolves functions by exact
+parameter-name set, so a wrong arg list returns `PGRST202` and looks identical
+to a missing function. Always copy the signature out of the migration file. A
+4-arg probe of `cast_plan_vote` (it takes 7) produced a false "missing" here.
+
+Also do not test the control secret through `consume_app_quota`: its guard is
+`not valid_control_secret(...) or uid is null or ...`, so an unauthenticated
+call raises the same `42501` whether the secret is right or wrong. That produced
+a false "secret rejected" conclusion in this session before it was caught.
+
+### Defect 1 — `valid_control_secret` is an anon-callable brute-force oracle
+
+**Open. Migration 021 is being written for it.** Found by `qa-test`, reproduced
+live with nothing but the publishable key and no session:
+
+```
+POST /rest/v1/rpc/valid_control_secret {"p_secret":"definitely-not-it"} -> 200 false
+POST /rest/v1/rpc/valid_control_secret {"p_secret":"<real secret>"}     -> 200 true
+```
+
+An unauthenticated, unmetered oracle confirming whether a guessed value is the
+server-control secret that gates `consume_app_quota` and `record_security_event`.
+
+**Root cause, and it generalises:** migration 020 line ~352 does `revoke all on
+function valid_control_secret(text) from public;`. Supabase's default privileges
+already granted EXECUTE to `anon` and `authenticated` **by name**, and revoking
+from `PUBLIC` does not cancel a named grant. Line ~418 of the same file gets it
+right — `revoke ... from public, anon, authenticated` — and that function does
+correctly answer `permission denied`.
+
+The same root cause leaves `create_secure_plan`, `claim_plan_access` and
+`consume_app_quota` executable by `anon`. Those fail *safe* today only because
+each body checks `auth.uid()` first. `valid_control_secret` is the one that
+leaks, because it returns a boolean instead of raising.
+
+Practical risk today is low — the live secret is 256 bits of entropy. The danger
+is that every `revoke ... from public` line in 020 reads as protection it is not
+providing.
+
+### Defect 2 — share-link "plan not found" flash (fix in flight)
+
+`app/plan/[id]/page.tsx` load effect lists `access` in its deps but lacks the
+`if (access !== "ready") return;` guard its three sibling effects all have. It
+fires before `bootstrapAccess` completes anonymous sign-in + `claim_plan_access`.
+Post-020 that pre-claim read is hidden by RLS, so `.maybeSingle()` returns
+`{data: null, error: null}` — indistinguishable from a missing plan — and sets
+`notfound`. Render has no `access === "checking"` gate before the notfound
+branch. A friend opening a share link sees "plan not found" for ~2 round trips.
+
+Code-read + confirmed RLS behaviour; not observed in a browser.
+
+### OpenAI status — verified, blocks the AI phases
+
+| Check | Result |
+|---|---|
+| Key | valid, `GET /v1/models` 200 |
+| `gpt-5.6-luna` (`smart-search/route.ts:14`) | **real**, present in the account's model list |
+| `text-embedding-3-small` | available |
+| **Credits** | **ZERO** — a 1-token embeddings call returns `429 insufficient_quota` |
+
+Backfilling the whole spot catalog would cost roughly **$0.0002** (~100 spots ×
+~60 tokens). A minimum top-up unblocks RAG, tool calling and the trace demo.
+Do not report AI behaviour as working off a 429.
+
+`https://api.open-meteo.com` verified working with **no API key and no SDK**,
+correct `Asia/Dubai` timezone — that is the weather tool for the agent loop.
+
+### Verification
+
+- `npm run test:smoke` — 19/19 green against localhost:3000
+- `npm run test:smoke:020` — 10/10 deployment guards green, 1 red (defect 1)
+- Migration 020 confirmed live by direct probe, not by assumption

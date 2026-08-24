@@ -889,8 +889,11 @@ begin
 end;
 $$;
 
-revoke all on function execute_plan_command(uuid, text, text, jsonb) from public;
-grant execute on function execute_plan_command(uuid, text, text, jsonb) to anon, authenticated;
+-- 021: a host command now needs a session AND the 256-bit host token. Its only
+-- caller (POST /api/plans/[id]/command) already 401s without a user; dropping
+-- the anon grant stops a leaked token from bypassing that route entirely.
+revoke all on function execute_plan_command(uuid, text, text, jsonb) from public, anon;
+grant execute on function execute_plan_command(uuid, text, text, jsonb) to authenticated;
 
 -- ── 2. Participant RPCs get relational and state validation ───────────────
 --
@@ -1133,7 +1136,10 @@ begin
   on conflict do nothing;
   return true;
 end; $$;
-revoke all on function claim_plan_access(uuid) from public;
+-- 021: `from public` alone left Supabase's named anon grant in place. Share-
+-- link redemption requires a session (anonymous sign-ins included, they carry
+-- role `authenticated`); a keyless caller is now refused by the grant itself.
+revoke all on function claim_plan_access(uuid) from public, anon;
 grant execute on function claim_plan_access(uuid) to authenticated;
 
 drop policy if exists "read plans" on plans;
@@ -1320,7 +1326,10 @@ begin
 
   return jsonb_build_object('id', plan_id_value, 'hostToken', host_token_value);
 end; $$;
-revoke all on function create_secure_plan(jsonb, uuid[]) from public;
+-- 021: signed-in, non-anonymous sessions only (the body re-checks). The app
+-- calls this with the publishable key plus a user session, so `authenticated`
+-- is the role it actually needs -- do not narrow this further.
+revoke all on function create_secure_plan(jsonb, uuid[]) from public, anon;
 grant execute on function create_secure_plan(jsonb, uuid[]) to authenticated;
 
 drop policy if exists "create own plans" on plans;
@@ -1445,7 +1454,12 @@ returns boolean language sql stable security definer set search_path = public, e
   select exists(select 1 from app_control_secrets
     where name='server-control' and secret_hash = crypt(p_secret, secret_hash))
 $$;
-revoke all on function valid_control_secret(text) from public;
+-- 021: `from public` alone is a no-op against Supabase's named grants to
+-- anon/authenticated. This function returns a boolean instead of raising, so
+-- an anon grant is an unauthenticated oracle for the server-control secret.
+-- Only the owner (and the SECURITY DEFINER functions below, which run as the
+-- owner) may execute it. No client role can.
+revoke all on function valid_control_secret(text) from public, anon, authenticated;
 
 create or replace function consume_app_quota(p_secret text, p_scope text)
 returns boolean language plpgsql security definer set search_path = public, extensions, pg_temp as $$
@@ -1472,7 +1486,9 @@ begin
   end if;
   return true;
 end; $$;
-revoke all on function consume_app_quota(text,text) from public;
+-- 021: signed-in sessions only. Quota is keyed on uid::text and the body
+-- raises when auth.uid() is null, so anon could never spend quota anyway.
+revoke all on function consume_app_quota(text,text) from public, anon;
 grant execute on function consume_app_quota(text,text) to authenticated;
 
 create or replace function record_security_event(p_secret text, p_event_type text, p_outcome text,
@@ -1486,6 +1502,10 @@ begin
   insert into security_events(event_type,outcome,actor_user_id,subject_hash,request_id,metadata)
   values(p_event_type,p_outcome,auth.uid(),left(p_subject_hash,128),left(p_request_id,128),coalesce(p_metadata,'{}'));
 end; $$;
+-- 021: `anon` is DELIBERATE here. The OTP request/verify server actions log
+-- otp_request / otp_verify before any session exists, so their role really is
+-- anon. Safe to leave open: returns void and raises 42501 without the control
+-- secret, so it tells an uninformed caller nothing.
 revoke all on function record_security_event(text,text,text,text,text,jsonb) from public;
 grant execute on function record_security_event(text,text,text,text,text,jsonb) to anon, authenticated;
 

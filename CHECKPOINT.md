@@ -504,3 +504,113 @@ base, add energy, and make it genuinely interactive.
    jurisdiction variables in Vercel.
 5. Schedule `purge_security_operational_data()` daily, then run an end-to-end
    permanent-user plus anonymous-guest shared-plan test.
+
+## AI-engineering workstream opened — 2026-08-24
+
+Working branch: **`ai-engineering`** (branched from `main` at `3dd972b`).
+Plan file: `~/.claude/plans/i-want-to-build-binary-heron.md`.
+
+### The request
+
+Build plan-ind out as a multi-agent system while learning core AI engineering:
+observability, RAG, and tool calling. Requested order was: apply migration 020 →
+Langfuse → RAG for Luna (pgvector) → Luna as a tool-calling agent → venue
+resolution pipeline → real friend invites → Wrapped on real data → an
+end-to-end Langfuse trace. The user explicitly said not to follow the brief
+rigidly where a better call exists.
+
+### Four corrections made to that brief, with reasoning
+
+**1. Agent structure — one new agent, not four.** The brief asked for
+Orchestrator / Builder / Worker / Audit. This repo already splits agents by
+**file ownership** under a "one owner per file" rule; that split is by **role
+tier**. Layering it on creates two competing ownership systems — exactly the
+collision the rule prevents. The mapping was already near-identical: `security`
+is the Worker, `qa-test` is the Audit, `backend-data` + `frontend` are the
+Builder (split by layer, which is *better* — it prevents collisions), and
+`CLAUDE.md` already assigns the orchestrator role to the main session.
+
+The genuine gap was that **nobody owned the AI layer**. Added exactly one agent,
+`ai-engineer`. Also added `.claude/skills/`, which did not exist at all.
+
+**2. Langfuse traces Luna, not the coding agents.** The brief wanted a dashboard
+of "every agent... how long it took, what it cost." Langfuse can only instrument
+LLM calls the *application* makes. Claude Code's subagents run inside the
+harness with no hook for our code and cannot appear in it. Once Luna becomes a
+tool-calling agent, Langfuse does show what was actually wanted: nested spans
+for retrieval, each tool call, latency and cost.
+
+**3. Migration 020 was an outage fix, not hardening.** See `worklog.md`.
+Plan creation had been broken live. This was found by tracing
+`app/api/plans/route.ts:48` to `create_secure_plan` and probing the live DB.
+
+**4. Venue resolution is blocked on persistence, not AI.** `PlaceLinkImporter`
+still writes to localStorage even though migration 012 created `place_imports`,
+`place_collections` and `place_collection_items`. The honest next step there is
+persistence — a pure `backend-data` task with no AI dependency. When matching is
+built, the caption *is* the query string: embed it and reuse the same index RAG
+builds. That satisfies "never let an LLM invent the final venue" structurally,
+because the LLM is not in the loop at all.
+
+### Architectural finding that shapes the RAG work
+
+**`lib/deal.ts` runs in the browser.** It imports the `@supabase/ssr` browser
+client and ships the whole candidate pool plus every matching `ratings` row to
+the client on each deal. It therefore **cannot embed a query** — that needs the
+server-side OpenAI key. Semantic retrieval must move server-side.
+
+The recommended shape (not yet built): move the whole body of
+`dealSpotsForCategory` into `POST /api/spots/deal` and reduce `lib/deal.ts` to a
+`secureJsonFetch` call with the identical signature. This also closes a real
+hole — `age` is currently a client-supplied prop (`StartPlanForm.tsx:296`) used
+by a browser-side filter, so a hostile client can pass `age: 99`. Server-side it
+comes from `memberAge()` instead. One route, two ranking qualities: try to embed
+the query, and `??` fall back to the existing keyword `preferenceScore` when
+embedding returns null — that is the credits-out fallback and it costs one
+operator, not a second code path.
+
+**Do not merge retrieval into `/api/smart-search`.** The form interprets on one
+button press and deals on a *different* one, and the user edits the form in
+between; ids returned at interpret time would be stale by construction.
+
+### Migration 021 design (agreed, being written)
+
+Two things belong in 021:
+- The `revoke ... from public, anon, authenticated` fix for defect 1 in the worklog.
+- Later, when RAG lands: `vector` extension, `spots.embedding vector(1536)`, a
+  generated `embed_text` column plus an `embedding_hash` for free incremental
+  staleness (`where embedding is null or embedding_hash is distinct from
+  md5(embed_text)`), the missing `spots (source, category)` btree index, and a
+  `match_spots()` RPC that is **`security invoker`** so it respects 020's
+  `read permitted spots` policy rather than bypassing it.
+
+**No vector index at ~100 rows** — a brute-force `<=>` scan is sub-millisecond
+and HNSW returns approximate results for no gain. Comment the ~5k threshold.
+
+**Age and budget go in the `WHERE` clause; similarity only ever in `ORDER BY`.**
+Ranking must never move an excluded row back in. The category→min-age map stays
+in TypeScript (`lib/age-policy.ts`); mirroring it into SQL guarantees drift.
+
+### State at end of session
+
+Committed on `ai-engineering`:
+- `38d0138` — `ai-engineer` agent, `openai-responses` skill, README/CLAUDE.md routing.
+
+Uncommitted / in flight when the session ended:
+- `supabase/migration-021-revoke-anon-execute.sql` — `backend-data` was writing it.
+- `app/plan/[id]/page.tsx` — `frontend` was fixing the share-link notfound flash.
+- `scripts/smoke-test.mjs` + `package.json` — `qa-test` added the 020 guard block
+  behind `--020` and the `test:smoke:020` script. **Verify these are complete
+  and green before building on them.**
+
+`AGENTS.md` is modified only because `next dev` regenerates its rules block.
+
+### A visual observation NOT to act on
+
+A browser screenshot of `/home-preview` showed the nav rendering but a blank
+body. `curl` of the same URL returns 25 KB of HTML containing `home-experience`,
+`hero` and the real copy, and the console had no application errors. Per
+`NEXT_AGENT.md` §3, screenshots in this environment are sometimes stale and
+three "bugs" in an earlier session were capture artifacts. Treat this as
+unconfirmed; verify with `getComputedStyle` / `getBoundingClientRect` before
+changing any code.
