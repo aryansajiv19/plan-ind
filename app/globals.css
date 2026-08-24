@@ -34,9 +34,48 @@
      it to a light tint because no single hue clears AA on both. */
   --color-live: #2f4bd6;
 
+  /* Champagne, small-text companion. #9b7d4e is 3.42:1 on the ivory ground —
+     it passes AA for LARGE text only (>=24px, or >=18.66px bold), which is
+     what the display metal is for. Every kicker, label and caption under that
+     size uses this darker cut instead: 5.23:1 on ivory, 5.65:1 on card.
+     The brand colour is not darkened; a second, smaller-sized one is added. */
+  --color-punch-text: #7a6038;
+
+  /* ── Category colour: five groups, one hue each ──────────────────
+     The composer sorts 23 categories into five groups; the GROUP carries
+     the hue. Five is a system someone can learn, 23 is noise.
+
+     Derived from what the group actually is: paprika for food, a lit
+     magenta for after dark, marine teal for sun and water, pitch green
+     for move and play, gallery violet for culture and reset.
+
+     No single hue clears AA on both the ivory ground and the obsidian
+     night ground — the maths forbids it (a colour dark enough for ivory
+     is too dark for night). So these are theme-scoped exactly like
+     --color-live: the day values live here, the night values override in
+     .home-experience--night / .vote-experience--night. Change one, change
+     both, and measure both.
+
+     Measured against #f3f1ec, the darker of the two day grounds:      */
+  --color-group-food: #a83a20; /* 5.65:1 on ivory, 6.11:1 on card */
+  --color-group-night: #b3175f; /* 5.81:1 on ivory, 6.28:1 on card */
+  --color-group-water: #0f6a72; /* 5.60:1 on ivory, 6.05:1 on card */
+  --color-group-active: #2a6b3c; /* 5.69:1 on ivory, 6.16:1 on card */
+  --color-group-leisure: #6b46b0; /* 5.95:1 on ivory, 6.43:1 on card */
+
   --font-display: var(--font-display-family), system-ui, sans-serif;
   --font-body: var(--font-hanken), system-ui, sans-serif;
 }
+
+/* The only way a surface picks up a group hue: put data-group on the nearest
+   sensible container and read --group below it. Written as five separate
+   rules on purpose — a comment inside a comma-separated selector list does
+   not split it, and that has silently mis-applied a block here before. */
+[data-group="food"] { --group: var(--color-group-food); }
+[data-group="night"] { --group: var(--color-group-night); }
+[data-group="water"] { --group: var(--color-group-water); }
+[data-group="active"] { --group: var(--color-group-active); }
+[data-group="leisure"] { --group: var(--color-group-leisure); }
 
 body {
   background: var(--color-paper);
@@ -1144,7 +1183,7 @@ h3 {
 }
 
 .home-plan-section__intro { position: sticky; top: 3rem; }
-.home-section-kicker { color: var(--home-metal); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; }
+.home-section-kicker { color: var(--color-punch-text); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; }
 /* One clamp across every width. This heading used to be clamp(2.8rem, 5vw,
    5rem) with separate overrides at 520px and 640px, which measured 72px on
    desktop (wrapping to four lines) and 22px on a phone — a 3.3x swing and
@@ -1271,12 +1310,15 @@ h3 {
   cursor: pointer;
 }
 
+/* The underline is the group's own hue, so the five tabs read as five
+   different things rather than five words. It is never the only signal:
+   aria-pressed carries it, and the label darkens to full ink as well. */
 .plan-category-group::after {
   content: "";
   position: absolute;
   inset: auto 0 -1px;
-  height: 2px;
-  background: var(--home-metal);
+  height: 3px;
+  background: var(--group, var(--home-metal));
   transform: scaleX(0);
   transition: transform 160ms ease;
 }
@@ -1308,7 +1350,16 @@ h3 {
 .plan-category-option:hover,
 .plan-deadline:hover { border-color: rgba(36, 27, 46, 0.42); }
 
-.plan-category-option[aria-pressed="true"],
+/* The chosen category fills with the open group's hue. A 3px inset bar on
+   the leading edge means the selection is still legible as a shape when the
+   colour is not — this is the one control where colour does real work. */
+.plan-category-option[aria-pressed="true"] {
+  border-color: var(--group, var(--home-metal));
+  background: color-mix(in srgb, var(--group, var(--home-metal)) 12%, transparent);
+  box-shadow: inset 3px 0 0 var(--group, var(--home-metal));
+  color: var(--color-ink);
+}
+
 .plan-deadline[aria-pressed="true"] {
   border-color: var(--home-metal);
   background: color-mix(in srgb, var(--home-metal) 9%, transparent);
@@ -1559,9 +1610,9 @@ h3 {
 
 .plan-submit:hover:not(:disabled) { transform: translateY(-1px); }
 .plan-submit:disabled { cursor: not-allowed; opacity: 0.42; }
-.plan-form__error { margin-top: 0.8rem; color: var(--color-punch); font-size: 0.78rem; font-weight: 600; }
+.plan-form__error { margin-top: 0.8rem; color: var(--color-punch-text); font-size: 0.78rem; font-weight: 600; }
 .plan-form__demo-note { margin-top: 0.75rem; color: var(--color-muted); font-size: 0.72rem; line-height: 1.45; }
-.plan-form__demo-note a { color: var(--home-metal); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.plan-form__demo-note a { color: var(--color-punch-text); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
 
 /* Populated account preview views. Every `next/image` fill parent is
    explicitly positioned and sized so media cannot escape into the page. */
@@ -1678,17 +1729,23 @@ h3 {
 .demo-filter-tabs button[aria-pressed="true"] { border-color: var(--home-metal); color: var(--color-ink); }
 
 .demo-place-grid { margin-top: 2.5rem; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3rem 2rem; }
-.demo-place-card { min-width: 0; border-top: 0; }
+/* Most Discover cards do have a photograph, so the group hue needs somewhere
+   to live above it. A 3px masthead rule — same device as .vote-shell, so a
+   place and the plan you make from it read as the same kind of night. */
+.demo-place-card { min-width: 0; border-top: 3px solid var(--group, transparent); }
 .demo-place-card__body { padding: 1rem 0 1.5rem; }
 .demo-place-card__meta,
 .demo-visit__top { display: flex; justify-content: space-between; gap: 1rem; color: var(--color-muted); font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
-.demo-place-card__meta span:first-child,
-.demo-visit__top strong { color: var(--home-metal); }
+/* The category label on a place card is the one word that says what kind of
+   outing this is, so it carries the group hue. Falls back to champagne on
+   any card without a data-group ancestor. */
+.demo-place-card__meta span:first-child { color: var(--group, var(--color-punch-text)); }
+.demo-visit__top strong { color: var(--color-punch-text); }
 .demo-place-card h2,
 .demo-visit h2 { margin-top: 0.65rem; font-size: 1.45rem; }
 .demo-place-card__area { margin-top: 0.2rem; color: var(--color-muted); font-size: 0.75rem; }
 .demo-place-card__body > p:not(.demo-place-card__area, .demo-place-card__context) { margin-top: 0.8rem; line-height: 1.5; }
-.demo-place-card__context { margin-top: 0.8rem; padding-top: 0.75rem; border-top: 1px solid var(--color-line); color: var(--home-metal); font-size: 0.74rem; font-weight: 600; }
+.demo-place-card__context { margin-top: 0.8rem; padding-top: 0.75rem; border-top: 2px solid var(--group, var(--color-line)); color: var(--color-ink); font-size: 0.74rem; font-weight: 600; }
 .demo-place-card button,
 .demo-primary-action { margin-top: 1rem; min-height: 2.7rem; padding: 0.65rem 0.9rem; border: 1px solid var(--color-ink); background: var(--color-ink); color: var(--color-card); font-size: 0.72rem; font-weight: 700; cursor: pointer; }
 .demo-empty { margin-top: 2rem; padding: 3rem 0; border-block: 1px solid var(--color-line); color: var(--color-muted); }
@@ -1892,6 +1949,7 @@ h3 {
   --auth-muted: #68686b;
   --auth-line: rgba(23, 24, 27, 0.16);
   --auth-metal: #9b7d4e;
+  --auth-metal-text: #7a6038; /* 5.23:1 — the small-text cut, see --color-punch-text */
   min-height: 100dvh;
   padding: clamp(1.25rem, 4vw, 4rem);
   color: var(--auth-ink);
@@ -1901,7 +1959,7 @@ h3 {
 .auth-intro { display: flex; flex-direction: column; justify-content: space-between; padding: clamp(1.5rem, 5vw, 4rem); border-right: 1px solid var(--auth-line); }
 .auth-mark { display: inline-flex; align-items: center; justify-content: center; width: 3rem; height: 3rem; border: 1px solid var(--auth-ink); background: var(--auth-ink); color: #f6f3ed; font-family: var(--font-display); font-size: .95rem; font-weight: 800; letter-spacing: -.06em; text-decoration: none; }
 .auth-mark b { margin-left: .12rem; color: #c3a573; font-size: .76rem; }
-.auth-kicker, .auth-panel__heading p { margin: 0; color: var(--auth-metal); font-size: .68rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+.auth-kicker, .auth-panel__heading p { margin: 0; color: var(--auth-metal-text); font-size: .68rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
 .auth-intro h1 { max-width: 30rem; margin: auto 0 1.25rem; font-size: clamp(3.5rem, 7vw, 6.8rem); line-height: .88; letter-spacing: -.08em; }
 .auth-intro h1 em { color: var(--auth-metal); font-style: normal; }
 .auth-copy { max-width: 27rem; margin: 0; color: var(--auth-muted); font-size: .95rem; line-height: 1.65; }
@@ -1926,7 +1984,7 @@ h3 {
 .auth-submit:hover { background: var(--auth-metal); border-color: var(--auth-metal); transform: translateY(-1px); }
 .auth-submit:disabled { cursor: wait; opacity: .55; }
 .auth-message, .auth-footnote { color: var(--auth-muted); font-size: .76rem; line-height: 1.5; }
-.auth-link { display: block; color: var(--auth-metal); font-size: .76rem; font-weight: 700; text-align: center; text-decoration: underline; text-underline-offset: .2rem; }
+.auth-link { display: block; color: var(--auth-metal-text); font-size: .76rem; font-weight: 700; text-align: center; text-decoration: underline; text-underline-offset: .2rem; }
 .auth-error { margin: 1rem 0 0; border-left: 2px solid #9a554d; padding: .7rem .8rem; background: rgba(154, 85, 77, .08); color: #81443d; font-size: .76rem; font-weight: 700; line-height: 1.45; }
 .auth-footnote { margin: 1.5rem 0 0; text-align: center; }
 @media (max-width: 760px) { .auth-shell { padding: 0; } .auth-frame { display: block; min-height: 100dvh; border: 0; } .auth-intro { min-height: 43vh; padding: 1.25rem; border-right: 0; border-bottom: 1px solid var(--auth-line); } .auth-intro h1 { margin-top: auto; font-size: clamp(3.4rem, 16vw, 5.8rem); } .auth-copy { font-size: .84rem; } .auth-panel { padding: 2rem 1.25rem 2.5rem; } }
@@ -1941,7 +1999,16 @@ h3 {
   --color-line: rgba(240, 236, 228, 0.14);
   --color-grape: #c3a573;
   --color-punch: #c3a573;
+  --color-punch-text: #c3a573; /* 7.86:1 on the night card — no darker cut needed */
   --home-metal: #c3a573;
+  /* Night cuts of the five group hues. Same hue family, lifted off the
+     obsidian; measured against #121418, the lighter of the two night
+     grounds. See the @theme block for why this cannot be one value. */
+  --color-group-food: #e0865f; /* 6.80:1 */
+  --color-group-night: #dd7a9c; /* 6.44:1 */
+  --color-group-water: #5fb0bb; /* 7.39:1 */
+  --color-group-active: #72b083; /* 7.25:1 */
+  --color-group-leisure: #a893e8; /* 7.03:1 */
   color-scheme: dark;
 }
 
@@ -2017,11 +2084,23 @@ h3 {
   --color-zest: #c3a573;
   --color-mint: #c3a573;
   --vote-metal: #c3a573;
+  --color-punch-text: #c3a573; /* 7.86:1 on the night card */
+  /* Night cuts — see .home-experience--night and the @theme block. */
+  --color-group-food: #e0865f; /* 6.80:1 */
+  --color-group-night: #dd7a9c; /* 6.44:1 */
+  --color-group-water: #5fb0bb; /* 7.39:1 */
+  --color-group-active: #72b083; /* 7.25:1 */
+  --color-group-leisure: #a893e8; /* 7.03:1 */
   color-scheme: dark;
 }
 
+/* A masthead rule in the plan's group hue. One 4px line is enough for a
+   friend opening the link cold to feel "food plan" vs "beach plan" before
+   reading a word — and it is the plan's own colour, so it never competes
+   with the live accent or with champagne on the same screen. */
 .vote-shell {
   border-radius: 0.18rem;
+  border-top: 4px solid var(--group, var(--vote-metal));
   background: color-mix(in srgb, var(--color-card) 96%, transparent);
   box-shadow: 0 2rem 5rem rgba(23, 24, 27, 0.1);
 }
@@ -2033,13 +2112,13 @@ h3 {
 .vote-deadline {
   border-bottom: 1px solid var(--vote-metal);
   background: transparent;
-  color: var(--vote-metal);
+  color: var(--color-punch-text);
   font-weight: 600;
 }
 
 .vote-round-label {
   margin-top: 0.75rem;
-  color: var(--vote-metal);
+  color: var(--group, var(--vote-metal));
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -2149,23 +2228,28 @@ h3 {
   padding: 0.28rem 0.45rem;
   border: 1px solid var(--vote-metal);
   background: var(--color-card);
-  color: var(--vote-metal);
+  color: var(--color-punch-text);
   font-size: 0.58rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
+/* All three options in a round share the plan's category, so this strip is
+   not distinguishing cards — it tells you at a glance what kind of night
+   this is. Hence the group hue rather than champagne, which stays reserved
+   for the outcome. The category code sits inside it, so the chip still
+   reads with colour ignored. */
 .vote-option__category {
   padding-left: 0.55rem;
-  border-left: 1px solid var(--vote-metal);
-  color: var(--vote-metal);
+  border-left: 2px solid var(--group, var(--vote-metal));
+  color: var(--group, var(--vote-metal));
   font-weight: 600;
 }
 
 .vote-option__price { border: 1px solid var(--color-line); border-radius: 0; }
 .vote-option h3 { font-weight: 600; letter-spacing: -0.025em; }
-.vote-option__votes { color: var(--vote-metal); }
+.vote-option__votes { color: var(--color-punch-text); }
 .vote-option__choice { border: 1px solid var(--color-line); border-radius: 0; color: var(--color-ink); }
 /* "Selected" is your state, so it takes the live accent, not the outcome
    colour. White on cobalt is 6.0:1; on the night tint the ink reads. */
@@ -2217,7 +2301,7 @@ h3 {
 .vote-result__primary:hover:not(:disabled),
 .vote-result__button:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 0.8rem 2rem rgba(23, 24, 27, 0.1); }
 
-.vote-kicker { color: var(--vote-metal); font-weight: 700; letter-spacing: 0.16em; }
+.vote-kicker { color: var(--color-punch-text); font-weight: 700; letter-spacing: 0.16em; }
 .vote-field { border-width: 1px; border-radius: 0.12rem; border-color: var(--color-line); background: var(--color-card); color: var(--color-ink); }
 .vote-field:focus-visible { outline: 2px solid var(--color-ink); outline-offset: -2px; }
 
@@ -2232,13 +2316,13 @@ h3 {
   border: 1px solid var(--vote-metal);
   border-radius: 50%;
   background: transparent;
-  color: var(--vote-metal);
+  color: var(--color-punch-text);
   font-size: 0.75rem;
   font-weight: 700;
 }
 
-.vote-result a { color: var(--vote-metal); text-decoration-thickness: 1px; text-underline-offset: 3px; }
-.vote-result__booked { border: 1px solid var(--vote-metal); border-radius: 0; background: transparent; color: var(--vote-metal); }
+.vote-result a { color: var(--color-punch-text); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.vote-result__booked { border: 1px solid var(--vote-metal); border-radius: 0; background: transparent; color: var(--color-punch-text); }
 .vote-result button[aria-pressed="true"]:not(.vote-rating-button) { border-color: var(--vote-metal); background: var(--vote-metal); color: #111218; }
 .vote-action-hint { margin-top: 0.65rem; color: var(--color-muted); font-size: 0.72rem; line-height: 1.45; }
 .vote-rsvp-choices { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.35rem; }
@@ -2252,7 +2336,7 @@ h3 {
   .vote-deadline { margin-left: auto; }
   .vote-pool-progress { margin-top: 1.1rem; }
   .vote-pool-progress button { min-height: 2.5rem; font-size: 0.61rem; }
-  .vote-pool-progress button[data-complete="true"]::before { content: "Set · "; color: var(--vote-metal); }
+  .vote-pool-progress button[data-complete="true"]::before { content: "Set · "; color: var(--color-punch-text); }
   .vote-options-grid { margin-top: 1.1rem !important; gap: 0.65rem; }
   .vote-option { padding: 0.85rem !important; }
   .vote-option p { max-width: 42ch; }
@@ -2408,7 +2492,7 @@ h3 {
   .home-stats span { font-size: 0.55rem; }
   .home-plan-section { width: min(100% - 1.5rem, 68rem); padding-block: 5.5rem; }
   .home-plan-card { padding: 1.25rem; border-radius: 0; box-shadow: 0 1rem 2.6rem rgba(36, 27, 46, 0.12); transform: none; }
-  .plan-category-group { padding-inline: 0.68rem; }
+  .plan-category-group { min-height: 2.75rem; padding-inline: 0.68rem; }
   .plan-smart-search { padding: 0.85rem; }
   .plan-smart-search__heading,
   .plan-smart-result > div:first-child { display: block; }
@@ -2573,13 +2657,17 @@ h3 {
 
 /* Curated spots frequently have no photograph. A typographic category
    block is honest about that; a stock image would not be. */
+/* Photoless cards are most of Discover, so this block is the largest colour
+   surface in the product. A 14% wash of the group hue with the category code
+   set in it: worst measured pair is 4.93:1 (food, day) and 5.32:1 (night).
+   The code itself carries the meaning — the wash only speeds it up. */
 .demo-place-card__code {
   display: grid;
   place-items: center;
   aspect-ratio: 16 / 9;
-  border-bottom: 1px solid var(--color-line);
-  background: color-mix(in srgb, var(--color-ink) 4%, transparent);
-  color: var(--color-muted);
+  border-bottom: 2px solid var(--group, var(--color-line));
+  background: color-mix(in srgb, var(--group, var(--color-ink)) 14%, var(--color-card));
+  color: var(--group, var(--color-muted));
   font-family: var(--font-display);
   font-size: 1.5rem;
   font-weight: 700;

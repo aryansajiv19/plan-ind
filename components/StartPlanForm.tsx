@@ -8,6 +8,7 @@ import { dealSpotsForCategory } from "@/lib/deal";
 import { DUBAI_ORIGINS } from "@/lib/dubai-areas";
 import { minimumAgeForCategory, prohibitedVenueReason } from "@/lib/age-policy";
 import { secureJsonFetch } from "@/lib/security/csrf-client";
+import { CATEGORIES, CATEGORY_GROUPS, type Category, type GroupKey } from "@/components/categoryGroups";
 
 const PRESETS = [
   { label: "In 3 hours", hours: 3 },
@@ -30,68 +31,7 @@ const RADII = [
   { label: "Anywhere", value: null },
 ] as const;
 
-const CATEGORY_GROUPS = [
-  {
-    key: "food",
-    label: "Food & drink",
-    categories: [
-      { key: "dinner", label: "Dinner", title: "Where should we eat?" },
-      { key: "cafe", label: "Cafes", title: "Where for coffee?" },
-      { key: "brunch", label: "Brunch", title: "Where's brunch?" },
-      { key: "dessert", label: "Dessert", title: "Where for dessert?" },
-      { key: "shisha", label: "Shisha", title: "Where for shisha?" },
-    ],
-  },
-  {
-    key: "night",
-    label: "After dark",
-    categories: [
-      { key: "vibes", label: "Rooftops & lounges", title: "Where's the vibe?" },
-      { key: "nightlife", label: "Nightlife", title: "Where are we going out?" },
-      { key: "live_music", label: "Live music", title: "Where should we hear live music?" },
-      { key: "karaoke", label: "Karaoke", title: "Where for karaoke?" },
-    ],
-  },
-  {
-    key: "water",
-    label: "Sun & water",
-    categories: [
-      { key: "beach", label: "Beaches", title: "Which beach spot?" },
-      { key: "beach_club", label: "Beach clubs", title: "Which beach club?" },
-      { key: "water", label: "Water activities", title: "What should we do on the water?" },
-    ],
-  },
-  {
-    key: "active",
-    label: "Move and play",
-    categories: [
-      { key: "sports", label: "Sports", title: "What's the sporting plan?" },
-      { key: "padel", label: "Padel", title: "Where should we play padel?" },
-      { key: "adventure", label: "Adventure", title: "What's the adrenaline plan?" },
-      { key: "outdoors", label: "Outdoors", title: "What's the outdoor plan?" },
-      { key: "games", label: "Games", title: "What are we playing?" },
-    ],
-  },
-  {
-    key: "leisure",
-    label: "Culture & reset",
-    categories: [
-      { key: "movie", label: "Cinema", title: "What are we watching?" },
-      { key: "culture", label: "Arts & culture", title: "What should we go see?" },
-      { key: "wellness", label: "Wellness", title: "Where should we reset?" },
-      { key: "shopping", label: "Shopping", title: "Where should we browse?" },
-      { key: "family", label: "Family day", title: "What's the family plan?" },
-      { key: "escape", label: "City escape", title: "Where should we escape to?" },
-    ],
-  },
-] as const;
-
-type Category = { key: string; label: string; title: string };
-const CATEGORIES: readonly Category[] = CATEGORY_GROUPS.flatMap((group) => [
-  ...group.categories,
-]);
 type CategoryKey = Category["key"];
-type GroupKey = (typeof CATEGORY_GROUPS)[number]["key"];
 
 interface SavedCustomPlace {
   id: string;
@@ -340,7 +280,9 @@ export default function StartPlanForm({ age = 21, demoMode = false }: { age?: nu
   )?.categories.filter((item) => age >= minimumAgeForCategory(item.key)) as readonly Category[] | undefined;
 
   return (
-    <form onSubmit={start} className="plan-form">
+    // The composer takes the hue of whichever group is open, so switching
+    // tabs visibly recolours the form. Each tab overrides it with its own.
+    <form onSubmit={start} className="plan-form" data-group={activeGroup}>
       <section className="plan-smart-search" aria-labelledby="smart-search-heading">
         <div className="plan-smart-search__heading">
           <div><p id="smart-search-heading" className="plan-form__label">Describe the place in your head</p><small>Atmosphere, occasion, budget, area. Write it naturally.</small></div>
@@ -381,6 +323,7 @@ export default function StartPlanForm({ age = 21, demoMode = false }: { age?: nu
               onClick={() => setActiveGroup(group.key)}
               aria-pressed={activeGroup === group.key}
               className="plan-category-group"
+              data-group={group.key}
             >
               {group.label}
             </button>

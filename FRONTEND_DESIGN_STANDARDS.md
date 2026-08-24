@@ -1,6 +1,9 @@
 # Frontend Design Standards
 
-The user explicitly excluded the original **Product quality** and **Color** sections. The following sections are active requirements.
+The user explicitly excluded the original **Product quality** section. The
+**Colour** section below was excluded originally and has since been reinstated
+and rewritten by owner decision — read its note before changing it. All sections
+here are active requirements.
 
 ## Visual direction
 
@@ -12,26 +15,88 @@ Do not use green glowing dots or pulsing status lights anywhere in the product. 
 
 ## Colour
 
-The base is architectural ivory, graphite and champagne metal. It stays that way.
+> **This section was rewritten by owner decision.** It previously read "the base
+> is ivory, graphite and champagne — it stays that way", "never use colour
+> decoratively" and "do not add a second accent". That rule is what caused 23
+> category accents to be built, never rendered, and then deleted. The owner has
+> reversed it: the product should feel warm and saturated, and *"food, nightlife,
+> beach, active should each feel different."* Do not restore the old wording.
 
-There is exactly **one** live accent, `--color-live`, and it marks **state only**:
+The ground is still architectural ivory, graphite and champagne metal. Colour
+now sits **on top of** that ground rather than replacing it. It never becomes
+the ground itself.
 
-| Meaning | Colour |
-|---|---|
-| **You, and now** — your vote, your finished round, a count that just changed | `--color-live` |
-| **The outcome** — the winner, a decided plan | champagne (`--vote-metal`) |
-| Everything else | ivory and graphite |
+Colour carries exactly three jobs. Nothing else earns a hue.
 
-Rules:
+| Job | Colour | Where |
+|---|---|---|
+| **You, and now** — your vote, your finished round, a count that just changed | `--color-live` | vote controls, round dots |
+| **The outcome** — the winner, a decided plan | champagne (`--vote-metal`, `--color-punch`) | winner card, result panel |
+| **What kind of night this is** — the category group | `--group` | category tiles, option cards, place cards |
 
-- Never use colour decoratively. If it does not mark a state, it is ivory or graphite.
-- The accent is **theme-scoped**. No single hue clears WCAG AA on both the ivory
-  ground and the obsidian night ground — cobalt `#2f4bd6` is 6.00:1 on ivory but
-  2.91:1 on night, so night uses `#8aa0ff` at 8.02:1. If you change the accent,
-  change both and check both.
-- Do not tint focus rings with it. Those are graphite for contrast reasons.
-- Do not add a second accent. If something needs to stand out and is not "you",
-  "now" or "the outcome", the answer is hierarchy, not another colour.
+### The category system
+
+The composer sorts 23 categories into **five groups** (`components/categoryGroups.ts`).
+**The group carries the hue, not the category.** Five hues is a system a person
+learns; 23 is noise. Do not add a sixth, and do not split a group.
+
+| Group | Day (on ivory) | Night (on obsidian) |
+|---|---|---|
+| Food & drink — paprika | `#a83a20` · 5.65:1 | `#e0865f` · 6.80:1 |
+| After dark — lit magenta | `#b3175f` · 5.81:1 | `#dd7a9c` · 6.44:1 |
+| Sun & water — marine teal | `#0f6a72` · 5.60:1 | `#5fb0bb` · 7.39:1 |
+| Move and play — pitch green | `#2a6b3c` · 5.69:1 | `#72b083` · 7.25:1 |
+| Culture & reset — gallery violet | `#6b46b0` · 5.95:1 | `#a893e8` · 7.03:1 |
+
+Rules for it:
+
+- **Tokens live in `@theme` in `globals.css`, never in a component block.**
+  `.home-experience` and `.vote-experience` each redefined the entire palette
+  locally once, so those two screens looked right for weeks while every other
+  screen rendered the dead old palette. The only permitted local redefinition is
+  a **theme override** — the two `--night` scopes, matching how `--color-live`
+  already works.
+- **A hue is selected with `data-group` and read as `var(--group, <fallback>)`.**
+  Put `data-group` on the nearest container that owns the category; never
+  hard-code a group hex in a rule.
+- **Define nothing you do not render.** A token no surface uses is dead weight
+  and drifts out of sync — that is exactly why the previous accents were
+  deleted. If you add a group colour, apply it in the same change.
+- Category colour marks **identity**, not state. It must not appear on the
+  winner treatment or on anything meaning "you" or "now".
+- Green is permitted here as the Move-and-play hue on static shapes. It is
+  still **never** a dot, a status light, or anything that glows or pulses.
+
+### Champagne and text size
+
+`--color-punch` / `--vote-metal` `#9b7d4e` is **3.42:1 on ivory**. That passes AA
+for **large text only** — 24px+, or 18.66px+ bold. It is the display metal.
+
+For anything smaller — kickers, labels, captions, counts, links, badges — use
+**`--color-punch-text` `#7a6038`** (5.23:1 on ivory, 5.65:1 on card). It is the
+same champagne, cut darker for small sizes. The night scopes set it to `#c3a573`
+(7.86:1), where no separate cut is needed.
+
+The brand colour is not darkened. Pick the token by **size**, not by mood. As a
+border or fill, `#9b7d4e` is fine — non-text needs only 3:1.
+
+### Everywhere else
+
+- **Colour is never the only signal.** Every coloured element pairs with text or
+  shape: the category code inside the strip, `aria-pressed` plus a 3px inset bar
+  on a selected tile, the word "Selected" on the winner. Assume a viewer who
+  sees none of it.
+- **Every hue clears WCAG AA against both grounds, or is scoped per theme.** No
+  single hue does both — a colour dark enough for ivory is too dark for night.
+  Cobalt `#2f4bd6` is 6.00:1 on ivory and 2.91:1 on night, so night uses
+  `#8aa0ff` at 8.02:1. State the measured ratio in a comment next to the token,
+  and if you change one, change and measure both.
+- **Focus rings stay graphite.** `outline: 2px solid var(--color-ink);
+  outline-offset: -2px`, drawn inside the control. Never tint them with an
+  accent or a group hue. Inline prose links are the only exception to the inset.
+- Colour is not a substitute for hierarchy. If something needs to stand out and
+  is not "you", "now", "the outcome" or "what kind of night this is", the answer
+  is still size, weight and space.
 
 ## People
 

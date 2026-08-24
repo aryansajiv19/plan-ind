@@ -13,6 +13,7 @@ import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import PlaceLinkImporter from "@/components/PlaceLinkImporter";
 import { categoryMeta } from "@/lib/categories";
+import { categoryGroup } from "@/components/categoryGroups";
 import { avatarStyle, initialsOf } from "@/lib/avatar";
 import type { PlannedWith } from "@/lib/social";
 import type {
@@ -203,7 +204,10 @@ function WrappedRecap({
 function PlaceCard({ spot, onStartPlan }: { spot: Spot; onStartPlan: () => void }) {
   const meta = categoryMeta(spot.category);
   return (
-    <article className={`demo-place-card ${spot.photo_url ? "" : "demo-place-card--flat"}`}>
+    <article
+      data-group={categoryGroup(spot.category)}
+      className={`demo-place-card ${spot.photo_url ? "" : "demo-place-card--flat"}`}
+    >
       {spot.photo_url ? (
         <div className="demo-place-card__image">
           <Image src={spot.photo_url} alt={`${spot.name}, ${spot.area}`} fill sizes="(max-width: 700px) 100vw, 50vw" unoptimized />

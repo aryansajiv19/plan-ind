@@ -13,6 +13,7 @@ const PLACES = [
     name: "Ninive",
     area: "Emirates Towers",
     category: "Dinner",
+    group: "food",
     price: "AED 220 pp",
     rating: "4.8",
     friendNote: "Sara and 3 friends would return",
@@ -23,6 +24,7 @@ const PLACES = [
     name: "Drift Beach",
     area: "One&Only Royal Mirage",
     category: "Beach club",
+    group: "water",
     price: "AED 350 pp",
     rating: "4.6",
     friendNote: "Maya saved this for Saturday",
@@ -33,6 +35,7 @@ const PLACES = [
     name: "Padel Art",
     area: "Al Quoz",
     category: "Sports",
+    group: "active",
     price: "AED 100 pp",
     rating: "4.7",
     friendNote: "You, Zain and Omar have been",
@@ -43,6 +46,7 @@ const PLACES = [
     name: "Al Qudra Lakes",
     area: "Seih Al Salam",
     category: "Escape",
+    group: "leisure",
     price: "Free",
     rating: "4.9",
     friendNote: "Your group rated sunrise highest",
@@ -195,7 +199,7 @@ export default function DemoAccountViews({
         {visiblePlaces.length ? (
           <div className="demo-place-grid">
             {visiblePlaces.map((place) => (
-              <article key={place.name} className="demo-place-card">
+              <article key={place.name} data-group={place.group} className="demo-place-card">
                 <div className="demo-place-card__image"><Image src={place.image} alt={`Community visit at ${place.name}`} fill sizes="(max-width: 700px) 100vw, 50vw" /></div>
                 <div className="demo-place-card__body">
                   <div className="demo-place-card__meta"><span>{place.category}</span><span>{place.rating} / 5</span></div>
