@@ -240,3 +240,27 @@ export interface ProfileVisit extends Visit {
   spot: Spot | null;
   companions: CompanionView[];
 }
+
+// A signed-in account's persisted monthly recap. Ratings are deliberately
+// represented as a group average: ratings are tied to typed plan participants,
+// not to the authenticated account that is viewing this summary.
+export interface WrappedSummary {
+  periodLabel: string;
+  planCount: number;
+  /** Visits logged by this account during the period. */
+  activityCount: number;
+  topArea: string | null;
+  topGroup: string | null;
+  topCategory: string | null;
+  bestRatedPlace: {
+    name: string;
+    average: number;
+    ratingCount: number;
+  } | null;
+}
+
+export type WrappedSummaryError = "plans" | "visits" | "ratings";
+
+export type WrappedSummaryResult =
+  | { data: WrappedSummary; error: null }
+  | { data: null; error: WrappedSummaryError };

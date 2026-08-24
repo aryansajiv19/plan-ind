@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test:security": "node --experimental-strip-types --test tests/security.test.ts",
+    "test:wrapped": "node --experimental-strip-types --test tests/wrapped.test.ts",
     "test:smoke": "node scripts/smoke-test.mjs",
     "test:smoke:020": "node scripts/smoke-test.mjs --020"
   },

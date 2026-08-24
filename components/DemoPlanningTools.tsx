@@ -41,8 +41,6 @@ export default function DemoPlanningTools({ view, onStartPlan }: { view: ToolVie
   const [activeBoard, setActiveBoard] = useState(DEFAULT_MOODBOARDS[0].id);
   const [memoryPhoto, setMemoryPhoto] = useState<string | undefined>();
   const [photoError, setPhotoError] = useState<string | null>(null);
-  const [wrappedOpen, setWrappedOpen] = useState(false);
-  const [wrappedCopied, setWrappedCopied] = useState(false);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -81,11 +79,6 @@ export default function DemoPlanningTools({ view, onStartPlan }: { view: ToolVie
     if (error) return;
     fileAsDataUrl(file, (image) => { setMemoryPhoto(image); setPlan((current) => ({ ...current, memoryPhotoDataUrl: image })); });
   }
-  async function shareWrapped() {
-    const summary = "My Planind Wrapped: 6 plans, 4 circles, and Jumeirah was my most visited area.";
-    if (navigator.share) await navigator.share({ title: "My Planind Wrapped", text: summary });
-    else { await navigator.clipboard?.writeText(summary); setWrappedCopied(true); window.setTimeout(() => setWrappedCopied(false), 1800); }
-  }
 
   if (view === "friends") return <section className="demo-tool-grid" aria-label="Planning tools">
     <article className="demo-tool-panel"><p className="home-section-kicker">Friend circles</p><h2>Choose the people before the place.</h2><div className="demo-circle-list">{circles.map((circle) => <button key={circle.id} type="button" className={plan.circleId === circle.id ? "is-selected" : ""} onClick={() => setPlan((current) => ({ ...current, circleId: circle.id }))}><strong>{circle.name}</strong><span>{circle.memberIds.length} people · {circle.memberIds.join(" · ")}</span></button>)}</div><div className="demo-inline-form"><input value={circleName} onChange={(event) => setCircleName(event.target.value)} placeholder="New circle" maxLength={40} /><button type="button" onClick={createCircle} disabled={!circleName.trim()}>Add</button></div></article>
@@ -98,9 +91,5 @@ export default function DemoPlanningTools({ view, onStartPlan }: { view: ToolVie
 
   return <>
     <section className="demo-tool-panel demo-reminder-panel" aria-labelledby="reminder-title"><p className="home-section-kicker">Your plans</p><h2 id="reminder-title">A quiet nudge at the right time.</h2><p>{plan.reminderAt && plan.eventTime ? `Reminder set for ${new Date(plan.eventTime).toLocaleString()}.` : "Choose a plan time and turn on a local reminder when you are ready."}</p><label className="demo-check"><input type="checkbox" checked={Boolean(plan.reminderAt)} onChange={(event) => setPlan((current) => ({ ...current, reminderAt: event.target.checked ? current.eventTime : null }))} /> Local reminder enabled</label><button type="button" className="demo-primary-action" onClick={() => setPlan((current) => ({ ...current, reminderAt: current.reminderAt ? null : current.eventTime }))}>{plan.reminderAt ? "Turn reminder off" : "Turn reminder on"}</button></section>
-    <section className="demo-wrapped" aria-labelledby="wrapped-title">
-      <div><p className="home-section-kicker">Your month in plans</p><h2 id="wrapped-title">Planind Wrapped</h2><p>A small recap of the places, people and decisions that shaped your month.</p></div>
-      {!wrappedOpen ? <button type="button" className="demo-primary-action" onClick={() => setWrappedOpen(true)}>Create my Wrapped</button> : <div className="demo-wrapped__card"><div className="demo-wrapped__eyebrow">August 2026 · Aryan</div><strong>6</strong><span>plans made with people you like going out with</span><div className="demo-wrapped__stats"><div><b>Jumeirah</b><small>Your most visited area</small></div><div><b>Friday crew</b><small>Your most active circle</small></div><div><b>Late dinner</b><small>Your signature plan</small></div><div><b>4.8 / 5</b><small>Your best-rated place</small></div></div><div className="demo-wrapped__actions"><button type="button" onClick={shareWrapped}>{wrappedCopied ? "Copied" : "Share Wrapped"}</button><button type="button" onClick={() => setWrappedOpen(false)}>Close</button></div></div>}
-    </section>
   </>;
 }
