@@ -1,0 +1,109 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="en" data-theme="day">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>plan-ind — Category groups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Hanken+Grotesk:wght@400;500;700&display=swap">
+<style>
+:root {
+  --color-paper: #f3f1ec;
+  --color-card:  #fbfaf7;
+  --color-ink:   #17181b;
+  --color-muted: #66666b;
+  --color-line:  rgba(23, 24, 27, 0.14);
+  --color-punch: #9b7d4e;       /* champagne — display/large only, 3.37:1 */
+  --color-punch-text: #7a6038;  /* champagne — small text, 5.23:1 */
+  --color-live:  #2f4bd6;       /* state accent: you, and now. 6.00:1 */
+  --color-group-food:    #a83a20; /* 5.65:1 */
+  --color-group-night:   #b3175f; /* 5.81:1 */
+  --color-group-water:   #0f6a72; /* 5.60:1 */
+  --color-group-active:  #2a6b3c; /* 5.69:1 */
+  --color-group-leisure: #6b46b0; /* 5.95:1 */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
+  --font-display: "Manrope", system-ui, sans-serif;
+  --font-body: "Hanken Grotesk", system-ui, sans-serif;
+}
+[data-theme="night"] {
+  --color-paper: #090b0e;
+  --color-card:  #121418;
+  --color-ink:   #f0ece4;
+  --color-muted: #9d9b99;
+  --color-line:  rgba(240, 236, 228, 0.14);
+  --color-punch: #c3a573;
+  --color-punch-text: #c3a573;  /* 7.86:1 — no darker cut needed */
+  --color-live:  #8aa0ff;       /* 8.02:1; day cobalt is 2.91:1 here */
+  --color-group-food:    #e0865f; /* 6.80:1 */
+  --color-group-night:   #dd7a9c; /* 6.44:1 */
+  --color-group-water:   #5fb0bb; /* 7.39:1 */
+  --color-group-active:  #72b083; /* 7.25:1 */
+  --color-group-leisure: #a893e8; /* 7.03:1 */
+  color-scheme: dark;
+}
+[data-group="food"]    { --group: var(--color-group-food); }
+[data-group="night"]   { --group: var(--color-group-night); }
+[data-group="water"]   { --group: var(--color-group-water); }
+[data-group="active"]  { --group: var(--color-group-active); }
+[data-group="leisure"] { --group: var(--color-group-leisure); }
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 2rem;
+  background: var(--color-paper); color: var(--color-ink);
+  font-family: var(--font-body); -webkit-font-smoothing: antialiased;
+}
+h1,h2,h3 { font-family: var(--font-display); letter-spacing: -0.02em; margin: 0; }
+.kicker {
+  font-size: .68rem; font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--color-punch-text); margin: 0 0 .5rem;
+}
+.stack { display: flex; flex-direction: column; gap: 1.25rem; }
+.row { display: flex; gap: .75rem; flex-wrap: wrap; align-items: center; }
+.label { font-size: .72rem; color: var(--color-muted); }
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+}
+
+.groups { display: flex; gap: .25rem; border-bottom: 1px solid var(--color-line); flex-wrap: wrap; }
+.group-tab { position: relative; font-family: var(--font-body); font-size: .85rem; padding: .7rem 1rem;
+  min-height: 44px; background: none; border: 0; color: var(--color-muted); cursor: pointer; }
+.group-tab[aria-selected="true"] { color: var(--color-ink); font-weight: 700; }
+.group-tab::after { content:""; position:absolute; left:0; right:0; bottom:-1px; height:3px;
+  background: var(--group, var(--color-ink)); transform: scaleX(0); transform-origin: left center;
+  transition: transform 220ms var(--ease-settle); }
+.group-tab[aria-selected="true"]::after { transform: scaleX(1); }
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px,1fr)); gap: .6rem; margin-top: 1rem; }
+.tile { font-family: var(--font-body); font-size: .95rem; font-weight: 700; padding: 1.15rem 1rem;
+  min-height: 56px; cursor: pointer; text-align: center; border: 1px solid var(--color-line);
+  background: var(--color-card); color: var(--color-ink);
+  transition: border-color 150ms, background 150ms, transform 300ms var(--ease-spring); }
+.tile[aria-pressed="true"] { border-color: var(--group); transform: scale(1.025);
+  background: color-mix(in srgb, var(--group) 12%, transparent); box-shadow: inset 3px 0 0 var(--group); }
+.tile:active { transform: scale(.94); transition-duration: 90ms; }</style>
+</head>
+<body>
+<p class="kicker">Components</p><h2>Category groups</h2>
+<p class="label" style="margin:.5rem 0 1.25rem">The group carries the hue, not the 23 individual categories. Click a tab — the tiles below recolour.</p>
+<div class="groups" id="groups">
+<button class="group-tab" data-group="food" aria-selected="true">Food &amp; drink</button>
+<button class="group-tab" data-group="night" aria-selected="false">After dark</button>
+<button class="group-tab" data-group="water" aria-selected="false">Sun &amp; water</button>
+<button class="group-tab" data-group="active" aria-selected="false">Move and play</button>
+<button class="group-tab" data-group="leisure" aria-selected="false">Culture &amp; reset</button>
+</div>
+<div class="tiles" id="tiles" data-group="food">
+<button class="tile" aria-pressed="true">Dinner</button><button class="tile">Cafes</button>
+<button class="tile">Brunch</button><button class="tile">Dessert</button>
+</div>
+<script>const SETS={food:["Dinner","Cafes","Brunch","Dessert"],night:["Rooftops & lounges","Nightlife","Live music","Karaoke"],water:["Beach clubs","Water activities","Beaches"],active:["Padel","Adventure","Wellness"],leisure:["Arts & culture","Shopping","City escapes"]};
+const g=document.getElementById('groups'),t=document.getElementById('tiles');
+g.addEventListener('click',e=>{const b=e.target.closest('.group-tab');if(!b)return;
+[...g.children].forEach(x=>x.setAttribute('aria-selected',String(x===b)));
+t.dataset.group=b.dataset.group;
+t.innerHTML=SETS[b.dataset.group].map((l,i)=>'<button class="tile" aria-pressed="'+(i===0)+'">'+l+'</button>').join('');});</script>
+</body>
+</html>

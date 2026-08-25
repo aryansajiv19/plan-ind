@@ -1,0 +1,89 @@
+<!-- @dsCard group="Foundations" -->
+<!doctype html>
+<html lang="en" data-theme="day">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>plan-ind — Type scale</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Hanken+Grotesk:wght@400;500;700&display=swap">
+<style>
+:root {
+  --color-paper: #f3f1ec;
+  --color-card:  #fbfaf7;
+  --color-ink:   #17181b;
+  --color-muted: #66666b;
+  --color-line:  rgba(23, 24, 27, 0.14);
+  --color-punch: #9b7d4e;       /* champagne — display/large only, 3.37:1 */
+  --color-punch-text: #7a6038;  /* champagne — small text, 5.23:1 */
+  --color-live:  #2f4bd6;       /* state accent: you, and now. 6.00:1 */
+  --color-group-food:    #a83a20; /* 5.65:1 */
+  --color-group-night:   #b3175f; /* 5.81:1 */
+  --color-group-water:   #0f6a72; /* 5.60:1 */
+  --color-group-active:  #2a6b3c; /* 5.69:1 */
+  --color-group-leisure: #6b46b0; /* 5.95:1 */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
+  --font-display: "Manrope", system-ui, sans-serif;
+  --font-body: "Hanken Grotesk", system-ui, sans-serif;
+}
+[data-theme="night"] {
+  --color-paper: #090b0e;
+  --color-card:  #121418;
+  --color-ink:   #f0ece4;
+  --color-muted: #9d9b99;
+  --color-line:  rgba(240, 236, 228, 0.14);
+  --color-punch: #c3a573;
+  --color-punch-text: #c3a573;  /* 7.86:1 — no darker cut needed */
+  --color-live:  #8aa0ff;       /* 8.02:1; day cobalt is 2.91:1 here */
+  --color-group-food:    #e0865f; /* 6.80:1 */
+  --color-group-night:   #dd7a9c; /* 6.44:1 */
+  --color-group-water:   #5fb0bb; /* 7.39:1 */
+  --color-group-active:  #72b083; /* 7.25:1 */
+  --color-group-leisure: #a893e8; /* 7.03:1 */
+  color-scheme: dark;
+}
+[data-group="food"]    { --group: var(--color-group-food); }
+[data-group="night"]   { --group: var(--color-group-night); }
+[data-group="water"]   { --group: var(--color-group-water); }
+[data-group="active"]  { --group: var(--color-group-active); }
+[data-group="leisure"] { --group: var(--color-group-leisure); }
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 2rem;
+  background: var(--color-paper); color: var(--color-ink);
+  font-family: var(--font-body); -webkit-font-smoothing: antialiased;
+}
+h1,h2,h3 { font-family: var(--font-display); letter-spacing: -0.02em; margin: 0; }
+.kicker {
+  font-size: .68rem; font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--color-punch-text); margin: 0 0 .5rem;
+}
+.stack { display: flex; flex-direction: column; gap: 1.25rem; }
+.row { display: flex; gap: .75rem; flex-wrap: wrap; align-items: center; }
+.label { font-size: .72rem; color: var(--color-muted); }
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+}
+
+.type-row { border-top: 1px solid var(--color-line); padding: 1rem 0; display: grid; grid-template-columns: 7rem 1fr; gap: 1rem; align-items: baseline; }
+.type-row span { font-size: .72rem; color: var(--color-muted); }
+.t-hero { font-family: var(--font-display); font-size: clamp(2.4rem,6vw,4rem); font-weight: 800; line-height: .96; letter-spacing: -.03em; }
+.t-title { font-family: var(--font-display); font-size: 2rem; font-weight: 800; }
+.t-section { font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; }
+.t-body { font-size: 1rem; }
+.t-small { font-size: .82rem; color: var(--color-muted); }</style>
+</head>
+<body>
+<p class="kicker">Foundations</p><h2>Type</h2>
+<p class="label" style="margin:.5rem 0 1rem">Manrope for display, Hanken Grotesk for body. Both self-hosted in the app.</p>
+<div class="type-row"><span>Hero</span><div class="t-hero">Dubai plans, without the group chat.</div></div>
+<div class="type-row"><span>Title</span><div class="t-title">What does the group feel like doing?</div></div>
+<div class="type-row"><span>Section</span><div class="t-section">Tonight in DIFC</div></div>
+<div class="type-row"><span>Body</span><div class="t-body">Dinner in DIFC, padel in Al Quoz, or a beach day on the Palm.</div></div>
+<div class="type-row"><span>Small</span><div class="t-small">Voting closes 8:00 PM · 4 of 6 voted</div></div>
+
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="en" data-theme="day">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>plan-ind — Vote option card</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Hanken+Grotesk:wght@400;500;700&display=swap">
+<style>
+:root {
+  --color-paper: #f3f1ec;
+  --color-card:  #fbfaf7;
+  --color-ink:   #17181b;
+  --color-muted: #66666b;
+  --color-line:  rgba(23, 24, 27, 0.14);
+  --color-punch: #9b7d4e;       /* champagne — display/large only, 3.37:1 */
+  --color-punch-text: #7a6038;  /* champagne — small text, 5.23:1 */
+  --color-live:  #2f4bd6;       /* state accent: you, and now. 6.00:1 */
+  --color-group-food:    #a83a20; /* 5.65:1 */
+  --color-group-night:   #b3175f; /* 5.81:1 */
+  --color-group-water:   #0f6a72; /* 5.60:1 */
+  --color-group-active:  #2a6b3c; /* 5.69:1 */
+  --color-group-leisure: #6b46b0; /* 5.95:1 */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
+  --font-display: "Manrope", system-ui, sans-serif;
+  --font-body: "Hanken Grotesk", system-ui, sans-serif;
+}
+[data-theme="night"] {
+  --color-paper: #090b0e;
+  --color-card:  #121418;
+  --color-ink:   #f0ece4;
+  --color-muted: #9d9b99;
+  --color-line:  rgba(240, 236, 228, 0.14);
+  --color-punch: #c3a573;
+  --color-punch-text: #c3a573;  /* 7.86:1 — no darker cut needed */
+  --color-live:  #8aa0ff;       /* 8.02:1; day cobalt is 2.91:1 here */
+  --color-group-food:    #e0865f; /* 6.80:1 */
+  --color-group-night:   #dd7a9c; /* 6.44:1 */
+  --color-group-water:   #5fb0bb; /* 7.39:1 */
+  --color-group-active:  #72b083; /* 7.25:1 */
+  --color-group-leisure: #a893e8; /* 7.03:1 */
+  color-scheme: dark;
+}
+[data-group="food"]    { --group: var(--color-group-food); }
+[data-group="night"]   { --group: var(--color-group-night); }
+[data-group="water"]   { --group: var(--color-group-water); }
+[data-group="active"]  { --group: var(--color-group-active); }
+[data-group="leisure"] { --group: var(--color-group-leisure); }
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 2rem;
+  background: var(--color-paper); color: var(--color-ink);
+  font-family: var(--font-body); -webkit-font-smoothing: antialiased;
+}
+h1,h2,h3 { font-family: var(--font-display); letter-spacing: -0.02em; margin: 0; }
+.kicker {
+  font-size: .68rem; font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--color-punch-text); margin: 0 0 .5rem;
+}
+.stack { display: flex; flex-direction: column; gap: 1.25rem; }
+.row { display: flex; gap: .75rem; flex-wrap: wrap; align-items: center; }
+.label { font-size: .72rem; color: var(--color-muted); }
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+}
+
+.opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: .75rem; }
+.opt { position: relative; display: flex; flex-direction: column; gap: .35rem; padding: 1rem;
+  text-align: left; cursor: pointer; border: 1px solid var(--color-line);
+  background: var(--color-card); color: var(--color-ink);
+  transition: border-color 150ms, background 150ms, transform 320ms var(--ease-spring), opacity 150ms; }
+.opt__cat { font-size:.62rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color: var(--group, var(--color-punch-text)); }
+.opt__name { font-family: var(--font-display); font-size: 1.15rem; font-weight: 800; }
+.opt__meta { font-size:.8rem; color: var(--color-muted); }
+.opt__votes { font-size:.78rem; color: var(--color-punch-text); font-variant-numeric: tabular-nums; margin-top:.4rem; }
+.opt[aria-pressed="true"] { border-color: var(--color-live); transform: translateY(-2px) scale(1.008); }
+.opt[aria-pressed="true"] .opt__votes { color: var(--color-live); font-weight: 700; }
+.opt--winner { border-color: var(--color-punch); border-width: 2px; }
+.opt__win { font-size:.6rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color: var(--color-punch-text); }
+.opt--dim { opacity: .55; }
+.opt:active { transform: scale(.975); transition-duration: 90ms; transition-timing-function: ease-out; }</style>
+</head>
+<body>
+<p class="kicker">Components</p><h2>Vote option</h2>
+<p class="label" style="margin:.5rem 0 1.25rem">Selected takes the live accent — "you, and now". The winner takes champagne — "the outcome". They were the same colour until that split was made.</p>
+<div class="opts" data-group="food">
+<button class="opt"><span class="opt__cat">Dinner</span><span class="opt__name">Ninive</span><span class="opt__meta">Emirates Towers · AED 250</span><span class="opt__votes">1 yes</span></button>
+<button class="opt" aria-pressed="true"><span class="opt__cat">Dinner</span><span class="opt__name">The Guild</span><span class="opt__meta">DIFC · AED 220</span><span class="opt__votes">4 yes</span></button>
+<button class="opt opt--dim"><span class="opt__cat">Dinner</span><span class="opt__name">Koko Bay</span><span class="opt__meta">Palm Jumeirah · AED 300</span><span class="opt__votes">1 yes</span></button>
+</div>
+<div class="opts" data-group="food" style="margin-top:.9rem;max-width:300px">
+<button class="opt opt--winner"><span class="opt__win">Winner</span><span class="opt__name">The Guild</span><span class="opt__meta">DIFC · Friday 9:30 PM</span><span class="opt__votes">4 yes</span></button>
+</div>
+
+</body>
+</html>
