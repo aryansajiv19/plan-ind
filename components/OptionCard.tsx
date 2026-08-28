@@ -13,6 +13,8 @@ interface OptionCardProps {
   yesCount: number;
   voted: boolean; // has the current voter said yes?
   isWinner: boolean;
+  /** Most yes-votes in this round, and not a tie. Drives the After Dark sheen. */
+  isLeader: boolean;
   decided: boolean; // plan is settled — voting closed
   distanceKm?: number | null;
   onToggle: () => void;
@@ -24,6 +26,7 @@ export default function OptionCard({
   yesCount,
   voted,
   isWinner,
+  isLeader,
   decided,
   distanceKm,
   onToggle,
@@ -71,6 +74,7 @@ export default function OptionCard({
         "opt vote-option relative flex w-full flex-col bg-card p-4 text-left",
         "disabled:cursor-default",
         isWinner ? "vote-option--winner z-[3]" : "",
+        isLeader && !decided ? "vote-option--leader" : "",
         dimmed ? "opacity-55" : "",
       ].join(" ")}
     >
@@ -81,6 +85,7 @@ export default function OptionCard({
         <span className="vote-option__category inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold">
           <span aria-hidden="true">{cat.code}</span>
           {spot.cuisine}
+          {isLeader && !decided && <span className="vote-option__leading"> · leading</span>}
         </span>
         <span className="vote-option__price px-2 py-0.5 text-xs font-semibold text-muted">
           {spot.price_band}
@@ -131,7 +136,8 @@ export default function OptionCard({
               {voters.length > 0 ? `${voters.join(", ")} picked this` : "No votes yet"}
             </span>
             <span aria-hidden="true">
-              <CountUp value={yesCount} /> yes
+              <CountUp value={yesCount} />
+              <span className="vote-option__votes-unit"> yes</span>
             </span>
           </span>
         </span>

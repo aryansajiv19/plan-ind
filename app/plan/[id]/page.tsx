@@ -30,6 +30,13 @@ function closesLabel(deadline: string | null): string {
   return h >= 1 ? `Closes in ${h}h` : `Closes in ${m}m`;
 }
 
+
+// Roman round markers are After Dark's, and night-only — "III" does not fit
+// the 2.1rem day dot. Always paired with the arabic original for assistive
+// tech, which reads "Round 3" properly and "Round III" as "Round eye-eye-eye".
+const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
+const roman = (n: number) => ROMAN[n - 1] ?? String(n);
+
 export default function VotePage() {
   const { id } = useParams<{ id: string }>();
 
@@ -630,6 +637,16 @@ export default function VotePage() {
       ? spots.filter((spot) => advancedIds.includes(spot.id))
       : spots;
   const hasCurrentSelection = visibleSpots.some((spot) => iVotedYes(spot.id));
+
+  // The card the room is converging on, for the After Dark sheen. A tie has
+  // no leader on purpose: sheening two cards would read as "both winning",
+  // which is the opposite of what a reveal is for. Zero votes has none either.
+  const leaderId = (() => {
+    const top = Math.max(0, ...visibleSpots.map((spot) => yesCount(spot.id)));
+    if (top === 0) return null;
+    const leaders = visibleSpots.filter((spot) => yesCount(spot.id) === top);
+    return leaders.length === 1 ? leaders[0].id : null;
+  })();
   const poolsChosenByMe = new Set(
     votes
       .filter((vote) => vote.voter_name === voterName && vote.value && (vote.phase ?? "final") === "pool")
@@ -662,7 +679,16 @@ export default function VotePage() {
             )}
             {!decided && (
               <p className="vote-round-label">
-                {stage === "pool" ? `Round ${activePool} of ${poolCount} · choose one` : "Final shortlist · choose one"}
+                <span className="sr-only">
+                  {stage === "pool" ? `Round ${activePool} of ${poolCount} · choose one` : "Final shortlist · choose one"}
+                </span>
+                <span aria-hidden="true">
+                  {stage === "pool"
+                    ? nightMode
+                      ? `Round ${roman(activePool)} of ${roman(poolCount)} · choose one`
+                      : `Round ${activePool} of ${poolCount} · choose one`
+                    : "Final shortlist · choose one"}
+                </span>
               </p>
             )}
             {/* Only worth showing when someone else is here — "you are here"
@@ -701,7 +727,7 @@ export default function VotePage() {
                 data-complete={poolsChosenByMe.has(poolNumber) || undefined}
                 aria-label={`Round ${poolNumber} of ${poolCount}${poolsChosenByMe.has(poolNumber) ? ", chosen" : ""}`}
               >
-                <span aria-hidden="true">{poolNumber}</span>
+                <span aria-hidden="true">{nightMode ? roman(poolNumber) : poolNumber}</span>
               </button>
             ))}
           </nav>
@@ -724,6 +750,7 @@ export default function VotePage() {
                 yesCount={yesCount(spot.id)}
                 voted={iVotedYes(spot.id)}
                 isWinner={winnerId === spot.id}
+                isLeader={spot.id === leaderId}
                 decided={decided}
                 distanceKm={plan!.origin_latitude != null && plan!.origin_longitude != null
                   ? (() => {

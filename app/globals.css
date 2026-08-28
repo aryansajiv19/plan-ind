@@ -2980,3 +2980,177 @@ h3 {
   padding: 0.75rem;
   color: var(--color-ink) !important;
 }
+
+/* ============================================================================
+   AFTER DARK — the voting round
+   Turn 1 of "Voting Round Directions.dc.html", and the temperament every
+   later turn in that canvas builds on (turns 3-7 all sit on the night
+   ground and brass; only the turn 2 strategy board stays in day).
+
+   Night only, on purpose: brass is 3.37:1 on ivory and the lattice wash
+   vanishes on a light ground. The night palette at :2098 already matches
+   the canvas exactly — #090b0e / #121418 / #c3a573 / #f0ece4 — so nothing
+   below repaints anything. This adds the three things the canvas has and
+   the shipped screen did not: texture, structure, and reveal.
+
+   The canvas's own words: "fun comes from light and reveal rather than
+   bounce". That is also why none of this collides with the restraint
+   block above — that cancels hover *transforms*, and After Dark never
+   uses one.
+   ============================================================================ */
+
+/* --- Ground: brass lattice at +/-45deg, and a slow halo behind the masthead. */
+.vote-experience--night::before {
+  background:
+    repeating-linear-gradient(45deg, rgba(195, 165, 115, 0.07) 0 1px, transparent 1px 22px),
+    repeating-linear-gradient(-45deg, rgba(195, 165, 115, 0.07) 0 1px, transparent 1px 22px),
+    var(--color-paper);
+  background-size: auto;
+}
+
+/* ::before is the ground, so the halo takes ::after. `isolation: isolate` on
+   .vote-experience keeps z-index:-1 from escaping behind the page itself. */
+.vote-experience--night::after {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  top: -14rem;
+  left: 50%;
+  width: 26rem;
+  height: 26rem;
+  margin-left: -13rem;
+  pointer-events: none;
+  filter: blur(28px);
+  background: conic-gradient(
+    from 0deg,
+    rgba(195, 165, 115, 0.18),
+    transparent 40%,
+    rgba(195, 165, 115, 0.12) 70%,
+    transparent
+  );
+  animation: ad-halo 32s linear infinite;
+}
+
+@keyframes ad-halo { to { transform: rotate(360deg); } }
+
+/* --- Structure: the round label becomes a rule-flanked plate. */
+.vote-experience--night .vote-round-label {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  color: var(--vote-metal);
+  font-size: 0.6rem;
+  letter-spacing: 0.24em;
+}
+
+.vote-experience--night .vote-round-label::before,
+.vote-experience--night .vote-round-label::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, color-mix(in srgb, var(--vote-metal) 70%, transparent));
+}
+.vote-experience--night .vote-round-label::after {
+  background: linear-gradient(to left, transparent, color-mix(in srgb, var(--vote-metal) 70%, transparent));
+}
+
+/* --- Round markers: brass numerals on a hairline, not circles. The numerals
+   themselves are Roman and come from the markup, so screen readers still get
+   "Round 2 of 3" from the existing aria-label. */
+.vote-experience--night .vote-pool-progress { gap: 0.75rem; }
+
+.vote-experience--night .vote-pool-progress button {
+  width: auto;
+  min-width: 1.4rem;
+  height: auto;
+  padding: 0 0 2px;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: var(--vote-metal);
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
+  opacity: 0.45;
+}
+
+.vote-experience--night .vote-pool-progress button[aria-current="step"] {
+  border-bottom-color: var(--vote-metal);
+  color: var(--vote-metal);
+  font-weight: 700;
+  opacity: 1;
+}
+
+/* A round you already chose in keeps the live accent — your state stays
+   yours, exactly as in day. Brass is reserved for where you *are*. */
+.vote-experience--night .vote-pool-progress button[data-complete="true"] {
+  border-bottom-color: transparent;
+  background: transparent;
+  color: var(--color-live);
+  opacity: 1;
+}
+.vote-experience--night .vote-pool-progress button[aria-current="step"][data-complete="true"] {
+  border-bottom-color: var(--color-live);
+}
+
+.vote-experience--night .vote-pool-progress button + button::before {
+  content: "\25C6";
+  position: absolute;
+  left: -0.62rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--vote-metal);
+  font-size: 0.45rem;
+  letter-spacing: 0;
+  opacity: 0.5;
+}
+
+/* --- Tally: a struck brass plate rather than a sentence. The " yes" is
+   dropped here (the box reads as a count on its own); the sr-only voter
+   list in the markup is untouched, so nothing is lost non-visually. */
+.vote-experience--night .vote-option__votes {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid color-mix(in srgb, var(--vote-metal) 35%, transparent);
+  color: var(--vote-metal);
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+.vote-experience--night .vote-option__votes-unit { display: none; }
+
+/* --- Reveal: the leader carries a slow gold sheen and a filled plate. */
+.vote-experience--night .vote-option--leader {
+  border-color: color-mix(in srgb, var(--vote-metal) 60%, transparent);
+}
+.vote-experience--night .vote-option--leader .vote-option__votes {
+  border-color: var(--vote-metal);
+  background: color-mix(in srgb, var(--vote-metal) 12%, transparent);
+}
+.vote-experience--night .vote-option--leader::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 30%, rgba(195, 165, 115, 0.22) 48%, transparent 62%);
+  background-size: 250% 100%;
+  animation: ad-sheen 6s ease-in-out infinite;
+}
+
+@keyframes ad-sheen {
+  0% { background-position: -160% 0; }
+  55%, 100% { background-position: 260% 0; }
+}
+
+/* --- Commit: the primary action is struck brass, ink on metal. 6.45:1 at
+   the dark end of the gradient, 9.79:1 at the light end. */
+.vote-experience--night .vote-primary-action:not(:disabled) {
+  border-color: var(--vote-metal);
+  background: linear-gradient(180deg, #d8bd8c, #b8975f);
+  color: #17181b;
+}
+
+/* The leader's kicker goes brass with it, so "· leading" reads as one plate. */
+.vote-experience--night .vote-option--leader .vote-option__category { color: var(--vote-metal); }

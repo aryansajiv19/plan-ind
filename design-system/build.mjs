@@ -312,11 +312,77 @@ t.innerHTML=SETS[b.dataset.group].map((l,i)=>'<button class="tile" aria-pressed=
 <div class="row" style="margin-top:1.25rem"><button class="btn">Continue to round 3</button><button class="btn btn--ghost btn--small">Copy link</button></div>
 </div>`,
   },
+  {
+    path: "screens/voting-round-after-dark.html", group: "Screens", name: "Voting round — After Dark",
+    subtitle: "The night direction: lattice, brass rules, leader sheen",
+    viewport: { width: 900, height: 620 }, theme: "night",
+    css: CSS.opt + CSS.dots + CSS.btn + `
+body { position:relative; }
+body::before { content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background:
+    repeating-linear-gradient(45deg, rgba(195,165,115,.07) 0 1px, transparent 1px 22px),
+    repeating-linear-gradient(-45deg, rgba(195,165,115,.07) 0 1px, transparent 1px 22px),
+    var(--color-paper); }
+body::after { content:""; position:fixed; z-index:-1; top:-14rem; left:50%; width:26rem; height:26rem;
+  margin-left:-13rem; pointer-events:none; filter:blur(28px); animation:ad-halo 32s linear infinite;
+  background:conic-gradient(from 0deg, rgba(195,165,115,.18), transparent 40%, rgba(195,165,115,.12) 70%, transparent); }
+@keyframes ad-halo { to { transform:rotate(360deg); } }
+.ad-rule { display:flex; align-items:center; gap:.625rem; color:var(--color-punch);
+  font-size:.6rem; font-weight:700; letter-spacing:.24em; text-transform:uppercase; }
+.ad-rule::before, .ad-rule::after { content:""; flex:1; height:1px;
+  background:linear-gradient(to right, transparent, rgba(195,165,115,.7)); }
+.ad-rule::after { background:linear-gradient(to left, transparent, rgba(195,165,115,.7)); }
+.ad-nums { display:flex; justify-content:center; align-items:center; gap:.6rem;
+  color:var(--color-punch); font-size:.66rem; letter-spacing:.2em; margin-top:.9rem; }
+.ad-nums span[data-on] { font-weight:700; border-bottom:1px solid var(--color-punch); padding-bottom:2px; }
+.ad-nums span[data-done] { color:var(--color-live); }
+.ad-nums .d { font-size:.45rem; opacity:.5; }
+.ad-opt { position:relative; overflow:hidden; display:grid; grid-template-columns:1fr auto; gap:12px;
+  align-items:center; text-align:left; width:100%; padding:18px 16px; cursor:pointer;
+  border:1px solid rgba(195,165,115,.28); background:var(--color-card); font-family:inherit; }
+.ad-opt__cat { font-size:.58rem; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:var(--color-group-food); }
+.ad-opt__name { font-family:var(--font-display); font-size:1.25rem; font-weight:700; color:var(--color-ink); letter-spacing:-.01em; }
+.ad-opt__meta { font-size:.78rem; color:var(--color-muted); }
+.ad-opt__votes { display:grid; place-items:center; width:2.75rem; height:2.75rem;
+  border:1px solid rgba(195,165,115,.35); color:var(--color-punch);
+  font-family:var(--font-display); font-size:1.15rem; font-weight:700; font-variant-numeric:tabular-nums; }
+.ad-opt[aria-pressed="true"]::before { content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--color-live); }
+.ad-opt--leader { border-color:rgba(195,165,115,.6); }
+.ad-opt--leader .ad-opt__cat { color:var(--color-punch); }
+.ad-opt--leader .ad-opt__votes { border-color:var(--color-punch); background:rgba(195,165,115,.12); }
+.ad-opt--leader::after { content:""; position:absolute; inset:0; pointer-events:none; background-size:250% 100%;
+  background:linear-gradient(105deg, transparent 30%, rgba(195,165,115,.22) 48%, transparent 62%);
+  animation:ad-sheen 6s ease-in-out infinite; }
+@keyframes ad-sheen { 0%{ background-position:-160% 0; } 55%,100%{ background-position:260% 0; } }
+.ad-cta { flex:1; padding:14px 18px; border:1px solid var(--color-punch); cursor:pointer;
+  background:linear-gradient(180deg, #d8bd8c, #b8975f); color:#17181b;
+  font-family:var(--font-display); font-weight:800; font-size:.9rem; letter-spacing:.04em; }
+.ad-ghost { padding:14px 18px; border:1px solid rgba(195,165,115,.5); background:transparent;
+  color:var(--color-punch); font-family:var(--font-display); font-weight:700; font-size:.8rem;
+  letter-spacing:.1em; text-transform:uppercase; cursor:pointer; }`,
+    body: `<p class="kicker">Screens</p><h2>Voting round — After Dark</h2>
+<p class="label" style="margin:.5rem 0 1.25rem">Turn 1 of the Claude Design canvas, and the direction turns 3–7 all build on. Night only — brass is 3.37:1 on ivory. Ships as <code>.vote-experience--night</code>.</p>
+<div style="max-width:420px;margin:0 auto;border:1px solid rgba(195,165,115,.35);padding:1.75rem 1.5rem 1.5rem;background:rgba(18,20,24,.6)">
+<div class="ad-rule">Round II of III</div>
+<div style="text-align:center;margin-top:.9rem;font-family:var(--font-display);font-size:2rem;font-weight:800;letter-spacing:-.02em">Friday dinner</div>
+<div style="text-align:center;margin-top:.35rem;font-size:.78rem;letter-spacing:.06em;color:var(--color-muted)">4 of 6 voted · table holds until 8:00 PM</div>
+<div class="ad-nums"><span data-done>I</span><span class="d">◆</span><span data-on>II</span><span class="d">◆</span><span style="opacity:.35">III</span></div>
+<div style="display:flex;flex-direction:column;gap:12px;margin-top:1.6rem">
+<button class="ad-opt"><span style="display:flex;flex-direction:column;gap:4px"><span class="ad-opt__cat">Dinner</span><span class="ad-opt__name">Ninive</span><span class="ad-opt__meta">Emirates Towers · AED 250</span></span><span class="ad-opt__votes">1</span></button>
+<button class="ad-opt ad-opt--leader" aria-pressed="true"><span style="display:flex;flex-direction:column;gap:4px"><span class="ad-opt__cat">Dinner · leading</span><span class="ad-opt__name">The Guild</span><span class="ad-opt__meta">DIFC · AED 220</span></span><span class="ad-opt__votes">4</span></button>
+<button class="ad-opt"><span style="display:flex;flex-direction:column;gap:4px"><span class="ad-opt__cat">Dinner</span><span class="ad-opt__name">Koko Bay</span><span class="ad-opt__meta">Palm Jumeirah · AED 300</span></span><span class="ad-opt__votes">1</span></button>
+</div>
+<div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid rgba(195,165,115,.2);display:flex;align-items:center;gap:10px">
+<span style="width:8px;height:8px;border-radius:50%;background:var(--color-live)"></span>
+<span style="font-size:.76rem;color:var(--color-muted)">Rana voted 2 minutes ago · Mo is looking now</span></div>
+<div style="display:flex;gap:10px;margin-top:1.5rem"><button class="ad-ghost">Re-deal</button><button class="ad-cta">Lock in · round III</button></div>
+</div>`,
+  },
 ];
 
 const page = (c) => `<!-- @dsCard group="${c.group}" -->
 <!doctype html>
-<html lang="en" data-theme="day">
+<html lang="en" data-theme="${c.theme || "day"}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
