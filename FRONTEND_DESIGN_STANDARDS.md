@@ -137,9 +137,39 @@ typed name is everything the app knows about them.
 
 ## Motion
 
-- Use motion sparingly and purposefully: subtle entrances, short repeated-element staggers, expansion/collapse, state transitions, and action feedback.
-- Avoid constant movement, animating every element, long transitions, and ornamental motion.
-- Respect `prefers-reduced-motion`.
+> **This section was rewritten by owner decision (2026-08-28).** It previously
+> read "avoid constant movement... and ornamental motion" with no exception. That
+> rule, together with the restraint block in `globals.css`, is what left the app
+> reading as flat — the owner's words were *"too minimalistic chic sleek… it
+> should look fun and not boring to use."* The After Dark night direction, chosen
+> in Claude Design, depends on exactly the ambient motion the old rule banned.
+> Do not restore the old wording. This is the same kind of reversal as the Colour
+> section above, for the same reason.
+
+- Use motion purposefully: entrances, short repeated-element staggers,
+  expansion/collapse, state transitions, and action feedback.
+- **Bounded ambient motion is permitted in the night theme**, and only there. It
+  must satisfy all four:
+  - it is *light* — a sheen, a glow, a slow drift. Never bounce, never scale,
+    never anything that moves layout;
+  - its period is **6 seconds or longer**, so it reads as atmosphere rather than
+    activity;
+  - it is **decorative only** — it never carries state, and removing it loses no
+    information;
+  - at most **two** ambient loops are visible on a screen at once. Today that
+    budget is spent: the leader sheen and the masthead halo.
+- Ambient motion is night-only because it is night-only *legible*: a brass sheen
+  on ivory is invisible, so a day-theme equivalent would be movement with no
+  payoff.
+- Everything else still holds. Avoid animating every element, long transitions,
+  and motion that competes with reading.
+- **This does not reopen status lights.** Green glowing dots and pulsing status
+  indicators remain banned everywhere, day and night — see the Visual direction
+  section, and `NEXT_AGENT.md` rule 9, which cross-enforces it. A pulse that
+  means "live" is state, not atmosphere, and fails the third rule above.
+- Respect `prefers-reduced-motion`. Script-driven animation must check it
+  directly — the global `transition-duration` override in `globals.css` cannot
+  reach a `requestAnimationFrame` loop.
 
 ## Implementation quality
 

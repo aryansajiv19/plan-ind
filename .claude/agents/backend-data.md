@@ -12,27 +12,48 @@ curated spots; the plan resolves to a winner.
 
 ## The schema as it actually stands
 
-Four tables in `supabase/schema.sql`:
+**This section was rewritten 2026-08-28.** It previously described four tables,
+no auth, a self-typed `voter_name` identity and `using (true)` everywhere. That
+was true at v1 and is not true now — 21 migrations have landed since. Treat
+`worklog.md` as the migration source of truth and `supabase/schema.sql` as the
+canonical end state; this paragraph is a summary, not an authority.
 
-- **`spots`** — curated dinner spots, pre-loaded. `name`, `area`, `cuisine`,
-  `price_band` (`$`/`$$`/`$$$`), `min_spend` (AED per person), `open_till`,
-  `vibe`, nullable `booking_url`.
+The core four tables still exist and still mean what they did:
+
+- **`spots`** — curated venues. `name`, `area`, `cuisine`, `price_band`,
+  `min_spend` (AED per person), `open_till`, `vibe`, nullable `booking_url`,
+  plus `category`, `source`, `visibility`, `created_by_user_id`, `minimum_age`.
 - **`plans`** — one row per share link. **The uuid is the URL slug.**
-  `status` is `'open' | 'decided'`, plus nullable `deadline` and
-  `winner_spot_id`.
-- **`plan_spots`** — links a plan to its three options. The "exactly 3" rule is
-  *app logic only*; the table does not enforce it.
+  `status` is `'open' | 'decided'` — there is no `closed`.
+- **`plan_spots`** — links a plan to its options, now pool-numbered for rounds.
 - **`votes`** — `unique (plan_id, spot_id, voter_name)`, `value boolean`.
-  Designed for upsert so a voter can change their mind.
 
-**Know the v1 posture before you touch it.** There is no auth. Identity is a
-self-typed `voter_name` text field. Every RLS policy is `using (true)` /
-`with check (true)` — the schema comments call this out as a deliberate MVP
-tradeoff ("you have the link"), with v2 moving writes behind an edge function.
+Around them: `auth.users`, `people`, `friendships`, `visits`, `rsvps`,
+`ratings`, `plan_access`, `plan_host_tokens`, `member_ages`,
+`app_control_secrets`, `app_rate_limits`, `security_events`, and the
+place-import and visit-collection tables.
 
-That tradeoff is the user's to revisit, not yours to silently flip. If you
-believe it should change now, say so and let them decide — but **never loosen
-it further**, and never add a policy without stating what it exposes.
+**Know the current posture before you touch it.** Migration 020
+(`production-security`, applied and verified live 2026-08-24) ended the
+open-write era:
+
+- Reads are scoped through the `plan_access` capability table, `to authenticated`.
+- `plans`, `plan_spots`, `votes`, `rsvps` and `ratings` have **no direct write
+  policy at all**. Writes go through the security-definer RPCs
+  `cast_plan_vote`, `set_plan_rsvp`, `rate_plan` and `execute_plan_command`,
+  behind an `enforce_plan_membership` trigger.
+- **Never add a direct insert/update/delete policy on `votes`, `rsvps` or
+  `ratings`.** That is precisely the hole migrations 018 and 019 closed, and it
+  is the easiest one in the repo to reopen by accident.
+- Age is server-owned in write-once `member_ages`, read via `memberAge()`.
+  Never trust an age from a request body or from `auth.user_metadata`.
+
+**Migrations only.** `supabase/schema.sql` DROPs every table on re-run — it is
+the scratch end-state, never an update path. Live changes ship as the next
+numbered, additive migration, and you record the application in `worklog.md`
+the same day. When you add a migration, add the same objects to `schema.sql`
+too — functions and indexes, not just columns. A previous agent added only
+columns and left the file unable to produce a working database.
 
 ## What you own
 

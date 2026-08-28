@@ -129,9 +129,10 @@ Wrapped on real data is complete in `3d07a6a`.
    (`cast_plan_vote`, `set_plan_rsvp`, `rate_plan`). Adding a policy reopens
    the hole migration 018/019 closed.
 5. **`lib/types.ts` mirrors the schema.** Change them together, in one pass.
-6. **Migrations are additive and numbered.** Migration 020 is pending live
-   deployment. Fix it in place only before it is applied; after deployment the
-   next number is 021. Record application in `worklog.md` that same day.
+6. **Migrations are additive and numbered.** Migration 020 is **applied and
+   verified live** (2026-08-24). Migration 021 is written, committed and
+   **unapplied** — fix it in place only until it is applied; after that the next
+   number is 022. Record application in `worklog.md` that same day.
 7. **`supabase/schema.sql` is the end-state for a scratch project, not an
    update path.** It DROPS every table. Never run it against the live project.
    If you add a migration, add the same objects to `schema.sql` — including

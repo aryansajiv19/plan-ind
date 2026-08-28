@@ -36,10 +36,15 @@
       "app_auth_actions_requestemailcode",
       "app_auth_actions_savebirthdate",
       "app_auth_actions_signinwithgoogle",
+      "app_auth_actions_signout",
       "app_auth_actions_verifyemailcode",
       "app_auth_callback_route",
       "app_auth_callback_route_get",
       "app_auth_callback_route_safenextpath",
+      "app_home_page",
+      "app_home_page_app_views",
+      "app_home_page_appview",
+      "app_home_page_homepage",
       "app_login_page",
       "app_login_page_loginpage",
       "app_onboarding_page",
@@ -90,82 +95,13 @@
       "lib_security_request_requestvalidationerror",
       "lib_security_request_requestvalidationerror_constructor",
       "lib_security_request_validatemutationrequest",
+      "lib_social_getplannedwith",
+      "lib_social_getprofilevisits",
       "lib_supabase_server",
       "lib_supabase_server_createclient",
       "tests_security_test"
     ],
     "1": [
-      "app_home_page",
-      "app_home_page_app_views",
-      "app_home_page_appview",
-      "app_home_page_homepage",
-      "components_authprofilebridge",
-      "components_authprofilebridge_authprofilebridge",
-      "lib_device",
-      "lib_device_avatar_colors",
-      "lib_device_avatar_emoji",
-      "lib_device_cacheme",
-      "lib_device_clearme",
-      "lib_device_deviceprofile",
-      "lib_device_getme",
-      "lib_device_newpersonid",
-      "lib_device_pick",
-      "lib_device_randomavatar",
-      "lib_device_saveme",
-      "lib_social",
-      "lib_social_addfriend",
-      "lib_social_arefriends",
-      "lib_social_companioninput",
-      "lib_social_db",
-      "lib_social_deletevisit",
-      "lib_social_getfriends",
-      "lib_social_getpeople",
-      "lib_social_getperson",
-      "lib_social_getplannedwith",
-      "lib_social_getprofilevisits",
-      "lib_social_getspotvisitors",
-      "lib_social_gettaggedvisits",
-      "lib_social_getwrappedsummary",
-      "lib_social_logvisit",
-      "lib_social_logvisitinput",
-      "lib_social_normalisecompanions",
-      "lib_social_plannedwith",
-      "lib_social_rawcompanion",
-      "lib_social_readwrappedratings",
-      "lib_social_readwrappedvisits",
-      "lib_social_removefriend",
-      "lib_social_spotvisitor",
-      "lib_social_tocompanionviews",
-      "lib_social_toprofilevisit",
-      "lib_social_untagcompanion",
-      "lib_social_upsertme",
-      "lib_supabase",
-      "lib_supabase_client",
-      "lib_supabase_client_createclient",
-      "lib_supabase_config",
-      "lib_supabase_config_getsupabaseconfig",
-      "lib_supabase_proxy",
-      "lib_supabase_proxy_updatesession",
-      "lib_supabase_supabase",
-      "lib_types_personcard",
-      "lib_types_wrappedsummary",
-      "lib_wrapped",
-      "lib_wrapped_aggregatewrappedsummary",
-      "lib_wrapped_comparelabels",
-      "lib_wrapped_dubaimonthwindow",
-      "lib_wrapped_mostcommon",
-      "lib_wrapped_wrappedmonthwindow",
-      "lib_wrapped_wrappedratingrow",
-      "lib_wrapped_wrappedvisitrow",
-      "proxy",
-      "proxy_config",
-      "proxy_proxy",
-      "tests_wrapped_test",
-      "tests_wrapped_test_rating",
-      "tests_wrapped_test_summary",
-      "tests_wrapped_test_visit"
-    ],
-    "2": [
       "auth",
       "auth_users",
       "supabase_migration_002_lastmile_categories",
@@ -232,6 +168,73 @@
       "supabase_schema_visits_before_write",
       "supabase_schema_votes"
     ],
+    "2": [
+      "components_authprofilebridge",
+      "components_authprofilebridge_authprofilebridge",
+      "lib_device",
+      "lib_device_avatar_colors",
+      "lib_device_avatar_emoji",
+      "lib_device_cacheme",
+      "lib_device_clearme",
+      "lib_device_deviceprofile",
+      "lib_device_getme",
+      "lib_device_newpersonid",
+      "lib_device_pick",
+      "lib_device_randomavatar",
+      "lib_device_saveme",
+      "lib_social",
+      "lib_social_addfriend",
+      "lib_social_arefriends",
+      "lib_social_companioninput",
+      "lib_social_db",
+      "lib_social_deletevisit",
+      "lib_social_getfriends",
+      "lib_social_getpeople",
+      "lib_social_getperson",
+      "lib_social_getspotvisitors",
+      "lib_social_gettaggedvisits",
+      "lib_social_getwrappedsummary",
+      "lib_social_logvisit",
+      "lib_social_logvisitinput",
+      "lib_social_normalisecompanions",
+      "lib_social_plannedwith",
+      "lib_social_rawcompanion",
+      "lib_social_rawvisit",
+      "lib_social_readwrappedratings",
+      "lib_social_readwrappedvisits",
+      "lib_social_removefriend",
+      "lib_social_spotvisitor",
+      "lib_social_tocompanionviews",
+      "lib_social_toprofilevisit",
+      "lib_social_untagcompanion",
+      "lib_social_upsertme",
+      "lib_supabase",
+      "lib_supabase_client",
+      "lib_supabase_client_createclient",
+      "lib_supabase_config",
+      "lib_supabase_config_getsupabaseconfig",
+      "lib_supabase_proxy",
+      "lib_supabase_proxy_updatesession",
+      "lib_supabase_supabase",
+      "lib_types_personcard",
+      "lib_types_wrappedsummary",
+      "lib_types_wrappedsummaryresult",
+      "lib_wrapped",
+      "lib_wrapped_aggregatewrappedsummary",
+      "lib_wrapped_comparelabels",
+      "lib_wrapped_dubaimonthwindow",
+      "lib_wrapped_mostcommon",
+      "lib_wrapped_wrappedmonthwindow",
+      "lib_wrapped_wrappedratingrow",
+      "lib_wrapped_wrappedvisitrow",
+      "proxy",
+      "proxy_config",
+      "proxy_proxy",
+      "tests_wrapped_test",
+      "tests_wrapped_test_rating",
+      "tests_wrapped_test_summary",
+      "tests_wrapped_test_visit"
+    ],
     "3": [
       "components_categorygroups",
       "components_categorygroups_categories",
@@ -255,7 +258,6 @@
       "lib_dubai_areas",
       "lib_dubai_areas_area_centres",
       "lib_dubai_areas_coordinates",
-      "lib_dubai_areas_coordinatesforarea",
       "lib_dubai_areas_distancekm",
       "lib_dubai_areas_dubai_origins",
       "lib_security_csrf_client",
@@ -452,29 +454,26 @@
       "public_demo_padel_night_venue_padel_court"
     ],
     "9": [
-      "app_plan_id_page",
-      "app_plan_id_page_access",
-      "app_plan_id_page_closeslabel",
-      "app_plan_id_page_load",
-      "app_plan_id_page_votepage",
-      "components_countup",
-      "components_countup_countup",
-      "components_namegate",
-      "components_namegate_namegate",
-      "components_namegate_namegateprops",
-      "components_optioncard",
-      "components_optioncard_optioncard",
-      "components_optioncard_optioncardprops",
-      "lib_avatar",
-      "lib_avatar_avatarhue",
-      "lib_avatar_avatarstyle",
-      "lib_avatar_initialsof",
-      "lib_device_addbeen",
-      "lib_participant",
-      "lib_participant_participanttokenhash",
-      "lib_participant_randomtoken",
-      "lib_types_planspot",
-      "lib_types_vote"
+      "auth_setup",
+      "auth_setup_1_apply_the_database_migration",
+      "auth_setup_2_configure_email_one_time_codes",
+      "auth_setup_3_configure_google",
+      "auth_setup_4_allow_application_redirects",
+      "auth_setup_5_environment_variables",
+      "auth_setup_email_otp",
+      "auth_setup_environment_variables",
+      "auth_setup_google_oauth",
+      "auth_setup_migration_007_auth",
+      "auth_setup_no_legacy_identity_claim",
+      "auth_setup_redirect_allowlist",
+      "auth_setup_supabase_auth_setup",
+      "checkpoint_been_collections",
+      "checkpoint_demo_account_views",
+      "checkpoint_information_architecture",
+      "checkpoint_local_first_planning_layer",
+      "checkpoint_planind_wrapped",
+      "product_strategy_memory_loop",
+      "worklog_auth_deferral_scope"
     ],
     "10": [
       "lib_types",
@@ -496,10 +495,86 @@
       "lib_types_visitcollection",
       "lib_types_visitcollectionitem",
       "lib_types_visitcompanion",
-      "lib_types_visitphoto",
-      "lib_types_wrappedsummaryresult"
+      "lib_types_visitphoto"
     ],
     "11": [
+      "components_accountviews",
+      "components_accountviews_accountview",
+      "components_accountviews_accountviews",
+      "components_accountviews_date_format",
+      "components_accountviews_facestack",
+      "components_accountviews_placecard",
+      "components_accountviews_pricelabel",
+      "components_accountviews_wrappedrecap",
+      "components_categorygroups_categorygroup",
+      "components_countup",
+      "components_countup_countup",
+      "components_optioncard",
+      "components_optioncard_optioncard",
+      "components_optioncard_optioncardprops",
+      "lib_avatar",
+      "lib_avatar_avatarhue",
+      "lib_avatar_avatarstyle",
+      "lib_avatar_initialsof",
+      "lib_types_spot"
+    ],
+    "12": [
+      "agents_nextjs_agent_rules",
+      "checkpoint_budget_distance_inputs",
+      "checkpoint_graphify_targeted_workflow",
+      "checkpoint_luna_smart_search",
+      "checkpoint_multidimensional_taxonomy",
+      "checkpoint_related_category_dealing",
+      "frontend_design_standards_implementation_quality",
+      "place_import_architecture_completion_criteria",
+      "place_import_architecture_confidence_states",
+      "place_import_architecture_no_invented_venues",
+      "product_strategy_anti_patterns",
+      "product_strategy_constraint_aware_three",
+      "product_strategy_delivery_order",
+      "product_strategy_group_fit_score",
+      "product_strategy_revenue_paths",
+      "product_strategy_universal_hangout_model",
+      "worklog_next_agent_start_order"
+    ],
+    "13": [
+      "components_decidedplan",
+      "components_decidedplan_decidedplan",
+      "components_decidedplan_decidedplanprops",
+      "components_decidedplan_prettytime",
+      "components_decidedplan_tolocalinput",
+      "lib_calendar",
+      "lib_calendar_googlecalurl",
+      "lib_calendar_icshref",
+      "lib_calendar_stamp",
+      "lib_calendar_window",
+      "lib_categories",
+      "lib_categories_categorymeta",
+      "lib_categories_fallback",
+      "lib_categories_meta",
+      "lib_types_plan",
+      "lib_types_rating",
+      "lib_types_rsvp"
+    ],
+    "14": [
+      "app_plan_id_page",
+      "app_plan_id_page_access",
+      "app_plan_id_page_closeslabel",
+      "app_plan_id_page_load",
+      "app_plan_id_page_roman",
+      "app_plan_id_page_votepage",
+      "components_namegate",
+      "components_namegate_namegate",
+      "components_namegate_namegateprops",
+      "lib_device_addbeen",
+      "lib_dubai_areas_coordinatesforarea",
+      "lib_participant",
+      "lib_participant_participanttokenhash",
+      "lib_participant_randomtoken",
+      "lib_types_planspot",
+      "lib_types_vote"
+    ],
+    "15": [
       "next_agent",
       "next_agent_1_hard_rules_do_not_break_these",
       "next_agent_2_verification_run_all_of_these_before_you_say_you_are_done",
@@ -517,40 +592,7 @@
       "next_agent_current_handoff_2026_08_19",
       "next_agent_instructions_for_the_next_agent"
     ],
-    "12": [
-      "components_decidedplan",
-      "components_decidedplan_decidedplan",
-      "components_decidedplan_decidedplanprops",
-      "components_decidedplan_prettytime",
-      "components_decidedplan_tolocalinput",
-      "lib_calendar",
-      "lib_calendar_googlecalurl",
-      "lib_calendar_icshref",
-      "lib_calendar_stamp",
-      "lib_calendar_window",
-      "lib_social_rawvisit",
-      "lib_types_plan",
-      "lib_types_rating",
-      "lib_types_rsvp",
-      "lib_types_spot"
-    ],
-    "13": [
-      "auth_setup",
-      "auth_setup_1_apply_the_database_migration",
-      "auth_setup_2_configure_email_one_time_codes",
-      "auth_setup_3_configure_google",
-      "auth_setup_4_allow_application_redirects",
-      "auth_setup_5_environment_variables",
-      "auth_setup_email_otp",
-      "auth_setup_environment_variables",
-      "auth_setup_google_oauth",
-      "auth_setup_redirect_allowlist",
-      "auth_setup_route_behavior",
-      "auth_setup_supabase_auth_setup",
-      "checkpoint_permissive_shared_link_trust",
-      "product_strategy_web_guests_native_regulars"
-    ],
-    "14": [
+    "16": [
       "checkpoint",
       "checkpoint_authentication_verification",
       "checkpoint_current_state",
@@ -566,24 +608,23 @@
       "checkpoint_product_and_architecture_map",
       "checkpoint_workflow_for_the_next_feature"
     ],
-    "15": [
-      "components_accountviews",
-      "components_accountviews_accountview",
-      "components_accountviews_accountviews",
-      "components_accountviews_date_format",
-      "components_accountviews_facestack",
-      "components_accountviews_placecard",
-      "components_accountviews_pricelabel",
-      "components_accountviews_wrappedrecap",
-      "components_categorygroups_categorygroup",
-      "lib_categories",
-      "lib_categories_categorymeta",
-      "lib_categories_fallback",
-      "lib_categories_meta",
-      "lib_types_wrappedsummaryerror"
+    "17": [
+      "place_import_architecture",
+      "place_import_architecture_1_intake",
+      "place_import_architecture_2_obtain_permitted_source_material",
+      "place_import_architecture_3_extract_clues",
+      "place_import_architecture_4_generate_candidates",
+      "place_import_architecture_5_resolve_confidence",
+      "place_import_architecture_6_enrich_and_reconcile",
+      "place_import_architecture_7_present_and_save",
+      "place_import_architecture_completion_criteria_for_the_first_real_provider",
+      "place_import_architecture_framework_shipped_in_this_checkpoint",
+      "place_import_architecture_place_link_import",
+      "place_import_architecture_resolution_pipeline_to_build_next",
+      "place_import_architecture_security_and_reliability_rules",
+      "place_import_architecture_suggested_next_coding_session"
     ],
-    "16": [
-      "app_auth_actions_signout",
+    "18": [
       "app_home_preview_page",
       "app_home_preview_page_homepreviewpage",
       "components_homeexperience",
@@ -595,23 +636,39 @@
       "components_homeexperience_view_labels",
       "components_homeexperience_viewfromparam",
       "lib_interaction",
-      "lib_interaction_haptic"
+      "lib_interaction_haptic",
+      "lib_types_wrappedsummaryerror"
     ],
-    "17": [
-      "checkpoint_multidimensional_taxonomy",
+    "19": [
       "product_strategy",
+      "product_strategy_1_the_group_fit_score",
+      "product_strategy_2_constraint_aware_three_never_an_infinite_feed",
+      "product_strategy_3_a_better_decision_protocol",
+      "product_strategy_4_live_plan_resilience",
+      "product_strategy_5_web_guests_native_regulars",
+      "product_strategy_6_the_memory_loop",
       "product_strategy_avoid",
-      "product_strategy_constraint_aware_three",
-      "product_strategy_delivery_order",
-      "product_strategy_group_decision_layer",
-      "product_strategy_group_fit_score",
+      "product_strategy_core_differentiators",
       "product_strategy_primary_sources_reviewed",
       "product_strategy_product_position",
       "product_strategy_product_strategy_the_group_decision_layer_for_going_out",
-      "product_strategy_revenue_paths_that_preserve_trust",
-      "product_strategy_universal_hangout_model"
+      "product_strategy_revenue_paths_that_preserve_trust"
     ],
-    "18": [
+    "20": [
+      "checkpoint_age_policy",
+      "checkpoint_host_command_security",
+      "checkpoint_progressive_pools",
+      "checkpoint_saved_custom_places",
+      "checkpoint_secure_plan_creation",
+      "checkpoint_security_review_findings",
+      "worklog_host_token_isolation",
+      "worklog_legacy_write_path_removal",
+      "worklog_member_ages_dob_record",
+      "worklog_plan_creation_rollback",
+      "worklog_rate_limiter_gap",
+      "worklog_security_hardening"
+    ],
+    "21": [
       "product_strategy_apple_invites",
       "product_strategy_competitive_landscape",
       "product_strategy_coordination_after_the_idea_exists",
@@ -625,44 +682,20 @@
       "product_strategy_scne",
       "product_strategy_simpleisure"
     ],
-    "19": [
-      "agents_nextjs_agent_rules",
-      "checkpoint_graphify_targeted_workflow",
+    "22": [
       "checkpoint_verification_without_test_runner",
-      "frontend_design_standards_verification",
-      "worklog_next_agent_start_order",
-      "worklog_schema_sql_end_state"
-    ],
-    "20": [
-      "checkpoint_cross_platform_scope",
       "frontend_design_standards",
       "frontend_design_standards_components",
       "frontend_design_standards_frontend_design_standards",
       "frontend_design_standards_layout",
       "frontend_design_standards_motion",
       "frontend_design_standards_typography",
-      "product_strategy_cross_platform_architecture",
-      "product_strategy_design_requirements_for_both",
-      "product_strategy_native_mobile",
-      "product_strategy_web_pwa"
-    ],
-    "21": [
-      "checkpoint_age_policy",
-      "checkpoint_host_command_security",
-      "checkpoint_participant_identity_seam",
-      "checkpoint_participant_write_rpcs",
-      "checkpoint_secure_plan_creation",
-      "checkpoint_security_review_findings",
-      "worklog_host_token_isolation",
-      "worklog_legacy_write_path_removal",
-      "worklog_member_ages_dob_record",
-      "worklog_participant_rpc_integrity",
-      "worklog_plan_creation_rollback",
-      "worklog_rate_limiter_gap",
-      "worklog_security_hardening",
+      "frontend_design_standards_verification",
+      "worklog_migration_runbook",
+      "worklog_schema_sql_end_state",
       "worklog_smoke_test_guards"
     ],
-    "22": [
+    "23": [
       "_claude_agents_backend_data_backend_data",
       "_claude_agents_qa_test_qa_test",
       "_claude_agents_qa_test_silent_correctness",
@@ -673,7 +706,7 @@
       "_claude_session_handoff_session_handoff",
       "claude_agent_routing"
     ],
-    "23": [
+    "24": [
       "_claude_agents_backend_data_idempotent_spot_seed",
       "_claude_agents_backend_data_schema_four_tables",
       "_claude_agents_frontend_change_your_mind_ui",
@@ -684,7 +717,7 @@
       "_claude_session_handoff_ground_truth",
       "claude_status_open_or_decided"
     ],
-    "24": [
+    "25": [
       "_claude_agents_backend_data_no_service_role_key",
       "_claude_agents_readme_cross_plan_reach",
       "_claude_agents_readme_permissive_rls_tradeoff",
@@ -695,7 +728,7 @@
       "_claude_agents_security_severity_calibration",
       "claude_invariants"
     ],
-    "25": [
+    "26": [
       "app_privacy_page",
       "app_privacy_page_metadata",
       "app_privacy_page_privacypage",
@@ -706,7 +739,18 @@
       "lib_legal_getlegalconfig",
       "lib_legal_legalconfig"
     ],
-    "26": [
+    "27": [
+      "auth_setup_route_behavior",
+      "checkpoint_cross_platform_scope",
+      "checkpoint_participant_identity_seam",
+      "checkpoint_permissive_shared_link_trust",
+      "product_strategy_cross_platform_architecture",
+      "product_strategy_design_requirements_for_both",
+      "product_strategy_native_mobile",
+      "product_strategy_web_guests_native_regulars",
+      "product_strategy_web_pwa"
+    ],
+    "28": [
       "supabase_migration_005_social",
       "supabase_migration_005_social_friendships",
       "supabase_migration_005_social_friendships_mirror_del",
@@ -717,7 +761,7 @@
       "supabase_migration_005_social_visit_companions",
       "supabase_migration_005_social_visits"
     ],
-    "27": [
+    "29": [
       "supabase_migration_012_place_link_imports",
       "supabase_migration_012_place_link_imports_ensure_default_place_collections",
       "supabase_migration_012_place_link_imports_people_default_place_collections",
@@ -728,7 +772,7 @@
       "supabase_migration_012_place_link_imports_sql_people",
       "supabase_migration_012_place_link_imports_sql_people_default_place_collections"
     ],
-    "28": [
+    "30": [
       "_claude_agents_frontend_low_friction_promise",
       "_claude_agents_frontend_mobile_first_a11y",
       "_claude_agents_frontend_share_link_growth_loop",
@@ -738,7 +782,7 @@
       "claude_plan_ind",
       "readme_create_next_app_boilerplate"
     ],
-    "29": [
+    "31": [
       "agents_frontend_work_gate",
       "checkpoint_luxury_visual_system",
       "checkpoint_night_mode_toggle",
@@ -747,24 +791,6 @@
       "frontend_design_standards_excluded_sections",
       "frontend_design_standards_no_green_glow",
       "frontend_design_standards_visual_direction"
-    ],
-    "30": [
-      "checkpoint_budget_distance_inputs",
-      "checkpoint_luna_smart_search",
-      "checkpoint_related_category_dealing",
-      "place_import_architecture_completion_criteria",
-      "place_import_architecture_confidence_states",
-      "place_import_architecture_no_invented_venues"
-    ],
-    "31": [
-      "place_import_architecture_1_intake",
-      "place_import_architecture_2_obtain_permitted_source_material",
-      "place_import_architecture_3_extract_clues",
-      "place_import_architecture_4_generate_candidates",
-      "place_import_architecture_5_resolve_confidence",
-      "place_import_architecture_6_enrich_and_reconcile",
-      "place_import_architecture_7_present_and_save",
-      "place_import_architecture_resolution_pipeline_to_build_next"
     ],
     "32": [
       "supabase_migration_006_social_hardening",
@@ -795,13 +821,13 @@
       "_claude_agents_security_realtime_exposure"
     ],
     "35": [
-      "checkpoint_been_collections",
-      "checkpoint_demo_account_views",
-      "checkpoint_information_architecture",
-      "checkpoint_local_first_planning_layer",
-      "checkpoint_planind_wrapped",
-      "product_strategy_memory_loop",
-      "worklog_auth_deferral_scope"
+      "checkpoint_participant_write_rpcs",
+      "checkpoint_rsvp_choices",
+      "place_import_architecture_source_freshness",
+      "product_strategy_decision_protocol",
+      "product_strategy_group_decision_layer",
+      "product_strategy_live_plan_resilience",
+      "worklog_participant_rpc_integrity"
     ],
     "36": [
       "checkpoint_place_link_import_feature",
@@ -822,15 +848,6 @@
       "design_system_build_written"
     ],
     "38": [
-      "product_strategy_1_the_group_fit_score",
-      "product_strategy_2_constraint_aware_three_never_an_infinite_feed",
-      "product_strategy_3_a_better_decision_protocol",
-      "product_strategy_4_live_plan_resilience",
-      "product_strategy_5_web_guests_native_regulars",
-      "product_strategy_6_the_memory_loop",
-      "product_strategy_core_differentiators"
-    ],
-    "39": [
       "public_file_currentcolor_free_grey_token",
       "public_file_file_icon",
       "public_file_scaffold_icon_set",
@@ -839,7 +856,7 @@
       "public_vercel_vercel_triangle",
       "public_window_window_icon"
     ],
-    "40": [
+    "39": [
       "scripts_smoke_test",
       "scripts_smoke_test_check",
       "scripts_smoke_test_env",
@@ -848,7 +865,7 @@
       "scripts_smoke_test_rpcrejects",
       "scripts_smoke_test_tablerejects"
     ],
-    "41": [
+    "40": [
       "app_layout",
       "app_layout_display",
       "app_layout_hanken",
@@ -856,26 +873,7 @@
       "app_layout_rootlayout",
       "app_layout_viewport"
     ],
-    "42": [
-      "auth_setup_migration_007_auth",
-      "auth_setup_no_legacy_identity_claim",
-      "checkpoint_progressive_pools",
-      "checkpoint_rsvp_choices",
-      "checkpoint_saved_custom_places",
-      "place_import_architecture_source_freshness",
-      "product_strategy_decision_protocol",
-      "product_strategy_live_plan_resilience",
-      "worklog_migration_runbook"
-    ],
-    "43": [
-      "place_import_architecture",
-      "place_import_architecture_completion_criteria_for_the_first_real_provider",
-      "place_import_architecture_framework_shipped_in_this_checkpoint",
-      "place_import_architecture_place_link_import",
-      "place_import_architecture_security_and_reliability_rules",
-      "place_import_architecture_suggested_next_coding_session"
-    ],
-    "44": [
+    "41": [
       "security_setup",
       "security_setup_1_apply_the_database_boundary",
       "security_setup_2_configure_supabase_auth",
@@ -883,7 +881,7 @@
       "security_setup_4_operational_checks",
       "security_setup_production_security_setup"
     ],
-    "45": [
+    "42": [
       "supabase_migration_007_auth",
       "supabase_migration_007_auth_ensure_authenticated_profile",
       "supabase_migration_007_auth_mirror_friendship",
@@ -891,7 +889,7 @@
       "supabase_migration_007_auth_sql_auth_users",
       "supabase_migration_007_auth_sql_people"
     ],
-    "46": [
+    "43": [
       "supabase_migration_010_recommendations_collections",
       "supabase_migration_010_recommendations_collections_sql_people",
       "supabase_migration_010_recommendations_collections_visit_collection_items",
@@ -899,7 +897,7 @@
       "supabase_migration_010_recommendations_collections_visit_photos",
       "visits"
     ],
-    "47": [
+    "44": [
       "supabase_migration_018_participant_write_rpcs",
       "supabase_migration_018_participant_write_rpcs_cast_plan_vote",
       "supabase_migration_018_participant_write_rpcs_rate_plan",
@@ -907,172 +905,167 @@
       "supabase_migration_018_participant_write_rpcs_sql_ratings",
       "supabase_migration_018_participant_write_rpcs_sql_rsvps"
     ],
-    "48": [
+    "45": [
       "_claude_agents_frontend_create_share_vote_decide_flow",
       "_claude_agents_frontend_frontend",
       "_claude_agents_frontend_persisted_voter_name",
       "_claude_agents_qa_test_e2e_two_context_flow",
       "_claude_agents_security_input_handling"
     ],
-    "49": [
+    "46": [
       "_claude_agents_qa_test_no_test_runner",
       "_claude_session_handoff_open_work_items",
       "_claude_session_handoff_supabase_ssr_unused",
       "_serena_project_serena_project_config",
       "claude_repo_state"
     ],
-    "50": [
-      "frontend_design_standards_implementation_quality",
-      "product_strategy_anti_patterns",
-      "product_strategy_revenue_paths"
-    ],
-    "51": [
+    "47": [
       "next_config",
       "next_config_nextconfig",
       "next_config_securityheaders"
     ],
-    "52": [
+    "48": [
       "_claude_agents_readme_builder_never_audits",
       "_claude_agents_security_no_incentive_to_ship"
     ],
-    "53": [
+    "49": [
       "app_manifest",
       "app_manifest_manifest"
     ],
-    "54": [
+    "50": [
       "eslint_config",
       "eslint_config_eslintconfig"
     ],
-    "55": [
+    "51": [
       "postcss_config",
       "postcss_config_config"
     ],
-    "56": [
+    "52": [
       "_claude_agents_frontend_tailwind_v4_theme"
     ],
-    "57": [
+    "53": [
       "people_before_write"
     ],
-    "58": [
+    "54": [
       "supabase_migration_004_swap"
     ],
-    "59": [
+    "55": [
       "supabase_migration_006_social_hardening_sql_people"
     ],
-    "60": [
+    "56": [
       "supabase_migration_008_expanded_dubai_categories"
     ],
-    "61": [
+    "57": [
       "supabase_migration_009_pools_custom_spots"
     ],
-    "62": [
+    "58": [
       "supabase_migration_011_smart_search"
     ],
-    "63": [
+    "59": [
       "supabase_migration_013_age_safe_venues"
     ],
-    "64": [
+    "60": [
       "supabase_migration_014_secure_plan_creation"
     ],
-    "65": [
+    "61": [
       "supabase_migration_016_rsvp_choices"
     ],
-    "66": [
+    "62": [
       "supabase_migration_016_rsvp_choices_sql_rsvps"
     ],
-    "67": [
+    "63": [
       "supabase_migration_017_participant_token_seam"
     ],
-    "68": [
+    "64": [
       "supabase_migration_017_participant_token_seam_sql_ratings"
     ],
-    "69": [
+    "65": [
       "supabase_migration_017_participant_token_seam_sql_rsvps"
     ],
-    "70": [
+    "66": [
       "supabase_migration_020_production_security_sql_people"
     ],
-    "71": [
+    "67": [
       "supabase_migration_021_revoke_anon_execute"
     ],
-    "72": [
+    "68": [
       "supabase_schema_sql_auth_users"
     ],
-    "73": [
+    "69": [
       "supabase_schema_sql_mirror_friendship"
     ],
-    "74": [
+    "70": [
       "supabase_schema_sql_people_default_place_collections"
     ],
-    "75": [
+    "71": [
       "supabase_schema_sql_trim_companion_name"
     ],
-    "76": [
+    "72": [
       "supabase_schema_sql_trim_visit_text"
     ],
-    "77": [
+    "73": [
       "supabase_seed"
     ],
-    "78": [
+    "74": [
       "supabase_seed_categories"
     ],
-    "79": [
+    "75": [
       "supabase_seed_multi_round_plan"
     ]
   },
   "cohesion": {
-    "0": 0.059961777353081704,
-    "1": 0.05115089514066496,
-    "2": 0.05384615384615385,
-    "3": 0.07568027210884354,
+    "0": 0.0554524840239126,
+    "1": 0.05384615384615385,
+    "2": 0.051923076923076926,
+    "3": 0.07624113475177305,
     "4": 0.045454545454545456,
     "5": 0.08522727272727272,
     "6": 0.06666666666666667,
     "7": 0.09401709401709402,
     "8": 0.10144927536231885,
-    "9": 0.16205533596837945,
-    "10": 0.1,
-    "11": 0.125,
-    "12": 0.24761904761904763,
-    "13": 0.15384615384615385,
-    "14": 0.14285714285714285,
-    "15": 0.18681318681318682,
-    "16": 0.21794871794871795,
-    "17": 0.19696969696969696,
-    "18": 0.16666666666666666,
-    "19": 0.3333333333333333,
-    "20": 0.21818181818181817,
-    "21": 0.23076923076923078,
-    "22": 0.3611111111111111,
-    "23": 0.2777777777777778,
-    "24": 0.2222222222222222,
-    "25": 0.3333333333333333,
-    "26": 0.3611111111111111,
-    "27": 0.3055555555555556,
-    "28": 0.25,
-    "29": 0.2857142857142857,
-    "30": 0.3333333333333333,
-    "31": 0.25,
+    "9": 0.11052631578947368,
+    "10": 0.10526315789473684,
+    "11": 0.18128654970760233,
+    "12": 0.125,
+    "13": 0.21323529411764705,
+    "14": 0.175,
+    "15": 0.125,
+    "16": 0.14285714285714285,
+    "17": 0.14285714285714285,
+    "18": 0.21794871794871795,
+    "19": 0.15384615384615385,
+    "20": 0.2727272727272727,
+    "21": 0.16666666666666666,
+    "22": 0.2545454545454545,
+    "23": 0.3611111111111111,
+    "24": 0.2777777777777778,
+    "25": 0.2222222222222222,
+    "26": 0.3333333333333333,
+    "27": 0.2222222222222222,
+    "28": 0.3611111111111111,
+    "29": 0.3055555555555556,
+    "30": 0.25,
+    "31": 0.2857142857142857,
     "32": 0.25,
     "33": 0.3333333333333333,
     "34": 0.2857142857142857,
-    "35": 0.3333333333333333,
+    "35": 0.2857142857142857,
     "36": 0.42857142857142855,
     "37": 0.2857142857142857,
-    "38": 0.2857142857142857,
-    "39": 0.47619047619047616,
-    "40": 0.2857142857142857,
+    "38": 0.47619047619047616,
+    "39": 0.2857142857142857,
+    "40": 0.3333333333333333,
     "41": 0.3333333333333333,
-    "42": 0.2222222222222222,
-    "43": 0.3333333333333333,
+    "42": 0.3333333333333333,
+    "43": 0.5333333333333333,
     "44": 0.3333333333333333,
-    "45": 0.3333333333333333,
-    "46": 0.5333333333333333,
-    "47": 0.3333333333333333,
-    "48": 0.4,
-    "49": 0.5,
-    "50": 0.6666666666666666,
-    "51": 0.6666666666666666,
+    "45": 0.4,
+    "46": 0.5,
+    "47": 0.6666666666666666,
+    "48": 1.0,
+    "49": 1.0,
+    "50": 1.0,
+    "51": 1.0,
     "52": 1.0,
     "53": 1.0,
     "54": 1.0,
@@ -1096,11 +1089,7 @@
     "72": 1.0,
     "73": 1.0,
     "74": 1.0,
-    "75": 1.0,
-    "76": 1.0,
-    "77": 1.0,
-    "78": 1.0,
-    "79": 1.0
+    "75": 1.0
   },
   "gods": [
     {
@@ -1156,11 +1145,11 @@
   ],
   "surprises": [
     {
-      "source": "Constraint-Aware Three, Never a Feed",
-      "target": "Luna Smart Search",
+      "source": "Layout",
+      "target": "Cross-Platform Architecture",
       "source_files": [
-        "PRODUCT_STRATEGY.md",
-        "CHECKPOINT.md"
+        "FRONTEND_DESIGN_STANDARDS.md",
+        "PRODUCT_STRATEGY.md"
       ],
       "confidence": "INFERRED",
       "relation": "semantically_similar_to",
@@ -1171,17 +1160,6 @@
       "target": "Host Token Isolation (plan_host_tokens)",
       "source_files": [
         "PLACE_IMPORT_ARCHITECTURE.md",
-        "worklog.md"
-      ],
-      "confidence": "INFERRED",
-      "relation": "semantically_similar_to",
-      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities; semantically similar concepts with no structural link"
-    },
-    {
-      "source": "Recommended Delivery Order",
-      "target": "Next-Agent Start Order",
-      "source_files": [
-        "PRODUCT_STRATEGY.md",
         "worklog.md"
       ],
       "confidence": "INFERRED",
@@ -1200,11 +1178,22 @@
       "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities; peripheral node `Plan / Discover / Been / Friends / Profile IA` unexpectedly reaches hub `Layout`"
     },
     {
-      "source": "Layout",
-      "target": "Cross-Platform Architecture",
+      "source": "Implementation quality",
+      "target": "Strategy Anti-Patterns",
       "source_files": [
         "FRONTEND_DESIGN_STANDARDS.md",
         "PRODUCT_STRATEGY.md"
+      ],
+      "confidence": "INFERRED",
+      "relation": "semantically_similar_to",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; semantically similar concepts with no structural link"
+    },
+    {
+      "source": "Untouched create-next-app README",
+      "target": "plan-ind (Dubai dinner decider)",
+      "source_files": [
+        "README.md",
+        "CLAUDE.md"
       ],
       "confidence": "INFERRED",
       "relation": "semantically_similar_to",
@@ -1224,7 +1213,7 @@
     },
     {
       "type": "bridge_node",
-      "question": "Why does `createClient()` connect `createClient` to `HomeExperience.tsx`, `social.ts`?",
+      "question": "Why does `createClient()` connect `createClient` to `social.ts`?",
       "why": "High betweenness centrality (0.016) - this node is a cross-community bridge."
     },
     {
@@ -1234,18 +1223,18 @@
     },
     {
       "type": "bridge_node",
-      "question": "Why does `Product Strategy: The Group Decision Layer for Going Out` connect `Product Strategy: The Group Decision Layer for Going Out` to `Competitive landscape`, `Frontend Design Standards`, `Core differentiators`?",
+      "question": "Why does `Product Strategy: The Group Decision Layer for Going Out` connect `Product Strategy: The Group Decision Layer for Going Out` to `Cross-Platform Architecture`, `Luna Smart Search`, `Competitive landscape`?",
       "why": "High betweenness centrality (0.006) - this node is a cross-community bridge."
     },
     {
       "type": "isolated_nodes",
       "question": "What connects `NameGateProps`, `eslintConfig`, `AVATAR_COLORS` to the rest of the system?",
-      "why": "230 weakly-connected nodes found - possible documentation gaps or missing edges."
+      "why": "231 weakly-connected nodes found - possible documentation gaps or missing edges."
     },
     {
       "type": "low_cohesion",
       "question": "Should `createClient` be split into smaller, more focused modules?",
-      "why": "Cohesion score 0.059961777353081704 - nodes in this community are weakly interconnected."
+      "why": "Cohesion score 0.0554524840239126 - nodes in this community are weakly interconnected."
     }
   ]
 }

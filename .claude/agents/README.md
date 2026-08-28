@@ -115,37 +115,97 @@ The orchestrator routes it; the requester resumes once the contract exists.
 
 ---
 
+## Lanes and parallel dispatch
+
+Added 2026-08-28. The five agents below are unchanged; they are now grouped into
+three lanes under an **orchestrator** (`orchestrator.md`), which owns
+`PRIORITIES.md`, dispatches lanes in parallel, and commits per wave.
+
+```
+orchestrator
+├── FRONTEND ····· frontend
+├── BACKEND ······ backend-data, ai-engineer
+└── SECURITY ····· security   (audit-only, enforced by its tools: line)
+
+shared verifier ·· qa-test    (between waves, not a lane)
+```
+
+The old default order (`backend-data → security → frontend → qa-test`) still
+describes a **single full-stack task**. It is no longer the default *schedule* —
+independent tasks in different lanes run concurrently, because the lanes write
+disjoint file sets. When one task genuinely spans layers, it still follows that
+order: types are the contract everything codes against, and auditing before the
+UI exists means a policy fix costs one file instead of six.
+
+`qa-test` stays a gate rather than a lane because it reports defects instead of
+patching them. Running it once after a wave is what lets three lanes proceed
+without three separate test passes.
+
+Two boundary calls, so they are not re-litigated: `app/page.tsx` is a route file
+and belongs to **Frontend** despite `app/api/**` being Backend's;
+`lib/dubai-phase.ts` is new and belongs to **Frontend**.
+
 ## Known state and open issues
 
-Grounded in the actual code as of setup — worth confirming before acting, since
-these agents were written while another session was scaffolding.
+**Re-verified 2026-08-28 against the live schema.** This section described the
+pre-auth v1 world for a long time after that world stopped existing, and every
+agent that read it started from a false map. Confirm against `worklog.md` — it
+is the migration source of truth — before trusting anything here.
 
-**Accepted v1 tradeoff:** every RLS policy is `using (true)` / `with check
-(true)`. The schema comments own this explicitly ("no auth in v1... acceptable
-for an MVP link-shared app; v2 tightens this by moving writes behind an edge
-function"). Do **not** report that as a novel finding — but do report where it
-reaches further than "you have the link" implies.
+**The old "accepted v1 tradeoff" no longer applies.** This section used to say
+every RLS policy was `using (true)` and instruct agents not to report it.
+Migration 020 (`production-security`, **applied and verified live 2026-08-24**,
+`worklog.md:33`) replaced that posture entirely. There is **no `using (true)`
+policy left** on `spots`, `plans`, `plan_spots`, `votes`, `rsvps` or `ratings`.
 
-Real open issues these agents are primed to catch:
+What is actually true now:
 
-- **Vote impersonation.** Identity is a self-typed `voter_name`. Upsert on
-  `(plan_id, spot_id, voter_name)` means typing a friend's name silently
-  overwrites their vote. Sharpest issue in the app.
-- **Cross-plan reach.** `using (true)` isn't scoped by `plan_id`, so reads and
-  the `decide plans` update policy may span every plan in the database, not just
-  the one you were linked.
-- **`schema.sql` drops all four tables on re-run.** Advertised as "safe to
-  re-run" — safe for structure, destroys all data. Never point integration tests
-  at a database with real plans.
-- **`deadline` is decorative.** Nothing rejects a post-deadline vote, and
-  nothing stops votes on a `decided` plan.
-- **"Exactly three options" is app logic**, not a database constraint.
-- **`voter_name` isn't normalized** — `"Sara"` and `"sara "` are different
-  voters, which quietly breaks the tally.
+- **Reads are membership-scoped.** `plans`, `plan_spots`, `votes`, `rsvps`,
+  `ratings` and `spots` all select through the `plan_access` capability table,
+  granted `to authenticated`. `plan_access` itself exposes own-rows-only.
+- **Those tables have no direct write policy at all.** Writes go through the
+  security-definer RPCs `cast_plan_vote`, `set_plan_rsvp`, `rate_plan`, plus an
+  `enforce_plan_membership` trigger. **Never add a direct write policy** — that
+  reopens exactly what migrations 018/019 closed.
+- **Secrets are isolated.** `plan_host_tokens` has no select policy at all;
+  `member_ages` is write-once via `set_birth_date`; `app_control_secrets`,
+  `app_rate_limits` and `security_events` have RLS on and **zero** policies,
+  reachable only by definer functions.
+- **Identity is no longer a self-typed `voter_name`.** Essentially everything
+  now requires an authenticated session.
 
-**Not yet installed:** no test runner (Vitest/Playwright), no server-side
-Supabase client, no service-role key. `@supabase/ssr` is a dependency but
-`lib/supabase.ts` only builds a browser client.
+Real open issues, re-probed and still current:
+
+- **The share-link vote path is dead in production.** Anonymous sign-ins are
+  disabled in Supabase Auth (`422 anonymous_provider_disabled`), and post-020
+  every read needs a session. Nobody but a plan's creator can read or vote on it.
+  This is a functional outage, not a leak, and it is the sharpest issue in the
+  app. Owner-only fix (dashboard toggle).
+- **`valid_control_secret` is a live unauthenticated oracle.** `revoke ... from
+  public` in 020 did not cancel Supabase's named grants to `anon`, so it still
+  returns `200 false` / `200 true` to a caller with no session.
+  `migration-021-revoke-anon-execute.sql` fixes it, is committed, and is
+  **unapplied**. Practical risk is low — the secret is 256 random bits.
+- **`execute_plan_command` is still `anon`-executable** for the same reason. It
+  fails safe (raises rather than returning a boolean), so this is
+  defence-in-depth, not a break. Same migration fixes it.
+- **Age-restricted venues are enumerable.** `read permitted spots` has no age
+  predicate, so any authenticated 13-year-old can list every 21+ venue by name.
+  Catalog visibility, not an authorization bypass — `create_secure_plan` does
+  enforce age server-side from `member_ages`. Owner-deferred, recorded.
+- **No quota on `/api/spots/deal`.** `consume_app_quota` only accepts
+  `smart-search`, `plan-create` and `place-import`. Deferred to migration 022.
+- **`supabase/schema.sql` DROPs every table on re-run** — far more than the
+  original four. Scratch-only. Never point integration tests at real data.
+
+**Superseded, do not re-report:** vote impersonation by typing a friend's name,
+cross-plan reach from unscoped `using (true)`, and the open `people`/
+`friendships`/`visits` write policies were all real before 020 and are all
+closed by it.
+
+**Now installed** (the old "not yet installed" note is stale): a test runner
+(`node --test`, 25 tests), a server-side Supabase client, and 21 migrations.
+There is still **no service-role key**, and none may be added.
 
 ---
 
