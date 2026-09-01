@@ -914,7 +914,11 @@ grant execute on function execute_plan_command(uuid, text, text, jsonb) to authe
 -- or register under an empty name. The token hash is a client-supplied
 -- identity claim, so it was the only thing standing in the way.
 
-create or replace function cast_plan_vote(
+-- returns jsonb (migration 023). A re-run over a database that still has the
+-- pre-023 `returns void` version can't `create or replace` a new return type
+-- (42P13), so drop first.
+drop function if exists cast_plan_vote(uuid, uuid, text, boolean, text, smallint, text);
+create function cast_plan_vote(
   p_plan_id uuid, p_spot_id uuid, p_voter_name text, p_value boolean,
   p_phase text, p_pool_number smallint, p_participant_token_hash text
 ) returns jsonb language plpgsql security definer set search_path = public, pg_temp as $$

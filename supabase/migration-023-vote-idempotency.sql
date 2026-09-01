@@ -86,10 +86,15 @@ begin
 end $$;
 
 -- ── 3. cast_plan_vote: explicit idempotency + a payload on retry ─────────
--- Signature is byte-identical to 019/020 (PostgREST resolves by parameter-name
--- set, so the return-type change is transparent to the existing caller, which
--- only checks `error`). Validation block is unchanged from 019.
-create or replace function cast_plan_vote(
+-- Parameter list is byte-identical to 019/020, so PostgREST still resolves it
+-- by the same name set and the existing caller (which only checks `error`) is
+-- unaffected. The RETURN TYPE changes (void → jsonb), and Postgres refuses
+-- that through `create or replace` (42P13) — the function must be dropped
+-- first. `drop` resets the ACL, so the revoke/grant below is re-applied.
+-- No object depends on cast_plan_vote (it is an RPC entry point only), so no
+-- CASCADE. Validation block is unchanged from 019.
+drop function if exists cast_plan_vote(uuid, uuid, text, boolean, text, smallint, text);
+create function cast_plan_vote(
   p_plan_id uuid, p_spot_id uuid, p_voter_name text, p_value boolean,
   p_phase text, p_pool_number smallint, p_participant_token_hash text
 ) returns jsonb language plpgsql security definer set search_path = public, pg_temp as $$
