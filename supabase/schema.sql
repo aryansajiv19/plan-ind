@@ -1008,18 +1008,29 @@ begin
     raise exception 'That plan does not exist' using errcode = '22023';
   end if;
 
-  select * into existing from rsvps where plan_id = p_plan_id and voter_name = clean_name for update;
-  if existing.id is not null and existing.participant_token_hash is not null
-     and existing.participant_token_hash <> p_participant_token_hash then
-    raise exception 'That participant name is already in use' using errcode = '42501';
-  end if;
-  if existing.id is null then
-    insert into rsvps (plan_id, voter_name, coming, choice, participant_token_hash)
-    values (p_plan_id, clean_name, p_coming, p_choice, p_participant_token_hash);
-  else
-    update rsvps set coming = p_coming, choice = p_choice, participant_token_hash = p_participant_token_hash
-      where id = existing.id;
-  end if;
+  -- 025: loop + retry-on-unique_violation. `for update` locks nothing when
+  -- the row doesn't exist yet, so two concurrent first-time RSVPs for the
+  -- same name can both reach the insert; the losing one now retries into the
+  -- update branch instead of surfacing a raw 23505.
+  loop
+    select * into existing from rsvps where plan_id = p_plan_id and voter_name = clean_name for update;
+    if existing.id is not null and existing.participant_token_hash is not null
+       and existing.participant_token_hash <> p_participant_token_hash then
+      raise exception 'That participant name is already in use' using errcode = '42501';
+    end if;
+    if existing.id is null then
+      begin
+        insert into rsvps (plan_id, voter_name, coming, choice, participant_token_hash)
+        values (p_plan_id, clean_name, p_coming, p_choice, p_participant_token_hash);
+        return;
+      exception when unique_violation then
+      end;
+    else
+      update rsvps set coming = p_coming, choice = p_choice, participant_token_hash = p_participant_token_hash
+        where id = existing.id;
+      return;
+    end if;
+  end loop;
 end; $$;
 
 create or replace function rate_plan(
@@ -1047,18 +1058,26 @@ begin
     raise exception 'You can only rate the place the group chose' using errcode = '22023';
   end if;
 
-  select * into existing from ratings where plan_id = p_plan_id and voter_name = clean_name for update;
-  if existing.id is not null and existing.participant_token_hash is not null
-     and existing.participant_token_hash <> p_participant_token_hash then
-    raise exception 'That participant name is already in use' using errcode = '42501';
-  end if;
-  if existing.id is null then
-    insert into ratings (plan_id, spot_id, voter_name, stars, again, participant_token_hash)
-    values (p_plan_id, p_spot_id, clean_name, p_stars, p_again, p_participant_token_hash);
-  else
-    update ratings set spot_id = p_spot_id, stars = p_stars, again = p_again,
-      participant_token_hash = p_participant_token_hash where id = existing.id;
-  end if;
+  -- 025: same loop + retry-on-unique_violation as set_plan_rsvp.
+  loop
+    select * into existing from ratings where plan_id = p_plan_id and voter_name = clean_name for update;
+    if existing.id is not null and existing.participant_token_hash is not null
+       and existing.participant_token_hash <> p_participant_token_hash then
+      raise exception 'That participant name is already in use' using errcode = '42501';
+    end if;
+    if existing.id is null then
+      begin
+        insert into ratings (plan_id, spot_id, voter_name, stars, again, participant_token_hash)
+        values (p_plan_id, p_spot_id, clean_name, p_stars, p_again, p_participant_token_hash);
+        return;
+      exception when unique_violation then
+      end;
+    else
+      update ratings set spot_id = p_spot_id, stars = p_stars, again = p_again,
+        participant_token_hash = p_participant_token_hash where id = existing.id;
+      return;
+    end if;
+  end loop;
 end; $$;
 
 revoke all on function cast_plan_vote(uuid, uuid, text, boolean, text, smallint, text) from public;
