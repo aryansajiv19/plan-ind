@@ -135,6 +135,24 @@ typed name is everything the app knows about them.
 - Use the project's icon library instead of improvised SVGs or text symbols.
 - Keep forms semantic, keyboard-accessible, and correctly labeled.
 
+### The signature element — `.token`
+
+A hard, solid offset shadow — arcade-button / board-game token — that sinks under
+a press. Defined once in `globals.css` from `--token-shadow` (graphite by day,
+low-alpha brass at night; it is a token and not a literal because graphite is
+invisible mud on the obsidian ground). It was orphaned twice — dropped from the
+markup, then cancelled by a blanket restraint rule — and that was most of what
+"flat" was.
+
+It marks **surfaces that commit a decision, and nothing else**: the vote option
+card, the primary commit actions (`.vote-primary-action`, `.vote-result__primary`,
+`.plan-submit`, `.home-primary-cta`), and the decided-plan panel (`.vote-result`,
+in the champagne cut, matching the winner card). It does **not** go on Discover
+place cards — they already carry a group-hue identity border, and an offset shadow
+on a card grid is clutter — or on category tiles, which already press with a scale
+and an inset bar. If a new surface wants it, it has to be something the user
+actually decides with.
+
 ## Motion
 
 > **This section was rewritten by owner decision (2026-08-28).** It previously
@@ -156,8 +174,14 @@ typed name is everything the app knows about them.
     activity;
   - it is **decorative only** — it never carries state, and removing it loses no
     information;
-  - at most **two** ambient loops are visible on a screen at once. Today that
-    budget is spent: the leader sheen and the masthead halo.
+  - at most **two** ambient loops are visible on a screen at once. On the voting
+    round that budget is spent: the leader sheen and the masthead halo. On the
+    front door it is the masthead halo (one), with the second slot reserved for
+    the FE.3 skyline drift.
+- A **one-shot** reveal — an animation that runs once on mount and stops, e.g.
+  the gold `ad-sheen` sweep on the decided-plan panel — is not ambient motion and
+  does not count against the two-loop budget. It still respects
+  `prefers-reduced-motion`.
 - Ambient motion is night-only because it is night-only *legible*: a brass sheen
   on ivory is invisible, so a day-theme equivalent would be movement with no
   payoff.

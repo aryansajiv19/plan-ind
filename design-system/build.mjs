@@ -26,6 +26,7 @@ const TOKENS = `
   --color-punch: #9b7d4e;       /* champagne — display/large only, 3.37:1 */
   --color-punch-text: #7a6038;  /* champagne — small text, 5.23:1 */
   --color-live:  #2f4bd6;       /* state accent: you, and now. 6.00:1 */
+  --token-shadow: #17181b;      /* the signature offset shadow's ink — 15.73:1 on paper */
   --color-group-food:    #a83a20; /* 5.65:1 */
   --color-group-night:   #b3175f; /* 5.81:1 */
   --color-group-water:   #0f6a72; /* 5.60:1 */
@@ -45,6 +46,7 @@ const TOKENS = `
   --color-punch: #c3a573;
   --color-punch-text: #c3a573;  /* 7.86:1 — no darker cut needed */
   --color-live:  #8aa0ff;       /* 8.02:1; day cobalt is 2.91:1 here */
+  --token-shadow: rgba(195, 165, 115, 0.35); /* brass — graphite is 1.11:1 mud on this ground */
   --color-group-food:    #e0865f; /* 6.80:1 */
   --color-group-night:   #dd7a9c; /* 6.44:1 */
   --color-group-water:   #5fb0bb; /* 7.39:1 */
@@ -99,11 +101,14 @@ const CSS = {
   btn: `
 .btn { font-family: var(--font-body); font-size: .95rem; font-weight: 700; padding: .85rem 1.5rem;
   border: 1px solid var(--color-ink); background: var(--color-ink); color: var(--color-paper); cursor: pointer;
-  transition: transform 260ms var(--ease-spring), opacity 150ms ease; }
-.btn:active { transform: translateY(1px) scale(.98); transition-duration: 90ms; transition-timing-function: ease-out; }
-.btn--ghost { background: transparent; color: var(--color-ink); }
+  box-shadow: 5px 6px 0 var(--token-shadow);
+  transition: transform 260ms var(--ease-spring), box-shadow 150ms ease, opacity 150ms ease; }
+.btn:hover { transform: translateY(-1px); box-shadow: 7px 8px 0 var(--token-shadow); }
+.btn:active { transform: translate(4px, 5px); box-shadow: 1px 1px 0 var(--token-shadow); transition-duration: 90ms; transition-timing-function: ease-out; }
+.btn--ghost { background: transparent; color: var(--color-ink); box-shadow: none; }
+.btn--ghost:hover { transform: none; box-shadow: none; border-color: var(--color-ink); }
 .btn--small { font-size: .8rem; padding: .5rem .9rem; font-weight: 500; }
-.btn:disabled { opacity: .42; cursor: not-allowed; }`,
+.btn:disabled { opacity: .42; cursor: not-allowed; box-shadow: none; }`,
   groups: `
 .groups { display: flex; gap: .25rem; border-bottom: 1px solid var(--color-line); flex-wrap: wrap; }
 .group-tab { position: relative; font-family: var(--font-body); font-size: .85rem; padding: .7rem 1rem;
@@ -126,17 +131,19 @@ const CSS = {
 .opt { position: relative; display: flex; flex-direction: column; gap: .35rem; padding: 1rem;
   text-align: left; cursor: pointer; border: 1px solid var(--color-line);
   background: var(--color-card); color: var(--color-ink);
-  transition: border-color 150ms, background 150ms, transform 320ms var(--ease-spring), opacity 150ms; }
+  box-shadow: 5px 6px 0 var(--token-shadow);
+  transition: border-color 150ms, background 150ms, box-shadow 150ms, transform 320ms var(--ease-spring), opacity 150ms; }
+.opt:hover { box-shadow: 7px 8px 0 var(--token-shadow); }
 .opt__cat { font-size:.62rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color: var(--group, var(--color-punch-text)); }
 .opt__name { font-family: var(--font-display); font-size: 1.15rem; font-weight: 800; }
 .opt__meta { font-size:.8rem; color: var(--color-muted); }
 .opt__votes { font-size:.78rem; color: var(--color-punch-text); font-variant-numeric: tabular-nums; margin-top:.4rem; }
 .opt[aria-pressed="true"] { border-color: var(--color-live); transform: translateY(-2px) scale(1.008); }
 .opt[aria-pressed="true"] .opt__votes { color: var(--color-live); font-weight: 700; }
-.opt--winner { border-color: var(--color-punch); border-width: 2px; }
+.opt--winner { border-color: var(--color-punch); box-shadow: inset 0 2px 0 var(--color-punch), 5px 6px 0 var(--color-punch); }
 .opt__win { font-size:.6rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color: var(--color-punch-text); }
 .opt--dim { opacity: .55; }
-.opt:active { transform: scale(.975); transition-duration: 90ms; transition-timing-function: ease-out; }`,
+.opt:active { transform: translate(4px, 5px); box-shadow: 1px 1px 0 var(--token-shadow); transition-duration: 90ms; transition-timing-function: ease-out; }`,
   dots: `
 .dots { display: flex; gap: .5rem; }
 .dot { width:44px; height:44px; border-radius:50%; cursor:pointer; border:1px solid var(--color-line);
@@ -209,7 +216,7 @@ ${SWATCH("Culture &amp; reset", "gallery violet · 5.95:1", "--group", "leisure"
     subtitle: "Primary, ghost, small, disabled", viewport: { width: 760, height: 300 },
     css: CSS.btn,
     body: `<p class="kicker">Components</p><h2>Buttons</h2>
-<p class="label" style="margin:.5rem 0 1.25rem">Press feedback is asymmetric: 90ms ease-out down, spring back up. Hover transforms are cancelled in the shipped build.</p>
+<p class="label" style="margin:.5rem 0 1.25rem">Primary actions carry the signature <code>.token</code> offset shadow and sink into the page under a press — 5/6 at rest, 7/8 on hover, 1/1 pressed. Ghost buttons answer hover with their border instead. Press feedback is asymmetric: 90ms ease-out down, spring back up.</p>
 <div class="stack">
 <div class="row"><button class="btn">Deal 9 places in 3 rounds</button><button class="btn btn--ghost">See a sample vote</button></div>
 <div class="row"><button class="btn btn--small">Coming</button><button class="btn btn--small btn--ghost">Maybe</button><button class="btn btn--small btn--ghost">Can't make it</button></div>

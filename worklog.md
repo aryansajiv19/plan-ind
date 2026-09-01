@@ -697,3 +697,59 @@ prior. The "community rating" term in the ranking is effectively per-user
 today. Preserved exactly by the move (the route uses the caller's session, not
 a service role). Worth a product decision before RAG lands, since it means
 ranking currently rests almost entirely on the keyword score.
+
+## BE.1 — share-link vote path + migration 023 — 2026-09-01 (T1 Backend)
+
+### Honest failure for guests (blocked on B1, not by it)
+
+`lib/supabase.ts` `bootstrapPlanAccess()` (adopted from a prior uncommitted
+pass, committed now) redeems the share uuid and returns a typed
+`PlanAccessDenial` instead of throwing: `anonymous-disabled` (owner toggle B1,
+not the visitor's link), `captcha-required`, `sign-in-failed`, `not-found`,
+`claim-failed`. Non-prod keeps the `PGRST202` escape hatch; prod fails closed.
+`lib/types.ts` gains `CastVoteResult` for the new RPC payload.
+
+The vote page (`app/plan/[id]/page.tsx`, Frontend-owned) still runs its own
+inline `bootstrapAccess` that collapses `anonymous-disabled` into a generic
+"link may be invalid" screen. Cross-lane request filed to T2 to switch it to
+`bootstrapPlanAccess` and give each reason its own state. End-to-end guest vote
+stays **unverifiable** until B1 — not claimed as passing.
+
+### Migration 023 — explicit vote idempotency
+
+`cast_plan_vote` was idempotent per (plan, participant, round) by delete-then-
+insert, but that races: two concurrent calls by one participant could both
+delete (0 rows) then both insert, giving one participant two YES rows in a
+round that `execute_plan_command` then tallies twice. 023 adds a partial unique
+index `votes_participant_round_key (plan_id, participant_token_hash, phase,
+pool_number) where participant_token_hash is not null`, dedupes any existing
+offenders (keep newest by `(created_at, id)`), drops the redundant
+`votes_participant_token_idx`, and rewrites the write path to `insert ... on
+conflict do update`. Return type `void` → `jsonb` (`{plan_id, phase,
+pool_number, spot_id}`), byte-identical on a replayed call. Signature and grant
+unchanged; the client only checks `error`, so no app change. Reviewed by the
+`security` subagent before commit.
+
+Concurrency test on the tally handed to `qa-test`: two `cast_plan_vote` calls,
+same participant/round, different spots, fired in parallel → exactly one row
+survives and the tally counts it once. Also flagged that the `smoke-test.mjs`
+`cast_plan_vote` guards now short-circuit on the post-020 anon grant (401
+"permission denied for function") instead of exercising the validation branch —
+real validation coverage needs an authenticated session.
+
+### Live probes (2026-09-01, publishable key, no session)
+
+| Probe | Result | Means |
+|---|---|---|
+| `valid_control_secret {"p_secret":"wrong"}` | `200 false` | migration 021 still unapplied — oracle live |
+| `consume_app_quota {forged, "spot-deal"}` | `42501` | same as `plan-create` and a bogus scope — 022 not externally probable |
+| `cast_plan_vote` (anon) | `42501 permission denied for function` | 020's anon revoke is live; 023 preserves it |
+| `test:smoke` | 19/19 | — |
+| `test:smoke:020` | 10 green, red only on the `valid_control_secret` oracle guard | 021 |
+
+**022 owner verification** (SQL editor, needs owner):
+`select * from pg_publication_tables where pubname='supabase_realtime' and tablename='plan_spots';` → expect one row.
+`select consume_app_quota('<real server-control secret>','spot-deal');` → expect a boolean, not an exception.
+
+Verification: `npm run lint`, `npm run typecheck`, `npm run test` (25),
+`npm run build` (16 routes) all green.
