@@ -1,39 +1,56 @@
 # Agent coordination board
 
-The live handoff medium for the parallel Claude Code terminals working this tree.
-Sessions share **nothing but the repo** — if it isn't written here or committed,
-the other terminals can't see it.
+The shared handoff medium for the four parallel sessions. Sessions share **only
+the repo** — if it isn't committed, the others can't see it.
 
-## How to use this file
+## Worktrees — each lane has its own checkout (2026-09-01)
 
-- **Read it at session start** and again before any large edit.
-- **Edit only your own lane's block.** Keep to your section so two terminals
-  don't collide on the same lines.
-- Post before you start a task, and update when you finish or hand off.
-- Cross-lane asks go in **Cross-lane requests**. The other lane picks them up.
-- Keep entries short. This is a status board, not a log — the log is `worklog.md`.
-- Commit this file with your work so the change actually propagates.
+The four sessions run in **separate git worktrees** off `ai-engineering`. A
+session touches **only its own worktree** and commits **only to its own branch**.
 
-## Terminals
+| Lane | Worktree path | Branch | Model |
+|---|---|---|---|
+| **T0** Orchestrator / Platform | `~/plan-ind` (main) | `ai-engineering` | Sonnet medium |
+| **T1** Backend | `~/plan-ind-backend` | `lane/backend` | **Opus** |
+| **T2** Frontend | `~/plan-ind-frontend` | `lane/frontend` | Sonnet medium |
+| **T3** Design | `~/plan-ind-design` | `lane/design` | Sonnet medium |
 
-| # | Lane | Model | Owns | Current focus |
-|---|---|---|---|---|
-| **T0** | Orchestrator / Platform | Sonnet medium | `.github/**`, root `*.md`, `tests/**` config, deploy, load-test harness | context hygiene → CI + Vercel deploy → observability + load baseline |
-| **T1** | Backend | **Opus** | `supabase/**`, `app/api/**`, `lib/types.ts`, `lib/supabase.ts`, `lib/ai/**`, `lib/spots/**` | BE.1 share-link vote path; verify migrations 021/022 |
-| **T2** | Frontend | Sonnet medium | `app/**`, `components/**`, `globals.css`, `lib/dubai-phase.ts` | FE.1 real front door → FE.2 signature element |
-| **T3** | Design (owner-driven) | Sonnet medium | `design-system/**`, `FRONTEND_DESIGN_STANDARDS.md`, Claude Design canvas | visual direction + component specs feeding T2 |
+- `node_modules` and `.env.local` in each lane worktree are **symlinks** to the
+  main tree. Do not `npm install` in a lane worktree; do not commit the symlinks.
+- Never `cd` into another worktree; never `git checkout` another lane's branch.
+- **T0 integrates:** merges `lane/*` → `ai-engineering` regularly (disjoint files
+  → clean), then `ai-engineering` → each `lane/*` so everyone shares one base.
+  Ask T0 for a sync when you need another lane's latest commit or `.coord` update.
+- Verification gate (`npm run lint && npm run typecheck && npm test && npm run
+  build`) runs green **in your worktree** before any non-trivial commit.
+  `security` subagent before committing anything touching RLS, writes, the
+  Realtime publication, or model output.
 
-**Model policy.** T1 is the correctness-critical lane (RLS, security-definer
-RPCs, live migrations, the winner-deciding tally, concurrency, RAG) → Opus. The
-rest → Sonnet medium. Switch temporarily: T0 → Opus for a one-off architecture
-design pass (outbox/events, tracing topology); the `security` subagent → Opus
-every time it runs; `ai-engineer` work inside T1 → Opus for retrieval
-architecture and eval-set design. If T1 is ever on Sonnet, use *high* reasoning
-for any migration / RLS / concurrency change.
+## File ownership
 
-Security and qa-test are **subagents**, not terminals — whichever lane needs them
-invokes them (`security` before committing anything touching RLS/writes/model
-output; `qa-test` to verify a wave).
+| Lane | Writes | Never touches |
+|---|---|---|
+| **T0** | `.github/**`, root `*.md` (PRIORITIES, worklog, NEXT_AGENT, CLAUDE, this file), `tests/**` config, `scripts/load/**`, deploy config | `app/**`, `components/**`, `supabase/**`, `lib/**` |
+| **T1** | `supabase/**`, `app/api/**`, `lib/types.ts`, `lib/supabase.ts`, `lib/ai/**`, `lib/spots/**` | `components/**`, `globals.css`, root docs |
+| **T2** | `app/**` (except `app/api/**`), `components/**`, `app/globals.css`, `lib/dubai-phase.ts` | `supabase/**`, `lib/types.ts`, root docs |
+| **T3** | `design-system/**`, `FRONTEND_DESIGN_STANDARDS.md`, Claude Design canvas | everything else |
+
+`app/page.tsx` is Frontend's (route file). `qa-test` writes `tests/**` only.
+`security` has no write tools. Full map: `.claude/agents/README.md`.
+
+## This file
+
+Edit **only your own lane's block** under "Lane status" and add cross-lane asks
+under "Cross-lane requests". Commit it on your branch with the work it describes.
+T0 resolves the (trivial, section-level) merge conflicts on integration. The
+model policy and decisions log are T0's.
+
+**Model policy.** T1 → Opus (RLS, security-definer RPCs, live migrations, the
+winner-deciding tally, concurrency, RAG). T0/T2/T3 → Sonnet medium. Temporary
+switch: T0 → Opus for a one-off architecture design pass; `security` subagent →
+Opus every run; `ai-engineer` work inside T1 → Opus for retrieval architecture /
+eval-set design. T1 on Sonnet → use *high* reasoning for migration / RLS /
+concurrency work. `security` and `qa-test` are subagents, not lanes.
 
 ---
 
@@ -41,110 +58,50 @@ output; `qa-test` to verify a wave).
 
 **Get the core loop to production.** Critical path:
 
-1. Owner clears B1 (anon sign-ins), B2 (migration 021), B4 (migration 022) — see `PRIORITIES.md`.
-2. T1: BE.1 share-link vote path correct + failing honestly until B1 lands.
-3. T2: FE.1 real front door so visitors don't hit a login wall.
-4. T0: commit CI, wire Vercel deploy + env vars, smoke the deployed build.
-5. Then the engineering-hardening layer, per lane.
+1. Owner clears **B1** (enable anon sign-ins) → **B2** (migration 021) → **B4**
+   (migration 022) → migration 023, in that order. See `PRIORITIES.md`.
+2. T1 — BE.1 vote path correct, failing honestly until B1. ✅ committed.
+3. T2 — FE.1 front door ✅ · FE.2/FE.8 ✅ · next: wire `bootstrapPlanAccess` + FE.7 states.
+4. T0 — CI ✅ · next: schema↔types drift check, Vercel deploy wiring, deployed smoke.
+5. Then the hardening layer per lane (idempotency ✅ mig-023 → durable rate
+   limiting → request IDs / structured logs → load baseline).
 
 ---
-
-## ⚠️ Uncommitted tree — everyone commit your lane's files NOW
-
-As of 2026-09-01 a prior session left ~13 files of finished-but-uncommitted work
-spanning all three lanes. This is the exact condition that wiped this tree once.
-**Commit your own lane's files immediately, in parallel, then continue from clean.**
-
-- **T0 done:** `.github/ci.yml`, `package.json` typecheck, `PRIORITIES.md`,
-  `orchestrator.md`, `worklog.md` → committed `fd8eda3` + coordination docs.
-- **T2 in progress:** the `app/**` + `components/**` + `globals.css` changes.
-- **T1 — pick this up:** the backend work below is already written, coherent, and
-  uncommitted. It IS your BE.1 + BE.2. Verify and commit it; don't rewrite it.
-  - `lib/supabase.ts` — `bootstrapPlanAccess()` + `PlanAccessDenial` union: redeems
-    the share uuid, returns a typed reason (`anonymous-disabled` vs `not-found` …)
-    instead of throwing, fails closed in prod. This is BE.1's "fail honestly until B1".
-  - `supabase/migration-022-*.sql` (untracked) + matching `schema.sql` edits +
-    `lib/security/controls.ts` (`"spot-deal"` scope) + `app/api/spots/deal/route.ts`
-    (`consumeQuota(supabase, "spot-deal")` + 429). This is BE.2.
-  - Run `npm run lint && npm run typecheck && npm test && npm run build` before commit.
-  - Do NOT apply 022 to the live DB yourself — that's an owner action (B4).
 
 ## Lane status
 
 ### T0 — Orchestrator / Platform
-- 2026-09-01: trimmed startup reading list; created this board; recorded model policy. Committed CI workflow + orchestration doc catch-up (`fd8eda3`). Next: schema↔types sync check in CI, Vercel deploy wiring.
+- 2026-09-01: startup-list trim, model policy, CI workflow (`fd8eda3`), and the **worktree split** all done. Swept the mixed-lane uncommitted tree onto `ai-engineering` first (`e10d395` backend, `ba6ba6b`/`9bd4042` frontend by T2, `888fb26` sweep). Next: schema↔types drift check in CI, then Vercel deploy wiring.
 
 ### T1 — Backend
-- 2026-09-01: BE.1 + BE.2 swept onto the branch by T0's pre-worktree sweep
-  (`e10d395` backend code, worklog entry in `888fb26` / runbook rows in `9a8a9aa`).
-  Verified post-move: lint / tsc / 25 tests / build all green on HEAD.
-  - **BE.1** — `lib/supabase.ts` `bootstrapPlanAccess()` returns a typed
-    `PlanAccessDenial` (`anonymous-disabled` ≠ `not-found` ≠ `claim-failed` …),
-    fails closed in prod. Still **wired nowhere** — the vote page runs its own
-    inline `bootstrapAccess`. See cross-lane request to T2.
-  - **Migration 023** (`migration-023-vote-idempotency.sql`) — partial unique
-    index `votes (plan_id, participant_token_hash, phase, pool_number)` +
-    `cast_plan_vote` ON CONFLICT upsert + jsonb return. Closes a concurrent
-    double-vote race the tally would double-count. `security` subagent review
-    in flight.
-  - Live probes 2026-09-01: 021 still unapplied (`valid_control_secret` →
-    `200 false`); 022 not externally probable (forged-secret short-circuit) —
-    owner verifies in SQL editor, queries in the worklog entry.
-  - Migrations 021 / 022 / 023 all unapplied — owner applies in order (B2/B4).
-  - Next: address any `security` findings; then BE.3 guard-rail is standing,
-    pick up remaining backend queue with the orchestrator.
+- 2026-09-01: BE.1 + BE.2 + mig-023 committed (`e10d395`, worklog in `888fb26`/`9a8a9aa`). Post-move gate green (lint/tsc/25 tests/build).
+  - **BE.1** `bootstrapPlanAccess()` returns typed `PlanAccessDenial`, fails closed in prod. Wired nowhere yet — see request to T2.
+  - **Migration 023** partial unique index + `cast_plan_vote` ON CONFLICT upsert + jsonb return. Closes a concurrent double-vote race the tally would double-count. `security` review in flight.
+  - Live probes: 021 unapplied (`valid_control_secret` → `200 false`). 021/022/023 all unapplied — owner applies in order.
+  - Next: address `security` findings; then remaining backend queue.
 
 ### T2 — Frontend
-- 2026-09-01: FE.1 (`ba6ba6b`) + FE.2/FE.8 (`9bd4042`) verified and committed — gate green (lint/tsc/25 tests/build), desktop hero confirmed in both themes (no login redirect; `.token` offset on primary CTAs). Did the `.home-primary-cta:hover` cleanup T3 noted (removed the touch-device soft glow). No `security` subagent — FE.1/FE.2 touch no RLS/writes/Realtime/model output. Next: FE.3/FE.5/FE.6 per `design-system/SPECS.md` (later wave).
+- 2026-09-01: FE.1 (`ba6ba6b`) + FE.2/FE.8 (`9bd4042`) committed, gate green, hero confirmed both themes. Did the `.home-primary-cta:hover` touch-glow cleanup T3 noted.
+- **Next task (T0-assigned): FE.7 + T1's request together** — rebuild the vote page's `loading`/`error`/`captcha`/`notfound` states as one shared component AND wire `bootstrapPlanAccess()` so each `PlanAccessDenial` reason gets an honest screen (`anonymous-disabled` ≠ "bad link"). Then FE.5/FE.6 from `design-system/SPECS.md`.
 
 ### T3 — Design
-- 2026-09-01: Reviewed T2's in-flight FE.1/FE.2 (front door + `.token` revival) —
-  ratified. Wrote `design-system/SPECS.md` with four specs for T2: FE.2 token reach
-  (vote card + primary commit actions + payoff panel; not Discover/tiles), FE.1
-  night hero upgrade (halo + lattice + brass "Tonight in Dubai" plate), FE.5 payoff
-  (day cleanup of `DecidedPlan` off-standard Tailwind + After Dark night layer +
-  one-shot `ad-sheen` reveal), FE.6 (delete orbit/ticker/scribble, keep skyline
-  dormant for FE.3). Updated `FRONTEND_DESIGN_STANDARDS.md` (outcome row, token
-  reach, motion budget). Next: regenerate `design-system/` bundle + push canvas.
+- 2026-09-01: `design-system/SPECS.md` written (4 specs for T2); `FRONTEND_DESIGN_STANDARDS.md` updated (outcome row, token reach, motion budget). Next: regenerate `design-system/` bundle + push canvas. Then spec FE.7's shared state component for T2.
 
 ---
 
 ## Cross-lane requests
 
-Format:
-> **From → To** · _need_ · _why_ · blocked? · status
+Format: **From → To** · _need_ · _why_ · blocked? · status
 
-- **T3 → T2** · implement `design-system/SPECS.md` (FE.1 night hero upgrade, FE.5
-  payoff day-cleanup + After Dark layer, FE.6 orbit deletion + skyline dormant note;
-  FE.2 is ratified, one small `.home-primary-cta:hover` cleanup noted) ·
-  the visual direction for wave 1 is settled and specced · not blocked · **open**
-- **T1 → T2** · in `app/plan/[id]/page.tsx`, replace the inline `bootstrapAccess`
-  with `bootstrapPlanAccess()` from `lib/supabase.ts` and give each
-  `PlanAccessDenial` reason its own screen: `anonymous-disabled` → an honest
-  "guest voting is paused — ask the host to open it, or sign in" (NOT the current
-  "link may be invalid"); `captcha-required` → existing Turnstile; `sign-in-failed`
-  / `claim-failed` → generic retry; `not-found` → existing cold-link screen.
-  Optionally consume the new `cast_plan_vote` jsonb (`CastVoteResult`) to
-  reconcile optimistic vote state. · today a guest on a live share link hits a
-  dead "could not be opened" screen that blames their link for our B1 toggle ·
-  not blocked (helper is committed) · **open**
-- **T1 → qa-test** · two tests against a local/live Supabase (never `schema.sql`
-  re-run): (1) `cast_plan_vote` twice with identical args → identical jsonb,
-  exactly one `votes` row; (2) **tally concurrency** — two `cast_plan_vote` for
-  the same participant/round on different spots, fired in parallel → exactly one
-  row survives and `execute_plan_command` counts it once. This is the tally
-  concurrency test the BE.1 brief asked to place. Also: the `smoke-test.mjs`
-  `cast_plan_vote` guards now short-circuit on the post-020 anon grant (401
-  "permission denied for function") rather than reaching the validation branch —
-  real validation coverage needs an authenticated session. · the winner-deciding
-  tally has zero concurrency coverage · not blocked · **open**
+- **T3 → T2** · implement `design-system/SPECS.md` (FE.1 night hero, FE.5 payoff day-cleanup + After Dark, FE.6 orbit deletion + skyline dormant; FE.2 ratified) · wave-1 visual direction is settled · not blocked · **open**
+- **T1 → T2** · in `app/plan/[id]/page.tsx` replace inline `bootstrapAccess` with `bootstrapPlanAccess()` from `lib/supabase.ts`; each `PlanAccessDenial` reason its own screen — `anonymous-disabled` → honest "guest voting is paused" (NOT "link may be invalid"); `captcha-required` → Turnstile; `sign-in-failed`/`claim-failed` → retry; `not-found` → cold-link. Optionally use the `cast_plan_vote` jsonb (`CastVoteResult`) to reconcile optimistic state. · a guest on a live link currently gets blamed for our B1 toggle · not blocked (helper committed) · **open — folded into T2's FE.7 task**
+- **T1 → qa-test** · two tests vs local/live Supabase (never `schema.sql` re-run): (1) `cast_plan_vote` twice, identical args → identical jsonb + exactly one `votes` row; (2) tally concurrency — two `cast_plan_vote` same participant/round, different spots, parallel → one row survives, `execute_plan_command` counts once. Note: `smoke-test.mjs` `cast_plan_vote` guards now short-circuit on the post-020 anon grant (401) before the validation branch — real coverage needs an authenticated session. · the winner-deciding tally has zero concurrency coverage · not blocked · **open**
 
 ---
 
 ## Decisions log
 
-Short, dated, one line each. Anything another terminal must not re-litigate.
-
-- 2026-09-01: 4 terminals (T0–T3). Subagents used only to parallelize real fan-out, never for linear work.
-- 2026-09-01: Model policy — T1 Backend on Opus, T0/T2/T3 on Sonnet medium, `security` subagent on Opus when invoked. See Model policy note above.
-- 2026-09-01: Wave-1 visual direction (T3, owner-approved) — front door = ratify T2's structure + add the After Dark night atmosphere; `.token` reach = decision-committing surfaces only (vote card, primary actions, payoff panel), not Discover/tiles; FE.6 = delete the decision-orbit/ticker/scribble CSS, keep the skyline dormant until FE.3. Spec: `design-system/SPECS.md`.
+- 2026-09-01: 4 terminals (T0–T3). Subagents only to parallelize real fan-out, never linear work.
+- 2026-09-01: Model policy — T1 on Opus, T0/T2/T3 on Sonnet medium, `security` subagent on Opus when invoked.
+- 2026-09-01: Wave-1 visual direction (T3, owner-approved) — front door = ratify T2's structure + After Dark night atmosphere; `.token` reach = decision-committing surfaces only; FE.6 = delete decision-orbit/ticker/scribble, keep skyline dormant until FE.3. Spec: `design-system/SPECS.md`.
+- 2026-09-01: **Moved to git worktrees.** Four sessions in one tree was racing (concurrent commits, near-collisions on `worklog.md` and this file). Each lane isolated on its own branch + worktree; T0 integrates.
