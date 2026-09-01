@@ -3,44 +3,56 @@
 # plan-ind
 
 A Dubai dinner decider. One person starts a plan and gets a share link; friends
-open it, type a name, and vote yes/no on exactly three curated spots on their
-own time; the plan resolves to a winner. Next.js 16 + React 19 + Tailwind v4 +
-Supabase, **no auth in v1** — access is "you have the link."
+open it, vote yes/no on three curated spots on their own time, and the plan
+resolves to a winner. Next.js 16 + React 19 + Tailwind v4 + Supabase. Auth is a
+real Supabase session post-migration-020; the share-link guest path uses
+anonymous sessions.
 
-## Agent routing
+## Start here every session
 
-An **orchestrator** (`.claude/agents/orchestrator.md`) sits above five agents
-grouped into three lanes. It owns `PRIORITIES.md`, dispatches lanes in parallel,
-and commits per wave once the verifier is green.
+1. `PRIORITIES.md` — the work queue and the owner-blocked list.
+2. The **last** entry in `worklog.md` — current state. On any disagreement,
+   `worklog.md` wins over this file and this file gets fixed.
+3. `AGENT_COORDINATION.md` — what the other live terminals are doing right now.
+4. Query `graphify-out/` for structure; open only the files your task touches.
+   Do not scan the repo.
+
+Deeper history when a task needs it: `CHECKPOINT.md` (archive), `NEXT_AGENT.md`
+(§1–3 are traps + hard rules that don't age).
+
+## Parallel work
+
+More than one Claude Code session runs in this tree. Sessions share nothing but
+the repo — files on disk are the whole handoff medium.
+
+- **Check `git status` and `AGENT_COORDINATION.md` before large edits. Commit
+  promptly** — an uncommitted tree was wiped here once by a concurrent run.
+- **Stay in your lane's files** (table below). One owner per file; need one you
+  don't own, file a cross-lane request in `AGENT_COORDINATION.md`.
+- **Use subagents / agent teams to parallelize when it genuinely saves wall
+  clock** — a broad fan-out search, an independent audit, several unrelated
+  files. Do **not** spawn them for a single linear task; each one costs tokens
+  and starts cold. Default to doing the work yourself; reach for `Agent` only
+  when the work is actually parallel.
+
+## Lanes
 
 | Lane | Agents | Writes | Never touches |
 |---|---|---|---|
 | **Frontend** | `frontend` | `app/**`, `components/**`, `globals.css`, `lib/dubai-phase.ts` | `supabase/**`, `lib/types.ts` |
 | **Backend** | `backend-data`, `ai-engineer` | `supabase/**`, `lib/types.ts`, `lib/supabase.ts`, `app/api/**`, `lib/ai/**` | `components/**`, `globals.css` |
-| **Security** | `security` | *nothing* — no Write/Edit tool | everything |
+| **Security** | `security` | *nothing* — audit only, no Write tool | — |
 
-`qa-test` is the shared verifier run **between** waves, not a lane: it writes
-tests only and reports defects rather than patching them.
-
-The lanes touch disjoint file sets, which is what makes parallel dispatch safe.
-Two boundary calls already made: `app/page.tsx` is a route file, so Frontend's
-despite `app/api/**` being Backend's; `lib/dubai-phase.ts` is Frontend's.
-
-Skills live in `.claude/skills/`. Frontend: `design-standards`,
-`ui-implementation`, `a11y-responsive`. Backend: `migrations`, `rls-policies`,
-`openai-responses`. Security: `security-review`, `code-review`, `secrets-audit`.
-Every lane inherits `house-rules`.
+`qa-test` is the verifier run **between** waves, not a lane: it writes tests only
+and reports defects rather than patching them. `app/page.tsx` is Frontend's (it
+is a route file); `lib/dubai-phase.ts` is Frontend's. Full ownership map and
+handoff protocol: `.claude/agents/README.md`.
 
 Anything touching RLS, voting writes or the Realtime publication always includes
-the Security lane — as does anything where model output reaches a query, a
-filter, or the screen.
-
-Before any change under `lib/ai/**` or the smart-search route, read the
+Security — as does anything where model output reaches a query, a filter, or the
+screen. Before any change under `lib/ai/**` or the smart-search route, read the
 `openai-responses` skill: this repo uses the Responses API, not Chat
 Completions, and training data will steer you wrong.
-
-Full ownership map and handoff protocol: `.claude/agents/README.md`.
-Current work queue: `PRIORITIES.md`.
 
 ## Invariants
 
@@ -64,28 +76,13 @@ Current work queue: `PRIORITIES.md`.
 - The **anon key is meant to be public**. There is no service-role key in this
   project; if one is ever added it must be server-only.
 
-## Repo state
+## Engineering bar
 
-Re-verified 2026-08-28. This section described the v1 scaffold for a long time
-after it stopped being true — if it disagrees with `worklog.md`, `worklog.md`
-wins and this gets fixed.
-
-- **`app/`** — `home`, `home-preview`, `login`, `onboarding`, `plan/[id]`,
-  `privacy`, `terms`, plus `api/` (`plans`, `plans/[id]/command`, `smart-search`,
-  `place-import`, `spots/deal`) and `auth/callback`. 16 routes build.
-- **`lib/`** — `supabase.ts` (browser **and** server clients; `@supabase/ssr` is
-  in use), `types.ts`, `auth.ts`, `age-policy.ts`, `avatar.ts`, `deal.ts`,
-  `spots/match.ts`, `security/`, `ai/`.
-- **`supabase/`** — 21 numbered migrations plus `schema.sql`. Far more than four
-  tables: the core four, plus `auth.users`, `people`, `friendships`, `visits`,
-  `rsvps`, `ratings`, `plan_access`, `plan_host_tokens`, `member_ages`,
-  `app_control_secrets`, `app_rate_limits`, `security_events`, and the
-  place-import and visit-collection tables.
-- **Tests exist.** Node's built-in runner: `npm run test` → 25 tests across
-  `tests/*.test.ts`. `test:security` and `test:wrapped` are aliases for it and
-  filter nothing. `test:smoke` needs a live server and real credentials.
-- **`design-system/`** — a generated preview bundle synced to Claude Design.
-
-More than one Claude Code session may be working in this tree — check
-`git status` before large edits, and commit promptly. An uncommitted tree was
-destroyed here once.
+This project is being taken seriously as a software-engineering portfolio piece.
+When a change naturally calls for concurrency-safety, idempotency, caching with
+invalidation, background jobs, observability (request IDs, structured logs,
+metrics), load/perf measurement, or DB query tuning — implement the real version
+and **benchmark before/after** so the outcome is a concrete number. Do not add
+technology for its own sake, and do not overengineer: every addition must solve a
+problem the app actually has and be explainable end to end. See the owner's full
+brief in the session that recorded it and in auto-memory `engineering-bar`.

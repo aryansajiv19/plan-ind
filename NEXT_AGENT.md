@@ -1,8 +1,13 @@
 # Instructions for the next agent
 
-Read this file, then `worklog.md` and the latest section of `CHECKPOINT.md`.
-Do not scan the whole repository. Query the Graphify index in `graphify-out/`
-first, then open only the files the task touches.
+**Startup reading is now `CLAUDE.md` → `PRIORITIES.md` → the last `worklog.md`
+entry → `AGENT_COORDINATION.md`.** Do not read `CHECKPOINT.md` or all of
+`worklog.md` unless a task sends you there.
+
+This file is kept for **§1 (hard rules)**, **§3 (traps that caused real bugs)**,
+and the probe traps below — those don't age. Skim them once per session. The
+dated handoff narrative below §3 is historical; trust `worklog.md` over it.
+Query `graphify-out/` for structure; open only the files your task touches.
 
 ## Current handoff — 2026-08-24 (AI-engineering workstream)
 
