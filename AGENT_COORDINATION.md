@@ -49,16 +49,36 @@ output; `qa-test` to verify a wave).
 
 ---
 
+## ⚠️ Uncommitted tree — everyone commit your lane's files NOW
+
+As of 2026-09-01 a prior session left ~13 files of finished-but-uncommitted work
+spanning all three lanes. This is the exact condition that wiped this tree once.
+**Commit your own lane's files immediately, in parallel, then continue from clean.**
+
+- **T0 done:** `.github/ci.yml`, `package.json` typecheck, `PRIORITIES.md`,
+  `orchestrator.md`, `worklog.md` → committed `fd8eda3` + coordination docs.
+- **T2 in progress:** the `app/**` + `components/**` + `globals.css` changes.
+- **T1 — pick this up:** the backend work below is already written, coherent, and
+  uncommitted. It IS your BE.1 + BE.2. Verify and commit it; don't rewrite it.
+  - `lib/supabase.ts` — `bootstrapPlanAccess()` + `PlanAccessDenial` union: redeems
+    the share uuid, returns a typed reason (`anonymous-disabled` vs `not-found` …)
+    instead of throwing, fails closed in prod. This is BE.1's "fail honestly until B1".
+  - `supabase/migration-022-*.sql` (untracked) + matching `schema.sql` edits +
+    `lib/security/controls.ts` (`"spot-deal"` scope) + `app/api/spots/deal/route.ts`
+    (`consumeQuota(supabase, "spot-deal")` + 429). This is BE.2.
+  - Run `npm run lint && npm run typecheck && npm test && npm run build` before commit.
+  - Do NOT apply 022 to the live DB yourself — that's an owner action (B4).
+
 ## Lane status
 
 ### T0 — Orchestrator / Platform
-- 2026-09-01: trimmed `CLAUDE.md` + `NEXT_AGENT.md` startup reading list; created this file. Next: commit CI workflow, add schema↔types sync check, set up Vercel deploy.
+- 2026-09-01: trimmed startup reading list; created this board; recorded model policy. Committed CI workflow + orchestration doc catch-up (`fd8eda3`). Next: schema↔types sync check in CI, Vercel deploy wiring.
 
 ### T1 — Backend
-- _(post status here)_
+- _(post status here — start from the ⚠️ section above)_
 
 ### T2 — Frontend
-- _(post status here)_
+- 2026-09-01: found FE.1/FE.2/FE.8 fully implemented but uncommitted in the tree. Verifying (lint/tsc/build/browser) and committing the frontend-owned files in two commits. Not touching backend/security files.
 
 ### T3 — Design
 - _(post status here)_
