@@ -170,6 +170,59 @@ const CSS = {
 .stat:last-child { border-right: 0; }
 .stat b { display:block; font-family: var(--font-display); font-size:1.5rem; font-weight:800; }
 .stat span { font-size:.62rem; letter-spacing:.12em; text-transform:uppercase; color: var(--color-muted); }`,
+  payoff: `
+.payoff { position: relative; overflow: hidden; max-width: 420px; border: 1px solid var(--color-punch);
+  border-radius: .12rem; background: color-mix(in srgb, var(--color-punch) 8%, var(--color-card));
+  box-shadow: 5px 6px 0 var(--color-punch); padding: 1.25rem; }
+.payoff__kicker { display:flex; align-items:center; gap:.625rem; margin:0 0 .5rem;
+  font-size:.6rem; font-weight:700; letter-spacing:.24em; text-transform:uppercase; color: var(--color-punch-text); }
+.payoff__kicker::before, .payoff__kicker::after { content:""; flex:1; height:1px;
+  background: linear-gradient(to right, transparent, color-mix(in srgb, var(--color-punch) 70%, transparent)); }
+.payoff__kicker::after { background: linear-gradient(to left, transparent, color-mix(in srgb, var(--color-punch) 70%, transparent)); }
+.payoff__head { display:flex; align-items:center; gap:.75rem; }
+.payoff__code { display:grid; place-items:center; width:2.75rem; height:2.75rem; flex-shrink:0;
+  border:1px solid var(--color-punch); border-radius:.12rem; color: var(--color-punch-text);
+  font-family: var(--font-display); font-size:.9rem; font-weight:700; letter-spacing:.04em; }
+.payoff__name { font-family: var(--font-display); font-size:1.4rem; font-weight:800; letter-spacing:-.02em; }
+.payoff__sub { margin:.5rem 0 0; font-size:.85rem; color: var(--color-muted); }
+.payoff__cta { width:100%; margin-top:.9rem; padding:.8rem 1rem; border:1px solid var(--color-punch);
+  border-radius:.12rem; background: var(--color-punch); color:#17181b; box-shadow: 5px 6px 0 var(--token-shadow);
+  font-family: var(--font-display); font-weight:800; font-size:.9rem; cursor:pointer; }
+.payoff__row { margin-top:1rem; padding-top:1rem; border-top:1px solid color-mix(in srgb, var(--color-punch) 30%, transparent); }
+.payoff__label { font-size:.62rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color: var(--color-muted); }
+.payoff__ghost { margin-top:.5rem; padding:.5rem .8rem; border:1px solid color-mix(in srgb, var(--color-punch) 50%, transparent);
+  border-radius:.12rem; background:transparent; color: var(--color-punch); font-family: var(--font-display);
+  font-weight:700; font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; cursor:pointer; }
+.payoff__ghost[aria-pressed="true"] { background: var(--color-punch); color:#17181b; }
+[data-theme="night"] .payoff__code { display:grid; place-items:center; border-color: color-mix(in srgb, var(--color-punch) 35%, transparent);
+  color: var(--color-punch); font-size:1.05rem; }
+[data-theme="night"] .payoff__reveal { position:absolute; inset:0; pointer-events:none; background-size:250% 100%;
+  background: linear-gradient(105deg, transparent 30%, rgba(195,165,115,.22) 48%, transparent 62%); animation: ad-sheen 1.2s ease-out 1; }
+@keyframes ad-sheen { 0%{ background-position:-160% 0; } 55%,100%{ background-position:260% 0; } }`,
+  frontdoor: `
+.fd { position: relative; isolation: isolate; padding: 1.5rem;
+  background:
+    repeating-linear-gradient(45deg,  rgba(195,165,115,.06) 0 1px, transparent 1px 22px),
+    repeating-linear-gradient(-45deg, rgba(195,165,115,.06) 0 1px, transparent 1px 22px); }
+.fd__nav { position: relative; display:flex; align-items:center; justify-content:space-between; }
+.fd__nav::after { content:""; position:absolute; z-index:-1; top:-9rem; left:-2rem; width:20rem; height:20rem;
+  pointer-events:none; filter:blur(28px); animation: ad-halo 32s linear infinite;
+  background: conic-gradient(from 0deg, rgba(195,165,115,.16), transparent 40%, rgba(195,165,115,.10) 70%, transparent); }
+@keyframes ad-halo { to { transform: rotate(360deg); } }
+.fd__logo { font-family: var(--font-display); font-weight:800; font-size:1.1rem; }
+.fd__signin { padding:.5rem .9rem; border:1px solid var(--color-ink); border-radius:.1rem;
+  background: var(--color-ink); color: var(--color-card); font-family: var(--font-display); font-size:.72rem; font-weight:700; }
+.fd__title { margin:2.5rem 0 1rem; font-family: var(--font-display); font-size: clamp(2.2rem,5vw,3.4rem);
+  font-weight:600; line-height:.9; letter-spacing:-.06em; }
+.fd__deck { max-width: 34rem; font-size:1rem; line-height:1.5; color: var(--color-muted); }
+.fd__system { margin-top:2rem; max-width: 26rem; border:1px solid color-mix(in srgb, var(--color-punch) 35%, transparent); background: color-mix(in srgb, var(--color-card) 60%, transparent); padding:1rem 1.15rem; }
+.fd__system-head { display:flex; align-items:center; gap:.625rem; font-size:.62rem; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color: var(--color-punch); }
+.fd__system-head::before, .fd__system-head::after { content:""; flex:1; height:1px; background: linear-gradient(to right, transparent, color-mix(in srgb, var(--color-punch) 70%, transparent)); }
+.fd__system-head::after { background: linear-gradient(to left, transparent, color-mix(in srgb, var(--color-punch) 70%, transparent)); }
+.fd__system-row { display:flex; align-items:center; justify-content:space-between; gap:.75rem; margin-top:.9rem; font-size:.85rem; }
+.fd__votes { display:grid; place-items:center; width:2.75rem; height:2.75rem;
+  border:1px solid color-mix(in srgb, var(--color-punch) 35%, transparent); color: var(--color-punch);
+  font-family: var(--font-display); font-size:1.15rem; font-weight:700; font-variant-numeric: tabular-nums; }`,
 };
 
 const SWATCH = (name, val, varName, group) =>
@@ -383,6 +436,70 @@ body::after { content:""; position:fixed; z-index:-1; top:-14rem; left:50%; widt
 <span style="width:8px;height:8px;border-radius:50%;background:var(--color-live)"></span>
 <span style="font-size:.76rem;color:var(--color-muted)">Rana voted 2 minutes ago · Mo is looking now</span></div>
 <div style="display:flex;gap:10px;margin-top:1.5rem"><button class="ad-ghost">Re-deal</button><button class="ad-cta">Lock in · round III</button></div>
+</div>`,
+  },
+  {
+    path: "components/decided-plan.html", group: "Components", name: "Decided plan",
+    subtitle: "The payoff panel — champagne frame, day", viewport: { width: 620, height: 640 },
+    css: CSS.payoff,
+    body: `<p class="kicker">Components</p><h2>Decided plan</h2>
+<p class="label" style="margin:.5rem 0 1.25rem">The most emotionally important moment in the product. Champagne carries "the outcome" — the frame and the signature offset shadow, matching the winner card. The name stays ink; brass is only ever "where you are".</p>
+<div class="payoff" data-group="food">
+<p class="payoff__kicker">Decided · you're going</p>
+<div class="payoff__head">
+<span class="payoff__code" aria-hidden="true">DIN</span>
+<div><div class="payoff__name">It's The Guild.</div></div>
+</div>
+<p class="payoff__sub">The group's headed to DIFC. Now let's make it happen.</p>
+<button class="payoff__cta">Copy for the group chat</button>
+<div class="payoff__row"><p class="payoff__label">When</p><div style="font-family:var(--font-display);font-size:1.05rem;font-weight:800;margin-top:.25rem">Fri, Sep 5, 9:30 PM</div></div>
+<div class="payoff__row"><p class="payoff__label">Who's in</p>
+<div style="margin-top:.5rem;display:flex;gap:.4rem;flex-wrap:wrap">
+<button class="payoff__ghost" aria-pressed="true">Coming</button><button class="payoff__ghost">Maybe</button><button class="payoff__ghost">Can't make it</button></div></div>
+<div class="payoff__row"><p class="payoff__label">Booking</p>
+<button class="payoff__ghost" style="text-transform:none;letter-spacing:0">I'll book it</button></div>
+</div>`,
+  },
+  {
+    path: "screens/payoff-after-dark.html", group: "Screens", name: "Payoff — After Dark",
+    subtitle: "Winner reveal on the night ground; one-shot gold sweep on resolve",
+    viewport: { width: 620, height: 600 }, theme: "night",
+    css: CSS.payoff,
+    body: `<p class="kicker">Screens</p><h2>Payoff — After Dark</h2>
+<p class="label" style="margin:.5rem 0 1.25rem">FE.5. The decided panel picks up the After Dark structure the voting round has: brass rule-flanked kicker, a struck-plate category code, brass ghost controls, brass hairline dividers. On resolve it enters once with the <code>ad-sheen</code> sweep — a one-shot, not an ambient loop.</p>
+<div class="payoff" data-group="food">
+<span class="payoff__reveal" aria-hidden="true"></span>
+<p class="payoff__kicker">Decided · you're going</p>
+<div class="payoff__head">
+<span class="payoff__code" aria-hidden="true">DIN</span>
+<div><div class="payoff__name">It's The Guild.</div></div>
+</div>
+<p class="payoff__sub">The group's headed to DIFC. Now let's make it happen.</p>
+<button class="payoff__cta">Copy for the group chat</button>
+<div class="payoff__row"><p class="payoff__label">Who's in</p>
+<div style="margin-top:.5rem;display:flex;gap:.4rem;flex-wrap:wrap">
+<button class="payoff__ghost" aria-pressed="true">Coming</button><button class="payoff__ghost">Maybe</button><button class="payoff__ghost">Can't make it</button></div></div>
+<div class="payoff__row"><p class="payoff__label">Booking</p>
+<button class="payoff__ghost" style="text-transform:none;letter-spacing:0">I'll book it</button></div>
+</div>`,
+  },
+  {
+    path: "screens/front-door-after-dark.html", group: "Screens", name: "Front door — After Dark",
+    subtitle: "FE.1 hero upgrade: masthead halo, hero lattice, brass 'Tonight in Dubai' plate",
+    viewport: { width: 960, height: 640 }, theme: "night",
+    css: CSS.frontdoor,
+    body: `<p class="kicker">Screens</p><h2>Front door — After Dark</h2>
+<p class="label" style="margin:.5rem 0 1.25rem">What a signed-out prospect meets after sunset. The structure is ratified as shipped; the upgrade is the night atmosphere — one ambient loop (the halo), a static lattice, and a "Tonight in Dubai" panel that literally previews the vote screen. Photography is deferred to FE.3.</p>
+<div class="fd">
+<div class="fd__nav"><span class="fd__logo">D/03</span><span class="fd__signin">Sign in</span></div>
+<h1 class="fd__title">Dubai plans,<br>without the<br><span style="border-bottom:.055em solid var(--color-punch)">group chat.</span></h1>
+<p class="fd__deck">Dinner in DIFC, padel in Al Quoz, or a beach day on the Palm. Set the budget and distance, shortlist through three pools, and let everyone choose.</p>
+<div class="fd__system" aria-hidden="true">
+<div class="fd__system-head">Tonight in Dubai</div>
+<div class="fd__system-row"><span><strong style="font-family:var(--font-display)">The Guild</strong> · DIFC</span><span class="fd__votes">4</span></div>
+<div class="fd__system-row"><span><strong style="font-family:var(--font-display)">Ninive</strong> · Emirates Towers</span><span class="fd__votes">1</span></div>
+<div class="fd__system-row"><span><strong style="font-family:var(--font-display)">Koko Bay</strong> · Palm Jumeirah</span><span class="fd__votes">1</span></div>
+</div>
 </div>`,
   },
 ];

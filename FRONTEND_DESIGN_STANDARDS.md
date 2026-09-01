@@ -31,7 +31,7 @@ Colour carries exactly three jobs. Nothing else earns a hue.
 | Job | Colour | Where |
 |---|---|---|
 | **You, and now** — your vote, your finished round, a count that just changed | `--color-live` | vote controls, round dots |
-| **The outcome** — the winner, a decided plan | champagne (`--vote-metal`, `--color-punch`) | winner card, result panel |
+| **The outcome** — the winner, a decided plan | champagne (`--vote-metal`, `--color-punch`) | winner card, and the decided-plan panel — both take the champagne frame *and* the signature offset shadow (see Components → the signature element) |
 | **What kind of night this is** — the category group | `--group` | category tiles, option cards, place cards |
 
 ### The category system

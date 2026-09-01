@@ -1,0 +1,122 @@
+<!-- @dsCard group="Screens" -->
+<!doctype html>
+<html lang="en" data-theme="night">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>plan-ind — Payoff — After Dark</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Hanken+Grotesk:wght@400;500;700&display=swap">
+<style>
+:root {
+  --color-paper: #f3f1ec;
+  --color-card:  #fbfaf7;
+  --color-ink:   #17181b;
+  --color-muted: #66666b;
+  --color-line:  rgba(23, 24, 27, 0.14);
+  --color-punch: #9b7d4e;       /* champagne — display/large only, 3.37:1 */
+  --color-punch-text: #7a6038;  /* champagne — small text, 5.23:1 */
+  --color-live:  #2f4bd6;       /* state accent: you, and now. 6.00:1 */
+  --token-shadow: #17181b;      /* the signature offset shadow's ink — 15.73:1 on paper */
+  --color-group-food:    #a83a20; /* 5.65:1 */
+  --color-group-night:   #b3175f; /* 5.81:1 */
+  --color-group-water:   #0f6a72; /* 5.60:1 */
+  --color-group-active:  #2a6b3c; /* 5.69:1 */
+  --color-group-leisure: #6b46b0; /* 5.95:1 */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
+  --font-display: "Manrope", system-ui, sans-serif;
+  --font-body: "Hanken Grotesk", system-ui, sans-serif;
+}
+[data-theme="night"] {
+  --color-paper: #090b0e;
+  --color-card:  #121418;
+  --color-ink:   #f0ece4;
+  --color-muted: #9d9b99;
+  --color-line:  rgba(240, 236, 228, 0.14);
+  --color-punch: #c3a573;
+  --color-punch-text: #c3a573;  /* 7.86:1 — no darker cut needed */
+  --color-live:  #8aa0ff;       /* 8.02:1; day cobalt is 2.91:1 here */
+  --token-shadow: rgba(195, 165, 115, 0.35); /* brass — graphite is 1.11:1 mud on this ground */
+  --color-group-food:    #e0865f; /* 6.80:1 */
+  --color-group-night:   #dd7a9c; /* 6.44:1 */
+  --color-group-water:   #5fb0bb; /* 7.39:1 */
+  --color-group-active:  #72b083; /* 7.25:1 */
+  --color-group-leisure: #a893e8; /* 7.03:1 */
+  color-scheme: dark;
+}
+[data-group="food"]    { --group: var(--color-group-food); }
+[data-group="night"]   { --group: var(--color-group-night); }
+[data-group="water"]   { --group: var(--color-group-water); }
+[data-group="active"]  { --group: var(--color-group-active); }
+[data-group="leisure"] { --group: var(--color-group-leisure); }
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 2rem;
+  background: var(--color-paper); color: var(--color-ink);
+  font-family: var(--font-body); -webkit-font-smoothing: antialiased;
+}
+h1,h2,h3 { font-family: var(--font-display); letter-spacing: -0.02em; margin: 0; }
+.kicker {
+  font-size: .68rem; font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--color-punch-text); margin: 0 0 .5rem;
+}
+.stack { display: flex; flex-direction: column; gap: 1.25rem; }
+.row { display: flex; gap: .75rem; flex-wrap: wrap; align-items: center; }
+.label { font-size: .72rem; color: var(--color-muted); }
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+}
+
+.payoff { position: relative; overflow: hidden; max-width: 420px; border: 1px solid var(--color-punch);
+  border-radius: .12rem; background: color-mix(in srgb, var(--color-punch) 8%, var(--color-card));
+  box-shadow: 5px 6px 0 var(--color-punch); padding: 1.25rem; }
+.payoff__kicker { display:flex; align-items:center; gap:.625rem; margin:0 0 .5rem;
+  font-size:.6rem; font-weight:700; letter-spacing:.24em; text-transform:uppercase; color: var(--color-punch-text); }
+.payoff__kicker::before, .payoff__kicker::after { content:""; flex:1; height:1px;
+  background: linear-gradient(to right, transparent, color-mix(in srgb, var(--color-punch) 70%, transparent)); }
+.payoff__kicker::after { background: linear-gradient(to left, transparent, color-mix(in srgb, var(--color-punch) 70%, transparent)); }
+.payoff__head { display:flex; align-items:center; gap:.75rem; }
+.payoff__code { display:grid; place-items:center; width:2.75rem; height:2.75rem; flex-shrink:0;
+  border:1px solid var(--color-punch); border-radius:.12rem; color: var(--color-punch-text);
+  font-family: var(--font-display); font-size:.9rem; font-weight:700; letter-spacing:.04em; }
+.payoff__name { font-family: var(--font-display); font-size:1.4rem; font-weight:800; letter-spacing:-.02em; }
+.payoff__sub { margin:.5rem 0 0; font-size:.85rem; color: var(--color-muted); }
+.payoff__cta { width:100%; margin-top:.9rem; padding:.8rem 1rem; border:1px solid var(--color-punch);
+  border-radius:.12rem; background: var(--color-punch); color:#17181b; box-shadow: 5px 6px 0 var(--token-shadow);
+  font-family: var(--font-display); font-weight:800; font-size:.9rem; cursor:pointer; }
+.payoff__row { margin-top:1rem; padding-top:1rem; border-top:1px solid color-mix(in srgb, var(--color-punch) 30%, transparent); }
+.payoff__label { font-size:.62rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color: var(--color-muted); }
+.payoff__ghost { margin-top:.5rem; padding:.5rem .8rem; border:1px solid color-mix(in srgb, var(--color-punch) 50%, transparent);
+  border-radius:.12rem; background:transparent; color: var(--color-punch); font-family: var(--font-display);
+  font-weight:700; font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; cursor:pointer; }
+.payoff__ghost[aria-pressed="true"] { background: var(--color-punch); color:#17181b; }
+[data-theme="night"] .payoff__code { display:grid; place-items:center; border-color: color-mix(in srgb, var(--color-punch) 35%, transparent);
+  color: var(--color-punch); font-size:1.05rem; }
+[data-theme="night"] .payoff__reveal { position:absolute; inset:0; pointer-events:none; background-size:250% 100%;
+  background: linear-gradient(105deg, transparent 30%, rgba(195,165,115,.22) 48%, transparent 62%); animation: ad-sheen 1.2s ease-out 1; }
+@keyframes ad-sheen { 0%{ background-position:-160% 0; } 55%,100%{ background-position:260% 0; } }</style>
+</head>
+<body>
+<p class="kicker">Screens</p><h2>Payoff — After Dark</h2>
+<p class="label" style="margin:.5rem 0 1.25rem">FE.5. The decided panel picks up the After Dark structure the voting round has: brass rule-flanked kicker, a struck-plate category code, brass ghost controls, brass hairline dividers. On resolve it enters once with the <code>ad-sheen</code> sweep — a one-shot, not an ambient loop.</p>
+<div class="payoff" data-group="food">
+<span class="payoff__reveal" aria-hidden="true"></span>
+<p class="payoff__kicker">Decided · you're going</p>
+<div class="payoff__head">
+<span class="payoff__code" aria-hidden="true">DIN</span>
+<div><div class="payoff__name">It's The Guild.</div></div>
+</div>
+<p class="payoff__sub">The group's headed to DIFC. Now let's make it happen.</p>
+<button class="payoff__cta">Copy for the group chat</button>
+<div class="payoff__row"><p class="payoff__label">Who's in</p>
+<div style="margin-top:.5rem;display:flex;gap:.4rem;flex-wrap:wrap">
+<button class="payoff__ghost" aria-pressed="true">Coming</button><button class="payoff__ghost">Maybe</button><button class="payoff__ghost">Can't make it</button></div></div>
+<div class="payoff__row"><p class="payoff__label">Booking</p>
+<button class="payoff__ghost" style="text-transform:none;letter-spacing:0">I'll book it</button></div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!-- @dsCard group="Screens" -->
+<!doctype html>
+<html lang="en" data-theme="night">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>plan-ind — Front door — After Dark</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Hanken+Grotesk:wght@400;500;700&display=swap">
+<style>
+:root {
+  --color-paper: #f3f1ec;
+  --color-card:  #fbfaf7;
+  --color-ink:   #17181b;
+  --color-muted: #66666b;
+  --color-line:  rgba(23, 24, 27, 0.14);
+  --color-punch: #9b7d4e;       /* champagne — display/large only, 3.37:1 */
+  --color-punch-text: #7a6038;  /* champagne — small text, 5.23:1 */
+  --color-live:  #2f4bd6;       /* state accent: you, and now. 6.00:1 */
+  --token-shadow: #17181b;      /* the signature offset shadow's ink — 15.73:1 on paper */
+  --color-group-food:    #a83a20; /* 5.65:1 */
+  --color-group-night:   #b3175f; /* 5.81:1 */
+  --color-group-water:   #0f6a72; /* 5.60:1 */
+  --color-group-active:  #2a6b3c; /* 5.69:1 */
+  --color-group-leisure: #6b46b0; /* 5.95:1 */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
+  --font-display: "Manrope", system-ui, sans-serif;
+  --font-body: "Hanken Grotesk", system-ui, sans-serif;
+}
+[data-theme="night"] {
+  --color-paper: #090b0e;
+  --color-card:  #121418;
+  --color-ink:   #f0ece4;
+  --color-muted: #9d9b99;
+  --color-line:  rgba(240, 236, 228, 0.14);
+  --color-punch: #c3a573;
+  --color-punch-text: #c3a573;  /* 7.86:1 — no darker cut needed */
+  --color-live:  #8aa0ff;       /* 8.02:1; day cobalt is 2.91:1 here */
+  --token-shadow: rgba(195, 165, 115, 0.35); /* brass — graphite is 1.11:1 mud on this ground */
+  --color-group-food:    #e0865f; /* 6.80:1 */
+  --color-group-night:   #dd7a9c; /* 6.44:1 */
+  --color-group-water:   #5fb0bb; /* 7.39:1 */
+  --color-group-active:  #72b083; /* 7.25:1 */
+  --color-group-leisure: #a893e8; /* 7.03:1 */
+  color-scheme: dark;
+}
+[data-group="food"]    { --group: var(--color-group-food); }
+[data-group="night"]   { --group: var(--color-group-night); }
+[data-group="water"]   { --group: var(--color-group-water); }
+[data-group="active"]  { --group: var(--color-group-active); }
+[data-group="leisure"] { --group: var(--color-group-leisure); }
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 2rem;
+  background: var(--color-paper); color: var(--color-ink);
+  font-family: var(--font-body); -webkit-font-smoothing: antialiased;
+}
+h1,h2,h3 { font-family: var(--font-display); letter-spacing: -0.02em; margin: 0; }
+.kicker {
+  font-size: .68rem; font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--color-punch-text); margin: 0 0 .5rem;
+}
+.stack { display: flex; flex-direction: column; gap: 1.25rem; }
+.row { display: flex; gap: .75rem; flex-wrap: wrap; align-items: center; }
+.label { font-size: .72rem; color: var(--color-muted); }
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+}
+
+.fd { position: relative; isolation: isolate; padding: 1.5rem;
+  background:
+    repeating-linear-gradient(45deg,  rgba(195,165,115,.06) 0 1px, transparent 1px 22px),
+    repeating-linear-gradient(-45deg, rgba(195,165,115,.06) 0 1px, transparent 1px 22px); }
+.fd__nav { position: relative; display:flex; align-items:center; justify-content:space-between; }
+.fd__nav::after { content:""; position:absolute; z-index:-1; top:-9rem; left:-2rem; width:20rem; height:20rem;
+  pointer-events:none; filter:blur(28px); animation: ad-halo 32s linear infinite;
+  background: conic-gradient(from 0deg, rgba(195,165,115,.16), transparent 40%, rgba(195,165,115,.10) 70%, transparent); }
+@keyframes ad-halo { to { transform: rotate(360deg); } }
+.fd__logo { font-family: var(--font-display); font-weight:800; font-size:1.1rem; }
+.fd__signin { padding:.5rem .9rem; border:1px solid var(--color-ink); border-radius:.1rem;
+  background: var(--color-ink); color: var(--color-card); font-family: var(--font-display); font-size:.72rem; font-weight:700; }
+.fd__title { margin:2.5rem 0 1rem; font-family: var(--font-display); font-size: clamp(2.2rem,5vw,3.4rem);
+  font-weight:600; line-height:.9; letter-spacing:-.06em; }
+.fd__deck { max-width: 34rem; font-size:1rem; line-height:1.5; color: var(--color-muted); }
+.fd__system { margin-top:2rem; max-width: 26rem; border:1px solid color-mix(in srgb, var(--color-punch) 35%, transparent); background: color-mix(in srgb, var(--color-card) 60%, transparent); padding:1rem 1.15rem; }
+.fd__system-head { display:flex; align-items:center; gap:.625rem; font-size:.62rem; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color: var(--color-punch); }
+.fd__system-head::before, .fd__system-head::after { content:""; flex:1; height:1px; background: linear-gradient(to right, transparent, color-mix(in srgb, var(--color-punch) 70%, transparent)); }
+.fd__system-head::after { background: linear-gradient(to left, transparent, color-mix(in srgb, var(--color-punch) 70%, transparent)); }
+.fd__system-row { display:flex; align-items:center; justify-content:space-between; gap:.75rem; margin-top:.9rem; font-size:.85rem; }
+.fd__votes { display:grid; place-items:center; width:2.75rem; height:2.75rem;
+  border:1px solid color-mix(in srgb, var(--color-punch) 35%, transparent); color: var(--color-punch);
+  font-family: var(--font-display); font-size:1.15rem; font-weight:700; font-variant-numeric: tabular-nums; }</style>
+</head>
+<body>
+<p class="kicker">Screens</p><h2>Front door — After Dark</h2>
+<p class="label" style="margin:.5rem 0 1.25rem">What a signed-out prospect meets after sunset. The structure is ratified as shipped; the upgrade is the night atmosphere — one ambient loop (the halo), a static lattice, and a "Tonight in Dubai" panel that literally previews the vote screen. Photography is deferred to FE.3.</p>
+<div class="fd">
+<div class="fd__nav"><span class="fd__logo">D/03</span><span class="fd__signin">Sign in</span></div>
+<h1 class="fd__title">Dubai plans,<br>without the<br><span style="border-bottom:.055em solid var(--color-punch)">group chat.</span></h1>
+<p class="fd__deck">Dinner in DIFC, padel in Al Quoz, or a beach day on the Palm. Set the budget and distance, shortlist through three pools, and let everyone choose.</p>
+<div class="fd__system" aria-hidden="true">
+<div class="fd__system-head">Tonight in Dubai</div>
+<div class="fd__system-row"><span><strong style="font-family:var(--font-display)">The Guild</strong> · DIFC</span><span class="fd__votes">4</span></div>
+<div class="fd__system-row"><span><strong style="font-family:var(--font-display)">Ninive</strong> · Emirates Towers</span><span class="fd__votes">1</span></div>
+<div class="fd__system-row"><span><strong style="font-family:var(--font-display)">Koko Bay</strong> · Palm Jumeirah</span><span class="fd__votes">1</span></div>
+</div>
+</div>
+
+</body>
+</html>
