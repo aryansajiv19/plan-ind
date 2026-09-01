@@ -3,17 +3,26 @@
 The shared handoff medium for the four parallel sessions. Sessions share **only
 the repo** — if it isn't committed, the others can't see it.
 
+## ⟳ Re-orged 2026-09-02 — design paused, two hardening lanes
+
+The owner is now designing externally in Claude Design and will hand off a
+finished design later — **no new visual/CSS work in the meantime**, only
+functional bug fixes. Roles below supersede the Wave-1 lane names; **worktree
+paths and branches are unchanged**, only what each one is for.
+
+| Terminal | Worktree path | Branch | Model | Role |
+|---|---|---|---|---|
+| **T0** Orchestrator | `~/plan-ind` (main) | `ai-engineering` | Sonnet medium | Integrates every branch, owns docs/CI/deploy |
+| **Security** (was T1) | `~/plan-ind-backend` | `lane/backend` | **Opus** | Security audit + hardening + the engineering-bar techniques (concurrency, idempotency, caching, observability, rate limiting) |
+| **Review** (was T2) | `~/plan-ind-frontend` | `lane/frontend` | Sonnet medium | Bugs, errors, debugging, full-stack code review — **functional fixes only, no visual/design changes** |
+| **Design** (was T3) | `~/plan-ind-design` | `lane/design` | Sonnet medium | **Idle.** Owner working externally in Claude Design; will hand off specs later |
+
+Branch/worktree names still say `backend`/`frontend` — that's cosmetic, ignore it.
+
 ## Worktrees — each lane has its own checkout (2026-09-01)
 
-The four sessions run in **separate git worktrees** off `ai-engineering`. A
+The sessions run in **separate git worktrees** off `ai-engineering`. A
 session touches **only its own worktree** and commits **only to its own branch**.
-
-| Lane | Worktree path | Branch | Model |
-|---|---|---|---|
-| **T0** Orchestrator / Platform | `~/plan-ind` (main) | `ai-engineering` | Sonnet medium |
-| **T1** Backend | `~/plan-ind-backend` | `lane/backend` | **Opus** |
-| **T2** Frontend | `~/plan-ind-frontend` | `lane/frontend` | Sonnet medium |
-| **T3** Design | `~/plan-ind-design` | `lane/design` | Sonnet medium |
 
 - `node_modules` and `.env.local` in each lane worktree are **symlinks** to the
   main tree. Do not `npm install` in a lane worktree; do not commit the symlinks.
@@ -26,17 +35,27 @@ session touches **only its own worktree** and commits **only to its own branch**
   `security` subagent before committing anything touching RLS, writes, the
   Realtime publication, or model output.
 
-## File ownership
+## File ownership (post-2026-09-02 reorg)
 
-| Lane | Writes | Never touches |
-|---|---|---|
-| **T0** | `.github/**`, root `*.md` (PRIORITIES, worklog, NEXT_AGENT, CLAUDE, this file), `tests/**` config, `scripts/load/**`, deploy config | `app/**`, `components/**`, `supabase/**`, `lib/**` |
-| **T1** | `supabase/**`, `app/api/**`, `lib/types.ts`, `lib/supabase.ts`, `lib/ai/**`, `lib/spots/**` | `components/**`, `globals.css`, root docs |
-| **T2** | `app/**` (except `app/api/**`), `components/**`, `app/globals.css`, `lib/dubai-phase.ts` | `supabase/**`, `lib/types.ts`, root docs |
-| **T3** | `design-system/**`, `FRONTEND_DESIGN_STANDARDS.md`, Claude Design canvas | everything else |
+Ownership is **fuzzier now on purpose** — Security and Review both legitimately
+touch anything with a bug or a hole in it. Two rules instead of a clean split:
 
-`app/page.tsx` is Frontend's (route file). `qa-test` writes `tests/**` only.
-`security` has no write tools. Full map: `.claude/agents/README.md`.
+1. **Home turf, no ping needed:** Security → `supabase/**`, `app/api/**`,
+   `lib/security/**`, `lib/supabase.ts`, `lib/types.ts`, `next.config.ts`
+   (headers/CSP), auth flows. Review → `app/**` (except `app/api/**`),
+   `components/**`, `lib/**` (except `lib/security/**`/`lib/supabase.ts`),
+   bug fixes and tests. T0 → `.github/**`, root `*.md`, `tests/**` config,
+   deploy config. Design → `design-system/**`, `FRONTEND_DESIGN_STANDARDS.md`
+   (idle for now).
+2. **Off your turf: post it in "Cross-lane requests" before editing**, so the
+   other lane doesn't hit a surprise merge conflict. T0 sequences it across a
+   sync if needed. `globals.css` is **frozen** — no edits from anyone until the
+   owner's design handoff (functional-only fixes go through Review with a
+   cross-lane heads-up).
+
+`app/page.tsx` is a route file (Review's). `qa-test` writes `tests/**` only,
+`security` subagent has no write tools — both remain callable from either lane.
+Original clean-split map (pre-reorg, for reference): `.claude/agents/README.md`.
 
 ## This file
 
@@ -54,18 +73,30 @@ concurrency work. `security` and `qa-test` are subagents, not lanes.
 
 ---
 
-## Current goal
+## Current goal (2026-09-02)
 
-**Get the core loop to production.** Critical path:
+Core loop already works end to end (guest vote path verified 2026-09-01). Focus
+shifts to **security hardening + bug elimination** while design work happens
+externally:
 
-1. ~~B1 / B2 / B4~~ **all cleared 2026-09-01.** Anon sign-ins LIVE (anon signup
-   returns a session token). Migrations 021/022/023 LIVE. Turnstile still off —
-   enable before the production deploy (fine for local).
-2. T1 — BE.1 vote path ✅. Next: mig-023 file fix, SEC.4 (mig 024), dispatch qa-test.
-3. T2 — FE.1 ✅ · FE.2/FE.8 ✅ · next: **FE.7** (`<VoteState>` spec is in SPECS.md) + wire `bootstrapPlanAccess`. Then verify the guest vote path end-to-end at `/plan/22222222-…` — now possible.
-4. T0 — CI ✅ · drift check ✅ · dev server running on :3000 for design review · next: Vercel deploy wiring.
-5. Then the hardening layer per lane (idempotency ✅ mig-023 → durable rate
-   limiting → request IDs / structured logs → load baseline).
+1. **Security lane** — finish SEC.4 loose ends (see its Cross-lane requests
+   below: `rls_auto_enable` capture, anon-social-graph check), then work the
+   engineering-bar list: durable rate limiting audit, request IDs + structured
+   logging, concurrency-safety sweep of the other write RPCs
+   (`create_secure_plan`, `execute_plan_command`, `set_plan_rsvp`, `rate_plan`)
+   for the same double-write race class migration 023 closed on votes, DB index
+   check on hot queries. Every addition needs a real problem behind it — no
+   Redis/queues/etc. without one.
+2. **Review lane** — full-stack bug sweep: lint/tsc/test clean is the floor, not
+   the goal. Start with the known ones: **FE.10** (`/login` has no `next` param
+   — a guest signing in from `guest-paused` lands on `/home`, not their plan)
+   and **FE.4's functional half** (night mode applies `--night` classes but one
+   probe showed tokens not flipping — verify with `getComputedStyle`, screenshots
+   in this environment are unreliable). Then a general error-state / edge-case
+   audit. **No CSS/visual changes** — `globals.css` is frozen pending the design
+   handoff; FE.5/FE.6/FE.3 (all aesthetic) are paused, not cancelled.
+3. **T0** — integrates both lanes, Vercel deploy wiring, CI `test:db` job.
+4. **Design** — idle. Resumes when the owner sends the finished design.
 
 ---
 
@@ -117,3 +148,4 @@ Format: **From → To** · _need_ · _why_ · blocked? · status
 - 2026-09-01: Model policy — T1 on Opus, T0/T2/T3 on Sonnet medium, `security` subagent on Opus when invoked.
 - 2026-09-01: Wave-1 visual direction (T3, owner-approved) — front door = ratify T2's structure + After Dark night atmosphere; `.token` reach = decision-committing surfaces only; FE.6 = delete decision-orbit/ticker/scribble, keep skyline dormant until FE.3. Spec: `design-system/SPECS.md`.
 - 2026-09-01: **Moved to git worktrees.** Four sessions in one tree was racing (concurrent commits, near-collisions on `worklog.md` and this file). Each lane isolated on its own branch + worktree; T0 integrates.
+- 2026-09-02: **Re-orged.** Owner is designing externally in Claude Design; Design terminal goes idle until handoff. T1(backend)→Security+hardening+engineering-bar techniques. T2(frontend)→Review/debug/full-stack bug fixes, no visual work. `globals.css` frozen. FE.3/FE.5/FE.6 (aesthetic) paused; FE.4's functional half and FE.10 reassigned to Review.

@@ -93,6 +93,12 @@ showing. Three independent pieces of evidence — the palette comment at
 purple/pink/yellow/green accents"*), the orphaned signature element, and ~450
 lines of dead "fun" CSS. **Most of this lane is recovery, not invention.**
 
+**⏸ Paused 2026-09-02 — FE.3, FE.5, FE.6 (all aesthetic decisions) on hold until
+the owner's Claude Design handoff.** `globals.css` is frozen in the meantime.
+FE.4 is split: its functional bug (night classes apply, tokens don't reliably
+flip — verify, don't redesign) goes to the Review lane now; its "add night
+coverage to new routes" half waits with the others.
+
 | # | Task | Why | Size |
 |---|---|---|---|
 | **FE.1** | **Ship a real front door.** `app/page.tsx:6` sends signed-out visitors to `/login` in production; `app/home-preview/page.tsx:5` calls `notFound()` there. The marketing hero — best copy and layout in the repo — is **dev-only**. Every prospect meets an auth form. | Highest impact-to-effort in the audit | S |
