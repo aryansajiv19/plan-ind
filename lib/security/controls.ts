@@ -17,7 +17,7 @@ export function privateSubject(value: string): string {
 
 export async function consumeQuota(
   supabase: SupabaseClient,
-  scope: "smart-search" | "plan-create" | "place-import",
+  scope: "smart-search" | "plan-create" | "place-import" | "spot-deal",
 ): Promise<boolean> {
   const { data, error } = await supabase.rpc("consume_app_quota", {
     p_secret: controlSecret(),

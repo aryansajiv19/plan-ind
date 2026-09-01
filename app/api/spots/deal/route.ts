@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { consumeQuota, recordSecurityEvent } from "@/lib/security/controls";
 import { MIN_ACCOUNT_AGE, memberAge } from "@/lib/age-policy";
 import {
   plainText,
@@ -55,10 +56,14 @@ export async function POST(request: Request) {
   if (!user || user.is_anonymous) {
     return Response.json({ error: "Sign in to deal places." }, { status: 401 });
   }
-  // No consumeQuota: `consume_app_quota` only accepts smart-search,
-  // plan-create and place-import, and borrowing plan-create would spend the
-  // plan bucket on re-deals. This is an authenticated RLS-scoped read with no
-  // writes and no external I/O; its own scope arrives with migration 022.
+  // Its own bucket, not plan-create's: dealing happens before a plan exists
+  // and is re-rolled repeatedly, so sharing that bucket would lock a user out
+  // of creating the plan they were dealing for. Requires migration 022 —
+  // before that is applied the RPC raises and this returns 429 to everyone.
+  if (!(await consumeQuota(supabase, "spot-deal"))) {
+    await recordSecurityEvent(supabase, { type: "rate_limit", outcome: "blocked", subject: user.id, metadata: { scope: "spot-deal" } });
+    return Response.json({ error: "Too many deals. Try again in a minute." }, { status: 429 });
+  }
 
   const raw = body && typeof body === "object" && !Array.isArray(body)
     ? body as Record<string, unknown>

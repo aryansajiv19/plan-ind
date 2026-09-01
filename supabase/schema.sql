@@ -741,6 +741,12 @@ alter publication supabase_realtime add table votes;
 alter publication supabase_realtime add table plans;
 alter publication supabase_realtime add table rsvps;
 alter publication supabase_realtime add table ratings;
+-- 022: plan_spots. `advanced` flips when the host advances a round, and the
+-- share-link screen subscribes to that UPDATE. postgres_changes applies
+-- plan_spots' own RLS per subscriber ("read accessible plan spots" =
+-- membership in plan_access), so this reaches exactly the set that can
+-- already SELECT the row, and plan_spots holds no secret.
+alter publication supabase_realtime add table plan_spots;
 
 -- The social tables (people, friendships, visits, visit_companions) are
 -- deliberately NOT in the publication. Adding a table broadcasts its rows
@@ -786,7 +792,11 @@ create policy "read own age" on member_ages for select to authenticated
 
 -- Participant-token lookups: every RPC below resolves a caller by
 -- (plan_id, participant_token_hash) before it writes.
-create index votes_participant_token_idx on votes (plan_id, participant_token_hash)
+-- 023: votes gets the round columns and UNIQUE — one choice per participant per
+-- round is a database invariant, and cast_plan_vote upserts against it. The
+-- prefix still serves the plain (plan_id, participant_token_hash) lookup.
+create unique index votes_participant_round_key
+  on votes (plan_id, participant_token_hash, phase, pool_number)
   where participant_token_hash is not null;
 create index rsvps_participant_token_idx on rsvps (plan_id, participant_token_hash)
   where participant_token_hash is not null;
@@ -906,7 +916,7 @@ grant execute on function execute_plan_command(uuid, text, text, jsonb) to authe
 create or replace function cast_plan_vote(
   p_plan_id uuid, p_spot_id uuid, p_voter_name text, p_value boolean,
   p_phase text, p_pool_number smallint, p_participant_token_hash text
-) returns void language plpgsql security definer set search_path = public, pg_temp as $$
+) returns jsonb language plpgsql security definer set search_path = public, pg_temp as $$
 declare
   target plans%rowtype;
   clean_name text := left(trim(p_voter_name), 40);
@@ -946,13 +956,29 @@ begin
     raise exception 'That place is not on this plan' using errcode = '22023';
   end if;
 
-  delete from votes
-    where plan_id = p_plan_id and participant_token_hash = p_participant_token_hash
-      and phase = p_phase and pool_number = p_pool_number;
+  -- 023: one row per (plan, participant, round), enforced by
+  -- votes_participant_round_key. A concurrent call by the same participant
+  -- serialises on that key and lands as DO UPDATE — never a second row that
+  -- execute_plan_command would tally twice. Returns the resulting selection,
+  -- byte-identical on a replayed call.
   if p_value then
     insert into votes (plan_id, spot_id, voter_name, value, phase, pool_number, participant_token_hash)
-    values (p_plan_id, p_spot_id, clean_name, true, p_phase, p_pool_number, p_participant_token_hash);
+    values (p_plan_id, p_spot_id, clean_name, true, p_phase, p_pool_number, p_participant_token_hash)
+    on conflict (plan_id, participant_token_hash, phase, pool_number)
+      where participant_token_hash is not null
+      do update set spot_id = excluded.spot_id, voter_name = excluded.voter_name, value = true;
+  else
+    delete from votes
+      where plan_id = p_plan_id and participant_token_hash = p_participant_token_hash
+        and phase = p_phase and pool_number = p_pool_number;
   end if;
+
+  return jsonb_build_object(
+    'plan_id',     p_plan_id,
+    'phase',       p_phase,
+    'pool_number', p_pool_number,
+    'spot_id',     case when p_value then p_spot_id else null end
+  );
 end; $$;
 
 create or replace function set_plan_rsvp(
@@ -1465,11 +1491,17 @@ create or replace function consume_app_quota(p_secret text, p_scope text)
 returns boolean language plpgsql security definer set search_path = public, extensions, pg_temp as $$
 declare uid uuid := auth.uid(); minute_start timestamptz := date_trunc('minute',now()); day_start timestamptz := date_trunc('day',now()); current_count integer; minute_limit integer; day_limit integer;
 begin
-  if not valid_control_secret(p_secret) or uid is null or p_scope not in ('smart-search','plan-create','place-import') then
+  if not valid_control_secret(p_secret) or uid is null
+     or p_scope not in ('smart-search','plan-create','place-import','spot-deal') then
     raise exception 'Server authorization required' using errcode='42501';
   end if;
-  minute_limit := case p_scope when 'smart-search' then 10 when 'plan-create' then 12 else 20 end;
-  day_limit := case p_scope when 'smart-search' then 30 when 'plan-create' then 50 else 200 end;
+  -- 022: 'spot-deal' gets its own bucket. Dealing happens before a plan
+  -- exists and is re-rolled repeatedly, so sharing plan-create's bucket
+  -- would lock a user out of creating the plan they were dealing for.
+  minute_limit := case p_scope
+    when 'smart-search' then 10 when 'plan-create' then 12 when 'spot-deal' then 30 else 20 end;
+  day_limit := case p_scope
+    when 'smart-search' then 30 when 'plan-create' then 50 when 'spot-deal' then 300 else 200 end;
   insert into app_rate_limits values(p_scope||'-minute',uid::text,minute_start,1)
     on conflict(scope,subject,window_start) do update set request_count=app_rate_limits.request_count+1
     returning request_count into current_count;
@@ -1488,7 +1520,7 @@ begin
 end; $$;
 -- 021: signed-in sessions only. Quota is keyed on uid::text and the body
 -- raises when auth.uid() is null, so anon could never spend quota anyway.
-revoke all on function consume_app_quota(text,text) from public, anon;
+revoke all on function consume_app_quota(text,text) from public, anon, authenticated;
 grant execute on function consume_app_quota(text,text) to authenticated;
 
 create or replace function record_security_event(p_secret text, p_event_type text, p_outcome text,

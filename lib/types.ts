@@ -82,6 +82,16 @@ export interface Vote {
   participant_token_hash?: string | null;
 }
 
+// What cast_plan_vote returns (migration 023). The vote is idempotent per
+// (plan, participant, round): a replayed call returns this unchanged.
+// spot_id is the participant's current pick for the round, or null once cleared.
+export interface CastVoteResult {
+  plan_id: string;
+  phase: "pool" | "final";
+  pool_number: number;
+  spot_id: string | null;
+}
+
 // After the decision: who's actually coming. A vote is an opinion; an RSVP
 // is a commitment. Headcount (not vote count) drives the booking.
 export interface Rsvp {
