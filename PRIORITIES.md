@@ -40,9 +40,31 @@ existed.
 - [x] **F0.4** After Dark committed (`67d76a3`).
 - [x] **F0.5** Motion section reversed for bounded ambient night motion, with a
       note matching the Colour section's voice so it is not restored by accident.
-- [ ] **F0.3** Refresh graphify — built at `55f3237`, HEAD has moved.
+- [x] **F0.3** Graphify refreshed to HEAD — 860 nodes, 1367 edges, 76 communities.
+- [x] **F0.6** Orchestrator `tools:` corrected — it owned `PRIORITIES.md` but had
+      no `Write`/`Edit`, so it could not update its own queue. Scoped by prose to
+      the queue and handoff docs only.
 
 ---
+
+## Wave 1 — dispatched 2026-08-28, in flight
+
+All three lanes were dispatched in one message so they run concurrently; the
+verifier was dispatched alongside them as a *producer* on QA.1/QA.2, because
+`tests/**` and `package.json` are untouched by every lane this wave. The Wave 1
+**gate** is a separate later run.
+
+| Lane | Tasks | Files it may write |
+|---|---|---|
+| Frontend | FE.1, FE.2, FE.8 | `app/**`, `components/**`, `globals.css` |
+| Backend | BE.1, BE.2 | `supabase/**`, `app/api/**`, `lib/types.ts`, `lib/supabase.ts` |
+| Security | SEC.1–SEC.4 | *nothing* |
+| Verifier | QA.1, QA.2 | `tests/**`, `package.json` |
+
+Deferred to a later wave, deliberately: FE.3 (Dubai-clock theme), FE.4 (night
+coverage), FE.5 (After Dark on the payoff), FE.6 (dead CSS), FE.7 (vote-page
+states), FE.9 (component reuse). FE.3 and FE.4 are one cohesive piece of work and
+all of them touch `globals.css`, which one lane can only hold once per wave.
 
 ## Wave 1 — FRONTEND (priority lane)
 

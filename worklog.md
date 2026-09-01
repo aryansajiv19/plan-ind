@@ -32,6 +32,7 @@ Apply in order. Every migration is additive and re-run safe unless noted.
 | 019 | `migration-019-secret-isolation-and-rpc-integrity.sql` | yes — verified live 2026-08-10 |
 | 020 | `migration-020-production-security.sql` | **yes — applied and verified live 2026-08-24** |
 | 021 | `migration-021-revoke-anon-execute.sql` | **no — unapplied; live probe still returns `200 false` on 2026-08-24** |
+| 022 | `migration-022-spot-deal-quota-and-guest-realtime.sql` | **no — unapplied (written 2026-08-28). Apply BEFORE deploying: `/api/spots/deal` now calls `consume_app_quota('spot-deal')`, which the pre-022 function rejects, so the route 429s until this lands.** |
 
 `npm run test:smoke` asserts the 019 guards against the live project. All ten
 database guards pass as of 2026-08-10: the plans projection carries no host
