@@ -1,5 +1,10 @@
 -- Migration 023 — make cast_plan_vote explicitly idempotent per
--- (plan, participant, round). Apply after 022. Additive and re-run safe.
+-- (plan, participant, round). Apply after 022. Re-run safe.
+--
+-- Not purely additive: it dedupes existing votes, swaps one index for a
+-- unique one, drops a now-harmful legacy unique constraint, and changes the
+-- cast_plan_vote body + return type. No data is lost beyond the duplicate
+-- rows that are the bug being fixed. Wrapped in one transaction.
 --
 -- Why a separate file and not folded into 021 or 022: 021 is a privileges-only
 -- migration that advertises "no table, column, policy or function is created,
@@ -24,6 +29,11 @@
 -- delete-then-insert. A concurrent second call now blocks on the first's row
 -- lock and then updates that one row. The function also returns the resulting
 -- selection as jsonb — identical on every retry.
+--
+-- One transaction: the dedupe DELETE and the CREATE UNIQUE INDEX must not have
+-- a gap where a concurrent write slips a duplicate in and fails the build.
+
+begin;
 
 -- ── 1. Collapse any pre-existing duplicates ──────────────────────────────
 -- Keep the most recent row per (plan, participant, round); (created_at, id)
@@ -47,6 +57,33 @@ drop index if exists votes_participant_token_idx;
 create unique index if not exists votes_participant_round_key
   on votes (plan_id, participant_token_hash, phase, pool_number)
   where participant_token_hash is not null;
+
+-- ── 2b. Drop the vestigial name-keyed unique constraint ──────────────────
+-- votes carried `unique (plan_id, spot_id, voter_name, phase, pool_number)`
+-- from before participant tokens existed. Step 2 above makes the token-hash
+-- key the real one-vote-per-round invariant. The name-keyed constraint now
+-- only does harm: two people who type the same display name ("Sam" twice at
+-- one dinner) both voting YES on the same spot in the same round hit a 23505
+-- that cast_plan_vote's ON CONFLICT (keyed on the hash, not the name) does
+-- not catch — the RPC raises and the second person sees a misleading "that
+-- vote didn't save" until they rename. Post-020 every write carries a 64-hex
+-- hash and the dedupe above already collapsed legacy rows, so this constraint
+-- protects nothing the new index doesn't. Matched by column set so a
+-- differently-generated constraint name still resolves.
+do $$
+declare c text;
+begin
+  select con.conname into c
+  from pg_constraint con
+  where con.conrelid = 'public.votes'::regclass and con.contype = 'u'
+    and (select array_agg(a.attname order by a.attname)
+         from unnest(con.conkey) k
+         join pg_attribute a on a.attrelid = con.conrelid and a.attnum = k)
+        = array['phase','plan_id','pool_number','spot_id','voter_name']::name[];
+  if c is not null then
+    execute format('alter table public.votes drop constraint %I', c);
+  end if;
+end $$;
 
 -- ── 3. cast_plan_vote: explicit idempotency + a payload on retry ─────────
 -- Signature is byte-identical to 019/020 (PostgREST resolves by parameter-name
@@ -127,13 +164,19 @@ end; $$;
 revoke all on function cast_plan_vote(uuid, uuid, text, boolean, text, smallint, text) from public, anon;
 grant execute on function cast_plan_vote(uuid, uuid, text, boolean, text, smallint, text) to authenticated;
 
+commit;
+
 -- ── Verification (run after applying) ────────────────────────────────────
 --
--- 1. The invariant exists:
+-- 1. The invariant exists and the name-keyed one is gone:
 --
 --    select indexdef from pg_indexes where indexname = 'votes_participant_round_key';
 --    -- expect: CREATE UNIQUE INDEX ... (plan_id, participant_token_hash, phase, pool_number)
 --    --         WHERE (participant_token_hash IS NOT NULL)
+--
+--    select conname from pg_constraint
+--     where conrelid = 'public.votes'::regclass and contype = 'u';
+--    -- expect: no row keyed on (plan_id, spot_id, voter_name, phase, pool_number)
 --
 -- 2. Idempotency, against a live plan + a real participant token hash
 --    (needs a session — role authenticated — and a claimed plan_access row):

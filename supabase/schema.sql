@@ -102,8 +102,10 @@ create table plan_spots (
 
 create index plan_spots_pool_idx on plan_spots (plan_id, pool_number);
 
--- One row per voter choice in a pool or final. The round-aware unique key
--- prevents duplicate rows while preserving the complete tournament vote.
+-- One row per voter choice in a pool or final. One vote per participant per
+-- round is enforced by the partial unique index votes_participant_round_key
+-- (below) — keyed on the participant token hash, not the typed name, so two
+-- people who type the same display name don't collide.
 create table votes (
   id         uuid primary key default gen_random_uuid(),
   plan_id    uuid not null references plans(id) on delete cascade,
@@ -113,8 +115,7 @@ create table votes (
   phase      text not null default 'final' check (phase in ('pool', 'final')),
   pool_number smallint not null default 0 check (pool_number between 0 and 6),
   participant_token_hash text,
-  created_at timestamptz not null default now(),
-  unique (plan_id, spot_id, voter_name, phase, pool_number)
+  created_at timestamptz not null default now()
 );
 
 create index votes_plan_idx on votes (plan_id);
