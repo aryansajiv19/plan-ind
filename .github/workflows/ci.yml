@@ -33,3 +33,50 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm run build
+
+  test-db:
+    # Self-contained: a throwaway local Supabase stack, never the live
+    # project. Own job so a slow/flaky local-stack boot never blocks the
+    # fast hermetic suite above.
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - run: supabase start --exclude studio,edge-runtime,imgproxy,logflare,vector,pgbouncer
+      - run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -f supabase/schema.sql
+      - run: npm run test:db
+        env:
+          TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+
+  test-e2e:
+    # Off by default — guest-vote.spec.ts runs against the LIVE Supabase
+    # project (see tests/README.md) and votes on the shared seeded plan on
+    # every run. Opt in with a repo Actions variable (Settings → Secrets and
+    # variables → Actions → Variables → RUN_E2E = true) plus the real
+    # NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY as repo
+    # secrets. Until then this job is skipped, not failing.
+    if: vars.RUN_E2E == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NEXT_PUBLIC_SITE_URL: https://example.test
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+      SECURITY_CONTROL_SECRET: ${{ secrets.SECURITY_CONTROL_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
