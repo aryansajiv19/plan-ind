@@ -16,12 +16,20 @@ the other terminals can't see it.
 
 ## Terminals
 
-| # | Lane | Owns | Current focus |
-|---|---|---|---|
-| **T0** | Orchestrator / Platform | `.github/**`, root `*.md`, `tests/**` config, deploy, load-test harness | context hygiene → CI + Vercel deploy → observability + load baseline |
-| **T1** | Backend | `supabase/**`, `app/api/**`, `lib/types.ts`, `lib/supabase.ts`, `lib/ai/**`, `lib/spots/**` | BE.1 share-link vote path; verify migrations 021/022 |
-| **T2** | Frontend | `app/**`, `components/**`, `globals.css`, `lib/dubai-phase.ts` | FE.1 real front door → FE.2 signature element |
-| **T3** | Design (owner-driven) | `design-system/**`, `FRONTEND_DESIGN_STANDARDS.md`, Claude Design canvas | visual direction + component specs feeding T2 |
+| # | Lane | Model | Owns | Current focus |
+|---|---|---|---|---|
+| **T0** | Orchestrator / Platform | Sonnet medium | `.github/**`, root `*.md`, `tests/**` config, deploy, load-test harness | context hygiene → CI + Vercel deploy → observability + load baseline |
+| **T1** | Backend | **Opus** | `supabase/**`, `app/api/**`, `lib/types.ts`, `lib/supabase.ts`, `lib/ai/**`, `lib/spots/**` | BE.1 share-link vote path; verify migrations 021/022 |
+| **T2** | Frontend | Sonnet medium | `app/**`, `components/**`, `globals.css`, `lib/dubai-phase.ts` | FE.1 real front door → FE.2 signature element |
+| **T3** | Design (owner-driven) | Sonnet medium | `design-system/**`, `FRONTEND_DESIGN_STANDARDS.md`, Claude Design canvas | visual direction + component specs feeding T2 |
+
+**Model policy.** T1 is the correctness-critical lane (RLS, security-definer
+RPCs, live migrations, the winner-deciding tally, concurrency, RAG) → Opus. The
+rest → Sonnet medium. Switch temporarily: T0 → Opus for a one-off architecture
+design pass (outbox/events, tracing topology); the `security` subagent → Opus
+every time it runs; `ai-engineer` work inside T1 → Opus for retrieval
+architecture and eval-set design. If T1 is ever on Sonnet, use *high* reasoning
+for any migration / RLS / concurrency change.
 
 Security and qa-test are **subagents**, not terminals — whichever lane needs them
 invokes them (`security` before committing anything touching RLS/writes/model
@@ -71,3 +79,4 @@ Format:
 Short, dated, one line each. Anything another terminal must not re-litigate.
 
 - 2026-09-01: 4 terminals (T0–T3). Subagents used only to parallelize real fan-out, never for linear work.
+- 2026-09-01: Model policy — T1 Backend on Opus, T0/T2/T3 on Sonnet medium, `security` subagent on Opus when invoked. See Model policy note above.
