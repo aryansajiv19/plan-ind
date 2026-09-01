@@ -1,7 +1,16 @@
 import "server-only";
 
 import { createHmac } from "node:crypto";
+import { headers } from "next/headers";
 import type { SupabaseClient } from "@supabase/supabase-js";
+
+// The Vercel-assigned id for the current request, for correlating a
+// security_events row back to a specific request/log line. null off Vercel
+// (local dev) — record_security_event already treats a null request id as
+// "not available", it doesn't require one.
+export async function requestId(): Promise<string | null> {
+  return (await headers()).get("x-vercel-id");
+}
 
 function controlSecret(): string {
   const secret = process.env.SECURITY_CONTROL_SECRET;
@@ -26,6 +35,26 @@ export async function consumeQuota(
   if (error) {
     if (process.env.NODE_ENV !== "production" && error.code === "PGRST202") return true;
     console.error("Quota control failed", JSON.stringify({ scope, code: error.code }));
+    return false;
+  }
+  return data === true;
+}
+
+// Migration 026. OTP request happens before a session exists, so it can't
+// use consumeQuota (consume_app_quota requires auth.uid()). Keyed on the
+// HMAC'd email — never the raw address — via the same private key as
+// recordSecurityEvent's subject_hash.
+export async function consumeOtpRequestLimit(
+  supabase: SupabaseClient,
+  email: string,
+): Promise<boolean> {
+  const { data, error } = await supabase.rpc("consume_otp_request_limit", {
+    p_secret: controlSecret(),
+    p_subject: privateSubject(email),
+  });
+  if (error) {
+    if (process.env.NODE_ENV !== "production" && error.code === "PGRST202") return true;
+    console.error("OTP rate limit control failed", JSON.stringify({ code: error.code }));
     return false;
   }
   return data === true;
