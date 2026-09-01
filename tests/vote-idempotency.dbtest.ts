@@ -18,8 +18,17 @@ import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { randomUUID, randomBytes, createHash } from "node:crypto";
+import type { CastVoteResult } from "../lib/types.ts";
 
 const execFileAsync = promisify(execFile);
+
+function errorMessage(err: unknown): string {
+  if (err && typeof err === "object" && "stderr" in err) {
+    const withStd = err as { stderr?: unknown; message?: unknown };
+    return String(withStd.stderr ?? withStd.message ?? err).trim();
+  }
+  return String(err instanceof Error ? err.message : err).trim();
+}
 
 const DB_URL =
   process.env.TEST_DATABASE_URL ??
@@ -35,9 +44,8 @@ async function psql(sql: string): Promise<string> {
       { env: { ...process.env, PGCONNECT_TIMEOUT: "3" }, timeout: 20000 },
     );
     return stdout.trim();
-  } catch (err: any) {
-    const detail = String(err?.stderr ?? err?.message ?? err).trim();
-    throw new Error(detail);
+  } catch (err: unknown) {
+    throw new Error(errorMessage(err));
   }
 }
 
@@ -46,8 +54,8 @@ const q = (s: string) => `'${s}'`;
 async function detectSkip(): Promise<string | false> {
   try {
     await psql("select 1");
-  } catch (err: any) {
-    return `no reachable Postgres at ${DB_URL} — set TEST_DATABASE_URL to a LOCAL Supabase (never the live project). ${String(err.message).split("\n")[0]}`;
+  } catch (err: unknown) {
+    return `no reachable Postgres at ${DB_URL} — set TEST_DATABASE_URL to a LOCAL Supabase (never the live project). ${errorMessage(err).split("\n")[0]}`;
   }
   try {
     await psql("select auth.uid()");
@@ -149,8 +157,8 @@ async function castVote(
   value: boolean,
   phase: "pool" | "final" = "pool",
   pool = 1,
-): Promise<any> {
-  return JSON.parse(await psql(castVoteSql(p, planId, spotId, value, phase, pool)));
+): Promise<CastVoteResult> {
+  return JSON.parse(await psql(castVoteSql(p, planId, spotId, value, phase, pool))) as CastVoteResult;
 }
 
 async function roundRowCount(planId: string, hash: string, phase = "pool", pool = 1): Promise<number> {
