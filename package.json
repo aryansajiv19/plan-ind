@@ -13,7 +13,8 @@
     "test:security": "npm run test",
     "test:wrapped": "npm run test",
     "test:smoke": "node scripts/smoke-test.mjs",
-    "test:smoke:020": "node scripts/smoke-test.mjs --020"
+    "test:smoke:020": "node scripts/smoke-test.mjs --020",
+    "test:db": "node --experimental-strip-types --test \"tests/*.dbtest.ts\""
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",
