@@ -890,3 +890,21 @@ are unaffected.
 handoff spec requires vote contents withheld server-side until a round closes,
 which `execute_plan_command`/the vote read path doesn't do today. Both need
 reassignment.
+
+## The two orphaned items — resolved, both deferred (2026-09-02)
+
+- **`images.remotePatterns`** — Design's call, and it's the right one: don't
+  add it yet. There's no photo pipeline and no chosen host yet (`Spot.photo_url`
+  is mostly null); every current `next/image` already correctly uses
+  `unoptimized` for that reason. A guessed allowlist becomes an SSRF surface
+  the moment it's a wildcard, and nobody tightens a guessed one later. Park
+  until a real photo source is chosen (Design's upcoming photo-wall work),
+  then it needs a `security` subagent look at the specific hosts — not a lane
+  picking it up as tidy-up.
+- **Server-side vote-withholding** — correctly not design's to build (schema +
+  RLS), but also not ready to build: it only matters once the handoff's
+  keep/pass + hidden-third-card voting model exists, and nothing has started
+  on that yet. Deferred with it, not separately.
+
+Neither is actionable right now. Re-raise both when their real prerequisite
+(chosen photo host; the new voting model) actually lands.
