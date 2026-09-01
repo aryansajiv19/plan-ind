@@ -9,7 +9,7 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "check:schema": "node scripts/check-schema-types.mjs",
-    "test": "node --experimental-strip-types --test \"tests/*.test.ts\"",
+    "test": "node --experimental-strip-types --import ./tests/register-aliases.mjs --test \"tests/*.test.ts\"",
     "test:security": "npm run test",
     "test:wrapped": "npm run test",
     "test:smoke": "node scripts/smoke-test.mjs",

@@ -10,6 +10,20 @@ default and run in CI on every push.
 - `security.test.ts` — request validation / CSRF / body limits
 - `spots-match.test.ts` — spot matching
 - `wrapped.test.ts` — wrapped summary logic
+- `auth.test.ts` — `safeNextPath` post-login redirect guard
+
+### Path/module resolution
+
+`npm test` runs with `--import ./tests/register-aliases.mjs`, a Node
+`module.register()` hook (`tests/resolve-aliases.mjs`) that exists only so
+plain `node --test` can import files that use the `@/*` tsconfig alias or
+extensionless `next/*` specifiers (e.g. `next/navigation`, `next/headers`) —
+neither resolves under Node's ESM loader without a bundler. It rewrites
+`@/x` to `<repo>/x.ts` and adds `.js`/`.ts` extensions where needed; it does
+not change any runtime behavior of the app. If a test needs to import a `lib/`
+file that pulls in Next/Supabase server-only imports transitively (as
+`lib/auth.ts` does via `@/lib/supabase/server`), this is why it works — those
+transitive imports are never called, only resolved and loaded.
 
 ## Database integration tests — `npm run test:db`
 
