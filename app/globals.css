@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 /* ── Design tokens ─────────────────────────────────────────────────
-   Warm sand by day, warm near-black by night, brass throughout, with
-   terracotta reserved for anything live. From the owner's Claude Design
+   Warm sand by day, warm near-black by night, a cool teal accent against
+   both, with terracotta reserved for anything live. From the owner's Claude Design
    handoff (`design_handoff_plan/README.md`) — turn 14 for colour, turn
    13 for weight and restraint.
 
@@ -17,14 +17,16 @@
 
    1. THE FIVE CATEGORY-GROUP HUES. Paprika / magenta / teal / green /
       violet, one per group, are gone. The handoff rejects the whole
-      "category rainbow" of turns 1-7: brass carries structure and
+      "category rainbow" of turns 1-7: the accent carries structure and
       terracotta carries live state, and what kind of night it is comes
       from the photograph, not from a hue. `data-group` no longer selects
       anything.
    2. THE HARD OFFSET SHADOW (`.token`). Turn 8 was rejected for exactly
       that — "thick ink-brass outlines, hard offset shadows... nothing
       thinner than a 2px border" read as loud and childish. Turn 13
-      replaces it: depth is pointer parallax and ONE brass hairline.
+      replaces it: depth is pointer parallax and ONE hairline.
+   3. BRASS ITSELF. The handoff's accent was brass; the owner rejected it
+      on sight. See --color-punch below for what replaced it and why.
 
    Earlier still, these were a lilac ground with plum ink; `.home-experience`
    and `.vote-experience` each redefined the palette locally, so those two
@@ -37,15 +39,23 @@
   --color-card: #fbf8f3; /* surface — raised panels */
   --color-ink: #1a1618; /* 15.79:1 on ground, 16.92:1 on surface */
   --color-muted: #6b625c; /* 5.25:1 on ground, 5.62:1 on surface */
-  --color-line: rgba(122, 96, 56, 0.32); /* hairline — brass-tinted, not grey */
+  --color-line: rgba(18, 102, 110, 0.30); /* hairline — accent-tinted, not grey */
 
-  /* Brass. On sand there is only ONE brass that survives as text: #7a6038
-     at 5.20:1. The night brass #c9a56f measures 2.03:1 here, so it is never
-     text on this ground — the handoff's rule is "never lighter than this".
-     --color-punch and --color-punch-text therefore collapse to one value by
-     day and split again at night, where the ground can carry both. */
-  --color-punch: #7a6038; /* 5.20:1 on ground, 5.57:1 on surface */
-  --color-punch-text: #7a6038; /* same by day; night splits them */
+  /* The accent. Carries structure, hairlines, the wordmark, and "the
+     outcome" — the winner, a decided plan.
+
+     This was brass in the handoff. It is teal by owner decision: a warm
+     metal on a warm ground made everything one temperature, and the whole
+     palette went quiet. A COOL accent against warm sand and warm near-black
+     is what makes it read as interactive rather than decorative — the same
+     reasoning that put cobalt in the palette two systems ago.
+
+     Unlike brass, one value serves both fill and text on each ground: brass
+     needed a separate darker cut because that brass was 2.03:1 on sand, whereas
+     this clears AA on everything it sits on. --color-punch-text is kept as a
+     name only so the many rules that read it keep working. */
+  --color-punch: #12666e; /* 5.87:1 on ground, 6.29:1 on surface */
+  --color-punch-text: #12666e; /* no separate cut needed */
 
   /* Terracotta marks LIVE STATE and nothing else — who is looking, what
      just changed. It never decorates and never marks an outcome. */
@@ -54,9 +64,9 @@
   /* Legacy aliases. `text-grape` / `bg-zest` / `text-mint` are still
      scattered through the components; they now all resolve to brass so
      nothing renders a dead colour mid-migration. Do not add new uses. */
-  --color-grape: #7a6038;
-  --color-zest: #7a6038;
-  --color-mint: #7a6038;
+  --color-grape: #12666e;
+  --color-zest: #12666e;
+  --color-mint: #12666e;
 
   --font-display: var(--font-display-family), system-ui, sans-serif;
   --font-body: var(--font-hanken), system-ui, sans-serif;
@@ -81,7 +91,7 @@
    `var()` therefore belongs here, where it is always emitted; @theme is
    for tokens that should also generate a utility class. */
 :root {
-  --color-brass-tint: rgba(122, 96, 56, 0.07); /* inactive chip fill — .07 composites to 4.75:1 for brass text; at .12 it drops to 4.45:1 and fails. Do not raise. */
+  --color-accent-tint: rgba(18, 102, 110, 0.07); /* inactive chip fill — composites to #e4e6e1, where the accent still measures 5.30:1. Raising it eats that headroom fast. */
   --color-live-dot: #b3552c; /* live dot — 4.35:1; non-text, needs 3:1 */
 
   /* Durations, named so they stop being pasted as magic numbers. */
@@ -102,20 +112,18 @@
   --color-card: #171316;
   --color-ink: #f4efe8; /* 17.04:1 on ground, 16.09:1 on surface */
   --color-muted: #a49a92; /* 7.07:1 on ground, 6.67:1 on surface */
-  --color-line: rgba(201, 165, 111, 0.3);
+  --color-line: rgba(104, 184, 192, 0.28);
 
-  /* Night can carry both brass cuts: the fill/rule brass and a lighter
-     text brass above it. */
-  --color-punch: #c9a56f; /* 8.44:1 on ground — fills, progress, rules */
-  --color-punch-text: #d3af78; /* 9.44:1 on ground, 8.91:1 on surface */
-  --color-brass-tint: rgba(201, 165, 111, 0.16);
+  --color-punch: #68b8c0; /* 8.54:1 on ground, 8.07:1 on surface */
+  --color-punch-text: #68b8c0; /* one value serves both here too */
+  --color-accent-tint: rgba(104, 184, 192, 0.16); /* composites to #242d31; accent on it is 6.16:1 */
 
   --color-live: #e08e63; /* 7.63:1 on ground */
   --color-live-dot: #cf7a4e; /* 6.08:1 */
 
-  --color-grape: #d3af78;
-  --color-zest: #d3af78;
-  --color-mint: #d3af78;
+  --color-grape: #68b8c0;
+  --color-zest: #68b8c0;
+  --color-mint: #68b8c0;
 }
 
 /* The primary button is the one place the two grounds disagree about
@@ -127,8 +135,8 @@
   --primary-ink: #f6f2ec; /* 16.51:1 on the dark end, 13.91:1 on the light end */
 }
 [data-theme="night"] {
-  --primary-fill: linear-gradient(180deg, #dcbb87, #bc9860);
-  --primary-ink: #1a1518; /* 6.70:1 on the dark end, 9.88:1 on the light end */
+  --primary-fill: linear-gradient(180deg, #9ad3d9, #63aab2);
+  --primary-ink: #0e0c0e; /* 7.35:1 on the dark end, 11.78:1 on the light end */
 }
 
 /* ── Text over photography ─────────────────────────────────────────
@@ -165,10 +173,24 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Display type is a SERIF now (Newsreader), and that changes two numbers the
+   old geometric sans wanted:
+
+   TRACKING. A geometric sans reads as confident when it is tracked tight, so
+   the headings here had crept to -.06em and -.08em. A high-contrast serif at
+   display size crushes at those values — its own sidebearings are already
+   doing the work. The handoff's -.03em turns out to be right for a serif and
+   too loose for the sans it was written for.
+
+   WEIGHT. The handoff says hero at 800. That was Manrope, where weight is
+   what buys presence. Newsreader at 800 goes blobby at 100px; the contrast
+   between thick and thin strokes is what carries a serif, so display sits at
+   400-600 and lets size and air do the rest. */
 h1,
 h2,
 h3 {
   font-family: var(--font-display);
+  font-weight: 500;
   letter-spacing: -0.02em;
   text-wrap: balance;
 }
@@ -822,9 +844,9 @@ h3 {
 .home-title {
   margin-top: 0.45rem;
   font-size: clamp(3rem, 1.5rem + 4.2vw, 4.75rem);
-  line-height: 0.9;
-  letter-spacing: -0.06em;
-  font-weight: 600;
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+  font-weight: 500;
 }
 
 .home-title__line {
@@ -951,7 +973,7 @@ h3 {
   width: min(100%, 31rem);
   height: 32rem;
   overflow: hidden;
-  border: 1px solid rgba(201, 165, 111, 0.45);
+  border: 1px solid rgba(104, 184, 192, 0.45);
   background: #111318;
   color: white;
   box-shadow: 0 2rem 5rem rgba(23, 24, 27, 0.13);
@@ -2081,7 +2103,7 @@ h3 {
 .auth-mark { display: inline-flex; align-items: center; justify-content: center; width: 3rem; height: 3rem; border: 1px solid var(--auth-ink); background: var(--auth-ink); color: #f6f3ed; font-family: var(--font-display); font-size: .95rem; font-weight: 800; letter-spacing: -.06em; text-decoration: none; }
 .auth-mark b { margin-left: .12rem; color: var(--auth-metal-text); font-size: .76rem; }
 .auth-kicker, .auth-panel__heading p { margin: 0; color: var(--auth-metal-text); font-size: .68rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
-.auth-intro h1 { max-width: 30rem; margin: auto 0 1.25rem; font-size: clamp(3.5rem, 7vw, 6.8rem); line-height: .88; letter-spacing: -.08em; }
+.auth-intro h1 { max-width: 30rem; margin: auto 0 1.25rem; font-size: clamp(3.5rem, 7vw, 6.8rem); line-height: .96; letter-spacing: -.03em; font-weight: 500; }
 .auth-intro h1 em { color: var(--auth-metal); font-style: normal; }
 .auth-copy { max-width: 27rem; margin: 0; color: var(--auth-muted); font-size: .95rem; line-height: 1.65; }
 .auth-panel { display: flex; flex-direction: column; justify-content: center; padding: clamp(1.25rem, 5vw, 4rem); background: var(--auth-card); }
@@ -2096,13 +2118,15 @@ h3 {
 .auth-input--code { text-align: center; font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; letter-spacing: .28em; }
 .auth-google, .auth-submit { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 3rem; border: 1px solid var(--auth-ink); border-radius: 0; padding: .75rem 1rem; font-size: .78rem; font-weight: 700; cursor: pointer; transition: background 160ms ease, color 160ms ease, transform 160ms ease; }
 .auth-google { gap: .7rem; background: transparent; color: var(--auth-ink); }
-.auth-google:hover { background: var(--auth-ink); color: #fff; }
+.auth-google:hover { background: var(--primary-fill); color: var(--primary-ink); border-color: transparent; }
 .auth-google__icon { display: grid; place-items: center; width: 1.45rem; height: 1.45rem; border: 1px solid currentColor; font-size: .72rem; font-weight: 800; }
 .auth-divider { display: flex; align-items: center; gap: .75rem; margin: 1.4rem 0; color: var(--auth-muted); font-size: .62rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
 .auth-divider span { height: 1px; flex: 1; background: var(--auth-line); }
 .auth-fields { display: grid; gap: 1rem; }
-.auth-submit { background: var(--auth-ink); color: #fff; }
-.auth-submit:hover { background: var(--auth-metal); border-color: var(--auth-metal); transform: translateY(-1px); }
+/* The themed primary pair, not raw ink-on-white: at night --auth-ink is
+   cream, so `color: #fff` was white on cream — invisible. */
+.auth-submit { border-color: transparent; background: var(--primary-fill); color: var(--primary-ink); }
+.auth-submit:hover { transform: translateY(-1px); filter: brightness(1.06); }
 .auth-submit:disabled { cursor: wait; opacity: .55; }
 .auth-message, .auth-footnote { color: var(--auth-muted); font-size: .76rem; line-height: 1.5; }
 .auth-link { display: block; color: var(--auth-metal-text); font-size: .76rem; font-weight: 700; text-align: center; text-decoration: underline; text-underline-offset: .2rem; }
@@ -2122,19 +2146,19 @@ h3 {
   --color-card: #171316;
   --color-ink: #f4efe8;
   --color-muted: #a49a92;
-  --color-line: rgba(201, 165, 111, 0.3);
-  --color-punch: #c9a56f;
-  --color-punch-text: #d3af78;
-  --color-brass-tint: rgba(201, 165, 111, 0.16);
+  --color-line: rgba(104, 184, 192, 0.28);
+  --color-punch: #68b8c0;
+  --color-punch-text: #68b8c0;
+  --color-accent-tint: rgba(104, 184, 192, 0.16);
   --color-live: #e08e63;
   --color-live-dot: #cf7a4e;
-  --color-grape: #d3af78;
-  --color-zest: #d3af78;
-  --color-mint: #d3af78;
-  --home-metal: #c9a56f;
-  --vote-metal: #c9a56f;
-  --primary-fill: linear-gradient(180deg, #dcbb87, #bc9860);
-  --primary-ink: #1a1518;
+  --color-grape: #68b8c0;
+  --color-zest: #68b8c0;
+  --color-mint: #68b8c0;
+  --home-metal: #68b8c0;
+  --vote-metal: #68b8c0;
+  --primary-fill: linear-gradient(180deg, #9ad3d9, #63aab2);
+  --primary-ink: #0e0c0e;
   color-scheme: dark;
 }
 
@@ -3151,7 +3175,7 @@ h3 {
 
    Night only, on purpose: brass is 3.37:1 on ivory and the lattice wash
    vanishes on a light ground. The night palette at :2098 already matches
-   the canvas exactly — now retuned to turn 14: #0e0c0e / #171316 / #c9a56f / #f4efe8 — so nothing
+   the canvas exactly — now retuned: #0e0c0e / #171316 / #68b8c0 / #f4efe8 — so nothing
    below repaints anything. This adds the three things the canvas has and
    the shipped screen did not: texture, structure, and reveal.
 
@@ -3164,8 +3188,8 @@ h3 {
 /* --- Ground: brass lattice at +/-45deg, and a slow halo behind the masthead. */
 .vote-experience--night::before {
   background:
-    repeating-linear-gradient(45deg, rgba(201, 165, 111, 0.07) 0 1px, transparent 1px 22px),
-    repeating-linear-gradient(-45deg, rgba(201, 165, 111, 0.07) 0 1px, transparent 1px 22px),
+    repeating-linear-gradient(45deg, rgba(104, 184, 192, 0.07) 0 1px, transparent 1px 22px),
+    repeating-linear-gradient(-45deg, rgba(104, 184, 192, 0.07) 0 1px, transparent 1px 22px),
     var(--color-paper);
   background-size: auto;
 }
@@ -3185,9 +3209,9 @@ h3 {
   filter: blur(28px);
   background: conic-gradient(
     from 0deg,
-    rgba(201, 165, 111, 0.18),
+    rgba(104, 184, 192, 0.18),
     transparent 40%,
-    rgba(201, 165, 111, 0.12) 70%,
+    rgba(104, 184, 192, 0.12) 70%,
     transparent
   );
   animation: ad-halo 32s linear infinite;
@@ -3296,7 +3320,7 @@ h3 {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(105deg, transparent 30%, rgba(201, 165, 111, 0.22) 48%, transparent 62%);
+  background: linear-gradient(105deg, transparent 30%, rgba(104, 184, 192, 0.22) 48%, transparent 62%);
   background-size: 250% 100%;
   animation: ad-sheen 6s ease-in-out infinite;
 }

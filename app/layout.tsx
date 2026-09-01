@@ -4,19 +4,27 @@ import ThemeSync from "@/components/ThemeSync";
 import { autoGround } from "@/lib/dubai-phase";
 import "./globals.css";
 
-// Manrope, variable, wght 200-800 — the axis is load-bearing, not a nicety:
-// the plan card's headline arrives by gaining weight from 300 to 800 over
-// 1.4s, which four static cuts cannot do. Two subsets (latin, latin-ext)
-// replace the four static TTFs at a tenth of the bytes.
+// Newsreader, variable, wght 200-800.
+//
+// The handoff specified Manrope for display. This is a deliberate departure,
+// taken on the owner's call after Cobble came in as a reference for "the
+// nature of the design": nearly all of that reference's character comes from
+// pairing an editorial serif with a friendly sans, and a geometric sans on
+// warm sand reads generic next to it. A high-contrast serif with air is also
+// the sleekest thing available — the two briefs do not actually conflict.
+//
+// Newsreader specifically: its 200-800 axis is exactly the range the handoff
+// asked for, so turn 13's headline entrance (weight 300 -> 800 over 1.4s)
+// transfers unchanged; it carries an optical-size axis; and it is neither
+// Playfair nor Fraunces, both of which are everywhere.
+//
+// DISPLAY ONLY — hero, titles, section heads, the wordmark. Body copy,
+// labels, chips and numerals stay Hanken Grotesk. Two families, which is the
+// cap FRONTEND_DESIGN_STANDARDS sets.
 const display = localFont({
   src: [
     {
-      path: "../public/fonts/manrope-variable-latin.woff2",
-      weight: "200 800",
-      style: "normal",
-    },
-    {
-      path: "../public/fonts/manrope-variable-latin-ext.woff2",
+      path: "../public/fonts/newsreader-variable-latin.woff2",
       weight: "200 800",
       style: "normal",
     },
