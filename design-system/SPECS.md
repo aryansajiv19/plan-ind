@@ -309,3 +309,145 @@ needs a rule or it goes. T2 decides; note the outcome in the coordination board.
 - `prefers-reduced-motion: reduce` kills the halo, the lattice is static anyway,
   the reveal sweep does not run; no layout shift.
 - `a11y-responsive` skill pass.
+
+---
+
+## FE.7 — shared vote-page state component
+
+`app/plan/[id]/page.tsx` renders six hand-rolled full-screen blocks (`access`
+`captcha` / `error`, `load` `loading` / `notfound` / `error`, plus the implicit
+`checking`) in raw Tailwind — `text-3xl font-extrabold`, and one button in
+off-standard `rounded-2xl border-2 bg-grape`. T1's `bootstrapPlanAccess()` adds a
+typed `PlanAccessDenial` union that needs its own honest screens. Collapse all of
+it into one component.
+
+### What it is
+
+`<VoteState>` — a centered full-viewport panel, rendered **inside**
+`.vote-experience` (and `.vote-experience--night` when night) so it inherits the
+theme and, at night, the After Dark ground + halo already on that class. It is the
+first thing a guest on a bad or paused link sees, so it has to look like the
+product, not a stack trace.
+
+```tsx
+<VoteState
+  kind="loading" | "captcha" | "guest-paused" | "retry" | "cold-link"
+  planTitle={plan?.title}      // shown when known (loading, retry-after-load)
+  onRetry={() => …}            // required for kind="retry"
+>
+  {/* kind="captcha" only: <Turnstile action="plan-access" onVerify={…} /> */}
+</VoteState>
+```
+
+Five kinds, mapped from the page's existing unions + the denial reasons:
+
+| `kind` | Fires for | Title | Body | Action |
+|---|---|---|---|---|
+| `loading` | `access === "checking"` · `load === "loading"` | *Loading the plan…* (or *Loading {planTitle}…* when known) | — | none |
+| `captcha` | `access === "captcha"` · `PlanAccessDenial: captcha-required` | Open this plan securely | One line: a quick security check keeps the live vote clean. | `<Turnstile>` in the slot |
+| `guest-paused` | `PlanAccessDenial: anonymous-disabled` | Guest voting is paused | **This link works** — the host just needs to switch guest access back on. Ask them to check, or sign in to vote. | secondary: **Sign in** → `/login` |
+| `retry` | `access === "error"` · `PlanAccessDenial: sign-in-failed \| claim-failed` · `load === "error"` | This plan wouldn't open | The connection dropped before the plan loaded. Try again. | primary: **Try again** → `onRetry` |
+| `cold-link` | `load === "notfound"` · `PlanAccessDenial: not-found` | This link's gone cold | The plan isn't here anymore. Ask whoever sent it for a fresh link. | none |
+
+`guest-paused` is the load-bearing one: it must never read as "you have a bad
+link." The user did nothing wrong — our B1 toggle is off.
+
+### Colour — none
+
+A state screen is not "you / now", not "the outcome", not a category identity, so
+per the colour system it earns **no hue**: graphite ink on the ivory (or obsidian)
+ground, full stop. Two consequences:
+
+- **Do not** set `data-group` on the state panel, and **do not** use `.vote-kicker`
+  (it is `--color-punch-text` — champagne, reserved for the outcome). If an
+  overline is wanted, it is `--color-muted`.
+- Even `retry` after the plan row loaded — where the category *is* known — stays
+  colourless. The group hue belongs to the vote content, not the error chrome.
+
+The only accents on screen are inside `.vote-primary-action` (the "Try again"
+button — ink fill + the signature token shadow, which is correct: it is a commit
+action) and `.vote-secondary-action` ("Sign in" — ghost/underline).
+
+### Layout & tokens — a `.vote-state` block in `globals.css` (T2 writes it)
+
+Keep the layout the six blocks already share; give it real tokens.
+
+```css
+.vote-state {              /* on the <main>, alongside .vote-experience */
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 2rem 1.25rem;
+  text-align: center;
+}
+.vote-state__inner {
+  max-width: 22rem;
+  animation: vote-round-in 400ms var(--ease-settle) both;  /* reuse the keyframe */
+}
+.vote-state__over {        /* optional overline — muted, never champagne */
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--color-muted);
+}
+.vote-state__title {
+  margin-top: 0.5rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 5vw, 2rem);   /* not text-3xl — matches the type card's .t-title */
+  font-weight: 800; letter-spacing: -0.02em;
+  color: var(--color-ink);
+  text-wrap: balance;
+}
+.vote-state__body {
+  margin: 0.75rem auto 0;
+  max-width: 34ch;
+  font-size: 0.95rem; line-height: 1.5;
+  color: var(--color-muted);
+}
+.vote-state__body strong { color: var(--color-ink); font-weight: 700; }
+.vote-state__actions {
+  margin-top: 1.5rem;
+  display: flex; flex-direction: column; gap: 0.75rem; align-items: center;
+}
+.vote-state__slot { margin-top: 1.5rem; }   /* Turnstile wrapper */
+```
+
+- Primary action: reuse `.vote-primary-action` unchanged — **delete** the
+  `rounded-2xl border-2 border-ink bg-grape px-6 py-3 … text-white` utilities on
+  the current `load === "error"` button; the class already carries the fill,
+  radius, and token shadow.
+- Secondary action ("Sign in"): reuse `.vote-secondary-action`.
+
+### Motion — entrance only, nothing ambient
+
+- The panel enters once via `vote-round-in` (translate + fade, `--ease-settle`).
+  One-shot; the global reduced-motion `transition/animation-duration` override
+  neutralizes it.
+- **`loading` is text only — no spinner, no pulse.** "Communicate status with
+  clear text" (Visual direction §); a looping indicator is a status light. At
+  night the After Dark halo is already the screen's one ambient loop; a loading
+  shimmer would be a second one *and* would carry information, failing ambient
+  rule 3. If liveness ever feels needed, a single 2s fade of the title that
+  settles — not a loop — but ship text-only first.
+- Do **not** add the `.vote-round-label` rules, the leader sheen, or a second halo
+  to a night state screen. It sits on the inherited After Dark ground and adds
+  nothing of its own.
+
+### Icons — none
+
+There is no icon library in the repo (`package.json`, no `lucide` / `heroicons` /
+`react-icons`; no SVG in `components/`). The standards ban improvised SVGs, so the
+kinds differentiate by **headline and copy**, not a glyph. If an icon set is added
+later, one 24px stroke mark per kind (`cold-link`, `guest-paused`, `captcha`) can
+be revisited — not `loading` or `retry`.
+
+### Verification
+
+- Force each `kind` (temporarily hard-set the state) at 375 / 768 / 1280, day and
+  night: copy wraps cleanly, the panel is vertically centered, no horizontal
+  scroll.
+- `guest-paused` reads as "our fault, not yours" — check the wording lands.
+- Keyboard: "Try again" / "Sign in" reachable, graphite inset focus ring.
+- `prefers-reduced-motion`: panel appears with no slide.
+- Turnstile still mounts and verifies inside `kind="captcha"`.
+- `a11y-responsive` pass — each state has one `<h1>`, the panel is not an
+  `aria-live` region unless `loading` → `ready` needs announcing (it does:
+  `role="status"` on the loading panel is fine, it is text).
