@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { validateBirthDate } from "@/lib/age-policy";
-import { recordSecurityEvent } from "@/lib/security/controls";
+import { consumeOtpRequestLimit, recordSecurityEvent, requestId } from "@/lib/security/controls";
 import { safeNextPath } from "@/lib/auth";
 
 export interface AuthFormState {
@@ -54,6 +54,21 @@ export async function requestEmailCode(
   const next = safeNextPath(formData.get("next")?.toString());
 
   const supabase = await createClient();
+
+  // Durable, per-address limit (migration 026) — Turnstile above only proves
+  // "not a trivial bot", not "not spamming one address". No session exists
+  // yet, so this can't reuse consume_app_quota.
+  if (!(await consumeOtpRequestLimit(supabase, email))) {
+    await recordSecurityEvent(supabase, {
+      type: "rate_limit",
+      outcome: "blocked",
+      subject: email,
+      requestId: await requestId(),
+      metadata: { scope: "otp-request" },
+    });
+    return { email, error: "Too many codes requested for this address. Try again in a few minutes." };
+  }
+
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
@@ -63,12 +78,11 @@ export async function requestEmailCode(
     },
   });
 
-  const requestId = (await headers()).get("x-vercel-id");
   await recordSecurityEvent(supabase, {
     type: "otp_request",
     outcome: error ? "failure" : "success",
     subject: email,
-    requestId,
+    requestId: await requestId(),
   });
   if (error) {
     // Deliberately match the success response so the form cannot disclose
@@ -111,7 +125,7 @@ export async function verifyEmailCode(
     type: "otp_verify",
     outcome: error ? "failure" : "success",
     subject: email,
-    requestId: (await headers()).get("x-vercel-id"),
+    requestId: await requestId(),
   });
 
   if (error) {

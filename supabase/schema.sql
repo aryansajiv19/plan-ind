@@ -61,6 +61,10 @@ create table spots (
 );
 
 create index spots_owner_idx on spots (created_by_user_id) where source = 'custom';
+-- 027: app/home/page.tsx's `order by name limit 120` is the one unbounded-
+-- growth hot query on this table (no source/category filter, just RLS) —
+-- benchmarked ~49x faster with this index at 20k rows. See migration-027.
+create index spots_name_idx on spots (name);
 
 -- A plan == one share link. The uuid IS the slug in the URL.
 create table plans (
@@ -1008,18 +1012,29 @@ begin
     raise exception 'That plan does not exist' using errcode = '22023';
   end if;
 
-  select * into existing from rsvps where plan_id = p_plan_id and voter_name = clean_name for update;
-  if existing.id is not null and existing.participant_token_hash is not null
-     and existing.participant_token_hash <> p_participant_token_hash then
-    raise exception 'That participant name is already in use' using errcode = '42501';
-  end if;
-  if existing.id is null then
-    insert into rsvps (plan_id, voter_name, coming, choice, participant_token_hash)
-    values (p_plan_id, clean_name, p_coming, p_choice, p_participant_token_hash);
-  else
-    update rsvps set coming = p_coming, choice = p_choice, participant_token_hash = p_participant_token_hash
-      where id = existing.id;
-  end if;
+  -- 025: loop + retry-on-unique_violation. `for update` locks nothing when
+  -- the row doesn't exist yet, so two concurrent first-time RSVPs for the
+  -- same name can both reach the insert; the losing one now retries into the
+  -- update branch instead of surfacing a raw 23505.
+  loop
+    select * into existing from rsvps where plan_id = p_plan_id and voter_name = clean_name for update;
+    if existing.id is not null and existing.participant_token_hash is not null
+       and existing.participant_token_hash <> p_participant_token_hash then
+      raise exception 'That participant name is already in use' using errcode = '42501';
+    end if;
+    if existing.id is null then
+      begin
+        insert into rsvps (plan_id, voter_name, coming, choice, participant_token_hash)
+        values (p_plan_id, clean_name, p_coming, p_choice, p_participant_token_hash);
+        return;
+      exception when unique_violation then
+      end;
+    else
+      update rsvps set coming = p_coming, choice = p_choice, participant_token_hash = p_participant_token_hash
+        where id = existing.id;
+      return;
+    end if;
+  end loop;
 end; $$;
 
 create or replace function rate_plan(
@@ -1047,18 +1062,26 @@ begin
     raise exception 'You can only rate the place the group chose' using errcode = '22023';
   end if;
 
-  select * into existing from ratings where plan_id = p_plan_id and voter_name = clean_name for update;
-  if existing.id is not null and existing.participant_token_hash is not null
-     and existing.participant_token_hash <> p_participant_token_hash then
-    raise exception 'That participant name is already in use' using errcode = '42501';
-  end if;
-  if existing.id is null then
-    insert into ratings (plan_id, spot_id, voter_name, stars, again, participant_token_hash)
-    values (p_plan_id, p_spot_id, clean_name, p_stars, p_again, p_participant_token_hash);
-  else
-    update ratings set spot_id = p_spot_id, stars = p_stars, again = p_again,
-      participant_token_hash = p_participant_token_hash where id = existing.id;
-  end if;
+  -- 025: same loop + retry-on-unique_violation as set_plan_rsvp.
+  loop
+    select * into existing from ratings where plan_id = p_plan_id and voter_name = clean_name for update;
+    if existing.id is not null and existing.participant_token_hash is not null
+       and existing.participant_token_hash <> p_participant_token_hash then
+      raise exception 'That participant name is already in use' using errcode = '42501';
+    end if;
+    if existing.id is null then
+      begin
+        insert into ratings (plan_id, spot_id, voter_name, stars, again, participant_token_hash)
+        values (p_plan_id, p_spot_id, clean_name, p_stars, p_again, p_participant_token_hash);
+        return;
+      exception when unique_violation then
+      end;
+    else
+      update ratings set spot_id = p_spot_id, stars = p_stars, again = p_again,
+        participant_token_hash = p_participant_token_hash where id = existing.id;
+      return;
+    end if;
+  end loop;
 end; $$;
 
 revoke all on function cast_plan_vote(uuid, uuid, text, boolean, text, smallint, text) from public;
@@ -1549,6 +1572,34 @@ end; $$;
 revoke all on function record_security_event(text,text,text,text,text,jsonb) from public;
 grant execute on function record_security_event(text,text,text,text,text,jsonb) to anon, authenticated;
 
+-- 026: OTP request has no session yet (pre-auth), so it can't use
+-- consume_app_quota (requires auth.uid()). Same anon-callable,
+-- control-secret-gated shape as record_security_event above; subject is a
+-- HMAC'd email computed in lib/security/controls.ts, never a raw address.
+create or replace function consume_otp_request_limit(p_secret text, p_subject text)
+returns boolean language plpgsql security definer set search_path = public, extensions, pg_temp as $$
+declare
+  minute_start timestamptz := date_trunc('minute', now());
+  day_start timestamptz := date_trunc('day', now());
+  current_count integer;
+  subject_key text := left(p_subject, 128);
+begin
+  if not valid_control_secret(p_secret) or subject_key is null or subject_key = '' then
+    raise exception 'Server authorization required' using errcode = '42501';
+  end if;
+  insert into app_rate_limits values('otp-request-minute', subject_key, minute_start, 1)
+    on conflict(scope,subject,window_start) do update set request_count = app_rate_limits.request_count+1
+    returning request_count into current_count;
+  if current_count > 3 then return false; end if;
+  insert into app_rate_limits values('otp-request-day', subject_key, day_start, 1)
+    on conflict(scope,subject,window_start) do update set request_count = app_rate_limits.request_count+1
+    returning request_count into current_count;
+  if current_count > 10 then return false; end if;
+  return true;
+end; $$;
+revoke all on function consume_otp_request_limit(text,text) from public, authenticated;
+grant execute on function consume_otp_request_limit(text,text) to anon, authenticated;
+
 -- Private Presence channel: topic is plan:<uuid>:presence.
 drop policy if exists "plan members receive presence" on realtime.messages;
 drop policy if exists "plan members send presence" on realtime.messages;
@@ -1588,3 +1639,19 @@ revoke all on function ensure_default_place_collections(uuid) from public, anon,
 revoke all on function mirror_friendship() from public, anon, authenticated;
 revoke all on function people_default_place_collections() from public, anon, authenticated;
 -- (rls_auto_enable is live-only drift — not defined here; 024 handles it if present.)
+
+-- 028: "add own friendships" / "remove own friendships" (originally created
+-- above, never touched by 020's people/friendships rewrite) queried `people`
+-- to check ownership, and `people`'s own read policy queries `friendships` —
+-- that mutual cross-reference is a real 42P17 (infinite recursion detected in
+-- policy) on every write to friendships. `friendships.person_id` is always
+-- exactly auth.uid() for a permanent account (people.id = auth_user_id =
+-- auth.uid() by construction), so the people lookup was redundant; dropping
+-- it breaks the cycle with no loss of permissiveness (the FK to people still
+-- requires a real row to exist).
+drop policy if exists "add own friendships" on friendships;
+create policy "add own friendships" on friendships for insert to authenticated
+  with check (is_permanent_user() and person_id = (select auth.uid()));
+drop policy if exists "remove own friendships" on friendships;
+create policy "remove own friendships" on friendships for delete to authenticated
+  using (is_permanent_user() and person_id = (select auth.uid()));
