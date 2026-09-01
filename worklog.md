@@ -31,9 +31,10 @@ Apply in order. Every migration is additive and re-run safe unless noted.
 | 018 | `migration-018-participant-write-rpcs.sql` | yes — verified live 2026-08-10 |
 | 019 | `migration-019-secret-isolation-and-rpc-integrity.sql` | yes — verified live 2026-08-10 |
 | 020 | `migration-020-production-security.sql` | **yes — applied and verified live 2026-08-24** |
-| 021 | `migration-021-revoke-anon-execute.sql` | **no — unapplied; re-probed 2026-09-01, `valid_control_secret({"p_secret":"wrong"})` still returns `200 false` and `test:smoke:020` still red on the oracle guard.** |
-| 022 | `migration-022-spot-deal-quota-and-guest-realtime.sql` | **no — unapplied (written 2026-08-28). Not externally probable: `consume_app_quota` with a forged secret raises `42501` before it checks `p_scope`, so an anon call cannot tell whether `'spot-deal'` is whitelisted, and `pg_publication_tables` is not REST-readable. Owner verifies in the SQL editor (see 2026-09-01 entry). Apply BEFORE deploying: `/api/spots/deal` calls `consume_app_quota('spot-deal')`, which the pre-022 function rejects, so the route 429s until this lands.** |
-| 023 | `migration-023-vote-idempotency.sql` | **no — unapplied (written 2026-09-01). Apply after 022. Partial unique index on `votes (plan_id, participant_token_hash, phase, pool_number)` + `cast_plan_vote` upserts against it and returns jsonb. Dedupes existing duplicates first. No app change required — the client only reads `error`.** |
+| 021 | `migration-021-revoke-anon-execute.sql` | **yes — applied live 2026-09-01 via Supabase MCP (T0).** anon EXECUTE confirmed absent on the five gated functions; kept on `record_security_event`. |
+| 022 | `migration-022-spot-deal-quota-and-guest-realtime.sql` | **yes — applied live 2026-09-01 via Supabase MCP (T0).** `spot-deal` scope (30/min, 300/day) + `plan_spots` in `supabase_realtime`, both verified. |
+| 023 | `migration-023-vote-idempotency.sql` | **yes — applied live 2026-09-01 via Supabase MCP (T0)** in corrected form (`drop function` before `create` — the committed file was fixed to match in `67a0ccf`). `votes_participant_round_key` unique index live, `cast_plan_vote` returns jsonb, no vote rows deleted. |
+| 024 | `migration-024-revoke-anon-execute-sec4.sql` | **written 2026-09-01, PENDING owner approval to apply.** SEC.4: revokes anon EXECUTE by name from `set_birth_date` / `current_member_age` / `ensure_authenticated_profile` (keep `authenticated`) and both roles from `ensure_default_place_collections` / `mirror_friendship` / `people_default_place_collections` / `rls_auto_enable`; adds `is_permanent_user()` guard to `set_birth_date`. `security`-reviewed safe. Same MCP path as 021–023 once the owner says go. |
 
 `npm run test:smoke` asserts the 019 guards against the live project. All ten
 database guards pass as of 2026-08-10: the plans projection carries no host
@@ -794,3 +795,11 @@ leaves `set_birth_date`, `current_member_age`, `ensure_authenticated_profile`,
 safe in-body, but the grants should match intent.
 
 Only remaining core-loop blocker: **B1** (enable anonymous sign-ins — dashboard).
+
+## Migration 024 (SEC.4) written + lane progress — 2026-09-01 (T0 integrating)
+
+- **024 committed on `lane/backend` (`75f8bd3`), integrated to `ai-engineering`, NOT yet applied** — awaiting owner approval (021–023 were explicitly authorised; 024 is a new migration against the live prod DB). Once approved, T0 applies via `apply_migration` and re-verifies with the trailing SELECT.
+- **`rls_auto_enable` is live-only drift** — named in the SEC.4 advisor list but defined in no migration and not in `schema.sql`. 024 revokes it defensively if present. Owner decision pending: capture its definition into `schema.sql`, or drop it. (T0 will `pg_get_functiondef` it during the 024 apply so the decision has the actual body in front of it.)
+- mig-023 file corrected (`67a0ccf`); security Low finding fix (`ec5c7fa`).
+- `qa-test` dispatched by T1 for 023 idempotency + tally-concurrency (running).
+- T2 FE.7 committed (`a1773b1`): new `components/VoteState.tsx`, `bootstrapPlanAccess()` wired into `app/plan/[id]/page.tsx`, per-`PlanAccessDenial`-reason screens. Integrating.
