@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 /**
  * The vote page's full-screen non-content states, in one place.
@@ -43,6 +44,9 @@ export default function VoteState({
   children?: ReactNode;
 }) {
   const content = COPY({ kind, planTitle });
+  // So "Sign in" from a paused-guest link returns here instead of /home —
+  // FE.10.
+  const pathname = usePathname();
 
   return (
     <main
@@ -67,7 +71,7 @@ export default function VoteState({
               </button>
             )}
             {kind === "guest-paused" && (
-              <Link href="/login" className="vote-secondary-action">
+              <Link href={`/login?next=${encodeURIComponent(pathname)}`} className="vote-secondary-action">
                 Sign in
               </Link>
             )}

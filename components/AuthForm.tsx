@@ -25,7 +25,7 @@ function SubmitButton({ idle, pending, disabled = false }: { idle: string; pendi
   );
 }
 
-export default function AuthForm({ pageError }: { pageError?: string }) {
+export default function AuthForm({ pageError, next }: { pageError?: string; next?: string }) {
   const [captchaToken, setCaptchaToken] = useState("");
   const [requestState, requestAction] = useActionState(
     requestEmailCode,
@@ -46,6 +46,7 @@ export default function AuthForm({ pageError }: { pageError?: string }) {
   return (
     <div className="auth-form">
       <form action={signInWithGoogle}>
+        {next && <input type="hidden" name="next" value={next} />}
         <button
           type="submit"
           className="auth-google"
@@ -66,6 +67,7 @@ export default function AuthForm({ pageError }: { pageError?: string }) {
       {isCodeStep ? (
         <form action={verifyAction} className="auth-fields" id="email-auth">
           <input type="hidden" name="email" value={requestState.email} />
+          {next && <input type="hidden" name="next" value={next} />}
           <div>
             <label htmlFor="token">
               Six-digit code
@@ -86,13 +88,14 @@ export default function AuthForm({ pageError }: { pageError?: string }) {
           </div>
           <p className="auth-message">{requestState.message}</p>
           <SubmitButton idle="Verify and continue" pending="Checking code…" />
-          <a href="/login" className="auth-link">
+          <a href={next ? `/login?next=${encodeURIComponent(next)}` : "/login"} className="auth-link">
             Use a different email
           </a>
         </form>
       ) : (
         <form action={requestAction} className="auth-fields" id="email-auth">
           <input type="hidden" name="captchaToken" value={captchaToken} />
+          {next && <input type="hidden" name="next" value={next} />}
           <div>
             <label htmlFor="email">
               Email address

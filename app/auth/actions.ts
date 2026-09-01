@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { validateBirthDate } from "@/lib/age-policy";
 import { recordSecurityEvent } from "@/lib/security/controls";
+import { safeNextPath } from "@/lib/auth";
 
 export interface AuthFormState {
   email?: string;
@@ -50,13 +51,14 @@ export async function requestEmailCode(
   if (process.env.NODE_ENV === "production" && !captchaToken) {
     return { error: "Complete the security check and try again." };
   }
+  const next = safeNextPath(formData.get("next")?.toString());
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
       shouldCreateUser: true,
-      emailRedirectTo: `${await appOrigin()}/auth/callback?next=/home`,
+      emailRedirectTo: `${await appOrigin()}/auth/callback?next=${encodeURIComponent(next)}`,
       captchaToken: captchaToken || undefined,
     },
   });
@@ -96,6 +98,7 @@ export async function verifyEmailCode(
   if (!email || !/^\d{6}$/.test(token)) {
     return { email, sent: true, error: "Enter the six-digit code from your email." };
   }
+  const next = safeNextPath(formData.get("next")?.toString());
 
   const supabase = await createClient();
   const { error } = await supabase.auth.verifyOtp({
@@ -115,16 +118,19 @@ export async function verifyEmailCode(
     return { email, sent: true, error: "That code is invalid or has expired." };
   }
 
-  // /home sends anyone without a date of birth on file to /onboarding.
-  redirect("/home");
+  // /home sends anyone without a date of birth on file to /onboarding; any
+  // other destination (e.g. back to the plan a guest was voting on) bypasses
+  // that detour entirely — voting needs no date of birth.
+  redirect(next);
 }
 
-export async function signInWithGoogle() {
+export async function signInWithGoogle(formData: FormData) {
+  const next = safeNextPath(formData.get("next")?.toString());
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${await appOrigin()}/auth/callback?next=/home`,
+      redirectTo: `${await appOrigin()}/auth/callback?next=${encodeURIComponent(next)}`,
     },
   });
 

@@ -15,3 +15,16 @@ export async function requireUser() {
   if (!user) redirect("/login");
   return user;
 }
+
+/**
+ * Guard a post-auth redirect target. Only an internal path is safe — a
+ * protocol-relative `//host` or absolute URL would send a signed-in session
+ * off-site. Anything else falls back to `/home`, the default landing.
+ *
+ * Shared by `/auth/callback` (the OAuth/magic-link round trip) and the OTP
+ * sign-in path in `app/auth/actions.ts`, so there is exactly one copy of this
+ * check rather than one per call site.
+ */
+export function safeNextPath(value: string | null | undefined): string {
+  return value?.startsWith("/") && !value.startsWith("//") ? value : "/home";
+}
