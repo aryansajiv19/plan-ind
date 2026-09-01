@@ -31,8 +31,9 @@ Apply in order. Every migration is additive and re-run safe unless noted.
 | 018 | `migration-018-participant-write-rpcs.sql` | yes — verified live 2026-08-10 |
 | 019 | `migration-019-secret-isolation-and-rpc-integrity.sql` | yes — verified live 2026-08-10 |
 | 020 | `migration-020-production-security.sql` | **yes — applied and verified live 2026-08-24** |
-| 021 | `migration-021-revoke-anon-execute.sql` | **no — unapplied; live probe still returns `200 false` on 2026-08-24** |
-| 022 | `migration-022-spot-deal-quota-and-guest-realtime.sql` | **no — unapplied (written 2026-08-28). Apply BEFORE deploying: `/api/spots/deal` now calls `consume_app_quota('spot-deal')`, which the pre-022 function rejects, so the route 429s until this lands.** |
+| 021 | `migration-021-revoke-anon-execute.sql` | **no — unapplied; re-probed 2026-09-01, `valid_control_secret({"p_secret":"wrong"})` still returns `200 false` and `test:smoke:020` still red on the oracle guard.** |
+| 022 | `migration-022-spot-deal-quota-and-guest-realtime.sql` | **no — unapplied (written 2026-08-28). Not externally probable: `consume_app_quota` with a forged secret raises `42501` before it checks `p_scope`, so an anon call cannot tell whether `'spot-deal'` is whitelisted, and `pg_publication_tables` is not REST-readable. Owner verifies in the SQL editor (see 2026-09-01 entry). Apply BEFORE deploying: `/api/spots/deal` calls `consume_app_quota('spot-deal')`, which the pre-022 function rejects, so the route 429s until this lands.** |
+| 023 | `migration-023-vote-idempotency.sql` | **no — unapplied (written 2026-09-01). Apply after 022. Partial unique index on `votes (plan_id, participant_token_hash, phase, pool_number)` + `cast_plan_vote` upserts against it and returns jsonb. Dedupes existing duplicates first. No app change required — the client only reads `error`.** |
 
 `npm run test:smoke` asserts the 019 guards against the live project. All ten
 database guards pass as of 2026-08-10: the plans projection carries no host
@@ -656,6 +657,37 @@ categoryBias*2 + affinity(b) - affinity(a) + score(b) - score(a)
 
 It is a single-key descending sort — antisymmetric and transitive. No action.
 Recorded so the false concern doesn't get "fixed" later.
+
+## T2 Frontend — Wave 1 FE.1 + FE.2 + FE.8 committed — 2026-09-01
+
+Found the full FE.1/FE.2/FE.8 implementation already written but uncommitted in
+the tree (a prior session's work, mixed with T1/T0 changes). Verified and
+committed the frontend-owned files rather than rewriting.
+
+- **FE.1 (`ba6ba6b`)** — signed-out `/` renders the marketing hero
+  (`<HomeExperience demoMode />`) instead of `redirect("/login")`. New `fixtures`
+  prop keeps invented friends/visits/photos on the dev-only `/home-preview` only;
+  `accountTabs` gate hides the tab bar / avatar / account views when there is no
+  account behind them, showing a "Sign in" nav link instead.
+- **FE.2 (`9bd4042`)** — `--token-shadow` (graphite day / brass night, contrast
+  measured in comments); `.token` signature restored on the vote card
+  (`OptionCard`) and primary commit actions; hover-lift gated behind
+  `@media (hover: hover)`. The end-of-file restraint block was deleted (it
+  cancelled hover `transform` on every control and re-killed the signature) and
+  replaced with a note — aligns with the owner's 2026-08-28 Motion reversal.
+  One cleanup beyond the found diff: removed the superseded `.home-primary-cta`
+  `box-shadow: none` + soft-glow `:hover`, which still fired on touch taps.
+- **FE.8** — `.home-avatar` 40px → 44px touch floor, folded into the FE.2 commit
+  (same file).
+
+Verification: `npm run lint`, `npx tsc --noEmit`, `npm run test` (25/25),
+`npm run build` (16 routes) all green; `git diff --check` clean. Desktop hero
+confirmed in Chrome in both day and night themes — no login redirect, "Sign in"
+button in the nav, token offset shadow on the primary CTA. Mobile nav CSS
+reviewed (`.home-nav__signin` survives the ≤520px `.home-nav__link` hide);
+live mobile/focus screenshots skipped — the extension's browser was pointed at a
+different machine's `localhost:3000`. No `security` subagent invoked: FE.1/FE.2
+touch no RLS, no voting writes, no Realtime publication, no model-output path.
 
 #### Real finding: the ratings signal is largely inert
 
