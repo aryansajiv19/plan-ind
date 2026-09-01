@@ -45,6 +45,7 @@ export default function HomeExperience({
   name,
   age = 21,
   demoMode = false,
+  fixtures = false,
   initialView = "plan",
   spots = [],
   visits = [],
@@ -54,7 +55,15 @@ export default function HomeExperience({
 }: {
   name: string;
   age?: number;
+  /** No session: show the pitch, and the composer in its sign-in-first state. */
   demoMode?: boolean;
+  /**
+   * Render `DemoAccountViews` — invented friends, visits and photos. Only ever
+   * true on the dev-only `/home-preview`. The public front door sets demoMode
+   * WITHOUT this: a marketing hero is illustrative, an account tab full of
+   * fixtures is a fabricated person. House rule 1.
+   */
+  fixtures?: boolean;
   initialView?: AppView;
   personId?: string | null;
   spots?: Spot[];
@@ -68,8 +77,14 @@ export default function HomeExperience({
   // server's, and so the markup is stable for hydration. The hero has always
   // said "Good evening" regardless of the hour.
   const greeting = ready ? greetingFor(new Date()) : "Hello";
-  const [activeView, setActiveView] = useState<AppView>(initialView);
+  const [selectedView, setSelectedView] = useState<AppView>(initialView);
   const [nightMode, setNightMode] = useState(false);
+
+  // The account tabs need an account behind them. Signed out there is only the
+  // pitch and the composer, so the tab bar, the avatar and every account view
+  // are off — there is nothing truthful to put in them.
+  const accountTabs = !demoMode || fixtures;
+  const activeView: AppView = accountTabs ? selectedView : "plan";
 
   // Tabs live in the URL so Back leaves the tab rather than the app, and each
   // tab keeps its own scroll offset the way a native tab bar does.
@@ -88,7 +103,7 @@ export default function HomeExperience({
     haptic(6);
     scrollOffsets.current[current] = window.scrollY;
     viewRef.current = next;
-    setActiveView(next);
+    setSelectedView(next);
     if (push) {
       const url = next === "plan"
         ? window.location.pathname
@@ -166,22 +181,26 @@ export default function HomeExperience({
           <span className="home-logo__three">03</span>
         </a>
 
-        <nav className="home-app-tabs" aria-label="Main app navigation">
-          {APP_VIEWS.map((view) => (
-            <button
-              key={view}
-              type="button"
-              onClick={() => showView(view)}
-              aria-current={activeView === view ? "page" : undefined}
-              className="home-app-tab"
-            >
-              {VIEW_LABELS[view]}
-            </button>
-          ))}
-        </nav>
+        {accountTabs && (
+          <nav className="home-app-tabs" aria-label="Main app navigation">
+            {APP_VIEWS.map((view) => (
+              <button
+                key={view}
+                type="button"
+                onClick={() => showView(view)}
+                aria-current={activeView === view ? "page" : undefined}
+                className="home-app-tab"
+              >
+                {VIEW_LABELS[view]}
+              </button>
+            ))}
+          </nav>
+        )}
 
         <div className="home-nav__right">
-          <button type="button" className="home-nav__link" onClick={() => showView("plan")}>Make a plan</button>
+          {accountTabs && (
+            <button type="button" className="home-nav__link" onClick={() => showView("plan")}>Make a plan</button>
+          )}
           <button
             type="button"
             className="home-theme-toggle"
@@ -190,15 +209,19 @@ export default function HomeExperience({
           >
             {nightMode ? "Day" : "Night"}
           </button>
-          <button
-            type="button"
-            className="home-avatar"
-            aria-label="Open profile"
-            title="Profile"
-            onClick={() => showView("profile")}
-          >
-            {name.slice(0, 1).toUpperCase()}
-          </button>
+          {accountTabs ? (
+            <button
+              type="button"
+              className="home-avatar"
+              aria-label="Open profile"
+              title="Profile"
+              onClick={() => showView("profile")}
+            >
+              {name.slice(0, 1).toUpperCase()}
+            </button>
+          ) : (
+            <Link href="/login" className="home-nav__signin">Sign in</Link>
+          )}
         </div>
       </header>
 
@@ -212,7 +235,7 @@ export default function HomeExperience({
       <section id="top" className="home-hero" aria-labelledby="home-title">
         <div className="home-hero__copy">
           <p className="home-hello home-reveal" style={{ "--delay": "80ms" } as React.CSSProperties}>
-            Good evening, {name}.
+            {greeting}, {name}.
           </p>
 
           <h1 id="home-title" className="home-title" aria-label="Dubai plans without the group chat.">
@@ -235,9 +258,19 @@ export default function HomeExperience({
             <a href="#plan-lab" className="home-primary-cta">
               Open a decision
             </a>
-            <Link href={`/plan/${DEMO_PLAN_ID}`} className="home-secondary-cta">
-              See a sample vote
-            </Link>
+            {/* The sample plan is a seeded row that only a signed-in reader can
+                fetch under the post-020 policies, so a signed-out visitor sent
+                there meets "plan not found". Dev preview keeps the link;
+                the public door offers the thing that does work. */}
+            {fixtures ? (
+              <Link href={`/plan/${DEMO_PLAN_ID}`} className="home-secondary-cta">
+                See a sample vote
+              </Link>
+            ) : (
+              <Link href="/login" className="home-secondary-cta">
+                Sign in to start
+              </Link>
+            )}
           </div>
         </div>
 
@@ -306,10 +339,11 @@ export default function HomeExperience({
       </div>
       ) : (
         <div id="workspace">
-          {/* Fixtures are for the signed-out preview only. A signed-in account
-              shows its own data, empty states included. Presenting invented
-              friends and history as someone's own record is not a demo. */}
-          {demoMode ? (
+          {/* Fixtures are for the dev-only preview. A signed-in account shows
+              its own data, empty states included; a signed-out visitor never
+              reaches here at all. Presenting invented friends and history as
+              someone's own record is not a demo. */}
+          {fixtures ? (
             <DemoAccountViews view={activeView} name={name} onStartPlan={() => showView("plan")} />
           ) : (
             <AccountViews
@@ -323,7 +357,7 @@ export default function HomeExperience({
               onStartPlan={() => showView("plan")}
             />
           )}
-          {activeView === "profile" && (
+          {activeView === "profile" && !demoMode && (
             <form action={signOut} className="home-profile-actions">
               <span>Signed in as {name}</span>
               <button type="submit">Sign out</button>
