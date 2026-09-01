@@ -29,13 +29,11 @@ export type VoteStateKind =
 
 export default function VoteState({
   kind,
-  night = false,
   planTitle,
   onRetry,
   children,
 }: {
   kind: VoteStateKind;
-  night?: boolean;
   /** Shown in the loading copy once the plan row is known. */
   planTitle?: string | null;
   /** Required for `kind="retry"` — renders the primary "Try again" button. */
@@ -50,7 +48,7 @@ export default function VoteState({
 
   return (
     <main
-      className={`vote-experience vote-state ${night ? "vote-experience--night" : ""}`}
+      className="vote-experience vote-state"
     >
       <div className="vote-state__inner">
         {content.title && <h1 className="vote-state__title">{content.title}</h1>}

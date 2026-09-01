@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { signOut } from "@/app/auth/actions";
 import DemoAccountViews from "@/components/DemoAccountViews";
 import AccountViews from "@/components/AccountViews";
@@ -9,6 +9,9 @@ import type { ProfileVisit, Spot, WrappedSummary, WrappedSummaryError } from "@/
 import type { PlannedWith } from "@/lib/social";
 import StartPlanForm from "@/components/StartPlanForm";
 import { haptic } from "@/lib/interaction";
+import { THEME_KEY, subscribeToGround, currentGround } from "@/lib/dubai-phase";
+import TiltCard from "@/components/TiltCard";
+import WeightRise from "@/components/WeightRise";
 
 const DEMO_PLAN_ID = "11111111-1111-1111-1111-111111111111";
 
@@ -78,7 +81,9 @@ export default function HomeExperience({
   // said "Good evening" regardless of the hour.
   const greeting = ready ? greetingFor(new Date()) : "Hello";
   const [selectedView, setSelectedView] = useState<AppView>(initialView);
-  const [nightMode, setNightMode] = useState(false);
+  // Read from the document, never mirrored into state — see subscribeToGround.
+  const nightMode =
+    useSyncExternalStore(subscribeToGround, currentGround, () => "day") === "night";
 
   // The account tabs need an account behind them. Signed out there is only the
   // pitch and the composer, so the tab bar, the avatar and every account view
@@ -130,7 +135,8 @@ export default function HomeExperience({
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
-      setNightMode(window.localStorage.getItem("deal-three:theme") === "night");
+      // The theme is applied by ThemeSync against <html>; this effect only
+      // opens the entrance now.
       setReady(true);
     });
     return () => window.cancelAnimationFrame(frame);
@@ -163,16 +169,23 @@ export default function HomeExperience({
     if (nextIndex >= 0 && nextIndex < APP_VIEWS.length) showView(APP_VIEWS[nextIndex]);
   }
 
+  // The theme lives on <html data-theme>, set server-side from the Dubai clock
+  // and kept honest by ThemeSync. This used to be a local `--night` class on
+  // this one element, which meant the page could disagree with the document:
+  // the tokens went dark while the class-scoped rules stayed light, and the
+  // primary CTA rendered cream-on-cream. There is one switch now.
   function toggleNightMode() {
-    setNightMode((current) => {
-      const next = !current;
-      window.localStorage.setItem("deal-three:theme", next ? "night" : "day");
-      return next;
-    });
+    const next = nightMode ? "day" : "night";
+    document.documentElement.dataset.theme = next;
+    try {
+      window.localStorage.setItem(THEME_KEY, next);
+    } catch {
+      // Storage blocked: the override still applies for this page view.
+    }
   }
 
   return (
-    <main onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} className={`home-experience ${ready ? "home-experience--ready" : ""} ${nightMode ? "home-experience--night" : ""}`}>
+    <main onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} className={`home-experience ${ready ? "home-experience--ready" : ""}`}>
       <div className="home-grid-field" aria-hidden="true" />
 
       <header className="home-nav">
@@ -246,7 +259,9 @@ export default function HomeExperience({
               without the
             </span>
             <span className="home-title__line home-title__line--three">
-              <strong>group chat.</strong>
+              {/* Only the last line rises: the weight change is the emphasis,
+                  so spending it on every line would spend it on nothing. */}
+              <strong><WeightRise delay={0.51}>group chat.</WeightRise></strong>
             </span>
           </h1>
 
@@ -276,7 +291,9 @@ export default function HomeExperience({
 
         <div className="home-stage home-reveal" style={{ "--delay": "420ms" } as React.CSSProperties} aria-hidden="true">
           <div className="home-system-shadow" />
-          <div className="home-system">
+          {/* Turn 13's parallax. The panel is aria-hidden product illustration,
+              so a pointer-only effect on it excludes nobody. */}
+          <TiltCard className="home-system">
             <div className="home-system__header">
               <span>Tonight in Dubai</span>
               <span className="home-system__status">6 friends voting</span>
@@ -313,7 +330,7 @@ export default function HomeExperience({
               <span>Voting closes 8:00 PM</span>
               <b>Open</b>
             </div>
-          </div>
+          </TiltCard>
 
         </div>
       </section>

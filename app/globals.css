@@ -82,6 +82,76 @@
   --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* ── Registry compatibility ────────────────────────────────────────
+   Two shims so components pulled from the shadcn / kokonutui registries
+   render in OUR system instead of their own. Both are here rather than
+   edited into each component, so the next one added needs no rewriting.
+
+   1. The `dark:` variant. Registry components are written against
+      Tailwind's default dark variant, which follows prefers-color-scheme
+      or a `.dark` class. Ours is the Dubai clock on [data-theme]. This
+      line repoints the variant; without it every `dark:` class in a
+      registry component is dead code.
+
+   2. shadcn's semantic token names. `new-york` style components expect
+      --background / --foreground / --primary / --input / --border and
+      friends. Rather than define a second palette, they alias onto ours.
+      A registry component asking for --primary gets the accent; one
+      asking for --muted-foreground gets our muted. Anything not mapped
+      here should be added when a component actually needs it, never
+      invented ahead of time. */
+@custom-variant dark ([data-theme="night"] &);
+
+:root {
+  --background: var(--color-paper);
+  --foreground: var(--color-ink);
+  --card: var(--color-card);
+  --card-foreground: var(--color-ink);
+  --popover: var(--color-card);
+  --popover-foreground: var(--color-ink);
+  --primary: var(--color-punch);
+  --primary-foreground: var(--primary-ink);
+  --secondary: var(--color-card);
+  --secondary-foreground: var(--color-ink);
+  --muted: var(--color-card);
+  --muted-foreground: var(--color-muted);
+  --accent: var(--color-accent-tint);
+  --accent-foreground: var(--color-punch);
+  --border: var(--color-line);
+  --input: var(--color-line);
+  --ring: var(--color-punch);
+  /* The one semantic we do not have: a destructive. Terracotta is spoken
+     for (live state), so this is a real red, dark enough for sand. */
+  --destructive: #9a3412;
+  --destructive-foreground: var(--color-paper);
+}
+[data-theme="night"] {
+  --destructive: #f0a08a;
+}
+
+/* Tailwind v4 only generates a `bg-primary` / `border-input` utility from a
+   --color-* entry in @theme, so the aliases above are re-exported here.
+   `@theme inline` keeps them as references rather than snapshotting the
+   value, which is what lets them keep flipping with [data-theme]. */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+}
+
 /* ── Tokens that live in :root, not @theme, on purpose ─────────────
    Tailwind v4 TREE-SHAKES @theme variables that nothing references, and a
    dropped variable is silent — the rule that reads it just computes to
@@ -124,6 +194,9 @@
   --color-grape: #68b8c0;
   --color-zest: #68b8c0;
   --color-mint: #68b8c0;
+
+  /* Native controls, scrollbars and date pickers read this. */
+  color-scheme: dark;
 }
 
 /* The primary button is the one place the two grounds disagree about
@@ -2134,64 +2207,37 @@ h3 {
 .auth-footnote { margin: 1.5rem 0 0; text-align: center; }
 @media (max-width: 760px) { .auth-shell { padding: 0; } .auth-frame { display: block; min-height: 100dvh; border: 0; } .auth-intro { min-height: 43vh; padding: 1.25rem; border-right: 0; border-bottom: 1px solid var(--auth-line); } .auth-intro h1 { margin-top: auto; font-size: clamp(3.4rem, 16vw, 5.8rem); } .auth-copy { font-size: .84rem; } .auth-panel { padding: 2rem 1.25rem 2.5rem; } }
 
-/* The two legacy per-screen night classes are now ALIASES for the document
-   theme, not palettes of their own. They defined the whole palette locally
-   once, which is exactly why /login, /onboarding, /privacy and /terms had no
-   night variant at all — nothing outside those two class trees ever flipped.
-   Kept as selectors so existing `nightMode` markup keeps working; the values
-   live once, in the [data-theme="night"] block near the top of this file. */
-.home-experience--night,
-.vote-experience--night {
-  --color-paper: #0e0c0e;
-  --color-card: #171316;
-  --color-ink: #f4efe8;
-  --color-muted: #a49a92;
-  --color-line: rgba(104, 184, 192, 0.28);
-  --color-punch: #68b8c0;
-  --color-punch-text: #68b8c0;
-  --color-accent-tint: rgba(104, 184, 192, 0.16);
-  --color-live: #e08e63;
-  --color-live-dot: #cf7a4e;
-  --color-grape: #68b8c0;
-  --color-zest: #68b8c0;
-  --color-mint: #68b8c0;
-  --home-metal: #68b8c0;
-  --vote-metal: #68b8c0;
-  --primary-fill: linear-gradient(180deg, #9ad3d9, #63aab2);
-  --primary-ink: #0e0c0e;
-  color-scheme: dark;
-}
 
-.home-experience--night .home-grid-field {
+[data-theme="night"] .home-experience .home-grid-field {
   opacity: 0.22;
   background-image:
     linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
 }
 
-.home-experience--night .home-eyebrow,
-.home-experience--night .home-plan-card,
-.home-experience--night .plan-category-option,
-.home-experience--night .plan-deadline {
+[data-theme="night"] .home-experience .home-eyebrow,
+[data-theme="night"] .home-experience .home-plan-card,
+[data-theme="night"] .home-experience .plan-category-option,
+[data-theme="night"] .home-experience .plan-deadline {
   background: rgba(255, 255, 255, 0.035);
 }
 
-.home-experience--night .home-system,
-.home-experience--night .home-proof { background: var(--color-card); }
-.home-experience--night .home-system-row--active { background: var(--color-punch); color: var(--primary-ink); }
-.home-experience--night .home-logo,
-.home-experience--night .home-primary-cta,
-.home-experience--night .plan-submit { background: var(--primary-fill); color: var(--primary-ink); }
-.home-experience--night .home-app-tab[aria-current="page"] { background: transparent; color: var(--color-ink); }
-.home-experience--night .home-avatar { color: var(--color-ink); }
-.home-experience--night .home-plan-card__tape,
-.home-experience--night .plan-form__input,
-.home-experience--night .plan-location-fields select,
-.home-experience--night .plan-smart-search textarea,
-.home-experience--night .plan-custom-place__editor input,
-.home-experience--night .plan-custom-place__editor textarea,
-.home-experience--night .place-link-importer__field input,
-.home-experience--night .demo-discover-tools input { background: #1a1b22; }
+[data-theme="night"] .home-experience .home-system,
+[data-theme="night"] .home-experience .home-proof { background: var(--color-card); }
+[data-theme="night"] .home-experience .home-system-row--active { background: var(--color-punch); color: var(--primary-ink); }
+[data-theme="night"] .home-experience .home-logo,
+[data-theme="night"] .home-experience .home-primary-cta,
+[data-theme="night"] .home-experience .plan-submit { background: var(--primary-fill); color: var(--primary-ink); }
+[data-theme="night"] .home-experience .home-app-tab[aria-current="page"] { background: transparent; color: var(--color-ink); }
+[data-theme="night"] .home-experience .home-avatar { color: var(--color-ink); }
+[data-theme="night"] .home-experience .home-plan-card__tape,
+[data-theme="night"] .home-experience .plan-form__input,
+[data-theme="night"] .home-experience .plan-location-fields select,
+[data-theme="night"] .home-experience .plan-smart-search textarea,
+[data-theme="night"] .home-experience .plan-custom-place__editor input,
+[data-theme="night"] .home-experience .plan-custom-place__editor textarea,
+[data-theme="night"] .home-experience .place-link-importer__field input,
+[data-theme="night"] .home-experience .demo-discover-tools input { background: #1a1b22; }
 
 /* Shared-plan voting uses the same language as home.
 
@@ -2666,10 +2712,10 @@ h3 {
   }
 }
 
-.vote-experience--night .vote-shell,
-.vote-experience--night .vote-option,
-.vote-experience--night .vote-field,
-.vote-experience--night .vote-result { background-color: var(--color-card); }
+[data-theme="night"] .vote-experience .vote-shell,
+[data-theme="night"] .vote-experience .vote-option,
+[data-theme="night"] .vote-experience .vote-field,
+[data-theme="night"] .vote-experience .vote-result { background-color: var(--color-card); }
 
 .vote-primary-action:focus-visible,
 .vote-secondary-action:focus-visible,
@@ -3186,7 +3232,7 @@ h3 {
    ============================================================================ */
 
 /* --- Ground: brass lattice at +/-45deg, and a slow halo behind the masthead. */
-.vote-experience--night::before {
+[data-theme="night"] .vote-experience::before {
   background:
     repeating-linear-gradient(45deg, rgba(104, 184, 192, 0.07) 0 1px, transparent 1px 22px),
     repeating-linear-gradient(-45deg, rgba(104, 184, 192, 0.07) 0 1px, transparent 1px 22px),
@@ -3196,7 +3242,7 @@ h3 {
 
 /* ::before is the ground, so the halo takes ::after. `isolation: isolate` on
    .vote-experience keeps z-index:-1 from escaping behind the page itself. */
-.vote-experience--night::after {
+[data-theme="night"] .vote-experience::after {
   content: "";
   position: fixed;
   z-index: -1;
@@ -3220,7 +3266,7 @@ h3 {
 @keyframes ad-halo { to { transform: rotate(360deg); } }
 
 /* --- Structure: the round label becomes a rule-flanked plate. */
-.vote-experience--night .vote-round-label {
+[data-theme="night"] .vote-experience .vote-round-label {
   display: flex;
   align-items: center;
   gap: 0.625rem;
@@ -3229,23 +3275,23 @@ h3 {
   letter-spacing: 0.24em;
 }
 
-.vote-experience--night .vote-round-label::before,
-.vote-experience--night .vote-round-label::after {
+[data-theme="night"] .vote-experience .vote-round-label::before,
+[data-theme="night"] .vote-experience .vote-round-label::after {
   content: "";
   flex: 1;
   height: 1px;
   background: linear-gradient(to right, transparent, color-mix(in srgb, var(--vote-metal) 70%, transparent));
 }
-.vote-experience--night .vote-round-label::after {
+[data-theme="night"] .vote-experience .vote-round-label::after {
   background: linear-gradient(to left, transparent, color-mix(in srgb, var(--vote-metal) 70%, transparent));
 }
 
 /* --- Round markers: brass numerals on a hairline, not circles. The numerals
    themselves are Roman and come from the markup, so screen readers still get
    "Round 2 of 3" from the existing aria-label. */
-.vote-experience--night .vote-pool-progress { gap: 0.75rem; }
+[data-theme="night"] .vote-experience .vote-pool-progress { gap: 0.75rem; }
 
-.vote-experience--night .vote-pool-progress button {
+[data-theme="night"] .vote-experience .vote-pool-progress button {
   width: auto;
   min-width: 1.4rem;
   height: auto;
@@ -3260,7 +3306,7 @@ h3 {
   opacity: 0.45;
 }
 
-.vote-experience--night .vote-pool-progress button[aria-current="step"] {
+[data-theme="night"] .vote-experience .vote-pool-progress button[aria-current="step"] {
   border-bottom-color: var(--vote-metal);
   color: var(--vote-metal);
   font-weight: 700;
@@ -3269,17 +3315,17 @@ h3 {
 
 /* A round you already chose in keeps the live accent — your state stays
    yours, exactly as in day. Brass is reserved for where you *are*. */
-.vote-experience--night .vote-pool-progress button[data-complete="true"] {
+[data-theme="night"] .vote-experience .vote-pool-progress button[data-complete="true"] {
   border-bottom-color: transparent;
   background: transparent;
   color: var(--color-live);
   opacity: 1;
 }
-.vote-experience--night .vote-pool-progress button[aria-current="step"][data-complete="true"] {
+[data-theme="night"] .vote-experience .vote-pool-progress button[aria-current="step"][data-complete="true"] {
   border-bottom-color: var(--color-live);
 }
 
-.vote-experience--night .vote-pool-progress button + button::before {
+[data-theme="night"] .vote-experience .vote-pool-progress button + button::before {
   content: "\25C6";
   position: absolute;
   left: -0.62rem;
@@ -3294,7 +3340,7 @@ h3 {
 /* --- Tally: a struck brass plate rather than a sentence. The " yes" is
    dropped here (the box reads as a count on its own); the sr-only voter
    list in the markup is untouched, so nothing is lost non-visually. */
-.vote-experience--night .vote-option__votes {
+[data-theme="night"] .vote-experience .vote-option__votes {
   display: grid;
   place-items: center;
   width: 2.75rem;
@@ -3305,17 +3351,17 @@ h3 {
   font-size: 1.15rem;
   font-weight: 700;
 }
-.vote-experience--night .vote-option__votes-unit { display: none; }
+[data-theme="night"] .vote-experience .vote-option__votes-unit { display: none; }
 
 /* --- Reveal: the leader carries a slow gold sheen and a filled plate. */
-.vote-experience--night .vote-option--leader {
+[data-theme="night"] .vote-experience .vote-option--leader {
   border-color: color-mix(in srgb, var(--vote-metal) 60%, transparent);
 }
-.vote-experience--night .vote-option--leader .vote-option__votes {
+[data-theme="night"] .vote-experience .vote-option--leader .vote-option__votes {
   border-color: var(--vote-metal);
   background: color-mix(in srgb, var(--vote-metal) 12%, transparent);
 }
-.vote-experience--night .vote-option--leader::after {
+[data-theme="night"] .vote-experience .vote-option--leader::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -3332,11 +3378,11 @@ h3 {
 
 /* --- Commit: the primary action is struck brass, ink on metal. Now the
    themed --primary-fill pair: 6.70:1 at the dark end, 9.88:1 at the light. */
-.vote-experience--night .vote-primary-action:not(:disabled) {
+[data-theme="night"] .vote-experience .vote-primary-action:not(:disabled) {
   border-color: var(--vote-metal);
   background: var(--primary-fill);
   color: var(--primary-ink);
 }
 
 /* The leader's kicker goes brass with it, so "· leading" reads as one plate. */
-.vote-experience--night .vote-option--leader .vote-option__category { color: var(--vote-metal); }
+[data-theme="night"] .vote-experience .vote-option--leader .vote-option__category { color: var(--vote-metal); }

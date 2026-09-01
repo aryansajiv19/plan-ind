@@ -58,3 +58,28 @@ export function resolveGround(
 export function readPreference(raw: string | null | undefined): ThemePreference {
   return raw === "day" || raw === "night" || raw === "auto" ? raw : "auto";
 }
+
+/**
+ * Subscribe to the ground currently on `<html data-theme>`.
+ *
+ * The document is the single source of truth for the theme, so a component
+ * that needs to *read* it (a toggle wanting to label itself "Day" or "Night",
+ * and to report an honest `aria-pressed`) should subscribe rather than keep a
+ * second copy in React state. Mirroring it in a `useState` + `useEffect` pair
+ * is what let the page disagree with the document once already.
+ *
+ * `useSyncExternalStore` is the primitive built for exactly this: the server
+ * snapshot is what the server stamped, so there is no hydration mismatch.
+ */
+export function subscribeToGround(onChange: () => void): () => void {
+  const observer = new MutationObserver(onChange);
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["data-theme"],
+  });
+  return () => observer.disconnect();
+}
+
+export function currentGround(): Ground {
+  return document.documentElement.dataset.theme === "night" ? "night" : "day";
+}

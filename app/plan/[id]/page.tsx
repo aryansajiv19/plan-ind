@@ -561,36 +561,35 @@ export default function VotePage() {
 
   if (access === "captcha-required") {
     return (
-      <VoteState kind="captcha" night={nightMode}>
+      <VoteState kind="captcha">
         <Turnstile action="plan-access" onVerify={onCaptchaVerify} />
       </VoteState>
     );
   }
   if (access === "anonymous-disabled") {
-    return <VoteState kind="guest-paused" night={nightMode} />;
+    return <VoteState kind="guest-paused" />;
   }
   if (access === "sign-in-failed" || access === "claim-failed") {
-    return <VoteState kind="retry" night={nightMode} onRetry={retryAccess} />;
+    return <VoteState kind="retry" onRetry={retryAccess} />;
   }
   if (access === "not-found") {
-    return <VoteState kind="cold-link" night={nightMode} />;
+    return <VoteState kind="cold-link" />;
   }
 
   // "checking" means we haven't been allowed to look yet — not that the plan is
   // absent. Only a load that actually ran can report notfound/error below.
   if (access === "checking" || load === "loading") {
-    return <VoteState kind="loading" night={nightMode} planTitle={plan?.title} />;
+    return <VoteState kind="loading" planTitle={plan?.title} />;
   }
 
   if (load === "notfound") {
-    return <VoteState kind="cold-link" night={nightMode} />;
+    return <VoteState kind="cold-link" />;
   }
 
   if (load === "error") {
     return (
       <VoteState
         kind="retry"
-        night={nightMode}
         onRetry={() => { setLoad("loading"); setReloadKey((k) => k + 1); }}
       />
     );
@@ -598,7 +597,7 @@ export default function VotePage() {
 
   if (!voterName) {
     return (
-      <main className={`vote-experience ${nightMode ? "vote-experience--night" : ""} mx-auto grid min-h-dvh max-w-md place-items-center px-5`}>
+      <main className={"vote-experience mx-auto grid min-h-dvh max-w-md place-items-center px-5"}>
         <NameGate planTitle={plan!.title} onSubmit={saveName} />
       </main>
     );
@@ -634,7 +633,7 @@ export default function VotePage() {
     .every((poolNumber) => poolsChosenByMe.has(poolNumber));
 
   return (
-    <main className={`vote-experience ${nightMode ? "vote-experience--night" : ""} mx-auto w-full max-w-4xl px-4 py-6 sm:py-10`}>
+    <main className={"vote-experience mx-auto w-full max-w-4xl px-4 py-6 sm:py-10"}>
       <div
         ref={stageRef}
         className={[
