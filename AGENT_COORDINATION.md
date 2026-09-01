@@ -75,13 +75,37 @@ spanning all three lanes. This is the exact condition that wiped this tree once.
 - 2026-09-01: trimmed startup reading list; created this board; recorded model policy. Committed CI workflow + orchestration doc catch-up (`fd8eda3`). Next: schema↔types sync check in CI, Vercel deploy wiring.
 
 ### T1 — Backend
-- _(post status here — start from the ⚠️ section above)_
+- 2026-09-01: BE.1 + BE.2 swept onto the branch by T0's pre-worktree sweep
+  (`e10d395` backend code, worklog entry in `888fb26` / runbook rows in `9a8a9aa`).
+  Verified post-move: lint / tsc / 25 tests / build all green on HEAD.
+  - **BE.1** — `lib/supabase.ts` `bootstrapPlanAccess()` returns a typed
+    `PlanAccessDenial` (`anonymous-disabled` ≠ `not-found` ≠ `claim-failed` …),
+    fails closed in prod. Still **wired nowhere** — the vote page runs its own
+    inline `bootstrapAccess`. See cross-lane request to T2.
+  - **Migration 023** (`migration-023-vote-idempotency.sql`) — partial unique
+    index `votes (plan_id, participant_token_hash, phase, pool_number)` +
+    `cast_plan_vote` ON CONFLICT upsert + jsonb return. Closes a concurrent
+    double-vote race the tally would double-count. `security` subagent review
+    in flight.
+  - Live probes 2026-09-01: 021 still unapplied (`valid_control_secret` →
+    `200 false`); 022 not externally probable (forged-secret short-circuit) —
+    owner verifies in SQL editor, queries in the worklog entry.
+  - Migrations 021 / 022 / 023 all unapplied — owner applies in order (B2/B4).
+  - Next: address any `security` findings; then BE.3 guard-rail is standing,
+    pick up remaining backend queue with the orchestrator.
 
 ### T2 — Frontend
-- 2026-09-01: found FE.1/FE.2/FE.8 fully implemented but uncommitted in the tree. Verifying (lint/tsc/build/browser) and committing the frontend-owned files in two commits. Not touching backend/security files.
+- 2026-09-01: FE.1 (`ba6ba6b`) + FE.2/FE.8 (`9bd4042`) verified and committed — gate green (lint/tsc/25 tests/build), desktop hero confirmed in both themes (no login redirect; `.token` offset on primary CTAs). Did the `.home-primary-cta:hover` cleanup T3 noted (removed the touch-device soft glow). No `security` subagent — FE.1/FE.2 touch no RLS/writes/Realtime/model output. Next: FE.3/FE.5/FE.6 per `design-system/SPECS.md` (later wave).
 
 ### T3 — Design
-- _(post status here)_
+- 2026-09-01: Reviewed T2's in-flight FE.1/FE.2 (front door + `.token` revival) —
+  ratified. Wrote `design-system/SPECS.md` with four specs for T2: FE.2 token reach
+  (vote card + primary commit actions + payoff panel; not Discover/tiles), FE.1
+  night hero upgrade (halo + lattice + brass "Tonight in Dubai" plate), FE.5 payoff
+  (day cleanup of `DecidedPlan` off-standard Tailwind + After Dark night layer +
+  one-shot `ad-sheen` reveal), FE.6 (delete orbit/ticker/scribble, keep skyline
+  dormant for FE.3). Updated `FRONTEND_DESIGN_STANDARDS.md` (outcome row, token
+  reach, motion budget). Next: regenerate `design-system/` bundle + push canvas.
 
 ---
 
@@ -90,7 +114,30 @@ spanning all three lanes. This is the exact condition that wiped this tree once.
 Format:
 > **From → To** · _need_ · _why_ · blocked? · status
 
-- _(none yet)_
+- **T3 → T2** · implement `design-system/SPECS.md` (FE.1 night hero upgrade, FE.5
+  payoff day-cleanup + After Dark layer, FE.6 orbit deletion + skyline dormant note;
+  FE.2 is ratified, one small `.home-primary-cta:hover` cleanup noted) ·
+  the visual direction for wave 1 is settled and specced · not blocked · **open**
+- **T1 → T2** · in `app/plan/[id]/page.tsx`, replace the inline `bootstrapAccess`
+  with `bootstrapPlanAccess()` from `lib/supabase.ts` and give each
+  `PlanAccessDenial` reason its own screen: `anonymous-disabled` → an honest
+  "guest voting is paused — ask the host to open it, or sign in" (NOT the current
+  "link may be invalid"); `captcha-required` → existing Turnstile; `sign-in-failed`
+  / `claim-failed` → generic retry; `not-found` → existing cold-link screen.
+  Optionally consume the new `cast_plan_vote` jsonb (`CastVoteResult`) to
+  reconcile optimistic vote state. · today a guest on a live share link hits a
+  dead "could not be opened" screen that blames their link for our B1 toggle ·
+  not blocked (helper is committed) · **open**
+- **T1 → qa-test** · two tests against a local/live Supabase (never `schema.sql`
+  re-run): (1) `cast_plan_vote` twice with identical args → identical jsonb,
+  exactly one `votes` row; (2) **tally concurrency** — two `cast_plan_vote` for
+  the same participant/round on different spots, fired in parallel → exactly one
+  row survives and `execute_plan_command` counts it once. This is the tally
+  concurrency test the BE.1 brief asked to place. Also: the `smoke-test.mjs`
+  `cast_plan_vote` guards now short-circuit on the post-020 anon grant (401
+  "permission denied for function") rather than reaching the validation branch —
+  real validation coverage needs an authenticated session. · the winner-deciding
+  tally has zero concurrency coverage · not blocked · **open**
 
 ---
 
@@ -100,3 +147,4 @@ Short, dated, one line each. Anything another terminal must not re-litigate.
 
 - 2026-09-01: 4 terminals (T0–T3). Subagents used only to parallelize real fan-out, never for linear work.
 - 2026-09-01: Model policy — T1 Backend on Opus, T0/T2/T3 on Sonnet medium, `security` subagent on Opus when invoked. See Model policy note above.
+- 2026-09-01: Wave-1 visual direction (T3, owner-approved) — front door = ratify T2's structure + add the After Dark night atmosphere; `.token` reach = decision-committing surfaces only (vote card, primary actions, payoff panel), not Discover/tiles; FE.6 = delete the decision-orbit/ticker/scribble CSS, keep the skyline dormant until FE.3. Spec: `design-system/SPECS.md`.
