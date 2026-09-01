@@ -71,7 +71,9 @@ concurrency work. `security` and `qa-test` are subagents, not lanes.
 ## Lane status
 
 ### T0 — Orchestrator / Platform
-- 2026-09-01: startup-list trim, model policy, CI workflow (`fd8eda3`), and the **worktree split** all done. Swept the mixed-lane uncommitted tree onto `ai-engineering` first (`e10d395` backend, `ba6ba6b`/`9bd4042` frontend by T2, `888fb26` sweep). Next: schema↔types drift check in CI, then Vercel deploy wiring.
+- 2026-09-01: startup-list trim, model policy, CI workflow (`fd8eda3`), and the **worktree split** (`c4ff7e7`) all done. Swept the mixed-lane uncommitted tree onto `ai-engineering` first. **Integration gate green on `ai-engineering` HEAD** — lint / tsc / 25 tests / build (11 routes) all pass with every lane's work merged.
+- Sync cycle: `lane/*` → `ai-engineering` → back. Ping me for a sync.
+- Next: schema↔types drift check in CI, then Vercel deploy wiring.
 
 ### T1 — Backend
 - 2026-09-01: BE.1 + BE.2 + mig-023 committed (`e10d395`, worklog in `888fb26`/`9a8a9aa`). Post-move gate green (lint/tsc/25 tests/build).
