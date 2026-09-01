@@ -40,7 +40,32 @@ Covers the cross-lane request from T1:
 4. **`cast_plan_vote` EXECUTE grant** — `authenticated` only, never `anon` or
    PUBLIC (catches a dropped `revoke ... from public`).
 
-### How to run it
+### `rsvp-rating-upsert-race.dbtest.ts` — migration 025
+
+Same double-write race migration 023 closed on `votes`, closed here on
+`set_plan_rsvp` and `rate_plan`. Both do `select ... for update` then
+insert-if-absent / update-if-present; that locks nothing when the row doesn't
+exist yet, so two concurrent *first-time* calls for the same `(plan_id,
+voter_name)` could both reach the insert branch and race the table's `unique
+(plan_id, voter_name)` constraint. 025's fix: loop, retry into the update
+branch on `unique_violation`.
+
+For both functions:
+
+1. **Non-concurrent sanity** — first call inserts, second (same voter, same
+   token) updates in place; one row.
+2. **Concurrency, DIFFERENT tokens** (two people racing to claim the same
+   name) — fired from two separate Postgres backends, forced to interleave by
+   holding the insert-winner's transaction open behind an explicit
+   `pg_sleep(1)` before commit. Exactly one call fails, and only with the
+   function's own clean `42501 That participant name is already in use` — the
+   test asserts the failure message does **not** match `duplicate
+   key|unique_violation|23505`, i.e. no raw Postgres error leaks through. One
+   row lands, belonging to the insert winner.
+3. **Concurrency, SAME token** (client retry / double-tap) — same interleave
+   technique, both calls succeed, one row, no unhandled exception.
+
+### How to run any `*.dbtest.ts`
 
 ```
 TEST_DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres \
@@ -80,3 +105,19 @@ To make `test:db` execute rather than skip:
 Until then the suite reports, e.g.:
 `SKIP no reachable Postgres at postgresql://... — set TEST_DATABASE_URL to a
 LOCAL Supabase`.
+
+### Note from the migration-025 QA pass
+
+No Supabase CLI was available in that environment (`supabase start` couldn't
+be used). Both `.dbtest.ts` files were instead run and verified green against
+a throwaway database on the machine's local Homebrew Postgres, hand-stubbed to
+be Supabase-shaped: an `auth` schema with a minimal `auth.users` table,
+`auth.uid()` / `auth.jwt()` reading `request.jwt.claims` the same way real
+Supabase does, `anon`/`authenticated` roles, and bare-minimum `storage.*` /
+`realtime.*` stub schemas (`storage.buckets`, `storage.objects`,
+`storage.foldername()`, `realtime.messages`, `realtime.topic()`) — just enough
+surface for `schema.sql` to load end to end without touching the objects the
+Supabase platform itself provides in a real project. The database was dropped
+immediately after. Anyone reproducing this without the Supabase CLI needs the
+same stub; with the CLI, `supabase start` provides all of it for free and none
+of this is necessary.
