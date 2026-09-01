@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     return Response.json({ error: "Sign in to start a plan." }, { status: 401 });
   }
   if (!(await consumeQuota(supabase, "plan-create"))) {
-    await recordSecurityEvent(supabase, { type: "rate_limit", outcome: "blocked", subject: user.id, metadata: { scope: "plan-create" } });
+    await recordSecurityEvent(supabase, { type: "rate_limit", outcome: "blocked", subject: user.id, requestId: request.headers.get("x-vercel-id"), metadata: { scope: "plan-create" } });
     return Response.json({ error: "Too many plans started. Try again later." }, { status: 429 });
   }
 

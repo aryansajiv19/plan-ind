@@ -61,7 +61,7 @@ export async function POST(request: Request) {
   // of creating the plan they were dealing for. Requires migration 022 —
   // before that is applied the RPC raises and this returns 429 to everyone.
   if (!(await consumeQuota(supabase, "spot-deal"))) {
-    await recordSecurityEvent(supabase, { type: "rate_limit", outcome: "blocked", subject: user.id, metadata: { scope: "spot-deal" } });
+    await recordSecurityEvent(supabase, { type: "rate_limit", outcome: "blocked", subject: user.id, requestId: request.headers.get("x-vercel-id"), metadata: { scope: "spot-deal" } });
     return Response.json({ error: "Too many deals. Try again in a minute." }, { status: 429 });
   }
 

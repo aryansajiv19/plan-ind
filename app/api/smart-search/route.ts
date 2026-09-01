@@ -99,7 +99,7 @@ export async function POST(request: Request) {
   const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
   const safetyIdentifier = privateIdentifier(user?.id ?? forwarded);
   if (user && !(await consumeQuota(supabase, "smart-search"))) {
-    await recordSecurityEvent(supabase, { type: "ai_quota", outcome: "blocked", subject: user?.id ?? forwarded });
+    await recordSecurityEvent(supabase, { type: "ai_quota", outcome: "blocked", subject: user?.id ?? forwarded, requestId: request.headers.get("x-vercel-id") });
     return Response.json({ error: "Too many searches. Try again in a minute." }, { status: 429 });
   }
 

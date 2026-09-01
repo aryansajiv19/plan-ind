@@ -42,9 +42,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (error) {
     const status = error.code === "42501" ? 403 : 409;
     console.error("Plan command rejected", JSON.stringify({ planId: id, code: error.code }));
-    await recordSecurityEvent(supabase, { type: "plan_command", outcome: "blocked", subject: user.id, metadata: { command, code: error.code } });
+    await recordSecurityEvent(supabase, { type: "plan_command", outcome: "blocked", subject: user.id, requestId: request.headers.get("x-vercel-id"), metadata: { command, code: error.code } });
     return Response.json({ error: status === 403 ? "Host authorization required." : "That plan change could not be applied." }, { status });
   }
-  await recordSecurityEvent(supabase, { type: "plan_command", outcome: "success", subject: user.id, metadata: { command } });
+  await recordSecurityEvent(supabase, { type: "plan_command", outcome: "success", subject: user.id, requestId: request.headers.get("x-vercel-id"), metadata: { command } });
   return Response.json(data, { headers: { "Cache-Control": "no-store" } });
 }

@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     return Response.json({ error: "Sign in to save a place." }, { status: 401 });
   }
   if (!(await consumeQuota(supabase, "place-import"))) {
-    await recordSecurityEvent(supabase, { type: "rate_limit", outcome: "blocked", subject: user.id, metadata: { scope: "place-import" } });
+    await recordSecurityEvent(supabase, { type: "rate_limit", outcome: "blocked", subject: user.id, requestId: request.headers.get("x-vercel-id"), metadata: { scope: "place-import" } });
     return Response.json({ error: "Too many saved links. Try again later." }, { status: 429 });
   }
 
