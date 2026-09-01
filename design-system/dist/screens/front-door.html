@@ -1,10 +1,10 @@
-<!-- @dsCard group="Components" -->
+<!-- @dsCard group="Screens" -->
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="night">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>plan-ind — Buttons and chips</title>
+<title>plan-ind — Front door</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,200..800&family=Hanken+Grotesk:wght@400;500;700&display=swap">
@@ -103,6 +103,28 @@ h1,h2,h3 { font-family: var(--font-display); font-weight: 500; letter-spacing: -
 .row { display:flex; gap:.75rem; flex-wrap:wrap; align-items:center; }
 @media (prefers-reduced-motion: reduce) { * { animation-duration:.001ms !important; transition-duration:.001ms !important; } }
 
+.hero { display:grid; grid-template-columns:minmax(0,1.06fr) minmax(0,.94fr); gap:3rem; align-items:center; }
+.hero__hello { font-size:.95rem; color:var(--color-muted); margin:0 0 .45rem; }
+.hero__title { font-family:var(--font-display); font-size:clamp(3rem,4.2vw,4.75rem); font-weight:500;
+  line-height:.98; letter-spacing:-.03em; margin:0; }
+.hero__title b { font-weight:800; position:relative; }
+.hero__title b::after { content:""; position:absolute; left:2%; right:0; bottom:-.06em;
+  height:.05em; background:var(--color-punch); }
+.hero__deck { max-width:34rem; margin:1.9rem 0 0; font-size:1.05rem; line-height:1.5; color:var(--color-muted); }
+.hero__actions { display:flex; align-items:center; gap:1rem; margin-top:2rem; }
+.hero__secondary { font-size:.9rem; font-weight:600; color:var(--color-ink);
+  text-decoration:underline; text-decoration-color:var(--color-punch); text-underline-offset:5px; }
+.panel { border:1px solid var(--color-line); border-radius:var(--radius-hero); background:var(--color-card); padding:1.5rem; }
+.panel__head { display:flex; align-items:center; gap:.625rem; font-size:.62rem; font-weight:700;
+  letter-spacing:.2em; text-transform:uppercase; color:var(--color-punch); }
+.panel__head::before, .panel__head::after { content:""; flex:1; height:1px;
+  background:linear-gradient(to right, transparent, color-mix(in srgb, var(--color-punch) 70%, transparent)); }
+.panel__head::after { background:linear-gradient(to left, transparent, color-mix(in srgb, var(--color-punch) 70%, transparent)); }
+.panel__row { display:flex; align-items:center; justify-content:space-between; gap:.75rem; margin-top:1rem; font-size:.9rem; }
+.panel__row b { font-family:var(--font-display); font-weight:600; }
+.plate { display:grid; place-items:center; width:2.75rem; height:2.75rem;
+  border:1px solid color-mix(in srgb, var(--color-punch) 35%, transparent); color:var(--color-punch);
+  font-family:var(--font-display); font-size:1.15rem; font-weight:700; font-variant-numeric:tabular-nums; }
 .btn { font-family:var(--font-display); font-size:.92rem; font-weight:700; padding:.9rem 2rem;
   border:1px solid transparent; border-radius:var(--radius-pill); cursor:pointer;
   background:var(--primary-fill); color:var(--primary-ink);
@@ -119,11 +141,22 @@ h1,h2,h3 { font-family: var(--font-display); font-weight: 500; letter-spacing: -
 </style>
 </head>
 <body>
-<p class="kicker">Components</p><h2>Buttons and chips</h2>
-<p class="note">The primary is the one place the two grounds genuinely disagree: <b>ink by day, teal by night</b> — teal on sand is too weak to read as the main action. Press is a 200ms scale to .97, not a translate; the hard offset shadow that used to sit under these is retired, because turn 8 was rejected for exactly that.</p>
-<div class="row" style="margin-bottom:1.25rem"><button class="btn">Lock it in</button><button class="btn btn--ghost">Not for me</button><button class="btn" disabled>Building three rounds…</button></div>
-<div class="row" style="margin-bottom:1.25rem"><button class="chip" aria-pressed="true">Everything</button><button class="chip">Water</button><button class="chip">Dinner</button><button class="chip">After dark</button><button class="chip">Quiet</button></div>
-<div class="live"><span class="live__dot"></span><span>Mo is looking at it now</span></div>
-<p class="note" style="margin-top:1.5rem">The live dot is the only pulsing thing permitted, and it never means "online" — it means someone is doing something right now. Green status dots stay banned.</p>
+<p class="kicker">Screens</p><h2>Front door</h2>
+<p class="note">The headline's last line arrives by gaining weight from 300 to 800 over 1.4s, once, then holds — the reason the display face had to be variable. The panel opposite tilts to the pointer (rotateY ±7°, rotateX ±5°): real perspective on something flat, which is the whole "3D" in the product.</p>
+<div class="hero">
+  <div>
+    <p class="hero__hello">Still up, Dubai.</p>
+    <h1 class="hero__title">Dubai plans,<br>without the<br><b>group chat.</b></h1>
+    <p class="hero__deck">Dinner in DIFC, padel in Al Quoz, or a beach day on the Palm. Set the budget and distance, shortlist through three pools, and let everyone choose.</p>
+    <div class="hero__actions"><button class="btn">Open a decision</button><a class="hero__secondary" href="#">Sign in to start</a></div>
+  </div>
+  <div class="panel">
+    <div class="panel__head">Tonight in Dubai</div>
+    <div class="panel__row"><span><b>Koko Bay</b> · Palm Jumeirah</span><span class="plate">4</span></div>
+    <div class="panel__row"><span><b>Ninive</b> · Emirates Towers</span><span class="plate">1</span></div>
+    <div class="panel__row"><span><b>The Guild</b> · DIFC</span><span class="plate">1</span></div>
+    <div class="live" style="margin-top:1.25rem"><span class="live__dot"></span><span>Rana voted 2 minutes ago</span></div>
+  </div>
+</div>
 </body>
 </html>

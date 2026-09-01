@@ -1,0 +1,186 @@
+<!-- @dsCard group="Screens" -->
+<!doctype html>
+<html lang="en" data-theme="night">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>plan-ind — Photo wall</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,200..800&family=Hanken+Grotesk:wght@400;500;700&display=swap">
+<style>
+:root {
+  --color-paper: #f4f0ea;
+  --color-card: #fbf8f3;
+  --color-ink: #1a1618;
+  --color-muted: #6b625c;
+  --color-line: rgba(18, 102, 110, 0.30);
+  --color-punch: #12666e;
+  --color-punch-text: #12666e;
+  --color-live: #a1481f;
+  --color-grape: #12666e;
+  --color-zest: #12666e;
+  --color-mint: #12666e;
+  --font-display: var(--font-display-family), system-ui, sans-serif;
+  --font-body: var(--font-hanken), system-ui, sans-serif;
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
+  --background: var(--color-paper);
+  --foreground: var(--color-ink);
+  --card: var(--color-card);
+  --card-foreground: var(--color-ink);
+  --popover: var(--color-card);
+  --popover-foreground: var(--color-ink);
+  --primary: var(--color-punch);
+  --primary-foreground: var(--primary-ink);
+  --secondary: var(--color-card);
+  --secondary-foreground: var(--color-ink);
+  --muted: var(--color-card);
+  --muted-foreground: var(--color-muted);
+  --accent: var(--color-accent-tint);
+  --accent-foreground: var(--color-punch);
+  --border: var(--color-line);
+  --input: var(--color-line);
+  --ring: var(--color-punch);
+  --destructive: #9a3412;
+  --destructive-foreground: var(--color-paper);
+  --color-accent-tint: rgba(18, 102, 110, 0.07);
+  --color-live-dot: #b3552c;
+  --dur-press: 200ms;
+  --dur-state: 300ms;
+  --dur-entrance: 700ms;
+  --dur-follow: 180ms;
+  --dur-return: 800ms;
+  --primary-fill: linear-gradient(180deg, #2a2225, #171315);
+  --primary-ink: #f6f2ec;
+  --photo-ink: #f6f2ec;
+  --photo-body: #ddd7cf;
+  --photo-eyebrow: #d3af78;
+  --photo-scrim: linear-gradient(
+    0deg,
+    rgba(14, 12, 14, 0.9) 6%,
+    rgba(14, 12, 14, 0.18) 56%,
+    rgba(14, 12, 14, 0.05) 100%
+  );
+  --radius-ring: 14px;
+  --radius-thumb: 18px;
+  --radius-panel: 22px;
+  --radius-pill: 26px;
+  --radius-hero: 26px 26px 92px 26px;
+}
+[data-theme="night"] {
+  --destructive: #f0a08a;
+  --color-paper: #0e0c0e;
+  --color-card: #171316;
+  --color-ink: #f4efe8;
+  --color-muted: #a49a92;
+  --color-line: rgba(104, 184, 192, 0.28);
+  --color-punch: #68b8c0;
+  --color-punch-text: #68b8c0;
+  --color-accent-tint: rgba(104, 184, 192, 0.16);
+  --color-live: #e08e63;
+  --color-live-dot: #cf7a4e;
+  --color-grape: #68b8c0;
+  --color-zest: #68b8c0;
+  --color-mint: #68b8c0;
+  --primary-fill: linear-gradient(180deg, #9ad3d9, #63aab2);
+  --primary-ink: #0e0c0e;
+}
+
+:root { --font-display: "Newsreader", Georgia, serif; --font-body: "Hanken Grotesk", system-ui, sans-serif; }
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 2rem;
+  background: var(--color-paper); color: var(--color-ink);
+  font-family: var(--font-body); -webkit-font-smoothing: antialiased;
+}
+h1,h2,h3 { font-family: var(--font-display); font-weight: 500; letter-spacing: -.02em; margin: 0; }
+.kicker { font-size:.73rem; font-weight:700; letter-spacing:.18em; text-transform:uppercase;
+  color: var(--color-punch); margin: 0 0 .5rem; }
+.note { font-size:.86rem; color: var(--color-muted); max-width: 64ch; margin:.5rem 0 1.5rem;
+  text-wrap: pretty; line-height:1.55; }
+.row { display:flex; gap:.75rem; flex-wrap:wrap; align-items:center; }
+@media (prefers-reduced-motion: reduce) { * { animation-duration:.001ms !important; transition-duration:.001ms !important; } }
+
+.wall { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:18px; align-items:start; }
+.wall__col { display:flex; flex-direction:column; gap:18px; min-width:0; }
+.tile { position:relative; overflow:hidden; border-radius:var(--radius-panel); background:var(--color-card); }
+.tile__img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.tile__body { position:absolute; inset:auto 0 0 0; padding:18px; background:var(--photo-scrim); color:var(--photo-ink); }
+.tile__name { font-family:var(--font-display); font-size:1.05rem; font-weight:600; letter-spacing:-.02em; color:var(--photo-ink); margin:0; }
+.tile__meta { margin:2px 0 0; font-size:.76rem; color:var(--photo-body); }
+.tile--typo { border:1px solid var(--color-line); }
+.tile--typo .tile__body { inset:0; display:flex; flex-direction:column; justify-content:flex-end; background:none; color:var(--color-ink); }
+.tile--typo .tile__name { font-size:1.45rem; color:var(--color-ink); }
+.tile--typo .tile__meta { color:var(--color-muted); }
+.tile__vibe { margin:10px 0 0; padding-top:10px; border-top:1px solid var(--color-line);
+  font-size:.78rem; line-height:1.45; color:var(--color-muted); }
+.tile__absent { position:absolute; top:14px; left:14px; margin:0; font-size:.68rem;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--color-muted); }
+.tile__note { position:absolute; top:14px; right:14px; margin:0; padding:6px 12px; border-radius:20px;
+  background:rgba(14,12,14,.6); backdrop-filter:blur(8px); color:var(--photo-ink); font-size:.72rem; font-weight:600; }
+.tile__note--live { background:var(--color-punch); color:var(--primary-ink); backdrop-filter:none; }
+.pin { border-radius:var(--radius-panel); border:1px solid var(--color-line); background:var(--color-card); padding:22px; }
+</style>
+</head>
+<body>
+<p class="kicker">Screens</p><h2>Dubai, right now</h2>
+<p class="note">Four columns, staggered top offsets (0 / 46 / 16 / 64), heights 200–360, rounded corners, no frames, <b>no tilt</b>. <code>minmax(0,1fr)</code> on the tracks and <code>min-width:0</code> on each column are load-bearing: without them an image's intrinsic ratio inflates its track and the wall overflows.</p>
+<div class="wall">
+  <div class="wall__col">
+<div class="tile" style="height:330px">
+  <img class="tile__img" src="https://placehold.co/1600x900/16343a/68b8c0?text=+" alt="">
+  <div class="tile__body"><p class="tile__name">Koko Bay</p><p class="tile__meta">Palm Jumeirah · sunset 6:40</p>
+  </div>
+  <p class="tile__note">Sara + 2 saved</p>
+  
+</div>
+<div class="tile tile--typo" style="height:240px">
+  
+  <div class="tile__body"><p class="tile__name">Kite Beach</p><p class="tile__meta">Umm Suqeim · free</p>
+  <p class="tile__vibe">Cooler after six, always someone playing.</p></div>
+  
+  <p class="tile__absent">No photo yet</p>
+</div></div>
+  <div class="wall__col" style="margin-top:46px">
+<div class="tile" style="height:250px">
+  <img class="tile__img" src="https://placehold.co/900x1400/16343a/68b8c0?text=+" alt="">
+  <div class="tile__body"><p class="tile__name">The Guild</p><p class="tile__meta">DIFC · back room seats six</p>
+  </div>
+  
+  
+</div><div class="pin"><p class="kicker" style="margin:0 0 .5rem">Settle it</p><p style="font-family:var(--font-display);font-size:1.05rem;font-weight:600;margin:0">Beach first, or dinner first?</p></div></div>
+  <div class="wall__col" style="margin-top:16px">
+<div class="tile tile--typo" style="height:300px">
+  
+  <div class="tile__body"><p class="tile__name">Al Marmoom camp</p><p class="tile__meta">45 min out · nobody has been</p>
+  <p class="tile__vibe">No panorama and no venue set — twelve guest photos, last one in March.</p></div>
+  
+  <p class="tile__absent">No photo yet</p>
+</div>
+<div class="tile" style="height:210px">
+  <img class="tile__img" src="https://placehold.co/1400x900/16343a/68b8c0?text=+" alt="">
+  <div class="tile__body"><p class="tile__name">Sunset dhow</p><p class="tile__meta">Marina · AED 140 each</p>
+  </div>
+  <p class="tile__note tile__note--live">Everyone saved</p>
+  
+</div></div>
+  <div class="wall__col" style="margin-top:64px">
+<div class="tile" style="height:280px">
+  <img class="tile__img" src="https://placehold.co/1200x1200/16343a/68b8c0?text=+" alt="">
+  <div class="tile__body"><p class="tile__name">Address rooftop</p><p class="tile__meta">JBR · 77th floor</p>
+  </div>
+  
+  
+</div>
+<div class="tile tile--typo" style="height:230px">
+  
+  <div class="tile__body"><p class="tile__name">Al Fahidi walk</p><p class="tile__meta">Free · cooler after 6</p>
+  <p class="tile__vibe">Low buildings, narrow lanes, good at dusk.</p></div>
+  
+  <p class="tile__absent">No photo yet</p>
+</div></div>
+</div>
+</body>
+</html>

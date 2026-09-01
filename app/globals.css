@@ -3386,3 +3386,166 @@ h3 {
 
 /* The leader's kicker goes brass with it, so "· leading" reads as one plate. */
 [data-theme="night"] .vote-experience .vote-option--leader .vote-option__category { color: var(--vote-metal); }
+
+/* ── The photo wall ────────────────────────────────────────────────
+   Turn 9's soft masonry, at turn 13's restraint and turn 14's colour.
+   Rounded corners, no frames, NO TILT — staggered heights instead of a
+   grid of equal cards.
+
+   `minmax(0, 1fr)` and `min-width: 0` are LOAD-BEARING, not defensive:
+   an image's intrinsic aspect ratio inflates its grid track otherwise and
+   the wall overflows its container. The handoff names this failure
+   because it had already happened once. */
+.wall {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  align-items: start;
+}
+.wall__col {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+}
+
+.wall-tile {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-panel);
+  background: var(--color-card);
+  isolation: isolate;
+}
+.wall-tile__img { object-fit: cover; }
+
+/* Text over a photograph keeps the night values in BOTH grounds — it sits
+   on a dark scrim either way. A headline that flips to ink on a photo
+   disappears. */
+.wall-tile__body {
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 1;
+  padding: 18px;
+  background: var(--photo-scrim);
+  color: var(--photo-ink);
+}
+.wall-tile__name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--photo-ink);
+}
+.wall-tile__meta {
+  margin: 2px 0 0;
+  font-size: 0.76rem;
+  color: var(--photo-body);
+}
+
+/* The photo-less tile. Not a fallback — the common case while the catalog
+   has one nullable photo column. It carries no scrim, so it is the one
+   place tile text uses the THEME's ink rather than the over-photo set. */
+.wall-tile--typographic {
+  border: 1px solid var(--color-line);
+}
+.wall-tile--typographic .wall-tile__body {
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background: none;
+  color: var(--color-ink);
+}
+.wall-tile--typographic .wall-tile__name {
+  font-size: clamp(1.15rem, 1rem + 1vw, 1.6rem);
+  color: var(--color-ink);
+  text-wrap: balance;
+}
+.wall-tile--typographic .wall-tile__meta { color: var(--color-muted); }
+.wall-tile__vibe {
+  margin: 10px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-line);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--color-muted);
+  text-wrap: pretty;
+}
+/* Says what is missing, plainly, rather than padding the tile. */
+.wall-tile__absent {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  margin: 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+/* Overlay chips describe WHAT HAPPENED — "Sara + 2 saved", "In Friday's
+   deal" — never the category. A chip naming the category would be the
+   retired rainbow, in words. */
+.wall-tile__note {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+  margin: 0;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: rgba(14, 12, 14, 0.6);
+  backdrop-filter: blur(8px);
+  color: var(--photo-ink);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+.wall-tile__note--live {
+  background: var(--color-punch);
+  color: var(--primary-ink);
+  backdrop-filter: none;
+}
+
+/* Pins sit IN the wall at tile width, on surface rather than photography. */
+.wall-pin {
+  border-radius: var(--radius-panel);
+  border: 1px solid var(--color-line);
+  background: var(--color-card);
+  padding: 22px;
+}
+
+.wall-skeleton {
+  border-radius: var(--radius-panel);
+  border: 1px solid var(--color-line);
+  background: var(--color-accent-tint);
+}
+.wall-empty {
+  margin: 0;
+  padding: 2.5rem 0;
+  max-width: 44ch;
+  color: var(--color-muted);
+  font-size: 0.92rem;
+  text-wrap: pretty;
+}
+
+/* Four columns is a desktop composition. The stagger is what breaks when it
+   narrows, so the offsets go with the column count. */
+@media (max-width: 1100px) {
+  .wall { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .wall__col:nth-child(n) { margin-top: 0; }
+  .wall__col:nth-child(2) { margin-top: 32px; }
+}
+@media (max-width: 760px) {
+  .wall { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  .wall__col { gap: 14px; }
+  .wall__col:nth-child(n) { margin-top: 0; }
+  .wall__col:nth-child(2) { margin-top: 24px; }
+}
+
+.home-wall-section {
+  width: min(100% - 2rem, 76rem);
+  margin: 0 auto;
+  padding: 3.5rem 0 4.5rem;
+}
+.home-wall-section .home-plan-section__intro { margin-bottom: 1.75rem; }
