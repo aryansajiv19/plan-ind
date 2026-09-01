@@ -40,24 +40,37 @@ export async function consumeQuota(
   return data === true;
 }
 
-// Migration 026. OTP request happens before a session exists, so it can't
-// use consumeQuota (consume_app_quota requires auth.uid()). Keyed on the
-// HMAC'd email — never the raw address — via the same private key as
+// Migration 026. Neither OTP step has a session yet, so neither can use
+// consumeQuota (consume_app_quota requires auth.uid()). Keyed on the HMAC'd
+// email — never the raw address — via the same private key as
 // recordSecurityEvent's subject_hash.
-export async function consumeOtpRequestLimit(
+async function consumeOtpLimit(
   supabase: SupabaseClient,
+  scope: "otp-request" | "otp-verify",
   email: string,
 ): Promise<boolean> {
-  const { data, error } = await supabase.rpc("consume_otp_request_limit", {
+  const { data, error } = await supabase.rpc("consume_otp_limit", {
     p_secret: controlSecret(),
+    p_scope: scope,
     p_subject: privateSubject(email),
   });
   if (error) {
     if (process.env.NODE_ENV !== "production" && error.code === "PGRST202") return true;
-    console.error("OTP rate limit control failed", JSON.stringify({ code: error.code }));
+    console.error("OTP rate limit control failed", JSON.stringify({ scope, code: error.code }));
     return false;
   }
   return data === true;
+}
+
+export function consumeOtpRequestLimit(supabase: SupabaseClient, email: string): Promise<boolean> {
+  return consumeOtpLimit(supabase, "otp-request", email);
+}
+
+// GoTrue's own rate limit on token verification is per-IP, not per-code
+// attempt, so it's bypassed by spreading guesses across a few IPs. This is
+// keyed on the target email instead, which a guesser can't route around.
+export function consumeOtpVerifyLimit(supabase: SupabaseClient, email: string): Promise<boolean> {
+  return consumeOtpLimit(supabase, "otp-verify", email);
 }
 
 export async function recordSecurityEvent(

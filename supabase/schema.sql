@@ -1616,33 +1616,42 @@ end; $$;
 revoke all on function record_security_event(text,text,text,text,text,jsonb) from public;
 grant execute on function record_security_event(text,text,text,text,text,jsonb) to anon, authenticated;
 
--- 026: OTP request has no session yet (pre-auth), so it can't use
+-- 026: neither OTP step has a session yet (pre-auth), so neither can use
 -- consume_app_quota (requires auth.uid()). Same anon-callable,
 -- control-secret-gated shape as record_security_event above; subject is a
 -- HMAC'd email computed in lib/security/controls.ts, never a raw address.
-create or replace function consume_otp_request_limit(p_secret text, p_subject text)
+-- otp-verify exists because GoTrue's own rate limit on token verification is
+-- per-IP (360/hr, bursts to 30), not per-code-attempt — trivially bypassed by
+-- spreading guesses across a few IPs. Keying this on the target email instead
+-- closes that: the cap holds no matter how many IPs a guesser uses.
+create or replace function consume_otp_limit(p_secret text, p_scope text, p_subject text)
 returns boolean language plpgsql security definer set search_path = public, extensions, pg_temp as $$
 declare
   minute_start timestamptz := date_trunc('minute', now());
   day_start timestamptz := date_trunc('day', now());
   current_count integer;
+  minute_limit integer;
+  day_limit integer;
   subject_key text := left(p_subject, 128);
 begin
-  if not valid_control_secret(p_secret) or subject_key is null or subject_key = '' then
+  if not valid_control_secret(p_secret) or p_scope not in ('otp-request', 'otp-verify')
+     or subject_key is null or subject_key = '' then
     raise exception 'Server authorization required' using errcode = '42501';
   end if;
-  insert into app_rate_limits values('otp-request-minute', subject_key, minute_start, 1)
+  minute_limit := case p_scope when 'otp-request' then 3 else 8 end;
+  day_limit := case p_scope when 'otp-request' then 10 else 20 end;
+  insert into app_rate_limits values(p_scope||'-minute', subject_key, minute_start, 1)
     on conflict(scope,subject,window_start) do update set request_count = app_rate_limits.request_count+1
     returning request_count into current_count;
-  if current_count > 3 then return false; end if;
-  insert into app_rate_limits values('otp-request-day', subject_key, day_start, 1)
+  if current_count > minute_limit then return false; end if;
+  insert into app_rate_limits values(p_scope||'-day', subject_key, day_start, 1)
     on conflict(scope,subject,window_start) do update set request_count = app_rate_limits.request_count+1
     returning request_count into current_count;
-  if current_count > 10 then return false; end if;
+  if current_count > day_limit then return false; end if;
   return true;
 end; $$;
-revoke all on function consume_otp_request_limit(text,text) from public, authenticated;
-grant execute on function consume_otp_request_limit(text,text) to anon, authenticated;
+revoke all on function consume_otp_limit(text,text,text) from public, authenticated;
+grant execute on function consume_otp_limit(text,text,text) to anon, authenticated;
 
 -- Private Presence channel: topic is plan:<uuid>:presence.
 drop policy if exists "plan members receive presence" on realtime.messages;

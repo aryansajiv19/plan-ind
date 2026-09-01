@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { validateBirthDate } from "@/lib/age-policy";
-import { consumeOtpRequestLimit, recordSecurityEvent, requestId } from "@/lib/security/controls";
+import { consumeOtpRequestLimit, consumeOtpVerifyLimit, recordSecurityEvent, requestId } from "@/lib/security/controls";
 import { safeNextPath } from "@/lib/auth";
 
 export interface AuthFormState {
@@ -115,6 +115,22 @@ export async function verifyEmailCode(
   const next = safeNextPath(formData.get("next")?.toString());
 
   const supabase = await createClient();
+
+  // Durable, per-address limit (migration 026). GoTrue's own verify-endpoint
+  // rate limit is per-IP, not per-code-attempt, so it doesn't stop a guesser
+  // spread across a few IPs — this bucket is keyed on the target email, which
+  // a guesser can't route around.
+  if (!(await consumeOtpVerifyLimit(supabase, email))) {
+    await recordSecurityEvent(supabase, {
+      type: "rate_limit",
+      outcome: "blocked",
+      subject: email,
+      requestId: await requestId(),
+      metadata: { scope: "otp-verify" },
+    });
+    return { email, sent: true, error: "Too many attempts for this code. Request a new one in a few minutes." };
+  }
+
   const { error } = await supabase.auth.verifyOtp({
     email,
     token,
