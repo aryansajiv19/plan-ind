@@ -1103,7 +1103,10 @@ declare
   uid uuid := auth.uid();
   years integer;
 begin
-  if uid is null then
+  -- 024: is_permanent_user() too, like current_member_age. An anon→permanent
+  -- upgrade keeps the uid, so an anonymous session writing this write-once row
+  -- would inherit a fabricated age past the 18/21 gates.
+  if uid is null or not is_permanent_user() then
     raise exception 'Sign in first' using errcode = '42501';
   end if;
   -- Write-once. A second call is an age-escalation attempt, not an edit.
@@ -1569,3 +1572,19 @@ returns void language sql security definer set search_path = public, pg_temp as 
   delete from app_rate_limits where window_start < now() - interval '2 days';
 $$;
 revoke all on function purge_security_operational_data() from public, anon, authenticated;
+
+-- 024 (SEC.4): the `revoke ... from public` lines above these functions miss
+-- Supabase's named `anon` grant (same root cause as 021). Restate the intent.
+-- Client-facing RPCs keep `authenticated`:
+revoke all on function set_birth_date(date) from public, anon;
+grant execute on function set_birth_date(date) to authenticated;
+revoke all on function current_member_age() from public, anon;
+grant execute on function current_member_age() to authenticated;
+revoke all on function ensure_authenticated_profile(text, text, text) from public, anon;
+grant execute on function ensure_authenticated_profile(text, text, text) to authenticated;
+-- Internal helpers and trigger functions — no client role executes these
+-- directly; they run as the function owner from a trigger or another definer:
+revoke all on function ensure_default_place_collections(uuid) from public, anon, authenticated;
+revoke all on function mirror_friendship() from public, anon, authenticated;
+revoke all on function people_default_place_collections() from public, anon, authenticated;
+-- (rls_auto_enable is live-only drift — not defined here; 024 handles it if present.)
