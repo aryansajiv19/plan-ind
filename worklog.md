@@ -803,3 +803,17 @@ Only remaining core-loop blocker: **B1** (enable anonymous sign-ins — dashboar
 - mig-023 file corrected (`67a0ccf`); security Low finding fix (`ec5c7fa`).
 - `qa-test` dispatched by T1 for 023 idempotency + tally-concurrency (running).
 - T2 FE.7 committed (`a1773b1`): new `components/VoteState.tsx`, `bootstrapPlanAccess()` wired into `app/plan/[id]/page.tsx`, per-`PlanAccessDenial`-reason screens. Integrating.
+
+## ✅ Guest vote path verified end to end — 2026-09-01 (T2)
+
+Against a fresh browser profile (localStorage cleared), on lane/frontend's build:
+`/plan/22222222-…` → anon session minted → `claim_plan_access` → plan reads →
+NameGate → typed name → cast a Round-1 vote. "Selected" state + live count bump
+(3→4) both worked. `bootstrapPlanAccess` + `cast_plan_vote` (mig-023 jsonb path)
+confirmed working for an anonymous guest. Host decide not run (guest has no host
+token; that path unchanged by FE.7).
+
+This is the first time the core loop has worked for a no-account guest —
+`PRODUCT_STRATEGY.md` delivery item #1. Recorded as FE.10 in PRIORITIES.md: the
+`/login` "Sign in" from the guest-paused screen has no `next` param, so it lands
+on `/home` not the plan.

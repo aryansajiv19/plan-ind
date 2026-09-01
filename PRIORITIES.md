@@ -25,12 +25,23 @@ B1 is now the only thing on this page blocking the core loop. `PRODUCT_STRATEGY.
 names "excellent no-install share voting" as delivery item #1, and it is still
 non-functional in production until B1 flips.
 
-**Migrations 021 / 022 / 023 are LIVE** (T0, 2026-09-01, via Supabase MCP
-`apply_migration` against project `zyojaoyatunjwgbivaqu`). Note: the
-`supabase/migration-023-vote-idempotency.sql` file needs `drop function if exists
-cast_plan_vote(...)` before the `create` — `create or replace` cannot change a
-return type, so the file as committed would fail a re-run / scratch build. T1 to
-patch the file + `schema.sql`. Live DB is correct.
+**Migrations 021 / 022 / 023 are LIVE** (T0, 2026-09-01, via Supabase MCP against
+project `zyojaoyatunjwgbivaqu`). mig-023 file `42P13` bug fixed in `67a0ccf`.
+Migration **024** (SEC.4) is written and staged, **pending owner approval to apply**.
+
+**B1 is LIVE** — anonymous sign-ins enabled 2026-09-01.
+
+**✅ 2026-09-01 — the guest vote path works end to end.** T2 verified against a
+fresh browser profile: `/plan/[id]` → anon session → `claim_plan_access` → plan
+reads → NameGate → cast a Round-1 vote → "selected" + live count bump. First time
+the core product loop has functioned for a no-account guest. Delivery item #1 in
+`PRODUCT_STRATEGY.md` is now real. Turnstile still off (deploy checklist).
+
+## New frontend backlog (from the guest-vote verification)
+
+| # | Task | Why | Size |
+|---|---|---|---|
+| **FE.10** | `/login` takes no `next` / redirect param. A guest who hits "Sign in" from the guest-paused vote screen authenticates and lands on `/home`, not back on the plan they were voting on. | Rough edge on the exact flow B1 just unblocked | S |
 
 ---
 
