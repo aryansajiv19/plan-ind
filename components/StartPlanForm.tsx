@@ -130,7 +130,16 @@ export default function StartPlanForm({ age = 21, demoMode = false }: { age?: nu
       const matchedCategory = CATEGORIES.find((item) => item.key === result.intent!.category);
       const matchedGroup = CATEGORY_GROUPS.find((group) => group.categories.some((item) => item.key === result.intent!.category));
       const matchedOrigin = DUBAI_ORIGINS.find((origin) => origin.value === result.intent!.origin);
-      if (matchedCategory) setCategory(matchedCategory.key);
+      // Same age gate pickCategory() enforces for the manual buttons — without
+      // it a query that resolves to an 18+/21+ category (e.g. "nightlife")
+      // could set `category` to one no button in the age-filtered list shows
+      // as selected. The server re-validates age independently either way
+      // (no restricted plan can actually be created), but the form shouldn't
+      // silently point at a category the person can't use. Skips quietly,
+      // same as clicking a category that isn't rendered for your age.
+      if (matchedCategory && age >= minimumAgeForCategory(matchedCategory.key)) {
+        setCategory(matchedCategory.key);
+      }
       if (matchedGroup) setActiveGroup(matchedGroup.key);
       if (matchedOrigin) setOriginValue(matchedOrigin.value);
       setMaxBudget(result.intent.maxBudget);
