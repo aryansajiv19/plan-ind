@@ -15,7 +15,7 @@ paths and branches are unchanged**, only what each one is for.
 | **T0** Orchestrator | `~/plan-ind` (main) | `ai-engineering` | Sonnet medium | Integrates every branch, owns docs/CI/deploy |
 | **Security** (was T1) | `~/plan-ind-backend` | `lane/backend` | **Opus** | Security audit + hardening + the engineering-bar techniques (concurrency, idempotency, caching, observability, rate limiting) |
 | **Review** (was T2) | `~/plan-ind-frontend` | `lane/frontend` | Sonnet medium | Bugs, errors, debugging, full-stack code review — **functional fixes only, no visual/design changes** |
-| **Design** (was T3) | `~/plan-ind-design` | `lane/design` | Sonnet medium | **Idle.** Owner working externally in Claude Design; will hand off specs later |
+| **Design** (was T3) | `~/plan-ind-design` | `lane/design` | Sonnet medium | **Active again (2026-09-02).** Read `PRODUCT_FLOW.md` first — the owner's intended flow, cross-checked against what's built. Own turf only: `design-system/**`, `FRONTEND_DESIGN_STANDARDS.md`, Claude Design canvas. `globals.css` stays frozen until you hand off a spec — Review implements it, not you. |
 
 Branch/worktree names still say `backend`/`frontend` — that's cosmetic, ignore it.
 
@@ -116,6 +116,7 @@ externally:
 ## Lane status
 
 ### T0 — Orchestrator / Platform
+- 2026-09-02: wrote `PRODUCT_FLOW.md` — the owner's intended flow (login → home → host a plan → 3 pools of 3 → final round → vote → payoff → post-visit collections), cross-checked against the actual build. Steps 1–5 match and are built; step 6 (payoff: weather/travel-time/transport-carpooling) and step 7 (post-visit photo collections) are real gaps, not bugs — Design's territory once specced. **Review:** your actionable takeaway is in that doc's summary — verify the Discover→moodboard and Been→collection loops actually work end to end, don't build steps 6/7 blind.
 - 2026-09-02: load-test harness (`scripts/load/run.mjs`, `npm run load <scenario>`), first baseline captured (front door: dev 161ms p50/50 req/s vs a production build 10ms p50/857 req/s, 0 errors either way). Integrated Review's FE.10 + sweep (`7704424`, `d923b3b`, `d40b4b5`) — gate green.
 - 2026-09-01: startup-list trim, model policy, CI workflow, **worktree split**, **schema↔types drift check** (`3e8e6bf`). Integrated `lane/backend@ec5c7fa`.
 - **Authenticated the Supabase MCP and applied migrations 021, 022, 023 live** (project `zyojaoyatunjwgbivaqu`). Verified by direct catalog probe (this project has no migration ledger). **B2 resolved.** 022/023 confirmed live. Details + the SEC.4 follow-up list in `worklog.md`.
