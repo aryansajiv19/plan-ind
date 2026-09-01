@@ -58,11 +58,12 @@ concurrency work. `security` and `qa-test` are subagents, not lanes.
 
 **Get the core loop to production.** Critical path:
 
-1. Owner clears **B1** (enable anon sign-ins) → **B2** (migration 021) → **B4**
-   (migration 022) → migration 023, in that order. See `PRIORITIES.md`.
-2. T1 — BE.1 vote path correct, failing honestly until B1. ✅ committed.
-3. T2 — FE.1 front door ✅ · FE.2/FE.8 ✅ · next: wire `bootstrapPlanAccess` + FE.7 states.
-4. T0 — CI ✅ · schema↔types drift check ✅ · next: Vercel deploy wiring, deployed smoke.
+1. ~~B1 / B2 / B4~~ **all cleared 2026-09-01.** Anon sign-ins LIVE (anon signup
+   returns a session token). Migrations 021/022/023 LIVE. Turnstile still off —
+   enable before the production deploy (fine for local).
+2. T1 — BE.1 vote path ✅. Next: mig-023 file fix, SEC.4 (mig 024), dispatch qa-test.
+3. T2 — FE.1 ✅ · FE.2/FE.8 ✅ · next: **FE.7** (`<VoteState>` spec is in SPECS.md) + wire `bootstrapPlanAccess`. Then verify the guest vote path end-to-end at `/plan/22222222-…` — now possible.
+4. T0 — CI ✅ · drift check ✅ · dev server running on :3000 for design review · next: Vercel deploy wiring.
 5. Then the hardening layer per lane (idempotency ✅ mig-023 → durable rate
    limiting → request IDs / structured logs → load baseline).
 
@@ -74,7 +75,9 @@ concurrency work. `security` and `qa-test` are subagents, not lanes.
 - 2026-09-01: startup-list trim, model policy, CI workflow, **worktree split**, **schema↔types drift check** (`3e8e6bf`). Integrated `lane/backend@ec5c7fa`.
 - **Authenticated the Supabase MCP and applied migrations 021, 022, 023 live** (project `zyojaoyatunjwgbivaqu`). Verified by direct catalog probe (this project has no migration ledger). **B2 resolved.** 022/023 confirmed live. Details + the SEC.4 follow-up list in `worklog.md`.
 - **⚠️ mig-023 file bug (T1):** `create or replace function cast_plan_vote ... returns jsonb` fails `42P13` — you can't change a return type without `drop function` first. I applied a corrected version live. `supabase/migration-023-vote-idempotency.sql` and `schema.sql` still need the `drop function if exists cast_plan_vote(uuid,uuid,text,boolean,text,smallint,text)` before the create. See cross-lane request.
-- Only core-loop blocker left: **B1** (owner enables anon sign-ins).
+- **B1 is LIVE** (owner enabled + saved 2026-09-01). Anon signup returns a session token. Turnstile still off — deploy checklist item, not a local blocker.
+- Dev server up on `localhost:3000` (main tree, `ai-engineering`) for design review.
+- **Front-door "blank screen" on load was a screenshot capture artifact**, not a bug — `getComputedStyle`/`getBoundingClientRect` show the hero opaque, visible, laid out; a scroll forces the paint. (NEXT_AGENT.md §3 trap.) Day render is clean. **T2: night mode on `/` and the `--auth-*` routes still needs a real check** (FE.4) — `home-experience--night` applies but I saw tokens not flipping in one probe; verify properly.
 - Next: Vercel deploy wiring, then request-IDs / structured-logging groundwork.
 
 ### T1 — Backend
