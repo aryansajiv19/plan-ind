@@ -1639,3 +1639,19 @@ revoke all on function ensure_default_place_collections(uuid) from public, anon,
 revoke all on function mirror_friendship() from public, anon, authenticated;
 revoke all on function people_default_place_collections() from public, anon, authenticated;
 -- (rls_auto_enable is live-only drift — not defined here; 024 handles it if present.)
+
+-- 028: "add own friendships" / "remove own friendships" (originally created
+-- above, never touched by 020's people/friendships rewrite) queried `people`
+-- to check ownership, and `people`'s own read policy queries `friendships` —
+-- that mutual cross-reference is a real 42P17 (infinite recursion detected in
+-- policy) on every write to friendships. `friendships.person_id` is always
+-- exactly auth.uid() for a permanent account (people.id = auth_user_id =
+-- auth.uid() by construction), so the people lookup was redundant; dropping
+-- it breaks the cycle with no loss of permissiveness (the FK to people still
+-- requires a real row to exist).
+drop policy if exists "add own friendships" on friendships;
+create policy "add own friendships" on friendships for insert to authenticated
+  with check (is_permanent_user() and person_id = (select auth.uid()));
+drop policy if exists "remove own friendships" on friendships;
+create policy "remove own friendships" on friendships for delete to authenticated
+  using (is_permanent_user() and person_id = (select auth.uid()));
