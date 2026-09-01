@@ -1,13 +1,25 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
+import ThemeSync from "@/components/ThemeSync";
+import { autoGround } from "@/lib/dubai-phase";
 import "./globals.css";
 
+// Manrope, variable, wght 200-800 — the axis is load-bearing, not a nicety:
+// the plan card's headline arrives by gaining weight from 300 to 800 over
+// 1.4s, which four static cuts cannot do. Two subsets (latin, latin-ext)
+// replace the four static TTFs at a tenth of the bytes.
 const display = localFont({
   src: [
-    { path: "../public/fonts/manrope-500.ttf", weight: "500" },
-    { path: "../public/fonts/manrope-600.ttf", weight: "600" },
-    { path: "../public/fonts/manrope-700.ttf", weight: "700" },
-    { path: "../public/fonts/manrope-800.ttf", weight: "800" },
+    {
+      path: "../public/fonts/manrope-variable-latin.woff2",
+      weight: "200 800",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/manrope-variable-latin-ext.woff2",
+      weight: "200 800",
+      style: "normal",
+    },
   ],
   variable: "--font-display-family",
   display: "swap",
@@ -46,8 +58,8 @@ export const viewport: Viewport = {
   viewportFit: "cover",
   interactiveWidget: "resizes-content",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f3f1ec" },
-    { media: "(prefers-color-scheme: dark)", color: "#090b0e" },
+    { media: "(prefers-color-scheme: light)", color: "#f4f0ea" },
+    { media: "(prefers-color-scheme: dark)", color: "#0e0c0e" },
   ],
 };
 
@@ -56,12 +68,20 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Stamped server-side so the first paint is already the right ground —
+  // the Dubai clock is server-knowable, and a sand-to-black flash on every
+  // evening load is exactly the kind of thing a themed product cannot do.
+  // ThemeSync then applies any stored override and handles the 17:00 turnover.
+  const ground = autoGround();
+
   return (
     <html
       lang="en"
+      data-theme={ground}
       className={`${display.variable} ${hanken.variable} h-full`}
     >
       <body className="min-h-full flex flex-col">
+        <ThemeSync serverGround={ground} />
         <div className="relative z-10 flex flex-1 flex-col">{children}</div>
       </body>
     </html>

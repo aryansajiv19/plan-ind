@@ -1,10 +1,11 @@
 // The 23 hangout categories, in the five groups the composer shows as tabs.
 //
-// This lived inside StartPlanForm until category colour landed. It is shared
-// now because the group — not the category — is what carries a hue: five hues
-// is a system a person can learn, twenty-three is noise. `categoryGroup()` is
-// the only way a surface should reach for a group; the hue itself lives in
-// `--color-group-*` in globals.css and is selected with `data-group`.
+// The groups are STRUCTURE ONLY now — they order the composer's tabs and
+// nothing else. They used to carry a hue each (`--color-group-*`, selected
+// with `data-group`), and that whole category rainbow was retired by the
+// owner's design handoff: brass carries structure, terracotta carries live
+// state, and what kind of night it is comes from the photograph. Do not
+// reintroduce a per-group colour.
 
 export const CATEGORY_GROUPS = [
   {

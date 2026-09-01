@@ -199,7 +199,7 @@ export default function DemoAccountViews({
         {visiblePlaces.length ? (
           <div className="demo-place-grid">
             {visiblePlaces.map((place) => (
-              <article key={place.name} data-group={place.group} className="demo-place-card">
+              <article key={place.name} className="demo-place-card">
                 <div className="demo-place-card__image"><Image src={place.image} alt={`Community visit at ${place.name}`} fill sizes="(max-width: 700px) 100vw, 50vw" /></div>
                 <div className="demo-place-card__body">
                   <div className="demo-place-card__meta"><span>{place.category}</span><span>{place.rating} / 5</span></div>

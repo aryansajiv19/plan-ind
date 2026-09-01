@@ -291,7 +291,7 @@ export default function StartPlanForm({ age = 21, demoMode = false }: { age?: nu
   return (
     // The composer takes the hue of whichever group is open, so switching
     // tabs visibly recolours the form. Each tab overrides it with its own.
-    <form onSubmit={start} className="plan-form" data-group={activeGroup}>
+    <form onSubmit={start} className="plan-form">
       <section className="plan-smart-search" aria-labelledby="smart-search-heading">
         <div className="plan-smart-search__heading">
           <div><p id="smart-search-heading" className="plan-form__label">Describe the place in your head</p><small>Atmosphere, occasion, budget, area. Write it naturally.</small></div>
@@ -332,7 +332,6 @@ export default function StartPlanForm({ age = 21, demoMode = false }: { age?: nu
               onClick={() => setActiveGroup(group.key)}
               aria-pressed={activeGroup === group.key}
               className="plan-category-group"
-              data-group={group.key}
             >
               {group.label}
             </button>

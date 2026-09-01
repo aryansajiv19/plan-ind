@@ -17,7 +17,6 @@ import NameGate from "@/components/NameGate";
 import DecidedPlan from "@/components/DecidedPlan";
 import Turnstile from "@/components/Turnstile";
 import VoteState from "@/components/VoteState";
-import { categoryGroup } from "@/components/categoryGroups";
 
 type Load = "loading" | "ready" | "notfound" | "error";
 // "checking" = access not resolved yet; "ready" = membership claimed; any
@@ -599,7 +598,7 @@ export default function VotePage() {
 
   if (!voterName) {
     return (
-      <main data-group={categoryGroup(plan!.category)} className={`vote-experience ${nightMode ? "vote-experience--night" : ""} mx-auto grid min-h-dvh max-w-md place-items-center px-5`}>
+      <main className={`vote-experience ${nightMode ? "vote-experience--night" : ""} mx-auto grid min-h-dvh max-w-md place-items-center px-5`}>
         <NameGate planTitle={plan!.title} onSubmit={saveName} />
       </main>
     );
@@ -635,7 +634,7 @@ export default function VotePage() {
     .every((poolNumber) => poolsChosenByMe.has(poolNumber));
 
   return (
-    <main data-group={categoryGroup(plan!.category)} className={`vote-experience ${nightMode ? "vote-experience--night" : ""} mx-auto w-full max-w-4xl px-4 py-6 sm:py-10`}>
+    <main className={`vote-experience ${nightMode ? "vote-experience--night" : ""} mx-auto w-full max-w-4xl px-4 py-6 sm:py-10`}>
       <div
         ref={stageRef}
         className={[

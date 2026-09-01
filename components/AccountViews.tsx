@@ -13,7 +13,6 @@ import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import PlaceLinkImporter from "@/components/PlaceLinkImporter";
 import { categoryMeta } from "@/lib/categories";
-import { categoryGroup } from "@/components/categoryGroups";
 import { avatarStyle, initialsOf } from "@/lib/avatar";
 import type { PlannedWith } from "@/lib/social";
 import type {
@@ -205,7 +204,6 @@ function PlaceCard({ spot, onStartPlan }: { spot: Spot; onStartPlan: () => void 
   const meta = categoryMeta(spot.category);
   return (
     <article
-      data-group={categoryGroup(spot.category)}
       className={`demo-place-card ${spot.photo_url ? "" : "demo-place-card--flat"}`}
     >
       {spot.photo_url ? (

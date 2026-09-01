@@ -1,109 +1,162 @@
 @import "tailwindcss";
 
 /* ── Design tokens ─────────────────────────────────────────────────
-   Architectural ivory ground, graphite ink, champagne metal. This is
-   the product-wide system: warm neutral, restrained, contemporary
-   Dubai hospitality rather than black-and-gold cliché.
+   Warm sand by day, warm near-black by night, brass throughout, with
+   terracotta reserved for anything live. From the owner's Claude Design
+   handoff (`design_handoff_plan/README.md`) — turn 14 for colour, turn
+   13 for weight and restraint.
 
-   These used to be a lilac ground with plum ink and loud purple/pink/
-   yellow/green accents. `.home-experience` and `.vote-experience` each
-   redefined all of them locally, so those two surfaces looked correct
-   while anything NOT under one of those classes — /onboarding, AgeForm,
-   any new page — silently rendered in the old palette. The accent names
-   are kept so the existing `text-grape` / `bg-punch` utilities scattered
-   through the components keep working; only the values moved.       */
+   TWO AUTHORED PALETTES, NOT ONE DIMMED. Day is the base below; night
+   is a full re-authoring in the [data-theme="night"] block, selected by
+   the Dubai clock (night from ~17:00) with a user override that is
+   deliberately not the primary control. A value changed in one has to be
+   changed and re-measured in the other.
+
+   Two things this palette deliberately retired, so they are not restored
+   by accident:
+
+   1. THE FIVE CATEGORY-GROUP HUES. Paprika / magenta / teal / green /
+      violet, one per group, are gone. The handoff rejects the whole
+      "category rainbow" of turns 1-7: brass carries structure and
+      terracotta carries live state, and what kind of night it is comes
+      from the photograph, not from a hue. `data-group` no longer selects
+      anything.
+   2. THE HARD OFFSET SHADOW (`.token`). Turn 8 was rejected for exactly
+      that — "thick ink-brass outlines, hard offset shadows... nothing
+      thinner than a 2px border" read as loud and childish. Turn 13
+      replaces it: depth is pointer parallax and ONE brass hairline.
+
+   Earlier still, these were a lilac ground with plum ink; `.home-experience`
+   and `.vote-experience` each redefined the palette locally, so those two
+   surfaces looked right while every other screen rendered a dead one. That
+   is why the overrides below are a single document-level theme scope and
+   not per-screen blocks.                                            */
 @theme {
-  --color-paper: #f3f1ec; /* ground — warm architectural ivory */
-  --color-card: #fbfaf7;
-  --color-ink: #17181b; /* graphite: text and rules */
-  --color-muted: #66666b;
-  --color-line: rgba(23, 24, 27, 0.14);
+  /* ── Day ground: warm sand. NOT white. ──────────────────────────── */
+  --color-paper: #f4f0ea; /* ground */
+  --color-card: #fbf8f3; /* surface — raised panels */
+  --color-ink: #1a1618; /* 15.79:1 on ground, 16.92:1 on surface */
+  --color-muted: #6b625c; /* 5.25:1 on ground, 5.62:1 on surface */
+  --color-line: rgba(122, 96, 56, 0.32); /* hairline — brass-tinted, not grey */
 
-  --color-grape: #76654b; /* primary action, focus — deep bronze */
-  --color-punch: #9b7d4e; /* the winner — champagne metal */
-  --color-zest: #c5ad84; /* celebration, confetti */
-  --color-mint: #9b7d4e; /* semantic — a yes vote */
+  /* Brass. On sand there is only ONE brass that survives as text: #7a6038
+     at 5.20:1. The night brass #c9a56f measures 2.03:1 here, so it is never
+     text on this ground — the handoff's rule is "never lighter than this".
+     --color-punch and --color-punch-text therefore collapse to one value by
+     day and split again at night, where the ground can carry both. */
+  --color-punch: #7a6038; /* 5.20:1 on ground, 5.57:1 on surface */
+  --color-punch-text: #7a6038; /* same by day; night splits them */
 
-  /* The one live accent. It marks STATE and never decorates:
-       --color-live  = you, and now (your vote, your completed round, a
-                       count that just changed)
-       champagne     = the outcome (the winner, a decided plan)
-     Everything else stays ivory and graphite. Cobalt is deliberate — cool
-     against the warm base, so it reads as interactive rather than blending
-     into the metal. 6.00:1 on the ivory ground; the night scopes below flip
-     it to a light tint because no single hue clears AA on both. */
-  --color-live: #2f4bd6;
+  /* Terracotta marks LIVE STATE and nothing else — who is looking, what
+     just changed. It never decorates and never marks an outcome. */
+  --color-live: #a1481f; /* live text — 5.34:1 on ground */
 
-  /* Champagne, small-text companion. #9b7d4e is 3.42:1 on the ivory ground —
-     it passes AA for LARGE text only (>=24px, or >=18.66px bold), which is
-     what the display metal is for. Every kicker, label and caption under that
-     size uses this darker cut instead: 5.23:1 on ivory, 5.65:1 on card.
-     The brand colour is not darkened; a second, smaller-sized one is added. */
-  --color-punch-text: #7a6038;
-
-  /* ── Category colour: five groups, one hue each ──────────────────
-     The composer sorts 23 categories into five groups; the GROUP carries
-     the hue. Five is a system someone can learn, 23 is noise.
-
-     Derived from what the group actually is: paprika for food, a lit
-     magenta for after dark, marine teal for sun and water, pitch green
-     for move and play, gallery violet for culture and reset.
-
-     No single hue clears AA on both the ivory ground and the obsidian
-     night ground — the maths forbids it (a colour dark enough for ivory
-     is too dark for night). So these are theme-scoped exactly like
-     --color-live: the day values live here, the night values override in
-     .home-experience--night / .vote-experience--night. Change one, change
-     both, and measure both.
-
-     Measured against #f3f1ec, the darker of the two day grounds:      */
-  --color-group-food: #a83a20; /* 5.65:1 on ivory, 6.11:1 on card */
-  --color-group-night: #b3175f; /* 5.81:1 on ivory, 6.28:1 on card */
-  --color-group-water: #0f6a72; /* 5.60:1 on ivory, 6.05:1 on card */
-  --color-group-active: #2a6b3c; /* 5.69:1 on ivory, 6.16:1 on card */
-  --color-group-leisure: #6b46b0; /* 5.95:1 on ivory, 6.43:1 on card */
+  /* Legacy aliases. `text-grape` / `bg-zest` / `text-mint` are still
+     scattered through the components; they now all resolve to brass so
+     nothing renders a dead colour mid-migration. Do not add new uses. */
+  --color-grape: #7a6038;
+  --color-zest: #7a6038;
+  --color-mint: #7a6038;
 
   --font-display: var(--font-display-family), system-ui, sans-serif;
   --font-body: var(--font-hanken), system-ui, sans-serif;
 
   /* ── Motion curves: two, and only two ────────────────────────────
-     --ease-spring overshoots past its target and settles back. It is
-     for a state the person just caused — picking a card, choosing a
-     category, releasing a button. The overshoot is what reads as
-     mass; a linear or ease-out curve of the same length reads as a
-     repaint. Kept mild (about 6% past target) because the elements
-     it moves are large cards, not icons.
+     --ease-settle does not overshoot. Entrances, snaps, and returns to
+     rest — anything arriving that the person did not push.
 
-     --ease-settle does not overshoot. It is for arrival: something
-     entering the screen that the person did not push. Already in use
-     across the entrances; named here so it stops being pasted.
-
-     Presses are the exception to both — a press-in is fast and blunt
-     (90ms ease-out, set on :active) and only the RELEASE springs.
-     Symmetric spring on the way down reads as mush.                */
+     --ease-spring overshoots and settles back. PRESS FEEDBACK ONLY. The
+     handoff narrows this from its previous use: a spring on an entrance
+     reads as bounce, and bounce is what turn 13 stripped out.        */
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
-
-  /* ── The signature shadow's ink ──────────────────────────────────
-     Solid graphite on the ivory ground: 15.73:1 against the paper,
-     17.01:1 against the card — a hard edge, which is the point.
-
-     It is a token and not a literal because it CANNOT be reused at
-     night: #17181b on the obsidian ground measures 1.11:1 (1.04:1 on
-     the night card), i.e. invisible mud. Both night scopes override
-     this with brass at low alpha — see .home-experience--night. */
-  --token-shadow: #17181b;
 }
 
-/* The only way a surface picks up a group hue: put data-group on the nearest
-   sensible container and read --group below it. Written as five separate
-   rules on purpose — a comment inside a comma-separated selector list does
-   not split it, and that has silently mis-applied a block here before. */
-[data-group="food"] { --group: var(--color-group-food); }
-[data-group="night"] { --group: var(--color-group-night); }
-[data-group="water"] { --group: var(--color-group-water); }
-[data-group="active"] { --group: var(--color-group-active); }
-[data-group="leisure"] { --group: var(--color-group-leisure); }
+/* ── Tokens that live in :root, not @theme, on purpose ─────────────
+   Tailwind v4 TREE-SHAKES @theme variables that nothing references, and a
+   dropped variable is silent — the rule that reads it just computes to
+   nothing. `--color-live-dot` and the durations were emitted at night (the
+   night block below is plain CSS, always kept) and dropped by day, so the
+   day ground had no live-dot at all. Anything consumed only through
+   `var()` therefore belongs here, where it is always emitted; @theme is
+   for tokens that should also generate a utility class. */
+:root {
+  --color-brass-tint: rgba(122, 96, 56, 0.07); /* inactive chip fill — .07 composites to 4.75:1 for brass text; at .12 it drops to 4.45:1 and fails. Do not raise. */
+  --color-live-dot: #b3552c; /* live dot — 4.35:1; non-text, needs 3:1 */
+
+  /* Durations, named so they stop being pasted as magic numbers. */
+  --dur-press: 200ms;
+  --dur-state: 300ms;
+  --dur-entrance: 700ms;
+  --dur-follow: 180ms; /* parallax follow — linear, not eased */
+  --dur-return: 800ms; /* parallax return to rest — settle */
+}
+
+/* ── Night: a separate palette, not the day one dimmed ─────────────
+   Selected by the Dubai clock from ~17:00 (see lib/dubai-phase.ts).
+   Applied at the document root so EVERY screen flips — /login,
+   /onboarding, /privacy and /terms had no night variant at all under the
+   old per-screen scopes. */
+[data-theme="night"] {
+  --color-paper: #0e0c0e; /* warm near-black, slight plum. Not neutral black */
+  --color-card: #171316;
+  --color-ink: #f4efe8; /* 17.04:1 on ground, 16.09:1 on surface */
+  --color-muted: #a49a92; /* 7.07:1 on ground, 6.67:1 on surface */
+  --color-line: rgba(201, 165, 111, 0.3);
+
+  /* Night can carry both brass cuts: the fill/rule brass and a lighter
+     text brass above it. */
+  --color-punch: #c9a56f; /* 8.44:1 on ground — fills, progress, rules */
+  --color-punch-text: #d3af78; /* 9.44:1 on ground, 8.91:1 on surface */
+  --color-brass-tint: rgba(201, 165, 111, 0.16);
+
+  --color-live: #e08e63; /* 7.63:1 on ground */
+  --color-live-dot: #cf7a4e; /* 6.08:1 */
+
+  --color-grape: #d3af78;
+  --color-zest: #d3af78;
+  --color-mint: #d3af78;
+}
+
+/* The primary button is the one place the two grounds disagree about
+   more than a value: brass on sand is too weak to read as the main
+   action, so DAY'S PRIMARY IS INK and night's is brass. Not a --color-*
+   because a gradient would generate a nonsense utility. */
+:root {
+  --primary-fill: linear-gradient(180deg, #2a2225, #171315);
+  --primary-ink: #f6f2ec; /* 16.51:1 on the dark end, 13.91:1 on the light end */
+}
+[data-theme="night"] {
+  --primary-fill: linear-gradient(180deg, #dcbb87, #bc9860);
+  --primary-ink: #1a1518; /* 6.70:1 on the dark end, 9.88:1 on the light end */
+}
+
+/* ── Text over photography ─────────────────────────────────────────
+   Keeps its NIGHT values in both grounds — it sits on a dark scrim
+   either way. This must never inherit the surface theme; a headline that
+   flips to ink on a photograph disappears. */
+:root {
+  --photo-ink: #f6f2ec; /* 17.47:1 on the scrim */
+  --photo-body: #ddd7cf; /* 13.64:1 */
+  --photo-eyebrow: #d3af78; /* 9.44:1 */
+  --photo-scrim: linear-gradient(
+    0deg,
+    rgba(14, 12, 14, 0.9) 6%,
+    rgba(14, 12, 14, 0.18) 56%,
+    rgba(14, 12, 14, 0.05) 100%
+  );
+}
+
+/* ── Radii: deliberately not one value ─────────────────────────────
+   The hero plan card's single asymmetric corner is the signature shape
+   now that the offset shadow is gone. */
+:root {
+  --radius-ring: 14px; /* ring photos, small thumbs */
+  --radius-thumb: 18px; /* thumbnails */
+  --radius-panel: 22px; /* panels, wall tiles */
+  --radius-pill: 26px; /* pills and buttons (24-30) */
+  --radius-hero: 26px 26px 92px 26px; /* the plan card, one corner open */
+}
 
 body {
   background: var(--color-paper);
@@ -120,31 +173,27 @@ h3 {
   text-wrap: balance;
 }
 
-/* ── The signature element: the token shadow ───────────────────────
-   A hard, solid offset shadow — like an arcade button / board-game
-   token. Presses physically sink into the page. Quiet everywhere;
-   it's the thread that makes the whole app feel tappable.
+/* ── The signature element: press, and one hairline ────────────────
+   `.token` used to live here — a hard 5px/6px offset shadow that made
+   things look tappable. It is GONE, deliberately. The design handoff
+   rejected turn 8 for precisely that language ("thick ink-brass
+   outlines, hard offset shadows... nothing thinner than a 2px border"),
+   and turn 13 replaced it with restraint: depth comes from perspective
+   (see .tilt-card) and from one brass hairline, never from a drop.
 
-   This was orphaned twice: dropped from OptionCard in 8c3581c, then
-   switched off again by the restraint block at the end of this file.
-   It is live again on the vote card and the primary actions. Colour
-   comes from --token-shadow so night gets brass instead of graphite;
-   the offsets are shared because the *shape* of the press is the
-   signature, not the hue.                                          */
+   What survives is the PRESS, which is the half that was always about
+   feel rather than decoration: down is a scale, not a translate, and the
+   status line afterwards says what actually happened. */
 @layer components {
   .token {
-    box-shadow: 5px 6px 0 var(--token-shadow);
     transition:
-      transform 0.12s ease,
-      box-shadow 0.12s ease;
+      transform var(--dur-press) var(--ease-spring),
+      background var(--dur-state) ease,
+      border-color var(--dur-state) ease;
   }
-  .token:hover {
-    transform: translate(-1px, -1px);
-    box-shadow: 7px 8px 0 var(--token-shadow);
-  }
-  .token:active {
-    transform: translate(4px, 5px);
-    box-shadow: 1px 1px 0 var(--token-shadow);
+  .token:active:not(:disabled) {
+    transform: scale(0.97);
+    transition-duration: var(--dur-press);
   }
 }
 
@@ -462,14 +511,10 @@ h3 {
 
 /* ── Authenticated home: editorial decision workspace ──────────── */
 .home-experience {
-  --color-paper: #f3f1ec;
-  --color-card: #fbfaf7;
-  --color-ink: #17181b;
-  --color-muted: #66666b;
-  --color-line: rgba(23, 24, 27, 0.14);
-  --color-grape: #76654b;
-  --color-punch: #9b7d4e;
-  --home-metal: #9b7d4e;
+  /* The local day palette that used to live here is deleted — see the note
+     on .vote-experience. A local redefinition here would beat the document
+     theme and pin home to day forever. `--home-metal` stays as an alias. */
+  --home-metal: var(--color-punch);
   position: relative;
   min-height: 100dvh;
   overflow: hidden;
@@ -561,7 +606,7 @@ h3 {
 }
 
 .home-logo__three {
-  color: #c3a573;
+  color: var(--color-punch-text);
   font-size: 0.82rem;
   transform: translateY(-1px);
 }
@@ -857,9 +902,9 @@ h3 {
   font-weight: 700;
   transition: transform 260ms var(--ease-spring), box-shadow 150ms ease;
 }
-/* Hover and active live with the other primary-CTA signature rules further
-   down (search --token-shadow): the offset is set there, the lift is under
-   @media (hover: hover) so a tap on a phone never triggers the old soft glow. */
+/* Hover and active live with the other primary-CTA rules further down. The
+   offset shadow they used to carry is retired with `.token`; what is left is
+   the lift, under @media (hover: hover) so a tap on a phone never fires it. */
 
 .home-secondary-cta {
   padding: 0.75rem 0.25rem;
@@ -906,7 +951,7 @@ h3 {
   width: min(100%, 31rem);
   height: 32rem;
   overflow: hidden;
-  border: 1px solid rgba(195, 165, 115, 0.45);
+  border: 1px solid rgba(201, 165, 111, 0.45);
   background: #111318;
   color: white;
   box-shadow: 0 2rem 5rem rgba(23, 24, 27, 0.13);
@@ -1000,7 +1045,7 @@ h3 {
 }
 
 .home-system-row--active {
-  background: #c5ad84;
+  background: var(--color-punch);
   color: #15161a;
 }
 
@@ -1020,7 +1065,7 @@ h3 {
   letter-spacing: 0.06em;
 }
 
-.home-system-row__number { color: #c5ad84; font-weight: 700; }
+.home-system-row__number { color: var(--color-punch-text); font-weight: 700; }
 .home-system-row--active .home-system-row__number { color: #15161a; }
 .home-system-row__name { min-width: 0; }
 .home-system-row__name strong { display: block; overflow: hidden; font-family: var(--font-body); font-size: 0.8rem; text-overflow: ellipsis; white-space: nowrap; }
@@ -1383,7 +1428,7 @@ h3 {
   position: absolute;
   inset: auto 0 -1px;
   height: 3px;
-  background: var(--group, var(--home-metal));
+  background: var(--home-metal);
   transform: scaleX(0);
   transition: transform 160ms ease;
 }
@@ -1420,9 +1465,9 @@ h3 {
    the leading edge means the selection is still legible as a shape when the
    colour is not — this is the one control where colour does real work. */
 .plan-category-option[aria-pressed="true"] {
-  border-color: var(--group, var(--home-metal));
-  background: color-mix(in srgb, var(--group, var(--home-metal)) 12%, transparent);
-  box-shadow: inset 3px 0 0 var(--group, var(--home-metal));
+  border-color: var(--home-metal);
+  background: color-mix(in srgb, var(--home-metal) 12%, transparent);
+  box-shadow: inset 3px 0 0 var(--home-metal);
   color: var(--color-ink);
   /* Same spring as the vote card. These tiles sit in a fixed 2-column
      grid with no scroll container, so the scale can be larger than
@@ -1803,20 +1848,20 @@ h3 {
 /* Most Discover cards do have a photograph, so the group hue needs somewhere
    to live above it. A 3px masthead rule — same device as .vote-shell, so a
    place and the plan you make from it read as the same kind of night. */
-.demo-place-card { min-width: 0; border-top: 3px solid var(--group, transparent); }
+.demo-place-card { min-width: 0; border-top: 3px solid var(--color-line); }
 .demo-place-card__body { padding: 1rem 0 1.5rem; }
 .demo-place-card__meta,
 .demo-visit__top { display: flex; justify-content: space-between; gap: 1rem; color: var(--color-muted); font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
 /* The category label on a place card is the one word that says what kind of
    outing this is, so it carries the group hue. Falls back to champagne on
    any card without a data-group ancestor. */
-.demo-place-card__meta span:first-child { color: var(--group, var(--color-punch-text)); }
+.demo-place-card__meta span:first-child { color: var(--color-punch-text); }
 .demo-visit__top strong { color: var(--color-punch-text); }
 .demo-place-card h2,
 .demo-visit h2 { margin-top: 0.65rem; font-size: 1.45rem; }
 .demo-place-card__area { margin-top: 0.2rem; color: var(--color-muted); font-size: 0.75rem; }
 .demo-place-card__body > p:not(.demo-place-card__area, .demo-place-card__context) { margin-top: 0.8rem; line-height: 1.5; }
-.demo-place-card__context { margin-top: 0.8rem; padding-top: 0.75rem; border-top: 2px solid var(--group, var(--color-line)); color: var(--color-ink); font-size: 0.74rem; font-weight: 600; }
+.demo-place-card__context { margin-top: 0.8rem; padding-top: 0.75rem; border-top: 2px solid var(--color-line); color: var(--color-ink); font-size: 0.74rem; font-weight: 600; }
 .demo-place-card button,
 .demo-primary-action { margin-top: 1rem; min-height: 2.7rem; padding: 0.65rem 0.9rem; border: 1px solid var(--color-ink); background: var(--color-ink); color: var(--color-card); font-size: 0.72rem; font-weight: 700; cursor: pointer; }
 .demo-empty { margin-top: 2rem; padding: 3rem 0; border-block: 1px solid var(--color-line); color: var(--color-muted); }
@@ -2012,15 +2057,20 @@ h3 {
   outline-offset: -2px;
 }
 
-/* Authentication shares the home's architectural hospitality system. */
+/* Authentication shares the product palette.
+
+   The `--auth-*` set used to be six hardcoded day values with no night
+   variant, which is why /login and /onboarding stayed white after sunset
+   (FE.4). They are now aliases onto the themed tokens, so auth flips with
+   everything else and there is one palette to maintain, not two. */
 .auth-shell {
-  --auth-paper: #f3f1ec;
-  --auth-card: #fbfaf7;
-  --auth-ink: #17181b;
-  --auth-muted: #68686b;
-  --auth-line: rgba(23, 24, 27, 0.16);
-  --auth-metal: #9b7d4e;
-  --auth-metal-text: #7a6038; /* 5.23:1 — the small-text cut, see --color-punch-text */
+  --auth-paper: var(--color-paper);
+  --auth-card: var(--color-card);
+  --auth-ink: var(--color-ink);
+  --auth-muted: var(--color-muted);
+  --auth-line: var(--color-line);
+  --auth-metal: var(--color-punch);
+  --auth-metal-text: var(--color-punch-text);
   min-height: 100dvh;
   padding: clamp(1.25rem, 4vw, 4rem);
   color: var(--auth-ink);
@@ -2029,7 +2079,7 @@ h3 {
 .auth-frame { width: min(70rem, 100%); min-height: min(44rem, calc(100dvh - 8rem)); margin: auto; display: grid; grid-template-columns: 1.05fr 0.95fr; border: 1px solid var(--auth-line); background: color-mix(in srgb, var(--auth-paper) 86%, transparent); }
 .auth-intro { display: flex; flex-direction: column; justify-content: space-between; padding: clamp(1.5rem, 5vw, 4rem); border-right: 1px solid var(--auth-line); }
 .auth-mark { display: inline-flex; align-items: center; justify-content: center; width: 3rem; height: 3rem; border: 1px solid var(--auth-ink); background: var(--auth-ink); color: #f6f3ed; font-family: var(--font-display); font-size: .95rem; font-weight: 800; letter-spacing: -.06em; text-decoration: none; }
-.auth-mark b { margin-left: .12rem; color: #c3a573; font-size: .76rem; }
+.auth-mark b { margin-left: .12rem; color: var(--auth-metal-text); font-size: .76rem; }
 .auth-kicker, .auth-panel__heading p { margin: 0; color: var(--auth-metal-text); font-size: .68rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
 .auth-intro h1 { max-width: 30rem; margin: auto 0 1.25rem; font-size: clamp(3.5rem, 7vw, 6.8rem); line-height: .88; letter-spacing: -.08em; }
 .auth-intro h1 em { color: var(--auth-metal); font-style: normal; }
@@ -2060,32 +2110,31 @@ h3 {
 .auth-footnote { margin: 1.5rem 0 0; text-align: center; }
 @media (max-width: 760px) { .auth-shell { padding: 0; } .auth-frame { display: block; min-height: 100dvh; border: 0; } .auth-intro { min-height: 43vh; padding: 1.25rem; border-right: 0; border-bottom: 1px solid var(--auth-line); } .auth-intro h1 { margin-top: auto; font-size: clamp(3.4rem, 16vw, 5.8rem); } .auth-copy { font-size: .84rem; } .auth-panel { padding: 2rem 1.25rem 2.5rem; } }
 
-.home-experience--night {
-  /* 8.02:1 on obsidian; the day cobalt is only 2.91:1 here. */
-  --color-live: #8aa0ff;
-  --color-paper: #090b0e;
-  --color-card: #121418;
-  --color-ink: #f0ece4;
-  --color-muted: #9d9b99;
-  --color-line: rgba(240, 236, 228, 0.14);
-  --color-grape: #c3a573;
-  --color-punch: #c3a573;
-  --color-punch-text: #c3a573; /* 7.86:1 on the night card — no darker cut needed */
-  --home-metal: #c3a573;
-  /* The signature shadow, night cut. Graphite disappears here — #17181b is
-     1.11:1 on the obsidian ground and 1.04:1 on the card, which is mud, not
-     a shadow. Brass at 35% blends to #4a4131 over the paper (1.96:1) and
-     #504738 over the card (2.02:1): clearly a lit edge, still well under the
-     card border so it never reads as a second frame. */
-  --token-shadow: rgba(195, 165, 115, 0.35);
-  /* Night cuts of the five group hues. Same hue family, lifted off the
-     obsidian; measured against #121418, the lighter of the two night
-     grounds. See the @theme block for why this cannot be one value. */
-  --color-group-food: #e0865f; /* 6.80:1 */
-  --color-group-night: #dd7a9c; /* 6.44:1 */
-  --color-group-water: #5fb0bb; /* 7.39:1 */
-  --color-group-active: #72b083; /* 7.25:1 */
-  --color-group-leisure: #a893e8; /* 7.03:1 */
+/* The two legacy per-screen night classes are now ALIASES for the document
+   theme, not palettes of their own. They defined the whole palette locally
+   once, which is exactly why /login, /onboarding, /privacy and /terms had no
+   night variant at all — nothing outside those two class trees ever flipped.
+   Kept as selectors so existing `nightMode` markup keeps working; the values
+   live once, in the [data-theme="night"] block near the top of this file. */
+.home-experience--night,
+.vote-experience--night {
+  --color-paper: #0e0c0e;
+  --color-card: #171316;
+  --color-ink: #f4efe8;
+  --color-muted: #a49a92;
+  --color-line: rgba(201, 165, 111, 0.3);
+  --color-punch: #c9a56f;
+  --color-punch-text: #d3af78;
+  --color-brass-tint: rgba(201, 165, 111, 0.16);
+  --color-live: #e08e63;
+  --color-live-dot: #cf7a4e;
+  --color-grape: #d3af78;
+  --color-zest: #d3af78;
+  --color-mint: #d3af78;
+  --home-metal: #c9a56f;
+  --vote-metal: #c9a56f;
+  --primary-fill: linear-gradient(180deg, #dcbb87, #bc9860);
+  --primary-ink: #1a1518;
   color-scheme: dark;
 }
 
@@ -2104,12 +2153,12 @@ h3 {
 }
 
 .home-experience--night .home-system,
-.home-experience--night .home-proof { background: #090a0f; }
-.home-experience--night .home-system-row--active { background: #c5ad84; color: #13141a; }
+.home-experience--night .home-proof { background: var(--color-card); }
+.home-experience--night .home-system-row--active { background: var(--color-punch); color: var(--primary-ink); }
 .home-experience--night .home-logo,
 .home-experience--night .home-primary-cta,
-.home-experience--night .plan-submit { background: #f1eee8; color: #111218; }
-.home-experience--night .home-app-tab[aria-current="page"] { background: transparent; color: #f1eee8; }
+.home-experience--night .plan-submit { background: var(--primary-fill); color: var(--primary-ink); }
+.home-experience--night .home-app-tab[aria-current="page"] { background: transparent; color: var(--color-ink); }
 .home-experience--night .home-avatar { color: var(--color-ink); }
 .home-experience--night .home-plan-card__tape,
 .home-experience--night .plan-form__input,
@@ -2120,18 +2169,15 @@ h3 {
 .home-experience--night .place-link-importer__field input,
 .home-experience--night .demo-discover-tools input { background: #1a1b22; }
 
-/* Shared-plan voting uses the same architectural hospitality language as home. */
+/* Shared-plan voting uses the same language as home.
+
+   This block used to redefine the ENTIRE day palette locally. That is now
+   deleted, and deleting it is load-bearing: with the theme applied at the
+   document root, a local day palette here would win over [data-theme="night"]
+   and the vote page would be the one screen that never went dark. `--vote-metal`
+   stays only as an alias so the many rules below that read it keep working. */
 .vote-experience {
-  --color-paper: #f3f1ec;
-  --color-card: #fbfaf7;
-  --color-ink: #17181b;
-  --color-muted: #66666b;
-  --color-line: rgba(23, 24, 27, 0.14);
-  --color-grape: #76654b;
-  --color-punch: #9b7d4e;
-  --color-zest: #c5ad84;
-  --color-mint: #9b7d4e;
-  --vote-metal: #9b7d4e;
+  --vote-metal: var(--color-punch);
   position: relative;
   isolation: isolate;
   color: var(--color-ink);
@@ -2148,41 +2194,14 @@ h3 {
   background-size: 4rem 100%, auto;
 }
 
-.vote-experience--night {
-  /* 8.02:1 on obsidian; the day cobalt is only 2.91:1 here. */
-  --color-live: #8aa0ff;
-  --color-paper: #090b0e;
-  --color-card: #121418;
-  --color-ink: #f0ece4;
-  --color-muted: #9d9b99;
-  --color-line: rgba(240, 236, 228, 0.14);
-  --color-grape: #c3a573;
-  --color-punch: #c3a573;
-  --color-zest: #c3a573;
-  --color-mint: #c3a573;
-  --vote-metal: #c3a573;
-  --color-punch-text: #c3a573; /* 7.86:1 on the night card */
-  /* Brass, not graphite — see .home-experience--night. 1.96:1 over the night
-     paper, 2.02:1 over the night card; graphite would be 1.11:1 and 1.04:1. */
-  --token-shadow: rgba(195, 165, 115, 0.35);
-  /* Night cuts — see .home-experience--night and the @theme block. */
-  --color-group-food: #e0865f; /* 6.80:1 */
-  --color-group-night: #dd7a9c; /* 6.44:1 */
-  --color-group-water: #5fb0bb; /* 7.39:1 */
-  --color-group-active: #72b083; /* 7.25:1 */
-  --color-group-leisure: #a893e8; /* 7.03:1 */
-  color-scheme: dark;
-}
-
-/* A masthead rule in the plan's group hue. One 4px line is enough for a
-   friend opening the link cold to feel "food plan" vs "beach plan" before
-   reading a word — and it is the plan's own colour, so it never competes
-   with the live accent or with champagne on the same screen. */
+/* A brass masthead rule. This used to be the plan's category-group hue —
+   "food plan vs beach plan before reading a word". The group hues are
+   retired, so the rule is brass and the photograph carries what kind of
+   night it is. */
 .vote-shell {
-  border-radius: 0.18rem;
-  border-top: 4px solid var(--group, var(--vote-metal));
+  border-radius: var(--radius-panel);
+  border-top: 4px solid var(--vote-metal);
   background: color-mix(in srgb, var(--color-card) 96%, transparent);
-  box-shadow: 0 2rem 5rem rgba(23, 24, 27, 0.1);
 }
 
 .vote-shell h1,
@@ -2254,7 +2273,7 @@ h3 {
 
 .vote-round-label {
   margin-top: 0.75rem;
-  color: var(--group, var(--vote-metal));
+  color: var(--vote-metal);
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -2353,7 +2372,7 @@ h3 {
 .vote-option[aria-pressed="true"] {
   border-color: var(--color-live);
   background: color-mix(in srgb, var(--color-live) 8%, var(--color-card));
-  box-shadow: inset 3px 0 0 var(--color-live), 5px 6px 0 var(--token-shadow);
+  box-shadow: inset 3px 0 0 var(--color-live);
 }
 
 /* The pick, with weight. A transition (not an animation) on purpose:
@@ -2386,7 +2405,7 @@ h3 {
    aria-pressed rule above keeps the full 5px shadow under your thumb and
    the card reads as unpressable exactly when you go to change your mind. */
 .vote-option[aria-pressed="true"]:active:not(:disabled) {
-  box-shadow: inset 3px 0 0 var(--color-live), 1px 1px 0 var(--token-shadow);
+  box-shadow: inset 3px 0 0 var(--color-live);
 }
 
 /* Decided cards are disabled, so they never sink — the shadow is what is
@@ -2420,8 +2439,8 @@ h3 {
    reads with colour ignored. */
 .vote-option__category {
   padding-left: 0.55rem;
-  border-left: 2px solid var(--group, var(--vote-metal));
-  color: var(--group, var(--vote-metal));
+  border-left: 2px solid var(--vote-metal);
+  color: var(--vote-metal);
   font-weight: 600;
 }
 
@@ -2483,19 +2502,19 @@ h3 {
 .vote-primary-action:not(:disabled),
 .vote-result__primary:not(:disabled),
 .plan-submit:not(:disabled),
-.home-primary-cta { box-shadow: 5px 6px 0 var(--token-shadow); }
+.home-primary-cta { box-shadow: none; }
 
 @media (hover: hover) {
   .vote-primary-action:hover:not(:disabled),
   .vote-result__primary:hover:not(:disabled),
   .plan-submit:hover:not(:disabled),
-  .home-primary-cta:hover { box-shadow: 7px 8px 0 var(--token-shadow); transform: translateY(-1px); }
+  .home-primary-cta:hover { transform: translateY(-1px); }
 }
 
 .vote-primary-action:active:not(:disabled),
 .vote-result__primary:active:not(:disabled),
 .plan-submit:active:not(:disabled),
-.home-primary-cta:active { box-shadow: 1px 1px 0 var(--token-shadow); }
+.home-primary-cta:active { transform: scale(0.97); }
 
 .vote-secondary-action:hover:not(:disabled),
 .vote-result__button:hover:not(:disabled) { border-color: var(--color-ink); }
@@ -2859,7 +2878,7 @@ h3 {
 .demo-wrapped__stats small { color: color-mix(in srgb, var(--color-card) 65%, transparent); font-size: .65rem; line-height: 1.35; }
 .demo-wrapped__actions { display: flex; gap: .5rem; margin-top: 2rem; }
 .demo-wrapped__actions button { min-height: 2.5rem; padding: .55rem .75rem; border: 1px solid color-mix(in srgb, var(--color-card) 38%, transparent); background: transparent; color: var(--color-card); font-size: .68rem; font-weight: 700; cursor: pointer; }
-.demo-wrapped__actions button:first-child { border-color: var(--home-metal); background: var(--home-metal); color: #17181b; }
+.demo-wrapped__actions button:first-child { border-color: var(--home-metal); background: var(--home-metal); color: var(--color-paper); }
 .demo-wrapped .demo-wrapped__status { min-height: 1.4em; margin-top: .65rem; color: color-mix(in srgb, var(--color-card) 72%, transparent); font-size: .65rem; }
 @media (max-width: 760px) { .demo-tool-grid { grid-template-columns: 1fr; } .demo-tool-grid .demo-tool-panel + .demo-tool-panel { border-left: 0; border-top: 1px solid var(--color-line); padding-left: 0; } .demo-board-items { grid-template-columns: 1fr; } .demo-inline-form { flex-wrap: wrap; } .demo-wrapped { grid-template-columns: 1fr; } .demo-wrapped__stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
@@ -2928,9 +2947,9 @@ h3 {
   display: grid;
   place-items: center;
   aspect-ratio: 16 / 9;
-  border-bottom: 2px solid var(--group, var(--color-line));
-  background: color-mix(in srgb, var(--group, var(--color-ink)) 14%, var(--color-card));
-  color: var(--group, var(--color-muted));
+  border-bottom: 2px solid var(--color-line);
+  background: color-mix(in srgb, var(--color-punch) 14%, var(--color-card));
+  color: var(--color-muted);
   font-family: var(--font-display);
   font-size: 1.5rem;
   font-weight: 700;
@@ -3132,7 +3151,7 @@ h3 {
 
    Night only, on purpose: brass is 3.37:1 on ivory and the lattice wash
    vanishes on a light ground. The night palette at :2098 already matches
-   the canvas exactly — #090b0e / #121418 / #c3a573 / #f0ece4 — so nothing
+   the canvas exactly — now retuned to turn 14: #0e0c0e / #171316 / #c9a56f / #f4efe8 — so nothing
    below repaints anything. This adds the three things the canvas has and
    the shipped screen did not: texture, structure, and reveal.
 
@@ -3145,8 +3164,8 @@ h3 {
 /* --- Ground: brass lattice at +/-45deg, and a slow halo behind the masthead. */
 .vote-experience--night::before {
   background:
-    repeating-linear-gradient(45deg, rgba(195, 165, 115, 0.07) 0 1px, transparent 1px 22px),
-    repeating-linear-gradient(-45deg, rgba(195, 165, 115, 0.07) 0 1px, transparent 1px 22px),
+    repeating-linear-gradient(45deg, rgba(201, 165, 111, 0.07) 0 1px, transparent 1px 22px),
+    repeating-linear-gradient(-45deg, rgba(201, 165, 111, 0.07) 0 1px, transparent 1px 22px),
     var(--color-paper);
   background-size: auto;
 }
@@ -3166,9 +3185,9 @@ h3 {
   filter: blur(28px);
   background: conic-gradient(
     from 0deg,
-    rgba(195, 165, 115, 0.18),
+    rgba(201, 165, 111, 0.18),
     transparent 40%,
-    rgba(195, 165, 115, 0.12) 70%,
+    rgba(201, 165, 111, 0.12) 70%,
     transparent
   );
   animation: ad-halo 32s linear infinite;
@@ -3277,7 +3296,7 @@ h3 {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(105deg, transparent 30%, rgba(195, 165, 115, 0.22) 48%, transparent 62%);
+  background: linear-gradient(105deg, transparent 30%, rgba(201, 165, 111, 0.22) 48%, transparent 62%);
   background-size: 250% 100%;
   animation: ad-sheen 6s ease-in-out infinite;
 }
@@ -3287,12 +3306,12 @@ h3 {
   55%, 100% { background-position: 260% 0; }
 }
 
-/* --- Commit: the primary action is struck brass, ink on metal. 6.45:1 at
-   the dark end of the gradient, 9.79:1 at the light end. */
+/* --- Commit: the primary action is struck brass, ink on metal. Now the
+   themed --primary-fill pair: 6.70:1 at the dark end, 9.88:1 at the light. */
 .vote-experience--night .vote-primary-action:not(:disabled) {
   border-color: var(--vote-metal);
-  background: linear-gradient(180deg, #d8bd8c, #b8975f);
-  color: #17181b;
+  background: var(--primary-fill);
+  color: var(--primary-ink);
 }
 
 /* The leader's kicker goes brass with it, so "· leading" reads as one plate. */
