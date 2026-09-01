@@ -71,7 +71,9 @@ export default function OptionCard({
       disabled={decided}
       aria-pressed={voted}
       className={[
-        "opt vote-option relative flex w-full flex-col bg-card p-4 text-left",
+        // `token` is the signature offset shadow — the card sits on the page
+        // and sinks under a press. See the block at the top of globals.css.
+        "opt token vote-option relative flex w-full flex-col bg-card p-4 text-left",
         "disabled:cursor-default",
         isWinner ? "vote-option--winner z-[3]" : "",
         isLeader && !decided ? "vote-option--leader" : "",

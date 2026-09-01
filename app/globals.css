@@ -83,6 +83,16 @@
      Symmetric spring on the way down reads as mush.                */
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ── The signature shadow's ink ──────────────────────────────────
+     Solid graphite on the ivory ground: 15.73:1 against the paper,
+     17.01:1 against the card — a hard edge, which is the point.
+
+     It is a token and not a literal because it CANNOT be reused at
+     night: #17181b on the obsidian ground measures 1.11:1 (1.04:1 on
+     the night card), i.e. invisible mud. Both night scopes override
+     this with brass at low alpha — see .home-experience--night. */
+  --token-shadow: #17181b;
 }
 
 /* The only way a surface picks up a group hue: put data-group on the nearest
@@ -113,21 +123,28 @@ h3 {
 /* ── The signature element: the token shadow ───────────────────────
    A hard, solid offset shadow — like an arcade button / board-game
    token. Presses physically sink into the page. Quiet everywhere;
-   it's the thread that makes the whole app feel tappable.          */
+   it's the thread that makes the whole app feel tappable.
+
+   This was orphaned twice: dropped from OptionCard in 8c3581c, then
+   switched off again by the restraint block at the end of this file.
+   It is live again on the vote card and the primary actions. Colour
+   comes from --token-shadow so night gets brass instead of graphite;
+   the offsets are shared because the *shape* of the press is the
+   signature, not the hue.                                          */
 @layer components {
   .token {
-    box-shadow: 5px 6px 0 var(--color-ink);
+    box-shadow: 5px 6px 0 var(--token-shadow);
     transition:
       transform 0.12s ease,
       box-shadow 0.12s ease;
   }
   .token:hover {
     transform: translate(-1px, -1px);
-    box-shadow: 7px 8px 0 var(--color-ink);
+    box-shadow: 7px 8px 0 var(--token-shadow);
   }
   .token:active {
     transform: translate(4px, 5px);
-    box-shadow: 1px 1px 0 var(--color-ink);
+    box-shadow: 1px 1px 0 var(--token-shadow);
   }
 }
 
@@ -620,6 +637,31 @@ h3 {
   font-weight: 600;
 }
 
+/* Signed out, this replaces the avatar: the one thing a visitor with no
+   account can do from the nav. Ink fill rather than the muted nav-link
+   treatment, because it is the page's conversion. --color-card on
+   --color-ink is 17.01:1 on day and 15.65:1 once both flip at night.
+   2.75rem tall, same as the avatar it stands in for. */
+.home-nav__signin {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0 0.9rem;
+  border: 1px solid var(--color-ink);
+  border-radius: 0.1rem;
+  background: var(--color-ink);
+  color: var(--color-card);
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+/* The one place an outward ring is right: the control is filled with
+   --color-ink, so the standard inset graphite ring would be ink on ink and
+   invisible. Still graphite, drawn on the paper beside it (15.73:1); the nav
+   has no clipping ancestor and the neighbouring gap is wider than the ring. */
+.home-nav__signin:focus-visible { outline: 2px solid var(--color-ink); outline-offset: 2px; }
+
 .home-app-tab:focus-visible,
 .home-theme-toggle:focus-visible,
 .home-nav__link:focus-visible,
@@ -628,11 +670,15 @@ h3 {
   outline-offset: -2px;
 }
 
+/* 2.75rem = 44px, the floor this file already enforces for phones at the
+   touch-target block below. It was 2.5rem = 40px everywhere else, and this
+   button sits in the persistent nav on all five tabs. Matches the logo's
+   height exactly, so the nav bar's own height does not move. */
 .home-avatar {
   display: grid;
   place-items: center;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2.75rem;
+  height: 2.75rem;
   border: 1px solid var(--color-line);
   border-radius: 50%;
   background: var(--color-card);
@@ -807,16 +853,13 @@ h3 {
   border-radius: 0.1rem;
   background: var(--color-ink);
   color: white;
-  box-shadow: none;
   font-family: var(--font-display);
   font-weight: 700;
   transition: transform 260ms var(--ease-spring), box-shadow 150ms ease;
 }
-
-.home-primary-cta:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 0.8rem 2rem rgba(23, 24, 27, 0.12);
-}
+/* Hover and active live with the other primary-CTA signature rules further
+   down (search --token-shadow): the offset is set there, the lift is under
+   @media (hover: hover) so a tap on a phone never triggers the old soft glow. */
 
 .home-secondary-cta {
   padding: 0.75rem 0.25rem;
@@ -1222,7 +1265,11 @@ h3 {
   border-radius: 0;
   background: color-mix(in srgb, var(--color-card) 96%, transparent);
   backdrop-filter: none;
-  box-shadow: 0 1.5rem 4rem rgba(23, 24, 27, 0.08);
+  /* A surface, not a control: it takes the border and no shadow. The
+     signature offset belongs to things you tap — the submit button inside
+     it has it. (Previously a 0 1.5rem 4rem drop, cancelled by !important at
+     the foot of the file; same result, declared once.) */
+  box-shadow: none;
   transform: none;
 }
 
@@ -1629,7 +1676,7 @@ h3 {
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 260ms var(--ease-spring), opacity 150ms ease;
+  transition: transform 260ms var(--ease-spring), box-shadow 150ms ease, opacity 150ms ease;
 }
 
 .plan-submit:hover:not(:disabled) { transform: translateY(-1px); }
@@ -2025,6 +2072,12 @@ h3 {
   --color-punch: #c3a573;
   --color-punch-text: #c3a573; /* 7.86:1 on the night card — no darker cut needed */
   --home-metal: #c3a573;
+  /* The signature shadow, night cut. Graphite disappears here — #17181b is
+     1.11:1 on the obsidian ground and 1.04:1 on the card, which is mud, not
+     a shadow. Brass at 35% blends to #4a4131 over the paper (1.96:1) and
+     #504738 over the card (2.02:1): clearly a lit edge, still well under the
+     card border so it never reads as a second frame. */
+  --token-shadow: rgba(195, 165, 115, 0.35);
   /* Night cuts of the five group hues. Same hue family, lifted off the
      obsidian; measured against #121418, the lighter of the two night
      grounds. See the @theme block for why this cannot be one value. */
@@ -2109,6 +2162,9 @@ h3 {
   --color-mint: #c3a573;
   --vote-metal: #c3a573;
   --color-punch-text: #c3a573; /* 7.86:1 on the night card */
+  /* Brass, not graphite — see .home-experience--night. 1.96:1 over the night
+     paper, 2.02:1 over the night card; graphite would be 1.11:1 and 1.04:1. */
+  --token-shadow: rgba(195, 165, 115, 0.35);
   /* Night cuts — see .home-experience--night and the @theme block. */
   --color-group-food: #e0865f; /* 6.80:1 */
   --color-group-night: #dd7a9c; /* 6.44:1 */
@@ -2219,11 +2275,14 @@ h3 {
   .vote-options-grid > * { scroll-snap-align: center; }
 }
 
+/* The card carries `token` in the markup, so the offset shadow comes from
+   the @layer components block near the top of this file. Every box-shadow
+   below has to restate it: these rules are unlayered and would otherwise
+   drop the signature the moment the card is chosen or wins. */
 .vote-option {
   min-height: 100%;
   border: 1px solid var(--color-line);
   border-radius: 0.12rem;
-  box-shadow: none;
   /* Transform gets the spring and a longer run than the colour props:
      the border recolouring instantly while the card is still settling
      is what makes the pick feel like it landed. */
@@ -2238,7 +2297,7 @@ h3 {
 .vote-option[aria-pressed="true"] {
   border-color: var(--color-live);
   background: color-mix(in srgb, var(--color-live) 8%, var(--color-card));
-  box-shadow: inset 3px 0 0 var(--color-live);
+  box-shadow: inset 3px 0 0 var(--color-live), 5px 6px 0 var(--token-shadow);
 }
 
 /* The pick, with weight. A transition (not an animation) on purpose:
@@ -2267,12 +2326,21 @@ h3 {
   transition-timing-function: ease-out;
 }
 
-.vote-option--winner { border-color: var(--vote-metal); box-shadow: inset 0 2px 0 var(--vote-metal); }
+/* Pressing a card you already chose has to sink too — without this the
+   aria-pressed rule above keeps the full 5px shadow under your thumb and
+   the card reads as unpressable exactly when you go to change your mind. */
+.vote-option[aria-pressed="true"]:active:not(:disabled) {
+  box-shadow: inset 3px 0 0 var(--color-live), 1px 1px 0 var(--token-shadow);
+}
+
+/* Decided cards are disabled, so they never sink — the shadow is what is
+   left of the tactility, and the winner keeps it in champagne. */
+.vote-option--winner { border-color: var(--vote-metal); box-shadow: inset 0 2px 0 var(--vote-metal), 5px 6px 0 var(--vote-metal); }
 /* Decided: the outcome wins the card even if it is also the one you picked. */
 .vote-option--winner[aria-pressed="true"] {
   border-color: var(--vote-metal);
   background: color-mix(in srgb, var(--vote-metal) 8%, var(--color-card));
-  box-shadow: inset 0 2px 0 var(--vote-metal);
+  box-shadow: inset 0 2px 0 var(--vote-metal), 5px 6px 0 var(--vote-metal);
 }
 
 .vote-option__winner-label {
@@ -2350,10 +2418,31 @@ h3 {
 .vote-result__primary { border-color: var(--color-ink); background: var(--color-ink); color: var(--color-card); }
 .vote-secondary-action,
 .vote-result__button { border-color: var(--color-line); background: transparent; color: var(--color-ink); }
-.vote-primary-action:hover:not(:disabled),
+
+/* The signature, on the two commit buttons. Only the primaries take it:
+   a hard shadow on the outline buttons beside them would flatten the
+   hierarchy the fill already establishes. The soft 0 0.8rem 2rem drop these
+   used to grow on hover is gone — it was a glow on hover-only devices, and
+   the restraint block cancelled half of it anyway. */
+.vote-primary-action:not(:disabled),
+.vote-result__primary:not(:disabled),
+.plan-submit:not(:disabled),
+.home-primary-cta { box-shadow: 5px 6px 0 var(--token-shadow); }
+
+@media (hover: hover) {
+  .vote-primary-action:hover:not(:disabled),
+  .vote-result__primary:hover:not(:disabled),
+  .plan-submit:hover:not(:disabled),
+  .home-primary-cta:hover { box-shadow: 7px 8px 0 var(--token-shadow); transform: translateY(-1px); }
+}
+
+.vote-primary-action:active:not(:disabled),
+.vote-result__primary:active:not(:disabled),
+.plan-submit:active:not(:disabled),
+.home-primary-cta:active { box-shadow: 1px 1px 0 var(--token-shadow); }
+
 .vote-secondary-action:hover:not(:disabled),
-.vote-result__primary:hover:not(:disabled),
-.vote-result__button:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 0.8rem 2rem rgba(23, 24, 27, 0.1); }
+.vote-result__button:hover:not(:disabled) { border-color: var(--color-ink); }
 
 .vote-kicker { color: var(--color-punch-text); font-weight: 700; letter-spacing: 0.16em; }
 .vote-field { border-width: 1px; border-radius: 0.12rem; border-color: var(--color-line); background: var(--color-card); color: var(--color-ink); }
@@ -2933,25 +3022,23 @@ h3 {
 .vote-options-grid > *:nth-child(6), .demo-place-grid > *:nth-child(6), .demo-visit-grid > article:nth-child(6), .demo-friend-list > *:nth-child(6) { --i: 5; }
 .vote-options-grid > *:nth-child(7), .demo-place-grid > *:nth-child(7), .demo-visit-grid > article:nth-child(7), .demo-friend-list > *:nth-child(7) { --i: 6; }
 
-/* Restrained production finish: structure and state carry the hierarchy. */
-.sky-root,
-.home-backdrop-grid,
-.home-decision-orbit__glow { display: none !important; }
+/* The restraint block used to live here: three `display: none !important`
+   rules, a `box-shadow: none !important` list that included the signature
+   .token, and a blanket `a/button/[role=button]:hover { transform: none }`
+   for every pointer device. It is gone, and this note is the record of why.
 
-.token,
-.token:hover,
-.token:active,
-.home-plan-card,
-.home-decision-orbit,
-.vote-result__button:hover:not(:disabled) { box-shadow: none !important; }
+   Its display and box-shadow targets were dead classes (.sky-root,
+   .home-backdrop-grid, .home-decision-orbit) or the signature itself. The
+   blanket hover rule cancelled a whole press-and-lift layer that is still
+   written above under `prefers-reduced-motion: no-preference` — the tab lift,
+   the category-tile tilt, the friend-row tilt, the CTA nudge — so the app
+   spent that code and rendered none of it. That is most of what "flat" was.
 
-@media (hover: hover) {
-  a:hover,
-  button:hover,
-  [role="button"]:hover,
-  .token:hover,
-  .vote-result__button:hover:not(:disabled) { transform: none !important; }
-}
+   What was genuinely restrained is now restrained at its source instead of
+   being cancelled by !important further down: .home-plan-card declares no
+   shadow (it is a surface, not a control), and the outline buttons answer
+   hover with their border rather than a soft drop. Nothing here needs an
+   override to stay quiet. */
 
 .legal-links {
   display: flex;
