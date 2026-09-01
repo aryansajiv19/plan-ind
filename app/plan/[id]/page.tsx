@@ -75,6 +75,10 @@ export default function VotePage() {
   const winnerId = plan?.winner_spot_id ?? null;
   const stage = plan?.stage ?? (decided ? "decided" : "final");
   const poolCount = plan?.pool_count ?? 1;
+  // Whoever created the plan, and only them — execute_plan_command enforces
+  // this server-side for every command (advance/decide/patch), so this flag
+  // is UI truthfulness, not the actual gate. See advanceToFinal/decide/patchPlan.
+  const isHost = Boolean(hostToken);
 
   // All the "get a session, redeem the share id" logic lives in
   // bootstrapPlanAccess (lib/supabase.ts) so it returns a typed reason rather
@@ -83,6 +87,12 @@ export default function VotePage() {
     const result = await bootstrapPlanAccess(id, captchaToken);
     setAccess(result.ok ? "ready" : result.reason);
   }, [id]);
+  // Stable identity so <Turnstile>'s effect (keyed on `onVerify`) doesn't
+  // tear down and rebuild the live widget on every unrelated re-render of
+  // this page while the captcha screen is showing.
+  const onCaptchaVerify = useCallback((token: string) => {
+    if (token) void runAccess(token);
+  }, [runAccess]);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => void runAccess());
@@ -97,9 +107,20 @@ export default function VotePage() {
   }, []);
 
   // ── Load plan + its three spots + existing votes ─────────────────
+  // Realtime fires refetchVotes/Rsvps/Ratings/PlanSpots directly off
+  // postgres_changes with no request sequencing. Two writes in quick
+  // succession — normal in a live group session — can have their refetches
+  // resolve out of order; without a guard the stale response wins and a
+  // just-rendered row silently disappears until the next unrelated change
+  // happens to trigger another refetch. One counter per fetch kind, bumped
+  // before the await and checked after, discards a response once a newer
+  // request for the same kind has already started.
+  const fetchSeq = useRef({ votes: 0, rsvps: 0, ratings: 0, planSpots: 0 });
+
   const refetchVotes = useCallback(async () => {
+    const seq = ++fetchSeq.current.votes;
     const { data } = await supabase.from("votes").select("*").eq("plan_id", id);
-    if (data) setVotes(data as Vote[]);
+    if (data && seq === fetchSeq.current.votes) setVotes(data as Vote[]);
   }, [id]);
 
   useEffect(() => {
@@ -128,18 +149,21 @@ export default function VotePage() {
   }, [hostToken, id]);
 
   const refetchRsvps = useCallback(async () => {
+    const seq = ++fetchSeq.current.rsvps;
     const { data } = await supabase.from("rsvps").select("*").eq("plan_id", id);
-    if (data) setRsvps(data as Rsvp[]);
+    if (data && seq === fetchSeq.current.rsvps) setRsvps(data as Rsvp[]);
   }, [id]);
 
   const refetchRatings = useCallback(async () => {
+    const seq = ++fetchSeq.current.ratings;
     const { data } = await supabase.from("ratings").select("*").eq("plan_id", id);
-    if (data) setRatings(data as Rating[]);
+    if (data && seq === fetchSeq.current.ratings) setRatings(data as Rating[]);
   }, [id]);
 
   const refetchPlanSpots = useCallback(async () => {
+    const seq = ++fetchSeq.current.planSpots;
     const { data } = await supabase.from("plan_spots").select("*").eq("plan_id", id);
-    if (data) setPlanSpots(data as PlanSpot[]);
+    if (data && seq === fetchSeq.current.planSpots) setPlanSpots(data as PlanSpot[]);
   }, [id]);
 
   useEffect(() => {
@@ -307,7 +331,6 @@ export default function VotePage() {
     // actually confirms the pick; this is a bonus where it exists.
     haptic(next ? 10 : 6);
 
-    const prev = votes;
     setVotes((cur) => {
       const rest = cur.filter(
         (v) => !(
@@ -342,7 +365,11 @@ export default function VotePage() {
       p_participant_token_hash: participantHash,
     });
     if (error) {
-      setVotes(prev); // roll back
+      // Reconcile with the server rather than restoring the pre-optimistic
+      // snapshot: a realtime event for someone else's vote can land while
+      // this RPC is in flight, and setVotes(prev) would silently discard it
+      // along with the failed attempt. Same pattern as setRsvp/rateWinner.
+      await refetchVotes();
       setNotice("That vote didn't save. Check your connection and tap again.");
     } else {
       setNotice(null);
@@ -536,7 +563,7 @@ export default function VotePage() {
   if (access === "captcha-required") {
     return (
       <VoteState kind="captcha" night={nightMode}>
-        <Turnstile action="plan-access" onVerify={(token) => { if (token) void runAccess(token); }} />
+        <Turnstile action="plan-access" onVerify={onCaptchaVerify} />
       </VoteState>
     );
   }
@@ -722,7 +749,16 @@ export default function VotePage() {
         {!decided ? (
           <>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            {stage === "pool" ? (
+            {!isHost ? (
+              // advanceToFinal/decide are host-only server-side
+              // (execute_plan_command checks hostToken for every command) —
+              // a non-host tapping a "Continue" button here would just get an
+              // optimistic flash that reverts with a generic error. Voting
+              // itself is unaffected; only the round-advance control is gated.
+              <p className="flex-1 self-center text-sm font-medium text-muted">
+                Waiting for the host to continue.
+              </p>
+            ) : stage === "pool" ? (
               <button
                 type="button"
                 onClick={() => {
@@ -760,11 +796,13 @@ export default function VotePage() {
           <p className="vote-action-hint" aria-live="polite">
             {!hasCurrentSelection
               ? "Choose one place to continue. You can change your choice before moving on."
-              : stage === "pool" && activePool < poolCount
-                ? `Pool ${activePool} is set. Continue when you’re ready.`
-                : stage === "pool"
-                  ? "All pools are set. Build the final shortlist when everyone has had a chance to vote."
-                  : "The final shortlist is ready. Choose the place the group should visit."}
+              : !isHost
+                ? "Your vote is in. The host will move things along once everyone’s ready."
+                : stage === "pool" && activePool < poolCount
+                  ? `Pool ${activePool} is set. Continue when you’re ready.`
+                  : stage === "pool"
+                    ? "All pools are set. Build the final shortlist when everyone has had a chance to vote."
+                    : "The final shortlist is ready. Choose the place the group should visit."}
           </p>
           </>
         ) : (
@@ -773,6 +811,7 @@ export default function VotePage() {
               plan={plan!}
               winner={winnerSpot}
               voterName={voterName}
+              isHost={isHost}
               rsvps={rsvps}
               ratings={ratings}
               onSetTime={(iso) => patchPlan({ event_time: iso })}

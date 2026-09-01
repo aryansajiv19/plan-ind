@@ -9,6 +9,13 @@ interface DecidedPlanProps {
   plan: Plan;
   winner: Spot;
   voterName: string;
+  /**
+   * Whoever created the plan. onSetTime/onClaimBooking/onMarkBooked all
+   * route through patchPlan, which the server (execute_plan_command) rejects
+   * for anyone else — this only controls whether the UI *offers* those
+   * controls, not whether they'd work if shown to a non-host.
+   */
+  isHost: boolean;
   rsvps: Rsvp[];
   ratings: Rating[];
   onSetTime: (iso: string) => void;
@@ -39,6 +46,7 @@ export default function DecidedPlan({
   plan,
   winner,
   voterName,
+  isHost,
   rsvps,
   ratings,
   onSetTime,
@@ -129,15 +137,17 @@ export default function DecidedPlan({
             <p className="font-display text-lg font-extrabold">
               {prettyTime(plan.event_time)}
             </p>
-            <button
-              type="button"
-              onClick={() => setEditingTime(true)}
-              className="text-sm font-bold text-grape underline"
-            >
-              Change
-            </button>
+            {isHost && (
+              <button
+                type="button"
+                onClick={() => setEditingTime(true)}
+                className="text-sm font-bold text-grape underline"
+              >
+                Change
+              </button>
+            )}
           </div>
-        ) : (
+        ) : isHost ? (
           <div className="mt-2 flex flex-col gap-2 sm:flex-row">
             <input
               type="datetime-local"
@@ -151,6 +161,8 @@ export default function DecidedPlan({
               className="vote-field flex-1 rounded-xl border-2 border-ink bg-card px-3 py-2 font-medium outline-none"
             />
           </div>
+        ) : (
+          <p className="mt-1 text-sm text-muted">Not set yet — ask the host to add a time.</p>
         )}
       </div>
 
@@ -211,7 +223,7 @@ export default function DecidedPlan({
                 </button>
               )}
             </>
-          ) : (
+          ) : isHost ? (
             <button
               type="button"
               onClick={onClaimBooking}
@@ -219,6 +231,8 @@ export default function DecidedPlan({
             >
               I’ll book it
             </button>
+          ) : (
+            <span className="text-sm text-muted">The plan host can book this.</span>
           )}
           {winner.booking_url && (
             <a
