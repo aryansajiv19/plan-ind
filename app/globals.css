@@ -2196,6 +2196,62 @@ h3 {
   font-weight: 600;
 }
 
+/* ── The full-screen non-content states ────────────────────────────
+   loading / captcha / guest-paused / retry / cold-link, all rendered
+   through <VoteState> on a <main> that also carries .vote-experience
+   (and --night). A state screen is not "you", not the outcome, not a
+   category — per the colour system it earns no hue: graphite ink on the
+   inherited ground, full stop. The only fill on screen is inside
+   .vote-primary-action ("Try again" is a commit action). See FE.7 in
+   design-system/SPECS.md. */
+.vote-state {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 2rem 1.25rem;
+  text-align: center;
+}
+.vote-state__inner {
+  --round-dir: 0; /* straight fade + scale — a centered panel shouldn't slide sideways */
+  /* 26rem, not the spec's 22rem: the short display headlines ("Open this plan
+     securely", "This plan wouldn't open") wrap to two ragged lines at 22rem. */
+  max-width: 26rem;
+  animation: vote-round-in 400ms var(--ease-settle) both;
+}
+.vote-state__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+  text-wrap: balance;
+}
+.vote-state__body {
+  margin: 0.75rem auto 0;
+  max-width: 34ch;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+.vote-state__body strong { color: var(--color-ink); font-weight: 700; }
+.vote-state__actions {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: center;
+}
+.vote-state__actions .vote-primary-action,
+.vote-state__actions .vote-secondary-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.7rem 1.5rem;
+  font-family: var(--font-display);
+}
+.vote-state__slot { margin-top: 1.5rem; }
+
 .vote-round-label {
   margin-top: 0.75rem;
   color: var(--group, var(--vote-metal));

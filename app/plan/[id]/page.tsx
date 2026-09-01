@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { supabase, bootstrapPlanAccess, type PlanAccessDenial } from "@/lib/supabase";
 import { addBeen } from "@/lib/device";
 import { logVisit } from "@/lib/social";
 import { avatarStyle, initialsOf } from "@/lib/avatar";
@@ -16,10 +16,13 @@ import OptionCard from "@/components/OptionCard";
 import NameGate from "@/components/NameGate";
 import DecidedPlan from "@/components/DecidedPlan";
 import Turnstile from "@/components/Turnstile";
+import VoteState from "@/components/VoteState";
 import { categoryGroup } from "@/components/categoryGroups";
 
 type Load = "loading" | "ready" | "notfound" | "error";
-type Access = "checking" | "captcha" | "ready" | "error";
+// "checking" = access not resolved yet; "ready" = membership claimed; any
+// PlanAccessDenial = a specific reason bootstrapPlanAccess handed back.
+type Access = "checking" | "ready" | PlanAccessDenial;
 
 function closesLabel(deadline: string | null): string {
   if (!deadline) return "Open";
@@ -73,41 +76,18 @@ export default function VotePage() {
   const stage = plan?.stage ?? (decided ? "decided" : "final");
   const poolCount = plan?.pool_count ?? 1;
 
-  const bootstrapAccess = useCallback(async (captchaToken?: string) => {
-    let { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      if (process.env.NODE_ENV === "production" && !captchaToken) {
-        setAccess("captcha");
-        return;
-      }
-      const { data, error } = await supabase.auth.signInAnonymously({
-        options: captchaToken ? { captchaToken } : undefined,
-      });
-      if (error || !data.user || !data.session) {
-        setAccess("error");
-        return;
-      }
-      user = data.user;
-      await supabase.realtime.setAuth(data.session.access_token);
-    }
-    const { data: claimed, error } = await supabase.rpc("claim_plan_access", { p_plan_id: id });
-    if (error) {
-      // Migration 020 is additive. Keep local development usable while the
-      // migration is being applied, but fail closed in production.
-      if (process.env.NODE_ENV !== "production" && error.code === "PGRST202") {
-        setAccess("ready");
-        return;
-      }
-      setAccess("error");
-      return;
-    }
-    setAccess(claimed ? "ready" : "error");
+  // All the "get a session, redeem the share id" logic lives in
+  // bootstrapPlanAccess (lib/supabase.ts) so it returns a typed reason rather
+  // than throwing — each reason gets its own screen below.
+  const runAccess = useCallback(async (captchaToken?: string) => {
+    const result = await bootstrapPlanAccess(id, captchaToken);
+    setAccess(result.ok ? "ready" : result.reason);
   }, [id]);
 
   useEffect(() => {
-    const frame = window.requestAnimationFrame(() => void bootstrapAccess());
+    const frame = window.requestAnimationFrame(() => void runAccess());
     return () => window.cancelAnimationFrame(frame);
-  }, [bootstrapAccess]);
+  }, [runAccess]);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -548,73 +528,45 @@ export default function VotePage() {
   }
 
   // ── States ───────────────────────────────────────────────────────
-  if (access === "captcha") {
+  // All six full-screen non-content states render through <VoteState>. The
+  // access reasons come straight from bootstrapPlanAccess; the load ones from
+  // the plan/spots fetch below.
+  const retryAccess = () => { setAccess("checking"); void runAccess(); };
+
+  if (access === "captcha-required") {
     return (
-      <main className={`vote-experience ${nightMode ? "vote-experience--night" : ""} mx-auto grid min-h-dvh max-w-md place-items-center px-5 text-center`}>
-        <div>
-          <h1 className="text-3xl font-extrabold">Open this plan securely</h1>
-          <p className="mt-3 text-muted">Complete the security check to join the live vote.</p>
-          <Turnstile action="plan-access" onVerify={(token) => { if (token) void bootstrapAccess(token); }} />
-        </div>
-      </main>
+      <VoteState kind="captcha" night={nightMode}>
+        <Turnstile action="plan-access" onVerify={(token) => { if (token) void runAccess(token); }} />
+      </VoteState>
     );
   }
-
-  if (access === "error") {
-    return (
-      <main className={`vote-experience ${nightMode ? "vote-experience--night" : ""} mx-auto grid min-h-dvh max-w-md place-items-center px-5 text-center`}>
-        <div>
-          <h1 className="text-3xl font-extrabold">This plan could not be opened</h1>
-          <p className="mt-3 text-muted">The link may be invalid, or the security check may have expired.</p>
-          <button type="button" className="vote-primary-action mt-6" onClick={() => { setAccess("checking"); void bootstrapAccess(); }}>Try again</button>
-        </div>
-      </main>
-    );
+  if (access === "anonymous-disabled") {
+    return <VoteState kind="guest-paused" night={nightMode} />;
+  }
+  if (access === "sign-in-failed" || access === "claim-failed") {
+    return <VoteState kind="retry" night={nightMode} onRetry={retryAccess} />;
+  }
+  if (access === "not-found") {
+    return <VoteState kind="cold-link" night={nightMode} />;
   }
 
   // "checking" means we haven't been allowed to look yet — not that the plan is
   // absent. Only a load that actually ran can report notfound/error below.
   if (access === "checking" || load === "loading") {
-    return (
-      <main className={`vote-experience ${nightMode ? "vote-experience--night" : ""} mx-auto grid min-h-dvh max-w-md place-items-center px-5`}>
-        <p className="text-muted">Loading the plan…</p>
-      </main>
-    );
+    return <VoteState kind="loading" night={nightMode} planTitle={plan?.title} />;
   }
 
   if (load === "notfound") {
-    return (
-      <main className={`vote-experience ${nightMode ? "vote-experience--night" : ""} mx-auto grid min-h-dvh max-w-md place-items-center px-5 text-center`}>
-        <div>
-          <h1 className="text-3xl font-extrabold">This link’s gone cold</h1>
-          <p className="mt-3 text-muted">
-            The plan isn’t here anymore. Ask whoever sent it for a fresh link.
-          </p>
-        </div>
-      </main>
-    );
+    return <VoteState kind="cold-link" night={nightMode} />;
   }
 
   if (load === "error") {
     return (
-      <main className={`vote-experience ${nightMode ? "vote-experience--night" : ""} mx-auto grid min-h-dvh max-w-md place-items-center px-5 text-center`}>
-        <div>
-          <h1 className="text-3xl font-extrabold">Couldn’t load the spots</h1>
-          <p className="mt-3 text-muted">
-            The connection dropped mid-deal. Try again.
-          </p>
-          <button
-            type="button"
-            onClick={() => {
-              setLoad("loading");
-              setReloadKey((k) => k + 1);
-            }}
-            className="vote-primary-action mt-6 rounded-2xl border-2 border-ink bg-grape px-6 py-3 font-display font-extrabold text-white"
-          >
-            Try again
-          </button>
-        </div>
-      </main>
+      <VoteState
+        kind="retry"
+        night={nightMode}
+        onRetry={() => { setLoad("loading"); setReloadKey((k) => k + 1); }}
+      />
     );
   }
 
