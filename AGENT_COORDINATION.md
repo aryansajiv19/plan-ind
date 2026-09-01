@@ -78,9 +78,9 @@ concurrency work. `security` and `qa-test` are subagents, not lanes.
 ### T1 — Backend
 - 2026-09-01: BE.1 + BE.2 + mig-023 committed (`e10d395`, worklog in `888fb26`/`9a8a9aa`). Post-move gate green (lint/tsc/25 tests/build).
   - **BE.1** `bootstrapPlanAccess()` returns typed `PlanAccessDenial`, fails closed in prod. Wired nowhere yet — see request to T2.
-  - **Migration 023** partial unique index + `cast_plan_vote` ON CONFLICT upsert + jsonb return. Closes a concurrent double-vote race the tally would double-count. `security` review in flight.
-  - Live probes: 021 unapplied (`valid_control_secret` → `200 false`). 021/022/023 all unapplied — owner applies in order.
-  - Next: address `security` findings; then remaining backend queue.
+  - **Migration 023** partial unique index + `cast_plan_vote` ON CONFLICT upsert + jsonb return. Closes a concurrent double-vote race the tally would double-count. `security` reviewed — verdict clean + one Low finding, **fixed in the same migration**: dropped the vestigial `unique (plan_id, spot_id, voter_name, phase, pool_number)` on `votes` (post-023 it only mis-fires 23505 when two people type the same name); wrapped 023 in one transaction. Re-gated green on `lane/backend`.
+  - Live probes: 021 unapplied (`valid_control_secret` → `200 false`). 021/022/023 all unapplied — owner applies in order (021 → 022 → 023).
+  - Next: BE.3 is a standing guard-rail, not a task — pick up remaining backend queue with T0.
 
 ### T2 — Frontend
 - 2026-09-01: FE.1 (`ba6ba6b`) + FE.2/FE.8 (`9bd4042`) committed, gate green, hero confirmed both themes. Did the `.home-primary-cta:hover` touch-glow cleanup T3 noted.
