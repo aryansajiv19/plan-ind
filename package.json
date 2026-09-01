@@ -14,7 +14,8 @@
     "test:wrapped": "npm run test",
     "test:smoke": "node scripts/smoke-test.mjs",
     "test:smoke:020": "node scripts/smoke-test.mjs --020",
-    "test:db": "node --experimental-strip-types --test \"tests/*.dbtest.ts\""
+    "test:db": "node --experimental-strip-types --test \"tests/*.dbtest.ts\"",
+    "load": "node scripts/load/run.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",
@@ -29,6 +30,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "autocannon": "^8.0.0",
     "eslint": "^9",
     "eslint-config-next": "^16.3.1",
     "tailwindcss": "^4",
