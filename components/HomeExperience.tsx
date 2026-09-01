@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { signOut } from "@/app/auth/actions";
 import DemoAccountViews from "@/components/DemoAccountViews";
 import AccountViews from "@/components/AccountViews";
@@ -12,6 +12,7 @@ import { haptic } from "@/lib/interaction";
 import { THEME_KEY, subscribeToGround, currentGround } from "@/lib/dubai-phase";
 import TiltCard from "@/components/TiltCard";
 import WeightRise from "@/components/WeightRise";
+import PhotoWall, { type WallItem } from "@/components/PhotoWall";
 
 const DEMO_PLAN_ID = "11111111-1111-1111-1111-111111111111";
 
@@ -90,6 +91,19 @@ export default function HomeExperience({
   // are off — there is nothing truthful to put in them.
   const accountTabs = !demoMode || fixtures;
   const activeView: AppView = accountTabs ? selectedView : "plan";
+
+  // The wall shows the catalog we already load for Discover — no second
+  // fetch, and no invented content: a spot with no photo renders its
+  // typographic tile rather than a placeholder image.
+  const wallItems: WallItem[] = useMemo(
+    () =>
+      spots.slice(0, 12).map((spot) => ({
+        id: spot.id,
+        kind: "photo" as const,
+        spot,
+      })),
+    [spots],
+  );
 
   // Tabs live in the URL so Back leaves the tab rather than the app, and each
   // tab keeps its own scroll offset the way a native tab bar does.
@@ -352,6 +366,21 @@ export default function HomeExperience({
           <div className="home-plan-card__tape" aria-hidden="true">New plan</div>
           <StartPlanForm age={age} demoMode={demoMode} />
         </div>
+      </section>
+
+      {/* "Dubai, right now" — the photo wall from turn 9 / 10a.
+          Fed by the real catalog. Most curated rows have no photo_url yet, so
+          most tiles render their typographic state; that is the honest result
+          and it is what the handoff asks for rather than padding the page. */}
+      <section id="right-now" className="home-wall-section" aria-labelledby="right-now-title">
+        <div className="home-plan-section__intro">
+          <p className="home-section-kicker">Dubai, right now</p>
+          <h2 id="right-now-title">Somewhere to put on the list</h2>
+        </div>
+        <PhotoWall
+          items={wallItems}
+          emptyMessage="No places in the catalog yet. Once spots are seeded they show up here, newest first."
+        />
       </section>
       </div>
       ) : (
