@@ -1,0 +1,44 @@
+-- Migration 027 — index the one genuinely unbounded-growth hot query on
+-- `spots`. Apply after 026. Additive, re-run safe.
+--
+-- The DB-index audit started from a wrong hypothesis: a prior plan
+-- (NEXT_AGENT.md's AI-engineering notes) flagged a missing `spots (source,
+-- category)` index for the `/api/spots/deal` route. Checked the actual query
+-- (`lib/spots/match.ts:184-188`): it's `.eq('source','curated').in('category',
+-- ...)` — curated-only, and the curated catalog is hand-authored and stays
+-- around 100 rows (worklog: "~100 spots"). That table slice never grows with
+-- usage, so no index pays for itself there; `benchmark before/after` on that
+-- query at 20,100 rows (below) confirms it's already ~1ms.
+--
+-- The real hot, unbounded query is `app/home/page.tsx:48` —
+-- `select * from spots order by name limit 120` — on every load of `/home`,
+-- the landing page for every signed-in user. No `.eq`/`.in` filter beyond RLS
+-- ("read permitted spots": curated OR community-visibility OR own OR
+-- plan-linked). Unlike plan-scoped tables, `spots` genuinely has no upper
+-- bound: any authenticated user can add a `source = 'custom'` row via
+-- place-import or the composer, and `visibility = 'community'` custom spots
+-- are exactly what this query surfaces alongside the curated set.
+--
+-- Benchmarked locally (scratch Postgres 16, 100 curated + 20,000 synthetic
+-- community-visibility custom rows — a plausible few years of organic
+-- growth), `EXPLAIN (ANALYZE, BUFFERS)`:
+--
+--   before (no index on name):
+--     Limit -> Sort (top-N heapsort) -> Seq Scan on spots
+--     Execution Time: 5.554 ms   (Seq Scan Buffers: shared hit=362)
+--
+--   after `create index spots_name_idx on spots (name)`:
+--     Limit -> Index Scan using spots_name_idx on spots
+--     Execution Time: 0.113 ms  (Buffers: shared hit=120 read=2)
+--
+-- ~49x at this row count, and the shape of the win grows with the table: the
+-- seq-scan-then-sort cost is driven by total row count, the index-scan cost by
+-- the LIMIT (120) regardless of how large `spots` gets. Not a fabricated
+-- number for a 100-row table — genuinely measured at a size the table will
+-- plausibly reach.
+
+create index if not exists spots_name_idx on spots (name);
+
+-- ── Verification (run after applying) ────────────────────────────────────
+-- explain (analyze, buffers) select * from spots order by name limit 120;
+-- -- expect "Index Scan using spots_name_idx", not "Seq Scan" + "Sort".

@@ -61,6 +61,10 @@ create table spots (
 );
 
 create index spots_owner_idx on spots (created_by_user_id) where source = 'custom';
+-- 027: app/home/page.tsx's `order by name limit 120` is the one unbounded-
+-- growth hot query on this table (no source/category filter, just RLS) —
+-- benchmarked ~49x faster with this index at 20k rows. See migration-027.
+create index spots_name_idx on spots (name);
 
 -- A plan == one share link. The uuid IS the slug in the URL.
 create table plans (
