@@ -1,0 +1,6 @@
+{
+  "projectId": "431b82f3-8fed-49ce-b0c3-6acc70b58a93",
+  "shape": "cards",
+  "localDir": "design-system/dist",
+  "build": "node design-system/build.mjs"
+}
