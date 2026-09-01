@@ -1,6 +1,6 @@
 # tests
 
-Two kinds of tests live here.
+Three kinds of tests live here.
 
 ## Hermetic unit tests — `npm test`
 
@@ -94,3 +94,54 @@ To make `test:db` execute rather than skip:
 Until then the suite reports, e.g.:
 `SKIP no reachable Postgres at postgresql://... — set TEST_DATABASE_URL to a
 LOCAL Supabase`.
+
+## End-to-end tests — `npm run test:e2e`
+
+Playwright, real Chromium, against a running app — `tests/e2e/*.spec.ts`,
+config at `playwright.config.ts`. Not part of `npm test`/the lint-tsc-test-build
+gate: it needs `@playwright/test`'s browser binaries, which no worktree in
+this repo installs on its own (see "Setup" below).
+
+- `guest-vote.spec.ts` — the guest share-link vote path end to end, against
+  the **live Supabase project** (`.env.local`): opens the seeded plan
+  `22222222-2222-2222-2222-222222222222`, types a name, casts a vote, and
+  checks the card and the voter count both update. Self-skips if
+  `NEXT_PUBLIC_SUPABASE_URL` isn't set. This plan is shared fixture data —
+  other sessions/CI runs may vote on it too, so the assertion is "the count
+  went up", not an exact before/after number.
+- `login-redirect.spec.ts` — FE.10's `next` param wiring on `/login`: a valid
+  `?next=` is carried as a hidden field into both the email and Google forms;
+  an unsafe value (`https://evil.example.com`) falls back to `/home`; no
+  param at all still defaults every form to `/home`. This is a DOM-level
+  check, **not** a full authenticated round trip — completing the OTP step
+  needs a real inbox, and both sign-in paths require a Turnstile token once
+  `NODE_ENV=production` (which `playwright.config.ts`'s `webServer` runs
+  under, via `next build && next start`), so neither form can actually be
+  submitted here. The full round trip was verified by hand — see the Review
+  entry for 2026-09-02 in `AGENT_COORDINATION.md`.
+
+### Setup (not done by default — affects the shared `node_modules`)
+
+Lane worktrees share one `node_modules` via symlink (see the top of
+`AGENT_COORDINATION.md`), so installing browser binaries from inside a
+worktree affects every other session on this machine. `@playwright/test` is
+declared in `package.json` and `package-lock.json` (added with
+`--package-lock-only`, so this alone did **not** touch `node_modules`), but
+actually running these specs needs:
+
+```
+npm install                              # materializes @playwright/test
+npx playwright install --with-deps chromium
+npm run test:e2e
+```
+
+Whoever runs this should do it once, somewhere that's fine to affect the
+shared install (the main tree, or CI) — not casually from inside a lane
+worktree.
+
+### For T0 / CI
+
+Same idea as `test:db`: its own job, after the hermetic suite, with the setup
+above run first. `PLAYWRIGHT_BASE_URL` can point the specs at an
+already-running deployment instead of having Playwright build+start one
+itself.

@@ -15,6 +15,7 @@
     "test:smoke": "node scripts/smoke-test.mjs",
     "test:smoke:020": "node scripts/smoke-test.mjs --020",
     "test:db": "node --experimental-strip-types --test \"tests/*.dbtest.ts\"",
+    "test:e2e": "playwright test",
     "load": "node scripts/load/run.mjs"
   },
   "dependencies": {
@@ -26,6 +27,7 @@
     "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
