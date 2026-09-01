@@ -19,6 +19,19 @@ paths and branches are unchanged**, only what each one is for.
 
 Branch/worktree names still say `backend`/`frontend` — that's cosmetic, ignore it.
 
+### Engineering-bar technique ownership
+
+The owner's full hardening list, mapped so nothing sits unclaimed:
+
+| Technique | Owner |
+|---|---|
+| Concurrency-safety, idempotent mutations, DB indexing/query tuning, rate limiting, authz/input validation, audit logging, app-level structured logging + request IDs, unit/integration/concurrency tests | **Security** |
+| E2E testing (Playwright against the running app) | **Review** |
+| Redis caching | **Security implements, but only once a real hotspot is measured** — not speculative. T0's load test is what would surface one. |
+| Background jobs/queues, event-driven/outbox | **Nobody — genuinely not needed yet.** No async work or cross-system side effect exists. Revisit when the AI/RAG backfill or a booking flow lands. |
+| CI/CD, load/perf testing (p50/p95/throughput/error-rate), observability infra (metrics/tracing/error-monitoring service), production deploy/infra | **T0** |
+| AI/search (hybrid search, retrieval eval, latency/cost) | **Blocked on B3** (OpenAI credits still zero). `lib/ai/**` — invoke the `ai-engineer` subagent once someone picks it up. |
+
 ## Worktrees — each lane has its own checkout (2026-09-01)
 
 The sessions run in **separate git worktrees** off `ai-engineering`. A
