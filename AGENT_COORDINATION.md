@@ -37,8 +37,16 @@ The owner's full hardening list, mapped so nothing sits unclaimed:
 The sessions run in **separate git worktrees** off `ai-engineering`. A
 session touches **only its own worktree** and commits **only to its own branch**.
 
-- `node_modules` and `.env.local` in each lane worktree are **symlinks** to the
-  main tree. Do not `npm install` in a lane worktree; do not commit the symlinks.
+- `.env.local` in each lane worktree is a **symlink** to the main tree — leave it.
+- `node_modules` **used to be symlinked too; it isn't anymore (2026-09-02).**
+  `npm install` silently replaces a symlinked `node_modules` with a real
+  directory the moment a worktree needs a new dependency — Design hit this
+  installing `motion`/`lucide-react`/etc. Each worktree now owns a real
+  `node_modules` (~500MB each, only 2 worktrees active so the disk cost is
+  fine). **After merging a branch that changed `package.json`, run `npm
+  install` in every worktree that needs to build** — T0 does this in the main
+  tree as part of integration; do it in yours after your next sync if you're
+  about to run/build.
 - Never `cd` into another worktree; never `git checkout` another lane's branch.
 - **T0 integrates:** merges `lane/*` → `ai-engineering` regularly (disjoint files
   → clean), then `ai-engineering` → each `lane/*` so everyone shares one base.
@@ -123,7 +131,7 @@ externally:
 - **⚠️ mig-023 file bug (T1):** `create or replace function cast_plan_vote ... returns jsonb` fails `42P13` — you can't change a return type without `drop function` first. I applied a corrected version live. `supabase/migration-023-vote-idempotency.sql` and `schema.sql` still need the `drop function if exists cast_plan_vote(uuid,uuid,text,boolean,text,smallint,text)` before the create. See cross-lane request.
 - **B1 is LIVE** (owner enabled + saved 2026-09-01). Anon signup returns a session token. Turnstile still off — deploy checklist item, not a local blocker.
 - Dev server up on `localhost:3000` (main tree, `ai-engineering`) for design review.
-- **Front-door "blank screen" on load was a screenshot capture artifact**, not a bug — `getComputedStyle`/`getBoundingClientRect` show the hero opaque, visible, laid out; a scroll forces the paint. (NEXT_AGENT.md §3 trap.) Day render is clean. **T2: night mode on `/` and the `--auth-*` routes still needs a real check** (FE.4) — `home-experience--night` applies but I saw tokens not flipping in one probe; verify properly.
+- **Correction (Design, 2026-09-02):** the front-door "blank screen" was **not** a screenshot capture artifact as I first wrote — `HomeExperience` gates its content behind `opacity: 0` + an entrance transition opened by a `requestAnimationFrame` in an effect. A backgrounded Chrome *window* freezes rendering, so rAF never fires and the hero stays invisible — `document.hidden` was true in every screenshot tab. Real users with a focused window are fine (same practical conclusion), but the mechanism is different: force the entrance end-state before capturing a screenshot in this environment, a scroll doesn't reliably fix it. **FE.4 was also a real bug, now fixed**: `HomeExperience`/`app/plan/[id]` each carried a local `--night` class alongside the document `data-theme`, so the two could disagree — tokens went dark while class-scoped rules stayed light, and the front door's primary CTA rendered cream-on-cream. One switch now (`[data-theme="night"] .home-experience`), toggle reads via `useSyncExternalStore`.
 - Next: Vercel deploy wiring, then request-IDs / structured-logging groundwork.
 
 ### Security (was T1)

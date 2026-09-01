@@ -846,3 +846,47 @@ net, `security definer`, `search_path = pg_catalog`. Recommend **T1 captures its
 definition into `schema.sql`** (it's live-only drift, and a scratch rebuild
 should have the same guard). Not callable as an RPC (returns `event_trigger`),
 so the 024 revoke is pure tidy. Definition is in the T0 session transcript.
+
+## Design implementing directly — turn-14 palette, motion, kokonutui slice — 2026-09-02
+
+Owner told Design's session directly to implement (not just spec) and approved
+a 4-step plan; Design correctly refused to drop that on a second-hand "go back
+to spec-only" relay from T0 and surfaced the conflict instead — resolution
+pending the owner.
+
+Three commits integrated (`00ed31d`, `0184c64`, `09307fc`), gate green:
+
+- **Token layer**: a real 14-color palette, day + night, chosen by the Dubai
+  clock (`lib/dubai-phase.ts`, `ThemeSync`), server-stamped so there's no
+  flash. The five category-group hues are retired (decision table in the
+  handoff); `.token`'s hard-offset shadow retired (supersedes FE.2). Manrope
+  swapped to a variable font, 372K of static TTFs deleted.
+- **Two owner calls on top**: serif display face, teal accent.
+- **Motion + a curated `kokonutui` slice**: new deps `motion`, `lucide-react`,
+  `clsx`, `tailwind-merge`, `shadcn` registry config (`components.json`).
+  `npm audit --omit=dev`: 0 vulnerabilities.
+
+**Two real bugs found and fixed along the way:**
+1. `HomeExperience`/`app/plan/[id]` each carried a local `--night` class
+   alongside the document `data-theme` — the two could disagree. This *was*
+   FE.4, confirmed real (my earlier "verify, don't assume" flag was right).
+   One switch now (`[data-theme="night"] .home-experience`).
+2. **Correction to the 2026-09-01 "front-door blank screen = capture
+   artifact" note — wrong mechanism, right practical conclusion.** It's
+   `HomeExperience` gating content behind `opacity:0` + a `requestAnimationFrame`
+   entrance; a backgrounded Chrome window freezes rendering so rAF never
+   fires. Real users with a focused window were always fine. Screenshot
+   tooling in this environment needs to force the entrance end-state before
+   capturing, not just scroll.
+
+**Environment issue found and handled:** `npm install` in the design worktree
+silently replaced its symlinked `node_modules` with a real ~500MB directory
+(installing the new deps). Worktree `node_modules` symlinks are retired as of
+today — see `AGENT_COORDINATION.md`'s Worktrees section. `.env.local` symlinks
+are unaffected.
+
+**Two items now ownerless** (Security/Review closed before picking them up):
+`next.config.ts` needs `images.remotePatterns` for the photo-led design; the
+handoff spec requires vote contents withheld server-side until a round closes,
+which `execute_plan_command`/the vote read path doesn't do today. Both need
+reassignment.
