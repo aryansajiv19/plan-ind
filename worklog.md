@@ -34,7 +34,7 @@ Apply in order. Every migration is additive and re-run safe unless noted.
 | 021 | `migration-021-revoke-anon-execute.sql` | **yes — applied live 2026-09-01 via Supabase MCP (T0).** anon EXECUTE confirmed absent on the five gated functions; kept on `record_security_event`. |
 | 022 | `migration-022-spot-deal-quota-and-guest-realtime.sql` | **yes — applied live 2026-09-01 via Supabase MCP (T0).** `spot-deal` scope (30/min, 300/day) + `plan_spots` in `supabase_realtime`, both verified. |
 | 023 | `migration-023-vote-idempotency.sql` | **yes — applied live 2026-09-01 via Supabase MCP (T0)** in corrected form (`drop function` before `create` — the committed file was fixed to match in `67a0ccf`). `votes_participant_round_key` unique index live, `cast_plan_vote` returns jsonb, no vote rows deleted. |
-| 024 | `migration-024-revoke-anon-execute-sec4.sql` | **written 2026-09-01, PENDING owner approval to apply.** SEC.4: revokes anon EXECUTE by name from `set_birth_date` / `current_member_age` / `ensure_authenticated_profile` (keep `authenticated`) and both roles from `ensure_default_place_collections` / `mirror_friendship` / `people_default_place_collections` / `rls_auto_enable`; adds `is_permanent_user()` guard to `set_birth_date`. `security`-reviewed safe. Same MCP path as 021–023 once the owner says go. |
+| 024 | `migration-024-revoke-anon-execute-sec4.sql` | **yes — applied live 2026-09-01 via Supabase MCP (T0), owner-approved.** Verified: anon EXECUTE now absent on all 7; `authenticated` kept on the 3 RPCs, dropped on the 4 internal fns; `set_birth_date` body carries the `is_permanent_user()` guard. Post-apply advisor: `anon_security_definer_function_executable` down to `record_security_event` only (intentional). |
 
 `npm run test:smoke` asserts the 019 guards against the live project. All ten
 database guards pass as of 2026-08-10: the plans projection carries no host
@@ -817,3 +817,32 @@ This is the first time the core loop has worked for a no-account guest —
 `PRODUCT_STRATEGY.md` delivery item #1. Recorded as FE.10 in PRIORITIES.md: the
 `/login` "Sign in" from the guest-paused screen has no `next` param, so it lands
 on `/home` not the plan.
+
+## Migration 024 applied live — 2026-09-01 (T0, owner-approved)
+
+Applied via Supabase MCP `apply_migration`. Verification SELECT confirmed the
+intended end state (anon=false on all 7; authenticated=true on the 3 RPCs,
+false on the 4 internal fns). `get_advisors(security)` after:
+
+- **SEC.4 function-grant goal met.** `anon_security_definer_function_executable`
+  now flags only `record_security_event` (kept for pre-session OTP telemetry).
+- **New advisor cluster from B1, not from 024:** `auth_allow_anonymous_sign_ins`
+  now fires on ~20 tables. Expected — enabling anon sign-ins means every
+  `to authenticated` policy also applies to anon sessions (anon users carry the
+  `authenticated` role). The membership scoping (`plan_access`) is what actually
+  restricts a guest; the plan/vote/rsvp/ratings/spots policies are the intended
+  post-020 guest-read surface. **For `security` to assess (T1):** `friendships`,
+  `people`, `visits*`, `place_*`, `storage.objects` also appear — a guest can't
+  get a `people` row (profile creation now needs `is_permanent_user()`), so the
+  social-graph write policies are likely inert for anon, but confirm.
+- `function_search_path_mutable` still on 3 trigger fns
+  (`people_before_write`, `trim_companion_name`, `trim_visit_text`) — pre-existing,
+  minor, own task.
+- `auth_leaked_password_protection` disabled — irrelevant, this app is passwordless.
+
+**`rls_auto_enable` decision:** it's an event-trigger function (event trigger
+`ensure_rls`) that auto-enables RLS on any new `public` table — a genuine safety
+net, `security definer`, `search_path = pg_catalog`. Recommend **T1 captures its
+definition into `schema.sql`** (it's live-only drift, and a scratch rebuild
+should have the same guard). Not callable as an RPC (returns `event_trigger`),
+so the 024 revoke is pure tidy. Definition is in the T0 session transcript.
