@@ -753,3 +753,44 @@ real validation coverage needs an authenticated session.
 
 Verification: `npm run lint`, `npm run typecheck`, `npm run test` (25),
 `npm run build` (16 routes) all green.
+
+## Migrations 021 / 022 / 023 applied live — 2026-09-01 (T0, via Supabase MCP)
+
+The Supabase MCP was authenticated (OAuth, org `aryansajiv19's Org`) and all
+three pending migrations applied to project `zyojaoyatunjwgbivaqu` with
+`apply_migration`. This project does not use the migration ledger, so state was
+verified by direct `pg_proc` / `pg_indexes` / `pg_publication_tables` probes, not
+by `list_migrations`.
+
+- **021 (`revoke_anon_execute`)** — the pre-probe already showed the target grant
+  state (anon EXECUTE absent on `valid_control_secret`, `create_secure_plan`,
+  `claim_plan_access`, `consume_app_quota`, `execute_plan_command`; kept on
+  `record_security_event`). Re-applied for the record; idempotent. The
+  2026-08-24 "`200 false`" oracle probe was stale — the grants are correct now.
+- **022 (`spot_deal_quota_and_guest_realtime`)** — `consume_app_quota` now
+  accepts `spot-deal` (30/min, 300/day); `plan_spots` added to
+  `supabase_realtime`. Both verified.
+- **023 (`vote_idempotency`)** — **the committed file is wrong**: it uses
+  `create or replace function cast_plan_vote ... returns jsonb` on a function
+  that currently `returns void`, which Postgres rejects (`42P13 cannot change
+  return type`). Applied a corrected version with `drop function if exists
+  cast_plan_vote(uuid,uuid,text,boolean,text,smallint,text)` before the create;
+  the existing `revoke/grant` lines already cover the ACL reset that drop+create
+  causes. Verified live: `cast_plan_vote` returns `jsonb`, unique index
+  `votes_participant_round_key` exists, old `votes_participant_token_idx` dropped,
+  `anon` cannot execute it, `authenticated` can, vote count unchanged (4 — no
+  duplicates to collapse), zero unique constraints on `votes`.
+  **T1 action:** patch `supabase/migration-023-vote-idempotency.sql` (add the
+  `drop function`) and confirm `schema.sql` carries the jsonb-returning body.
+
+`get_advisors(security)` after: no regression from these three. The standing
+noise — `rls_enabled_no_policy` on the 5 definer-only tables (intentional) and
+`{anon,authenticated}_security_definer_function_executable` on the RPC surface
+(by design) — is unchanged. One real follow-up for SEC.4: the same
+"`revoke from public` misses the named `anon` grant" root cause 021 fixed still
+leaves `set_birth_date`, `current_member_age`, `ensure_authenticated_profile`,
+`ensure_default_place_collections`, `mirror_friendship`,
+`people_default_place_collections`, `rls_auto_enable` anon-executable. They fail
+safe in-body, but the grants should match intent.
+
+Only remaining core-loop blocker: **B1** (enable anonymous sign-ins — dashboard).

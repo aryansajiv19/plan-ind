@@ -17,13 +17,20 @@ State these every wave until resolved. They do not age out.
 
 | # | Blocker | What it costs | What unblocks it |
 |---|---|---|---|
-| **B1** | Anonymous sign-ins disabled in Supabase Auth | **The entire share-link vote path is dead.** Post-020 every read needs a session; guests cannot get one. Nobody but a plan's creator can read or vote on a plan. | One dashboard toggle |
-| **B2** | Migration 021 unapplied | `valid_control_secret` is a live unauthenticated oracle; `execute_plan_command` still `anon`-executable | Paste `supabase/migration-021-revoke-anon-execute.sql` |
+| **B1** | Anonymous sign-ins disabled in Supabase Auth | **The entire share-link vote path is dead.** Post-020 every read needs a session; guests cannot get one. Nobody but a plan's creator can read or vote on a plan. | One dashboard toggle: Authentication → Sign In / Providers → Anonymous sign-ins. Pair with Turnstile CAPTCHA. |
+| ~~**B2**~~ | ~~Migration 021 unapplied~~ | — | **Resolved 2026-09-01** — 021 (and 022, 023) applied live via the Supabase MCP by T0. Verified: `anon` can no longer call `valid_control_secret` / `execute_plan_command` / `consume_app_quota`. |
 | **B3** | OpenAI credits exhausted | No AI behaviour verifiable — smart search, RAG, tool calling | Top up (~$0.0002 for the catalog backfill) |
 
-B1 is the most expensive thing on this page. `PRODUCT_STRATEGY.md` names
-"excellent no-install share voting" as delivery item #1, and it is currently
-non-functional in production.
+B1 is now the only thing on this page blocking the core loop. `PRODUCT_STRATEGY.md`
+names "excellent no-install share voting" as delivery item #1, and it is still
+non-functional in production until B1 flips.
+
+**Migrations 021 / 022 / 023 are LIVE** (T0, 2026-09-01, via Supabase MCP
+`apply_migration` against project `zyojaoyatunjwgbivaqu`). Note: the
+`supabase/migration-023-vote-idempotency.sql` file needs `drop function if exists
+cast_plan_vote(...)` before the `create` — `create or replace` cannot change a
+return type, so the file as committed would fail a re-run / scratch build. T1 to
+patch the file + `schema.sql`. Live DB is correct.
 
 ---
 

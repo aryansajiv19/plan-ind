@@ -71,9 +71,11 @@ concurrency work. `security` and `qa-test` are subagents, not lanes.
 ## Lane status
 
 ### T0 — Orchestrator / Platform
-- 2026-09-01: startup-list trim, model policy, CI workflow, **worktree split**, and the **schema.sql↔lib/types.ts drift check** (`3e8e6bf`, runs first in CI) all done. Integrated `lane/backend@ec5c7fa` (mig-023 security follow-up) — gate green post-merge (check:schema / tsc / 25 tests).
-- Sync cycle: `lane/*` → `ai-engineering` → back. Ping me for a sync.
-- Next: Vercel deploy wiring (env-var checklist + deployed smoke), then request-IDs / structured-logging groundwork.
+- 2026-09-01: startup-list trim, model policy, CI workflow, **worktree split**, **schema↔types drift check** (`3e8e6bf`). Integrated `lane/backend@ec5c7fa`.
+- **Authenticated the Supabase MCP and applied migrations 021, 022, 023 live** (project `zyojaoyatunjwgbivaqu`). Verified by direct catalog probe (this project has no migration ledger). **B2 resolved.** 022/023 confirmed live. Details + the SEC.4 follow-up list in `worklog.md`.
+- **⚠️ mig-023 file bug (T1):** `create or replace function cast_plan_vote ... returns jsonb` fails `42P13` — you can't change a return type without `drop function` first. I applied a corrected version live. `supabase/migration-023-vote-idempotency.sql` and `schema.sql` still need the `drop function if exists cast_plan_vote(uuid,uuid,text,boolean,text,smallint,text)` before the create. See cross-lane request.
+- Only core-loop blocker left: **B1** (owner enables anon sign-ins).
+- Next: Vercel deploy wiring, then request-IDs / structured-logging groundwork.
 
 ### T1 — Backend
 - 2026-09-01: BE.1 + BE.2 + mig-023 committed (`e10d395`, worklog in `888fb26`/`9a8a9aa`). Post-move gate green (lint/tsc/25 tests/build).
@@ -97,6 +99,7 @@ Format: **From → To** · _need_ · _why_ · blocked? · status
 
 - **T3 → T2** · implement `design-system/SPECS.md` (FE.1 night hero, FE.5 payoff day-cleanup + After Dark, FE.6 orbit deletion + skyline dormant; FE.2 ratified) · wave-1 visual direction is settled · not blocked · **open**
 - **T1 → T2** · in `app/plan/[id]/page.tsx` replace inline `bootstrapAccess` with `bootstrapPlanAccess()` from `lib/supabase.ts`; each `PlanAccessDenial` reason its own screen — `anonymous-disabled` → honest "guest voting is paused" (NOT "link may be invalid"); `captcha-required` → Turnstile; `sign-in-failed`/`claim-failed` → retry; `not-found` → cold-link. Optionally use the `cast_plan_vote` jsonb (`CastVoteResult`) to reconcile optimistic state. · a guest on a live link currently gets blamed for our B1 toggle · not blocked (helper committed) · **open — folded into T2's FE.7 task**
+- **T0 → T1** · patch `supabase/migration-023-vote-idempotency.sql`: add `drop function if exists cast_plan_vote(uuid, uuid, text, boolean, text, smallint, text);` immediately before the `create ... function cast_plan_vote` (change `create or replace` → `create`). Confirm `schema.sql`'s `cast_plan_vote` is the jsonb-returning body. Also worth a look for SEC.4: `get_advisors` still flags `set_birth_date`, `current_member_age`, `ensure_authenticated_profile`, `ensure_default_place_collections`, `mirror_friendship`, `people_default_place_collections`, `rls_auto_enable` as anon-executable (same `revoke from public` root cause 021 fixed for its six). · the file as committed fails a re-run / scratch `schema.sql` build (`42P13`); live DB is already correct · not blocked · **open**
 - **T1 → qa-test** · two tests vs local/live Supabase (never `schema.sql` re-run): (1) `cast_plan_vote` twice, identical args → identical jsonb + exactly one `votes` row; (2) tally concurrency — two `cast_plan_vote` same participant/round, different spots, parallel → one row survives, `execute_plan_command` counts once. Note: `smoke-test.mjs` `cast_plan_vote` guards now short-circuit on the post-020 anon grant (401) before the validation branch — real coverage needs an authenticated session. · the winner-deciding tally has zero concurrency coverage · not blocked · **open**
 
 ---
