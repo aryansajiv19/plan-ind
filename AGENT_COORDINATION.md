@@ -62,7 +62,7 @@ concurrency work. `security` and `qa-test` are subagents, not lanes.
    (migration 022) → migration 023, in that order. See `PRIORITIES.md`.
 2. T1 — BE.1 vote path correct, failing honestly until B1. ✅ committed.
 3. T2 — FE.1 front door ✅ · FE.2/FE.8 ✅ · next: wire `bootstrapPlanAccess` + FE.7 states.
-4. T0 — CI ✅ · next: schema↔types drift check, Vercel deploy wiring, deployed smoke.
+4. T0 — CI ✅ · schema↔types drift check ✅ · next: Vercel deploy wiring, deployed smoke.
 5. Then the hardening layer per lane (idempotency ✅ mig-023 → durable rate
    limiting → request IDs / structured logs → load baseline).
 
@@ -71,9 +71,9 @@ concurrency work. `security` and `qa-test` are subagents, not lanes.
 ## Lane status
 
 ### T0 — Orchestrator / Platform
-- 2026-09-01: startup-list trim, model policy, CI workflow (`fd8eda3`), and the **worktree split** (`c4ff7e7`) all done. Swept the mixed-lane uncommitted tree onto `ai-engineering` first. **Integration gate green on `ai-engineering` HEAD** — lint / tsc / 25 tests / build (11 routes) all pass with every lane's work merged.
+- 2026-09-01: startup-list trim, model policy, CI workflow, **worktree split**, and the **schema.sql↔lib/types.ts drift check** (`3e8e6bf`, runs first in CI) all done. Integrated `lane/backend@ec5c7fa` (mig-023 security follow-up) — gate green post-merge (check:schema / tsc / 25 tests).
 - Sync cycle: `lane/*` → `ai-engineering` → back. Ping me for a sync.
-- Next: schema↔types drift check in CI, then Vercel deploy wiring.
+- Next: Vercel deploy wiring (env-var checklist + deployed smoke), then request-IDs / structured-logging groundwork.
 
 ### T1 — Backend
 - 2026-09-01: BE.1 + BE.2 + mig-023 committed (`e10d395`, worklog in `888fb26`/`9a8a9aa`). Post-move gate green (lint/tsc/25 tests/build).
