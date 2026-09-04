@@ -52,6 +52,25 @@ changes). Read literally:
   layout fixes (misalignment, edge-of-screen, overflow) are unaffected — keep
   going on those, they're not color-dependent.
 
+### 🎯 Priority reset, 2026-09-04 — deployment is NOT urgent
+
+Owner: **"deployment is not urgent just the core features and design bugs
+have to be solved right now that's priority."** Explicit reordering:
+
+1. **Core features** — venue-link enrichment is the named one
+   (`PRIORITIES.md`). Collections/moodboards Pinterest-style is the other.
+2. **Design bugs** — the structural fixes Frontend and Design are already on
+   (misalignment, edge-of-screen, palette correctness).
+3. Everything else — production-readiness/hardening, load testing beyond what
+   directly serves 1/2, `DEPLOYMENT.md`'s checklist — **deprioritized, not
+   cancelled.** Keep working it if it's already in flight and nearly done, but
+   don't start new deployment-prep work ahead of 1/2.
+
+**Security/Backend:** if the current load-test extension is close, finish that
+milestone, then pivot to venue-link enrichment ahead of anything else on your
+list — it's the named core feature. **T0 (me):** pausing active deployment
+push; `DEPLOYMENT.md` stays as reference, not a live task.
+
 ### ⏸ Mobile work paused, 2026-09-04
 
 Owner: leave anything mobile-related for now. This includes the blocked
