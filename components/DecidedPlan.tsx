@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { Plan, Rating, Rsvp, Spot } from "@/lib/types";
 import { googleCalUrl, icsHref } from "@/lib/calendar";
 import { categoryMeta } from "@/lib/categories";
+import { directionsUrl, haversineKm } from "@/lib/directions";
 import WinnerPhotoReveal from "@/components/WinnerPhotoReveal";
 
 interface DecidedPlanProps {
@@ -86,6 +87,20 @@ export default function DecidedPlan({
   }
   const gcal = googleCalUrl(plan, winner);
   const ics = icsHref(plan, winner);
+
+  // "Getting there" — PRIORITIES.md's Venue-link enrichment section, free
+  // tier: straight-line distance + a transit-mode Maps deep link. Only
+  // when both endpoints exist; a plan created before origin was picked
+  // (or a spot with no coordinates) has nothing honest to show here.
+  const hasRoute =
+    plan.origin_latitude != null && plan.origin_longitude != null
+    && winner.latitude != null && winner.longitude != null;
+  const distanceKm = hasRoute
+    ? haversineKm(plan.origin_latitude as number, plan.origin_longitude as number, winner.latitude as number, winner.longitude as number)
+    : null;
+  const directions = hasRoute
+    ? directionsUrl(plan.origin_latitude as number, plan.origin_longitude as number, winner.latitude as number, winner.longitude as number)
+    : null;
 
   const myRating = ratings.find((r) => r.voter_name === voterName);
   const avgStars =
@@ -205,6 +220,28 @@ export default function DecidedPlan({
           </div>
         </div>
       </div>
+
+      {/* Getting there */}
+      {hasRoute && (
+        <div className="mt-4 border-t border-line pt-4">
+          <p className="text-xs font-bold uppercase tracking-wide text-muted">
+            Getting there
+          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            <span className="text-sm font-medium">
+              {Math.round((distanceKm as number) * 10) / 10} km from {plan.origin_label ?? "your start point"}
+            </span>
+            <a
+              href={directions as string}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-bold text-grape underline"
+            >
+              See live transit options
+            </a>
+          </div>
+        </div>
+      )}
 
       {/* Booking */}
       <div className="mt-4 border-t border-line pt-4">

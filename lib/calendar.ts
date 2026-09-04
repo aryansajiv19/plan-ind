@@ -16,7 +16,7 @@ export function googleCalUrl(plan: Plan, spot: Spot): string | null {
   const { start, end } = window(plan.event_time);
   const params = new URLSearchParams({
     action: "TEMPLATE",
-    text: `${spot.name} — ${plan.title}`,
+    text: `${spot.name}. ${plan.title}`,
     dates: `${stamp(start)}/${stamp(end)}`,
     location: `${spot.name}, ${spot.area}`,
     details: spot.description ?? `Decided with friends. ${spot.vibe}`,
@@ -38,7 +38,7 @@ export function icsHref(plan: Plan, spot: Spot): string | null {
     `DTSTAMP:${stamp(new Date())}`,
     `DTSTART:${stamp(start)}`,
     `DTEND:${stamp(end)}`,
-    `SUMMARY:${esc(`${spot.name} — ${plan.title}`)}`,
+    `SUMMARY:${esc(`${spot.name}. ${plan.title}`)}`,
     `LOCATION:${esc(`${spot.name}, ${spot.area}`)}`,
     `DESCRIPTION:${esc(spot.description ?? spot.vibe)}`,
     "END:VEVENT",
