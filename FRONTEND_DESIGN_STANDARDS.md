@@ -57,27 +57,23 @@ Colour carries exactly **four** jobs. Nothing else earns a hue.
 
 | Job | Token | Night (v3) | Day (proposed) |
 |---|---|---|---|
-| The outcome / primary action / wordmark | `--color-punch` | **Open — pending owner pick.** Either `#C9A876` champagne gold (v3 as given) or `#5CC8D7` glass-blue with gold moved to the premium job (my recommendation — see below) | `#1B2A4A` navy |
+| The outcome / primary action / wordmark | `--color-punch` | `#C9A876` champagne gold | `#1B2A4A` navy |
 | You, and now / confirm / active | `--color-live` | `#00E0C7` teal | `#0E7C74` deep teal |
-| Premium marker — **sparing** | `--color-accent-premium` | `#5CC8D7` glass-blue, or `#C9A876` gold if the primary job goes to glass-blue instead | `#8A6D2F` deep gold |
+| Premium marker — **sparing** | `--color-accent-premium` | `#5CC8D7` glass-blue | `#8A6D2F` deep gold |
 | Error / urgent | `--color-error` | `#FF5C5C` | `#B3261E` |
 
-### The one open call: what carries the primary job at night
+### Gold-on-navy: settled, deliberately
 
 `#C9A876` champagne gold on the `#0D1117` charcoal-navy ground is
-structurally close to the exact "navy and gold" combination this colour
-pass opened by rejecting — cooler and more restrained than the original,
-but the two most visually dominant elements (the primary CTA, the
-wordmark) read gold-on-navy either way. **Recommendation: swap the primary
-and premium jobs** — glass-blue `#5CC8D7` carries the identity, gold moves
-to the sparing badge role it already had in palette v2. Same four values,
-one swap, and it no longer reads as a navy-and-gold identity. Both
-options are rendered side by side on real UI in
-`design-system/dist/foundations/colour-next.html` — look before building
-either one at scale. Until the owner picks, build against the
-recommendation: it's the strictly more constrained option (anything valid
-under it is also valid under "gold as primary", not the reverse), so
-nothing built against it needs rework if the owner picks the other one.
+structurally close to the "navy and gold" combination this colour pass
+opened by rejecting. That resemblance was flagged, not shipped quietly —
+the alternative (glass-blue as primary/wordmark, gold moved to the
+sparing badge role) was built and rendered side by side with it in
+`design-system/dist/foundations/colour-next.html`. The owner looked at
+both and picked gold-as-primary anyway: the resemblance is a deliberate
+direction, not a drift back. **This is final — build it with confidence,
+don't re-litigate it.** The alternative render stays in the design-system
+bundle for the record, not as a live option.
 
 ### Fill contrast — read this before styling any filled control
 
