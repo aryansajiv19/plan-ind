@@ -874,11 +874,19 @@ h3 {
   grid-template-columns: minmax(0, 1.06fr) minmax(26rem, 0.94fr);
   align-items: center;
   gap: clamp(2rem, 4vw, 5rem);
+  /* SPECS.md §14.3: the scroll-depth-drift layers below must never leak
+     past the hero's own box — a page-level overflow:hidden is what caused
+     the sticky/clipping cascade §3.3 fixed, so this is scoped to just the
+     hero, not .home-experience. */
+  overflow: hidden;
 }
 
 .home-hero__copy {
   position: relative;
   z-index: 3;
+  /* Foreground layer, moves the least so it separates from .home-stage's
+     background layer rather than travelling with it (§14.3). */
+  transform: translateY(calc(var(--hero-scroll, 0px) * -0.04));
 }
 
 .home-eyebrow {
@@ -1018,6 +1026,12 @@ h3 {
 .home-stage {
   height: 38rem;
   position: relative;
+  /* Background/depth layer, moves the most (§14.3). The standalone
+     `translate` property, not `transform: translateY(...)` — .home-stage
+     also carries .home-reveal, whose own entrance animates `transform`
+     on this same element; `translate` composes with `transform` instead
+     of fighting it for the same property. */
+  translate: 0 calc(var(--hero-scroll, 0px) * -0.12);
 }
 
 .home-system-shadow {

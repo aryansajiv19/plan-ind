@@ -193,6 +193,40 @@ export default function HomeExperience({
     }
   }
 
+  // SPECS.md §14.3: scroll-based depth drift on the front-door hero.
+  // Distinct from TiltCard's pointer parallax (unchanged) — this is for
+  // anyone not hovering with a mouse, i.e. most real usage. A single
+  // scroll-position custom property, not a JS animation loop: this effect
+  // only computes the number and writes it via setProperty; the actual
+  // motion is plain CSS (.home-hero__copy / .home-stage in globals.css).
+  const heroRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (!demoMode) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const hero = heroRef.current;
+    if (!hero) return;
+    let ticking = false;
+    function applyHeroScroll() {
+      const rect = hero!.getBoundingClientRect();
+      // 0 while the hero's top hasn't scrolled past the viewport top, then
+      // ramps up as it does, capped at the hero's own height — a small
+      // range scoped to depth within the hero, not full-page parallax.
+      const clamped = Math.min(Math.max(0, -rect.top), rect.height);
+      hero!.style.setProperty("--hero-scroll", `${clamped}px`);
+    }
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(() => {
+        applyHeroScroll();
+        ticking = false;
+      });
+    }
+    applyHeroScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [demoMode]);
+
   return (
     <main onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} className={`home-experience ${ready ? "home-experience--ready" : ""}`}>
       <div className="home-grid-field" aria-hidden="true" />
@@ -259,7 +293,7 @@ export default function HomeExperience({
           scrolling past a marketing headline to reach your own tool is a
           website habit, and on a phone it costs the whole first screen. */}
       {demoMode ? (
-      <section id="top" className="home-hero" aria-labelledby="home-title">
+      <section id="top" ref={heroRef} className="home-hero" aria-labelledby="home-title">
         <div className="home-hero__copy">
           <p className="home-hello home-reveal" style={{ "--delay": "80ms" } as React.CSSProperties}>
             {greeting}, {name}.
