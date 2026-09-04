@@ -56,16 +56,29 @@ the existing one.
 | Transportation to get there | Ties to the travel-time scope decision already on record (`Venue-link enrichment` section below) — free straight-line + a maps deep-link, or a paid Directions API. |
 | Carpool coordination | **Genuinely new — no schema, no concept anywhere today.** Needs a real scoping pass: is this a signup list (who's driving, who needs a seat) on the plan, or something lighter? Design's call to propose, not to assume. |
 
-**The flow itself:** `app/place/[id]/page.tsx` (just shipped, honest/scoped
-version) is likely the right surface for the detail view. The gap is the
-*entry point and creation path* — today `create_secure_plan` requires exactly
-9 spots across the pool mechanic; a direct plan is 1 spot, decided
-immediately. Worth Backend confirming whether that fits the existing
-`stage`/`pool_count` model (a `pool_count = 1`, single-spot, immediately-
-`decided` plan) or needs its own path — don't assume without checking.
+**The flow itself:** `app/place/[id]/page.tsx` (already shipped, honest/scoped
+version) is the right surface for the detail view.
 
-**Assigned:** Design specs the flow + the carpool scoping question; Backend
-confirms the creation-path mechanics once specced; Frontend builds after both.
+**✅ Backend checked the creation path, 2026-09-04 — clear answer.** Schema
+needs no migration: `pool_count`'s check already allows 1, `stage`/`status`
+already allow `'decided'`, `winner_spot_id` is a plain nullable FK settable at
+creation. But `create_secure_plan` itself can't do it — `status`, `stage`, and
+`pool_count` are hardcoded (not parameterized) in its INSERT, plus a hard
+`cardinality(p_spot_ids) <> 9` rejection up front. **Needs a new RPC**
+(`create_direct_plan`), mirroring `create_secure_plan`'s auth/age/ownership
+checks with cardinality=1 and the direct-case values. Small, well-scoped, no
+schema migration — just a new function + grants.
+
+**Bonus finding:** everything downstream already works unmodified. The
+decided-view gate is purely `status === 'decided'` + `winner_spot_id`, no
+vote-history dependency; `execute_plan_command`'s `patch` command (event time,
+booking owner, booked — the carpool-adjacent fields) has zero stage/status
+precondition. Post-creation coordination needs nothing new regardless of how
+a plan reached `'decided'`.
+
+**Assigned:** Design specs the flow + the carpool scoping question — Backend's
+`create_direct_plan` is ready to build the moment that spec lands; Frontend
+builds after both.
 Queued behind current work, not urgent-urgent, but real and named.
 
 ## Venue-link enrichment — owner priority feature, 2026-09-04
