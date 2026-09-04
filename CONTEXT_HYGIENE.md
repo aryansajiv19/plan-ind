@@ -71,10 +71,31 @@ Hot-path docs: `CLAUDE.md` 88, `AGENT_COORDINATION.md` 199, `PRIORITIES.md` 136,
   `worklog-archive.md`. The migration runbook and everything from 2026-08-19
   onward stay live. Nothing deleted.
 
-**Planned next in this pass:** hierarchical `CLAUDE.md` split; `NEXT_AGENT.md`
-folded into scoped files (its §1 hard rules and §3 traps are the valuable part
-and belong next to the code they describe); dead-code sweep with `graphify-out/`
-to find genuinely-unreferenced exports rather than guessing.
+### 2026-09-04 — pass 2 (T0)
+
+- **`worklog.md` 1,042 → 498 lines** (−52%). Grew back past the 600-line
+  trigger from a single day's shipped work (§1-§14, migration 035, the
+  critical bug fix, load testing). Archived 2026-08-19 through 2026-09-02
+  (production hardening through the palette-reset handoff) into
+  `worklog-archive.md`, now 877 lines. Kept every 2026-09-04 entry live —
+  today is the day actually being chased for "why," not history yet.
+- **Dead-code sweep, verified not guessed**: `saveMe`/`newPersonId`
+  (`lib/device.ts`) + `upsertMe` (`lib/social.ts`) removed — confirmed
+  superseded by `ensure_authenticated_profile`+`cacheMe` via commit
+  ordering (792b84b predates 8c3581c), not deferred work; zero callers
+  confirmed with a word-boundary grep after an earlier pass falsely
+  flagged `randomAvatar` by excluding same-file callers. Found one real
+  gap in the same sweep, not dead code: `clearMe()` existed, nothing
+  called it on sign-out — fixed. One security note the deleted code
+  carried (`people`/`visits` fully bulk-readable, an untracked "H1")
+  preserved in `PRODUCTION_CHECKLISTS.md` before the code holding it was
+  deleted. `git-secrets` scan also done this pass (gitleaks, clean,
+  `PRODUCTION_CHECKLISTS.md`).
+
+**Planned next:** hierarchical `CLAUDE.md` split; `NEXT_AGENT.md` folded into
+scoped files (its §1 hard rules and §3 traps are the valuable part and belong
+next to the code they describe) — not done this pass, `NEXT_AGENT.md` was
+only touched to fix one stale reference the dead-code sweep left behind.
 
 ## Dead code — method
 
