@@ -137,9 +137,7 @@ structural bug-fixes and the day/night palette correction.
 
 ## New frontend backlog (from the guest-vote verification)
 
-| # | Task | Why | Size |
-|---|---|---|---|
-| **FE.10** | `/login` takes no `next` / redirect param. A guest who hits "Sign in" from the guest-paused vote screen authenticates and lands on `/home`, not back on the plan they were voting on. | Rough edge on the exact flow B1 just unblocked | S |
+~~**FE.10**~~ — **Done, `7704424`.** `app/login/page.tsx` reads `?next=` via `safeNextPath()`, redirects a signed-in visitor there, passes it through to `AuthForm`. Predates this session's queue entry; caught 2026-09-04 when Frontend checked before starting rather than re-building it.
 
 ---
 
