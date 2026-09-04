@@ -335,12 +335,56 @@ Structural work, sequenced after §1-§4 fix what's actively broken.
 
 ## 6 — Place page (12a)
 
-Still nothing at `app/place/[id]/page.tsx` — no venue detail page exists.
-Spec (grid, four-source photo priority, no-tour state, "shot by your
-friends" rail) carries over unchanged from the original Claude Design
-handoff research; only the colour tokens change to §1. Full detail in the
-archived Wave-1/handoff section below (radii, spacing, breakpoints) — reread
-those numbers against §1's tokens, not the retired sand/teal ones.
+> **Citation fixed 2026-09-04.** This section used to point at
+> `design_handoff_plan/README.md` and "the archived Wave-1/handoff section
+> below" for the actual layout detail. Neither exists — the README was
+> never committed to this repo (it only ever lived in the Claude Design
+> project itself), and the archived section below has no place-page
+> content at all. Frontend hit exactly that dead end building this and
+> correctly shipped the honest schema-scoped version instead of guessing —
+> right call, see the schema-reality note at the bottom. The detail below
+> is inlined from my own working notes (not previously in any committed
+> file) and rewritten onto current tokens, so this is now the actual source
+> rather than a pointer to one.
+
+New route `app/place/[id]/page.tsx` — no venue detail page exists yet as of
+this writing.
+
+- **Layout**: grid `minmax(0,1fr) 400px`. Left column: 460px hero photo
+  with the standard photo scrim (`var(--photo-scrim)`, same as photo-wall
+  tiles), name at `2.1rem` in the display serif, one detail line
+  (`neighbourhood · price a head · the slot left`), and a source chip
+  reading "From the venue" when the photo is venue-supplied. Below that: a
+  tab row (Photos / 360 tour / Your friends / Menu — build with shadcn
+  `tabs`, §7), a three-up 150px photo grid, and a 360-tour panel at 280px
+  height with a `1px solid var(--color-line)` hairline border, "Enter the
+  tour" as the primary CTA and "Full screen" as secondary.
+- **The no-tour state is a first-class deliverable, not a fallback.** When
+  no 360 tour exists: a panel with a dashed `var(--color-line)` border that
+  plainly states what's missing, showing whatever guest photos do exist
+  underneath rather than leaving a gap. This is informational content
+  about a missing *feature*, not a "no photo" placeholder — doesn't
+  conflict with §8's no-empty-photo-frame rule, which is specifically
+  about photo slots.
+- **Right rail, "Shot by your friends"**: per-photo avatar (shadcn
+  `avatar`, §7) + name + date + rating if given, then the post-night
+  upload prompt, then the rights note (guest-submitted photos need a
+  visible "these are from your group" attribution, not presented as venue
+  photography).
+- **Photo-sourcing priority is product policy, not a UI detail**:
+  venue-supplied → embedded 360 tour (never copied/re-hosted) → the
+  group's own guest photos → licensed editorial as a floor.
+
+**Schema reality, unchanged since the original research**: `Spot.photo_url`
+(`lib/types.ts:26`) is the only photo field that exists today — no
+`tour_url`, no guest-photo table, no menu data. Most of the page above
+therefore has nothing to render yet and should say so plainly rather than
+pad the layout — this is the expected, correct state until those columns
+land, not a bug. **If Frontend already shipped a scoped version** (single
+photo source, tabs/360/friends/menu omitted rather than faked) that is the
+right interim call and does not need to be redone — this full spec is the
+target for when the underlying data exists, not a corrective for what
+shipped without it.
 
 ## 7 — Component library: shadcn + Motion, and the animation direction (owner, 2026-09-04)
 
