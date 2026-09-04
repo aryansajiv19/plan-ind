@@ -37,6 +37,37 @@ reads → NameGate → cast a Round-1 vote → "selected" + live count bump. Fir
 the core product loop has functioned for a no-account guest. Delivery item #1 in
 `PRODUCT_STRATEGY.md` is now real. Turnstile still off (deploy checklist).
 
+## Direct plan — skip the vote, owner feature, 2026-09-04
+
+**The core loop assumes a group deciding between options. Sometimes there's no
+decision to make** — one person already knows the place, or has a saved
+shortlist, and wants to lock it in directly rather than deal-and-vote through
+three rounds. This is a second entry point into the product, not a variant of
+the existing one.
+
+**What it shows, per the owner's list, checked against what already exists:**
+
+| Detail | Status |
+|---|---|
+| Budget | **Already have the data** — `spots.min_spend`/`price_band`. Display work, not new data. |
+| Age limit | **Already have the data** — `spots.minimum_age` + the category thresholds already enforced everywhere else. Display work. |
+| Weather | **Not built, but free and unblocked** — Open-Meteo, verified working with no API key (`NEXT_AGENT.md`), independent of the AI/B3 blocker. Real add. |
+| Is it open (right now) | **Partially free** — `spots.open_till` exists but is a static daily closing time, not live hours; "open right now" can be *approximated* for free against the Dubai clock already in the codebase. A real live-hours source is the same kind of paid-API decision as the photo one — flag before building past the approximation. |
+| Transportation to get there | Ties to the travel-time scope decision already on record (`Venue-link enrichment` section below) — free straight-line + a maps deep-link, or a paid Directions API. |
+| Carpool coordination | **Genuinely new — no schema, no concept anywhere today.** Needs a real scoping pass: is this a signup list (who's driving, who needs a seat) on the plan, or something lighter? Design's call to propose, not to assume. |
+
+**The flow itself:** `app/place/[id]/page.tsx` (just shipped, honest/scoped
+version) is likely the right surface for the detail view. The gap is the
+*entry point and creation path* — today `create_secure_plan` requires exactly
+9 spots across the pool mechanic; a direct plan is 1 spot, decided
+immediately. Worth Backend confirming whether that fits the existing
+`stage`/`pool_count` model (a `pool_count = 1`, single-spot, immediately-
+`decided` plan) or needs its own path — don't assume without checking.
+
+**Assigned:** Design specs the flow + the carpool scoping question; Backend
+confirms the creation-path mechanics once specced; Frontend builds after both.
+Queued behind current work, not urgent-urgent, but real and named.
+
 ## Venue-link enrichment — owner priority feature, 2026-09-04
 
 **Paste a link → get the full venue: photos, distance, how to get there.**
