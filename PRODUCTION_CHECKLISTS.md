@@ -42,9 +42,7 @@ directory listings.
 - **Secure cookie flags** (`Secure`/`HttpOnly`/`SameSite`) — Supabase's SSR
   client sets some of this by default; verify it's actually correct here, not
   assumed.
-- **Purge Git secrets** — no known incident, but never explicitly scanned.
-  Run a real scan of git history (`gitleaks`/`trufflehog` or equivalent) once,
-  don't just eyeball it.
+- ~~**Purge Git secrets**~~ — **Done, 2026-09-04 (T0).** `gitleaks detect --source . --log-opts="--all"` across all 186 commits, 22 hits, all triaged individually, zero real secrets: 4 are the well-known public local-Supabase-CLI demo JWT (`iss: supabase-demo`, ships with every `supabase start`, local-only, not a live credential), 1 is `ci.yml`'s self-evidently-named `ci-placeholder-secret-at-least-32-chars`, 17 are SHA-256 content-hashes in `graphify-out/cache/stat-index.json` that gitleaks' generic-api-key regex misread as keys. That cache file was also committed 6× with identical content (churns every graphify rebuild) — untracked going forward (`.gitignore` + `git rm --cached`), not purged from history since a rewrite would break every worktree's shared history without a real secret to justify it. Re-run before any real secret is ever suspected; this pass doesn't need repeating on a schedule.
 - **Trim API responses** — migration 022's own comment flags this as unfinished:
   `spots` reads still use broad `select("*")` in places; narrow the select
   lists, especially before any embedding column lands.

@@ -49,6 +49,11 @@ next-env.d.ts
 
 # Graphify keeps dated safety backups when rebuilding a curated graph.
 /graphify-out/20*/
+# Regenerable query cache -- content hashes only, churns every rebuild.
+# Was committed 6x with identical content, flagged as false-positive
+# "secrets" by a gitleaks scan (2026-09-04) since it's a wall of hex
+# strings. Untracked going forward, not purged from history.
+/graphify-out/cache/
 
 # scripts/load/mint-voters.mjs writes live-project session tokens here.
 /scripts/load/voters.local.json

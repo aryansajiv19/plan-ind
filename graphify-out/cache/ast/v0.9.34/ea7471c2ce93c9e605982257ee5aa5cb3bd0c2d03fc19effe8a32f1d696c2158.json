@@ -1,1 +1,0 @@
-{"nodes": [{"id": "$graphify-root$_supabase_migration_004_swap_sql", "label": "migration-004-swap.sql", "file_type": "code", "source_file": "supabase/migration-004-swap.sql", "source_location": null}], "edges": []}
