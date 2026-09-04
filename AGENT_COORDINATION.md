@@ -52,6 +52,15 @@ changes). Read literally:
   layout fixes (misalignment, edge-of-screen, overflow) are unaffected — keep
   going on those, they're not color-dependent.
 
+### ⏸ Mobile work paused, 2026-09-04
+
+Owner: leave anything mobile-related for now. This includes the blocked
+390px/`resize_window` verification thread — stop chasing a workaround for it.
+**Not the same as removing the 44px tap-target floor or any existing mobile
+media query** — that's regression territory, don't touch it. This just means
+don't spend further effort on mobile-specific verification or new mobile work
+until told otherwise. Desktop/general work continues as normal.
+
 ### 🎨 Owner's concrete palette proposal, 2026-09-04
 
 Given as a specific spec to try, not just a mood — verbatim:
