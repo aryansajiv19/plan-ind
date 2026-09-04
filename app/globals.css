@@ -1225,6 +1225,25 @@ h3 {
   text-align: left;
 }
 
+/* SPECS.md §10.1: the "skip the vote" form — shares .plan-form's own
+   fields (budget/origin/radius/title/submit) but has no category picker,
+   so it needs its own spot-identity header up top. */
+.direct-plan-form__spot {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 1.4rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-panel);
+  background: var(--color-card);
+}
+.direct-plan-form__spot-cat { flex: 0 0 auto; font-weight: 700; color: var(--color-punch-text); }
+.direct-plan-form__spot small { display: block; margin-top: 0.15rem; color: var(--color-muted); }
+.direct-plan-form__actions { display: flex; align-items: center; gap: 1rem; margin-top: 1.5rem; }
+.direct-plan-form__cancel { color: var(--color-muted); font-size: 0.78rem; font-weight: 500; text-decoration: underline; text-underline-offset: 0.2rem; background: none; border: 0; cursor: pointer; }
+.direct-plan-form__cancel:focus-visible { outline: 2px solid var(--color-ink); outline-offset: 1px; }
+
 .plan-form__label {
   display: block;
   color: var(--color-muted);

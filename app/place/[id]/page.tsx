@@ -5,6 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { categoryMeta } from "@/lib/categories";
+import { getCurrentUser } from "@/lib/auth";
+import PlaceDirectPlanCta from "@/components/PlaceDirectPlanCta";
 
 // The venue detail page — SPECS.md §6, previously unbuilt (12a). Scoped down
 // from the full original brief: this design system references a "four-source
@@ -51,7 +53,7 @@ export default async function PlacePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const spot = await getSpot(id);
+  const [spot, user] = await Promise.all([getSpot(id), getCurrentUser()]);
 
   if (!spot) notFound();
 
@@ -121,6 +123,17 @@ export default async function PlacePage({
             </a>
           )}
         </div>
+
+        {/* SPECS.md §10.1: the direct-plan entry point. Signed-in only —
+            create_direct_plan rejects a signed-out/anonymous caller
+            server-side either way, but showing the CTA to someone who can't
+            use it would mean building a whole form that fails at the end
+            rather than not showing it. */}
+        {user && (
+          <PlaceDirectPlanCta
+            spot={{ id: spot.id, name: spot.name, area: spot.area, category: spot.category }}
+          />
+        )}
 
         <Link href="/home" className="place-back">
           Back to Discover
