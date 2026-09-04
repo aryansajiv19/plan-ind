@@ -122,6 +122,12 @@ for. Report genuine hits, don't rewrite working UI to chase items that don't
 apply here.
 
 **Added, specific to this app:**
+- **No dashes in any app-facing copy** (owner, 2026-09-04, explicit and
+  emphasized beyond the list's "em dashes" line) — headings, body text,
+  button labels, empty/error/loading states, everything a user reads. Rewrite
+  with a period, a comma, or two sentences instead. Sweep existing copy for
+  this too, not just new copy going forward. Scope is the product's UI text —
+  not code comments or these coordination docs.
 - **No fake social proof, ever, on this one.** The list already says avoid
   fake "Trusted by 10,000+ users"/fake logos/fake testimonials — worth stating
   explicitly here because this app has real usage data (actual plans, actual
