@@ -392,6 +392,11 @@ externally:
   - Gate green (lint/tsc/38 tests/build, schema↔types drift clean). **Staged, not applied** — needs owner approval. Full detail `worklog.md`.
 
 ### T2 — Frontend
+- 2026-09-04: **§16 anti-vibecoded fixes** (`ebf0395`) — Design's audit, three items.
+  - §16.1: `app/not-found.tsx` + `app/error.tsx` (reuse `.auth-shell`'s restraint: wordmark, one hairline-bordered panel, back link) + `app/global-error.tsx` (its own minimal `<html><body>`, inline styles only, no dependency on anything that might itself be broken). Verified live: `curl localhost:4100/<bad-route>` renders the real page, not Next's default.
+  - §16.2: `.vote-option--winner` / `[aria-pressed="true"]` — dropped the `5px 6px 0 var(--vote-metal)` offset term (`app/globals.css`, was :2371/:2376), kept the inset top accent. Exact `.token` hard-shadow signature the Components section already retired elsewhere.
+  - §16.3: deleted the dead `.sky-glow` rule (unwired, name conflicted with the no-glow rule). Left the `--glow-*` custom properties alone — `.sky-root`'s transition list and the per-phase values still read them; only the flagged selector was in scope.
+  - Gate green (lint/tsc/38 tests/build).
 - 2026-09-04: **§15.2 Been moodboard + collections, real data** (`e3f7d07`) — owner stepped away, T0 cleared this to go ahead since §15.2 needs no schema change (migration 010 already live). Wires the previously-unused `visit_photos`/`visit_collections` tables into the Been tab.
   - `lib/social.ts`: `getVisitCollections`/`createVisitCollection`/`addVisitToCollection`/`removeVisitFromCollection` (direct table writes — both tables' RLS is `for all to authenticated`, owner-scoped, no RPC needed) and `getVisitPhotos`/`uploadVisitPhoto`. Upload writes to the private `visit-photos` bucket under the caller's own `auth.uid()` folder (the only path the storage policy grants), then `getVisitPhotos` batch-signs URLs server-side — the bucket has no public read.
   - `components/VisitTile.tsx` (new) + `PhotoWall.tsx`'s `WallItem` gains a `"visit"` kind: reuses the `.wall`/`.wall__col`/`.wall-tile` mechanism and CSS exactly as asked, not a new grid technique.
