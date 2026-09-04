@@ -4,7 +4,7 @@ import {
   requestError,
   validateMutationRequest,
 } from "@/lib/security/request";
-import { recordSecurityEvent } from "@/lib/security/controls";
+import { consumeQuota, recordSecurityEvent } from "@/lib/security/controls";
 
 export const runtime = "nodejs";
 
@@ -32,7 +32,20 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return Response.json({ error: "Plan access required." }, { status: 401 });
+  // /api/plans refuses to create a plan for an anonymous user, so no
+  // legitimate host command can ever come from one -- and the quota below is
+  // keyed on auth.uid(), which an anonymous sign-in can mint fresh at will.
+  // Without this, that quota doesn't actually bound a leaked-host-token
+  // attacker the way its own comment claims.
+  if (!user || user.is_anonymous) return Response.json({ error: "Plan access required." }, { status: 401 });
+  // Migration 030 -- was the only app/api/** route with no rate limit at
+  // all. The RPC's own row lock serializes concurrent commands per plan but
+  // doesn't cap volume; a valid (or leaked) host token could otherwise
+  // hammer this unbounded.
+  if (!(await consumeQuota(supabase, "plan-command"))) {
+    await recordSecurityEvent(supabase, { type: "rate_limit", outcome: "blocked", subject: user.id, requestId: request.headers.get("x-vercel-id"), metadata: { scope: "plan-command" } });
+    return Response.json({ error: "Too many plan changes. Try again in a minute." }, { status: 429 });
+  }
   const { data, error } = await supabase.rpc("execute_plan_command", {
     p_plan_id: id,
     p_host_token: hostToken,

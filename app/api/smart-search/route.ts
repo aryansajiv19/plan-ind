@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import { createClient } from "@/lib/supabase/server";
-import { memberAge, minimumAgeForCategory, prohibitedVenueReason } from "@/lib/age-policy";
+import { MIN_ACCOUNT_AGE, memberAge, minimumAgeForCategory, prohibitedVenueReason } from "@/lib/age-policy";
 import {
   plainText,
   readJsonBody,
@@ -94,7 +94,10 @@ export async function POST(request: Request) {
   if (prohibitedVenueReason(query)) {
     return Response.json({ error: "Deal three does not recommend sexually explicit or adult-entertainment venues." }, { status: 400 });
   }
-  const age = (user ? await memberAge(supabase, user.id) : null) ?? 21;
+  // Fail closed, same as /api/spots/deal: a missing age must not default to
+  // an adult, or an age-restricted category becomes reachable for a caller
+  // who never provided one.
+  const age = (user ? await memberAge(supabase, user.id) : null) ?? MIN_ACCOUNT_AGE;
 
   const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
   const safetyIdentifier = privateIdentifier(user?.id ?? forwarded);

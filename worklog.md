@@ -35,6 +35,14 @@ Apply in order. Every migration is additive and re-run safe unless noted.
 | 022 | `migration-022-spot-deal-quota-and-guest-realtime.sql` | **yes — applied live 2026-09-01 via Supabase MCP (T0).** `spot-deal` scope (30/min, 300/day) + `plan_spots` in `supabase_realtime`, both verified. |
 | 023 | `migration-023-vote-idempotency.sql` | **yes — applied live 2026-09-01 via Supabase MCP (T0)** in corrected form (`drop function` before `create` — the committed file was fixed to match in `67a0ccf`). `votes_participant_round_key` unique index live, `cast_plan_vote` returns jsonb, no vote rows deleted. |
 | 024 | `migration-024-revoke-anon-execute-sec4.sql` | **yes — applied live 2026-09-01 via Supabase MCP (T0), owner-approved.** Verified: anon EXECUTE now absent on all 7; `authenticated` kept on the 3 RPCs, dropped on the 4 internal fns; `set_birth_date` body carries the `is_permanent_user()` guard. Post-apply advisor: `anon_security_definer_function_executable` down to `record_security_event` only (intentional). |
+| 025 | `migration-025-rsvp-rating-upsert-race.sql` | yes — applied live (see 2026-09-02 Security entries below). |
+| 026 | `migration-026-otp-rate-limit.sql` | yes — applied live. |
+| 027 | `migration-027-spots-name-index.sql` | yes — applied live. |
+| 028 | `migration-028-friendships-rls-recursion.sql` | yes — applied live. |
+| 029 | `migration-029-rls-auto-enable-capture.sql` | yes — applied live. |
+| 030 | `migration-030-plan-command-quota.sql` | **written + staged 2026-09-04, NOT applied.** Rate limit on `execute_plan_command` (was the only `app/api/**` route with none). Deploy-order coupled to the route change in the same commit — see the migration's own header. |
+| 031 | `migration-031-schedule-purge-cron.sql` | **written + staged 2026-09-04, NOT applied.** Schedules `purge_security_operational_data()` via `pg_cron`, which has existed since 020 but was never actually scheduled. |
+| 032 | `migration-032-fix-votes-legacy-index-drop.sql` | **written + staged 2026-09-04, NOT applied.** Fixes a live bug: 023's legacy-index drop silently no-opped (see the 2026-09-04 Security entry below). |
 
 `npm run test:smoke` asserts the 019 guards against the live project. All ten
 database guards pass as of 2026-08-10: the plans projection carries no host
@@ -594,3 +602,91 @@ reassignment.
 
 Neither is actionable right now. Re-raise both when their real prerequisite
 (chosen photo host; the new voting model) actually lands.
+
+## Security/Backend — concurrency load testing + a real live bug found — 2026-09-04
+
+T0's ask: authenticated/mutating paths have never been load-tested (only the
+unauthenticated front door has a baseline). Built the missing harness rather
+than more correctness-only tests — 023/025 already proved the write RPCs
+correct under 2-way races; nobody had measured them under real width.
+
+**New tooling** (`scripts/load/`): `mint-voters.mjs` mints real anonymous
+Supabase sessions (the actual guest path) against the live project;
+`concurrency.mjs` fires N of them at `cast_plan_vote`/`set_plan_rsvp`
+simultaneously via PostgREST's RPC endpoint directly (there's no Next.js
+route in front of these — the browser calls `supabase.rpc(...)` straight from
+the client, so `run.mjs`/autocannon can't reach them and wasn't the right
+tool). Runs against a new dedicated fixture plan
+(`supabase/seed-load-test-plan.sql`, id `33333333-…`), kept separate from the
+e2e suite's shared `22222222-…` plan on purpose.
+
+**Results at n=15** (GoTrue's anonymous-signup rate limit — see below — was
+the real ceiling on scale this session, even after the owner raised the
+dashboard limit): `vote-contend`, `vote-flap`, `rsvp-contend` all clean, 0
+errors, p99 under 1.1s. `rsvp-collide` (15 first-time RSVPs racing the same
+display name — the scenario built specifically to stress `set_plan_rsvp`'s
+unbounded retry-on-`unique_violation` loop from migration 025, never tested
+past 2-way before) resolved to exactly 1 winner + 14 clean rejections, p99
+462ms, no timeout, no raw error leaked. **No fix needed** — the loop degrades
+gracefully at this width. Full numbers: `scripts/load/README.md`.
+
+**A real live bug, found by the testing, not the goal of it:** the first
+`vote-contend` run (an unrealistic test shape — same `voter_name` for all 15)
+failed 14/15 on a raw `23505 duplicate key value violates unique constraint
+"votes_round_choice_unique"`. Traced it to a genuine live bug in **migration
+023** (applied live 2026-09-01): its step "2b" tries to drop this legacy
+index by searching `pg_constraint`, but `votes_round_choice_unique` was
+created by migration 009 as a bare `create unique index`, never wrapped in a
+table constraint — so the lookup silently finds nothing, the DO block exits
+clean, and the migration looks like it succeeded. **Confirmed live** via
+direct catalog probe: `pg_indexes` still lists it on `votes` today. 023's own
+verification block has the identical blind spot (it only re-checks
+`pg_constraint` too), which is why this went unnoticed since 2026-09-01.
+
+Live consequence today: two guests who type the same display name and vote
+the same spot/round hit an unhandled error instead of both votes recording
+under their own identity — the exact failure mode 023's own comment predicted
+if its drop ever failed. **Migration 032** fixes it (`drop index if exists
+votes_round_choice_unique` by its now-known exact name). `security`-reviewed:
+safe — no FK, RLS policy, or trigger depends on it; `schema.sql` never
+defined it in the first place (a fresh rebuild was never exposed to this
+bug); no null-hash write path exists live to worry about once it's gone
+(every version of `cast_plan_vote` since migration 018 has rejected a
+missing/malformed hash before any insert, and direct table writes are
+revoked from `anon`/`authenticated` regardless).
+
+**Also found and staged, all `security`-reviewed, none applied:**
+- **Migration 030** — `execute_plan_command` was the only `app/api/**` route
+  with zero rate limiting. Own quota bucket, 20/min · 100/day. Review caught
+  a real gap in my first pass: the route didn't reject anonymous sessions, so
+  the new per-uid quota's key was mintable at will — fixed, matches
+  `/api/plans` and `/api/spots/deal`'s existing `is_anonymous` check.
+- **Migration 031** — `purge_security_operational_data()` has existed since
+  020 but was never actually scheduled (`SECURITY_SETUP.md` documents a
+  manual dashboard step that was apparently never done; `pg_cron` isn't even
+  installed on the project yet). Schedules it via `cron.schedule`.
+- `schema.sql` was missing `plans_creator_idx` (migration 014 created it live
+  in 2026-08-09; schema.sql never got the mirror) — fixed, no migration
+  needed, 014 is already live.
+- `smart-search`'s missing-age default failed *open* to 21 where
+  `spots/deal`'s identical condition fails *closed* to `MIN_ACCOUNT_AGE` —
+  aligned the two.
+
+**Finding, not fixed:** GoTrue's anonymous-signup rate limit is strict enough
+that minting even 20 test voters took most of a session, drained by the
+mint-voters script's own bursts. Real-world equivalent: several guests on the
+same wifi opening a share link within the same window could be throttled out
+of getting a session at all. The owner raised the dashboard limit once for
+this test; whether the default needs to stay raised for real group use is
+still open.
+
+**Deferred, stated plainly:** load-testing `/api/plans` (create) and
+`/api/spots/deal` needs a real permanent (non-anonymous) session, and this
+app has no password auth and no service-role key by design — not self-serve
+the way anonymous voter sessions are. Needs the owner to hand a real
+permanent session's refresh token to the load script, or to accept it stays
+unmeasured.
+
+**030, 031, 032 are staged only** — none applied to the live project.
+@T0 — same shape as 025–029: ready for the owner to review and apply, ideally
+032 first given it's a correctness bug already live, not just hardening.

@@ -16,7 +16,9 @@
     "test:smoke:020": "node scripts/smoke-test.mjs --020",
     "test:db": "node --experimental-strip-types --test \"tests/*.dbtest.ts\"",
     "test:e2e": "playwright test",
-    "load": "node scripts/load/run.mjs"
+    "load": "node scripts/load/run.mjs",
+    "load:mint-voters": "node --env-file=.env.local scripts/load/mint-voters.mjs",
+    "load:concurrency": "node --env-file=.env.local scripts/load/concurrency.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",
