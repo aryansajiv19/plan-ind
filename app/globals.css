@@ -165,6 +165,7 @@
 :root {
   --color-accent-tint: rgba(27, 42, 74, 0.07); /* inactive chip fill — composites to #e8e9e9, where the accent still measures 11.69:1. */
   --color-live-dot: #0e7c74; /* live dot, same value as --color-live — 4.71:1 on ground; non-text, needs 3:1 */
+  --color-shimmer: rgba(20, 20, 20, 0.06); /* skeleton sweep highlight — dark on the light day card, per SPECS.md §7 */
 
   /* Durations, named so they stop being pasted as magic numbers. */
   --dur-press: 200ms;
@@ -194,6 +195,7 @@
   --color-punch-text: #c9a876; /* one value serves both here too */
   --color-accent-premium: #5cc8d7; /* icy glass-blue — premium/badge job, sparing — 9.64:1 */
   --color-accent-tint: rgba(201, 168, 118, 0.16); /* composites to #2b2926; accent on it is 6.46:1 */
+  --color-shimmer: rgba(242, 239, 233, 0.08); /* skeleton sweep highlight — lighter on the dark night card */
 
   --color-live: #00e0c7; /* teal, kept — 11.25:1 on ground. Small components only, never a large surface or fill. */
   --color-live-dot: #00e0c7; /* same value as --color-live */
@@ -294,7 +296,7 @@ h3 {
 @layer components {
   .token {
     transition:
-      transform var(--dur-press) var(--ease-spring),
+      transform var(--dur-press) var(--ease-settle),
       background var(--dur-state) ease,
       border-color var(--dur-state) ease;
   }
@@ -972,7 +974,7 @@ h3 {
   color: white;
   font-family: var(--font-display);
   font-weight: 700;
-  transition: transform 260ms var(--ease-spring), box-shadow 150ms ease;
+  transition: transform 260ms var(--ease-settle), box-shadow 150ms ease;
 }
 /* Hover and active live with the other primary-CTA rules further down. The
    offset shadow they used to carry is retired with `.token`; what is left is
@@ -1335,7 +1337,7 @@ h3 {
   font-weight: 700;
   cursor: pointer;
   transition: border-color 150ms ease, background 150ms ease, color 150ms ease,
-    transform 300ms var(--ease-spring);
+    transform 300ms var(--ease-settle);
 }
 
 .plan-category-option:hover,
@@ -1601,7 +1603,7 @@ h3 {
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 260ms var(--ease-spring), box-shadow 150ms ease, opacity 150ms ease;
+  transition: transform 260ms var(--ease-settle), box-shadow 150ms ease, opacity 150ms ease;
 }
 
 .plan-submit:hover:not(:disabled) { transform: translateY(-1px); }
@@ -2215,7 +2217,7 @@ h3 {
   /* Transform gets the spring and a longer run than the colour props:
      the border recolouring instantly while the card is still settling
      is what makes the pick feel like it landed. */
-  transition: border-color 150ms ease, background 150ms ease, transform 320ms var(--ease-spring), opacity 150ms ease;
+  transition: border-color 150ms ease, background 150ms ease, transform 320ms var(--ease-settle), opacity 150ms ease;
 }
 
 .vote-option:hover:not(:disabled) { border-color: color-mix(in srgb, var(--vote-metal) 70%, var(--color-line)); transform: translateY(-1px); }
@@ -2238,8 +2240,8 @@ h3 {
    card does not lose its lift to the cursor. Scale is deliberately
    tiny — on a phone this card is 85% of the viewport inside a
    scroll-snap track, and anything past ~1% adds real scrollable
-   width. The overshoot in --ease-spring is doing the work, not the
-   distance. */
+   width. SPECS.md §7's no-bounce sweep moved this off --ease-spring, so
+   the settle is doing the work now, not an overshoot. */
 .vote-option[aria-pressed="true"]:not(:disabled) { transform: translateY(-2px) scale(1.008); }
 
 /* Later in the file than the press layer near the top, so this wins: a chosen
@@ -2340,7 +2342,7 @@ h3 {
   border-radius: 0.12rem;
   box-shadow: none;
   font-weight: 700;
-  transition: transform 260ms var(--ease-spring), box-shadow 150ms ease, opacity 150ms ease;
+  transition: transform 260ms var(--ease-settle), box-shadow 150ms ease, opacity 150ms ease;
 }
 
 .vote-primary-action,
@@ -2440,7 +2442,7 @@ h3 {
 
    Two halves, and the asymmetry is the point:
      down — 90ms ease-out, blunt, tracks the thumb
-     up   — 260/300ms --ease-spring, overshoots slightly, settles
+     up   — 300ms --ease-settle, no overshoot (SPECS.md §7)
 
    Transform only. Guarded by no-preference so reduced motion gets
    the colour change and nothing else. */
@@ -2450,7 +2452,7 @@ h3 {
 .plan-choice-strip button {
   transition-property: transform, border-color, background-color, color;
   transition-duration: 300ms, 160ms, 160ms, 160ms;
-  transition-timing-function: var(--ease-spring), ease, ease, ease;
+  transition-timing-function: var(--ease-settle), ease, ease, ease;
 }
 
 /* The round you are on lifts slightly, so moving between rounds is a
@@ -3123,6 +3125,14 @@ h3 {
   55%, 100% { background-position: 260% 0; }
 }
 
+/* .wall-skeleton's loading shimmer — SPECS.md §7. A skeleton needs to read
+   as active loading, not atmosphere, hence the much shorter loop than
+   ad-sheen's 6s ambient minimum. */
+@keyframes wall-shimmer {
+  0% { background-position: 0% 0; }
+  100% { background-position: 200% 0; }
+}
+
 /* --- Commit: the primary action is struck brass, ink on metal. Now the
    themed --primary-fill pair: 6.70:1 at the dark end, 9.88:1 at the light. */
 [data-theme="night"] .vote-experience .vote-primary-action:not(:disabled) {
@@ -3254,7 +3264,13 @@ h3 {
 .wall-skeleton {
   border-radius: var(--radius-panel);
   border: 1px solid var(--color-line);
-  background: var(--color-accent-tint);
+  background:
+    linear-gradient(100deg, transparent 30%, var(--color-shimmer) 50%, transparent 70%) 0 0 / 200% 100%,
+    var(--color-accent-tint);
+  animation: wall-shimmer 1.6s ease infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .wall-skeleton { animation: none; }
 }
 .wall-empty {
   margin: 0;
