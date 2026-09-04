@@ -1,0 +1,155 @@
+<!-- @dsCard group="Foundations" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>plan-ind — Colour — approved direction (not yet shipped)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,200..800&family=Hanken+Grotesk:wght@400;500;700&display=swap">
+<style>
+:root {
+  --color-paper: #f4f0ea;
+  --color-card: #fbf8f3;
+  --color-ink: #1a1618;
+  --color-muted: #6b625c;
+  --color-line: rgba(18, 102, 110, 0.30);
+  --color-punch: #12666e;
+  --color-punch-text: #12666e;
+  --color-live: #a1481f;
+  --color-grape: #12666e;
+  --color-zest: #12666e;
+  --color-mint: #12666e;
+  --font-display: var(--font-display-family), system-ui, sans-serif;
+  --font-body: var(--font-hanken), system-ui, sans-serif;
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
+  --background: var(--color-paper);
+  --foreground: var(--color-ink);
+  --card: var(--color-card);
+  --card-foreground: var(--color-ink);
+  --popover: var(--color-card);
+  --popover-foreground: var(--color-ink);
+  --primary: var(--color-punch);
+  --primary-foreground: var(--primary-ink);
+  --secondary: var(--color-card);
+  --secondary-foreground: var(--color-ink);
+  --muted: var(--color-card);
+  --muted-foreground: var(--color-muted);
+  --accent: var(--color-accent-tint);
+  --accent-foreground: var(--color-punch);
+  --border: var(--color-line);
+  --input: var(--color-line);
+  --ring: var(--color-punch);
+  --destructive: #9a3412;
+  --destructive-foreground: var(--color-paper);
+  --color-accent-tint: rgba(18, 102, 110, 0.07);
+  --color-live-dot: #b3552c;
+  --dur-press: 200ms;
+  --dur-state: 300ms;
+  --dur-entrance: 700ms;
+  --dur-follow: 180ms;
+  --dur-return: 800ms;
+  --primary-fill: linear-gradient(180deg, #2a2225, #171315);
+  --primary-ink: #f6f2ec;
+  --photo-ink: #f6f2ec;
+  --photo-body: #ddd7cf;
+  --photo-eyebrow: #d3af78;
+  --photo-scrim: linear-gradient(
+    0deg,
+    rgba(14, 12, 14, 0.9) 6%,
+    rgba(14, 12, 14, 0.18) 56%,
+    rgba(14, 12, 14, 0.05) 100%
+  );
+  --radius-ring: 14px;
+  --radius-thumb: 18px;
+  --radius-panel: 22px;
+  --radius-pill: 26px;
+  --radius-hero: 26px 26px 92px 26px;
+}
+[data-theme="night"] {
+  --destructive: #f0a08a;
+  --color-paper: #0e0c0e;
+  --color-card: #171316;
+  --color-ink: #f4efe8;
+  --color-muted: #a49a92;
+  --color-line: rgba(104, 184, 192, 0.28);
+  --color-punch: #68b8c0;
+  --color-punch-text: #68b8c0;
+  --color-accent-tint: rgba(104, 184, 192, 0.16);
+  --color-live: #e08e63;
+  --color-live-dot: #cf7a4e;
+  --color-grape: #68b8c0;
+  --color-zest: #68b8c0;
+  --color-mint: #68b8c0;
+  --primary-fill: linear-gradient(180deg, #9ad3d9, #63aab2);
+  --primary-ink: #0e0c0e;
+}
+
+:root { --font-display: "Newsreader", Georgia, serif; --font-body: "Hanken Grotesk", system-ui, sans-serif; }
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 2rem;
+  background: var(--color-paper); color: var(--color-ink);
+  font-family: var(--font-body); -webkit-font-smoothing: antialiased;
+}
+h1,h2,h3 { font-family: var(--font-display); font-weight: 500; letter-spacing: -.02em; margin: 0; }
+.kicker { font-size:.73rem; font-weight:700; letter-spacing:.18em; text-transform:uppercase;
+  color: var(--color-punch); margin: 0 0 .5rem; }
+.note { font-size:.86rem; color: var(--color-muted); max-width: 64ch; margin:.5rem 0 1.5rem;
+  text-wrap: pretty; line-height:1.55; }
+.row { display:flex; gap:.75rem; flex-wrap:wrap; align-items:center; }
+@media (prefers-reduced-motion: reduce) { * { animation-duration:.001ms !important; transition-duration:.001ms !important; } }
+
+.op-bg { background:#121212; color:#F5F5F5; padding:2rem; border-radius:var(--radius-panel); }
+.op-surface { background:#1E1E1E; border-radius:var(--radius-panel); padding:1.5rem; }
+.op-muted { color:#A0A0A0; }
+.op-btn { font-family:var(--font-display); font-weight:700; padding:.85rem 1.75rem; border-radius:var(--radius-pill);
+  border:1px solid transparent; background:#FF6B4A; color:#121212; font-size:.88rem; cursor:pointer; }
+.op-btn--ghost { background:none; border-color:rgba(245,245,245,.22); color:#F5F5F5; }
+.op-badge { display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:16px;
+  background:rgba(255,209,102,.14); color:#FFD166; font-size:.72rem; font-weight:700; }
+.op-confirm { display:inline-flex; align-items:center; gap:8px; padding:8px 14px; border-radius:14px;
+  background:rgba(0,224,199,.14); color:#00E0C7; font-size:.78rem; font-weight:600; }
+.op-error { color:#FF5C5C; font-size:.78rem; font-weight:600; }
+.op-card { background:#1E1E1E; border-radius:var(--radius-panel); padding:1.1rem; }
+.op-card__name { font-family:var(--font-display); font-size:1.05rem; font-weight:600; color:#F5F5F5; margin:0; }
+.op-card__meta { font-size:.78rem; color:#A0A0A0; margin:.3rem 0 0; }
+
+</style>
+</head>
+<body>
+<p class="kicker">Approved 2026-09-04 — see design-system/SPECS.md for the full spec</p><h2>Coral · gold · teal, on near-black</h2>
+<p class="note">Background <code>#121212</code>, surface <code>#1E1E1E</code>, text <code>#F5F5F5</code>/<code>#A0A0A0</code>, primary coral <code>#FF6B4A</code>, gold <code>#FFD166</code> used sparingly for badges/streaks, teal <code>#00E0C7</code> for confirm/active. Every value AA-clear (worst case 6.38:1). <b>All four accents take dark ink as fill text, never white</b> — white-on-coral measures 2.58:1, white-on-gold 1.32:1; that exact mistake is already live in the shipped code and the spec is written to not repeat it. <b>One dark identity, no day/night split</b> — the Dubai-clock colour-switching mechanism is retired by owner decision; <code>foundations/colour.html</code> still shows the old sand/teal pair because it reads the live app tokens and Frontend hasn't shipped this yet.</p>
+
+<div class="op-bg">
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.75rem">
+    <p style="font-family:var(--font-display); font-weight:700; letter-spacing:.26em; color:#FF6B4A; margin:0; font-size:.85rem">PLAN</p>
+    <span class="op-badge">★ 4-week streak</span>
+  </div>
+
+  <h3 style="font-family:var(--font-display); font-size:2rem; font-weight:500; letter-spacing:-.03em; color:#F5F5F5; margin:0 0 .5rem">Friday, 6:40 PM</h3>
+  <p class="op-muted" style="margin:0 0 1.5rem">The group's headed to Koko Bay. Now let's make it happen.</p>
+
+  <div class="row" style="margin-bottom:1.75rem">
+    <button class="op-btn">Create event</button>
+    <button class="op-btn--ghost" style="font-family:var(--font-display); font-weight:600; padding:.85rem 1.5rem; border-radius:var(--radius-pill); font-size:.85rem; cursor:pointer">Not for me</button>
+  </div>
+
+  <div class="row" style="margin-bottom:1.75rem">
+    <span class="op-confirm">✓ RSVP confirmed — 4 of 6</span>
+    <span class="op-error">2 spots left — closes in 40 min</span>
+  </div>
+
+  <div class="row" style="gap:1rem; align-items:stretch">
+    <div class="op-card" style="flex:1"><p class="op-card__name">Koko Bay</p><p class="op-card__meta">Palm Jumeirah · AED 300</p></div>
+    <div class="op-card" style="flex:1"><p class="op-card__name">The Guild</p><p class="op-card__meta">DIFC · AED 220</p></div>
+    <div class="op-card" style="flex:1"><p class="op-card__name">Ninive</p><p class="op-card__meta">Emirates Towers · AED 250</p></div>
+  </div>
+</div>
+
+<p class="note" style="margin-top:1.5rem"><b>Resolved:</b> single dark identity everywhere, day/night dropped. <code>lib/dubai-phase.ts</code> and <code>components/ThemeSync.tsx</code> have no consumer once colour stops branching on it — confirmed zero other callers — so the spec calls for deleting them outright, not leaving them dormant.</p>
+</body>
+</html>

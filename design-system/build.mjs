@@ -126,71 +126,57 @@ const TILE = ({ photo, name, meta, note, live, vibe, h }) => `
 
 const IMG = (w, h) => `https://placehold.co/${w}x${h}/16343a/68b8c0?text=+`;
 
-const CANDIDATES = [
-  {
-    id: "coral", name: "A — Coral & Sky",
-    day: "#a8380a", night: "#fb923c", dayInk: "#fdf4e9", nightInk: "#1a1618",
-    blurb: "Warm and immediate — a Dubai-sunset energy that still reads confident, not childish. The coolest-feeling of the four against a warm ground.",
-  },
-  {
-    id: "emerald", name: "B — Emerald & Sky",
-    day: "#0a5c35", night: "#4ade80", dayInk: "#f4efe8", nightInk: "#0e0c0e",
-    blurb: "Jewel-toned rather than muted — luxury from richness and saturation, fun from how alive it is against near-black at night.",
-  },
-  {
-    id: "magenta", name: "C — Magenta & Sky",
-    day: "#8a0f3d", night: "#f472b6", dayInk: "#f4efe8", nightInk: "#1a1618",
-    blurb: "The most playful of the four. Ruby by day, bright pink by night — still reads premium because it's used with the same restraint as the others, not as decoration.",
-  },
-  {
-    id: "violet", name: "D — Violet & Sky",
-    day: "#5b21b6", night: "#c4b5fd", dayInk: "#f4efe8", nightInk: "#1a1618",
-    blurb: "The most overtly luxury-coded hue family, softened by being genuinely vivid rather than muted metal — this is the safest pick if 'luxurious' should outweigh 'fun.'",
-  },
-];
-const LIVE_DAY = "#0369a1", LIVE_NIGHT = "#38bdf8";
+const OWNER_PALETTE_CSS = `
+.op-bg { background:#121212; color:#F5F5F5; padding:2rem; border-radius:var(--radius-panel); }
+.op-surface { background:#1E1E1E; border-radius:var(--radius-panel); padding:1.5rem; }
+.op-muted { color:#A0A0A0; }
+.op-btn { font-family:var(--font-display); font-weight:700; padding:.85rem 1.75rem; border-radius:var(--radius-pill);
+  border:1px solid transparent; background:#FF6B4A; color:#121212; font-size:.88rem; cursor:pointer; }
+.op-btn--ghost { background:none; border-color:rgba(245,245,245,.22); color:#F5F5F5; }
+.op-badge { display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:16px;
+  background:rgba(255,209,102,.14); color:#FFD166; font-size:.72rem; font-weight:700; }
+.op-confirm { display:inline-flex; align-items:center; gap:8px; padding:8px 14px; border-radius:14px;
+  background:rgba(0,224,199,.14); color:#00E0C7; font-size:.78rem; font-weight:600; }
+.op-error { color:#FF5C5C; font-size:.78rem; font-weight:600; }
+.op-card { background:#1E1E1E; border-radius:var(--radius-panel); padding:1.1rem; }
+.op-card__name { font-family:var(--font-display); font-size:1.05rem; font-weight:600; color:#F5F5F5; margin:0; }
+.op-card__meta { font-size:.78rem; color:#A0A0A0; margin:.3rem 0 0; }
+`;
 
-const candidateBlock = (c, theme) => {
-  const primary = theme === "night" ? c.night : c.day;
-  const ink = theme === "night" ? c.nightInk : c.dayInk;
-  const live = theme === "night" ? LIVE_NIGHT : LIVE_DAY;
-  const ground = theme === "night" ? "#0e0c0e" : "#f4f0ea";
-  const card = theme === "night" ? "#171316" : "#fbf8f3";
-  const textInk = theme === "night" ? "#f4efe8" : "#1a1618";
-  const muted = theme === "night" ? "#a49a92" : "#6b625c";
-  const line = theme === "night"
-    ? `color-mix(in srgb, ${primary} 30%, transparent)`
-    : `color-mix(in srgb, ${primary} 32%, transparent)`;
-  return `
-<div style="background:${ground}; color:${textInk}; padding:1.5rem; border-radius:var(--radius-panel); border:1px solid ${line}">
-  <p style="font-family:var(--font-display); font-weight:700; letter-spacing:.26em; color:${primary}; margin:0 0 1rem; font-size:.85rem">PLAN</p>
-  <h3 style="font-family:var(--font-display); font-size:1.6rem; font-weight:500; letter-spacing:-.03em; margin:0 0 1rem">Dubai plans,<br><b style="font-weight:800; position:relative">without the group chat<span style="display:block; height:.06em; background:${primary}; margin-top:.1em; width:60%"></span></b></h3>
-  <div style="display:flex; gap:.65rem; align-items:center; margin-bottom:1rem">
-    <button style="font-family:var(--font-display); font-weight:700; padding:.7rem 1.4rem; border-radius:var(--radius-pill); border:1px solid transparent; background:${primary}; color:${ink}; font-size:.85rem">Lock it in</button>
-    <button style="padding:9px 16px; border-radius:22px; background:color-mix(in srgb, ${primary} 14%, transparent); color:${primary}; font-size:.78rem; font-weight:600; border:0">After dark</button>
-  </div>
-  <div style="display:flex; align-items:center; gap:8px; font-size:.78rem; color:${muted}">
-    <span style="width:6px;height:6px;border-radius:50%;background:${live}"></span><span>Mo is looking at it now</span>
-  </div>
-</div>`;
-};
+const ownerPaletteCard = {
+  path: "foundations/colour-next.html", group: "Foundations", name: "Colour — approved direction (not yet shipped)",
+  subtitle: "Coral primary + gold accent (sparing) + teal confirm, one dark identity",
+  viewport: { width: 1180, height: 900 }, css: OWNER_PALETTE_CSS,
+  body: `<p class="kicker">Approved 2026-09-04 — see design-system/SPECS.md for the full spec</p><h2>Coral · gold · teal, on near-black</h2>
+<p class="note">Background <code>#121212</code>, surface <code>#1E1E1E</code>, text <code>#F5F5F5</code>/<code>#A0A0A0</code>, primary coral <code>#FF6B4A</code>, gold <code>#FFD166</code> used sparingly for badges/streaks, teal <code>#00E0C7</code> for confirm/active. Every value AA-clear (worst case 6.38:1). <b>All four accents take dark ink as fill text, never white</b> — white-on-coral measures 2.58:1, white-on-gold 1.32:1; that exact mistake is already live in the shipped code and the spec is written to not repeat it. <b>One dark identity, no day/night split</b> — the Dubai-clock colour-switching mechanism is retired by owner decision; <code>foundations/colour.html</code> still shows the old sand/teal pair because it reads the live app tokens and Frontend hasn't shipped this yet.</p>
 
-const colourCandidatesCard = {
-  path: "foundations/colour-candidates.html", group: "Foundations", name: "Colour — direction options",
-  subtitle: "Four candidates replacing the teal/terracotta pair, day + night",
-  viewport: { width: 1280, height: 1000 }, css: CSS.btn,
-  body: `<p class="kicker">Decision aid — delete after the direction is picked</p><h2>Which one replaces teal?</h2>
-<p class="note">The shipped accent (teal <code>#12666e</code>/<code>#68b8c0</code> + terracotta live) read as "navy blue and gold." All four below share one live-state colour — a clean sky blue, deliberately far from anything gold-adjacent — and vary only the primary "outcome" accent, so the comparison isolates the one thing that needs to change. Each is measured AA-clear on both grounds, both as text and as a fill with its paired ink colour.</p>
-${CANDIDATES.map(c => `
-<div style="margin-top:2rem">
-  <h3 style="font-size:1.05rem; margin-bottom:.4rem">${c.name}</h3>
-  <p class="note" style="margin:.2rem 0 1rem">${c.blurb}</p>
-  <div class="row" style="align-items:stretch; gap:1.25rem">
-    <div style="flex:1; min-width:280px">${candidateBlock(c, "day")}</div>
-    <div style="flex:1; min-width:280px">${candidateBlock(c, "night")}</div>
+<div class="op-bg">
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.75rem">
+    <p style="font-family:var(--font-display); font-weight:700; letter-spacing:.26em; color:#FF6B4A; margin:0; font-size:.85rem">PLAN</p>
+    <span class="op-badge">★ 4-week streak</span>
   </div>
-</div>`).join("")}
-`,
+
+  <h3 style="font-family:var(--font-display); font-size:2rem; font-weight:500; letter-spacing:-.03em; color:#F5F5F5; margin:0 0 .5rem">Friday, 6:40 PM</h3>
+  <p class="op-muted" style="margin:0 0 1.5rem">The group's headed to Koko Bay. Now let's make it happen.</p>
+
+  <div class="row" style="margin-bottom:1.75rem">
+    <button class="op-btn">Create event</button>
+    <button class="op-btn--ghost" style="font-family:var(--font-display); font-weight:600; padding:.85rem 1.5rem; border-radius:var(--radius-pill); font-size:.85rem; cursor:pointer">Not for me</button>
+  </div>
+
+  <div class="row" style="margin-bottom:1.75rem">
+    <span class="op-confirm">✓ RSVP confirmed — 4 of 6</span>
+    <span class="op-error">2 spots left — closes in 40 min</span>
+  </div>
+
+  <div class="row" style="gap:1rem; align-items:stretch">
+    <div class="op-card" style="flex:1"><p class="op-card__name">Koko Bay</p><p class="op-card__meta">Palm Jumeirah · AED 300</p></div>
+    <div class="op-card" style="flex:1"><p class="op-card__name">The Guild</p><p class="op-card__meta">DIFC · AED 220</p></div>
+    <div class="op-card" style="flex:1"><p class="op-card__name">Ninive</p><p class="op-card__meta">Emirates Towers · AED 250</p></div>
+  </div>
+</div>
+
+<p class="note" style="margin-top:1.5rem"><b>Resolved:</b> single dark identity everywhere, day/night dropped. <code>lib/dubai-phase.ts</code> and <code>components/ThemeSync.tsx</code> have no consumer once colour stops branching on it — confirmed zero other callers — so the spec calls for deleting them outright, not leaving them dormant.</p>`,
 };
 
 const CARDS = [
@@ -290,7 +276,7 @@ const CARDS = [
   </div>
 </div>`,
   },
-  colourCandidatesCard,
+  ownerPaletteCard,
 ];
 
 const page = (c) => `<!-- @dsCard group="${c.group}" -->
