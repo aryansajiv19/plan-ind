@@ -673,6 +673,183 @@ All four: build with Motion (§7's standing rule), respect
 existing pattern, not just shortening durations), and get verified in an
 actually-foregrounded tab before being called done.
 
+## 13 — Button padding + focus-outline audit (owner, 2026-09-04)
+
+Two separate claims, audited separately against the actual source, not
+assumed — one confirmed as described, one not quite as described but with
+a real underlying issue.
+
+### 13.1 — Outline-offset: mostly clean; the flagged instance doesn't match source
+
+Every `outline-offset` in `app/globals.css` was greped and read (14 sites).
+**`.home-app-tab:focus-visible` (`:784-790`) already reads `-2px`, correctly**
+— contrary to the specific claim that it's `0px`. Don't chase that one
+further; either the claim was from a stale build or a different rendered
+state, but the source rule is right today.
+
+The **one real deviation** from `components/CLAUDE.md`'s `-2px` rule:
+`.home-nav__signin:focus-visible` (`:782`) uses `outline-offset: 2px`
+(outward), with a comment (`:778-781`) defending it as deliberate — the
+button is filled ink-on-ink, so an inset ring would be invisible, and the
+comment claims "the nav has no clipping ancestor and the neighbouring gap
+is wider than the ring." **That claim needs re-verification, not blind
+trust** — §3 already found real container-width and `overflow: hidden`
+problems on this exact nav (`.home-nav`, §3.1-3.3), all discovered *after*
+this comment was written. Re-check whether the outward ring still clears
+its neighbours and the nav's own edges once §3's fixes land; if it doesn't,
+the fix is a wider gap next to this control specifically, not reverting to
+an inset ring (which really would be invisible on this fill). The two
+`outline-offset: 1px` sites (`:1721`, `:2526`) are inline prose links,
+the documented exception — leave them.
+
+### 13.2 — Padding: a real, confirmed systemic gap — two mechanisms fighting for the same class
+
+`.vote-primary-action` is a shared class name used in four places, but
+**styled two structurally different ways depending on the call site**,
+which is the actual "inconsistent padding" bug, not a scatter of
+one-off typos:
+
+- `components/NameGate.tsx:47`, `app/plan/[id]/page.tsx:768,781` — padding
+  comes from **Tailwind utilities in the `className` string**:
+  `px-6 py-3.5` (1.5rem / 0.875rem), no explicit `min-height`.
+- `components/VoteState.tsx:67` — plain `className="vote-primary-action"`,
+  no Tailwind padding utility at all. Its size comes entirely from the
+  CSS-defined `.vote-state__actions .vote-primary-action` rule
+  (`app/globals.css:2132-2139`): `padding: 0.7rem 1.5rem`, explicit
+  `min-height: 2.75rem`.
+
+Same semantic button, two independent sizing systems, neither aware of
+the other — this is exactly what reads as "inconsistent padding" even
+though each individual call site is internally fine. `.demo-*` button
+family (`.place-link-importer__field button`, `.demo-filter-tabs button`,
+`.demo-collection-tabs button`, etc. — 12+ selectors, greppable via
+`grep -n "cursor: pointer" app/globals.css`) has the same shape of
+problem at a smaller scale: padding and `min-height` values scattered
+with no shared scale (`0.6rem 0.85rem`, `0.45rem 0.7rem`, `.35rem .5rem`,
+`0.55rem 0.75rem`, `.75rem 1rem`, and more), each apparently chosen
+per-component rather than off a token.
+
+**Fix — pick one mechanism, not both.** Recommend: the CSS class is the
+source of truth for size (padding, `min-height`), Tailwind utilities in
+`className` stay for one-off layout only (`flex-1`, `w-full`, margins) —
+never padding or height on a class that already carries them via
+`app/globals.css`. Concretely:
+- Strip `px-6 py-3.5` from `NameGate.tsx:47` and
+  `app/plan/[id]/page.tsx:768,781` — `.vote-primary-action` already has a
+  CSS-defined size via `.vote-state__actions .vote-primary-action`, but
+  that rule is **scoped to `.vote-state__actions`**, so these three call
+  sites (outside that wrapper) currently fall back to nothing but the
+  Tailwind utility. **Un-scope the padding/min-height rule** — move it
+  onto bare `.vote-primary-action, .vote-secondary-action` (drop the
+  `.vote-state__actions` ancestor requirement) so all four call sites get
+  the same `0.7rem 1.5rem` / `2.75rem` from one place, then the Tailwind
+  padding utilities become redundant and get removed.
+- For the `.demo-*` scatter: define one small padding scale as CSS custom
+  properties (e.g. `--btn-pad-sm: .55rem .75rem`, `--btn-pad-md: .65rem
+  .9rem`, matching the two most common existing values rather than
+  inventing new ones) and repoint every button in the greppable list onto
+  one of the two, by size category (compact filter/tab buttons vs.
+  standard action buttons) — this is the same "mechanical sweep by
+  pattern" approach as §11, not a value invented per selector.
+- Re-run the `cursor: pointer` grep after to confirm every clickable
+  control's padding traces to a shared token, not a literal.
+
+## 14 — Motion, formally specced: the three owner-approved picks (2026-09-04)
+
+Owner approved three of the §12 proposals, each with a real technical
+constraint that changes how it gets built — specced here with those
+constraints, superseding §12's item 3 (shared continuity) where it
+conflicts.
+
+### 14.1 — Shared-element continuity, scoped to what doesn't cross a hard navigation
+
+Motion's `layoutId` only works within one mounted React tree. A full
+Next.js route change (`app/plan/[id]/page.tsx` → a different route,
+`HomeExperience`/`PhotoWall` → `app/place/[id]/page.tsx`) unmounts and
+remounts the whole tree, so `layoutId` cannot bridge it — and the
+alternative that could (React's experimental View Transitions) is canary,
+explicitly out of scope. Two cases, two different answers:
+
+- **Pool round → final round (§12 item 3): builds as originally specced,
+  unchanged.** Both rounds render within the same mounted vote-flow
+  component — no route change, no navigation, `layoutId` works exactly as
+  Motion intends. This is the one to build first; it has no open technical
+  question.
+- **Photo-wall card → place-page hero: needs restructuring, not a
+  `layoutId` alone.** Today this is a real route change to
+  `app/place/[id]/page.tsx`. Recommended fix: render the place page as an
+  **in-page overlay using Next.js Parallel + Intercepting Routes**
+  (`@modal` slot + a `(.)place/[id]` intercepting segment under
+  `app/home/` — both stable App Router features, not experimental) when
+  navigated to *from within the app* (the photo wall, a place card). This
+  keeps the wall mounted underneath the overlay, so a genuine `layoutId`
+  transition works between the tile and the overlay's hero photo. A direct
+  visit or shared link to `/place/[id]` still renders the full standalone
+  page exactly as it does today — the interception only fires for
+  in-app navigation, so nothing about deep-linking or sharing changes.
+  **This is a real routing-architecture change, not a CSS/animation
+  tweak** — Frontend should weigh in on the restructuring cost before
+  committing to it; if it's a bigger lift than the moment is worth right
+  now, the fallback is a manual FLIP transition (capture the source
+  tile's `getBoundingClientRect()` + photo `src` on click, stash it
+  — `sessionStorage` is enough, no need for real state management — and on
+  the place page's mount, animate the hero photo from that captured rect
+  to its final position). The FLIP fallback gets the same visual result
+  without any routing change, at the cost of being a one-off animation
+  rather than a reusable shared-element pattern.
+
+### 14.2 — One-shot particle-reconstruction, scoped to the decided-plan reveal only
+
+**One moment, hand-rolled canvas — not a library, not reusable
+infrastructure.** A `<canvas>` sized to the winning spot's hero photo in
+`DecidedPlan.tsx`, sampling the actual photo into a coarse grid (roughly
+one particle per 6-10px cell — for a 460×300 hero that's on the order of
+1,500-2,500 particles, not tens of thousands; keep it capped and measured,
+not guessed at build time), each particle starting at a randomized
+scattered position and animating to its sampled grid position over
+~1-1.2s (`--ease-settle`), revealing the photo by assembly rather than a
+plain fade-in. Triggers once, on `DecidedPlan` mount, right as the winner
+is revealed — never replays.
+
+**Why this doesn't violate the no-confetti/no-gamified-pop-up rule (§7)
+even though it's the most ornamental thing in the app**: confetti is
+decorative noise with no informational content, layered on top of a
+result that's already shown. This effect **is** the reveal — the actual
+venue photo, assembling into its own image, at the one moment in the
+product that's genuinely the payoff. Draw the line there explicitly in
+code review: if it ever becomes decoration *in addition to* an
+already-visible result rather than *how* the result becomes visible, it's
+crossed into what's banned.
+
+`prefers-reduced-motion`: skip the canvas entirely, render the photo
+already assembled — not a shortened version of the effect, the same
+outright-disable pattern as `TiltCard`.
+
+### 14.3 — Front-door hero: scroll-based depth drift (no cursor tracking)
+
+Distinct from `TiltCard`'s existing pointer-parallax (which stays,
+unchanged) — this is a **scroll**-driven effect for anyone not hovering
+with a mouse at all (most real usage, per the standing mobile-primary
+note). Two layers, two rates, both plain CSS transforms driven by one
+scroll-position custom property (not a JS animation loop):
+
+- Background/photo layer: `translateY(calc(var(--hero-scroll) * -0.12))`.
+- Foreground text/card layer: `translateY(calc(var(--hero-scroll) * -0.04))`
+  — moves far less, so the two layers separate rather than travelling
+  together.
+- `--hero-scroll` updates from a scroll listener (`requestAnimationFrame`-
+  throttled, not on every raw scroll event) as a small clamped range (e.g.
+  0 to the hero's own height in px, not the full page scroll) — the drift
+  should read as depth within the hero, not a full-page parallax effect.
+- **Must be clipped to the hero's own bounding box.** §3's audit already
+  found one real edge-overflow bug from an uncontained transform
+  (`.home-system`/`TiltCard`, §3.4) — this effect needs `overflow: hidden`
+  on the hero's own container specifically (not a page-level ancestor,
+  which is what caused the sticky/clipping cascade in §3.3) so the two
+  layers' drift never leaks past the hero's edges.
+- `prefers-reduced-motion`: freeze `--hero-scroll` at 0, effectively
+  disabling the drift outright.
+
 ---
 
 ## Verification (for whoever implements this)
