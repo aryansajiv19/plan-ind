@@ -27,9 +27,10 @@ Nine rules, each one sourced from a bug this repo actually had.
 5. **`lib/types.ts` mirrors the schema.** Change them together, in one pass, by
    one agent.
 
-6. **Migrations are additive and numbered.** 020 is applied live; 021 is written
-   and unapplied; the next new number is 022. Record application in `worklog.md`
-   the same day.
+6. **Migrations are additive and numbered.** Fix one in place only until it's
+   applied; after that the next number is the only option. Record application
+   in `worklog.md`'s runbook table the same day — check that table for what's
+   actually live now, don't assume from a stale number here.
 
 7. **`supabase/schema.sql` is a scratch end-state, not an update path.** It DROPs
    every table. Never run it against the live project. When you add a migration,
@@ -46,7 +47,7 @@ Nine rules, each one sourced from a bug this repo actually had.
 ```bash
 npm run lint
 npx tsc --noEmit
-npm run test          # 25 today
+npm run test          # check the current count yourself, it moves
 npm run build
 git diff --check
 ```
@@ -61,8 +62,11 @@ unapplied-migration guards.
 
 ## Blocked is a valid outcome
 
-Three blockers sit outside this repo: anonymous sign-ins are disabled in Supabase
-Auth (which kills the whole share-link vote path), migration 021 is unapplied,
-and OpenAI credits are exhausted. If your task depends on one, **say so plainly
-and stop** — do not simulate around it, and do not report success you could not
-verify. A short honest report beats a padded one.
+One blocker sits outside this repo as of 2026-09-04: OpenAI credits are
+exhausted (B3), so nothing requiring a live model call can be demonstrated.
+Anonymous sign-ins and migration 021 — the two blockers this section used to
+list — are both resolved and live; don't re-flag them. If your task depends
+on a real blocker, **say so plainly and stop** — do not simulate around it,
+and do not report success you could not verify. Check `PRIORITIES.md`'s
+"Owner-blocked" table for the current list rather than trusting a snapshot
+here. A short honest report beats a padded one.

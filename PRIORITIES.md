@@ -135,6 +135,21 @@ one and can start now.
 rules are squarely their turf); Frontend picks up the enriched-result UI once
 a real API contract exists, not before.
 
+## Friends that can actually be added
+
+Migrated from `NEXT_AGENT.md` §4.4, 2026-09-04 — real, unassigned, not
+tracked here before now. `getFriends` works and is wired, but there is no way
+to add a friend: `addFriend`, `removeFriend`, `areFriends`, `getPeople`,
+`getSpotVisitors`, `getTaggedVisits`, `deleteVisit` and `untagCompanion` in
+`lib/social.ts` all have zero callers — deferred waiting on this exact
+feature, confirmed still accurate as of the 2026-09-04 dead-code sweep (not
+dead, just unwired). Friendships currently only exist if someone writes them
+by hand.
+
+The natural source is companions already tagged on a visit, which `logVisit`
+writes — give the Friends tab a way to turn a tagged companion who has an
+account into a friendship. Not started; queued behind the current wave.
+
 ## Collections and moodboards, Pinterest style — owner feature, 2026-09-04
 
 The layout direction for step 2/7's identified gap (`PRODUCT_FLOW.md`) —
