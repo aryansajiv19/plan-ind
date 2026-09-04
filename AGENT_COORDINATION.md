@@ -160,9 +160,23 @@ These exist because four sessions in one tree raced and nearly lost work once.
    it. Do not "just quickly fix" someone else's file.
 4. **`AGENT_COORDINATION.md` is shared** — edit **only your own block** under
    Lane status, plus Cross-lane requests. T0 resolves the merge conflicts.
-5. **Claim shared files before a big rework.** Post a `⚠️ FILE CLAIM` line in
-   your status block naming the exact paths; others stay off them until you
-   release. Design has used this successfully already.
+5. **Claim shared files before a big rework — with an expiry condition, not
+   an open end.** Post a `⚠️ FILE CLAIM` line naming the exact paths **and the
+   specific thing that releases it** ("until I hand off the palette spec,"
+   "until this commit lands") — never a bare claim with no stated end. A claim
+   with no release condition is the failure mode that already happened once
+   (2026-09-02: Design's claim outlived the role change that justified it,
+   silently blocking Frontend for two days on a fix they had ready).
+   - **The claiming lane re-confirms or releases on any relevant change** —
+     a role/mandate reorg, a "this is now done" milestone, or before ending a
+     work session. Don't leave a claim standing on the assumption someone else
+     will notice.
+   - **T0 checks standing claims every integration cycle**, not just when
+     asked — if a claim has had no commits against its own files for a while,
+     or the reorg that justified it has since changed, ping the claiming lane
+     directly rather than waiting for it to surface as a stall.
+   - **Any lane can ask T0 to check a claim's validity** if work seems blocked
+     on one — don't sit blocked in silence the way Frontend did.
 6. **Talk through T0.** Message `model-assignment-terminals` via SendMessage
    when you have commits to integrate or need another lane's work. Async status
    goes in this file. Lanes do not need to message each other directly.
