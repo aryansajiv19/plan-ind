@@ -904,7 +904,70 @@ run this session — the category bug took priority once found, since a
 broken core feature matters more than a benchmark number, and the fix
 needed verifying before spending the scale run's time on now-stale code.
 
-**Not yet done, next steps:** run the actual scale numbers (target
-~500-1000+ concurrent) now that both blocking bugs are fixed, write results
-into `scripts/load/README.md`, `npx supabase stop` when finished (this is
-scratch infrastructure for this session, not persistent).
+**Update — done.** Full results (clean to n≈200, real ceilings past that,
+explicitly caveated as local-single-instance not production) are in
+`scripts/load/README.md`. Local stack stopped after.
+
+## Direct plan — new plan-creation path, skip the vote — 2026-09-04
+
+`design-system/SPECS.md` §10 / `PRIORITIES.md`: a second entry point for
+someone who already knows the place and wants to lock it in immediately.
+Feasibility already confirmed earlier this session (see the message to T0,
+same reasoning here): `create_secure_plan`'s INSERT hardcodes
+`status='open', stage='pool', pool_count=3` unconditionally and requires
+exactly 9 spot ids — none of that fits a "1 spot, already decided" plan, and
+the schema itself needs no change (`pool_count`'s check already allows 1,
+`stage`/`status` already allow `'decided'`, `winner_spot_id` is a plain
+nullable FK).
+
+**Migration 034**: `create_direct_plan(p_plan jsonb, p_spot_id uuid)` — a
+new function parallel to `create_secure_plan`, not a branch inside it
+(their invariants are different enough that sharing a body would mean
+threading a mode flag through every check). Mirrors `create_secure_plan`'s
+permanent-account gate, field-whitelist pattern, and budget/radius/lat-long/
+vibe/avoid validation exactly. Deliberate differences:
+- **No client-supplied category.** Derived server-side from the picked
+  spot's own `s.category` — the same class of bug migration 033 just fixed
+  (never trust a client-declared category against real spot data) doesn't
+  get a chance to recur here, since there's exactly one spot and its
+  category is unambiguous.
+- **No deadline requirement.** A directly-decided plan has no vote to
+  close, so `deadline` is optional/unvalidated rather than required and
+  future-dated.
+- `status`/`stage`/`pool_count` hardcoded to `'decided'`/`'decided'`/`1`,
+  `winner_spot_id` set at creation, one `plan_spots` row with
+  `advanced = true`.
+
+**`app/api/plans/direct/route.ts`** — same house preamble as every mutating
+route, reuses the existing `plan-create` quota scope (same cost/risk shape
+as the deal-and-vote path, not a new bucket).
+
+**Verified live on the local mirror, real cases, not just the happy path:**
+a real minted permanent user creating a plan for a real 18+ "shisha" curated
+spot → 200, plan correctly shaped (category derived correctly, `status`/
+`stage='decided'`, `pool_count=1`, `winner_spot_id` set, one `plan_spots`
+row with `advanced=true`). An underage user against the same 18+ spot → 403.
+A nonexistent/inaccessible spot id → 403 "That place is unavailable". No
+`spotId` at all → 400. A request smuggling an unrelated extra field → 400
+via the whitelist correctly rejecting it.
+
+**`security` review**: safe to commit, no new hole. Confirmed the
+ownership/sourcing clause guards nothing worse than `create_secure_plan`
+already does; confirmed the server-derived category doesn't reopen 033's bug
+class downstream (`plans.category`/`spots.category` are free text with no
+CHECK constraint either way, and every consumer — `categoryMeta`,
+`categoryGroup` — already has a documented fallback for an unrecognized
+category); confirmed by tracing every reader of `plans.deadline` in the
+codebase (exactly one, an already-null-safe display formatter, gated behind
+`status !== 'open'` for the auto-advance timer — which never fires for a
+plan created already `'decided'`) that the unvalidated deadline is genuinely
+inert, not just plausibly safe; confirmed quota reuse creates no extra
+budget (same counter, not a separate allowance). One non-blocking note
+acted on: the field whitelist didn't strip `intelligenceModel` the way the
+sibling route does — currently unreachable (nothing calls this route yet)
+but a real foot-gun once Frontend wires it against the same shared form
+state — fixed.
+
+Gate green (lint/tsc/38 tests/build). Staged migration, needs owner
+approval like every migration in this directory. Frontend was blocked on
+this exact signature — ready for them now.
