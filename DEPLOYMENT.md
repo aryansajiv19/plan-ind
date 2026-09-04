@@ -1,19 +1,44 @@
 # Deployment readiness
 
 Owned by T0. What's actually needed to put this live, and what's genuinely
-blocking it right now.
+blocking it right now. **Refreshed 2026-09-04** — the previous version of
+this file was stale on several claims (test count, migration status, load
+testing, venue-link); corrected against the actual current state below, not
+assumed.
 
 ## What's already true
 
-- CI is green on every push: lint, typecheck, 29 hermetic tests, schema-drift
-  check, production build. `test-db` and `test-e2e` jobs exist (the latter off
-  by default, see below).
+- CI is green on every push: lint, typecheck, **38 hermetic tests**, schema-
+  drift check, production build. `test-db` and `test-e2e` jobs exist (the
+  latter off by default, see below).
 - `npm run build` (production mode) passes clean.
-- Migrations 021-029 are live on the Supabase project. Anonymous sign-ins are
-  enabled. The core loop (host a plan, guest votes via share link) is verified
-  working end to end.
-- Security headers, HSTS, CSRF, rate limiting, RLS are all in place — see
-  `PRODUCTION_CHECKLISTS.md` for the full triage.
+- **Migrations 021 through 034 are live** on the Supabase project (035, the
+  carpool-coordination fields, is written/gated/security-reviewed and staged
+  — needs the owner's approval like every migration, not applied yet).
+  Anonymous sign-ins are enabled. The core loop (host a plan, guest votes via
+  share link, direct-plan skip-the-vote) is verified working end to end
+  against real sessions, not just fixtures.
+- Security headers, HSTS, CSRF, rate limiting, RLS are all in place. A
+  git-secrets scan (`gitleaks`, full history) came back clean. See
+  `PRODUCTION_CHECKLISTS.md` for the full triage — most of its "genuinely
+  open" list is in progress or closed as of today, check there for current
+  state rather than this file.
+- **Load testing is done, not partial.** Unauthenticated front door: 857.5
+  req/s, zero errors (`scripts/load/README.md`). Authenticated/mutating
+  paths, against a local Supabase stack with 2,500 real permanent accounts
+  minted (the live project's signup rate limit caps real testing around
+  n≈15-30, so this used a local stack instead, explicitly caveated as
+  loopback-local, not a field number): votes/RSVPs/ratings clean through
+  n≈200; `/api/spots/deal` hits a real, specific ceiling around n=100 from
+  five to six sequential Supabase round trips per request (a real
+  optimization target if it's ever load-bearing, not fixed yet, not
+  deploy-blocking either). One genuine correctness bug (not a perf finding)
+  surfaced by this testing and already fixed — migration 033.
+- Venue-link enrichment (paste a link → get the venue) is **built**, not
+  queued — the result/candidate-picker UI and the "getting there" distance +
+  transit-deep-link feature both shipped today. The sequencing question this
+  file used to ask (ship core loop now vs. wait for venue-link) is moot; both
+  are here.
 
 ## What's genuinely blocking a real deploy
 
@@ -40,23 +65,22 @@ From `.env.local.example`, all required in production:
 ## Other real gaps before this is production-solid, not just building
 
 - **Turnstile CAPTCHA is not enabled anywhere yet** — no widget created, no
-  site/secret key pair exists. Anon sign-ins are currently open with no bot
-  protection. Owner action: create the widget at the production hostname.
+  site/secret key pair exists. Confirmed by security review 2026-09-04: this
+  isn't "soft" — without a key, **production email login and guest voting
+  both fail to start at all** (`bootstrapPlanAccess` requires the token
+  before it will even attempt a session). Google OAuth is unaffected. Owner
+  action: create the widget at the production hostname.
 - **`test:e2e` CI job is off by default** (`vars.RUN_E2E`) because
   `guest-vote.spec.ts` votes on the live shared seed plan on every run —
   needs an explicit opt-in once there's a domain to test against.
-- Load testing has only measured the unauthenticated front door
-  (`scripts/load/README.md`). Authenticated/mutating paths are Security's
-  current task, not done yet.
-- `PRODUCTION_CHECKLISTS.md`'s open security items (CORS verification, cookie
-  flags, a git-secrets scan, `npm audit` as a CI gate, trimming broad
-  `select("*")` reads) — none are deploy-blocking, all worth closing before
-  calling this done.
-
-## Sequencing question for the owner
-
-Venue-link enrichment (the paste-a-link feature) has **not been started** —
-it's queued behind Security's current load-test work, which was already in
-flight when that priority landed. Given "deploy soon": ship the core loop now
-and add venue-link as a fast-follow, or hold the deploy until it's in? Real
-tradeoff, not a call to make silently.
+- Real network/production-deployment load numbers don't exist yet — every
+  load-test number above is loopback/local-Docker, a ceiling for that
+  environment, not a field number. Worth one real pass against the actual
+  Vercel deployment once it exists, not before.
+- `PRODUCTION_CHECKLISTS.md`'s remaining open security items (CORS
+  verification, cookie flags, `npm audit` as a CI gate, trimming broad
+  `select("*")` reads, account-lockout confirmation) — in progress as of
+  2026-09-04, none deploy-blocking, worth closing before calling this done.
+- Migration 035 (carpool coordination) is staged, gated, security-reviewed,
+  and needs the owner's apply-approval — same as every migration, no
+  exceptions, regardless of how ready it looks.
