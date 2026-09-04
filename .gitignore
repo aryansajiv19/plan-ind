@@ -52,3 +52,10 @@ next-env.d.ts
 
 # scripts/load/mint-voters.mjs writes live-project session tokens here.
 /scripts/load/voters.local.json
+# scripts/load/mint-local-users.mjs writes local-stack-only session tokens here.
+/scripts/load/local-users.local.json
+
+# npx supabase init/start local-dev artifacts (Docker volumes tracked
+# separately; these are CLI state/temp files only).
+/supabase/.branches/
+/supabase/.temp/

@@ -122,14 +122,118 @@ instead of both votes recording under their own identity, exactly as 023's
 own comment predicted it would if the drop ever failed. Staged, not applied —
 same apply-order rule as every other migration here.
 
+## Scale testing — local Supabase stack (thousands of concurrent users)
+
+The live-project rate limit above caps real scale testing at n≈15-30. For
+"does this hold at real scale," the fix is a different target, not a bigger
+rate limit: a **local Supabase stack** (`npx supabase start`, Docker) has no
+rate limit at all, and its own well-known local `service_role` key mints
+**permanent** test accounts in bulk — closing the other standing gap too
+(`/api/plans`/`/api/spots/deal` need a permanent session; there's no
+self-serve way to get one against the live project).
+
+```
+npx supabase init && npx supabase start          # once
+psql <local db url> -f supabase/schema.sql       # once, fresh DB only
+# seed app_control_secrets (see SECURITY_SETUP.md), then:
+node --env-file=.env.local scripts/load/seed-local-stack.mjs [planCount]   # copies the real curated catalog + seeds plans
+node --env-file=.env.local scripts/load/mint-local-users.mjs [count]      # bulk permanent accounts, real @supabase/ssr sessions
+# build + start the app pointed at the local stack (see below), then:
+node scripts/load/scale.mjs <scenario> [n]
+```
+
+Scenarios: `vote-scale`, `rsvp-scale` (spread across many seeded plans, not
+one — "thousands of concurrent users" for this product means many people
+across many small plans hitting shared infrastructure, not one plan with
+thousands of participants), `plan-create-scale`, `spot-deal-scale` (both
+genuinely new — blocked entirely in the live-project pass above).
+
+**The app's own API routes read auth from `@supabase/ssr` cookies, not a
+bearer header** — `mint-local-users.mjs` derives each account's real session
+cookie via the actual library (a capturing cookie-jar adapter through
+`createServerClient`), not a hand-reimplementation of its serialization.
+Only the direct PostgREST RPC calls (votes/RSVPs) use a bearer token, same
+as the live-project driver above.
+
+### Results — 2026-09-04, local stack, 2,500 real permanent accounts minted
+
+| scenario | n | p50 | p90 | p99 | max | errors |
+|---|---|---|---|---|---|---|
+| `vote-scale` | 100 | 93ms | 149ms | 154ms | 155ms | 0/100 |
+| `vote-scale` | 150 | 114ms | 202ms | 216ms | 219ms | 0/150 |
+| `vote-scale` | 200 | 131ms | 239ms | 262ms | 266ms | 0/200 |
+| `vote-scale` | 250 | 171ms | 321ms | 344ms | 349ms | 9/250 |
+| `vote-scale` | 500 | 87ms† | 358ms | 425ms | 428ms | 261/500 |
+| `rsvp-scale` | 200 | 259ms | 385ms | 406ms | 409ms | 0/200 |
+| `spot-deal-scale` | 50 | 679ms | 708ms | 709ms | 714ms | 0/50 |
+| `spot-deal-scale` | 100 | 2131ms | 2202ms | 2209ms | 2212ms | 12/100 |
+| `plan-create-scale` | 50 | 555ms | 597ms | 605ms | 606ms | 0/50 |
+
+† `vote-scale`'s p50 at n=500 looks better than n=250 only because most of
+the 261 failed calls errored near-instantly (a rejected connection) rather
+than completing slowly — not a real latency improvement. Read the error
+count alongside the latency, not either alone, past the point errors appear.
+
+**Clean through n≈200 on every scenario tried.** Past that, a real ceiling
+shows up — and it's honest to name what it actually is, not oversell it:
+
+- **`vote-scale`/`rsvp-scale` (direct-to-PostgREST):** clean to 200, minor
+  degradation at 250 (9 errors), a hard wall by 500 (261 errors, "fetch
+  failed" — connection resets, not an app-level rejection). This is the
+  local Kong/PostgREST dev stack's own connection handling under genuinely
+  simultaneous load (all `n` requests fired in one `Promise.all` tick, not
+  the local machine's file-descriptor limit — `ulimit -n` here is 1,048,576).
+- **`spot-deal-scale` (through the Next.js app):** a much lower ceiling —
+  clean at 50, but p50 balloons to 2.1s and 12% of requests fail
+  `getUser()` by n=100. This route does 5-6 sequential Supabase round trips
+  per request (auth, quota, member age, spots, ratings); at 100-way
+  simultaneous load, all funneled through **one single-process `next start`
+  instance**, that queues badly. **This is the honest, important caveat**:
+  a real deployment (Vercel) runs this route as auto-scaling serverless
+  functions, not one long-lived process — this ceiling is specific to "one
+  local server instance," not a statement about production capacity. It's
+  the same category of caveat this file's own dev-vs-prod-build baseline
+  already makes, just for horizontal scaling instead of build mode.
+- **`plan-create-scale`:** only tested to 50 (clean) — this scenario exists
+  mainly to prove migration 033's fix holds under real concurrency, which it
+  does; the write itself (`create_secure_plan`) is a single RPC call, same
+  shape as vote/rsvp, so it's expected to scale similarly to those once
+  pushed further.
+
+**What this does and doesn't prove:** real code, a real database, real
+concurrency mechanics, at real numbers this session couldn't reach against
+the live project. It does not prove production capacity — this is one
+Docker Postgres + one Node process on one machine, not Vercel's
+serverless scaling or Supabase's hosted connection pooler. Re-run against a
+real deployment for a field number, same standing caveat as the `home`
+baseline above.
+
+### A real bug this testing surfaced (not a load/perf finding) — the priority one
+
+Load-testing `plan-create-scale` for the first time (blocked entirely in the
+live-project pass) immediately hit a **Critical, live, 11-day-old bug**:
+`create_secure_plan` required all 9 spot ids to share the plan's category,
+but no curated category has 9 spots, so the deal system always spans a
+category family — every real plan creation has failed since migration 020
+went live. Confirmed against the live database: 6 plans exist, ever; the 1
+created since migration 020 is this session's own SQL-inserted fixture, not
+a real user. **Migration 033** fixes it, `security`-reviewed. Full writeup
+in `worklog.md`'s CRITICAL entry — this is a correctness finding a lot more
+important than any number in the table above, and it's the reason
+`plan-create-scale` wasn't pushed past n=50 this session: verifying the fix
+took priority over chasing a bigger number on now-stale code.
+
+### Bonus: `npm run test:db` runs for real now
+
+The same local stack this phase built makes the previously self-skipping
+`tests/*.dbtest.ts` suite actually execute for the first time in this
+environment (`TEST_DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres npm run test:db`)
+— 12/12 passing, 0 skipped, across both migration-023 and migration-025's
+concurrency-correctness suites. Not new tests, just real coverage where
+there was previously an infrastructure gap.
+
 ## Not yet measured
 
-- `/api/plans` (create) and `/api/spots/deal` under load — both require a
-  **permanent** (non-anonymous) session, and this app has no password auth
-  wired in (only email-OTP and Google OAuth) and no service-role key by
-  design, so minting one non-interactively for a script isn't self-serve the
-  way anonymous voter sessions are. Needs the owner to hand a real permanent
-  session's refresh token to a `LOAD_TOKEN`-style env var, or to accept this
-  stays unmeasured.
-- Anything under real network conditions — this is loopback, so it's a
-  ceiling, not a field number. Re-run once deployed (Vercel) for a true figure.
+- Anything under real network conditions or a real (Vercel) deployment —
+  every number above is loopback/local-Docker, a ceiling for this
+  environment, not a field number.
