@@ -11,17 +11,42 @@ frontend/UI direction. **Frontend is unfrozen** — Design ships real specs,
 Frontend implements them plus fixes what's actually broken. Worktree paths /
 branches unchanged from before.
 
-| Terminal | Worktree path | Branch | Model | Role |
+| Terminal | Session name | Worktree path | Branch | Role |
 |---|---|---|---|---|
-| **T0** Orchestrator | `~/plan-ind` (main) | `ai-engineering` | **Opus** | Integrates every branch, CI/CD, deploy, **context hygiene + dead-code sweep** (see `CONTEXT_HYGIENE.md`) |
-| **Frontend** | `~/plan-ind-frontend` | `lane/frontend` | **Opus** | Fix real layout/alignment/color bugs; implement Design's shipped tokens correctly; own turf: `app/**` (except `app/api/**`), `components/**`, `app/globals.css` — **unfrozen** |
-| **Security/Backend** | `~/plan-ind-backend` | `lane/backend` | **Opus** | Continue the production-readiness list below — most is done, this is the audit-and-extend pass |
-| **Design** | `~/plan-ind-design` | `lane/design` | **Opus** | Continuing — now also owns the "fun + interactive + modern + sleek" creative direction; feeds Frontend real specs, not vague notes |
+| **T0** Orchestrator | `model-assignment-terminals` | `~/plan-ind` (main) | `ai-engineering` | Integrates every branch, CI/CD, deploy, **context hygiene + dead-code sweep** (`CONTEXT_HYGIENE.md`) |
+| **Frontend** | `plan-ind-c1` | `~/plan-ind-frontend` | `lane/frontend` | Fix real layout/alignment/color bugs; implement Design's specs. Turf: `app/**` (not `app/api/**`), `components/**`, `app/globals.css` — **unfrozen** |
+| **Security/Backend** | `plan-ind-7b` | `~/plan-ind-backend` | `lane/backend` | Production-readiness audit-and-extend. Turf: `supabase/**`, `app/api/**`, `lib/security/**`, `lib/supabase.ts`, `lib/types.ts`, `next.config.ts` |
+| **Design** | `claude-design-handoff` | `~/plan-ind-design` | `lane/design` | Creative direction ("fun + interactive + modern + sleek"); ships Frontend real specs. Turf: `design-system/**`, `FRONTEND_DESIGN_STANDARDS.md` |
 
-Branch/worktree names still say `backend`/`frontend` — that's cosmetic, ignore it.
-**Subagents/agent-teams:** use them to parallelize genuine fan-out (a broad
-search, an independent audit, several unrelated files) — never for a single
-linear task, that just burns tokens for no speed gain.
+All four on **Opus**. Branch/worktree names still say `backend`/`frontend` —
+cosmetic, ignore it.
+
+### Isolation rules — non-negotiable
+
+These exist because four sessions in one tree raced and nearly lost work once.
+
+1. **Work only inside your own worktree.** Never `cd` into another's; never
+   `git checkout` another's branch; never edit a file through another worktree's
+   path.
+2. **Commit only to your own branch.** T0 does every merge. You never merge
+   another lane's branch yourself.
+3. **Stay on your turf** (table above). Need a file you don't own? Post a
+   cross-lane request in this file and let the owner do it, or let T0 sequence
+   it. Do not "just quickly fix" someone else's file.
+4. **`AGENT_COORDINATION.md` is shared** — edit **only your own block** under
+   Lane status, plus Cross-lane requests. T0 resolves the merge conflicts.
+5. **Claim shared files before a big rework.** Post a `⚠️ FILE CLAIM` line in
+   your status block naming the exact paths; others stay off them until you
+   release. Design has used this successfully already.
+6. **Talk through T0.** Message `model-assignment-terminals` via SendMessage
+   when you have commits to integrate or need another lane's work. Async status
+   goes in this file. Lanes do not need to message each other directly.
+7. **`npm install` after any sync that changed `package.json`** — worktree
+   `node_modules` are real directories now, not symlinks, so they drift.
+
+**Subagents/agent-teams:** use them for genuine fan-out (a broad search, an
+independent audit, several unrelated files) — never for a single linear task,
+that burns tokens for no speed gain.
 
 ### Engineering-bar technique ownership
 
