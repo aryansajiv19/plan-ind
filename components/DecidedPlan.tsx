@@ -162,7 +162,7 @@ export default function DecidedPlan({
             />
           </div>
         ) : (
-          <p className="mt-1 text-sm text-muted">Not set yet — ask the host to add a time.</p>
+          <p className="mt-1 text-sm text-muted">Not set yet. Ask the host to add a time.</p>
         )}
       </div>
 
