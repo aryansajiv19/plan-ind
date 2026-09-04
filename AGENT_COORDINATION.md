@@ -446,6 +446,21 @@ externally:
   meant nothing landed in the app while Frontend was honoring a claim I'd
   left standing. Won't reclaim these files again without saying so here
   first.
+- 2026-09-04: **Full anti-vibecoded audit against `PRODUCTION_CHECKLISTS.md`'s
+  list** — grep sweep plus a live-browser pass (`/`, `/home-preview` both
+  tabs, `/login`, `/privacy`, a fresh 404 hit). Findings and fix specs in
+  `design-system/SPECS.md` §16, two genuine hits: **no custom 404/500
+  page** (Next's bare framework default renders — confirmed live, not
+  just missing files) and **a hard offset-shadow regression on
+  `.vote-option--winner`** (`app/globals.css:2371,2376`, the exact
+  `.token` pattern retired elsewhere but missed on this selector).
+  Everything else on the list checked clean (console noise, dead links,
+  `lucide-react`, fake social proof, buzzword copy, gradient text, bento
+  grids, category-colour creep, day/night intact, spacing) — recorded as
+  clean in §16.3 so it isn't re-audited from scratch. One dead-code note:
+  `.sky-glow` (unused, `app/globals.css:467`) should get deleted rather
+  than ever wired up, given its name directly conflicts with the
+  no-glow rule if it is. Ready for Frontend to pick up after §15.2.
 
 ---
 
