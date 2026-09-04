@@ -52,6 +52,20 @@ changes). Read literally:
   layout fixes (misalignment, edge-of-screen, overflow) are unaffected — keep
   going on those, they're not color-dependent.
 
+### 🎨 Typography + motion feedback, 2026-09-04
+
+Owner: **too much bold text — tone it down.** Sweep for over-use of bold
+weight (headings, labels, CTAs all competing at once loses the hierarchy bold
+is supposed to create) and reserve it for what actually needs the emphasis.
+
+**Also: positive signal on the motion/animation work so far — explicit
+green light for more, Design's judgment.** Not a specific ask, an open
+invitation: if there are more interaction/animation ideas worth adding
+(within the existing constraints — respects `prefers-reduced-motion`, no
+excessive Framer Motion per the anti-vibecoded list, no motion shipped
+unverified per the rAF/canary limits already hit), propose them. Design owns
+this call.
+
 ### 🎯 Priority reset, 2026-09-04 — deployment is NOT urgent
 
 Owner: **"deployment is not urgent just the core features and design bugs
