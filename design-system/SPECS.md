@@ -962,6 +962,72 @@ Do not wire the real account view to the `localStorage` demo state as a
 stopgap; that would be fake data presented as a real feature, exactly what
 the honest-empty-state rule exists to prevent.
 
+## 16 — Anti-vibecoded audit findings (owner, `PRODUCTION_CHECKLISTS.md`, 2026-09-04)
+
+Full page-by-page audit against the anti-pattern list (grep sweep +
+live-browser check of `/`, `/home-preview` both tabs, `/login`, `/privacy`,
+plus a fresh 404 hit). Two genuine, confirmed hits; everything else checked
+clean — reported as such below rather than left unsaid, so this doesn't
+get re-audited from scratch next time.
+
+### 16.1 — Missing 404/500 pages: confirmed live
+
+`app/` has no `not-found.tsx`, `error.tsx`, or `global-error.tsx`.
+Visited a nonexistent route directly: Next's bare framework default
+renders — plain black background, browser-default serif "404 / This page
+could not be found," no wordmark, no nav, no way back into the app. Real,
+confirmed hit on the anti-vibecoded list's named item.
+
+**Fix**: add `app/not-found.tsx` (triggered by `notFound()` or an unmatched
+route) and `app/error.tsx` (client component, catches render errors below
+`layout.tsx`) styled to the current system — reuse `.auth-shell`-style
+restraint (wordmark, one hairline-bordered panel, a "Back to Deal three"
+link), not a new one-off look. `global-error.tsx` additionally replaces
+the root layout on a layout-level crash, so it needs its own minimal
+`<html><body>` — keep it to plain text plus the same link, no attempt at
+full theming since it must not depend on anything that might itself be
+broken.
+
+### 16.2 — Hard offset shadow regression on `.vote-option--winner`
+
+`app/globals.css:2371,2376`:
+`box-shadow: inset 0 2px 0 var(--vote-metal), 5px 6px 0 var(--vote-metal)`
+— the `5px 6px 0` term is a literal hard offset shadow, the exact
+`.token` signature `FRONTEND_DESIGN_STANDARDS.md`'s Components section
+retired with an explicit reversal note ("turn 8's offset-shadow language
+was explicitly rejected as loud... do not reintroduce an offset shadow as
+the app's signature depth cue"). This survived because the retirement
+swept `.token`-named rules but not every hard-offset value that predates
+it under a different selector — the decided/winner vote card was missed.
+
+**Fix**: drop the `5px 6px 0 var(--vote-metal)` term entirely, keep
+`inset 0 2px 0 var(--vote-metal)` (a hairline top accent, consistent with
+the restraint doctrine) as the winner state's only distinguishing shadow —
+matches how depth is handled everywhere else post-retirement (hairline +
+restraint, not offset).
+
+### 16.3 — Checked clean, no action needed
+
+Recorded so these don't get re-audited from scratch: no `console.log`/
+`TODO`/`FIXME`/lorem-ipsum in `app`/`components`/`lib`; no dead
+`href="#"` links; `lucide-react` is fully removed (zero references,
+confirms §7's earlier fix actually landed — the "unexamined dependency"
+conflict is closed, not open); no fake social-proof strings (the
+`DemoAccountViews.tsx` review fixtures are the same honest-demo-data class
+as everywhere else in this app, not a "10,000+ users" style claim); no
+buzzword copy; no gradient text (`background-clip: text`, zero hits); no
+bento-grid layout on any page checked; `data-group`/category-colour-coding
+stays retired (one comment reference only, no live usage); day/night
+mechanism is alive and under active development, not stripped; spacing on
+every page checked reads dense-but-organized, not over-empty.
+
+**One dead-code note, not itself a violation**: `.sky-glow`
+(`app/globals.css:467-480`, an animated radial glow) has zero consumers
+anywhere in `components/*.tsx` — harmless as dead CSS today, but its name
+alone means if anyone ever wires it up later without checking, it directly
+violates the no-glowing-borders rule. Flagging so it gets deleted next
+dead-code pass rather than resurrected.
+
 ---
 
 ## Verification (for whoever implements this)
