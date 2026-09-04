@@ -80,6 +80,30 @@ as the explicit target scale (thousands, not tens), keep expanding automated
 coverage (unit/integration/concurrency, not just load) as you go, then move to
 venue-link.
 
+### 🎯 Scope, 2026-09-04 — every page and view, not just the front door
+
+Owner: design changes apply to **all pages and endpoints**, not just the
+front door/preview and login. The full route surface, so nothing gets
+skipped by only touching the flashy screens:
+
+- `app/page.tsx` (signed-out front door), `app/home-preview/page.tsx` (demo)
+- `app/home/page.tsx` — the real signed-in shell, and **all five tabs inside
+  it** (Plan, Discover, Been, Friends, Profile via `AccountViews`/
+  `DemoAccountViews`), not just the Plan tab that gets all the attention
+- `app/login/page.tsx`, `app/onboarding/page.tsx`
+- `app/plan/[id]/page.tsx` — **and every state of it**: loading, the
+  `VoteState` variants (captcha/guest-paused/retry/cold-link), the live
+  voting rounds, `DecidedPlan`'s payoff screen
+- `app/privacy/page.tsx`, `app/terms/page.tsx` — legal pages, easy to
+  forget, currently statically prerendered so they carry the build-time
+  theme ground until `ThemeSync` corrects it client-side; worth confirming
+  that handoff doesn't flash
+- `app/place/[id]/page.tsx` — new, from the spec, not built yet
+
+Design: confirm `SPECS.md` actually covers this whole surface, not just
+front-door/photo-wall/place-page. Frontend: this is the actual definition of
+"done," not a stretch goal after the highlight-reel pages.
+
 ### ⏸ Mobile work paused, 2026-09-04
 
 Owner: leave anything mobile-related for now. This includes the blocked
