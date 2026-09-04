@@ -52,6 +52,15 @@ changes). Read literally:
   layout fixes (misalignment, edge-of-screen, overflow) are unaffected — keep
   going on those, they're not color-dependent.
 
+### ✅ Portal transition decided — stays a full page, 2026-09-04
+
+Owner: **keep tile-tap as a full page.** The Intercepting Routes approach
+(the only stable way to get the shared-element transition) is dropped — not
+because it was technically wrong, but because turning tile-tap into a modal
+overlay is a real navigation-UX change the owner doesn't want. §14's other two
+motion picks (particle-reconstruction on the decided-plan reveal, the hero
+depth drift) are unaffected and proceed as specced.
+
 ### 🎨 Typography + motion feedback, 2026-09-04
 
 Owner: **too much bold text — tone it down.** Sweep for over-use of bold
