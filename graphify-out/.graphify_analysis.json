@@ -4,7 +4,11 @@
       "app_api_place_import_route",
       "app_api_place_import_route_authenticatedprofile",
       "app_api_place_import_route_get",
+      "app_api_place_import_route_maps_url",
       "app_api_place_import_route_post",
+      "app_api_plans_direct_route",
+      "app_api_plans_direct_route_post",
+      "app_api_plans_direct_route_runtime",
       "app_api_plans_id_command_route",
       "app_api_plans_id_command_route_commands",
       "app_api_plans_id_command_route_patch_fields",
@@ -36,21 +40,19 @@
       "app_auth_actions_requestemailcode",
       "app_auth_actions_savebirthdate",
       "app_auth_actions_signinwithgoogle",
-      "app_auth_actions_signout",
       "app_auth_actions_verifyemailcode",
       "app_auth_callback_route",
       "app_auth_callback_route_get",
-      "app_auth_callback_route_safenextpath",
-      "app_home_page",
-      "app_home_page_app_views",
-      "app_home_page_appview",
-      "app_home_page_homepage",
       "app_login_page",
       "app_login_page_loginpage",
       "app_onboarding_page",
       "app_onboarding_page_onboardingpage",
       "app_page",
       "app_page_indexpage",
+      "app_place_id_page",
+      "app_place_id_page_generatemetadata",
+      "app_place_id_page_getspot",
+      "app_place_id_page_placepage",
       "components_ageform",
       "components_ageform_ageform",
       "components_ageform_submit",
@@ -58,35 +60,30 @@
       "components_authform_authform",
       "components_authform_initial_state",
       "components_authform_submitbutton",
-      "components_placelinkimporter",
-      "components_placelinkimporter_placelinkimporter",
-      "components_placelinkimporter_savedlink",
-      "components_turnstile",
-      "components_turnstile_turnstile",
-      "components_turnstile_window",
+      "components_placedirectplancta_placedirectplancta",
       "lib_age_policy",
       "lib_age_policy_ageondate",
       "lib_age_policy_category_minimum_age",
       "lib_age_policy_memberage",
       "lib_age_policy_min_account_age",
+      "lib_age_policy_minimumageforcategory",
       "lib_age_policy_prohibited_venue_terms",
       "lib_age_policy_prohibitedvenuereason",
       "lib_age_policy_validatebirthdate",
       "lib_age_policy_venueallowedforage",
       "lib_auth",
       "lib_auth_getcurrentuser",
-      "lib_auth_requireuser",
-      "lib_place_import",
-      "lib_place_import_classifyplacelink",
-      "lib_place_import_placecollectionkind",
-      "lib_place_import_placelinkcandidate",
-      "lib_place_import_placelinkprovider",
-      "lib_place_import_tracking_parameters",
+      "lib_auth_safenextpath",
+      "lib_place_import_resolve_resolveplaceimport",
       "lib_security_controls",
+      "lib_security_controls_consumeotplimit",
+      "lib_security_controls_consumeotprequestlimit",
+      "lib_security_controls_consumeotpverifylimit",
       "lib_security_controls_consumequota",
       "lib_security_controls_controlsecret",
       "lib_security_controls_privatesubject",
       "lib_security_controls_recordsecurityevent",
+      "lib_security_controls_requestid",
       "lib_security_request",
       "lib_security_request_equaltext",
       "lib_security_request_plaintext",
@@ -95,153 +92,98 @@
       "lib_security_request_requestvalidationerror",
       "lib_security_request_requestvalidationerror_constructor",
       "lib_security_request_validatemutationrequest",
-      "lib_social_getplannedwith",
-      "lib_social_getprofilevisits",
       "lib_supabase_server",
       "lib_supabase_server_createclient",
+      "tests_auth_test",
       "tests_security_test"
     ],
     "1": [
-      "auth",
-      "auth_users",
-      "supabase_migration_002_lastmile_categories",
-      "supabase_migration_002_lastmile_categories_rsvps",
-      "supabase_migration_003_ratings",
-      "supabase_migration_003_ratings_ratings",
-      "supabase_migration_015_host_plan_commands",
-      "supabase_migration_015_host_plan_commands_execute_plan_command",
-      "supabase_migration_015_host_plan_commands_sql_ranked",
-      "supabase_migration_019_secret_isolation_and_rpc_integrity",
-      "supabase_migration_019_secret_isolation_and_rpc_integrity_cast_plan_vote",
-      "supabase_migration_019_secret_isolation_and_rpc_integrity_execute_plan_command",
-      "supabase_migration_019_secret_isolation_and_rpc_integrity_member_ages",
-      "supabase_migration_019_secret_isolation_and_rpc_integrity_plan_host_tokens",
-      "supabase_migration_019_secret_isolation_and_rpc_integrity_rate_plan",
-      "supabase_migration_019_secret_isolation_and_rpc_integrity_set_birth_date",
-      "supabase_migration_019_secret_isolation_and_rpc_integrity_set_plan_rsvp",
-      "supabase_migration_019_secret_isolation_and_rpc_integrity_sql_auth_users",
-      "supabase_migration_019_secret_isolation_and_rpc_integrity_sql_ranked",
-      "supabase_migration_020_production_security_ensure_authenticated_profile",
-      "supabase_schema",
-      "supabase_schema_cast_plan_vote",
-      "supabase_schema_claim_plan_access",
-      "supabase_schema_clean_app_text",
-      "supabase_schema_consume_app_quota",
-      "supabase_schema_create_secure_plan",
-      "supabase_schema_current_member_age",
-      "supabase_schema_enforce_plan_membership",
-      "supabase_schema_ensure_authenticated_profile",
-      "supabase_schema_ensure_default_place_collections",
-      "supabase_schema_execute_plan_command",
-      "supabase_schema_friendships",
-      "supabase_schema_friendships_mirror_del",
-      "supabase_schema_friendships_mirror_ins",
-      "supabase_schema_is_permanent_user",
-      "supabase_schema_mirror_friendship",
-      "supabase_schema_people",
-      "supabase_schema_people_before_write",
-      "supabase_schema_people_default_place_collections",
-      "supabase_schema_people_default_place_collections_after_insert",
-      "supabase_schema_place_collection_items",
-      "supabase_schema_place_collections",
-      "supabase_schema_place_imports",
-      "supabase_schema_plan_spots",
-      "supabase_schema_plans",
-      "supabase_schema_purge_security_operational_data",
-      "supabase_schema_rate_plan",
-      "supabase_schema_ratings",
-      "supabase_schema_record_security_event",
-      "supabase_schema_rsvps",
-      "supabase_schema_sanitize_participant_text",
-      "supabase_schema_set_birth_date",
-      "supabase_schema_set_plan_rsvp",
-      "supabase_schema_spots",
-      "supabase_schema_trim_companion_name",
-      "supabase_schema_trim_visit_text",
-      "supabase_schema_valid_control_secret",
-      "supabase_schema_visit_collection_items",
-      "supabase_schema_visit_collections",
-      "supabase_schema_visit_companions",
-      "supabase_schema_visit_companions_before_write",
-      "supabase_schema_visit_photos",
-      "supabase_schema_visits",
-      "supabase_schema_visits_before_write",
-      "supabase_schema_votes"
-    ],
-    "2": [
+      "app_plan_id_page",
+      "app_plan_id_page_access",
+      "app_plan_id_page_closeslabel",
+      "app_plan_id_page_load",
+      "app_plan_id_page_roman",
+      "app_plan_id_page_votepage",
+      "components_accountviews_accountviews",
       "components_authprofilebridge",
       "components_authprofilebridge_authprofilebridge",
+      "components_countup",
+      "components_countup_countup",
+      "components_decidedplan",
+      "components_decidedplan_decidedplan",
+      "components_decidedplan_decidedplanprops",
+      "components_decidedplan_prettytime",
+      "components_decidedplan_tolocalinput",
+      "components_namegate",
+      "components_namegate_namegate",
+      "components_namegate_namegateprops",
+      "components_optioncard",
+      "components_optioncard_optioncard",
+      "components_optioncard_optioncardprops",
+      "components_turnstile",
+      "components_turnstile_turnstile",
+      "components_turnstile_window",
+      "components_votestate",
+      "components_votestate_copy",
+      "components_votestate_votestate",
+      "components_votestate_votestatekind",
+      "components_winnerphotoreveal",
+      "components_winnerphotoreveal_easesettle",
+      "components_winnerphotoreveal_getreducedmotion",
+      "components_winnerphotoreveal_getreducedmotionserversnapshot",
+      "components_winnerphotoreveal_particle",
+      "components_winnerphotoreveal_subscribereducedmotion",
+      "components_winnerphotoreveal_winnerphotoreveal",
+      "lib_avatar",
+      "lib_avatar_avatarhue",
+      "lib_avatar_avatarstyle",
+      "lib_avatar_initialsof",
+      "lib_calendar",
+      "lib_calendar_googlecalurl",
+      "lib_calendar_icshref",
+      "lib_calendar_stamp",
+      "lib_calendar_window",
       "lib_device",
+      "lib_device_addbeen",
       "lib_device_avatar_colors",
       "lib_device_avatar_emoji",
       "lib_device_cacheme",
-      "lib_device_clearme",
       "lib_device_deviceprofile",
       "lib_device_getme",
-      "lib_device_newpersonid",
       "lib_device_pick",
       "lib_device_randomavatar",
-      "lib_device_saveme",
-      "lib_social",
-      "lib_social_addfriend",
-      "lib_social_arefriends",
-      "lib_social_companioninput",
-      "lib_social_db",
-      "lib_social_deletevisit",
-      "lib_social_getfriends",
-      "lib_social_getpeople",
+      "lib_directions",
+      "lib_directions_directionsurl",
+      "lib_directions_haversinekm",
+      "lib_participant",
+      "lib_participant_participanttokenhash",
+      "lib_participant_randomtoken",
       "lib_social_getperson",
-      "lib_social_getspotvisitors",
-      "lib_social_gettaggedvisits",
-      "lib_social_getwrappedsummary",
-      "lib_social_logvisit",
-      "lib_social_logvisitinput",
-      "lib_social_normalisecompanions",
-      "lib_social_plannedwith",
-      "lib_social_rawcompanion",
-      "lib_social_rawvisit",
-      "lib_social_readwrappedratings",
-      "lib_social_readwrappedvisits",
-      "lib_social_removefriend",
-      "lib_social_spotvisitor",
-      "lib_social_tocompanionviews",
-      "lib_social_toprofilevisit",
-      "lib_social_untagcompanion",
-      "lib_social_upsertme",
       "lib_supabase",
-      "lib_supabase_client",
-      "lib_supabase_client_createclient",
-      "lib_supabase_config",
-      "lib_supabase_config_getsupabaseconfig",
-      "lib_supabase_proxy",
-      "lib_supabase_proxy_updatesession",
+      "lib_supabase_bootstrapplanaccess",
+      "lib_supabase_planaccessdenial",
+      "lib_supabase_planaccessresult",
       "lib_supabase_supabase",
-      "lib_types_personcard",
-      "lib_types_wrappedsummary",
-      "lib_types_wrappedsummaryresult",
-      "lib_wrapped",
-      "lib_wrapped_aggregatewrappedsummary",
-      "lib_wrapped_comparelabels",
-      "lib_wrapped_dubaimonthwindow",
-      "lib_wrapped_mostcommon",
-      "lib_wrapped_wrappedmonthwindow",
-      "lib_wrapped_wrappedratingrow",
-      "lib_wrapped_wrappedvisitrow",
-      "proxy",
-      "proxy_config",
-      "proxy_proxy",
-      "tests_wrapped_test",
-      "tests_wrapped_test_rating",
-      "tests_wrapped_test_summary",
-      "tests_wrapped_test_visit"
+      "lib_types_plan",
+      "lib_types_planspot",
+      "lib_types_rating",
+      "lib_types_rsvp",
+      "lib_types_vote"
     ],
-    "3": [
+    "2": [
       "components_categorygroups",
       "components_categorygroups_categories",
       "components_categorygroups_category",
       "components_categorygroups_category_groups",
+      "components_categorygroups_categorygroup",
       "components_categorygroups_group_of",
       "components_categorygroups_groupkey",
+      "components_directplanform",
+      "components_directplanform_budgets",
+      "components_directplanform_directplanform",
+      "components_directplanform_directplanspot",
+      "components_directplanform_radii",
+      "components_placedirectplancta",
       "components_startplanform",
       "components_startplanform_budgets",
       "components_startplanform_categorykey",
@@ -250,7 +192,6 @@
       "components_startplanform_savedcustomplace",
       "components_startplanform_smartintent",
       "components_startplanform_startplanform",
-      "lib_age_policy_minimumageforcategory",
       "lib_deal",
       "lib_deal_dealspotsforcategory",
       "lib_deal_dealthreeforcategory",
@@ -258,6 +199,7 @@
       "lib_dubai_areas",
       "lib_dubai_areas_area_centres",
       "lib_dubai_areas_coordinates",
+      "lib_dubai_areas_coordinatesforarea",
       "lib_dubai_areas_distancekm",
       "lib_dubai_areas_dubai_origins",
       "lib_security_csrf_client",
@@ -285,53 +227,198 @@
       "tests_spots_match_test_rngsequence",
       "tests_spots_match_test_spot"
     ],
-    "4": [
-      "eslint",
-      "eslint_config_next",
+    "3": [
+      "clsx",
+      "hooks_use_copy_to_clipboard",
+      "hooks_use_copy_to_clipboard_usecopytoclipboard",
+      "motion",
       "next",
       "openai",
       "package",
       "package_dependencies",
+      "package_dependencies_clsx",
+      "package_dependencies_motion",
       "package_dependencies_next",
       "package_dependencies_openai",
       "package_dependencies_react",
       "package_dependencies_react_dom",
       "package_dependencies_supabase_ssr",
       "package_dependencies_supabase_supabase_js",
+      "package_dependencies_tailwind_merge",
+      "package_name",
+      "package_private",
+      "package_scripts",
+      "package_scripts_build",
+      "package_scripts_check_schema",
+      "package_scripts_dev",
+      "package_scripts_lint",
+      "package_scripts_load",
+      "package_scripts_load_concurrency",
+      "package_scripts_load_mint_voters",
+      "package_scripts_start",
+      "package_scripts_test",
+      "package_scripts_test_db",
+      "package_scripts_test_e2e",
+      "package_scripts_test_security",
+      "package_scripts_test_smoke",
+      "package_scripts_test_smoke_020",
+      "package_scripts_test_wrapped",
+      "package_scripts_typecheck",
+      "package_version",
+      "react",
+      "react_dom",
+      "supabase_ssr",
+      "supabase_supabase_js",
+      "tailwind_merge"
+    ],
+    "4": [
+      "app_home_page",
+      "app_home_page_app_views",
+      "app_home_page_appview",
+      "app_home_page_homepage",
+      "lib_auth_requireuser",
+      "lib_social",
+      "lib_social_addfriend",
+      "lib_social_arefriends",
+      "lib_social_companioninput",
+      "lib_social_db",
+      "lib_social_deletevisit",
+      "lib_social_getfriends",
+      "lib_social_getpeople",
+      "lib_social_getplannedwith",
+      "lib_social_getprofilevisits",
+      "lib_social_getspotvisitors",
+      "lib_social_gettaggedvisits",
+      "lib_social_getvisitcollections",
+      "lib_social_getvisitphotos",
+      "lib_social_getwrappedsummary",
+      "lib_social_logvisit",
+      "lib_social_logvisitinput",
+      "lib_social_normalisecompanions",
+      "lib_social_plannedwith",
+      "lib_social_rawcollection",
+      "lib_social_rawcompanion",
+      "lib_social_readwrappedratings",
+      "lib_social_readwrappedvisits",
+      "lib_social_removefriend",
+      "lib_social_spotvisitor",
+      "lib_social_tocompanionviews",
+      "lib_social_toprofilevisit",
+      "lib_social_untagcompanion",
+      "lib_types_personcard",
+      "lib_wrapped_dubaimonthwindow"
+    ],
+    "5": [
+      "components_kokonutui_action_search_bar",
+      "components_kokonutui_action_search_bar_action",
+      "components_kokonutui_action_search_bar_actionsearchbar",
+      "components_kokonutui_action_search_bar_allactionssample",
+      "components_kokonutui_action_search_bar_animation_variants",
+      "components_kokonutui_action_search_bar_searchresult",
+      "components_kokonutui_card_stack",
+      "components_kokonutui_card_stack_card",
+      "components_kokonutui_card_stack_cardprops",
+      "components_kokonutui_card_stack_cardstackexample",
+      "components_kokonutui_card_stack_cardstackprops",
+      "components_kokonutui_card_stack_deckspot",
+      "components_kokonutui_card_stack_illustrative_deck",
+      "components_kokonutui_card_stack_todeck",
+      "components_placelinkimporter",
+      "components_placelinkimporter_candidate",
+      "components_placelinkimporter_resolvedspot",
+      "components_placelinkimporter_savedlink",
+      "components_ui_input",
+      "components_ui_input_input",
+      "hooks_use_debounce",
+      "hooks_use_debounce_usedebounce",
+      "lib_categories",
+      "lib_categories_categorymeta",
+      "lib_categories_fallback",
+      "lib_categories_meta",
+      "lib_place_import_classify",
+      "lib_place_import_classify_classifyplacelink",
+      "lib_place_import_classify_placecollectionkind",
+      "lib_place_import_classify_placelinkcandidate",
+      "lib_place_import_classify_placelinkprovider",
+      "lib_place_import_classify_tracking_parameters",
+      "lib_place_import_index",
+      "lib_utils",
+      "lib_utils_cn"
+    ],
+    "6": [
+      "lib_place_import_ip_guard",
+      "lib_place_import_ip_guard_incidr",
+      "lib_place_import_ip_guard_iptouint32",
+      "lib_place_import_ip_guard_isprivateaddress",
+      "lib_place_import_ip_guard_isprivateipv4",
+      "lib_place_import_ip_guard_isprivateipv6",
+      "lib_place_import_match",
+      "lib_place_import_match_cluetokens",
+      "lib_place_import_match_matchcandidates",
+      "lib_place_import_match_overlapscore",
+      "lib_place_import_match_stopwords",
+      "lib_place_import_match_tokenize",
+      "lib_place_import_oembed",
+      "lib_place_import_oembed_extractedclues",
+      "lib_place_import_oembed_fetchoembedclues",
+      "lib_place_import_oembed_oembed_hosts",
+      "lib_place_import_oembed_stringfield",
+      "lib_place_import_resolve",
+      "lib_place_import_resolve_resolveoutcome",
+      "lib_place_import_resolve_summarizecandidates",
+      "lib_place_import_resolve_summarizeclues",
+      "lib_place_import_safe_fetch",
+      "lib_place_import_safe_fetch_allowed_content_types",
+      "lib_place_import_safe_fetch_assertpublichost",
+      "lib_place_import_safe_fetch_readcapped",
+      "lib_place_import_safe_fetch_safefetch",
+      "lib_place_import_safe_fetch_safefetcherror",
+      "lib_place_import_web_adapter",
+      "lib_place_import_web_adapter_fetchwebclues",
+      "lib_place_import_web_adapter_metacontent",
+      "lib_types_placeimport",
+      "tests_place_import_ip_guard_test",
+      "tests_place_import_match_test",
+      "tests_place_import_match_test_clues",
+      "tests_place_import_match_test_spot"
+    ],
+    "7": [
+      "autocannon",
+      "eslint",
+      "eslint_config_next",
       "package_devdependencies",
+      "package_devdependencies_autocannon",
       "package_devdependencies_eslint",
       "package_devdependencies_eslint_config_next",
+      "package_devdependencies_playwright_test",
       "package_devdependencies_tailwindcss",
       "package_devdependencies_tailwindcss_postcss",
       "package_devdependencies_types_node",
       "package_devdependencies_types_react",
       "package_devdependencies_types_react_dom",
       "package_devdependencies_typescript",
-      "package_name",
-      "package_private",
-      "package_scripts",
-      "package_scripts_build",
-      "package_scripts_dev",
-      "package_scripts_lint",
-      "package_scripts_start",
-      "package_scripts_test",
-      "package_scripts_test_security",
-      "package_scripts_test_smoke",
-      "package_scripts_test_smoke_020",
-      "package_scripts_test_wrapped",
-      "package_version",
-      "react",
-      "react_dom",
-      "supabase_ssr",
-      "supabase_supabase_js",
+      "playwright_config",
+      "playwright_test",
+      "ref_node",
+      "ref_tsconfig_json",
       "tailwindcss",
       "tailwindcss_postcss",
+      "tests_e2e_guest_vote_spec",
+      "tests_e2e_guest_vote_spec_readvotercount",
+      "tests_e2e_login_redirect_spec",
+      "tests_e2e_tsconfig",
+      "tests_e2e_tsconfig_compileroptions",
+      "tests_e2e_tsconfig_compileroptions_types",
+      "tests_e2e_tsconfig_exclude",
+      "tests_e2e_tsconfig_extends",
+      "tests_e2e_tsconfig_include",
+      "tests_e2e_tsconfig_json_ref_ts",
       "types_node",
       "types_react",
       "types_react_dom",
       "typescript"
     ],
-    "5": [
+    "8": [
       "components_demoaccountviews",
       "components_demoaccountviews_accountview",
       "components_demoaccountviews_city_areas",
@@ -350,6 +437,7 @@
       "components_demoplanningtools_demoplanningtools",
       "components_demoplanningtools_fileasdataurl",
       "components_demoplanningtools_toolview",
+      "components_placelinkimporter_placelinkimporter",
       "lib_planning",
       "lib_planning_localplan",
       "lib_planning_moodboard",
@@ -366,7 +454,7 @@
       "lib_upload_max_image_bytes",
       "lib_upload_validateimagefile"
     ],
-    "6": [
+    "9": [
       "ref_dom",
       "ref_dom_iterable",
       "ref_esnext",
@@ -375,7 +463,8 @@
       "ref_next_env_d_ts",
       "ref_next_types_ts",
       "ref_node_modules",
-      "ref_ts",
+      "ref_playwright_config_ts",
+      "ref_tests_e2e",
       "ref_tsx",
       "tsconfig",
       "tsconfig_compileroptions",
@@ -396,9 +485,43 @@
       "tsconfig_compileroptions_strict",
       "tsconfig_compileroptions_target",
       "tsconfig_exclude",
-      "tsconfig_include"
+      "tsconfig_include",
+      "tsconfig_json_ref_ts"
     ],
-    "7": [
+    "10": [
+      "supabase_schema",
+      "supabase_schema_cast_plan_vote",
+      "supabase_schema_claim_plan_access",
+      "supabase_schema_clean_app_text",
+      "supabase_schema_consume_app_quota",
+      "supabase_schema_consume_otp_limit",
+      "supabase_schema_create_direct_plan",
+      "supabase_schema_create_secure_plan",
+      "supabase_schema_current_member_age",
+      "supabase_schema_enforce_plan_membership",
+      "supabase_schema_ensure_default_place_collections",
+      "supabase_schema_execute_plan_command",
+      "supabase_schema_friendships_mirror_del",
+      "supabase_schema_friendships_mirror_ins",
+      "supabase_schema_is_permanent_user",
+      "supabase_schema_mirror_friendship",
+      "supabase_schema_people_before_write",
+      "supabase_schema_people_default_place_collections",
+      "supabase_schema_people_default_place_collections_after_insert",
+      "supabase_schema_public_rls_auto_enable",
+      "supabase_schema_purge_security_operational_data",
+      "supabase_schema_rate_plan",
+      "supabase_schema_record_security_event",
+      "supabase_schema_sanitize_participant_text",
+      "supabase_schema_set_birth_date",
+      "supabase_schema_set_plan_rsvp",
+      "supabase_schema_trim_companion_name",
+      "supabase_schema_trim_visit_text",
+      "supabase_schema_valid_control_secret",
+      "supabase_schema_visit_companions_before_write",
+      "supabase_schema_visits_before_write"
+    ],
+    "11": [
       "enforce_plan_membership",
       "member_ages",
       "ord",
@@ -406,7 +529,6 @@
       "supabase_migration_020_production_security",
       "supabase_migration_020_production_security_app_control_secrets",
       "supabase_migration_020_production_security_app_rate_limits",
-      "supabase_migration_020_production_security_claim_plan_access",
       "supabase_migration_020_production_security_clean_app_text",
       "supabase_migration_020_production_security_consume_app_quota",
       "supabase_migration_020_production_security_create_secure_plan",
@@ -425,9 +547,69 @@
       "supabase_migration_020_production_security_sql_auth_users",
       "supabase_migration_020_production_security_valid_control_secret",
       "supabase_migration_020_production_security_votes_require_plan_access",
-      "supabase_migration_020_production_security_votes_sanitize_text"
+      "supabase_migration_020_production_security_votes_sanitize_text",
+      "supabase_migration_033_fix_create_secure_plan_category_check",
+      "supabase_migration_033_fix_create_secure_plan_category_check_create_secure_plan",
+      "supabase_migration_033_fix_create_secure_plan_category_check_sql_member_ages"
     ],
-    "8": [
+    "12": [
+      "supabase_migration_002_lastmile_categories",
+      "supabase_migration_002_lastmile_categories_rsvps",
+      "supabase_migration_003_ratings",
+      "supabase_migration_003_ratings_ratings",
+      "supabase_migration_015_host_plan_commands",
+      "supabase_migration_015_host_plan_commands_execute_plan_command",
+      "supabase_migration_015_host_plan_commands_sql_ranked",
+      "supabase_migration_019_secret_isolation_and_rpc_integrity",
+      "supabase_migration_019_secret_isolation_and_rpc_integrity_cast_plan_vote",
+      "supabase_migration_019_secret_isolation_and_rpc_integrity_execute_plan_command",
+      "supabase_migration_019_secret_isolation_and_rpc_integrity_member_ages",
+      "supabase_migration_019_secret_isolation_and_rpc_integrity_plan_host_tokens",
+      "supabase_migration_019_secret_isolation_and_rpc_integrity_rate_plan",
+      "supabase_migration_019_secret_isolation_and_rpc_integrity_set_birth_date",
+      "supabase_migration_019_secret_isolation_and_rpc_integrity_set_plan_rsvp",
+      "supabase_migration_019_secret_isolation_and_rpc_integrity_sql_auth_users",
+      "supabase_migration_019_secret_isolation_and_rpc_integrity_sql_ranked",
+      "supabase_migration_020_production_security_claim_plan_access",
+      "supabase_migration_023_vote_idempotency",
+      "supabase_migration_023_vote_idempotency_cast_plan_vote",
+      "supabase_migration_025_rsvp_rating_upsert_race",
+      "supabase_migration_025_rsvp_rating_upsert_race_rate_plan",
+      "supabase_migration_025_rsvp_rating_upsert_race_set_plan_rsvp",
+      "supabase_schema_plan_spots",
+      "supabase_schema_plans",
+      "supabase_schema_ratings",
+      "supabase_schema_rsvps",
+      "supabase_schema_votes"
+    ],
+    "13": [
+      "tests_rsvp_rating_upsert_race_dbtest",
+      "tests_rsvp_rating_upsert_race_dbtest_authprelude",
+      "tests_rsvp_rating_upsert_race_dbtest_challenger",
+      "tests_rsvp_rating_upsert_race_dbtest_createdecidedplan",
+      "tests_rsvp_rating_upsert_race_dbtest_createopenplan",
+      "tests_rsvp_rating_upsert_race_dbtest_detectskip",
+      "tests_rsvp_rating_upsert_race_dbtest_errormessage",
+      "tests_rsvp_rating_upsert_race_dbtest_execfileasync",
+      "tests_rsvp_rating_upsert_race_dbtest_held",
+      "tests_rsvp_rating_upsert_race_dbtest_madeplans",
+      "tests_rsvp_rating_upsert_race_dbtest_madespots",
+      "tests_rsvp_rating_upsert_race_dbtest_madeusers",
+      "tests_rsvp_rating_upsert_race_dbtest_mintparticipant",
+      "tests_rsvp_rating_upsert_race_dbtest_participant",
+      "tests_rsvp_rating_upsert_race_dbtest_psql",
+      "tests_rsvp_rating_upsert_race_dbtest_q",
+      "tests_rsvp_rating_upsert_race_dbtest_racefirsttimecalls",
+      "tests_rsvp_rating_upsert_race_dbtest_ratecall",
+      "tests_rsvp_rating_upsert_race_dbtest_ratesql",
+      "tests_rsvp_rating_upsert_race_dbtest_ratingrow",
+      "tests_rsvp_rating_upsert_race_dbtest_ratingrowcount",
+      "tests_rsvp_rating_upsert_race_dbtest_rsvpcall",
+      "tests_rsvp_rating_upsert_race_dbtest_rsvprow",
+      "tests_rsvp_rating_upsert_race_dbtest_rsvprowcount",
+      "tests_rsvp_rating_upsert_race_dbtest_rsvpsql"
+    ],
+    "14": [
       "public_demo_al_qudra_morning_activity_cycling",
       "public_demo_al_qudra_morning_demo_asset_role",
       "public_demo_al_qudra_morning_group_signal",
@@ -453,128 +635,149 @@
       "public_demo_padel_night_skyline_motif",
       "public_demo_padel_night_venue_padel_court"
     ],
-    "9": [
-      "auth_setup",
-      "auth_setup_1_apply_the_database_migration",
-      "auth_setup_2_configure_email_one_time_codes",
-      "auth_setup_3_configure_google",
-      "auth_setup_4_allow_application_redirects",
-      "auth_setup_5_environment_variables",
-      "auth_setup_email_otp",
-      "auth_setup_environment_variables",
-      "auth_setup_google_oauth",
-      "auth_setup_migration_007_auth",
-      "auth_setup_no_legacy_identity_claim",
-      "auth_setup_redirect_allowlist",
-      "auth_setup_supabase_auth_setup",
-      "checkpoint_been_collections",
-      "checkpoint_demo_account_views",
-      "checkpoint_information_architecture",
-      "checkpoint_local_first_planning_layer",
-      "checkpoint_planind_wrapped",
-      "product_strategy_memory_loop",
-      "worklog_auth_deferral_scope"
+    "15": [
+      "lib_types_castvoteresult",
+      "tests_vote_idempotency_dbtest",
+      "tests_vote_idempotency_dbtest_authprelude",
+      "tests_vote_idempotency_dbtest_castvote",
+      "tests_vote_idempotency_dbtest_castvotesql",
+      "tests_vote_idempotency_dbtest_createplan",
+      "tests_vote_idempotency_dbtest_detectskip",
+      "tests_vote_idempotency_dbtest_errormessage",
+      "tests_vote_idempotency_dbtest_execfileasync",
+      "tests_vote_idempotency_dbtest_madeplans",
+      "tests_vote_idempotency_dbtest_madespots",
+      "tests_vote_idempotency_dbtest_madeusers",
+      "tests_vote_idempotency_dbtest_mintparticipant",
+      "tests_vote_idempotency_dbtest_participant",
+      "tests_vote_idempotency_dbtest_pickfinalist",
+      "tests_vote_idempotency_dbtest_plan",
+      "tests_vote_idempotency_dbtest_poolyestotal",
+      "tests_vote_idempotency_dbtest_psql",
+      "tests_vote_idempotency_dbtest_q",
+      "tests_vote_idempotency_dbtest_roundrowcount"
     ],
-    "10": [
+    "16": [
+      "app_layout",
+      "app_layout_display",
+      "app_layout_hanken",
+      "app_layout_metadata",
+      "app_layout_rootlayout",
+      "app_layout_viewport",
+      "components_themesync",
+      "components_themesync_themesync",
+      "lib_dubai_phase",
+      "lib_dubai_phase_autoground",
+      "lib_dubai_phase_day_from_hour",
+      "lib_dubai_phase_dubaihour",
+      "lib_dubai_phase_ground",
+      "lib_dubai_phase_groundforhour",
+      "lib_dubai_phase_night_from_hour",
+      "lib_dubai_phase_readpreference",
+      "lib_dubai_phase_resolveground",
+      "lib_dubai_phase_theme_key",
+      "lib_dubai_phase_themepreference"
+    ],
+    "17": [
+      "design_system_build",
+      "design_system_build_cards",
+      "design_system_build_css",
+      "design_system_build_img",
+      "design_system_build_out",
+      "design_system_build_ownerpalettecard",
+      "design_system_build_page",
+      "design_system_build_palette",
+      "design_system_build_paletteblock",
+      "design_system_build_sw",
+      "design_system_build_tile",
+      "design_system_build_tokens",
+      "design_system_build_written",
+      "design_system_tokens",
+      "design_system_tokens_blocks",
+      "design_system_tokens_css",
+      "design_system_tokens_declarations",
+      "design_system_tokens_readtokens",
+      "design_system_tokens_tokencss"
+    ],
+    "18": [
+      "app_auth_actions_signout",
+      "app_home_preview_page",
+      "app_home_preview_page_dynamic",
+      "app_home_preview_page_homepreviewpage",
+      "components_homeexperience",
+      "components_homeexperience_app_views",
+      "components_homeexperience_appview",
+      "components_homeexperience_greetingfor",
+      "components_homeexperience_homeexperience",
+      "components_homeexperience_view_labels",
+      "components_homeexperience_viewfromparam",
+      "components_weightrise",
+      "components_weightrise_weightrise",
+      "lib_device_clearme",
+      "lib_dubai_phase_currentground",
+      "lib_dubai_phase_subscribetoground",
+      "lib_interaction",
+      "lib_interaction_haptic"
+    ],
+    "19": [
+      "components",
+      "components_aliases",
+      "components_aliases_components",
+      "components_aliases_hooks",
+      "components_aliases_lib",
+      "components_aliases_ui",
+      "components_aliases_utils",
+      "components_registries",
+      "components_registries_kokonutui",
+      "components_rsc",
+      "components_schema",
+      "components_style",
+      "components_tailwind",
+      "components_tailwind_basecolor",
+      "components_tailwind_config",
+      "components_tailwind_css",
+      "components_tailwind_cssvariables",
+      "components_tsx"
+    ],
+    "20": [
+      "components_phototile",
+      "components_phototile_phototile",
+      "components_phototile_wallnote",
+      "components_photowall",
+      "components_photowall_column_offsets",
+      "components_photowall_heights",
+      "components_photowall_wallphoto",
+      "components_photowall_wallpin",
+      "components_photowall_wallvisit",
+      "components_visittile",
+      "components_visittile_date_format",
+      "components_visittile_visittile",
+      "lib_place_import_match_matchcandidate",
+      "lib_social_rawvisit",
+      "lib_types_profilevisit",
+      "lib_types_spot",
+      "lib_types_visit"
+    ],
+    "21": [
       "lib_types",
       "lib_types_companionview",
       "lib_types_friendship",
       "lib_types_person",
       "lib_types_placecollection",
       "lib_types_placecollectionitem",
-      "lib_types_placeimport",
       "lib_types_planstage",
       "lib_types_planstatus",
       "lib_types_priceband",
-      "lib_types_profilevisit",
-      "lib_types_rationale_137",
+      "lib_types_rationale_151",
       "lib_types_rationale_63",
       "lib_types_spotsource",
-      "lib_types_spotvisibility",
-      "lib_types_visit",
       "lib_types_visitcollection",
       "lib_types_visitcollectionitem",
       "lib_types_visitcompanion",
-      "lib_types_visitphoto"
+      "lib_types_visitphoto",
+      "lib_types_wrappedsummaryresult"
     ],
-    "11": [
-      "components_accountviews",
-      "components_accountviews_accountview",
-      "components_accountviews_accountviews",
-      "components_accountviews_date_format",
-      "components_accountviews_facestack",
-      "components_accountviews_placecard",
-      "components_accountviews_pricelabel",
-      "components_accountviews_wrappedrecap",
-      "components_categorygroups_categorygroup",
-      "components_countup",
-      "components_countup_countup",
-      "components_optioncard",
-      "components_optioncard_optioncard",
-      "components_optioncard_optioncardprops",
-      "lib_avatar",
-      "lib_avatar_avatarhue",
-      "lib_avatar_avatarstyle",
-      "lib_avatar_initialsof",
-      "lib_types_spot"
-    ],
-    "12": [
-      "agents_nextjs_agent_rules",
-      "checkpoint_budget_distance_inputs",
-      "checkpoint_graphify_targeted_workflow",
-      "checkpoint_luna_smart_search",
-      "checkpoint_multidimensional_taxonomy",
-      "checkpoint_related_category_dealing",
-      "frontend_design_standards_implementation_quality",
-      "place_import_architecture_completion_criteria",
-      "place_import_architecture_confidence_states",
-      "place_import_architecture_no_invented_venues",
-      "product_strategy_anti_patterns",
-      "product_strategy_constraint_aware_three",
-      "product_strategy_delivery_order",
-      "product_strategy_group_fit_score",
-      "product_strategy_revenue_paths",
-      "product_strategy_universal_hangout_model",
-      "worklog_next_agent_start_order"
-    ],
-    "13": [
-      "components_decidedplan",
-      "components_decidedplan_decidedplan",
-      "components_decidedplan_decidedplanprops",
-      "components_decidedplan_prettytime",
-      "components_decidedplan_tolocalinput",
-      "lib_calendar",
-      "lib_calendar_googlecalurl",
-      "lib_calendar_icshref",
-      "lib_calendar_stamp",
-      "lib_calendar_window",
-      "lib_categories",
-      "lib_categories_categorymeta",
-      "lib_categories_fallback",
-      "lib_categories_meta",
-      "lib_types_plan",
-      "lib_types_rating",
-      "lib_types_rsvp"
-    ],
-    "14": [
-      "app_plan_id_page",
-      "app_plan_id_page_access",
-      "app_plan_id_page_closeslabel",
-      "app_plan_id_page_load",
-      "app_plan_id_page_roman",
-      "app_plan_id_page_votepage",
-      "components_namegate",
-      "components_namegate_namegate",
-      "components_namegate_namegateprops",
-      "lib_device_addbeen",
-      "lib_dubai_areas_coordinatesforarea",
-      "lib_participant",
-      "lib_participant_participanttokenhash",
-      "lib_participant_randomtoken",
-      "lib_types_planspot",
-      "lib_types_vote"
-    ],
-    "15": [
+    "22": [
       "next_agent",
       "next_agent_1_hard_rules_do_not_break_these",
       "next_agent_2_verification_run_all_of_these_before_you_say_you_are_done",
@@ -592,7 +795,50 @@
       "next_agent_current_handoff_2026_08_19",
       "next_agent_instructions_for_the_next_agent"
     ],
-    "16": [
+    "23": [
+      "auth",
+      "auth_users",
+      "supabase_migration_020_production_security_ensure_authenticated_profile",
+      "supabase_schema_ensure_authenticated_profile",
+      "supabase_schema_friendships",
+      "supabase_schema_people",
+      "supabase_schema_place_collection_items",
+      "supabase_schema_place_collections",
+      "supabase_schema_place_imports",
+      "supabase_schema_spots",
+      "supabase_schema_visit_collection_items",
+      "supabase_schema_visit_collections",
+      "supabase_schema_visit_companions",
+      "supabase_schema_visit_photos",
+      "supabase_schema_visits"
+    ],
+    "24": [
+      "checkpoint_budget_distance_inputs",
+      "checkpoint_progressive_pools",
+      "checkpoint_related_category_dealing",
+      "checkpoint_rsvp_choices",
+      "product_strategy_decision_protocol",
+      "product_strategy_group_decision_layer",
+      "product_strategy_group_fit_score"
+    ],
+    "25": [
+      "components_accountviews",
+      "components_accountviews_accountview",
+      "components_accountviews_placecard",
+      "components_accountviews_pricelabel",
+      "components_accountviews_wrappedrecap",
+      "components_photowall_photowall",
+      "components_photowall_wallitem",
+      "lib_social_addvisittocollection",
+      "lib_social_createvisitcollection",
+      "lib_social_removevisitfromcollection",
+      "lib_social_uploadvisitphoto",
+      "lib_social_visitcollectionview",
+      "lib_social_visitphotoview",
+      "lib_types_spotvisibility",
+      "lib_types_wrappedsummaryerror"
+    ],
+    "26": [
       "checkpoint",
       "checkpoint_authentication_verification",
       "checkpoint_current_state",
@@ -608,7 +854,23 @@
       "checkpoint_product_and_architecture_map",
       "checkpoint_workflow_for_the_next_feature"
     ],
-    "17": [
+    "27": [
+      "checkpoint_age_policy",
+      "checkpoint_host_command_security",
+      "checkpoint_participant_identity_seam",
+      "checkpoint_participant_write_rpcs",
+      "checkpoint_saved_custom_places",
+      "checkpoint_secure_plan_creation",
+      "checkpoint_security_review_findings",
+      "worklog_host_token_isolation",
+      "worklog_legacy_write_path_removal",
+      "worklog_member_ages_dob_record",
+      "worklog_participant_rpc_integrity",
+      "worklog_plan_creation_rollback",
+      "worklog_rate_limiter_gap",
+      "worklog_security_hardening"
+    ],
+    "28": [
       "place_import_architecture",
       "place_import_architecture_1_intake",
       "place_import_architecture_2_obtain_permitted_source_material",
@@ -624,51 +886,50 @@
       "place_import_architecture_security_and_reliability_rules",
       "place_import_architecture_suggested_next_coding_session"
     ],
-    "18": [
-      "app_home_preview_page",
-      "app_home_preview_page_homepreviewpage",
-      "components_homeexperience",
-      "components_homeexperience_app_views",
-      "components_homeexperience_appview",
-      "components_homeexperience_decision_rows",
-      "components_homeexperience_greetingfor",
-      "components_homeexperience_homeexperience",
-      "components_homeexperience_view_labels",
-      "components_homeexperience_viewfromparam",
-      "lib_interaction",
-      "lib_interaction_haptic",
-      "lib_types_wrappedsummaryerror"
+    "29": [
+      "scripts_load_scale",
+      "scripts_load_scale_apicall",
+      "scripts_load_scale_loadusers",
+      "scripts_load_scale_n",
+      "scripts_load_scale_plancreatescale",
+      "scripts_load_scale_planspotmap",
+      "scripts_load_scale_report",
+      "scripts_load_scale_rpc",
+      "scripts_load_scale_rsvpscale",
+      "scripts_load_scale_runid",
+      "scripts_load_scale_scenarios",
+      "scripts_load_scale_spotdealscale",
+      "scripts_load_scale_votescale"
     ],
-    "19": [
-      "product_strategy",
-      "product_strategy_1_the_group_fit_score",
-      "product_strategy_2_constraint_aware_three_never_an_infinite_feed",
-      "product_strategy_3_a_better_decision_protocol",
-      "product_strategy_4_live_plan_resilience",
-      "product_strategy_5_web_guests_native_regulars",
-      "product_strategy_6_the_memory_loop",
-      "product_strategy_avoid",
-      "product_strategy_core_differentiators",
-      "product_strategy_primary_sources_reviewed",
-      "product_strategy_product_position",
-      "product_strategy_product_strategy_the_group_decision_layer_for_going_out",
-      "product_strategy_revenue_paths_that_preserve_trust"
+    "30": [
+      "auth_setup",
+      "auth_setup_1_apply_the_database_migration",
+      "auth_setup_2_configure_email_one_time_codes",
+      "auth_setup_3_configure_google",
+      "auth_setup_4_allow_application_redirects",
+      "auth_setup_5_environment_variables",
+      "auth_setup_email_otp",
+      "auth_setup_environment_variables",
+      "auth_setup_google_oauth",
+      "auth_setup_redirect_allowlist",
+      "auth_setup_supabase_auth_setup",
+      "worklog_auth_deferral_scope"
     ],
-    "20": [
-      "checkpoint_age_policy",
-      "checkpoint_host_command_security",
-      "checkpoint_progressive_pools",
-      "checkpoint_saved_custom_places",
-      "checkpoint_secure_plan_creation",
-      "checkpoint_security_review_findings",
-      "worklog_host_token_isolation",
-      "worklog_legacy_write_path_removal",
-      "worklog_member_ages_dob_record",
-      "worklog_plan_creation_rollback",
-      "worklog_rate_limiter_gap",
-      "worklog_security_hardening"
+    "31": [
+      "lib_types_wrappedsummary",
+      "lib_wrapped",
+      "lib_wrapped_aggregatewrappedsummary",
+      "lib_wrapped_comparelabels",
+      "lib_wrapped_mostcommon",
+      "lib_wrapped_wrappedmonthwindow",
+      "lib_wrapped_wrappedratingrow",
+      "lib_wrapped_wrappedvisitrow",
+      "tests_wrapped_test",
+      "tests_wrapped_test_rating",
+      "tests_wrapped_test_summary",
+      "tests_wrapped_test_visit"
     ],
-    "21": [
+    "32": [
       "product_strategy_apple_invites",
       "product_strategy_competitive_landscape",
       "product_strategy_coordination_after_the_idea_exists",
@@ -682,20 +943,34 @@
       "product_strategy_scne",
       "product_strategy_simpleisure"
     ],
-    "22": [
-      "checkpoint_verification_without_test_runner",
-      "frontend_design_standards",
-      "frontend_design_standards_components",
-      "frontend_design_standards_frontend_design_standards",
-      "frontend_design_standards_layout",
-      "frontend_design_standards_motion",
-      "frontend_design_standards_typography",
-      "frontend_design_standards_verification",
-      "worklog_migration_runbook",
-      "worklog_schema_sql_end_state",
-      "worklog_smoke_test_guards"
+    "33": [
+      "scripts_load_concurrency",
+      "scripts_load_concurrency_loadvoters",
+      "scripts_load_concurrency_n",
+      "scripts_load_concurrency_readrows",
+      "scripts_load_concurrency_report",
+      "scripts_load_concurrency_rpc",
+      "scripts_load_concurrency_rsvpcollide",
+      "scripts_load_concurrency_rsvpcontend",
+      "scripts_load_concurrency_runid",
+      "scripts_load_concurrency_scenarios",
+      "scripts_load_concurrency_votecontend",
+      "scripts_load_concurrency_voteflap"
     ],
-    "23": [
+    "34": [
+      "app_privacy_page",
+      "app_privacy_page_dynamic",
+      "app_privacy_page_metadata",
+      "app_privacy_page_privacypage",
+      "app_terms_page",
+      "app_terms_page_dynamic",
+      "app_terms_page_metadata",
+      "app_terms_page_termspage",
+      "lib_legal",
+      "lib_legal_getlegalconfig",
+      "lib_legal_legalconfig"
+    ],
+    "35": [
       "_claude_agents_backend_data_backend_data",
       "_claude_agents_qa_test_qa_test",
       "_claude_agents_qa_test_silent_correctness",
@@ -706,7 +981,7 @@
       "_claude_session_handoff_session_handoff",
       "claude_agent_routing"
     ],
-    "24": [
+    "36": [
       "_claude_agents_backend_data_idempotent_spot_seed",
       "_claude_agents_backend_data_schema_four_tables",
       "_claude_agents_frontend_change_your_mind_ui",
@@ -717,7 +992,7 @@
       "_claude_session_handoff_ground_truth",
       "claude_status_open_or_decided"
     ],
-    "25": [
+    "37": [
       "_claude_agents_backend_data_no_service_role_key",
       "_claude_agents_readme_cross_plan_reach",
       "_claude_agents_readme_permissive_rls_tradeoff",
@@ -728,29 +1003,52 @@
       "_claude_agents_security_severity_calibration",
       "claude_invariants"
     ],
-    "26": [
-      "app_privacy_page",
-      "app_privacy_page_metadata",
-      "app_privacy_page_privacypage",
-      "app_terms_page",
-      "app_terms_page_metadata",
-      "app_terms_page_termspage",
-      "lib_legal",
-      "lib_legal_getlegalconfig",
-      "lib_legal_legalconfig"
+    "38": [
+      "auth_setup_migration_007_auth",
+      "auth_setup_no_legacy_identity_claim",
+      "checkpoint_verification_without_test_runner",
+      "worklog_migration_runbook",
+      "worklog_schema_sql_end_state",
+      "worklog_smoke_test_guards"
     ],
-    "27": [
-      "auth_setup_route_behavior",
-      "checkpoint_cross_platform_scope",
-      "checkpoint_participant_identity_seam",
-      "checkpoint_permissive_shared_link_trust",
-      "product_strategy_cross_platform_architecture",
-      "product_strategy_design_requirements_for_both",
-      "product_strategy_native_mobile",
-      "product_strategy_web_guests_native_regulars",
-      "product_strategy_web_pwa"
+    "39": [
+      "agents_nextjs_agent_rules",
+      "checkpoint_graphify_targeted_workflow",
+      "checkpoint_multidimensional_taxonomy",
+      "product_strategy",
+      "product_strategy_avoid",
+      "product_strategy_constraint_aware_three",
+      "product_strategy_delivery_order",
+      "product_strategy_primary_sources_reviewed",
+      "product_strategy_product_position",
+      "product_strategy_product_strategy_the_group_decision_layer_for_going_out",
+      "product_strategy_revenue_paths_that_preserve_trust",
+      "product_strategy_universal_hangout_model",
+      "worklog_next_agent_start_order"
     ],
-    "28": [
+    "40": [
+      "checkpoint_place_link_import_feature",
+      "place_import_architecture_migration_012",
+      "place_import_architecture_product_goal",
+      "place_import_architecture_provider_adapter",
+      "place_import_architecture_resolution_pipeline",
+      "place_import_architecture_screenshot_fallback",
+      "place_import_architecture_source_freshness",
+      "place_import_architecture_ssrf_rules",
+      "product_strategy_live_plan_resilience"
+    ],
+    "41": [
+      "lib_supabase_client",
+      "lib_supabase_client_createclient",
+      "lib_supabase_config",
+      "lib_supabase_config_getsupabaseconfig",
+      "lib_supabase_proxy",
+      "lib_supabase_proxy_updatesession",
+      "proxy",
+      "proxy_config",
+      "proxy_proxy"
+    ],
+    "42": [
       "supabase_migration_005_social",
       "supabase_migration_005_social_friendships",
       "supabase_migration_005_social_friendships_mirror_del",
@@ -761,7 +1059,7 @@
       "supabase_migration_005_social_visit_companions",
       "supabase_migration_005_social_visits"
     ],
-    "29": [
+    "43": [
       "supabase_migration_012_place_link_imports",
       "supabase_migration_012_place_link_imports_ensure_default_place_collections",
       "supabase_migration_012_place_link_imports_people_default_place_collections",
@@ -772,7 +1070,7 @@
       "supabase_migration_012_place_link_imports_sql_people",
       "supabase_migration_012_place_link_imports_sql_people_default_place_collections"
     ],
-    "30": [
+    "44": [
       "_claude_agents_frontend_low_friction_promise",
       "_claude_agents_frontend_mobile_first_a11y",
       "_claude_agents_frontend_share_link_growth_loop",
@@ -782,17 +1080,51 @@
       "claude_plan_ind",
       "readme_create_next_app_boilerplate"
     ],
-    "31": [
+    "45": [
       "agents_frontend_work_gate",
+      "checkpoint_luna_smart_search",
       "checkpoint_luxury_visual_system",
       "checkpoint_night_mode_toggle",
       "checkpoint_no_green_glow_rule",
       "checkpoint_plain_copy_rule",
       "frontend_design_standards_excluded_sections",
       "frontend_design_standards_no_green_glow",
-      "frontend_design_standards_visual_direction"
+      "frontend_design_standards_visual_direction",
+      "place_import_architecture_completion_criteria",
+      "place_import_architecture_confidence_states",
+      "place_import_architecture_no_invented_venues"
     ],
-    "32": [
+    "46": [
+      "auth_setup_route_behavior",
+      "checkpoint_cross_platform_scope",
+      "checkpoint_permissive_shared_link_trust",
+      "product_strategy_cross_platform_architecture",
+      "product_strategy_design_requirements_for_both",
+      "product_strategy_native_mobile",
+      "product_strategy_web_guests_native_regulars",
+      "product_strategy_web_pwa"
+    ],
+    "47": [
+      "scripts_load_mint_local_users",
+      "scripts_load_mint_local_users_admin",
+      "scripts_load_mint_local_users_count",
+      "scripts_load_mint_local_users_mintone",
+      "scripts_load_mint_local_users_out_file",
+      "scripts_load_mint_local_users_sha256hex",
+      "scripts_load_mint_local_users_sleep",
+      "scripts_load_mint_local_users_users"
+    ],
+    "48": [
+      "scripts_load_run",
+      "scripts_load_run_args",
+      "scripts_load_run_connections",
+      "scripts_load_run_duration",
+      "scripts_load_run_flag",
+      "scripts_load_run_pct",
+      "scripts_load_run_scenarios",
+      "scripts_load_run_token"
+    ],
+    "49": [
       "supabase_migration_006_social_hardening",
       "supabase_migration_006_social_hardening_people_before_write",
       "supabase_migration_006_social_hardening_sql_trim_companion_name",
@@ -802,7 +1134,7 @@
       "supabase_migration_006_social_hardening_visit_companions_before_write",
       "supabase_migration_006_social_hardening_visits_before_write"
     ],
-    "33": [
+    "50": [
       "_claude_agents_backend_data_decide_logic",
       "_claude_agents_backend_data_deterministic_tie_break",
       "_claude_agents_qa_test_never_weaken_a_test",
@@ -811,7 +1143,7 @@
       "_claude_agents_readme_exactly_three_options",
       "_claude_agents_readme_one_owner_per_file"
     ],
-    "34": [
+    "51": [
       "_claude_agents_backend_data_schema_discipline",
       "_claude_agents_frontend_dont_imply_unenforced_lock",
       "_claude_agents_frontend_realtime_subscription",
@@ -820,34 +1152,28 @@
       "_claude_agents_readme_schema_drop_on_rerun",
       "_claude_agents_security_realtime_exposure"
     ],
-    "35": [
-      "checkpoint_participant_write_rpcs",
-      "checkpoint_rsvp_choices",
-      "place_import_architecture_source_freshness",
-      "product_strategy_decision_protocol",
-      "product_strategy_group_decision_layer",
-      "product_strategy_live_plan_resilience",
-      "worklog_participant_rpc_integrity"
+    "52": [
+      "frontend_design_standards",
+      "frontend_design_standards_components",
+      "frontend_design_standards_frontend_design_standards",
+      "frontend_design_standards_implementation_quality",
+      "frontend_design_standards_layout",
+      "frontend_design_standards_motion",
+      "frontend_design_standards_typography",
+      "frontend_design_standards_verification",
+      "product_strategy_anti_patterns",
+      "product_strategy_revenue_paths"
     ],
-    "36": [
-      "checkpoint_place_link_import_feature",
-      "place_import_architecture_migration_012",
-      "place_import_architecture_product_goal",
-      "place_import_architecture_provider_adapter",
-      "place_import_architecture_resolution_pipeline",
-      "place_import_architecture_screenshot_fallback",
-      "place_import_architecture_ssrf_rules"
+    "53": [
+      "product_strategy_1_the_group_fit_score",
+      "product_strategy_2_constraint_aware_three_never_an_infinite_feed",
+      "product_strategy_3_a_better_decision_protocol",
+      "product_strategy_4_live_plan_resilience",
+      "product_strategy_5_web_guests_native_regulars",
+      "product_strategy_6_the_memory_loop",
+      "product_strategy_core_differentiators"
     ],
-    "37": [
-      "design_system_build",
-      "design_system_build_cards",
-      "design_system_build_css",
-      "design_system_build_out",
-      "design_system_build_page",
-      "design_system_build_swatch",
-      "design_system_build_written"
-    ],
-    "38": [
+    "54": [
       "public_file_currentcolor_free_grey_token",
       "public_file_file_icon",
       "public_file_scaffold_icon_set",
@@ -856,7 +1182,7 @@
       "public_vercel_vercel_triangle",
       "public_window_window_icon"
     ],
-    "39": [
+    "55": [
       "scripts_smoke_test",
       "scripts_smoke_test_check",
       "scripts_smoke_test_env",
@@ -865,15 +1191,31 @@
       "scripts_smoke_test_rpcrejects",
       "scripts_smoke_test_tablerejects"
     ],
-    "40": [
-      "app_layout",
-      "app_layout_display",
-      "app_layout_hanken",
-      "app_layout_metadata",
-      "app_layout_rootlayout",
-      "app_layout_viewport"
+    "56": [
+      "checkpoint_been_collections",
+      "checkpoint_demo_account_views",
+      "checkpoint_information_architecture",
+      "checkpoint_local_first_planning_layer",
+      "checkpoint_planind_wrapped",
+      "product_strategy_memory_loop"
     ],
-    "41": [
+    "57": [
+      "scripts_check_schema_types",
+      "scripts_check_schema_types_missing",
+      "scripts_check_schema_types_noise",
+      "scripts_check_schema_types_schema",
+      "scripts_check_schema_types_server_only",
+      "scripts_check_schema_types_types"
+    ],
+    "58": [
+      "scripts_load_mint_voters",
+      "scripts_load_mint_voters_count",
+      "scripts_load_mint_voters_mintone",
+      "scripts_load_mint_voters_out_file",
+      "scripts_load_mint_voters_sleep",
+      "scripts_load_mint_voters_voters"
+    ],
+    "59": [
       "security_setup",
       "security_setup_1_apply_the_database_boundary",
       "security_setup_2_configure_supabase_auth",
@@ -881,7 +1223,7 @@
       "security_setup_4_operational_checks",
       "security_setup_production_security_setup"
     ],
-    "42": [
+    "60": [
       "supabase_migration_007_auth",
       "supabase_migration_007_auth_ensure_authenticated_profile",
       "supabase_migration_007_auth_mirror_friendship",
@@ -889,7 +1231,7 @@
       "supabase_migration_007_auth_sql_auth_users",
       "supabase_migration_007_auth_sql_people"
     ],
-    "43": [
+    "61": [
       "supabase_migration_010_recommendations_collections",
       "supabase_migration_010_recommendations_collections_sql_people",
       "supabase_migration_010_recommendations_collections_visit_collection_items",
@@ -897,7 +1239,7 @@
       "supabase_migration_010_recommendations_collections_visit_photos",
       "visits"
     ],
-    "44": [
+    "62": [
       "supabase_migration_018_participant_write_rpcs",
       "supabase_migration_018_participant_write_rpcs_cast_plan_vote",
       "supabase_migration_018_participant_write_rpcs_rate_plan",
@@ -905,202 +1247,326 @@
       "supabase_migration_018_participant_write_rpcs_sql_ratings",
       "supabase_migration_018_participant_write_rpcs_sql_rsvps"
     ],
-    "45": [
+    "63": [
       "_claude_agents_frontend_create_share_vote_decide_flow",
       "_claude_agents_frontend_frontend",
       "_claude_agents_frontend_persisted_voter_name",
       "_claude_agents_qa_test_e2e_two_context_flow",
       "_claude_agents_security_input_handling"
     ],
-    "46": [
+    "64": [
       "_claude_agents_qa_test_no_test_runner",
       "_claude_session_handoff_open_work_items",
       "_claude_session_handoff_supabase_ssr_unused",
       "_serena_project_serena_project_config",
       "claude_repo_state"
     ],
-    "47": [
+    "65": [
+      "scripts_load_seed_local_stack",
+      "scripts_load_seed_local_stack_live",
+      "scripts_load_seed_local_stack_local",
+      "scripts_load_seed_local_stack_plancount",
+      "scripts_load_seed_local_stack_planids"
+    ],
+    "66": [
+      "hooks_use_auto_resize_textarea",
+      "hooks_use_auto_resize_textarea_useautoresizetextarea",
+      "hooks_use_auto_resize_textarea_useautoresizetextareaprops"
+    ],
+    "67": [
+      "mcp",
+      "mcp_command_npx",
+      "mcp_mcp_server_shadcn"
+    ],
+    "68": [
       "next_config",
       "next_config_nextconfig",
       "next_config_securityheaders"
     ],
-    "48": [
+    "69": [
+      "supabase_migration_024_revoke_anon_execute_sec4",
+      "supabase_migration_024_revoke_anon_execute_sec4_set_birth_date",
+      "supabase_migration_024_revoke_anon_execute_sec4_sql_member_ages"
+    ],
+    "70": [
+      "tests_resolve_aliases",
+      "tests_resolve_aliases_resolve",
+      "tests_resolve_aliases_root"
+    ],
+    "71": [
       "_claude_agents_readme_builder_never_audits",
       "_claude_agents_security_no_incentive_to_ship"
     ],
-    "49": [
+    "72": [
       "app_manifest",
       "app_manifest_manifest"
     ],
-    "50": [
+    "73": [
+      "components_tiltcard",
+      "components_tiltcard_tiltcard"
+    ],
+    "74": [
       "eslint_config",
       "eslint_config_eslintconfig"
     ],
-    "51": [
+    "75": [
       "postcss_config",
       "postcss_config_config"
     ],
-    "52": [
+    "76": [
+      "supabase_migration_022_spot_deal_quota_and_guest_realtime",
+      "supabase_migration_022_spot_deal_quota_and_guest_realtime_consume_app_quota"
+    ],
+    "77": [
+      "supabase_migration_026_otp_rate_limit",
+      "supabase_migration_026_otp_rate_limit_consume_otp_limit"
+    ],
+    "78": [
+      "supabase_migration_029_rls_auto_enable_capture",
+      "supabase_migration_029_rls_auto_enable_capture_public_rls_auto_enable"
+    ],
+    "79": [
+      "supabase_migration_030_plan_command_quota",
+      "supabase_migration_030_plan_command_quota_consume_app_quota"
+    ],
+    "80": [
+      "supabase_migration_034_create_direct_plan",
+      "supabase_migration_034_create_direct_plan_create_direct_plan"
+    ],
+    "81": [
+      "supabase_migration_035_rsvp_carpool_fields",
+      "supabase_migration_035_rsvp_carpool_fields_set_plan_rsvp"
+    ],
+    "82": [
       "_claude_agents_frontend_tailwind_v4_theme"
     ],
-    "53": [
+    "83": [
       "people_before_write"
     ],
-    "54": [
+    "84": [
       "supabase_migration_004_swap"
     ],
-    "55": [
+    "85": [
       "supabase_migration_006_social_hardening_sql_people"
     ],
-    "56": [
+    "86": [
       "supabase_migration_008_expanded_dubai_categories"
     ],
-    "57": [
+    "87": [
       "supabase_migration_009_pools_custom_spots"
     ],
-    "58": [
+    "88": [
       "supabase_migration_011_smart_search"
     ],
-    "59": [
+    "89": [
       "supabase_migration_013_age_safe_venues"
     ],
-    "60": [
+    "90": [
       "supabase_migration_014_secure_plan_creation"
     ],
-    "61": [
+    "91": [
       "supabase_migration_016_rsvp_choices"
     ],
-    "62": [
+    "92": [
       "supabase_migration_016_rsvp_choices_sql_rsvps"
     ],
-    "63": [
+    "93": [
       "supabase_migration_017_participant_token_seam"
     ],
-    "64": [
+    "94": [
       "supabase_migration_017_participant_token_seam_sql_ratings"
     ],
-    "65": [
+    "95": [
       "supabase_migration_017_participant_token_seam_sql_rsvps"
     ],
-    "66": [
+    "96": [
       "supabase_migration_020_production_security_sql_people"
     ],
-    "67": [
+    "97": [
       "supabase_migration_021_revoke_anon_execute"
     ],
-    "68": [
+    "98": [
+      "supabase_migration_027_spots_name_index"
+    ],
+    "99": [
+      "supabase_migration_028_friendships_rls_recursion"
+    ],
+    "100": [
+      "supabase_migration_031_schedule_purge_cron"
+    ],
+    "101": [
+      "supabase_migration_032_fix_votes_legacy_index_drop"
+    ],
+    "102": [
       "supabase_schema_sql_auth_users"
     ],
-    "69": [
+    "103": [
       "supabase_schema_sql_mirror_friendship"
     ],
-    "70": [
+    "104": [
       "supabase_schema_sql_people_default_place_collections"
     ],
-    "71": [
+    "105": [
       "supabase_schema_sql_trim_companion_name"
     ],
-    "72": [
+    "106": [
       "supabase_schema_sql_trim_visit_text"
     ],
-    "73": [
+    "107": [
       "supabase_seed"
     ],
-    "74": [
+    "108": [
       "supabase_seed_categories"
     ],
-    "75": [
+    "109": [
+      "supabase_seed_load_test_plan"
+    ],
+    "110": [
       "supabase_seed_multi_round_plan"
+    ],
+    "111": [
+      "tests_register_aliases"
     ]
   },
   "cohesion": {
-    "0": 0.0554524840239126,
-    "1": 0.05384615384615385,
-    "2": 0.051923076923076926,
-    "3": 0.07624113475177305,
-    "4": 0.045454545454545456,
-    "5": 0.08522727272727272,
-    "6": 0.06666666666666667,
-    "7": 0.09401709401709402,
-    "8": 0.10144927536231885,
-    "9": 0.11052631578947368,
-    "10": 0.10526315789473684,
-    "11": 0.18128654970760233,
-    "12": 0.125,
-    "13": 0.21323529411764705,
-    "14": 0.175,
-    "15": 0.125,
-    "16": 0.14285714285714285,
-    "17": 0.14285714285714285,
-    "18": 0.21794871794871795,
-    "19": 0.15384615384615385,
-    "20": 0.2727272727272727,
-    "21": 0.16666666666666666,
-    "22": 0.2545454545454545,
-    "23": 0.3611111111111111,
-    "24": 0.2777777777777778,
-    "25": 0.2222222222222222,
-    "26": 0.3333333333333333,
-    "27": 0.2222222222222222,
-    "28": 0.3611111111111111,
-    "29": 0.3055555555555556,
-    "30": 0.25,
-    "31": 0.2857142857142857,
-    "32": 0.25,
-    "33": 0.3333333333333333,
-    "34": 0.2857142857142857,
-    "35": 0.2857142857142857,
-    "36": 0.42857142857142855,
-    "37": 0.2857142857142857,
-    "38": 0.47619047619047616,
-    "39": 0.2857142857142857,
-    "40": 0.3333333333333333,
-    "41": 0.3333333333333333,
-    "42": 0.3333333333333333,
-    "43": 0.5333333333333333,
-    "44": 0.3333333333333333,
-    "45": 0.4,
-    "46": 0.5,
-    "47": 0.6666666666666666,
-    "48": 1.0,
-    "49": 1.0,
-    "50": 1.0,
-    "51": 1.0,
-    "52": 1.0,
-    "53": 1.0,
-    "54": 1.0,
-    "55": 1.0,
-    "56": 1.0,
-    "57": 1.0,
-    "58": 1.0,
-    "59": 1.0,
-    "60": 1.0,
-    "61": 1.0,
-    "62": 1.0,
-    "63": 1.0,
-    "64": 1.0,
-    "65": 1.0,
-    "66": 1.0,
-    "67": 1.0,
-    "68": 1.0,
-    "69": 1.0,
-    "70": 1.0,
+    "0": 0.06629339305711086,
+    "1": 0.05150905432595573,
+    "2": 0.06734006734006734,
+    "3": 0.047619047619047616,
+    "4": 0.09243697478991597,
+    "5": 0.09243697478991597,
+    "6": 0.12773109243697478,
+    "7": 0.058823529411764705,
+    "8": 0.08199643493761141,
+    "9": 0.0625,
+    "10": 0.07526881720430108,
+    "11": 0.08620689655172414,
+    "12": 0.1111111111111111,
+    "13": 0.14,
+    "14": 0.10144927536231885,
+    "15": 0.1631578947368421,
+    "16": 0.18128654970760233,
+    "17": 0.1286549707602339,
+    "18": 0.16993464052287582,
+    "19": 0.1111111111111111,
+    "20": 0.18382352941176472,
+    "21": 0.11764705882352941,
+    "22": 0.125,
+    "23": 0.20952380952380953,
+    "24": 0.3333333333333333,
+    "25": 0.14285714285714285,
+    "26": 0.14285714285714285,
+    "27": 0.21978021978021978,
+    "28": 0.14285714285714285,
+    "29": 0.32051282051282054,
+    "30": 0.18181818181818182,
+    "31": 0.2727272727272727,
+    "32": 0.16666666666666666,
+    "33": 0.3939393939393939,
+    "34": 0.2545454545454545,
+    "35": 0.3611111111111111,
+    "36": 0.2777777777777778,
+    "37": 0.2222222222222222,
+    "38": 0.4,
+    "39": 0.16666666666666666,
+    "40": 0.3055555555555556,
+    "41": 0.3888888888888889,
+    "42": 0.3611111111111111,
+    "43": 0.3055555555555556,
+    "44": 0.25,
+    "45": 0.18181818181818182,
+    "46": 0.25,
+    "47": 0.2857142857142857,
+    "48": 0.25,
+    "49": 0.25,
+    "50": 0.3333333333333333,
+    "51": 0.2857142857142857,
+    "52": 0.26666666666666666,
+    "53": 0.2857142857142857,
+    "54": 0.47619047619047616,
+    "55": 0.2857142857142857,
+    "56": 0.4,
+    "57": 0.3333333333333333,
+    "58": 0.3333333333333333,
+    "59": 0.3333333333333333,
+    "60": 0.3333333333333333,
+    "61": 0.5333333333333333,
+    "62": 0.3333333333333333,
+    "63": 0.4,
+    "64": 0.5,
+    "65": 0.4,
+    "66": 0.6666666666666666,
+    "67": 0.6666666666666666,
+    "68": 0.6666666666666666,
+    "69": 0.6666666666666666,
+    "70": 0.6666666666666666,
     "71": 1.0,
     "72": 1.0,
     "73": 1.0,
     "74": 1.0,
-    "75": 1.0
+    "75": 1.0,
+    "76": 1.0,
+    "77": 1.0,
+    "78": 1.0,
+    "79": 1.0,
+    "80": 1.0,
+    "81": 1.0,
+    "82": 1.0,
+    "83": 1.0,
+    "84": 1.0,
+    "85": 1.0,
+    "86": 1.0,
+    "87": 1.0,
+    "88": 1.0,
+    "89": 1.0,
+    "90": 1.0,
+    "91": 1.0,
+    "92": 1.0,
+    "93": 1.0,
+    "94": 1.0,
+    "95": 1.0,
+    "96": 1.0,
+    "97": 1.0,
+    "98": 1.0,
+    "99": 1.0,
+    "100": 1.0,
+    "101": 1.0,
+    "102": 1.0,
+    "103": 1.0,
+    "104": 1.0,
+    "105": 1.0,
+    "106": 1.0,
+    "107": 1.0,
+    "108": 1.0,
+    "109": 1.0,
+    "110": 1.0,
+    "111": 1.0
   },
   "gods": [
     {
       "id": "lib_supabase_server_createclient",
       "label": "createClient()",
-      "degree": 26
+      "degree": 29
     },
     {
       "id": "supabase_schema_plans",
       "label": "plans",
-      "degree": 20
+      "degree": 23
+    },
+    {
+      "id": "lib_types_spot",
+      "label": "Spot",
+      "degree": 21
+    },
+    {
+      "id": "lib_security_controls_recordsecurityevent",
+      "label": "recordSecurityEvent()",
+      "degree": 18
+    },
+    {
+      "id": "package_scripts",
+      "label": "scripts",
+      "degree": 17
     },
     {
       "id": "tsconfig_compileroptions",
@@ -1110,37 +1576,22 @@
     {
       "id": "supabase_schema_spots",
       "label": "spots",
-      "degree": 15
-    },
-    {
-      "id": "lib_security_controls_recordsecurityevent",
-      "label": "recordSecurityEvent()",
-      "degree": 14
-    },
-    {
-      "id": "checkpoint_plan_ind_working_checkpoint",
-      "label": "plan-ind Working Checkpoint",
-      "degree": 13
-    },
-    {
-      "id": "product_strategy_competitive_landscape",
-      "label": "Competitive landscape",
-      "degree": 13
-    },
-    {
-      "id": "app_api_smart_search_route_post",
-      "label": "POST()",
-      "degree": 13
+      "degree": 16
     },
     {
       "id": "lib_security_request_validatemutationrequest",
       "label": "validateMutationRequest()",
-      "degree": 13
+      "degree": 15
     },
     {
-      "id": "auth_setup_supabase_auth_setup",
-      "label": "Supabase Auth Setup",
-      "degree": 12
+      "id": "lib_security_request_readjsonbody",
+      "label": "readJsonBody()",
+      "degree": 14
+    },
+    {
+      "id": "app_api_spots_deal_route_post",
+      "label": "POST()",
+      "degree": 14
     }
   ],
   "surprises": [
@@ -1150,6 +1601,17 @@
       "source_files": [
         "FRONTEND_DESIGN_STANDARDS.md",
         "PRODUCT_STRATEGY.md"
+      ],
+      "confidence": "INFERRED",
+      "relation": "semantically_similar_to",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities; semantically similar concepts with no structural link"
+    },
+    {
+      "source": "Constraint-Aware Three, Never a Feed",
+      "target": "Luna Smart Search",
+      "source_files": [
+        "PRODUCT_STRATEGY.md",
+        "CHECKPOINT.md"
       ],
       "confidence": "INFERRED",
       "relation": "semantically_similar_to",
@@ -1187,17 +1649,6 @@
       "confidence": "INFERRED",
       "relation": "semantically_similar_to",
       "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; semantically similar concepts with no structural link"
-    },
-    {
-      "source": "Untouched create-next-app README",
-      "target": "plan-ind (Dubai dinner decider)",
-      "source_files": [
-        "README.md",
-        "CLAUDE.md"
-      ],
-      "confidence": "INFERRED",
-      "relation": "semantically_similar_to",
-      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; semantically similar concepts with no structural link"
     }
   ],
   "questions": [
@@ -1213,28 +1664,28 @@
     },
     {
       "type": "bridge_node",
-      "question": "Why does `createClient()` connect `createClient` to `social.ts`?",
-      "why": "High betweenness centrality (0.016) - this node is a cross-community bridge."
+      "question": "Why does `createClient()` connect `createClient` to `getSupabaseConfig`, `HomeExperience.tsx`, `social.ts`?",
+      "why": "High betweenness centrality (0.013) - this node is a cross-community bridge."
     },
     {
       "type": "bridge_node",
-      "question": "Why does `plans` connect `schema.sql` to `migration-005-social.sql`, `migration-020-production-security.sql`?",
-      "why": "High betweenness centrality (0.006) - this node is a cross-community bridge."
+      "question": "Why does `Spot` connect `Spot` to `plan/[id]/page.tsx`, `social.ts`, `card-stack.tsx`, `resolve.ts`, `HomeExperience.tsx`, `types.ts`, `AccountViews.tsx`?",
+      "why": "High betweenness centrality (0.012) - this node is a cross-community bridge."
     },
     {
       "type": "bridge_node",
-      "question": "Why does `Product Strategy: The Group Decision Layer for Going Out` connect `Product Strategy: The Group Decision Layer for Going Out` to `Cross-Platform Architecture`, `Luna Smart Search`, `Competitive landscape`?",
+      "question": "Why does `Product Strategy: The Group Decision Layer for Going Out` connect `Product Strategy: The Group Decision Layer for Going Out` to `Competitive landscape`, `Core differentiators`, `Cross-Platform Architecture`?",
       "why": "High betweenness centrality (0.006) - this node is a cross-community bridge."
     },
     {
       "type": "isolated_nodes",
-      "question": "What connects `NameGateProps`, `eslintConfig`, `AVATAR_COLORS` to the rest of the system?",
-      "why": "231 weakly-connected nodes found - possible documentation gaps or missing edges."
+      "question": "What connects `eslintConfig`, `AREA_CENTRES`, `PlanLifecycleStage` to the rest of the system?",
+      "why": "326 weakly-connected nodes found - possible documentation gaps or missing edges."
     },
     {
       "type": "low_cohesion",
       "question": "Should `createClient` be split into smaller, more focused modules?",
-      "why": "Cohesion score 0.0554524840239126 - nodes in this community are weakly interconnected."
+      "why": "Cohesion score 0.06629339305711086 - nodes in this community are weakly interconnected."
     }
   ]
 }
