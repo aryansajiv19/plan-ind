@@ -4,6 +4,12 @@ import { getLegalConfig } from "@/lib/legal";
 
 export const metadata: Metadata = { title: "Privacy | Deal three" };
 
+// This page has no dynamic API in its tree, so Next would otherwise
+// prerender it once at build time — baking in whatever hour the build
+// happened to run for autoGround()'s server-side theme stamp, corrected
+// only after the fact by ThemeSync. SPECS.md §9.
+export const dynamic = "force-dynamic";
+
 export default function PrivacyPage() {
   const legal = getLegalConfig();
   return (
