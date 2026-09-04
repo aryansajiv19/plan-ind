@@ -122,6 +122,12 @@ for. Report genuine hits, don't rewrite working UI to chase items that don't
 apply here.
 
 **Added, specific to this app:**
+- **No empty photo frames when there's no photo** (owner, 2026-09-04) — don't
+  render a visible placeholder box for a missing image. Either omit that slot
+  entirely, or fall back to something that reads as designed (a text-only
+  card, a subtle pattern), never a blank/bordered rectangle. Directly relevant
+  to the photo-wall spec's current "NO PHOTO YET" placeholder tiles — those
+  need a real empty-state treatment, not a labeled gap.
 - **No dashes in any app-facing copy** (owner, 2026-09-04, explicit and
   emphasized beyond the list's "em dashes" line) — headings, body text,
   button labels, empty/error/loading states, everything a user reads. Rewrite
