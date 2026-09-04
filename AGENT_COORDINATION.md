@@ -62,7 +62,7 @@ Given as a specific spec to try, not just a mood — verbatim:
 | Surface/Cards | `#1E1E1E` | |
 | Primary accent | `#FF6B4A` | Warm coral-orange — "energetic, reads invite/celebrate" |
 | Secondary accent | `#FFD166` | Gold — ties to Dubai without being literal, **used sparingly** (badges/streaks) |
-| Success/confirm | `#00E0C7` | Teal — RSVP confirmed, active states |
+| Success/confirm | ~~`#00E0C7` teal~~ → **electric violet/purple** (owner, 2026-09-04, exact hex TBD) | RSVP confirmed, active states |
 | Text primary | `#F5F5F5` | |
 | Text secondary/muted | `#A0A0A0` | |
 | Error/urgent | `#FF5C5C` | |
