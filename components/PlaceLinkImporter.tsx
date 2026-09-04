@@ -1,12 +1,34 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
 import { classifyPlaceLink, type PlaceCollectionKind, type PlaceLinkCandidate } from "@/lib/place-import";
 import { secureJsonFetch } from "@/lib/security/csrf-client";
+import { categoryMeta } from "@/lib/categories";
+
+/** GET /api/place-import's resolvedSpot shape — trusted (from our own
+ * curated `spots` table, never the raw scraped page content). */
+interface ResolvedSpot {
+  id: string;
+  name: string;
+  area: string;
+  category: string;
+  photoUrl: string | null;
+}
+
+/** Same trust note: candidate names come from matched spots rows, not
+ * from the untrusted extracted_data this endpoint deliberately omits. */
+interface Candidate {
+  spotId: string;
+  name: string;
+}
 
 interface SavedLink extends PlaceLinkCandidate {
   id: string;
   collection: PlaceCollectionKind;
+  status?: string;
+  resolvedSpot?: ResolvedSpot | null;
+  candidates?: Candidate[] | null;
 }
 
 const STORAGE_KEY = "deal-three:place-links";
@@ -30,7 +52,21 @@ export default function PlaceLinkImporter({ demoMode = false }: { demoMode?: boo
     return () => window.cancelAnimationFrame(frame);
   }, [demoMode]);
 
+  const refetchSaved = useCallback(async () => {
+    if (demoMode) return;
+    try {
+      const response = await fetch("/api/place-import");
+      if (!response.ok) return;
+      const result = await response.json() as { saved?: SavedLink[] };
+      if (Array.isArray(result.saved)) setSaved(result.saved);
+    } catch { /* keep whatever is already shown */ }
+  }, [demoMode]);
+
   useEffect(() => {
+    // Inlined rather than calling refetchSaved (react-hooks/set-state-in-effect
+    // flags a named function reference here, though not this same fetch/.then
+    // chain written inline — see the trap list in components/CLAUDE.md).
+    // refetchSaved itself is for addLink's non-effect call site below.
     if (demoMode) return;
     void fetch("/api/place-import").then(async (response) => {
       if (!response.ok) return;
@@ -59,9 +95,18 @@ export default function PlaceLinkImporter({ demoMode = false }: { demoMode?: boo
       }
       if (!result.candidate) throw new Error(result.error ?? "That link could not be added.");
       const item: SavedLink = { ...result.candidate, id: result.id ?? crypto.randomUUID(), collection: demoMode ? collection : (result.collection ?? collection) };
-      const next = [item, ...saved.filter((entry) => entry.normalizedUrl !== item.normalizedUrl)].slice(0, 8);
-      setSaved(next);
-      if (demoMode) window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      if (demoMode) {
+        const next = [item, ...saved.filter((entry) => entry.normalizedUrl !== item.normalizedUrl)].slice(0, 8);
+        setSaved(next);
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      } else {
+        // The server already resolved this link synchronously before
+        // responding (app/api/place-import/route.ts), but the POST body
+        // doesn't carry the outcome — only GET does. Re-fetch rather than
+        // append a bare candidate that would sit unresolved-looking until
+        // the next page load.
+        await refetchSaved();
+      }
       setUrl("");
       setMessage(`${item.providerLabel} link saved to ${item.collection === "want_to_try" ? "Want to try" : "Planning"}.`);
     } catch (importError) {
@@ -69,6 +114,67 @@ export default function PlaceLinkImporter({ demoMode = false }: { demoMode?: boo
     } finally {
       setLoading(false);
     }
+  }
+
+  function renderResult(item: SavedLink) {
+    const collectionLabel = item.collection === "want_to_try" ? "Want to try" : "Planning";
+    if (item.resolvedSpot) {
+      const cat = categoryMeta(item.resolvedSpot.category);
+      return (
+        <Link href={`/place/${item.resolvedSpot.id}`} className="place-link-importer__result place-link-importer__result--resolved">
+          <span className="place-link-importer__result-cat">{cat.code}</span>
+          <span>
+            <strong>{item.resolvedSpot.name}</strong>
+            <small>{item.resolvedSpot.area} · {collectionLabel}</small>
+          </span>
+        </Link>
+      );
+    }
+    if (item.status === "needs_input" && item.candidates && item.candidates.length > 0) {
+      return (
+        <div className="place-link-importer__result place-link-importer__result--candidates">
+          <span>
+            <strong>Not sure which place</strong>
+            <small>
+              Might be: {item.candidates.map((c, i) => (
+                <span key={c.spotId}>
+                  {i > 0 ? ", " : ""}
+                  <Link href={`/place/${c.spotId}`}>{c.name}</Link>
+                </span>
+              ))}
+            </small>
+          </span>
+        </div>
+      );
+    }
+    if (item.status === "needs_input" || item.status === "failed") {
+      return (
+        <div className="place-link-importer__result place-link-importer__result--failed">
+          <span>
+            <strong>{item.providerLabel}</strong>
+            <small>Couldn&rsquo;t identify the place from this link · {collectionLabel}</small>
+          </span>
+        </div>
+      );
+    }
+    if (item.status === "pending") {
+      return (
+        <div className="place-link-importer__result place-link-importer__result--pending">
+          <span>
+            <strong>{item.providerLabel}</strong>
+            <small>Checking… · {collectionLabel}</small>
+          </span>
+        </div>
+      );
+    }
+    // No status at all: the demo-mode local-only path, which never resolves
+    // anything server-side. Falls back to the original link-only display.
+    return (
+      <a href={item.normalizedUrl} target="_blank" rel="noreferrer" className="place-link-importer__result">
+        <strong>{item.providerLabel}</strong>
+        <span className="place-link-importer__result-label">{collectionLabel}</span>
+      </a>
+    );
   }
 
   return (
@@ -94,7 +200,9 @@ export default function PlaceLinkImporter({ demoMode = false }: { demoMode?: boo
             </button>
           ))}
         </div>
-        {saved.filter((item) => savedFilter === "all" || item.collection === savedFilter).slice(0, 8).map((item) => <a key={item.id} href={item.normalizedUrl} target="_blank" rel="noreferrer"><strong>{item.providerLabel}</strong><span>{item.collection === "want_to_try" ? "Want to try" : "Planning"}</span></a>)}
+        {saved.filter((item) => savedFilter === "all" || item.collection === savedFilter).slice(0, 8).map((item) => (
+          <div key={item.id}>{renderResult(item)}</div>
+        ))}
       </div>}
     </section>
   );

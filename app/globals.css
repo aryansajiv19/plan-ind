@@ -841,7 +841,7 @@ h3 {
   .plan-category-option,
   .demo-board-items > div,
   .demo-friend-row,
-  .place-link-importer__saved a { transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease; }
+  .place-link-importer__result { transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease; }
   .demo-reaction-row button:hover { transform: translateY(-2px) rotate(-1deg); }
   .demo-reaction-row button[aria-pressed="true"] { animation: reaction-pop 260ms ease both; }
 }
@@ -1689,7 +1689,7 @@ h3 {
 .place-link-importer__message,
 .place-link-importer__error { margin-top: 0.65rem; font-size: 0.68rem; }
 .place-link-importer__message { color: var(--home-metal); }
-.place-link-importer__error { color: var(--color-punch); }
+.place-link-importer__error { color: var(--color-error); }
 .place-link-importer__saved > p { margin-bottom: 0.35rem; color: var(--color-muted); font-size: 0.62rem; font-weight: 700; }
 .place-link-importer__saved-head { display: flex; align-items: baseline; justify-content: space-between; gap: .6rem; }
 .place-link-importer__saved-head p { margin-bottom: .35rem; color: var(--color-muted); font-size: .62rem; font-weight: 700; }
@@ -1698,8 +1698,21 @@ h3 {
 .place-link-importer__filters::-webkit-scrollbar { display: none; }
 .place-link-importer__filters button { flex: 0 0 auto; padding: .35rem .5rem; border: 1px solid var(--color-line); background: transparent; color: var(--color-muted); font-size: .58rem; font-weight: 700; cursor: pointer; }
 .place-link-importer__filters button[aria-pressed="true"] { border-color: var(--color-ink); background: var(--color-ink); color: var(--color-card); }
-.place-link-importer__saved a { display: flex; justify-content: space-between; gap: 0.7rem; padding: 0.55rem 0; border-bottom: 1px solid var(--color-line); color: var(--color-ink); font-size: 0.67rem; text-decoration: none; }
-.place-link-importer__saved a span { color: var(--color-muted); }
+.place-link-importer__result {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--color-line);
+  color: var(--color-ink);
+  font-size: 0.67rem;
+  text-decoration: none;
+}
+.place-link-importer__result small { display: block; margin-top: 0.15rem; color: var(--color-muted); }
+.place-link-importer__result-label { color: var(--color-muted); }
+.place-link-importer__result-cat { flex: 0 0 auto; font-weight: 800; color: var(--color-punch-text); }
+.place-link-importer__result--candidates a { color: var(--color-punch-text); text-decoration: underline; text-underline-offset: 0.15rem; }
+.place-link-importer__result--failed { color: var(--color-muted); }
 .place-link-importer input:focus-visible,
 .place-link-importer button:focus-visible { outline: 2px solid var(--color-ink); outline-offset: -2px; }
 /* Inline link: rings outward. An inset ring on a text-height inline box
