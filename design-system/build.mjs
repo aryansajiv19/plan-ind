@@ -148,7 +148,7 @@ const ownerPaletteCard = {
   subtitle: "Coral primary + gold accent (sparing) + teal confirm, one dark identity",
   viewport: { width: 1180, height: 900 }, css: OWNER_PALETTE_CSS,
   body: `<p class="kicker">Approved 2026-09-04 — see design-system/SPECS.md for the full spec</p><h2>Coral · gold · teal, on near-black</h2>
-<p class="note">Background <code>#121212</code>, surface <code>#1E1E1E</code>, text <code>#F5F5F5</code>/<code>#A0A0A0</code>, primary coral <code>#FF6B4A</code>, gold <code>#FFD166</code> used sparingly for badges/streaks, teal <code>#00E0C7</code> for confirm/active. Every value AA-clear (worst case 6.38:1). <b>All four accents take dark ink as fill text, never white</b> — white-on-coral measures 2.58:1, white-on-gold 1.32:1; that exact mistake is already live in the shipped code and the spec is written to not repeat it. <b>One dark identity, no day/night split</b> — the Dubai-clock colour-switching mechanism is retired by owner decision; <code>foundations/colour.html</code> still shows the old sand/teal pair because it reads the live app tokens and Frontend hasn't shipped this yet.</p>
+<p class="note">Background <code>#121212</code>, surface <code>#1E1E1E</code>, text <code>#F5F5F5</code>/<code>#A0A0A0</code>, primary coral <code>#FF6B4A</code>, gold <code>#FFD166</code> used sparingly for badges/streaks, teal <code>#00E0C7</code> for confirm/active — <b>teal is final</b> (a violet swap was tried and reverted; teal stays, constrained to small components/badges/states only, never a large surface or fill). Every value AA-clear (worst case 6.38:1). <b>All four accents take dark ink as fill text, never white</b> — white-on-coral measures 2.58:1, white-on-gold 1.32:1; that exact mistake is already live in the shipped code and the spec is written to not repeat it. <b>One dark identity, no day/night split</b> — the Dubai-clock colour-switching mechanism is retired by owner decision; <code>foundations/colour.html</code> still shows the old sand/teal pair because it reads the live app tokens and Frontend hasn't shipped this yet.</p>
 
 <div class="op-bg">
   <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.75rem">
@@ -165,8 +165,8 @@ const ownerPaletteCard = {
   </div>
 
   <div class="row" style="margin-bottom:1.75rem">
-    <span class="op-confirm">✓ RSVP confirmed — 4 of 6</span>
-    <span class="op-error">2 spots left — closes in 40 min</span>
+    <span class="op-confirm">✓ RSVP confirmed, 4 of 6</span>
+    <span class="op-error">2 spots left, closes in 40 min</span>
   </div>
 
   <div class="row" style="gap:1rem; align-items:stretch">
@@ -250,7 +250,7 @@ const CARDS = [
 <div class="wall">
   <div class="wall__col">${TILE({ photo: IMG(1600, 900), name: "Koko Bay", meta: "Palm Jumeirah · sunset 6:40", note: "Sara + 2 saved", h: 330 })}${TILE({ name: "Kite Beach", meta: "Umm Suqeim · free", vibe: "Cooler after six, always someone playing.", h: 240 })}</div>
   <div class="wall__col" style="margin-top:46px">${TILE({ photo: IMG(900, 1400), name: "The Guild", meta: "DIFC · back room seats six", h: 250 })}<div class="pin"><p class="kicker" style="margin:0 0 .5rem">Settle it</p><p style="font-family:var(--font-display);font-size:1.05rem;font-weight:600;margin:0">Beach first, or dinner first?</p></div></div>
-  <div class="wall__col" style="margin-top:16px">${TILE({ name: "Al Marmoom camp", meta: "45 min out · nobody has been", vibe: "No panorama and no venue set — twelve guest photos, last one in March.", h: 300 })}${TILE({ photo: IMG(1400, 900), name: "Sunset dhow", meta: "Marina · AED 140 each", note: "Everyone saved", live: true, h: 210 })}</div>
+  <div class="wall__col" style="margin-top:16px">${TILE({ name: "Al Marmoom camp", meta: "45 min out · nobody has been", vibe: "No panorama and no venue set. Twelve guest photos, last one in March.", h: 300 })}${TILE({ photo: IMG(1400, 900), name: "Sunset dhow", meta: "Marina · AED 140 each", note: "Everyone saved", live: true, h: 210 })}</div>
   <div class="wall__col" style="margin-top:64px">${TILE({ photo: IMG(1200, 1200), name: "Address rooftop", meta: "JBR · 77th floor", h: 280 })}${TILE({ name: "Al Fahidi walk", meta: "Free · cooler after 6", vibe: "Low buildings, narrow lanes, good at dusk.", h: 230 })}</div>
 </div>`,
   },

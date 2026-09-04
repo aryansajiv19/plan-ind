@@ -1,4 +1,348 @@
-# Wave-1 design specs — T3 → T2
+# Production push spec — 2026-09-04
+
+Authoritative. Supersedes every colour/token value below this section (the
+"Wave-1" specs are archived at the foot of this file — read them for the
+component API details that still hold, e.g. `<VoteState>`'s shape; do not
+read them for colour). Written for Frontend to implement without a
+follow-up question: every item below has an exact selector, exact current
+value, exact replacement value, and a file:line anchor.
+
+Owner's own words on why this exists (`AGENT_COORDINATION.md`): *"i dont
+like the navy blue gold theme if we switch to more fun colors but the goal
+is to keep the app looking modern sleek luxurious as well."* Root-caused
+(not guessed) via a full read-only audit — one Explore agent, 109K tokens,
+51 tool calls — before writing anything below. Rendered against real UI
+before presenting; see `design-system/dist/foundations/colour-next.html`.
+
+---
+
+## 1 — Colour: the full respec
+
+**One dark identity. No day/night split.** The Dubai-clock colour-switching
+mechanism is retired by explicit owner decision (asked directly, not
+assumed — see §2). The palette below applies unconditionally; there is no
+theme to branch on.
+
+### Tokens
+
+| Role | Value | Measured | Notes |
+|---|---|---|---|
+| `--color-paper` (ground) | `#121212` | — | Near-black, not pure black |
+| `--color-card` (surface) | `#1E1E1E` | — | Cards, nav, inputs — everything that isn't ground or accent |
+| `--color-ink` (text primary) | `#F5F5F5` | 17.18:1 on ground, 15.29:1 on surface | |
+| `--color-muted` (text secondary) | `#A0A0A0` | 7.16:1 on ground, 6.38:1 on surface | the one the owner flagged to verify — clears AA with room |
+| `--color-punch` (primary/outcome accent) | `#FF6B4A` coral | 6.65:1 on ground as text | Primary CTAs only — "Create event", "RSVP", "Lock it in" |
+| **NEW** `--color-accent-premium` (sparing accent) | `#FFD166` gold | 12.99:1 on ground as text | Badges, streaks, premium markers **only** — not buttons, not body text, not anything that appears more than once or twice on a screen |
+| `--color-live` (confirm/active) | `#00E0C7` teal | 11.14:1 on ground as text | RSVP confirmed, active/live states. **Churned and settled**: a violet swap (`#B975FF`) was tried, rendered against real UI, and checked against the anti-vibecoded list's "purple and black" warning — it read as coral-led with violet as one small restrained accent, not the trope. The owner reversed it anyway on a separate pass; teal is the final answer. **New constraint that came with the final decision: teal is small-components-only — badges, pills, status text — never a large surface or a component fill.** That's stricter than the original "confirm/active" framing and should be read as binding; don't put teal on anything sized like a button or a card. |
+| **NEW** `--color-error` (error/urgent) | `#FF5C5C` | 6.19:1 on ground as text | First error/urgent semantic this app has had as a named token — repoint the shadcn-bridge `--destructive` (`app/globals.css:127-131`) to this instead of its current `#9a3412`/`#f0a08a` pair |
+
+**Fill contrast — the rule that prevents the bug already in the codebase**:
+every accent above is light-to-mid tone. As a **fill** (button background,
+filled badge), the text on it is **always `#121212` (dark ink), never
+white/`#F5F5F5`**. Measured: white-on-coral 2.58:1 (fails AA), white-on-gold
+1.32:1 (fails badly), dark-ink-on-coral 6.65:1, dark-ink-on-gold 12.99:1.
+This is the exact shape of the bug at finding §3 below — do not reintroduce
+it with the new palette.
+
+### The colour system now has four jobs, not two
+
+Update the "colour has exactly N jobs" doctrine (`FRONTEND_DESIGN_STANDARDS.md`,
+the skill file) to:
+
+| Job | Token | Where |
+|---|---|---|
+| The outcome / primary action | `--color-punch` (coral) | primary CTAs, the winner treatment |
+| You, and now / confirm / active | `--color-live` (teal) | RSVP confirmed, live/active states, round dots |
+| Premium marker, used sparingly | `--color-accent-premium` (gold) | badges, streaks — **never** a button, never body text, never more than one or two instances per screen |
+| Error / urgent | `--color-error` | validation errors, closing-soon warnings |
+
+Category/group colour stays retired — nothing above reopens it.
+
+### Legacy alias tokens
+
+`--color-grape`, `--color-zest`, `--color-mint` currently alias to the old
+teal (`app/globals.css` `@theme` block and the `[data-theme="night"]`
+block, per §2). Repoint all three to `--color-punch` (coral) so the ~19
+`text-grape`/`bg-punch`/`bg-zest`/`text-mint` utility-class usages already
+in components inherit correctly with zero component edits — same mechanism
+that made the teal migration mostly automatic.
+
+---
+
+## 2 — Retire day/night *colour*, keep the Dubai-clock *primitive*
+
+**Revised from the first pass of this spec** — two signals needed
+reconciling, not one blindly overriding the other. When I asked the owner
+directly whether their palette replaces day/night or is just the night
+half, they picked "drop day/night entirely" (recommended, for the luxury
+feel). Separately, the owner's anti-vibecoded checklist
+(`PRODUCTION_CHECKLISTS.md`) warns against stripping the Dubai-clock
+mechanism as a reflexive "kill dark mode" move, because it's *"real
+product logic... changes with when people are actually planning
+'tonight'"* — a temporal/copy concern, not a colour one. Those aren't
+actually in conflict once separated: the **colour application** is
+resolved (drop it, asked and answered specifically); the **time-of-day
+primitive** the checklist is protecting might still have a future
+non-colour use (e.g. "tonight" vs. "tomorrow" framing) that my original
+narrower question never asked about. Don't guess on that part — keep the
+cheap thing, delete the confirmed-dead thing:
+
+```
+grep -rln "dubai-phase" --include="*.tsx" --include="*.ts" .
+  -> app/layout.tsx, components/HomeExperience.tsx, components/ThemeSync.tsx
+grep -rln "ThemeSync" --include="*.tsx" --include="*.ts" .
+  -> app/layout.tsx, components/HomeExperience.tsx, lib/dubai-phase.ts
+```
+
+- **Keep** `lib/dubai-phase.ts`'s `dubaiHour()` — the raw "what hour is it
+  in Dubai right now" primitive. Zero cost to retain, and it's the one
+  piece with plausible future non-colour value the checklist is actually
+  worried about losing.
+- **Delete** the colour-specific wrapper around it — `groundForHour`,
+  `autoGround`, `resolveGround`, `THEME_KEY`, `readPreference`, the
+  `Ground`/`ThemePreference` types — and **delete**
+  `components/ThemeSync.tsx` entirely. Both exist only to apply a day/night
+  *ground*, and that concept is retired (confirmed zero other consumers of
+  either file beyond each other and the two call sites below).
+- **`app/layout.tsx`**: remove the `autoGround()` call, the
+  `data-theme={ground}` attribute on `<html>`, and the
+  `<ThemeSync serverGround={ground} />` mount.
+- **`components/HomeExperience.tsx`**: remove the `nightMode` state
+  (`useSyncExternalStore(subscribeToGround, currentGround, ...)`), the
+  `toggleNightMode` handler, and the Day/Night toggle button in the nav
+  (`.home-theme-toggle`). One less nav control also helps the §4 nav-overflow fix.
+- **`app/globals.css`**: delete every `[data-theme="night"] .home-experience { ... }`
+  / `[data-theme="night"] .vote-experience { ... }` block (46 selectors were
+  counted pre-migration; re-verify the current count before deleting — grep
+  `\[data-theme="night"\]`). The single palette in §1 becomes the unconditional
+  `@theme` block; there is no override block to write.
+- **`app/manifest.ts:17-18`**: single `theme_color`/`background_color` —
+  `#121212` for both (was `#f3f1ec`, stale even under the old system).
+- If a future feature wants "tonight" framing (copy, default plan timing,
+  a "still time for a plan" nudge), it reaches for `dubaiHour()` directly —
+  that's a product decision for whoever builds it, not something to
+  pre-build here.
+
+---
+
+## 3 — Structural bug-fix spec
+
+Each item: selector, current value, replacement, file:line. All in
+`app/globals.css` unless noted. Fixes the owner's literal words —
+"components misaligned", "elements at the edge of the screen" — with
+evidence, not a guess.
+
+### 3.1 — Six container widths → one rail system
+
+Current: `.home-nav` (`100vw` calc, `:673`), `.home-hero`/`.demo-view`/
+`.home-wall-section`/`.home-footer` (`min(100% - 2rem, 76rem)`),
+`.home-appbar` (`100% - 3rem`, `:2990`), `.home-plan-section`/`.home-library`
+(`68rem`, not `76rem`, `:1377`/`:2086`).
+
+**Fix**: standardise every one of these on `min(100% - 2rem, 76rem)`. Change
+`.home-appbar` from `3rem` to `2rem`; change `.home-plan-section` and
+`.home-library` from `68rem` to `76rem`. One rail, one number, everywhere.
+
+### 3.2 — `100vw` vs `100%` in the nav
+
+`app/globals.css:673` — `.home-nav` centres with
+`padding-inline: max(1rem, calc((100vw - 76rem) / 2))`. Every sibling uses
+`min(100% - 2rem, 76rem)` (`%`, not `vw`) — `100vw` includes the scrollbar,
+`100%` doesn't, so the nav sits ~7–8px off from everything below it on any
+desktop with a classic scrollbar.
+
+**Fix**: replace the padding-inline calc with the same `min(100% - 2rem, 76rem)`
+pattern as every sibling, applied as `margin-inline: auto` on a fixed-width
+inner element rather than asymmetric padding on the full-width nav — matches
+how `.home-hero` etc. already centre themselves.
+
+### 3.3 — `overflow: hidden` breaks sticky and hides overflow silently
+
+`app/globals.css:615` — `.home-experience { overflow: hidden }`. This makes
+`.home-experience` the scroll container for its sticky descendants, so
+neither `.home-nav` (`position: sticky; top: 0`, `:678-679`) nor
+`.home-plan-section__intro` (`position: sticky; top: 3rem`, `:1386`) ever
+actually sticks. It also means any element that overflows its box (§3.4,
+§3.5) is silently clipped instead of visibly scrolling or wrapping — the
+reason those bugs read as "elements vanish at the edge" rather than an
+obvious layout break.
+
+**Fix**: remove `overflow: hidden` from `.home-experience`. If it was there
+to clip the dead decorative artwork (§4 — `.home-orb`, `.home-decision-orbit`,
+etc.), that artwork is being deleted anyway, so the clip has no remaining
+job. Re-test after removal that nothing else relied on it (there is no other
+known reason for it, but confirm before deleting — see Verification).
+
+### 3.4 — `.home-system` panel bleeds off the right edge
+
+Root cause, confirmed by direct measurement: `components/HomeExperience.tsx:310`
+wraps the "Tonight in Dubai" panel in `<TiltCard className="home-system">`.
+`TiltCard` (`components/TiltCard.tsx`) sets a Motion-driven inline
+`style={{ rotateX, rotateY, transformStyle }}` on the same element that
+carries the CSS class rule `transform: translate(-50%, -50%)`
+(`app/globals.css:1053`), which centres the panel inside `.home-stage`. An
+inline `style` attribute wins over a class rule for the same CSS property —
+the centring translate is never applied. Measured: the panel's left edge
+lands exactly on `.home-stage`'s centre point (where un-translated
+`left: 50%` alone puts it), and its right edge sits ~110px past a 1440px
+viewport.
+
+**Fix**: per Frontend's own proposed patch (in their `AGENT_COORDINATION.md`
+block) — `TiltCard` gains an opt-in `centered` prop that folds the
+`translate(-50%, -50%)` into Motion's `transformTemplate` so it composes
+with the rotation instead of being overwritten. Since §5/§6 rebuild this
+region of the home page anyway, whoever writes the new markup should either
+wire `<TiltCard centered>` at whatever replaces this call site, or — if the
+rebuilt panel no longer needs absolute-centre positioning (a normal
+in-flow panel doesn't) — drop the `transform: translate(-50%,-50%)` CSS
+rule entirely rather than reach for the prop. Prefer the second: simpler,
+one less thing to get wrong later.
+
+### 3.5 — Nav overflows between ~521px and ~701px
+
+Five tabs at `min-width: 4.8rem` (`:735`) + gaps (384px + 4×0.35rem) + logo
+(44px) + right-side cluster (~219px) + 2rem padding ≈ 701px minimum, in a
+`display: flex` row with no wrap. The `≤520px` breakpoint (`:2796-2805`)
+moves tabs to a bottom bar too late to cover this range; combined with §3.3,
+the avatar/sign-in control is silently clipped off the right edge at common
+tablet/small-laptop widths.
+
+**Fix**: raise the bottom-bar breakpoint from `≤520px` to `≤700px` — cheapest
+correct fix given the numbers above, one value changed in one place. (Removing
+the day/night toggle per §2 also frees ~50px in `.home-nav__right`, which
+narrows the affected range but does not close it — do both.)
+
+### 3.6 — Two duplicate `@media (max-width: 520px)` blocks
+
+`app/globals.css:2789` and `:3029` both target `520px`; the later one wins,
+so `.home-plan-section` (`:2856`) and `.demo-view` (`:2868`) declarations in
+the **earlier** block are dead — anyone editing the first block sees no
+effect. **Fix**: merge into one block (keep the later one's values, since
+those are the ones actually rendering); delete the earlier block's now-empty
+selectors.
+
+### 3.7 — `.home-system` never themes, fails contrast by design
+
+`app/globals.css:1042-1182` — hardcoded `background: #111318`, `color: white`,
+a *night*-teal-hardcoded border regardless of ground, ~15 more
+`rgba(255,255,255,…)` literals, and two measured AA failures inside it:
+`.home-system-row--active` text `#15161a` on the (formerly theme-reactive)
+accent = 2.71:1; `.home-system-row__number` accent-on-panel = 2.79:1.
+
+**Fix**: this entire panel is being rebuilt in §5/§6 anyway (the deck panel
+reuses `components/kokonutui/card-stack.tsx` instead). If any part of its
+current markup survives the rebuild, re-theme it onto the §1 tokens — no
+hardcoded hex anywhere in it — rather than porting the literals forward.
+
+### 3.8 — The white 0.55-alpha chip
+
+`app/globals.css:1547` — `.plan-category-option, .plan-deadline { background:
+rgba(255, 255, 255, 0.55) }`. A semi-opaque white card on the near-black §1
+ground is a stark white slab — the single highest-impact "wrong colour" the
+audit found.
+
+**Fix**: `background: var(--color-card)` (i.e. `#1E1E1E`), matching every
+other card surface in the new system. Selected/active state (if this rule
+also serves that) should use `color-mix(in srgb, var(--color-punch) 12%,
+var(--color-card))` or similar, not opacity-over-white.
+
+### 3.9 — Four hardcoded `text-white` on accent fills
+
+`app/plan/[id]/page.tsx:768,781`, `components/NameGate.tsx:47`,
+`components/DecidedPlan.tsx:220` — all `bg-punch`/`bg-grape` (→ coral once §1
+lands) paired with hardcoded `text-white`. Per §1's fill-contrast rule,
+white on coral is 2.58:1 — fails AA outright, was already failing at 2.35:1
+under the old teal-at-night value.
+
+**Fix**: replace `text-white` with a class that resolves to dark ink on
+these — either a new small utility (`text-ink-on-accent { color: #121212 }`)
+or point these four at the existing `.vote-primary-action`/`.plan-submit`
+component classes, which already carry the correct fill+ink pair via
+`--primary-fill`/`--primary-ink` (also being simplified by §1/§2 — this pair
+collapses to a single non-themed value now that there's no day/night split).
+
+---
+
+## 4 — Dead code: confirmed zero-reference, safe to delete as a checklist
+
+Re-verify each is still zero-reference immediately before deleting (cheap,
+and confirms nothing changed since the audit) — this is a checklist Frontend
+can execute directly, not a "please double-check" ask.
+
+**`app/globals.css`**, ~330 lines, zero `.tsx` references: `.home-noise`,
+`.home-orb`/`--one`/`--two`, `.home-stage__glow`, `.home-decision-orbit`,
+`.home-orbit-copy`, `.home-orbit-core`(`__number`/`__label`),
+`.home-float-card` family, `.home-scribble`, `.home-proof`, `.home-ticker`
+(`__track`), `.home-stats`, `.home-stage-index`, `.home-stage-note`, plus
+their `@media` overrides.
+
+**Two files, fully dead**: `components/ui/input.tsx` (unused shadcn
+component). **Not** `components/kokonutui/action-search-bar.tsx` or
+`components/kokonutui/card-stack.tsx` — unused today, but §5 wires both in;
+do not delete.
+
+**`lib/dubai-phase.ts`, `components/ThemeSync.tsx`** — see §2, deleted as
+part of the colour-mechanism removal, not this general sweep (called out
+there because the reasoning is specific, not because it's a separate task).
+
+---
+
+## 5 — Home rebuild remainder (10a)
+
+Structural work, sequenced after §1-§4 fix what's actively broken.
+
+- **Sticky header**: wordmark, search field (wire in
+  `components/kokonutui/action-search-bar.tsx` — already built, already
+  re-tokenised, currently unused), presence indicator, avatar. `20px 40px`
+  padding, `background: rgba(18,18,18,.86)` + `backdrop-filter: blur(14px)`,
+  1px bottom hairline in `--color-card`. This becomes the sticky element
+  that actually sticks once §3.3 lands.
+  **Before wiring it in**: strip `lucide-react` out of it first (see §7 —
+  the owner's anti-vibecoded list explicitly flags Lucide icons, and this
+  is currently the only consumer of the dependency in the whole repo). Its
+  seven action-item icons become text-only rows; its example actions are
+  generic registry-template content (flight booking, analytics, video call)
+  that doesn't belong in this product — replace with plan-ind-relevant
+  examples ("Search a place, a night, or a person" per the original 10a
+  spec) rather than porting the placeholders forward.
+- **Deck panel**: wire in `components/kokonutui/card-stack.tsx` (already
+  built, already re-tokenised, currently unused) as "the deck" — nine places
+  across three rounds, matching the product's real mechanic. Replaces the
+  `.home-system` illustration entirely rather than re-theming it in place.
+- **Hero row**: `minmax(0,1fr) 340px` grid, gap `34px`; left is the current
+  plan card, right rail is the deck panel above plus a live list and streak
+  note (the streak note is exactly where §1's gold accent belongs — "4-week
+  streak", used once).
+- Real data where it exists, honest empty states where it doesn't — the
+  handoff's original rule, unchanged by the colour reset.
+
+## 6 — Place page (12a)
+
+Still nothing at `app/place/[id]/page.tsx` — no venue detail page exists.
+Spec (grid, four-source photo priority, no-tour state, "shot by your
+friends" rail) carries over unchanged from the original Claude Design
+handoff research; only the colour tokens change to §1. Full detail in the
+archived Wave-1/handoff section below (radii, spacing, breakpoints) — reread
+those numbers against §1's tokens, not the retired sand/teal ones.
+
+---
+
+## Verification (for whoever implements this)
+
+- Re-run every grep in this document immediately before acting on it —
+  `dubai-phase`/`ThemeSync` consumers (§2), the `[data-theme="night"]` count
+  (§2), the dead-code zero-reference claims (§4) — audits go stale.
+- Contrast-check every accent-on-fill pairing with `getComputedStyle` in a
+  real browser after implementing, not just against the values in this doc.
+- Confirm `overflow: hidden`'s removal (§3.3) doesn't unclip something
+  unexpected — visually sweep `/`, `/home`, `/plan/[id]` at 375/768/1280/1440
+  before and after.
+- `npm run lint && npm run typecheck && npm test && npm run build` green.
+
+---
+
+# Historical: Wave-1 specs (superseded — colour/token values below are retired)
+
 
 Authoritative handoff for the Frontend lane. Owner-approved 2026-09-01. Covers
 FE.1 (front door), FE.2 (signature `.token`), FE.5 (After Dark on the payoff),
