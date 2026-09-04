@@ -1,4 +1,4 @@
-import { prohibitedVenueReason } from "./age-policy";
+import { prohibitedVenueReason } from "../age-policy";
 
 export type PlaceLinkProvider = "instagram" | "tiktok" | "facebook" | "reddit" | "youtube" | "web";
 export type PlaceCollectionKind = "want_to_try" | "planning";

@@ -690,3 +690,85 @@ unmeasured.
 **030, 031, 032 are staged only** — none applied to the live project.
 @T0 — same shape as 025–029: ready for the owner to review and apply, ideally
 032 first given it's a correctness bug already live, not just hardening.
+
+## Venue-link enrichment — steps 2–6 of the pipeline, buildable-now slice — 2026-09-04
+
+Owner-named top priority (per `AGENT_COORDINATION.md`'s priority reset).
+`PLACE_IMPORT_ARCHITECTURE.md` (2026-08-07) already speced the 7-step
+pipeline; step 1 (intake/persistence) turned out to already be built despite
+the doc's stale claim otherwise — `app/api/place-import/route.ts` already
+wrote real `place_imports`/`place_collections`/`place_collection_items` rows.
+What was actually missing: nothing ever fetched the source, extracted clues,
+matched against the catalog, or moved a row past `status: 'pending'`. Built
+that — no schema change needed, migration 012's columns already supported it.
+
+**New: `lib/place-import/`** (was a single file, now a directory):
+- `safe-fetch.ts` + `ip-guard.ts` — the SSRF-hardened fetch primitive. DNS-
+  resolves before connecting, rejects private/loopback/link-local/cloud-
+  metadata/CGNAT/multicast/reserved ranges (both IPv4 and IPv6, including
+  unwrapped `::ffff:`-mapped addresses), re-validates every redirect hop the
+  same way (max 2), 5s timeout, 512KB streamed-and-capped response,
+  content-type allowlist. `ip-guard.ts` is deliberately dependency-free (no
+  `server-only`) so its pure logic is directly unit-testable.
+- `oembed.ts` — TikTok/YouTube/Reddit adapters against each provider's fixed,
+  public, unauthenticated oEmbed host. Instagram/Facebook go straight to
+  `needs_input` — their oEmbed/Graph APIs have required an approved app +
+  access token since ~2018–2020 and no credentials for either exist in this
+  project; honest, not silently broken.
+- `web-adapter.ts` — generic OG-tag extraction for arbitrary "web" links,
+  through the same `safe-fetch.ts` hardening. This is a deliberate, reviewed
+  exception to the architecture doc's "never fetch an arbitrary URL" line —
+  the doc's security section now says so explicitly, so it stops
+  contradicting the code.
+- `match.ts` — catalog-only candidate matching (token overlap against
+  `spots where source = 'curated'`, ~100 rows, no AI, no new Postgres
+  extension — `pg_trgm` isn't installed and isn't needed at this size).
+- `resolve.ts` — orchestrates the above into `resolved` / `needs_input`
+  (ambiguous-with-candidates, or no-clues/no-match/fetch-failed/unsupported)
+  / `failed`. Runs **synchronously** inside `POST /api/place-import`,
+  deliberately — no background-job infra exists in this app yet and every
+  call is bounded (5s/512KB), so the upgrade path is "move behind a job once
+  that's a real complaint," not before.
+- `route.ts` also fixed: was an `upsert` that reset `status` to `'pending'`
+  on every re-save of an already-resolved link (forcing a pointless re-fetch
+  every time someone added the same place to a second collection) — now
+  fetch-then-insert, with a `23505` fallback for the two-concurrent-first-
+  saves race (re-selects the winner's row instead of surfacing a spurious
+  error). GET now returns the resolved spot's real name/area/category/photo/
+  lat-long + a plain Google Maps deep link (no API key — the free-tier "how
+  to get there"), and the candidate list when ambiguous.
+
+**Verified live against the real project, not mocked:** a real YouTube
+oEmbed call returned real title/author/thumbnail; a real fetch of
+wikipedia.org extracted real OG tags; `http://127.0.0.1:1/` was correctly
+rejected by the SSRF guard; matching scored a real spot's own name back at
+itself with score 1.0 against the real 82-row curated catalog. Full
+persistence-path verification (the final `place_imports` write) needs a
+permanent account, same blocker already on record for load-testing
+`/api/plans`/`/api/spots/deal` — `people`/`place_imports` RLS requires
+`is_permanent_user()` even for a self-insert, so an anonymous session can't
+own a row here either. Not fixed/worked around; noting it's the same
+environmental gap, not a new one.
+
+**`security` review** (full transcript in the session, not reproduced here):
+diff is clean overall. Two real items acted on: `isPrivateAddress` was
+missing CGNAT (`100.64.0.0/10` — a real reachable target on some hosting
+platforms, not theoretical) plus several low-value-but-cheap ranges
+(IPv4 multicast/reserved/broadcast, IPv6 multicast/deprecated-site-local/
+unspecified `::`) — added, with test coverage. The architecture doc's
+"never fetch an arbitrary URL" line directly contradicted the new `web`
+adapter — resolved by updating the doc to state the exception and its
+hardening explicitly, not by weakening the code. One item flagged and
+deliberately not fixed: concurrent first-time saves of the same brand-new
+link can trigger two redundant (not harmful — idempotent, quota-bounded)
+resolution passes; ponytail-lazy call, skipped, no evidence it matters in
+practice.
+
+**Explicitly out of scope this pass, unchanged from the plan:** Instagram/
+Facebook real fetching (needs an approved API, owner-decision-gated);
+paid Directions API / paid Places-photo API (both owner-decision-gated,
+this ships the free version of each); the result/candidate-picker UI
+(Frontend's turf once this contract exists); screenshot-upload fallback.
+
+Gate green (lint/tsc/38 tests/build) throughout. No new migration, no schema
+change. Committing to `lane/backend`.

@@ -71,8 +71,29 @@ Show the matched place, why it matched, useful details, source freshness, and an
 ## Security and reliability rules
 
 * Keep all provider credentials on the server.
-* Use an allowlisted provider adapter. Never accept an arbitrary URL and fetch it from the application server.
-* Block private IP ranges, redirects to unapproved hosts, oversized responses, and unsupported media before any future fetch implementation.
+* Use an allowlisted provider adapter for known platforms (TikTok, YouTube,
+  Reddit's oEmbed hosts — fixed, hardcoded destinations; the user's URL is
+  only a query parameter). Instagram and Facebook's oEmbed/Graph APIs have
+  required an approved app + access token since ~2018–2020 and no
+  credentials for either exist in this project — those go straight to
+  `needs_input`, not a fetch attempt.
+* **Amendment, 2026-09-04 (`lib/place-import/web-adapter.ts`):** the `web`
+  provider (an arbitrary site, not a fixed host) is a deliberate,
+  security-reviewed exception to "never accept an arbitrary URL and fetch it
+  from the application server" above — Deal Three's own "paste a website
+  link" case needs it, and it is fully hardened rather than a raw fetch:
+  DNS-resolved and private-IP-checked before connecting, every redirect hop
+  re-validated the same way, 5s timeout, 512KB streamed-and-capped response,
+  content-type allowlisted (`lib/place-import/safe-fetch.ts`). Residual risk
+  is bounded to "the app can be made to issue a handful of rate-limited
+  outbound requests to attacker-chosen *public* hosts" (mild relay/
+  amplification concern, not internal-network exposure), accepted for this
+  app's threat tier. Keep this note in sync with the code if that adapter's
+  design changes — a stale "never" here misleads the next reader.
+* Block private IP ranges (including CGNAT `100.64.0.0/10`, which is a real
+  reachable target on several hosting platforms, not just RFC-1918 space),
+  redirects to unapproved hosts, oversized responses, and unsupported media
+  before any future fetch implementation.
 * Treat captions, page metadata, OCR, and model output as untrusted input.
 * Do not display images unless their terms and delivery method allow it. A link to the original post is always safe fallback context.
 * Store the evidence and confidence that led to a match so corrections are auditable.

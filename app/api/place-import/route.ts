@@ -1,11 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
 import { classifyPlaceLink, type PlaceCollectionKind } from "@/lib/place-import";
+import { resolvePlaceImport } from "@/lib/place-import/resolve";
 import {
   readJsonBody,
   requestError,
   validateMutationRequest,
 } from "@/lib/security/request";
 import { consumeQuota, recordSecurityEvent } from "@/lib/security/controls";
+
+const MAPS_URL = (lat: number, lng: number) => `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
 
 async function authenticatedProfile(supabase: Awaited<ReturnType<typeof createClient>>, user: { id: string; email?: string | null; user_metadata?: Record<string, unknown> }) {
   const metadataName = user.user_metadata?.full_name ?? user.user_metadata?.name;
@@ -54,15 +57,54 @@ export async function POST(request: Request) {
       collection = created.data;
       if (created.error || !collection) throw new Error("Your Planning collection could not be prepared.");
     }
-    const { data: imported, error: importError } = await supabase
-      .from("place_imports")
-      .upsert({ person_id: personId, source_url: sourceUrl, normalized_url: candidate.normalizedUrl, provider: candidate.provider, status: "pending" }, { onConflict: "person_id,normalized_url" })
-      .select("id, normalized_url, provider")
-      .single();
-    if (importError || !imported) throw new Error("That link could not be saved.");
-    const { error: itemError } = await supabase.from("place_collection_items").insert({ collection_id: collection.id, import_id: imported.id });
+    // Fetch-then-insert, not upsert: re-saving the same link (e.g. to a
+    // second collection) must not stomp a row that already resolved --
+    // an upsert with status:"pending" in its values would reset it and
+    // force a pointless re-fetch of the source on every re-save.
+    const { data: existing } = await supabase
+      .from("place_imports").select("id, status").eq("person_id", personId).eq("normalized_url", candidate.normalizedUrl).maybeSingle();
+
+    let importId: string;
+    let importStatus: string;
+    if (existing) {
+      importId = existing.id;
+      importStatus = existing.status;
+    } else {
+      const { data: imported, error: importError } = await supabase
+        .from("place_imports")
+        .insert({ person_id: personId, source_url: sourceUrl, normalized_url: candidate.normalizedUrl, provider: candidate.provider, status: "pending" })
+        .select("id")
+        .single();
+      if (importError?.code === "23505") {
+        // Two concurrent first-time saves of the same new link from the
+        // same user both missed the select above and raced the insert --
+        // the loser re-selects the winner's row rather than surfacing a
+        // spurious failure for what is, from the user's perspective, a
+        // successful save.
+        const { data: winner } = await supabase
+          .from("place_imports").select("id, status").eq("person_id", personId).eq("normalized_url", candidate.normalizedUrl).maybeSingle();
+        if (!winner) throw new Error("That link could not be saved.");
+        importId = winner.id;
+        importStatus = winner.status;
+      } else {
+        if (importError || !imported) throw new Error("That link could not be saved.");
+        importId = imported.id;
+        importStatus = "pending";
+      }
+    }
+
+    const { error: itemError } = await supabase.from("place_collection_items").insert({ collection_id: collection.id, import_id: importId });
     if (itemError && itemError.code !== "23505") throw new Error("That link was saved, but could not be added to Planning.");
-    return Response.json({ candidate, id: imported.id, collection: requestedCollection, status: "saved" }, { headers: { "Cache-Control": "no-store" } });
+
+    if (importStatus === "pending") {
+      // Synchronous, deliberately: no queue/background-job infra exists in
+      // this app, and every adapter call is bounded (5s timeout, capped
+      // response) -- worst case adds ~5s to this request. Upgrade path if
+      // that ever becomes a real complaint: move behind a job, not before.
+      await resolvePlaceImport(supabase, { id: importId, provider: candidate.provider, normalizedUrl: candidate.normalizedUrl });
+    }
+
+    return Response.json({ candidate, id: importId, collection: requestedCollection, status: "saved" }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : "That link is not supported." }, { status: 400 });
   }
@@ -76,16 +118,37 @@ export async function GET() {
     const personId = await authenticatedProfile(supabase, user);
     const { data, error } = await supabase
       .from("place_imports")
-      .select("id, normalized_url, provider, place_collection_items(collection:place_collections(kind))")
+      .select(`
+        id, normalized_url, provider, status, extracted_data,
+        place_collection_items(collection:place_collections(kind)),
+        resolved_spot:spots(id, name, area, category, photo_url, latitude, longitude)
+      `)
       .eq("person_id", personId)
       .order("created_at", { ascending: false })
       .limit(40);
     if (error) throw error;
     const saved = (data ?? []).map((row) => {
-      const item = row as { id: string; normalized_url: string; provider: string; place_collection_items?: Array<{ collection?: { kind?: string } | null }> };
+      const item = row as unknown as {
+        id: string; normalized_url: string; provider: string; status: string;
+        extracted_data: Record<string, unknown> | null;
+        place_collection_items?: Array<{ collection?: { kind?: string } | null }>;
+        resolved_spot?: { id: string; name: string; area: string; category: string; photo_url: string | null; latitude: number | null; longitude: number | null } | null;
+      };
       const kind = item.place_collection_items?.[0]?.collection?.kind === "planning" ? "planning" : "want_to_try";
       const candidate = classifyPlaceLink(item.normalized_url);
-      return { id: item.id, ...candidate, collection: kind as PlaceCollectionKind };
+      const spot = item.resolved_spot;
+      const resolvedSpot = spot
+        ? {
+            id: spot.id, name: spot.name, area: spot.area, category: spot.category, photoUrl: spot.photo_url,
+            latitude: spot.latitude, longitude: spot.longitude,
+            mapsUrl: spot.latitude !== null && spot.longitude !== null ? MAPS_URL(spot.latitude, spot.longitude) : null,
+          }
+        : null;
+      const extractedCandidates = item.status === "needs_input" ? item.extracted_data?.candidates ?? null : null;
+      return {
+        id: item.id, ...candidate, collection: kind as PlaceCollectionKind,
+        status: item.status, resolvedSpot, candidates: extractedCandidates,
+      };
     });
     return Response.json({ saved }, { headers: { "Cache-Control": "no-store" } });
   } catch {
