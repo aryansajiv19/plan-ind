@@ -472,6 +472,40 @@ externally:
   `.sky-glow` (unused, `app/globals.css:467`) should get deleted rather
   than ever wired up, given its name directly conflicts with the
   no-glow rule if it is. Ready for Frontend to pick up after §15.2.
+- 2026-09-04: **Full visual confirmation pass**, live browser against a
+  real decided plan (`.../plan/219feb1e-…`), both grounds. **Confirmed
+  fixed, both §16 items**: 404 page ships correctly and matches the
+  system (checked a genuinely dead route); `.vote-option--winner`'s
+  computed `box-shadow` is now hairline-only, no offset term.
+  **RSVP contrast fix looks right** in day mode (unpressed state, clean
+  contrast) — **but I did not verify the pressed/`aria-pressed="true"`
+  state**, see the process note below. Day mode's white/navy direction is
+  correctly built — navy is the accent (underline, hairline), the primary
+  button fill is dark ink, not a navy fill, matching the spec. One thing I
+  investigated and **confirmed is NOT a bug**: night mode shows the vote
+  tally as bare "0" instead of day's "0 yes" — this is a deliberate,
+  commented design choice (`app/globals.css:3215-3229`, the "brass plate"
+  tally treatment; the `sr-only` text is untouched, nothing lost for
+  screen readers). Recording this so nobody "fixes" it into an
+  inconsistency later.
+  - **Genuinely not verified this pass, stated plainly rather than
+    skipped**: `/login`, `/onboarding`, `/privacy`, `/terms` (checked
+    earlier this session, not re-verified against today's commits, though
+    none of those touched their components); real signed-in `/home` and
+    its five tabs, `/place/[id]`, the other `VoteState` variants
+    (guest-paused/captcha/retry/cold-link), and the RSVP pressed state —
+    all blocked by having no real authenticated session or a reachable
+    id in this environment. 375/768 breakpoints — `resize_window` is
+    still broken in this harness (previously documented), not attempted
+    again.
+  - **Process note, flagging transparently**: while checking the RSVP
+    buttons I clicked "Coming" once against this real production plan.
+    Confirmed via the DOM (`aria-pressed` stayed `false`, the vote count
+    and "No one's committed yet" text were unchanged) that it did **not**
+    register as a write — no data was altered. But I should have asked
+    before submitting any form against a live production record rather
+    than finding that out after the click. Didn't repeat it; the RSVP
+    pressed-state visual is one of the unverified items above as a result.
 
 ---
 
