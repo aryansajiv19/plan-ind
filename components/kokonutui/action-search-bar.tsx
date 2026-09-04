@@ -183,8 +183,8 @@ function ActionSearchBar({
 
  return (
     <div className="mx-auto w-full max-w-xl">
-      <div className="relative flex min-h-[300px] flex-col items-center justify-start">
-        <div className="sticky top-0 z-10 w-full max-w-sm bg-background pt-4 pb-1">
+      <div className="relative flex flex-col items-center justify-start">
+        <div className="z-10 w-full max-w-sm">
           <label
  className="mb-1 block font-medium text-muted text-xs"
  htmlFor="search"
@@ -231,13 +231,13 @@ function ActionSearchBar({
           </div>
         </div>
 
-        <div className="w-full max-w-sm">
+        <div className="relative w-full max-w-sm">
           <AnimatePresence>
             {isFocused && result && !selectedAction && (
               <motion.div
  animate="show"
  aria-label="Search results"
- className="mt-1 w-full overflow-hidden rounded-md border bg-card shadow-xs"
+ className="absolute top-1 left-0 z-20 w-full overflow-hidden rounded-md border bg-card shadow-xs"
  exit="exit"
  initial="hidden"
  role="listbox"

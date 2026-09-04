@@ -8,143 +8,111 @@
  * @license: MIT
  * @website: https://kokonutui.com
  * @github: https://github.com/kokonut-labs/kokonutui
+ *
+ * Re-tokenised and re-purposed for plan-ind (design-system/SPECS.md §5):
+ * "the deck" — nine places dealt across three rounds, the product's real
+ * mechanic, replacing the generic four-fintech-product demo this shipped
+ * with. Cards are typographic only, matching the rest of the app's
+ * photo-less treatment (PhotoTile) rather than the original's hotlinked
+ * Unsplash URLs, which next.config has no remotePatterns allowlist for.
  */
 
 import { motion, useReducedMotion } from "motion/react";
-import Image from "next/image";
 import { useState } from "react";
+import { categoryMeta } from "@/lib/categories";
+import type { Spot } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-interface Specification {
- label: string;
- value: string;
+interface DeckSpot {
+  id: string;
+  round: 1 | 2 | 3;
+  name: string;
+  area: string;
+  category: string;
+  price_band: string;
 }
 
-interface Product {
- id: string;
- title: string;
- subtitle: string;
- description: string;
- image: string;
- specs: Specification[];
-}
-
-const products: Product[] = [
-  {
- id: "instant-pay",
- title: "Quick Pay",
- subtitle: "Instant Transfers",
- description:
-      "Move money in seconds with bank-grade security and zero surprises.",
- image: "/undraw.svg",
- specs: [
-      { label: "Speed", value: "Instant" },
-      { label: "Security", value: "256-bit" },
-      { label: "Limit", value: "$50,000" },
-      { label: "Fee", value: "0.5%" },
-    ],
-  },
-  {
- id: "crypto-pay",
- title: "Crypto Pay",
- subtitle: "Web3 Payments",
- description:
-      "Accept crypto across every major chain with optimized gas routing.",
- image:
-      "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=800&auto=format&fit=crop&q=80",
- specs: [
-      { label: "Network", value: "Multi-chain" },
-      { label: "Gas", value: "Optimized" },
-      { label: "Support", value: "24/7" },
-      { label: "Security", value: "Top-tier" },
-    ],
-  },
-  {
- id: "business-pay",
- title: "Business Pay",
- subtitle: "Enterprise Solutions",
- description:
-      "Built for high-volume teams with custom APIs and premium support.",
- image:
-      "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=800&auto=format&fit=crop&q=80",
- specs: [
-      { label: "Volume", value: "Unlimited" },
-      { label: "API", value: "REST/SDK" },
-      { label: "Support", value: "Premium" },
-      { label: "Features", value: "Custom" },
-    ],
-  },
-  {
- id: "global-pay",
- title: "Global Pay",
- subtitle: "International Transfers",
- description:
-      "Send to 180+ countries with real-time FX and same-day settlement.",
- image:
-      "https://images.unsplash.com/photo-1629131726692-1accd0c53ce0?w=800&auto=format&fit=crop&q=80",
- specs: [
-      { label: "Countries", value: "180+" },
-      { label: "FX Rate", value: "Real-time" },
-      { label: "Speed", value: "Same-day" },
-      { label: "Support", value: "Local" },
-    ],
-  },
+// Shown only when no real spots are passed in (the signed-out marketing
+// hero) — same illustrative-not-invented posture as DECISION_ROWS in
+// HomeExperience.tsx, one screen over: real Dubai venue names, clearly a
+// preview rather than a fabricated account's own data.
+const ILLUSTRATIVE_DECK: DeckSpot[] = [
+  { id: "d1", round: 1, name: "Ninive", area: "Emirates Towers", category: "dinner", price_band: "$$$" },
+  { id: "d2", round: 1, name: "The Guild", area: "DIFC", category: "vibes", price_band: "$$" },
+  { id: "d3", round: 1, name: "Koko Bay", area: "Palm Jumeirah", category: "beach_club", price_band: "$$$" },
+  { id: "d4", round: 2, name: "Reform Social", area: "DIFC", category: "dinner", price_band: "$$" },
+  { id: "d5", round: 2, name: "Sushi Samba", area: "DIFC", category: "dinner", price_band: "$$$" },
+  { id: "d6", round: 2, name: "Zero Gravity", area: "Skydive Dubai", category: "beach_club", price_band: "$$" },
+  { id: "d7", round: 3, name: "La Cantine", area: "DIFC", category: "cafe", price_band: "$$" },
+  { id: "d8", round: 3, name: "White Dubai", area: "Meydan", category: "nightlife", price_band: "$$$" },
+  { id: "d9", round: 3, name: "Kite Beach", area: "Jumeirah", category: "outdoors", price_band: "$" },
 ];
+
+function toDeck(spots: Spot[]): DeckSpot[] {
+  return spots.slice(0, 9).map((spot, index) => ({
+    id: spot.id,
+    round: (Math.floor(index / 3) + 1) as 1 | 2 | 3,
+    name: spot.name,
+    area: spot.area,
+    category: spot.category,
+    price_band: spot.price_band,
+  }));
+}
 
 const CARD_WIDTH = 320;
 const CARD_OVERLAP = 240;
 
 interface CardProps {
- product: Product;
- index: number;
- totalCards: number;
- isExpanded: boolean;
- reducedMotion: boolean;
+  spot: DeckSpot;
+  index: number;
+  totalCards: number;
+  isExpanded: boolean;
+  reducedMotion: boolean;
 }
 
 const Card = ({
- product,
- index,
- totalCards,
- isExpanded,
- reducedMotion,
+  spot,
+  index,
+  totalCards,
+  isExpanded,
+  reducedMotion,
 }: CardProps) => {
- const centerOffset = (totalCards - 1) * 5;
- const defaultX = index * 10 - centerOffset;
- const defaultY = index * 2;
- const defaultRotate = index * 1.5;
+  const centerOffset = (totalCards - 1) * 5;
+  const defaultX = index * 10 - centerOffset;
+  const defaultY = index * 2;
+  const defaultRotate = index * 1.5;
 
- const totalExpandedWidth =
+  const totalExpandedWidth =
     CARD_WIDTH + (totalCards - 1) * (CARD_WIDTH - CARD_OVERLAP);
- const expandedCenterOffset = totalExpandedWidth / 2;
+  const expandedCenterOffset = totalExpandedWidth / 2;
 
- const spreadX =
- index * (CARD_WIDTH - CARD_OVERLAP) - expandedCenterOffset + CARD_WIDTH / 2;
- const spreadRotate = index * 5 - (totalCards - 1) * 2.5;
+  const spreadX =
+    index * (CARD_WIDTH - CARD_OVERLAP) - expandedCenterOffset + CARD_WIDTH / 2;
+  const spreadRotate = index * 5 - (totalCards - 1) * 2.5;
 
- const collapsedPose = {
- x: defaultX,
- y: defaultY,
- rotate: reducedMotion ? 0 : defaultRotate,
- scale: 1,
+  const collapsedPose = {
+    x: defaultX,
+    y: defaultY,
+    rotate: reducedMotion ? 0 : defaultRotate,
+    scale: 1,
   };
 
- const expandedPose = {
- x: spreadX,
- y: 0,
- rotate: reducedMotion ? 0 : spreadRotate,
- scale: 1,
+  const expandedPose = {
+    x: spreadX,
+    y: 0,
+    rotate: reducedMotion ? 0 : spreadRotate,
+    scale: 1,
   };
 
- const isSvg = product.image.endsWith(".svg");
+  const cat = categoryMeta(spot.category);
 
- return (
+  return (
     <motion.div
- animate={{
+      animate={{
         ...(isExpanded ? expandedPose : collapsedPose),
- zIndex: totalCards - index,
+        zIndex: totalCards - index,
       }}
- className={cn(
+      className={cn(
         "absolute inset-0 w-full rounded-2xl p-6",
         "bg-card",
         "border border-line",
@@ -152,74 +120,44 @@ const Card = ({
         // Depth here is the hairline and the stack offset, not a drop shadow:
         // turn 8 was rejected for exactly that language.
         "hover:border-punch/60",
-                "transition-[border-color,box-shadow] duration-300 ease-out",
+        "transition-[border-color,box-shadow] duration-300 ease-out",
         "transform-gpu overflow-hidden"
       )}
- initial={collapsedPose}
- style={{
- maxWidth: `${CARD_WIDTH}px`,
- left: "50%",
- marginLeft: `-${CARD_WIDTH / 2}px`,
+      initial={collapsedPose}
+      style={{
+        maxWidth: `${CARD_WIDTH}px`,
+        left: "50%",
+        marginLeft: `-${CARD_WIDTH / 2}px`,
       }}
- transition={
- reducedMotion
+      transition={
+        reducedMotion
           ? { duration: 0.2, ease: "easeOut" }
           : {
- type: "spring",
- stiffness: 220,
- damping: 28,
- mass: 1,
- delay: isExpanded ? index * 0.04 : 0,
+              type: "spring",
+              stiffness: 220,
+              damping: 28,
+              mass: 1,
+              delay: isExpanded ? index * 0.04 : 0,
             }
       }
     >
       <div className="relative z-10">
-        <dl className="mb-4 grid grid-cols-4 justify-center gap-2">
-          {product.specs.map((spec) => (
-            <div
- className="flex flex-col items-start text-left text-[10px]"
- key={spec.label}
-            >
-              <dd className="w-full text-left font-medium text-muted">
-                {spec.value}
-              </dd>
-              <dt className="mb-0.5 w-full text-left text-ink">
-                {spec.label}
-              </dt>
-            </div>
-          ))}
-        </dl>
+        <p className="text-xs font-bold uppercase tracking-wide text-muted">
+          Round {spot.round}
+        </p>
 
-        <div
- className={cn(
-            "relative aspect-[16/11] w-full overflow-hidden rounded-lg",
-            "bg-accent",
-            "border border-line",
-            "shadow-inner"
-          )}
-        >
-          <Image
- alt={product.description}
- className="object-cover"
- fill
- sizes="320px"
- src={product.image}
- unoptimized={isSvg}
-          />
+        <div className="mt-4 space-y-1">
+          <span className="block text-left font-display font-extrabold text-3xl text-ink tracking-tight">
+            {spot.name}
+          </span>
+          <span className="block text-left font-semibold text-muted">
+            {spot.area}
+          </span>
         </div>
 
-        <div className="mt-4">
-          <div className="space-y-1">
-            <span className="block text-left font-bold text-3xl text-ink tracking-tight">
-              {product.title}
-            </span>
-            <span className="block text-left font-semibold text-3xl text-muted tracking-tight">
-              {product.subtitle}
-            </span>
-          </div>
-          <p className="mt-2 text-left text-muted text-sm">
-            {product.description}
-          </p>
+        <div className="mt-4 flex items-center gap-3 text-sm">
+          <span className="font-bold text-punch">{cat.code}</span>
+          <span className="text-muted">{spot.price_band}</span>
         </div>
       </div>
     </motion.div>
@@ -227,38 +165,41 @@ const Card = ({
 };
 
 interface CardStackProps {
- className?: string;
+  className?: string;
+  /** Real spots when available (a signed-in account); the illustrative deck otherwise. */
+  spots?: Spot[];
 }
 
-export default function CardStackExample({ className }: CardStackProps) {
- const [isExpanded, setIsExpanded] = useState(false);
- const reducedMotion = useReducedMotion() ?? false;
+export default function CardStackExample({ className, spots = [] }: CardStackProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const reducedMotion = useReducedMotion() ?? false;
+  const deck = spots.length >= 9 ? toDeck(spots) : ILLUSTRATIVE_DECK;
 
- const handleToggle = () => setIsExpanded((prev) => !prev);
+  const handleToggle = () => setIsExpanded((prev) => !prev);
 
- return (
+  return (
     <button
- aria-expanded={isExpanded}
- aria-label={isExpanded ? "Collapse card stack" : "Expand card stack"}
- className={cn(
+      aria-expanded={isExpanded}
+      aria-label={isExpanded ? "Collapse the deck" : "Expand the deck"}
+      className={cn(
         "relative mx-auto cursor-pointer",
         "min-h-[440px] w-full max-w-[90vw]",
         "md:max-w-[1200px]",
         "appearance-none border-0 bg-transparent p-0",
         "mb-8 flex items-center justify-center",
- className
+        className
       )}
- onClick={handleToggle}
- type="button"
+      onClick={handleToggle}
+      type="button"
     >
-      {products.map((product, index) => (
+      {deck.map((spot, index) => (
         <Card
- index={index}
- isExpanded={isExpanded}
- key={product.id}
- product={product}
- reducedMotion={reducedMotion}
- totalCards={products.length}
+          index={index}
+          isExpanded={isExpanded}
+          key={spot.id}
+          spot={spot}
+          reducedMotion={reducedMotion}
+          totalCards={deck.length}
         />
       ))}
     </button>

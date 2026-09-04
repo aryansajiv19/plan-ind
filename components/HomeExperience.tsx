@@ -10,17 +10,12 @@ import type { PlannedWith } from "@/lib/social";
 import StartPlanForm from "@/components/StartPlanForm";
 import { haptic } from "@/lib/interaction";
 import { THEME_KEY, subscribeToGround, currentGround } from "@/lib/dubai-phase";
-import TiltCard from "@/components/TiltCard";
 import WeightRise from "@/components/WeightRise";
 import PhotoWall, { type WallItem } from "@/components/PhotoWall";
+import CardStackExample from "@/components/kokonutui/card-stack";
+import ActionSearchBar from "@/components/kokonutui/action-search-bar";
 
 const DEMO_PLAN_ID = "11111111-1111-1111-1111-111111111111";
-
-const DECISION_ROWS = [
-  { number: "01", title: "Ninive", area: "Emirates Towers", time: "21:30", votes: "4 votes" },
-  { number: "02", title: "The Guild", area: "DIFC", time: "21:45", votes: "1 vote" },
-  { number: "03", title: "Koko Bay", area: "Palm Jumeirah", time: "20:30", votes: "1 vote" },
-] as const;
 
 const APP_VIEWS = ["plan", "discover", "been", "friends", "profile"] as const;
 type AppView = (typeof APP_VIEWS)[number];
@@ -226,6 +221,11 @@ export default function HomeExperience({
 
         <div className="home-nav__right">
           {accountTabs && (
+            <div className="home-nav__search" style={{ maxWidth: "18rem" }}>
+              <ActionSearchBar />
+            </div>
+          )}
+          {accountTabs && (
             <button type="button" className="home-nav__link" onClick={() => showView("plan")}>Make a plan</button>
           )}
           <button
@@ -304,48 +304,11 @@ export default function HomeExperience({
         </div>
 
         <div className="home-stage home-reveal" style={{ "--delay": "420ms" } as React.CSSProperties} aria-hidden="true">
-          <div className="home-system-shadow" />
-          {/* Turn 13's parallax. The panel is aria-hidden product illustration,
-              so a pointer-only effect on it excludes nobody. */}
-          <TiltCard className="home-system" centered>
-            <div className="home-system__header">
-              <span>Tonight in Dubai</span>
-              <span className="home-system__status">6 friends voting</span>
-            </div>
-
-            <div className="home-system__measure">
-              <div>
-                <span className="home-system__label">Places shortlisted</span>
-                <strong>03</strong>
-              </div>
-              <div className="home-system__coordinates">
-                <span>Emirates Towers</span>
-                <span>DIFC</span>
-                <span>Palm Jumeirah</span>
-              </div>
-            </div>
-
-            <div className="home-system__rows">
-              {DECISION_ROWS.map((row, index) => (
-                <div key={row.number} className={`home-system-row ${index === 0 ? "home-system-row--active" : ""}`}>
-                  <span className="home-system-row__number">{row.number}</span>
-                  <span className="home-system-row__name">
-                    <strong>{row.title}</strong>
-                    <small>{row.area}</small>
-                  </span>
-                  <span className="home-system-row__time">{row.time}</span>
-                  <span className="home-system-row__votes">{row.votes}</span>
-                </div>
-              ))}
-            </div>
-
-            <div className="home-system__footer">
-              <span>Friday · 9:30 PM</span>
-              <span>Voting closes 8:00 PM</span>
-              <b>Open</b>
-            </div>
-          </TiltCard>
-
+          {/* SPECS.md §5: the deck, nine places across three rounds — the
+              product's real mechanic, replacing the illustrative "Tonight
+              in Dubai" panel entirely. Illustrative content (not a signed-in
+              account's real data): see card-stack.tsx's own note. */}
+          <CardStackExample spots={spots} />
         </div>
       </section>
       ) : (
