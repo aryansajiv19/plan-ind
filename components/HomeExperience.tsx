@@ -6,7 +6,7 @@ import { signOut } from "@/app/auth/actions";
 import DemoAccountViews from "@/components/DemoAccountViews";
 import AccountViews from "@/components/AccountViews";
 import type { ProfileVisit, Spot, WrappedSummary, WrappedSummaryError } from "@/lib/types";
-import type { PlannedWith } from "@/lib/social";
+import type { PlannedWith, VisitCollectionView, VisitPhotoView } from "@/lib/social";
 import StartPlanForm from "@/components/StartPlanForm";
 import { haptic } from "@/lib/interaction";
 import { THEME_KEY, subscribeToGround, currentGround } from "@/lib/dubai-phase";
@@ -46,11 +46,14 @@ export default function HomeExperience({
   demoMode = false,
   fixtures = false,
   initialView = "plan",
+  personId = null,
   spots = [],
   visits = [],
   plannedWith = [],
   wrappedSummary = null,
   wrappedUnavailable = null,
+  collections = [],
+  photos = [],
 }: {
   name: string;
   age?: number;
@@ -70,6 +73,8 @@ export default function HomeExperience({
   plannedWith?: PlannedWith[];
   wrappedSummary?: WrappedSummary | null;
   wrappedUnavailable?: WrappedSummaryError | null;
+  collections?: VisitCollectionView[];
+  photos?: VisitPhotoView[];
 }) {
   const [ready, setReady] = useState(false);
   // Resolved after mount so it matches the reader's clock rather than the
@@ -392,11 +397,14 @@ export default function HomeExperience({
             <AccountViews
               view={activeView}
               name={name}
+              personId={personId}
               spots={spots}
               visits={visits}
               plannedWith={plannedWith}
               wrappedSummary={wrappedSummary}
               wrappedUnavailable={wrappedUnavailable}
+              collections={collections}
+              photos={photos}
               onStartPlan={() => showView("plan")}
             />
           )}

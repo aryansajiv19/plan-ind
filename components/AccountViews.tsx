@@ -10,11 +10,22 @@
 // and no friends, and saying so is more useful than borrowing someone else's.
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import PlaceLinkImporter from "@/components/PlaceLinkImporter";
+import PhotoWall, { type WallItem } from "@/components/PhotoWall";
 import { categoryMeta } from "@/lib/categories";
 import { avatarStyle, initialsOf } from "@/lib/avatar";
-import type { PlannedWith } from "@/lib/social";
+import { validateImageFile } from "@/lib/upload";
+import {
+  addVisitToCollection,
+  createVisitCollection,
+  removeVisitFromCollection,
+  uploadVisitPhoto,
+  type PlannedWith,
+  type VisitCollectionView,
+  type VisitPhotoView,
+} from "@/lib/social";
 import type {
   ProfileVisit,
   Spot,
@@ -24,25 +35,8 @@ import type {
 
 type AccountView = "discover" | "been" | "friends" | "profile";
 
-const DATE_FORMAT = new Intl.DateTimeFormat("en-GB", {
-  day: "2-digit",
-  month: "short",
-  year: "numeric",
-});
-
 function priceLabel(spot: Spot): string {
   return spot.min_spend > 0 ? `AED ${spot.min_spend} pp` : spot.price_band;
-}
-
-function FaceStack({ people }: { people: readonly string[] }) {
-  if (people.length === 0) return null;
-  return (
-    <span className="demo-face-stack" aria-label={`${people.length} friends joined`}>
-      {people.map((person, index) => (
-        <span key={`${person}-${index}`} aria-hidden="true">{person}</span>
-      ))}
-    </span>
-  );
 }
 
 function WrappedRecap({
@@ -231,24 +225,132 @@ function PlaceCard({ spot, onStartPlan }: { spot: Spot; onStartPlan: () => void 
 export default function AccountViews({
   view,
   name,
+  personId,
   spots,
   visits,
   plannedWith,
   wrappedSummary,
   wrappedUnavailable,
+  collections: initialCollections,
+  photos,
   onStartPlan,
 }: {
   view: AccountView;
   name: string;
+  personId: string | null;
   spots: Spot[];
   visits: ProfileVisit[];
   plannedWith: PlannedWith[];
   wrappedSummary: WrappedSummary | null;
   wrappedUnavailable: WrappedSummaryError | null;
+  collections: VisitCollectionView[];
+  photos: VisitPhotoView[];
   onStartPlan: () => void;
 }) {
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const [placeFilter, setPlaceFilter] = useState("All");
+
+  // Collections mutate locally on a successful write rather than refetching —
+  // same pattern DemoAccountViews used for its localStorage-backed version,
+  // now backed by real `visit_collections`/`visit_collection_items` rows.
+  // AccountViews stays mounted across a tab switch (the same instance
+  // renders all four views), so `initialCollections` is effectively fixed
+  // for the component's lifetime — no need to re-sync it from an effect.
+  const [collections, setCollections] = useState(initialCollections);
+  const [activeCollection, setActiveCollection] = useState("all");
+  const [newCollectionName, setNewCollectionName] = useState("");
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploadPreview, setUploadPreview] = useState<string | null>(null);
+  const [uploadVisitId, setUploadVisitId] = useState<string>("");
+  const [uploadVisibility, setUploadVisibility] = useState<"private" | "friends" | "community">("friends");
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  // Derived, not synced from an effect: falls back to the first visit until
+  // the picker is touched, then tracks whatever was chosen.
+  const effectiveUploadVisitId = uploadVisitId || visits[0]?.id || "";
+
+  useEffect(() => () => {
+    if (uploadPreview) URL.revokeObjectURL(uploadPreview);
+  }, [uploadPreview]);
+
+  const activeFolder = collections.find((c) => c.id === activeCollection);
+  const visibleVisits = activeFolder
+    ? visits.filter((visit) => activeFolder.visitIds.includes(visit.id))
+    : visits;
+  const photosByVisit = useMemo(() => {
+    const map = new Map<string, VisitPhotoView>();
+    for (const photo of photos) if (!map.has(photo.visit_id)) map.set(photo.visit_id, photo);
+    return map;
+  }, [photos]);
+  const wallItems: WallItem[] = visibleVisits.map((visit) => ({
+    id: visit.id,
+    kind: "visit",
+    visit,
+    photoUrl: photosByVisit.get(visit.id)?.url ?? null,
+  }));
+
+  async function createCollection() {
+    if (!personId) return;
+    const created = await createVisitCollection(personId, newCollectionName);
+    if (!created) return;
+    setCollections((current) => [...current, created]);
+    setActiveCollection(created.id);
+    setNewCollectionName("");
+  }
+
+  async function addToCollection(visitId: string, collectionId: string) {
+    if (!collectionId) return;
+    const ok = await addVisitToCollection(collectionId, visitId);
+    if (!ok) return;
+    setCollections((current) => current.map((c) => c.id === collectionId
+      ? { ...c, visitIds: Array.from(new Set([...c.visitIds, visitId])) }
+      : c));
+  }
+
+  async function removeFromActiveCollection(visitId: string) {
+    if (!activeFolder) return;
+    const ok = await removeVisitFromCollection(activeFolder.id, visitId);
+    if (!ok) return;
+    setCollections((current) => current.map((c) => c.id === activeFolder.id
+      ? { ...c, visitIds: c.visitIds.filter((id) => id !== visitId) }
+      : c));
+  }
+
+  async function handleUploadChange(file: File | undefined) {
+    if (!file) return;
+    const error = await validateImageFile(file);
+    setUploadError(error);
+    if (error) return;
+    if (uploadPreview) URL.revokeObjectURL(uploadPreview);
+    setUploadFile(file);
+    setUploadPreview(URL.createObjectURL(file));
+  }
+
+  async function submitPhoto() {
+    if (!personId || !uploadFile || !effectiveUploadVisitId) return;
+    setUploading(true);
+    try {
+      const ok = await uploadVisitPhoto({
+        personId,
+        visitId: effectiveUploadVisitId,
+        file: uploadFile,
+        visibility: uploadVisibility,
+      });
+      setUploadError(ok ? null : "Couldn’t upload that photo. Try again.");
+      if (ok) {
+        if (uploadPreview) URL.revokeObjectURL(uploadPreview);
+        setUploadFile(null);
+        setUploadPreview(null);
+        // A signed URL for the new photo only exists once the server signs
+        // it, so re-run the Server Component instead of faking a preview
+        // into the wall.
+        router.refresh();
+      }
+    } finally {
+      setUploading(false);
+    }
+  }
 
   const categories = useMemo(() => {
     const found = new Set(spots.map((spot) => spot.category));
@@ -346,32 +448,126 @@ export default function AccountViews({
             <button type="button" onClick={onStartPlan}>Start a plan</button>
           </div>
         ) : (
-          <div className="demo-visit-grid">
-            {visits.map((visit, index) => (
-              <article key={visit.id} className={`demo-visit ${index === 0 ? "demo-visit--featured" : ""}`}>
-                {visit.spot?.photo_url && (
-                  <div className="demo-visit__image">
-                    <Image src={visit.spot.photo_url} alt={`Photo from ${visit.spot.name}`} fill sizes="(max-width: 700px) 100vw, 50vw" unoptimized />
+          <>
+            <div className="demo-collection-bar">
+              <div className="demo-collection-tabs" role="tablist" aria-label="Visit collections">
+                <button type="button" role="tab" aria-selected={activeCollection === "all"} onClick={() => setActiveCollection("all")}>
+                  All places <span>{visits.length}</span>
+                </button>
+                {collections.map((collection) => (
+                  <button key={collection.id} type="button" role="tab" aria-selected={activeCollection === collection.id} onClick={() => setActiveCollection(collection.id)}>
+                    {collection.name} <span>{collection.visitIds.length}</span>
+                  </button>
+                ))}
+              </div>
+              {personId && (
+                <div className="demo-collection-create">
+                  <label htmlFor="collection-name">New collection</label>
+                  <div>
+                    <input
+                      id="collection-name"
+                      value={newCollectionName}
+                      onChange={(event) => setNewCollectionName(event.target.value)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter") { event.preventDefault(); void createCollection(); }
+                      }}
+                      placeholder="Tokyo food list, date nights…"
+                      maxLength={40}
+                    />
+                    <button type="button" onClick={() => void createCollection()} disabled={!newCollectionName.trim()}>Create</button>
                   </div>
-                )}
-                <div className="demo-visit__content">
-                  <div className="demo-visit__top">
-                    <span>{DATE_FORMAT.format(new Date(visit.visited_at))}</span>
-                    {visit.group_label && <strong>{visit.group_label}</strong>}
-                  </div>
-                  <h2>{visit.spot?.name ?? "A place that has since been removed"}</h2>
-                  {visit.spot && <p className="demo-place-card__area">{visit.spot.area}</p>}
-                  {visit.note && <p>{visit.note}</p>}
-                  {visit.companions.length > 0 && (
-                    <div className="demo-visit__people">
-                      <FaceStack people={visit.companions.map((c) => initialsOf(c.name))} />
-                      <span>Went with {visit.companions.map((c) => c.name).join(", ")}</span>
-                    </div>
-                  )}
                 </div>
-              </article>
-            ))}
-          </div>
+              )}
+            </div>
+
+            <PhotoWall
+              items={wallItems}
+              emptyMessage={`${activeFolder?.name ?? "This collection"} is ready. Open All places and add visits to build it.`}
+            />
+
+            {activeFolder && personId && visibleVisits.length > 0 && (
+              <div className="demo-visit__collection-action">
+                <label>
+                  <span>Remove a visit from {activeFolder.name}</span>
+                  <select value="" onChange={(event) => { if (event.target.value) void removeFromActiveCollection(event.target.value); }}>
+                    <option value="">Choose…</option>
+                    {visibleVisits.map((visit) => (
+                      <option key={visit.id} value={visit.id}>{visit.spot?.name ?? "Removed place"}</option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+            )}
+            {!activeFolder && personId && collections.length > 0 && (
+              <div className="demo-visit__collection-action">
+                <label>
+                  <span>Add {visits[0]?.spot?.name ? "a visit" : "one"} to a collection</span>
+                  <select
+                    value=""
+                    onChange={(event) => {
+                      const [visitId, collectionId] = event.target.value.split("::");
+                      if (visitId && collectionId) void addToCollection(visitId, collectionId);
+                    }}
+                  >
+                    <option value="">Choose a visit and collection…</option>
+                    {visits.flatMap((visit) => collections.map((collection) => (
+                      <option key={`${visit.id}::${collection.id}`} value={`${visit.id}::${collection.id}`}>
+                        {visit.spot?.name ?? "Removed place"} → {collection.name}
+                      </option>
+                    )))}
+                  </select>
+                </label>
+              </div>
+            )}
+
+            {personId && (
+              <div className="demo-photo-composer">
+                <label className="demo-photo-upload">
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={(event) => void handleUploadChange(event.target.files?.[0])}
+                  />
+                  {uploadPreview ? (
+                    <>
+                      <span className="demo-photo-upload__preview">
+                        <Image src={uploadPreview} alt="New visit upload preview" fill unoptimized />
+                      </span>
+                      <strong>Photo ready for {visits.find((v) => v.id === effectiveUploadVisitId)?.spot?.name ?? "your visit"}</strong>
+                      <small>Tap the image to choose another</small>
+                    </>
+                  ) : (
+                    <>
+                      <strong>Add a photo from a visit</strong>
+                      <small>Choose an image from this device</small>
+                    </>
+                  )}
+                </label>
+                {uploadError && <p role="alert" className="auth-error">{uploadError}</p>}
+                <label className="demo-photo-target">
+                  <span>Attach to</span>
+                  <select value={effectiveUploadVisitId} onChange={(event) => setUploadVisitId(event.target.value)}>
+                    {visits.map((visit) => (
+                      <option key={visit.id} value={visit.id}>{visit.spot?.name ?? "Removed place"}</option>
+                    ))}
+                  </select>
+                </label>
+                <label className="demo-photo-target">
+                  <span>Who sees it</span>
+                  <select value={uploadVisibility} onChange={(event) => setUploadVisibility(event.target.value as typeof uploadVisibility)}>
+                    <option value="private">Only me</option>
+                    <option value="friends">Friends</option>
+                    <option value="community">Community</option>
+                  </select>
+                </label>
+                {uploadFile && (
+                  <button type="button" onClick={() => void submitPhoto()} disabled={uploading}>
+                    {uploading ? "Uploading…" : "Save photo"}
+                  </button>
+                )}
+              </div>
+            )}
+          </>
         )}
       </section>
     );

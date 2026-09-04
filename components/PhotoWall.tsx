@@ -2,8 +2,9 @@
 
 import { type ReactNode } from "react";
 import { motion, useReducedMotion } from "motion/react";
-import type { Spot } from "@/lib/types";
+import type { ProfileVisit, Spot } from "@/lib/types";
 import PhotoTile, { type WallNote } from "@/components/PhotoTile";
+import VisitTile from "@/components/VisitTile";
 
 /** A pin is a non-photo card that sits IN the wall, not in a sidebar. */
 export interface WallPin {
@@ -17,7 +18,14 @@ export interface WallPhoto {
   spot: Spot;
   note?: WallNote;
 }
-export type WallItem = WallPhoto | WallPin;
+/** A logged visit — the Been tab's moodboard (SPECS.md §15.2). */
+export interface WallVisit {
+  id: string;
+  kind: "visit";
+  visit: ProfileVisit;
+  photoUrl: string | null;
+}
+export type WallItem = WallPhoto | WallVisit | WallPin;
 
 /** Tile heights cycle 200-360px so no two neighbouring columns rhyme. */
 const HEIGHTS = [330, 250, 240, 360, 200, 300, 230, 280, 210, 270];
@@ -98,6 +106,13 @@ export default function PhotoWall({
                   <PhotoTile
                     spot={item.spot}
                     note={item.note}
+                    height={HEIGHTS[index % HEIGHTS.length]}
+                    priority={index < COLUMNS}
+                  />
+                ) : item.kind === "visit" ? (
+                  <VisitTile
+                    visit={item.visit}
+                    photoUrl={item.photoUrl}
                     height={HEIGHTS[index % HEIGHTS.length]}
                     priority={index < COLUMNS}
                   />
