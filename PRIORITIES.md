@@ -53,8 +53,8 @@ the existing one.
 | Age limit | **Already have the data** — `spots.minimum_age` + the category thresholds already enforced everywhere else. Display work. |
 | Weather | **Not built, but free and unblocked** — Open-Meteo, verified working with no API key (`NEXT_AGENT.md`), independent of the AI/B3 blocker. Real add. |
 | Is it open (right now) | **Partially free** — `spots.open_till` exists but is a static daily closing time, not live hours; "open right now" can be *approximated* for free against the Dubai clock already in the codebase. A real live-hours source is the same kind of paid-API decision as the photo one — flag before building past the approximation. |
-| Transportation to get there | Ties to the travel-time scope decision already on record (`Venue-link enrichment` section below) — free straight-line + a maps deep-link, or a paid Directions API. |
-| Carpool coordination | **Genuinely new — no schema, no concept anywhere today.** Needs a real scoping pass: is this a signup list (who's driving, who needs a seat) on the plan, or something lighter? Design's call to propose, not to assume. |
+| Transportation to get there | **Resolved 2026-09-04 — "Getting there," free version, see `Venue-link enrichment` below.** Straight-line distance + "Open in Maps" (which already surfaces live RTA metro/bus/taxi data). A direct RTA API integration is a real future item, not scoped work yet — see that section for what was actually checked. |
+| Carpool coordination → reframed as "who's driving" | **Owner-clarified 2026-09-04**: this is *not* the transportation-timing feature (that's the row above) — it's specifically the lightweight "who's driving, who needs a ride" coordination list, unaffected by the RTA finding. **Green-lit, Design's original §10.2 proposal in `design-system/SPECS.md` stands**: extend `rsvps` with `transport`/`seats_available`, a plain sorted list on the payoff screen, no matching/optimization. Backend can build `create_direct_plan`'s sibling RPC extension now that scope is confirmed. |
 
 **The flow itself:** `app/place/[id]/page.tsx` (already shipped, honest/scoped
 version) is the right surface for the detail view.
@@ -101,18 +101,30 @@ adapters only, **never a generic server-side fetch of an arbitrary URL**, block
 private IPs/oversized responses, treat all fetched content as untrusted) are
 already specified — read that file before building, don't re-derive it.
 
-**Two pieces need explicit scope decisions before backend work starts — real
-cost/complexity tradeoffs, not something to assume:**
-1. **Travel time/directions.** Free version: straight-line distance via the
-   `origin_latitude/longitude` ↔ `spots.latitude/longitude` columns that
-   already exist (pure math, live now) + a "open in Maps" deep link (no API
-   key). Real turn-by-turn/traffic-aware time needs a paid Directions API.
-2. **Photos.** Free version: match against the curated `spots` catalog's
-   existing `photo_url` (mostly null today) or the provider's own embed
-   metadata. Real venue photography needs a paid Places-photo API. This is
-   also what unblocks Design's deferred `next.config.ts` `images.remotePatterns`
-   decision — once a host is chosen, that gets a `security` subagent look at
-   the specific host, per the standing rule against a wildcard allowlist.
+**Both scope decisions resolved by the owner, 2026-09-04 — free version for both, revisit later:**
+1. **Travel time/directions → free version, build it.** Straight-line distance
+   via `origin_latitude/longitude` ↔ `spots.latitude/longitude` (pure math,
+   live now) + an "Open in Maps" deep link. **Researched, not assumed**: a
+   direct RTA API integration for in-app metro/bus/taxi timings is not the
+   simple free thing it first looked like — RTA's GTFS feed is real but its
+   real-time/detailed access goes through Dubai's government data-exchange
+   portal (`data.dubai`, formerly Dubai Pulse), described as "restricted to
+   government entities and authorized users," not a public self-serve key;
+   the Transitland-mirrored GTFS feed is also stale (last real update 2021).
+   **The Maps deep link already covers the actual ask for free**: Google Maps
+   in Dubai renders RTA's live bus/metro data directly (RTA publishes it
+   there itself, confirmed via search — Dubai was the first Middle East city
+   to do this), so "see transit timings" is one link tap away without us
+   integrating anything. A real in-app RTA integration is a genuine future
+   item — needs someone to actually go through the registration process and
+   find out real terms — not scoped as buildable work yet.
+2. **Photos → free version, build it.** Match against the curated `spots`
+   catalog's existing `photo_url` (mostly null today) or the provider's own
+   embed metadata. Paid Places-photo API **deliberately deferred** — owner:
+   skip paid APIs for now, will get a Google Places API key later. Revisit
+   `next.config.ts`'s `images.remotePatterns` decision once that happens (not
+   before — a `security` subagent look at the specific host is required per
+   the standing rule against a wildcard allowlist).
 
 AI/LLM-based clue extraction and matching (steps 3–5) are **blocked on B3**
 (OpenAI credits still zero) for anything requiring a model call — but intake,
