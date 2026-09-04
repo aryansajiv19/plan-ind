@@ -103,53 +103,108 @@ h1,h2,h3 { font-family: var(--font-display); font-weight: 500; letter-spacing: -
 .row { display:flex; gap:.75rem; flex-wrap:wrap; align-items:center; }
 @media (prefers-reduced-motion: reduce) { * { animation-duration:.001ms !important; transition-duration:.001ms !important; } }
 
-.op-bg { background:#121212; color:#F5F5F5; padding:2rem; border-radius:var(--radius-panel); }
-.op-surface { background:#1E1E1E; border-radius:var(--radius-panel); padding:1.5rem; }
-.op-muted { color:#A0A0A0; }
+.op-bg { padding:2rem; border-radius:var(--radius-panel); }
 .op-btn { font-family:var(--font-display); font-weight:700; padding:.85rem 1.75rem; border-radius:var(--radius-pill);
-  border:1px solid transparent; background:#FF6B4A; color:#121212; font-size:.88rem; cursor:pointer; }
-.op-btn--ghost { background:none; border-color:rgba(245,245,245,.22); color:#F5F5F5; }
-.op-badge { display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:16px;
-  background:rgba(255,209,102,.14); color:#FFD166; font-size:.72rem; font-weight:700; }
-.op-confirm { display:inline-flex; align-items:center; gap:8px; padding:8px 14px; border-radius:14px;
-  background:rgba(0,224,199,.14); color:#00E0C7; font-size:.78rem; font-weight:600; }
-.op-error { color:#FF5C5C; font-size:.78rem; font-weight:600; }
-.op-card { background:#1E1E1E; border-radius:var(--radius-panel); padding:1.1rem; }
-.op-card__name { font-family:var(--font-display); font-size:1.05rem; font-weight:600; color:#F5F5F5; margin:0; }
-.op-card__meta { font-size:.78rem; color:#A0A0A0; margin:.3rem 0 0; }
+  border:1px solid transparent; font-size:.88rem; cursor:pointer; }
+.op-btn--ghost { background:none; font-size:.85rem; padding:.85rem 1.5rem; border-radius:var(--radius-pill); font-family:var(--font-display); font-weight:600; cursor:pointer; }
+.op-badge { display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:16px; font-size:.72rem; font-weight:700; }
+.op-confirm { display:inline-flex; align-items:center; gap:8px; padding:8px 14px; border-radius:14px; font-size:.78rem; font-weight:600; }
+.op-error { font-size:.78rem; font-weight:600; }
+.op-card { border-radius:var(--radius-panel); padding:1.1rem; }
+.op-card__name { font-family:var(--font-display); font-size:1.05rem; font-weight:600; margin:0; }
+.op-card__meta { font-size:.78rem; margin:.3rem 0 0; }
 
 </style>
 </head>
 <body>
-<p class="kicker">Approved 2026-09-04 — see design-system/SPECS.md for the full spec</p><h2>Coral · gold · teal, on near-black</h2>
-<p class="note">Background <code>#121212</code>, surface <code>#1E1E1E</code>, text <code>#F5F5F5</code>/<code>#A0A0A0</code>, primary coral <code>#FF6B4A</code>, gold <code>#FFD166</code> used sparingly for badges/streaks, teal <code>#00E0C7</code> for confirm/active — <b>teal is final</b> (a violet swap was tried and reverted; teal stays, constrained to small components/badges/states only, never a large surface or fill). Every value AA-clear (worst case 6.38:1). <b>All four accents take dark ink as fill text, never white</b> — white-on-coral measures 2.58:1, white-on-gold 1.32:1; that exact mistake is already live in the shipped code and the spec is written to not repeat it. <b>One dark identity, no day/night split</b> — the Dubai-clock colour-switching mechanism is retired by owner decision; <code>foundations/colour.html</code> still shows the old sand/teal pair because it reads the live app tokens and Frontend hasn't shipped this yet.</p>
+<p class="kicker">Approved 2026-09-04 — see design-system/SPECS.md for the full spec</p><h2>Two separately authored palettes, not one dimmed</h2>
+<p class="note"><b>Day/night stays</b> — reversed back from the "one dark identity" call earlier the same day. Night is palette v3: ground <code>#0D1117</code>, surface <code>#161B22</code>, champagne gold primary <code>#C9A876</code>, glass-blue secondary <code>#5CC8D7</code>, teal confirm <code>#00E0C7</code> (small components only, unchanged constraint), error <code>#FF5C5C</code>. All AA-clear, worst case 5.82:1.</p>
+<p class="note"><b>Worth your eyes before this goes further:</b> charcoal-navy ground plus a champagne-gold primary accent is structurally close to the navy-and-gold combination this whole colour pass started by rejecting. It may well be the deliberate refinement — cooler navy, restrained metal instead of the old brass, glass-blue and teal doing real work this time — rather than a drift back, but that's a judgment best made looking at it, not at hex codes. See for yourself in the panel below rather than taking either read on faith.</p>
+<p class="note"><b>Day is proposed, not yet confirmed</b> — "white and navy blue... I guess" turned into something concrete and contrast-checked so there's something real to react to: ground <code>#F7F7F5</code>, surface <code>#FFFFFF</code>, navy primary <code>#1B2A4A</code>, with gold/teal/error re-cut darker for AA on a light ground (day gold <code>#8A6D2F</code>, day teal <code>#0E7C74</code>, day error <code>#B3261E</code> — all clear, worst case 4.54:1). If white-and-navy meant something more specific, this is a starting point to correct, not a final answer.</p>
 
-<div class="op-bg">
+<div class="row" style="align-items:flex-start; gap:1.5rem">
+  <div style="flex:1; min-width:420px">
+    <h3 style="font-size:1rem; margin-bottom:.6rem">Night — v3 as given</h3>
+    <p class="note" style="margin:0 0 .6rem">Gold is the primary/wordmark colour — this is the one that reads closest to what got rejected.</p>
+    
+<div class="op-bg" style="background:#0D1117; color:#F2EFE9">
   <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.75rem">
-    <p style="font-family:var(--font-display); font-weight:700; letter-spacing:.26em; color:#FF6B4A; margin:0; font-size:.85rem">PLAN</p>
-    <span class="op-badge">★ 4-week streak</span>
+    <p style="font-family:var(--font-display); font-weight:700; letter-spacing:.26em; color:#C9A876; margin:0; font-size:.85rem">PLAN</p>
+    <span class="op-badge" style="background:rgba(92,200,215,.14); color:#5CC8D7">★ 4-week streak</span>
   </div>
-
-  <h3 style="font-family:var(--font-display); font-size:2rem; font-weight:500; letter-spacing:-.03em; color:#F5F5F5; margin:0 0 .5rem">Friday, 6:40 PM</h3>
-  <p class="op-muted" style="margin:0 0 1.5rem">The group's headed to Koko Bay. Now let's make it happen.</p>
-
+  <h3 style="font-family:var(--font-display); font-size:2rem; font-weight:500; letter-spacing:-.03em; margin:0 0 .5rem">Friday, 6:40 PM</h3>
+  <p style="color:#8A8F98; margin:0 0 1.5rem">The group's headed to Koko Bay. Now let's make it happen.</p>
   <div class="row" style="margin-bottom:1.75rem">
-    <button class="op-btn">Create event</button>
-    <button class="op-btn--ghost" style="font-family:var(--font-display); font-weight:600; padding:.85rem 1.5rem; border-radius:var(--radius-pill); font-size:.85rem; cursor:pointer">Not for me</button>
+    <button class="op-btn" style="background:#C9A876; color:#0D1117">Create event</button>
+    <button class="op-btn--ghost" style="border:1px solid color-mix(in srgb, #F2EFE9 22%, transparent); color:#F2EFE9">Not for me</button>
   </div>
-
   <div class="row" style="margin-bottom:1.75rem">
-    <span class="op-confirm">✓ RSVP confirmed, 4 of 6</span>
-    <span class="op-error">2 spots left, closes in 40 min</span>
+    <span class="op-confirm" style="background:rgba(0,224,199,.14); color:#00E0C7">✓ RSVP confirmed, 4 of 6</span>
+    <span class="op-error" style="color:#FF5C5C">2 spots left, closes in 40 min</span>
   </div>
-
   <div class="row" style="gap:1rem; align-items:stretch">
-    <div class="op-card" style="flex:1"><p class="op-card__name">Koko Bay</p><p class="op-card__meta">Palm Jumeirah · AED 300</p></div>
-    <div class="op-card" style="flex:1"><p class="op-card__name">The Guild</p><p class="op-card__meta">DIFC · AED 220</p></div>
-    <div class="op-card" style="flex:1"><p class="op-card__name">Ninive</p><p class="op-card__meta">Emirates Towers · AED 250</p></div>
+    <div class="op-card" style="flex:1; background:#161B22"><p class="op-card__name">Koko Bay</p><p class="op-card__meta" style="color:#8A8F98">Palm Jumeirah · AED 300</p></div>
+    <div class="op-card" style="flex:1; background:#161B22"><p class="op-card__name">The Guild</p><p class="op-card__meta" style="color:#8A8F98">DIFC · AED 220</p></div>
+    <div class="op-card" style="flex:1; background:#161B22"><p class="op-card__name">Ninive</p><p class="op-card__meta" style="color:#8A8F98">Emirates Towers · AED 250</p></div>
+  </div>
+</div>
+  </div>
+  <div style="flex:1; min-width:420px">
+    <h3 style="font-size:1rem; margin-bottom:.6rem">Night — v3, gold moved to sparing</h3>
+    <p class="note" style="margin:0 0 .6rem"><b>My recommendation.</b> Same four values, one swap: glass-blue takes the primary/wordmark job, gold moves to the badge-only role it already had in v2. Same palette, doesn't read as "navy and gold" as an identity.</p>
+    
+<div class="op-bg" style="background:#0D1117; color:#F2EFE9">
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.75rem">
+    <p style="font-family:var(--font-display); font-weight:700; letter-spacing:.26em; color:#5CC8D7; margin:0; font-size:.85rem">PLAN</p>
+    <span class="op-badge" style="background:rgba(201,168,118,.14); color:#C9A876">★ 4-week streak</span>
+  </div>
+  <h3 style="font-family:var(--font-display); font-size:2rem; font-weight:500; letter-spacing:-.03em; margin:0 0 .5rem">Friday, 6:40 PM</h3>
+  <p style="color:#8A8F98; margin:0 0 1.5rem">The group's headed to Koko Bay. Now let's make it happen.</p>
+  <div class="row" style="margin-bottom:1.75rem">
+    <button class="op-btn" style="background:#5CC8D7; color:#0D1117">Create event</button>
+    <button class="op-btn--ghost" style="border:1px solid color-mix(in srgb, #F2EFE9 22%, transparent); color:#F2EFE9">Not for me</button>
+  </div>
+  <div class="row" style="margin-bottom:1.75rem">
+    <span class="op-confirm" style="background:rgba(0,224,199,.14); color:#00E0C7">✓ RSVP confirmed, 4 of 6</span>
+    <span class="op-error" style="color:#FF5C5C">2 spots left, closes in 40 min</span>
+  </div>
+  <div class="row" style="gap:1rem; align-items:stretch">
+    <div class="op-card" style="flex:1; background:#161B22"><p class="op-card__name">Koko Bay</p><p class="op-card__meta" style="color:#8A8F98">Palm Jumeirah · AED 300</p></div>
+    <div class="op-card" style="flex:1; background:#161B22"><p class="op-card__name">The Guild</p><p class="op-card__meta" style="color:#8A8F98">DIFC · AED 220</p></div>
+    <div class="op-card" style="flex:1; background:#161B22"><p class="op-card__name">Ninive</p><p class="op-card__meta" style="color:#8A8F98">Emirates Towers · AED 250</p></div>
+  </div>
+</div>
   </div>
 </div>
 
-<p class="note" style="margin-top:1.5rem"><b>Resolved:</b> single dark identity everywhere, day/night dropped. <code>lib/dubai-phase.ts</code> and <code>components/ThemeSync.tsx</code> have no consumer once colour stops branching on it — confirmed zero other callers — so the spec calls for deleting them outright, not leaving them dormant.</p>
+<div class="row" style="align-items:flex-start; gap:1.5rem; margin-top:2rem">
+  <div style="flex:1; min-width:420px; max-width:600px">
+    <h3 style="font-size:1rem; margin-bottom:.6rem">Day — proposed white/navy</h3>
+    
+<div class="op-bg" style="background:#F7F7F5; color:#141414">
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.75rem">
+    <p style="font-family:var(--font-display); font-weight:700; letter-spacing:.26em; color:#1B2A4A; margin:0; font-size:.85rem">PLAN</p>
+    <span class="op-badge" style="background:rgba(138,109,47,.10); color:#8A6D2F">★ 4-week streak</span>
+  </div>
+  <h3 style="font-family:var(--font-display); font-size:2rem; font-weight:500; letter-spacing:-.03em; margin:0 0 .5rem">Friday, 6:40 PM</h3>
+  <p style="color:#5B5F66; margin:0 0 1.5rem">The group's headed to Koko Bay. Now let's make it happen.</p>
+  <div class="row" style="margin-bottom:1.75rem">
+    <button class="op-btn" style="background:#1B2A4A; color:#FFFFFF">Create event</button>
+    <button class="op-btn--ghost" style="border:1px solid color-mix(in srgb, #141414 22%, transparent); color:#141414">Not for me</button>
+  </div>
+  <div class="row" style="margin-bottom:1.75rem">
+    <span class="op-confirm" style="background:rgba(14,124,116,.10); color:#0E7C74">✓ RSVP confirmed, 4 of 6</span>
+    <span class="op-error" style="color:#B3261E">2 spots left, closes in 40 min</span>
+  </div>
+  <div class="row" style="gap:1rem; align-items:stretch">
+    <div class="op-card" style="flex:1; background:#FFFFFF"><p class="op-card__name">Koko Bay</p><p class="op-card__meta" style="color:#5B5F66">Palm Jumeirah · AED 300</p></div>
+    <div class="op-card" style="flex:1; background:#FFFFFF"><p class="op-card__name">The Guild</p><p class="op-card__meta" style="color:#5B5F66">DIFC · AED 220</p></div>
+    <div class="op-card" style="flex:1; background:#FFFFFF"><p class="op-card__name">Ninive</p><p class="op-card__meta" style="color:#5B5F66">Emirates Towers · AED 250</p></div>
+  </div>
+</div>
+  </div>
+</div>
+
+<p class="note" style="margin-top:1.5rem"><b>Reversed back:</b> <code>lib/dubai-phase.ts</code> (<code>dubaiHour()</code> and the ground-selection wrapper) and <code>components/ThemeSync.tsx</code> stay live — a real day palette is being added to the colour-application layer, not removed from it. The one part that stays deleted regardless of this reversal: the five retired category-group hues and the old rejected teal identity (<code>#12666e</code>/<code>#68b8c0</code>) — neither is coming back.</p>
 </body>
 </html>

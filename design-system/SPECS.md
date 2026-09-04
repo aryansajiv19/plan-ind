@@ -16,114 +16,130 @@ before presenting; see `design-system/dist/foundations/colour-next.html`.
 
 ---
 
-## 1 — Colour: the full respec
+## 1 — Colour: the full respec (palette v3 — supersedes v2 below)
 
-**One dark identity. No day/night split.** The Dubai-clock colour-switching
-mechanism is retired by explicit owner decision (asked directly, not
-assumed — see §2). The palette below applies unconditionally; there is no
-theme to branch on.
+**Day/night stays.** Reversed same-day: the "one dark identity" call (v2,
+coral/gold/teal on `#121212`) was itself reversed by the owner —
+*"i like white and navy blue together maybe that for the day mode i
+guess."* Two separately authored palettes again, selected by the Dubai
+clock, matching how this app's colour system has always worked before the
+brief-lived v2 detour. v2's exact values are kept in this document,
+struck through in spirit, because the fill-contrast rule and the four-job
+structure it established both carry forward unchanged — only the hexes
+move.
 
-### Tokens
+### Night — palette v3
 
-| Role | Value | Measured | Notes |
+| Role | Token | Value | Measured |
 |---|---|---|---|
-| `--color-paper` (ground) | `#121212` | — | Near-black, not pure black |
-| `--color-card` (surface) | `#1E1E1E` | — | Cards, nav, inputs — everything that isn't ground or accent |
-| `--color-ink` (text primary) | `#F5F5F5` | 17.18:1 on ground, 15.29:1 on surface | |
-| `--color-muted` (text secondary) | `#A0A0A0` | 7.16:1 on ground, 6.38:1 on surface | the one the owner flagged to verify — clears AA with room |
-| `--color-punch` (primary/outcome accent) | `#FF6B4A` coral | 6.65:1 on ground as text | Primary CTAs only — "Create event", "RSVP", "Lock it in" |
-| **NEW** `--color-accent-premium` (sparing accent) | `#FFD166` gold | 12.99:1 on ground as text | Badges, streaks, premium markers **only** — not buttons, not body text, not anything that appears more than once or twice on a screen |
-| `--color-live` (confirm/active) | `#00E0C7` teal | 11.14:1 on ground as text | RSVP confirmed, active/live states. **Churned and settled**: a violet swap (`#B975FF`) was tried, rendered against real UI, and checked against the anti-vibecoded list's "purple and black" warning — it read as coral-led with violet as one small restrained accent, not the trope. The owner reversed it anyway on a separate pass; teal is the final answer. **New constraint that came with the final decision: teal is small-components-only — badges, pills, status text — never a large surface or a component fill.** That's stricter than the original "confirm/active" framing and should be read as binding; don't put teal on anything sized like a button or a card. |
-| **NEW** `--color-error` (error/urgent) | `#FF5C5C` | 6.19:1 on ground as text | First error/urgent semantic this app has had as a named token — repoint the shadcn-bridge `--destructive` (`app/globals.css:127-131`) to this instead of its current `#9a3412`/`#f0a08a` pair |
+| Ground | `--color-paper` | `#0D1117` | — deep charcoal-navy, cooler than pure black |
+| Surface | `--color-card` | `#161B22` | — |
+| Text primary | `--color-ink` | `#F2EFE9` | 16.49:1 on ground, 15.07:1 on surface |
+| Text secondary | `--color-muted` | `#8A8F98` | 5.82:1 on ground, 5.32:1 on surface |
+| Error/urgent | `--color-error` | `#FF5C5C` | 6.25:1 on ground |
 
-**Fill contrast — the rule that prevents the bug already in the codebase**:
-every accent above is light-to-mid tone. As a **fill** (button background,
-filled badge), the text on it is **always `#121212` (dark ink), never
-white/`#F5F5F5`**. Measured: white-on-coral 2.58:1 (fails AA), white-on-gold
-1.32:1 (fails badly), dark-ink-on-coral 6.65:1, dark-ink-on-gold 12.99:1.
-This is the exact shape of the bug at finding §3 below — do not reintroduce
-it with the new palette.
+**Primary/wordmark job — open, pending the owner's pick between two
+renders**, not settled the way everything else here is:
 
-### The colour system now has four jobs, not two
+| Option | Primary/wordmark | Premium/badge (sparing) | Verdict |
+|---|---|---|---|
+| **v3 as given** | `#C9A876` champagne gold, 8.42:1 | `#5CC8D7` glass-blue, 9.64:1 | The most visually dominant elements on screen — the primary CTA and the wordmark — are gold-on-navy. That is structurally the same combination this whole colour pass opened by rejecting. Cooler and more restrained than the original (glass-blue and teal genuinely do work elsewhere), but the dominant read is still close to the thing that was rejected. |
+| **v3, gold moved to sparing** (**my recommendation**) | `#5CC8D7` glass-blue, 9.64:1 | `#C9A876` champagne gold, 8.42:1 | Same four values, one swap. Glass-blue carries the identity; gold returns to exactly the "sparing accent" role it already had in v2 (badges, streaks, one or two instances a screen). Reads as navy-and-blue with a touch of warm metal, not navy-and-gold as an identity. |
 
-Update the "colour has exactly N jobs" doctrine (`FRONTEND_DESIGN_STANDARDS.md`,
-the skill file) to:
+Both rendered side by side, real UI, in
+`design-system/dist/foundations/colour-next.html` — look before picking
+one from the table alone. Until the owner picks, treat "gold moved to
+sparing" as the working default (it's strictly more constrained — every
+future use of gold under that reading is also valid under "v3 as given",
+the reverse isn't true — so building against it first costs nothing if
+the owner picks the other one later).
 
-| Job | Token | Where |
-|---|---|---|
-| The outcome / primary action | `--color-punch` (coral) | primary CTAs, the winner treatment |
-| You, and now / confirm / active | `--color-live` (teal) | RSVP confirmed, live/active states, round dots |
-| Premium marker, used sparingly | `--color-accent-premium` (gold) | badges, streaks — **never** a button, never body text, never more than one or two instances per screen |
-| Error / urgent | `--color-error` | validation errors, closing-soon warnings |
+**Confirm/active** — `--color-live` `#00E0C7` teal, 11.25:1 on ground /
+10.29:1 on surface. Unchanged from v2. **Small components only — badges,
+pills, status text, never a large surface or a fill.** This constraint
+survived a full churn (teal → violet, rendered and checked against the
+"purple and black" warning, reverted anyway) and is binding.
 
-Category/group colour stays retired — nothing above reopens it.
+### Day — proposed white/navy, not yet confirmed
+
+The owner's own wording was tentative — *"maybe that for the day mode i
+guess"* — so this is a concrete, contrast-checked starting point built to
+react to, not a locked answer. If white-and-navy meant something more
+specific, correct these values rather than treating them as final.
+
+| Role | Token | Value | Measured |
+|---|---|---|---|
+| Ground | `--color-paper` | `#F7F7F5` | — off-white, not stark white |
+| Surface | `--color-card` | `#FFFFFF` | — pure white, so cards lift off the ground |
+| Text primary | `--color-ink` | `#141414` | 17.17:1 on ground, 18.42:1 on surface |
+| Text secondary | `--color-muted` | `#5B5F66` | 5.98:1 on ground, 6.42:1 on surface |
+| Primary/wordmark | `--color-punch` | `#1B2A4A` navy | 13.26:1 on ground as text; 14.22:1 as a white-ink fill |
+| Premium/badge (sparing) | `--color-accent-premium` | `#8A6D2F` deep gold | 4.54:1 on ground — the day cut has to be darker than night's `#C9A876` to clear AA on a light ground, same asymmetry the very first day/night system in this app used |
+| Confirm/active | `--color-live` | `#0E7C74` deep teal | 4.71:1 on ground — same small-components-only constraint as night |
+| Error/urgent | `--color-error` | `#B3261E` | 6.09:1 on ground |
+
+### Fill contrast — unchanged rule, re-verify on the new hexes
+
+Every accent above is light-to-mid tone at night, mid-to-dark by day. As a
+**fill** (a button background, a filled badge), the text on it is the
+*other* end of the scale — dark ink (`#0D1117`/`#141414`-family) on a
+night fill, white/light ink on a day fill (day's navy primary is dark
+enough that it takes light ink, the one place day's rule differs from
+night's — check per-value, don't assume the pattern from night carries
+over unchanged). This is the exact shape of the bug at §3 below — don't
+reintroduce it with the new palette either.
+
+### The colour system still has four jobs
+
+| Job | Where |
+|---|---|
+| The outcome / primary action | primary CTAs, the winner treatment, the wordmark |
+| You, and now / confirm / active | RSVP confirmed, live/active states, round dots — small components only |
+| Premium marker, used sparingly | badges, streaks — never a button, never body text, never more than one or two instances per screen |
+| Error / urgent | validation errors, closing-soon warnings |
+
+Category/group colour stays retired — nothing above reopens it. Neither
+does the rejected v1 teal identity (`#12666e`/`#68b8c0`) or brass/champagne
+from before that.
 
 ### Legacy alias tokens
 
-`--color-grape`, `--color-zest`, `--color-mint` currently alias to the old
-teal (`app/globals.css` `@theme` block and the `[data-theme="night"]`
-block, per §2). Repoint all three to `--color-punch` (coral) so the ~19
-`text-grape`/`bg-punch`/`bg-zest`/`text-mint` utility-class usages already
-in components inherit correctly with zero component edits — same mechanism
-that made the teal migration mostly automatic.
+`--color-grape`, `--color-zest`, `--color-mint` should alias to
+`--color-punch` in both grounds, so the ~19 `text-grape`/`bg-punch`/
+`bg-zest`/`text-mint` utility-class usages already in components inherit
+correctly with zero component edits.
 
 ---
 
-## 2 — Retire day/night *colour*, keep the Dubai-clock *primitive*
+## 2 — Day/night mechanism: keep it, add a real day branch
 
-**Revised from the first pass of this spec** — two signals needed
-reconciling, not one blindly overriding the other. When I asked the owner
-directly whether their palette replaces day/night or is just the night
-half, they picked "drop day/night entirely" (recommended, for the luxury
-feel). Separately, the owner's anti-vibecoded checklist
-(`PRODUCTION_CHECKLISTS.md`) warns against stripping the Dubai-clock
-mechanism as a reflexive "kill dark mode" move, because it's *"real
-product logic... changes with when people are actually planning
-'tonight'"* — a temporal/copy concern, not a colour one. Those aren't
-actually in conflict once separated: the **colour application** is
-resolved (drop it, asked and answered specifically); the **time-of-day
-primitive** the checklist is protecting might still have a future
-non-colour use (e.g. "tonight" vs. "tomorrow" framing) that my original
-narrower question never asked about. Don't guess on that part — keep the
-cheap thing, delete the confirmed-dead thing:
+**Reversed from this document's own first pass**, which called for
+deleting `lib/dubai-phase.ts` and `components/ThemeSync.tsx` outright.
+Two signals needed reconciling, and this time the reconciliation is
+simpler than the first round: the owner's checklist warned against
+stripping the mechanism as a reflexive "kill dark mode" move because it's
+real product logic; then, separately and explicitly, the owner asked for
+day mode back. Nothing to interpret here — build the day branch, don't
+remove the mechanism.
 
-```
-grep -rln "dubai-phase" --include="*.tsx" --include="*.ts" .
-  -> app/layout.tsx, components/HomeExperience.tsx, components/ThemeSync.tsx
-grep -rln "ThemeSync" --include="*.tsx" --include="*.ts" .
-  -> app/layout.tsx, components/HomeExperience.tsx, lib/dubai-phase.ts
-```
-
-- **Keep** `lib/dubai-phase.ts`'s `dubaiHour()` — the raw "what hour is it
-  in Dubai right now" primitive. Zero cost to retain, and it's the one
-  piece with plausible future non-colour value the checklist is actually
-  worried about losing.
-- **Delete** the colour-specific wrapper around it — `groundForHour`,
-  `autoGround`, `resolveGround`, `THEME_KEY`, `readPreference`, the
-  `Ground`/`ThemePreference` types — and **delete**
-  `components/ThemeSync.tsx` entirely. Both exist only to apply a day/night
-  *ground*, and that concept is retired (confirmed zero other consumers of
-  either file beyond each other and the two call sites below).
-- **`app/layout.tsx`**: remove the `autoGround()` call, the
-  `data-theme={ground}` attribute on `<html>`, and the
-  `<ThemeSync serverGround={ground} />` mount.
-- **`components/HomeExperience.tsx`**: remove the `nightMode` state
-  (`useSyncExternalStore(subscribeToGround, currentGround, ...)`), the
-  `toggleNightMode` handler, and the Day/Night toggle button in the nav
-  (`.home-theme-toggle`). One less nav control also helps the §4 nav-overflow fix.
-- **`app/globals.css`**: delete every `[data-theme="night"] .home-experience { ... }`
-  / `[data-theme="night"] .vote-experience { ... }` block (46 selectors were
-  counted pre-migration; re-verify the current count before deleting — grep
-  `\[data-theme="night"\]`). The single palette in §1 becomes the unconditional
-  `@theme` block; there is no override block to write.
-- **`app/manifest.ts:17-18`**: single `theme_color`/`background_color` —
-  `#121212` for both (was `#f3f1ec`, stale even under the old system).
-- If a future feature wants "tonight" framing (copy, default plan timing,
-  a "still time for a plan" nudge), it reaches for `dubaiHour()` directly —
-  that's a product decision for whoever builds it, not something to
-  pre-build here.
+- **Keep** `lib/dubai-phase.ts`, `components/ThemeSync.tsx`, the
+  `nightMode` state and toggle in `components/HomeExperience.tsx`, and
+  every `[data-theme="night"]` block in `app/globals.css` — **all of it
+  stays live**, exactly as it was before v2's colour-only detour.
+- **Add**: the day values from §1 become the unconditional `@theme` block
+  (the default, no `[data-theme]` needed); the night values from §1
+  replace the current teal-era `[data-theme="night"]` overrides. This is
+  additive/repointing work, not deletion.
+- **`app/manifest.ts:17-18`**: `theme_color` tracks the *default* (day)
+  ground, `#F7F7F5`, replacing the current stale `#f3f1ec`. `background_color`
+  can stay day as well, or the app can register both via
+  `prefers-color-scheme` media queries in the manifest if that level of
+  polish is wanted — not required for this pass.
+- `dubaiHour()` remains available for any future non-colour "tonight"
+  framing, unchanged from the first draft of this section.
 
 ---
+
 
 ## 3 — Structural bug-fix spec
 
@@ -237,29 +253,34 @@ hardcoded hex anywhere in it — rather than porting the literals forward.
 ### 3.8 — The white 0.55-alpha chip
 
 `app/globals.css:1547` — `.plan-category-option, .plan-deadline { background:
-rgba(255, 255, 255, 0.55) }`. A semi-opaque white card on the near-black §1
-ground is a stark white slab — the single highest-impact "wrong colour" the
-audit found.
+rgba(255, 255, 255, 0.55) }`. A semi-opaque white card reads as a stark
+white slab on the night ground (§1) specifically — on the new day ground
+it's closer to correct by accident, which is exactly why this kind of bug
+survives: it looks fine in whichever theme someone happens to check.
 
-**Fix**: `background: var(--color-card)` (i.e. `#1E1E1E`), matching every
-other card surface in the new system. Selected/active state (if this rule
-also serves that) should use `color-mix(in srgb, var(--color-punch) 12%,
-var(--color-card))` or similar, not opacity-over-white.
+**Fix**: `background: var(--color-card)`, matching every other card
+surface — resolves to `#161B22` at night, `#FFFFFF` by day, themed
+correctly either way instead of a fixed literal. Selected/active state (if
+this rule also serves that) should use `color-mix(in srgb, var(--color-punch)
+12%, var(--color-card))` or similar, not opacity-over-white.
 
 ### 3.9 — Four hardcoded `text-white` on accent fills
 
 `app/plan/[id]/page.tsx:768,781`, `components/NameGate.tsx:47`,
-`components/DecidedPlan.tsx:220` — all `bg-punch`/`bg-grape` (→ coral once §1
-lands) paired with hardcoded `text-white`. Per §1's fill-contrast rule,
-white on coral is 2.58:1 — fails AA outright, was already failing at 2.35:1
-under the old teal-at-night value.
+`components/DecidedPlan.tsx:220` — all `bg-punch`/`bg-grape` paired with
+hardcoded `text-white`. Per §1's fill-contrast rule this is wrong at night
+regardless of which primary-job option wins (§1) — a hardcoded light text
+colour on an accent fill is the same shape of bug that was already found
+and fixed once at v1 (teal-at-night, 2.35:1, failed AA).
 
-**Fix**: replace `text-white` with a class that resolves to dark ink on
-these — either a new small utility (`text-ink-on-accent { color: #121212 }`)
-or point these four at the existing `.vote-primary-action`/`.plan-submit`
-component classes, which already carry the correct fill+ink pair via
-`--primary-fill`/`--primary-ink` (also being simplified by §1/§2 — this pair
-collapses to a single non-themed value now that there's no day/night split).
+**Fix**: replace `text-white` with a class that resolves through the
+themed fill/ink pair, not a literal — point these four at the existing
+`.vote-primary-action`/`.plan-submit` component classes, which already
+carry `--primary-fill`/`--primary-ink` and, once §1/§2 land, will resolve
+correctly in both grounds automatically. Do not hardcode a specific ink
+value here; the whole point is that day and night take opposite ink
+colours on this fill (§1's Fill contrast note) and a literal can only be
+right in one of them.
 
 ---
 

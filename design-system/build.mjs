@@ -127,56 +127,103 @@ const TILE = ({ photo, name, meta, note, live, vibe, h }) => `
 const IMG = (w, h) => `https://placehold.co/${w}x${h}/16343a/68b8c0?text=+`;
 
 const OWNER_PALETTE_CSS = `
-.op-bg { background:#121212; color:#F5F5F5; padding:2rem; border-radius:var(--radius-panel); }
-.op-surface { background:#1E1E1E; border-radius:var(--radius-panel); padding:1.5rem; }
-.op-muted { color:#A0A0A0; }
+.op-bg { padding:2rem; border-radius:var(--radius-panel); }
 .op-btn { font-family:var(--font-display); font-weight:700; padding:.85rem 1.75rem; border-radius:var(--radius-pill);
-  border:1px solid transparent; background:#FF6B4A; color:#121212; font-size:.88rem; cursor:pointer; }
-.op-btn--ghost { background:none; border-color:rgba(245,245,245,.22); color:#F5F5F5; }
-.op-badge { display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:16px;
-  background:rgba(255,209,102,.14); color:#FFD166; font-size:.72rem; font-weight:700; }
-.op-confirm { display:inline-flex; align-items:center; gap:8px; padding:8px 14px; border-radius:14px;
-  background:rgba(0,224,199,.14); color:#00E0C7; font-size:.78rem; font-weight:600; }
-.op-error { color:#FF5C5C; font-size:.78rem; font-weight:600; }
-.op-card { background:#1E1E1E; border-radius:var(--radius-panel); padding:1.1rem; }
-.op-card__name { font-family:var(--font-display); font-size:1.05rem; font-weight:600; color:#F5F5F5; margin:0; }
-.op-card__meta { font-size:.78rem; color:#A0A0A0; margin:.3rem 0 0; }
+  border:1px solid transparent; font-size:.88rem; cursor:pointer; }
+.op-btn--ghost { background:none; font-size:.85rem; padding:.85rem 1.5rem; border-radius:var(--radius-pill); font-family:var(--font-display); font-weight:600; cursor:pointer; }
+.op-badge { display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:16px; font-size:.72rem; font-weight:700; }
+.op-confirm { display:inline-flex; align-items:center; gap:8px; padding:8px 14px; border-radius:14px; font-size:.78rem; font-weight:600; }
+.op-error { font-size:.78rem; font-weight:600; }
+.op-card { border-radius:var(--radius-panel); padding:1.1rem; }
+.op-card__name { font-family:var(--font-display); font-size:1.05rem; font-weight:600; margin:0; }
+.op-card__meta { font-size:.78rem; margin:.3rem 0 0; }
 `;
+
+// Two genuinely separate palettes — v3 night (charcoal-navy/champagne-gold/
+// glass-blue/teal) and a proposed white/navy day, built to match its four-job
+// structure. Day's exact values are the owner's own tentative wording ("white
+// and navy blue... I guess") turned into something concrete and AA-checked,
+// not a guess shipped silently — flagged as proposed in the copy below.
+const PALETTE = {
+  night: {
+    ground: "#0D1117", surface: "#161B22", ink: "#F2EFE9", muted: "#8A8F98",
+    primary: "#C9A876", primaryInk: "#0D1117", secondary: "#5CC8D7",
+    confirmBg: "rgba(0,224,199,.14)", confirm: "#00E0C7", error: "#FF5C5C",
+    wordmark: "#C9A876", badgeBg: "rgba(92,200,215,.14)", badge: "#5CC8D7",
+  },
+  day: {
+    ground: "#F7F7F5", surface: "#FFFFFF", ink: "#141414", muted: "#5B5F66",
+    primary: "#1B2A4A", primaryInk: "#FFFFFF", secondary: "#14213D",
+    confirmBg: "rgba(14,124,116,.10)", confirm: "#0E7C74", error: "#B3261E",
+    wordmark: "#1B2A4A", badgeBg: "rgba(138,109,47,.10)", badge: "#8A6D2F",
+  },
+  // Same v3 values, ONE change: glass-blue takes the primary/wordmark job
+  // instead of gold, and gold moves to where v2 always kept it — the sparing
+  // badge role. Nothing else moves. This is the direct fix for "the primary
+  // button and the wordmark are both gold-on-navy, which is what got
+  // rejected" — proposed alongside v3-as-given so there's a real comparison,
+  // not just an assertion that it helps.
+  nightAlt: {
+    ground: "#0D1117", surface: "#161B22", ink: "#F2EFE9", muted: "#8A8F98",
+    primary: "#5CC8D7", primaryInk: "#0D1117", secondary: "#C9A876",
+    confirmBg: "rgba(0,224,199,.14)", confirm: "#00E0C7", error: "#FF5C5C",
+    wordmark: "#5CC8D7", badgeBg: "rgba(201,168,118,.14)", badge: "#C9A876",
+  },
+};
+
+const paletteBlock = (p) => `
+<div class="op-bg" style="background:${p.ground}; color:${p.ink}">
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.75rem">
+    <p style="font-family:var(--font-display); font-weight:700; letter-spacing:.26em; color:${p.wordmark}; margin:0; font-size:.85rem">PLAN</p>
+    <span class="op-badge" style="background:${p.badgeBg}; color:${p.badge}">★ 4-week streak</span>
+  </div>
+  <h3 style="font-family:var(--font-display); font-size:2rem; font-weight:500; letter-spacing:-.03em; margin:0 0 .5rem">Friday, 6:40 PM</h3>
+  <p style="color:${p.muted}; margin:0 0 1.5rem">The group's headed to Koko Bay. Now let's make it happen.</p>
+  <div class="row" style="margin-bottom:1.75rem">
+    <button class="op-btn" style="background:${p.primary}; color:${p.primaryInk}">Create event</button>
+    <button class="op-btn--ghost" style="border:1px solid color-mix(in srgb, ${p.ink} 22%, transparent); color:${p.ink}">Not for me</button>
+  </div>
+  <div class="row" style="margin-bottom:1.75rem">
+    <span class="op-confirm" style="background:${p.confirmBg}; color:${p.confirm}">✓ RSVP confirmed, 4 of 6</span>
+    <span class="op-error" style="color:${p.error}">2 spots left, closes in 40 min</span>
+  </div>
+  <div class="row" style="gap:1rem; align-items:stretch">
+    <div class="op-card" style="flex:1; background:${p.surface}"><p class="op-card__name">Koko Bay</p><p class="op-card__meta" style="color:${p.muted}">Palm Jumeirah · AED 300</p></div>
+    <div class="op-card" style="flex:1; background:${p.surface}"><p class="op-card__name">The Guild</p><p class="op-card__meta" style="color:${p.muted}">DIFC · AED 220</p></div>
+    <div class="op-card" style="flex:1; background:${p.surface}"><p class="op-card__name">Ninive</p><p class="op-card__meta" style="color:${p.muted}">Emirates Towers · AED 250</p></div>
+  </div>
+</div>`;
 
 const ownerPaletteCard = {
   path: "foundations/colour-next.html", group: "Foundations", name: "Colour — approved direction (not yet shipped)",
-  subtitle: "Coral primary + gold accent (sparing) + teal confirm, one dark identity",
-  viewport: { width: 1180, height: 900 }, css: OWNER_PALETTE_CSS,
-  body: `<p class="kicker">Approved 2026-09-04 — see design-system/SPECS.md for the full spec</p><h2>Coral · gold · teal, on near-black</h2>
-<p class="note">Background <code>#121212</code>, surface <code>#1E1E1E</code>, text <code>#F5F5F5</code>/<code>#A0A0A0</code>, primary coral <code>#FF6B4A</code>, gold <code>#FFD166</code> used sparingly for badges/streaks, teal <code>#00E0C7</code> for confirm/active — <b>teal is final</b> (a violet swap was tried and reverted; teal stays, constrained to small components/badges/states only, never a large surface or fill). Every value AA-clear (worst case 6.38:1). <b>All four accents take dark ink as fill text, never white</b> — white-on-coral measures 2.58:1, white-on-gold 1.32:1; that exact mistake is already live in the shipped code and the spec is written to not repeat it. <b>One dark identity, no day/night split</b> — the Dubai-clock colour-switching mechanism is retired by owner decision; <code>foundations/colour.html</code> still shows the old sand/teal pair because it reads the live app tokens and Frontend hasn't shipped this yet.</p>
+  subtitle: "Palette v3: charcoal-navy/gold/glass-blue by night, proposed white/navy by day",
+  viewport: { width: 1280, height: 1000 }, css: OWNER_PALETTE_CSS,
+  body: `<p class="kicker">Approved 2026-09-04 — see design-system/SPECS.md for the full spec</p><h2>Two separately authored palettes, not one dimmed</h2>
+<p class="note"><b>Day/night stays</b> — reversed back from the "one dark identity" call earlier the same day. Night is palette v3: ground <code>#0D1117</code>, surface <code>#161B22</code>, champagne gold primary <code>#C9A876</code>, glass-blue secondary <code>#5CC8D7</code>, teal confirm <code>#00E0C7</code> (small components only, unchanged constraint), error <code>#FF5C5C</code>. All AA-clear, worst case 5.82:1.</p>
+<p class="note"><b>Worth your eyes before this goes further:</b> charcoal-navy ground plus a champagne-gold primary accent is structurally close to the navy-and-gold combination this whole colour pass started by rejecting. It may well be the deliberate refinement — cooler navy, restrained metal instead of the old brass, glass-blue and teal doing real work this time — rather than a drift back, but that's a judgment best made looking at it, not at hex codes. See for yourself in the panel below rather than taking either read on faith.</p>
+<p class="note"><b>Day is proposed, not yet confirmed</b> — "white and navy blue... I guess" turned into something concrete and contrast-checked so there's something real to react to: ground <code>#F7F7F5</code>, surface <code>#FFFFFF</code>, navy primary <code>#1B2A4A</code>, with gold/teal/error re-cut darker for AA on a light ground (day gold <code>#8A6D2F</code>, day teal <code>#0E7C74</code>, day error <code>#B3261E</code> — all clear, worst case 4.54:1). If white-and-navy meant something more specific, this is a starting point to correct, not a final answer.</p>
 
-<div class="op-bg">
-  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.75rem">
-    <p style="font-family:var(--font-display); font-weight:700; letter-spacing:.26em; color:#FF6B4A; margin:0; font-size:.85rem">PLAN</p>
-    <span class="op-badge">★ 4-week streak</span>
+<div class="row" style="align-items:flex-start; gap:1.5rem">
+  <div style="flex:1; min-width:420px">
+    <h3 style="font-size:1rem; margin-bottom:.6rem">Night — v3 as given</h3>
+    <p class="note" style="margin:0 0 .6rem">Gold is the primary/wordmark colour — this is the one that reads closest to what got rejected.</p>
+    ${paletteBlock(PALETTE.night)}
   </div>
-
-  <h3 style="font-family:var(--font-display); font-size:2rem; font-weight:500; letter-spacing:-.03em; color:#F5F5F5; margin:0 0 .5rem">Friday, 6:40 PM</h3>
-  <p class="op-muted" style="margin:0 0 1.5rem">The group's headed to Koko Bay. Now let's make it happen.</p>
-
-  <div class="row" style="margin-bottom:1.75rem">
-    <button class="op-btn">Create event</button>
-    <button class="op-btn--ghost" style="font-family:var(--font-display); font-weight:600; padding:.85rem 1.5rem; border-radius:var(--radius-pill); font-size:.85rem; cursor:pointer">Not for me</button>
-  </div>
-
-  <div class="row" style="margin-bottom:1.75rem">
-    <span class="op-confirm">✓ RSVP confirmed, 4 of 6</span>
-    <span class="op-error">2 spots left, closes in 40 min</span>
-  </div>
-
-  <div class="row" style="gap:1rem; align-items:stretch">
-    <div class="op-card" style="flex:1"><p class="op-card__name">Koko Bay</p><p class="op-card__meta">Palm Jumeirah · AED 300</p></div>
-    <div class="op-card" style="flex:1"><p class="op-card__name">The Guild</p><p class="op-card__meta">DIFC · AED 220</p></div>
-    <div class="op-card" style="flex:1"><p class="op-card__name">Ninive</p><p class="op-card__meta">Emirates Towers · AED 250</p></div>
+  <div style="flex:1; min-width:420px">
+    <h3 style="font-size:1rem; margin-bottom:.6rem">Night — v3, gold moved to sparing</h3>
+    <p class="note" style="margin:0 0 .6rem"><b>My recommendation.</b> Same four values, one swap: glass-blue takes the primary/wordmark job, gold moves to the badge-only role it already had in v2. Same palette, doesn't read as "navy and gold" as an identity.</p>
+    ${paletteBlock(PALETTE.nightAlt)}
   </div>
 </div>
 
-<p class="note" style="margin-top:1.5rem"><b>Resolved:</b> single dark identity everywhere, day/night dropped. <code>lib/dubai-phase.ts</code> and <code>components/ThemeSync.tsx</code> have no consumer once colour stops branching on it — confirmed zero other callers — so the spec calls for deleting them outright, not leaving them dormant.</p>`,
+<div class="row" style="align-items:flex-start; gap:1.5rem; margin-top:2rem">
+  <div style="flex:1; min-width:420px; max-width:600px">
+    <h3 style="font-size:1rem; margin-bottom:.6rem">Day — proposed white/navy</h3>
+    ${paletteBlock(PALETTE.day)}
+  </div>
+</div>
+
+<p class="note" style="margin-top:1.5rem"><b>Reversed back:</b> <code>lib/dubai-phase.ts</code> (<code>dubaiHour()</code> and the ground-selection wrapper) and <code>components/ThemeSync.tsx</code> stay live — a real day palette is being added to the colour-application layer, not removed from it. The one part that stays deleted regardless of this reversal: the five retired category-group hues and the old rejected teal identity (<code>#12666e</code>/<code>#68b8c0</code>) — neither is coming back.</p>`,
 };
 
 const CARDS = [

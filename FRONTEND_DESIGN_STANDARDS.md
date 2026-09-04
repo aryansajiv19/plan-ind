@@ -29,63 +29,82 @@ which is a deliberate, restrained pulse, not a "system is online" light.
 
 ## Colour
 
-> **This section has been rewritten twice.** First reversal (owner
-> decision, pre-2026-09): the original "ivory, graphite and champagne, never
-> a second accent" rule caused 23 category accents to be built, never
+> **This section has been rewritten three times, twice on the same day.**
+> First (owner decision, pre-2026-09): "ivory, graphite and champagne,
+> never a second accent" caused 23 category accents to be built, never
 > rendered, and deleted — reversed toward warmth and saturation. Second
-> reversal, and the current state (owner decision, 2026-09-04): the
-> palette that followed — teal accent, warm sand by day, near-black by
-> night — read as **"navy blue and gold"** to the owner and was rejected
-> outright, in these words: *"i dont like the navy blue gold theme if we
-> switch to more fun colors but the goal is to keep the app looking modern
-> sleek luxurious as well."* Root-caused (not guessed) via a full audit
-> before the replacement below was written; see `design-system/SPECS.md`
-> §1 for the evidence. **Do not restore the rejected teal (`#12666e`/`#68b8c0`,
-> the primary/identity accent), brass/champagne, the five category-group
-> hues, or the day/night colour split** — retiring any of them re-causes a
-> bug or a rejection this file already recorded. This is a different teal
-> from job 2 below (`#00E0C7`, a small-only confirm accent) — same word,
-> unrelated hue and role; don't conflate them.
+> (owner decision, 2026-09-04): the palette that followed — teal accent,
+> warm sand by day, near-black by night — read as **"navy blue and gold"**
+> and was rejected outright, replaced with a single dark identity
+> (coral/gold/teal on `#121212`, "palette v2"). Third, same day: the
+> owner asked for day mode back — *"i like white and navy blue together
+> maybe that for the day mode i guess"* — reversing the single-identity
+> call. **Current state: two separately authored palettes again
+> ("palette v3"), selected by the Dubai clock, per the table below.**
+> Full reasoning and measured contrast for every value: `design-system/SPECS.md`
+> §1. **Do not restore**: the rejected v1 teal (`#12666e`/`#68b8c0`),
+> brass/champagne, the five category-group hues, or a single-identity
+> (no-day/night) colour system — each retiring re-causes a bug or a
+> rejection already recorded here. Palette v2's coral/gold/teal is also
+> superseded — don't restore it either, even though the day/night removal
+> it came with is what got reversed, not the hexes themselves.
 
-**One dark identity. No day/night colour split.** The ground is `#121212`
-(near-black, not pure black), surfaces are `#1E1E1E`. This is not a "night
-theme" — there is no other theme. (The Dubai-clock time-of-day mechanism
-that used to drive this is retired; see `design-system/SPECS.md` §2 for
-why and what got deleted.)
+**Two grounds, separately authored, not one dimmed.** Selected by the
+Dubai clock (`lib/dubai-phase.ts`, `components/ThemeSync.tsx` — both stay
+live; see `design-system/SPECS.md` §2).
 
 Colour carries exactly **four** jobs. Nothing else earns a hue.
 
-| Job | Token | Value | Where |
+| Job | Token | Night (v3) | Day (proposed) |
 |---|---|---|---|
-| The outcome / primary action | `--color-punch` | `#FF6B4A` coral | primary CTAs — "Create event", "RSVP", "Lock it in" — and the winner treatment |
-| You, and now / confirm / active | `--color-live` | `#00E0C7` teal | RSVP confirmed, live/active states, round dots. **Small components only — badges, pills, status text. Never a large surface or a component fill** (a button, a card). This constraint came with the final colour decision after a violet alternative was tried and reverted; it applies specifically because teal reads differently at button/card scale than at badge scale — don't relearn that the hard way |
-| Premium marker — **sparing** | `--color-accent-premium` | `#FFD166` gold | badges, streaks. **Never** a button fill, never body text, never more than one or two instances on a screen. This is the one job with a usage limit as well as a colour — treat "sparing" as binding as the hex value |
-| Error / urgent | `--color-error` | `#FF5C5C` | validation errors, closing-soon warnings |
+| The outcome / primary action / wordmark | `--color-punch` | **Open — pending owner pick.** Either `#C9A876` champagne gold (v3 as given) or `#5CC8D7` glass-blue with gold moved to the premium job (my recommendation — see below) | `#1B2A4A` navy |
+| You, and now / confirm / active | `--color-live` | `#00E0C7` teal | `#0E7C74` deep teal |
+| Premium marker — **sparing** | `--color-accent-premium` | `#5CC8D7` glass-blue, or `#C9A876` gold if the primary job goes to glass-blue instead | `#8A6D2F` deep gold |
+| Error / urgent | `--color-error` | `#FF5C5C` | `#B3261E` |
+
+### The one open call: what carries the primary job at night
+
+`#C9A876` champagne gold on the `#0D1117` charcoal-navy ground is
+structurally close to the exact "navy and gold" combination this colour
+pass opened by rejecting — cooler and more restrained than the original,
+but the two most visually dominant elements (the primary CTA, the
+wordmark) read gold-on-navy either way. **Recommendation: swap the primary
+and premium jobs** — glass-blue `#5CC8D7` carries the identity, gold moves
+to the sparing badge role it already had in palette v2. Same four values,
+one swap, and it no longer reads as a navy-and-gold identity. Both
+options are rendered side by side on real UI in
+`design-system/dist/foundations/colour-next.html` — look before building
+either one at scale. Until the owner picks, build against the
+recommendation: it's the strictly more constrained option (anything valid
+under it is also valid under "gold as primary", not the reverse), so
+nothing built against it needs rework if the owner picks the other one.
 
 ### Fill contrast — read this before styling any filled control
 
-Every one of the four accents above is light-to-mid tone. As a **fill**
-(a button background, a filled badge), the text on it is **always dark ink
-(`#121212`), never white or `--color-ink`**. White-on-coral measures
-2.58:1 (fails AA outright); white-on-gold 1.32:1 (fails badly).
-Dark-ink-on-coral is 6.65:1; dark-ink-on-gold is 12.99:1. This exact
-mistake — a hardcoded light text colour on an accent fill — already existed
-in the shipped code once (`text-white` on the old accent, four places,
-found and fixed in the 2026-09-04 pass). Don't reintroduce it.
+Every accent above is light-to-mid tone at night, mid-to-dark by day. As a
+**fill** (a button background, a filled badge), the text on it takes the
+*opposite* end of the scale from the accent itself — dark ink on a light
+night-fill, and (day's one asymmetry) white/light ink on day's navy
+primary specifically, since navy is dark enough to need it. Check each
+value, don't assume night's pattern (dark ink always) carries over to day
+unchanged. This exact mistake — a hardcoded wrong-contrast text colour on
+an accent fill — already shipped once (`text-white` on the v1 teal
+accent, four places, found and fixed 2026-09-04). Don't reintroduce it a
+third time.
 
 ### Text and grounds
 
-| Role | Token | Value | Measured |
+| Role | Token | Night | Day |
 |---|---|---|---|
-| Ground | `--color-paper` | `#121212` | — |
-| Surface (cards, nav, inputs) | `--color-card` | `#1E1E1E` | — |
-| Text, primary | `--color-ink` | `#F5F5F5` | 17.18:1 on ground, 15.29:1 on surface |
-| Text, secondary/muted | `--color-muted` | `#A0A0A0` | 7.16:1 on ground, 6.38:1 on surface |
+| Ground | `--color-paper` | `#0D1117` | `#F7F7F5` |
+| Surface | `--color-card` | `#161B22` | `#FFFFFF` |
+| Text, primary | `--color-ink` | `#F2EFE9` | `#141414` |
+| Text, secondary/muted | `--color-muted` | `#8A8F98` | `#5B5F66` |
 
 Everything that isn't ground or one of the four accent jobs stays surface
 grey — cards, nav, inputs — so the accents have room to read as accents
 rather than competing with a busy background. This is the owner's own
-usage rule, not an inference.
+usage rule, not an inference; it survived the v2→v3 churn unchanged.
 
 ### The category system is retired
 
@@ -107,7 +126,8 @@ What kind of night it is comes from photography and copy, not a hue.
   weight and space.
 - **If you add a colour, apply it in the same change.** A token nothing
   renders drifts out of sync — that's exactly why the 23 category accents
-  and, later, the teal-era `--color-group-*` tokens had to be deleted.
+  and, later, the v2-era `--color-group-*` tokens had to be deleted.
+
 
 ## People
 
@@ -221,19 +241,21 @@ a typed name is everything the app knows about them.
 
 ## Motion
 
-> **This section was rewritten twice.** First (2026-08-28): "avoid
+> **This section was rewritten three times.** First (2026-08-28): "avoid
 > ornamental motion" left the app reading flat, reversed toward bounded
-> ambient motion. That rule was written around a day/night split that no
-> longer exists (2026-09-04, see Colour) — the language below is updated
-> to drop the "night-only" framing while keeping every actual constraint
-> the original rule enforced. **Do not restore a blanket "avoid motion"
-> rule** — that's the failure this section exists to prevent a third time.
+> ambient motion, night-only. Second (2026-09-04, briefly): day/night
+> colour was retired, so the rule dropped its "night-only" framing.
+> Third, same day: day/night is back (see Colour) — **night-only framing
+> is restored**, for the same physical reason it existed the first time —
+> a light sheen or glow is illegible against `#F7F7F5`/white, so a
+> day-ground equivalent would be motion with no visual payoff. **Do not
+> restore a blanket "avoid motion" rule** — that's the failure this
+> section exists to prevent a fourth time.
 
 - Use motion purposefully: entrances, short repeated-element staggers,
   expansion/collapse, state transitions, and action feedback.
-- **Bounded ambient motion is permitted** (previously restricted to a
-  "night theme" — the whole app is now one dark ground, so this applies
-  everywhere, not conditionally). It must satisfy all four:
+- **Bounded ambient motion is permitted in the night ground, and only
+  there.** It must satisfy all four:
   - it is *light* — a sheen, a glow, a slow drift. Never bounce, never
     scale, never anything that moves layout;
   - its period is **6 seconds or longer**, so it reads as atmosphere
@@ -242,8 +264,9 @@ a typed name is everything the app knows about them.
     loses no information;
   - **at most two** ambient loops are visible on a screen at once.
 - A **one-shot** reveal — an animation that runs once on mount and stops —
-  is not ambient motion and does not count against the two-loop budget.
-  It still respects `prefers-reduced-motion`.
+  is not ambient motion and does not count against the two-loop budget,
+  and is not restricted to night the way ambient motion is. It still
+  respects `prefers-reduced-motion`.
 - Everything else still holds. Avoid animating every element, long
   transitions, and motion that competes with reading.
 - **This does not reopen status lights.** Green glowing dots and pulsing
