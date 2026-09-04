@@ -31,6 +31,27 @@ comes after, not interleaved ahead of the complex work. If you're unsure which
 bucket something's in, size beats novelty: multi-file/multi-step goes first,
 single-file/single-fix goes after.
 
+### 🎨 Owner direction, 2026-09-04 — color palette is changing
+
+**In the owner's own words:** "one main goal i wanna work on is the design of
+the app i dont like the navy blue gold theme if we switch to more fun colors
+but the goal is to keep the app looking modern sleek luxurious as well."
+
+This supersedes the turn-14 palette's color choices (not its structure — the
+day/night, Dubai-clock, server-stamped theming mechanism stays; what fills it
+changes). Read literally:
+- **Out:** navy + gold as the identity.
+- **In:** something with more fun/energy, while still reading modern, sleek,
+  **and luxurious** — that's a real tension (fun vs. luxurious), not a
+  contradiction to paper over; Design should propose real options, not one
+  guess.
+- This is **Design's call to resolve**, same as any creative direction — ask
+  the owner for references/examples if the brief is too open to commit blind.
+- **Frontend:** hold off sinking further work into current color-specific
+  decisions where avoidable until Design ships the new direction. Structural/
+  layout fixes (misalignment, edge-of-screen, overflow) are unaffected — keep
+  going on those, they're not color-dependent.
+
 ### Isolation rules — non-negotiable
 
 These exist because four sessions in one tree raced and nearly lost work once.
