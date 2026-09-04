@@ -91,13 +91,13 @@ reference only. **Try v3 directly:**
 | Text muted | `#8A8F98` | |
 | Error/urgent | `#FF5C5C` | Unchanged from v2 |
 
-**⚠️ Worth the owner's eyes before this goes far:** charcoal-navy background +
-champagne gold primary accent is structurally close to the navy/gold theme the
-brief opened by explicitly rejecting. Could be a deliberate refinement — cooler
-navy, restrained metallic gold instead of the old brass, teal/glass-blue doing
-real work this time — or an unintended drift back. Flagging once, plainly;
-Design should build it and let the owner judge it on screen rather than
-guessing which it is from hex codes alone.
+**✅ Resolved, 2026-09-04 — owner picked gold as primary.** Saw both rendered
+side by side (v3-as-given, gold primary/wordmark, vs. Design's recommended
+swap to glass-blue-primary/gold-sparing) and confirmed: gold stays the
+primary/wordmark color. Build against **v3 as originally given** in the table
+above, not the swap variant — that was Design's suggested fallback, not the
+pick. The navy+gold resemblance flag is closed; it was a deliberate direction,
+not a drift.
 
 Teal's constraint from before still applies: small components/accents only,
 never a large surface. No purple, still. Run the contrast check on
