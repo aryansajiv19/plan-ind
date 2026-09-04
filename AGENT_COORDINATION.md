@@ -18,8 +18,10 @@ branches unchanged from before.
 | **Security/Backend** | `plan-ind-7b` | `~/plan-ind-backend` | `lane/backend` | Production-readiness audit-and-extend. Turf: `supabase/**`, `app/api/**`, `lib/security/**`, `lib/supabase.ts`, `lib/types.ts`, `next.config.ts` |
 | **Design** | `claude-design-handoff` | `~/plan-ind-design` | `lane/design` | Creative direction ("fun + interactive + modern + sleek"); ships Frontend real specs. Turf: `design-system/**`, `FRONTEND_DESIGN_STANDARDS.md` |
 
-All four on **Opus**. Branch/worktree names still say `backend`/`frontend` —
-cosmetic, ignore it.
+All four on **Sonnet** (switched from Opus 2026-09-04 — usage budget). Raise
+reasoning effort instead of the model for the hard parts: migrations, RLS, and
+concurrency work should run at *high*. Branch/worktree names still say
+`backend`/`frontend` — cosmetic, ignore it.
 
 ### Isolation rules — non-negotiable
 
