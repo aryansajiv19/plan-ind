@@ -2490,7 +2490,7 @@ h3 {
 
 .vote-result a { color: var(--color-punch-text); text-decoration-thickness: 1px; text-underline-offset: 3px; }
 .vote-result__booked { border: 1px solid var(--vote-metal); border-radius: 0; background: transparent; color: var(--color-punch-text); }
-.vote-result button[aria-pressed="true"]:not(.vote-rating-button) { border-color: var(--vote-metal); background: var(--vote-metal); color: #111218; }
+.vote-result button[aria-pressed="true"]:not(.vote-rating-button) { border-color: var(--vote-metal); background: var(--vote-metal); color: var(--primary-ink); }
 .vote-action-hint { margin-top: 0.65rem; color: var(--color-muted); font-size: 0.72rem; line-height: 1.45; }
 .vote-rsvp-choices { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.35rem; }
 .vote-rsvp-choices .vote-result__button { padding: 0.55rem 0.65rem; font-size: 0.68rem; }

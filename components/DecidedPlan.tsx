@@ -124,7 +124,7 @@ export default function DecidedPlan({
       <button
         type="button"
         onClick={copyForChat}
-        className="vote-result__primary mt-3 w-full rounded-2xl border-2 border-ink bg-zest px-5 py-3 font-display font-extrabold text-ink"
+        className="vote-result__primary mt-3 w-full px-5 py-3 font-display"
       >
         {copied ? "Copied. Paste it in the chat" : "Copy for the group chat"}
       </button>
@@ -217,7 +217,7 @@ export default function DecidedPlan({
                 <button
                   type="button"
                   onClick={onMarkBooked}
-                  className="vote-result__button rounded-xl border-2 border-ink px-4 py-2 text-sm font-display font-extrabold"
+                  className="vote-result__button px-4 py-2 text-sm font-display"
                 >
                   Mark as booked
                 </button>
@@ -227,7 +227,7 @@ export default function DecidedPlan({
             <button
               type="button"
               onClick={onClaimBooking}
-              className="vote-result__button rounded-xl border-2 border-ink bg-card px-4 py-2 text-sm font-display font-extrabold"
+              className="vote-result__button px-4 py-2 text-sm font-display"
             >
               I’ll book it
             </button>
