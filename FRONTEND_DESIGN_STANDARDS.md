@@ -8,13 +8,19 @@ once, so it doesn't get restored by accident.
 
 ## Visual direction
 
-The default style should be modern, sleek, and luxurious — while still
-reading as fun and energetic, not corporate or muted. This is a real
-tension, not a contradiction to paper over: luxury comes from restraint and
-richness (a confident dark ground, generous space, few accents used
-precisely); fun comes from saturation and warmth (vivid, not muted, accent
-colours; real motion; real photography). Hold both at once rather than
-picking one and calling it done.
+**Reconciled 2026-09-04.** The brief has moved twice: "fun but modern/sleek/
+luxurious" → "avoid too much blank space" → "minimalistic aesthetic luxury."
+Read together, not as a contradiction: the dial moves toward luxury/restraint
+and away from maximalist/energetic saturation; it does **not** move toward
+whitespace. **Minimalistic means restrained and considered — few elements,
+each earning its place — not sparse or empty.** Density comes from real
+content (photos, data, cards) packed tight with intent; empty margins for
+their own sake stay wrong under every version of this brief.
+
+The default style is modern, sleek, and luxurious, built from restraint and
+richness — a confident dark ground, few accents used precisely, real
+photography, real motion held tight rather than showy. "Fun" now reads as
+warmth in the accents and motion that are there, not as more of them.
 
 Avoid generic purple-on-white AI styling, glowing borders, excessive
 glassmorphism, oversized rounded cards, unnecessary floating containers,
@@ -199,6 +205,23 @@ a typed name is everything the app knows about them.
 
 ## Components
 
+- **Prioritise shadcn + Motion (owner, 2026-09-04).** For any new UI element
+  that maps to a standard primitive, add it from the `@shadcn` registry
+  (`components.json` already has `style: "new-york"`, `baseColor: "neutral"`,
+  `cssVariables: true` — it repoints onto this project's tokens, not
+  shadcn's defaults) instead of hand-rolling markup. Confirmed available and
+  relevant to the open build-out: `tabs` (place page's Photos / 360 tour /
+  Your friends / Menu row, `SPECS.md` §6), `badge` (streak + premium
+  markers), `avatar` (the "shot by your friends" rail and the header
+  presence stack), `button` (any net-new CTA that isn't already one of the
+  app's existing primary/ghost patterns). Re-token every shadcn install
+  through this project's CSS variables before use — never ship it in
+  shadcn's own default palette. Where an existing hand-built component
+  already does the job well (the vote/place cards, `TiltCard`), keep it —
+  this is a default for **new** primitives, not a mandate to rebuild what
+  already works. Motion (the animation library) is the paired default for
+  any interaction/transition on top of these — see Motion below, now
+  rewritten with the owner's specific animation direction.
 - Reuse existing components first and extract reusable patterns when they
   recur. Before building a new component, check `components/` for one
   already built and unwired — `components/kokonutui/card-stack.tsx` and
@@ -237,16 +260,23 @@ a typed name is everything the app knows about them.
 
 ## Motion
 
-> **This section was rewritten three times.** First (2026-08-28): "avoid
+> **This section was rewritten four times.** First (2026-08-28): "avoid
 > ornamental motion" left the app reading flat, reversed toward bounded
 > ambient motion, night-only. Second (2026-09-04, briefly): day/night
 > colour was retired, so the rule dropped its "night-only" framing.
 > Third, same day: day/night is back (see Colour) — **night-only framing
 > is restored**, for the same physical reason it existed the first time —
 > a light sheen or glow is illegible against `#F7F7F5`/white, so a
-> day-ground equivalent would be motion with no visual payoff. **Do not
-> restore a blanket "avoid motion" rule** — that's the failure this
-> section exists to prevent a fourth time.
+> day-ground equivalent would be motion with no visual payoff. Fourth
+> (2026-09-04, owner's direct animation brief): adds a concrete direction
+> on top of the existing ambient-motion rules below — shared-element
+> transitions, hero parallax, shimmer skeletons, and a **tightened,
+> no-bounce press feedback rule that reverses `--ease-spring`'s use on tap
+> interactions specifically** (see below — this is a real code change, not
+> just doc text: `--ease-spring` currently drives press feedback in at
+> least 7 places in `app/globals.css`). **Do not restore a blanket "avoid
+> motion" rule** — that's the failure this section exists to prevent a
+> fifth time.
 
 - Use motion purposefully: entrances, short repeated-element staggers,
   expansion/collapse, state transitions, and action feedback.
@@ -274,6 +304,64 @@ a typed name is everything the app knows about them.
   `requestAnimationFrame` loop (e.g. `components/TiltCard.tsx`'s pointer
   parallax, which checks `useReducedMotion()` and disables outright rather
   than shortening).
+
+### Animation direction (owner, 2026-09-04) — build with Motion
+
+Five concrete directions, given with explicit latitude on execution
+("take it as you wish" — interpret the *what*, the *how* is ours to spec).
+Build all of these with the Motion library, paired with the shadcn-first
+rule above — not bespoke CSS keyframes, except where noted.
+
+- **Shared-element transitions, card → detail expand.** The photo-wall
+  tile and place card that opens `app/place/[id]/page.tsx` (`SPECS.md` §6)
+  should visually continue into the hero photo, not cut/replace. Use
+  Motion's `layoutId` on the shared photo element between the card and the
+  detail hero — same `layoutId` string keyed by spot id in both
+  `PhotoTile.tsx`/place-card markup and the place-page hero. Fast: target
+  ≤350ms, `--ease-settle`, no overshoot.
+- **Subtle parallax on hero images.** Beyond `TiltCard`'s existing
+  pointer-parallax (home hero, `HomeExperience.tsx:310`): the place page's
+  460px hero photo (`SPECS.md` §6) gets a light scroll-parallax — image
+  translates at roughly 0.85–0.9× scroll speed within its own frame, never
+  the reverse (never faster than scroll), clipped to the hero's own
+  bounds so nothing leaks past it. Respects `prefers-reduced-motion`
+  (disable outright, matching `TiltCard`'s existing pattern).
+- **Micro-interactions: soft fade/scale, no bounce or squish.** This
+  **reverses `--ease-spring`'s use for press feedback** (`app/globals.css`
+  lines 285, 998, 1553, 1819, 2434, 2559, 2669 — every `transform ...
+  var(--ease-spring)` currently driving a `:active`/tap state). Replace
+  those press transitions with `--ease-settle` (already the no-overshoot
+  token, defined `app/globals.css:82`) and keep the effect to scale-only
+  (e.g. `scale(0.97)`) or fade+scale together — never a scale that
+  overshoots past 1 on release. `--ease-spring` itself stays defined and
+  is still fine for non-tap uses if any exist (verify each of the 7 sites
+  is actually press feedback before touching it — don't blanket-delete the
+  token). This is a real visual change to every existing button/card press
+  in the app, not just new components — treat it as a global sweep, not a
+  per-component judgment call.
+- **Elegant skeleton shimmer, no spinners.** `.wall-skeleton`
+  (`app/globals.css:3518`) is currently a static flat block — border,
+  radius, flat `--color-accent-tint` fill, no animation at all. Add a
+  shimmer: a soft diagonal highlight band sweeping left-to-right,
+  `background: linear-gradient(100deg, transparent 30%, var(--color-hairline-loud, rgba(255,255,255,.08)) 50%, transparent 70%)`
+  (tune the highlight colour per ground — night needs a lighter sweep,
+  day a darker one, verified per-ground like every other colour value in
+  this doc) over `background-size: 200% 100%`, animating
+  `background-position` 0%→200% on a ~1.6s loop, `ease` (linear reads
+  mechanical here — ease is fine for a loop this short). Audit
+  `app/globals.css` for any other static skeleton/loading placeholder and
+  apply the same treatment — `.wall-skeleton` is the one confirmed so far,
+  not necessarily the only one. Any remaining spinner (`<Spinner>`,
+  a CSS `@keyframes spin`) gets replaced with a shimmer or a
+  content-shaped skeleton, not kept.
+- **No confetti, sparkles, or gamified pop-ups.** Applies directly to the
+  streak/premium-badge feature (Colour, job 3) and any future
+  milestone/achievement moment — a state change communicates through the
+  existing colour/type system (a badge appearing, a status line updating),
+  never a celebratory overlay, particle burst, or modal congratulating the
+  user. This is consistent with, not a new addition to, the existing "no
+  green glowing dots," "no gamified pop-ups" and anti-vibecoded rules
+  already in this file and `PRODUCTION_CHECKLISTS.md`.
 
 ## Implementation quality
 
