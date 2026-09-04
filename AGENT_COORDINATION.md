@@ -61,31 +61,48 @@ media query** — that's regression territory, don't touch it. This just means
 don't spend further effort on mobile-specific verification or new mobile work
 until told otherwise. Desktop/general work continues as normal.
 
-### 🎨 Owner's concrete palette proposal, 2026-09-04
+### 🎨 Palette v3, 2026-09-04 — try this one instead
 
-Given as a specific spec to try, not just a mood — verbatim:
+Supersedes v2 (coral/gold/teal on `#121212`) below, which stays in the doc for
+reference only. **Try v3 directly:**
 
 | Role | Value | Notes |
 |---|---|---|
-| Background | `#121212` | Near-black, not pure black — easier on eyes, photos pop |
+| Background | `#0D1117` | Deep charcoal-navy, cooler than pure black — "reads like night sky over the skyline" |
+| Surface | `#161B22` | |
+| Primary accent | `#C9A876` | Champagne gold — metallic, restrained, not gaudy |
+| Secondary accent | `#5CC8D7` | Icy glass-blue (superseded `#4A90E2` in the same message) — glass facades, pool/marina water |
+| Confirm/active | `#00E0C7` | Teal, kept — "works well against navy" |
+| Text primary | `#F2EFE9` | |
+| Text muted | `#8A8F98` | |
+| Error/urgent | `#FF5C5C` | Unchanged from v2 |
+
+**⚠️ Worth the owner's eyes before this goes far:** charcoal-navy background +
+champagne gold primary accent is structurally close to the navy/gold theme the
+brief opened by explicitly rejecting. Could be a deliberate refinement — cooler
+navy, restrained metallic gold instead of the old brass, teal/glass-blue doing
+real work this time — or an unintended drift back. Flagging once, plainly;
+Design should build it and let the owner judge it on screen rather than
+guessing which it is from hex codes alone.
+
+Teal's constraint from before still applies: small components/accents only,
+never a large surface. No purple, still. Run the contrast check on
+`#8A8F98`/`#F2EFE9` against both grounds before committing.
+
+<details><summary>Palette v2 (superseded) — coral/gold/teal on #121212</summary>
+
+| Role | Value | Notes |
+|---|---|---|
+| Background | `#121212` | Near-black, not pure black |
 | Surface/Cards | `#1E1E1E` | |
-| Primary accent | `#FF6B4A` | Warm coral-orange — "energetic, reads invite/celebrate" |
-| Secondary accent | `#FFD166` | Gold — ties to Dubai without being literal, **used sparingly** (badges/streaks) |
-| Success/confirm | `#00E0C7` teal — **final, owner reversed the violet/purple call** | RSVP confirmed, active states. **No purple anywhere.** Keep teal small — accents/badges/states, never a large surface/component fill. |
+| Primary accent | `#FF6B4A` | Warm coral-orange |
+| Secondary accent | `#FFD166` | Gold, sparingly |
+| Success/confirm | `#00E0C7` | Teal, small components only |
 | Text primary | `#F5F5F5` | |
 | Text secondary/muted | `#A0A0A0` | |
 | Error/urgent | `#FF5C5C` | |
 
-**Usage rule from the owner:** coral for primary CTAs (Create Event, RSVP);
-gold sparingly for accents (premium badges, streaks) only; teal for
-confirmation states; everything else (cards, nav, inputs) stays near-black/dark
-grey so the accent colors have room to breathe.
-
-Design: try this directly. It's dark-first/single-ground — check with the
-owner whether this **replaces** the day/night dual-palette mechanism with one
-dark identity, or is specifically the **night** half and day still needs its
-own definition; don't assume either way. Run the usual contrast check
-(`#A0A0A0` on `#121212` is the one to verify) before committing to it.
+</details>
 
 ### Isolation rules — non-negotiable
 
