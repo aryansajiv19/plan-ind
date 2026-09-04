@@ -71,6 +71,15 @@ milestone, then pivot to venue-link enrichment ahead of anything else on your
 list — it's the named core feature. **T0 (me):** pausing active deployment
 push; `DEPLOYMENT.md` stays as reference, not a live task.
 
+**Amendment, same day:** owner also wants automated test coverage kept up and
+the app verified to hold **thousands of concurrent users**, not just the
+front-door baseline measured so far. This isn't deployment-prep being revived
+— it's a real correctness/capacity question about the core feature set itself,
+so it stays in scope. Security/Backend: finish the current milestone with that
+as the explicit target scale (thousands, not tens), keep expanding automated
+coverage (unit/integration/concurrency, not just load) as you go, then move to
+venue-link.
+
 ### ⏸ Mobile work paused, 2026-09-04
 
 Owner: leave anything mobile-related for now. This includes the blocked
