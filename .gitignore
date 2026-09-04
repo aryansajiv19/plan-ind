@@ -49,3 +49,6 @@ next-env.d.ts
 
 # Graphify keeps dated safety backups when rebuilding a curated graph.
 /graphify-out/20*/
+
+# scripts/load/mint-voters.mjs writes live-project session tokens here.
+/scripts/load/voters.local.json

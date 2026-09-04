@@ -138,6 +138,10 @@ create table plans (
   created_at     timestamptz not null default now()
 );
 
+-- 014: schema.sql previously mirrored only plans' columns, not this index --
+-- a project rebuilt from this file alone would silently lack it.
+create index plans_creator_idx on plans (created_by_user_id);
+
 -- Candidate places for a plan. New plans use three pools of three while
 -- legacy plans remain a single final round.
 create table plan_spots (
@@ -1567,16 +1571,20 @@ returns boolean language plpgsql security definer set search_path = public, exte
 declare uid uuid := auth.uid(); minute_start timestamptz := date_trunc('minute',now()); day_start timestamptz := date_trunc('day',now()); current_count integer; minute_limit integer; day_limit integer;
 begin
   if not valid_control_secret(p_secret) or uid is null
-     or p_scope not in ('smart-search','plan-create','place-import','spot-deal') then
+     or p_scope not in ('smart-search','plan-create','place-import','spot-deal','plan-command') then
     raise exception 'Server authorization required' using errcode='42501';
   end if;
   -- 022: 'spot-deal' gets its own bucket. Dealing happens before a plan
   -- exists and is re-rolled repeatedly, so sharing plan-create's bucket
   -- would lock a user out of creating the plan they were dealing for.
+  -- 030: 'plan-command' gets its own bucket too -- was the only app/api/**
+  -- route with zero rate limiting.
   minute_limit := case p_scope
-    when 'smart-search' then 10 when 'plan-create' then 12 when 'spot-deal' then 30 else 20 end;
+    when 'smart-search' then 10 when 'plan-create' then 12 when 'spot-deal' then 30
+    when 'plan-command' then 20 else 20 end;
   day_limit := case p_scope
-    when 'smart-search' then 30 when 'plan-create' then 50 when 'spot-deal' then 300 else 200 end;
+    when 'smart-search' then 30 when 'plan-create' then 50 when 'spot-deal' then 300
+    when 'plan-command' then 100 else 200 end;
   insert into app_rate_limits values(p_scope||'-minute',uid::text,minute_start,1)
     on conflict(scope,subject,window_start) do update set request_count=app_rate_limits.request_count+1
     returning request_count into current_count;
@@ -1669,7 +1677,10 @@ create policy "plan members send presence" on realtime.messages for insert to au
     and a.plan_id=split_part((select realtime.topic()),':',2)::uuid)
 );
 
--- Keep only recent operational data. Run daily through Supabase Cron.
+-- Keep only recent operational data. Scheduled daily by migration 031
+-- (cron.schedule against pg_cron) -- not repeated here, a fresh scratch
+-- project from this file won't have the job registered until that migration
+-- also runs against it.
 create or replace function purge_security_operational_data()
 returns void language sql security definer set search_path = public, pg_temp as $$
   delete from security_events where created_at < now() - interval '90 days';

@@ -1,0 +1,33 @@
+-- Migration 032 — actually drop the legacy votes_round_choice_unique index.
+-- Apply after migration 031. Additive-in-effect (drops one index only, no
+-- data touched), re-run safe.
+--
+-- WHY: migration 023 (step 2b) tried to drop this and believed it had —
+-- its own comment says "the name-keyed constraint now only does harm" and
+-- "matched by column set so a differently-generated constraint name still
+-- resolves". It didn't resolve. `votes_round_choice_unique` was created by
+-- migration 009 as a bare `create unique index`, not `alter table ... add
+-- constraint ... unique`. 023's drop logic only searches `pg_constraint`
+-- (`where con.contype = 'u'`) — a plain unique index with no backing table
+-- constraint never appears there, so the `select ... into c` found nothing,
+-- `c` stayed null, the `if c is not null` branch never ran, and the DO block
+-- exited cleanly with no error. The migration looked like it succeeded.
+--
+-- Confirmed live via direct catalog probe (not assumed): `pg_indexes` on
+-- `votes` still lists `votes_round_choice_unique` on
+-- `(plan_id, spot_id, voter_name, phase, pool_number)`. Reproduced the exact
+-- failure 023's own comment predicted: two participants (distinct
+-- participant_token_hash, same voter_name) voting the same spot/round hit a
+-- raw, unhandled `23505 duplicate key value violates unique constraint
+-- "votes_round_choice_unique"` inside cast_plan_vote's SECURITY DEFINER body
+-- -- the function's `on conflict (plan_id, participant_token_hash, phase,
+-- pool_number)` only catches conflicts on votes_participant_round_key, not
+-- this index, so it raises instead of updating. Live today: two guests who
+-- type the same display name and vote the same spot in the same round get an
+-- opaque failure instead of both votes recording under their own identities.
+--
+-- Fix: drop by name directly -- we now know the exact live name, no matching
+-- needed -- but keep it conditional (`if exists`) and re-run safe, same as
+-- every other migration in this directory.
+
+drop index if exists votes_round_choice_unique;
