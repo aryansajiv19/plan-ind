@@ -38,21 +38,17 @@ move.
 | Text secondary | `--color-muted` | `#8A8F98` | 5.82:1 on ground, 5.32:1 on surface |
 | Error/urgent | `--color-error` | `#FF5C5C` | 6.25:1 on ground |
 
-**Primary/wordmark job — open, pending the owner's pick between two
-renders**, not settled the way everything else here is:
-
-| Option | Primary/wordmark | Premium/badge (sparing) | Verdict |
-|---|---|---|---|
-| **v3 as given** | `#C9A876` champagne gold, 8.42:1 | `#5CC8D7` glass-blue, 9.64:1 | The most visually dominant elements on screen — the primary CTA and the wordmark — are gold-on-navy. That is structurally the same combination this whole colour pass opened by rejecting. Cooler and more restrained than the original (glass-blue and teal genuinely do work elsewhere), but the dominant read is still close to the thing that was rejected. |
-| **v3, gold moved to sparing** (**my recommendation**) | `#5CC8D7` glass-blue, 9.64:1 | `#C9A876` champagne gold, 8.42:1 | Same four values, one swap. Glass-blue carries the identity; gold returns to exactly the "sparing accent" role it already had in v2 (badges, streaks, one or two instances a screen). Reads as navy-and-blue with a touch of warm metal, not navy-and-gold as an identity. |
-
-Both rendered side by side, real UI, in
-`design-system/dist/foundations/colour-next.html` — look before picking
-one from the table alone. Until the owner picks, treat "gold moved to
-sparing" as the working default (it's strictly more constrained — every
-future use of gold under that reading is also valid under "v3 as given",
-the reverse isn't true — so building against it first costs nothing if
-the owner picks the other one later).
+**Primary/wordmark job — settled.** `#C9A876` champagne gold (8.42:1 on
+ground, 7.7:1 on surface), `#5CC8D7` glass-blue as the premium/badge
+(sparing) job (9.64:1). This is a deliberate confirmation, not an
+unexamined default: I flagged that gold-on-navy is structurally close to
+the "navy and gold" combination this colour pass opened by rejecting,
+built and rendered the alternative (glass-blue primary, gold sparing) side
+by side with it, and the owner picked gold-primary anyway, explicitly —
+the resemblance is a deliberate direction on their end, not a drift they
+missed. **Build with confidence; this is final.** The alternative render
+stays in `design-system/dist/foundations/colour-next.html` for the
+record, not as a live option.
 
 **Confirm/active** — `--color-live` `#00E0C7` teal, 11.25:1 on ground /
 10.29:1 on surface. Unchanged from v2. **Small components only — badges,

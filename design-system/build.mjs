@@ -198,28 +198,27 @@ const ownerPaletteCard = {
   path: "foundations/colour-next.html", group: "Foundations", name: "Colour — approved direction (not yet shipped)",
   subtitle: "Palette v3: charcoal-navy/gold/glass-blue by night, proposed white/navy by day",
   viewport: { width: 1280, height: 1000 }, css: OWNER_PALETTE_CSS,
-  body: `<p class="kicker">Approved 2026-09-04 — see design-system/SPECS.md for the full spec</p><h2>Two separately authored palettes, not one dimmed</h2>
+  body: `<p class="kicker">Final 2026-09-04 — see design-system/SPECS.md for the full spec</p><h2>Two separately authored palettes, not one dimmed</h2>
 <p class="note"><b>Day/night stays</b> — reversed back from the "one dark identity" call earlier the same day. Night is palette v3: ground <code>#0D1117</code>, surface <code>#161B22</code>, champagne gold primary <code>#C9A876</code>, glass-blue secondary <code>#5CC8D7</code>, teal confirm <code>#00E0C7</code> (small components only, unchanged constraint), error <code>#FF5C5C</code>. All AA-clear, worst case 5.82:1.</p>
-<p class="note"><b>Worth your eyes before this goes further:</b> charcoal-navy ground plus a champagne-gold primary accent is structurally close to the navy-and-gold combination this whole colour pass started by rejecting. It may well be the deliberate refinement — cooler navy, restrained metal instead of the old brass, glass-blue and teal doing real work this time — rather than a drift back, but that's a judgment best made looking at it, not at hex codes. See for yourself in the panel below rather than taking either read on faith.</p>
+<p class="note"><b>Gold-on-navy was flagged, then confirmed deliberately.</b> Champagne gold as the primary/wordmark colour on a charcoal-navy ground is structurally close to the navy-and-gold combination this whole colour pass started by rejecting. Rendered as-given next to an alternative (glass-blue primary, gold moved to the sparing badge role) before presenting either — the owner looked at both and picked gold-as-primary anyway. Settled; the alternative is kept below for the record, not as a live option.</p>
 <p class="note"><b>Day is proposed, not yet confirmed</b> — "white and navy blue... I guess" turned into something concrete and contrast-checked so there's something real to react to: ground <code>#F7F7F5</code>, surface <code>#FFFFFF</code>, navy primary <code>#1B2A4A</code>, with gold/teal/error re-cut darker for AA on a light ground (day gold <code>#8A6D2F</code>, day teal <code>#0E7C74</code>, day error <code>#B3261E</code> — all clear, worst case 4.54:1). If white-and-navy meant something more specific, this is a starting point to correct, not a final answer.</p>
 
 <div class="row" style="align-items:flex-start; gap:1.5rem">
-  <div style="flex:1; min-width:420px">
-    <h3 style="font-size:1rem; margin-bottom:.6rem">Night — v3 as given</h3>
-    <p class="note" style="margin:0 0 .6rem">Gold is the primary/wordmark colour — this is the one that reads closest to what got rejected.</p>
+  <div style="flex:1; min-width:420px; max-width:600px">
+    <h3 style="font-size:1rem; margin-bottom:.6rem">Night — final</h3>
     ${paletteBlock(PALETTE.night)}
   </div>
-  <div style="flex:1; min-width:420px">
-    <h3 style="font-size:1rem; margin-bottom:.6rem">Night — v3, gold moved to sparing</h3>
-    <p class="note" style="margin:0 0 .6rem"><b>My recommendation.</b> Same four values, one swap: glass-blue takes the primary/wordmark job, gold moves to the badge-only role it already had in v2. Same palette, doesn't read as "navy and gold" as an identity.</p>
-    ${paletteBlock(PALETTE.nightAlt)}
-  </div>
-</div>
-
-<div class="row" style="align-items:flex-start; gap:1.5rem; margin-top:2rem">
   <div style="flex:1; min-width:420px; max-width:600px">
     <h3 style="font-size:1rem; margin-bottom:.6rem">Day — proposed white/navy</h3>
     ${paletteBlock(PALETTE.day)}
+  </div>
+</div>
+
+<h3 style="font-size:.9rem; margin:2rem 0 .5rem; color:var(--color-muted)">For the record — the rejected alternative</h3>
+<div class="row" style="align-items:flex-start; gap:1.5rem">
+  <div style="flex:1; min-width:420px; max-width:600px">
+    <p class="note" style="margin:0 0 .6rem">Glass-blue as primary/wordmark, gold as the sparing badge role — considered, rendered, and explicitly not chosen. Not a live option.</p>
+    ${paletteBlock(PALETTE.nightAlt)}
   </div>
 </div>
 
