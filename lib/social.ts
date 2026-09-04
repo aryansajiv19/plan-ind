@@ -16,7 +16,6 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { supabase } from "./supabase";
-import type { DeviceProfile } from "./device";
 
 /**
  * Reads default to the browser client. Server Components pass their own
@@ -111,26 +110,6 @@ function toProfileVisit(v: RawVisit): ProfileVisit {
 }
 
 // ─── Profiles ──────────────────────────────────────────────────────
-
-/**
- * Push the cached authenticated profile up to `people`. Idempotent: RLS and
- * people_before_write pin the row to the current Supabase user.
- * Returns false if the write failed (the caller can retry on next boot).
- */
-export async function upsertMe(me: DeviceProfile | null): Promise<boolean> {
-  if (!me?.id || !me.display_name.trim()) return false;
-  const { error } = await supabase.from("people").upsert(
-    {
-      id: me.id,
-      display_name: me.display_name.trim(),
-      emoji: me.emoji,
-      color: me.color,
-      updated_at: new Date().toISOString(),
-    },
-    { onConflict: "id" },
-  );
-  return !error;
-}
 
 /** One profile by id. The id is the profile-link slug, like a plan's. */
 export async function getPerson(personId: string): Promise<PersonCard | null> {

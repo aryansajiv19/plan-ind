@@ -65,35 +65,6 @@ export function randomAvatar(): { emoji: string; color: string } {
   return { emoji: pick(AVATAR_EMOJI), color: pick(AVATAR_COLORS) };
 }
 
-/** uuid v4, with fallbacks for non-secure contexts where randomUUID is absent. */
-export function newPersonId(): string {
-  const c = typeof crypto !== "undefined" ? crypto : undefined;
-  if (c?.randomUUID) return c.randomUUID();
-  if (c?.getRandomValues) {
-    const b = c.getRandomValues(new Uint8Array(16));
-    b[6] = (b[6] & 0x0f) | 0x40;
-    b[8] = (b[8] & 0x3f) | 0x80;
-    const hex = [...b].map((n) => n.toString(16).padStart(2, "0")).join("");
-    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
-  }
-  // Last resort: Math.random, which is NOT cryptographically random. Reached
-  // only in a non-secure context where `crypto` is absent entirely.
-  //
-  // ⚠ THIS IS ONLY ACCEPTABLE WHILE PERSON IDS ARE NOT SECRETS. Today
-  // `select * from people` and `select * from visits` are both unrestricted,
-  // so every id is bulk-readable anyway and guessing one buys nothing.
-  //
-  // If the profile link is ever made a real capability — i.e. if the audit's
-  // H1 is fixed and reads become scoped to "you have the link" — this
-  // fallback becomes the weak link: Math.random is predictable, so a
-  // guessable id would hand out the capability. Make it a hard failure
-  // (return null / throw and refuse to create a profile) at that point.
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (ch) => {
-    const r = (Math.random() * 16) | 0;
-    return (ch === "x" ? r : (r & 0x3) | 0x8).toString(16);
-  });
-}
-
 /** This device's cached profile, or null if one has not been stored yet. */
 export function getMe(): DeviceProfile | null {
   if (typeof window === "undefined") return null;
@@ -117,35 +88,8 @@ export function getMe(): DeviceProfile | null {
 }
 
 /**
- * Create or update this device's profile and return the full result.
- * The id is minted on first save and never changes afterwards — passing a
- * different one is ignored, because it's the person's stable identity.
- * Sync the return value to the server with upsertMe() in lib/social.ts.
- */
-export function saveMe(
-  patch: { display_name?: string; emoji?: string; color?: string },
-): DeviceProfile | null {
-  if (typeof window === "undefined") return null;
-  const existing = getMe();
-  const fallback = randomAvatar();
-  const next: DeviceProfile = {
-    id: existing?.id ?? newPersonId(),
-    display_name: (
-      patch.display_name ??
-      existing?.display_name ??
-      ""
-    ).trim(),
-    emoji: patch.emoji ?? existing?.emoji ?? fallback.emoji,
-    color: patch.color ?? existing?.color ?? fallback.color,
-  };
-  if (!next.display_name) return existing; // a nameless profile is not a profile
-  localStorage.setItem(ME_KEY, JSON.stringify(next));
-  return next;
-}
-
-/**
- * Cache a server-authoritative profile after authentication. Unlike saveMe(),
- * this may replace the old device UUID because Supabase Auth now owns identity.
+ * Cache a server-authoritative profile after authentication. May replace an
+ * old device-generated id, because Supabase Auth now owns identity.
  */
 export function cacheMe(profile: DeviceProfile): void {
   if (typeof window === "undefined") return;

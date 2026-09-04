@@ -248,9 +248,12 @@ Storage bucket. Done when a collection and a photo persist across devices.
 
 `getFriends` works and is wired, but there is no way to add a friend:
 `addFriend`, `removeFriend`, `areFriends`, `getPeople`, `getSpotVisitors`,
-`getTaggedVisits`, `deleteVisit`, `untagCompanion` and `upsertMe` in
-`lib/social.ts` all have **zero callers**. Friendships currently only exist if
-someone writes them by hand.
+`getTaggedVisits`, `deleteVisit` and `untagCompanion` in `lib/social.ts` all
+have **zero callers** — deferred, waiting on this exact feature, not dead.
+(`upsertMe` used to be on this list too; removed 2026-09-04's dead-code sweep
+— it predated `ensure_authenticated_profile`/`cacheMe`, which replaced it,
+not a function still waiting on this feature.) Friendships currently only
+exist if someone writes them by hand.
 
 Give the Friends tab a way to add someone — the natural source is companions
 already tagged on a visit, which `logVisit` writes. Done when tagging a

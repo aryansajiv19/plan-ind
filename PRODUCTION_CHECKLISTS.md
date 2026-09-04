@@ -76,6 +76,18 @@ here):
 - **Share-link unguessability.** Plan IDs are UUIDs today (fine). If a
   vanity/short-link feature is ever added, it needs its own brute-force
   analysis — a 6-character slug is a very different security property.
+- **`people` and `visits` are fully bulk-readable today** (`select * from
+  people`/`select * from visits`, no membership scoping — `"read people"` is
+  `for select to anon, authenticated using (true)`). Surfaced 2026-09-04
+  during the dead-code sweep (a since-superseded `lib/device.ts` comment
+  referenced this as "the audit's H1," but H1 isn't tracked in any doc, so
+  recording the substance here instead of losing it with the dead code).
+  Not obviously wrong for a social-graph feature where profiles are meant to
+  be discoverable, but hasn't had an explicit security look either — worth
+  the `security` subagent confirming this is deliberate before anything ever
+  treats a `people`/`visits` id as a real access-control secret (a
+  profile-link feature, for instance, would make id-guessability load-bearing
+  in a way it isn't today).
 - **The venue-link enrichment feature (in progress) is the single highest
   SSRF-risk surface about to be built** — `PLACE_IMPORT_ARCHITECTURE.md`'s
   rules (allowlisted provider adapters only, never a generic arbitrary-URL
