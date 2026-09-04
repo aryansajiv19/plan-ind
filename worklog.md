@@ -772,3 +772,138 @@ this ships the free version of each); the result/candidate-picker UI
 
 Gate green (lint/tsc/38 tests/build) throughout. No new migration, no schema
 change. Committing to `lane/backend`.
+
+## CRITICAL — core "start a plan" flow has been completely broken since migration 020 — 2026-09-04
+
+Found while scale-testing at real volume (T0's ask: verify the app holds
+thousands of concurrent users). Not a load/perf finding — a correctness bug
+the scale-testing infrastructure happened to surface immediately, because it
+was the first thing in this session to actually call `POST /api/plans` with
+real dealt spots and a real permanent session end to end.
+
+**The bug:** `create_secure_plan` (migration 020, applied live 2026-08-24)
+requires all 9 submitted spot ids to share the plan's single `category`.
+But no curated category has 9 spots — dinner, the largest, has 5 (already
+documented in `lib/spots/match.ts`'s own comment) — which is exactly why
+`/api/spots/deal` deals from a whole **category family**
+(`categoryFamily()`, e.g. dinner's family also includes cafe/brunch/dessert/
+shisha), by design. The client submits the plan with the single category
+the user picked, but spotIds spanning that family — exactly how deal is
+built to work, and exactly what `create_secure_plan`'s exact-match check
+then rejects.
+
+**Reproduced live, not synthetically:** copied the real curated catalog
+(82 rows, live IDs) into a local mirror. `POST /api/spots/deal
+{category:"dinner", count:9}` returned 9 real ids; their actual categories
+were `[dinner, cafe, cafe, cafe, cafe, brunch, brunch, dessert, dessert]` —
+1 of 9 actually "dinner". `POST /api/plans` with those exact ids then 403'd
+every time with "This account cannot create that plan."
+
+**Confirmed against the live database, not assumed:** queried `plans`
+directly. **6 plans exist, ever.** 5 were created before 2026-08-24 (pre-020,
+before this check existed). Exactly 1 was created after — this session's own
+load-test fixture plan, inserted directly via SQL, never through the real
+RPC. **Zero successful plan creations through the real app in the 11 days
+since migration 020 went live.** No partial workaround slipped through.
+
+**A second bug found investigating the first:** `app/api/plans/route.ts`
+and `app/api/spots/deal/route.ts` both validate spot ids with a UUID regex
+requiring version nibble 1-5 and variant 8/9/a/b
+(`/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i`,
+introduced 2026-08-20, `3dd972b`). The curated catalog's ids are
+deterministic (e.g. `a0000000-0000-0000-0000-000000000001`), not
+`gen_random_uuid()` output — every one fails that strict pattern. This
+silently filtered `spotIds` to zero before the category bug even had a
+chance to fire, and separately broke `/api/spots/deal`'s "been"/exclude-list
+filtering (repeats not actually excluded). **Fixed**: loosened both to plain
+8-4-4-4-12 hex, matching what Postgres's own `uuid` column type accepts —
+the real validation target. Left `command/route.ts`'s identical-looking
+regex alone; it validates the plan **path** id, which is a real
+`gen_random_uuid()` value, so the strict form is correct there and nothing
+demonstrates it's broken.
+
+**Fix: migration 033.** One-clause diff off migration 020's `create_secure_
+plan` (`create or replace`, byte-identical otherwise) — drops `and
+s.category = category_value`. `security` review (full transcript in
+session): confirmed the severity read independently by re-deriving every
+category's curated-spot count from the seed/migration files (max is 5, same
+conclusion without trusting my live count); confirmed no new hole opened —
+the per-spot age gate already keyed off each spot's own `s.category`,
+completely independent of the plan's declared category, both before and
+after, so cross-category age-gating was never affected; confirmed ownership/
+sourcing (`s.source='curated' or created_by_user_id=uid`) untouched. Filed
+as **Critical on availability grounds, not a vulnerability** — nothing was
+exposed, the fix only removes a false assumption the deal system was never
+built to satisfy. Cross-checked history: no prior worklog entry claims a
+verified dealt-spot plan creation; `CHECKPOINT.md` documents the original
+"nine unique same-category spots" design assumption in writing — the bug's
+root cause was in the original spec, not a later regression in the RPC
+itself (only the *enforcement* of it was new, in 020).
+
+**Verified live on the local mirror after the fix:** the identical
+deal-then-create sequence for "dinner" now returns `200` with a real plan
+id and host token.
+
+**Staged, not applied** — migration 033, plus the two UUID-regex fixes in
+`app/api/plans/route.ts` and `app/api/spots/deal/route.ts` (application
+code, ships whenever this branch is integrated — no live/apply step needed
+for those two, only for 033). Flagged to T0 immediately, ahead of the rest
+of this session's report, given severity — T0 is getting owner approval to
+apply 033 now.
+
+## Load-testing to real scale (thousands of concurrent users) — local Supabase stack — 2026-09-04
+
+T0/owner's ask: verify the app holds **thousands** of concurrent users, not
+just the n=15 the first load-test pass reached (capped by GoTrue's live
+anonymous-signup rate limit, even after one dashboard raise). Continuing to
+fight that limit meant hammering production's real auth service at exactly
+the volume `scripts/load/README.md` already warns against.
+
+**Different target, not a bigger rate limit.** Docker + `npx supabase` (CLI
+v2.116.0) were both available this session — a full local Postgres/GoTrue/
+PostgREST/Realtime stack has **no rate limit**, since it's a local Docker
+container. This also closed the *other* gap the first pass hit:
+`/api/plans`/`/api/spots/deal` need a **permanent** session, which had no
+self-serve path against the live project (no password auth, no service-role
+key by design). Locally, the stack's own well-known local `service_role` key
+mints permanent test accounts instantly, in bulk — one piece of
+infrastructure closed both gaps.
+
+**Setup** (`scripts/load/seed-local-stack.mjs`, `mint-local-users.mjs`,
+`scale.mjs`): `npx supabase init && npx supabase start`
+(`supabase/config.toml` committed with `[db.seed] enabled = false` — this
+repo's own `seed.sql` targets the hand-maintained `schema.sql`, not the
+CLI's migrations/ convention, which this project doesn't use). Schema loaded
+via `psql -f supabase/schema.sql`, `app_control_secrets` seeded to a known
+value. **Copied the real curated catalog from the live project** (82 rows,
+real ids — this is exactly what surfaced the category bug above) rather than
+reconstructing from seed files. Seeded 50 plans (not one — "thousands of
+concurrent users" for this product means many people across many small
+plans hitting shared infrastructure, not one plan with thousands of
+participants).
+
+**Minted 2,500 real permanent test accounts**, 0 failures on the final run
+(an earlier attempt hit local GoTrue resource limits around n≈1,200-2,100
+under too-high concurrency; throttling batch size from 30→8 with a small
+inter-batch pause fixed it cleanly — noted as a real, if narrow, finding:
+local GoTrue under Docker has a concurrency ceiling worth knowing about for
+future local-stack work, separate from the live rate limit this was built to
+avoid). Each account's `@supabase/ssr` session cookie was derived via the
+real library (not hand-reimplemented cookie serialization) — `/api/plans`
+and `/api/spots/deal` read auth from cookies, not a bearer header, so a raw
+access token alone 401s against this app's own routes (only the direct
+PostgREST RPC calls, e.g. for votes, accept a bearer token).
+
+**Scale scenarios built** (`scripts/load/scale.mjs`): `vote-scale`,
+`rsvp-scale` (spread across the 50 plans, not one — tests real cross-plan
+throughput), `plan-create-scale`, `spot-deal-scale` (both blocked entirely
+in the first pass, now real). Smoke-tested clean at n=10 each once the two
+bugs above were fixed. Full-scale numbers (n=hundreds-to-thousands) not yet
+run this session — the category bug took priority once found, since a
+broken core feature matters more than a benchmark number, and the fix
+needed verifying before spending the scale run's time on now-stale code.
+
+**Not yet done, next steps:** run the actual scale numbers (target
+~500-1000+ concurrent) now that both blocking bugs are fixed, write results
+into `scripts/load/README.md`, `npx supabase stop` when finished (this is
+scratch infrastructure for this session, not persistent).

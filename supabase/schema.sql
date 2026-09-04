@@ -1380,9 +1380,13 @@ begin
     when category_value = 'shisha' then 18 else 0 end;
   if age_value < required_age then raise exception 'Category is not age appropriate' using errcode = '42501'; end if;
 
+  -- 033: no clause requiring s.category = category_value -- no curated
+  -- category has 9 spots on its own (dinner, the largest, has 5), so
+  -- /api/spots/deal deals from the whole category family by design
+  -- (categoryFamily() in lib/spots/match.ts) and a plan's 9 spots routinely
+  -- span several categories. The strict match blocked every plan creation.
   if (select count(*) from spots s where s.id = any(p_spot_ids)
       and (s.source = 'curated' or s.created_by_user_id = uid)
-      and s.category = category_value
       and age_value >= greatest(s.minimum_age, case when s.category in ('nightlife','vibes','beach_club') then 21 when s.category='shisha' then 18 else 0 end)) <> 9 then
     raise exception 'One or more places are unavailable' using errcode = '42501';
   end if;

@@ -9,7 +9,13 @@ import {
 
 export const runtime = "nodejs";
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+// 8-4-4-4-12 hex, no version/variant constraint -- matches what Postgres's
+// own `uuid` column type actually accepts. A stricter v1-5/variant-8-9-a-b
+// pattern here rejected every real curated spot id (they're deterministic,
+// e.g. "a0000000-0000-0000-0000-000000000001", not gen_random_uuid()
+// output), silently filtering spotIds to fewer than 9 and blocking every
+// plan creation that used dealt/curated spots -- the primary path.
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export async function POST(request: Request) {
   let body: unknown;

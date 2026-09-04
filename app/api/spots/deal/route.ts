@@ -11,7 +11,12 @@ import { dealSpotIds, type DealConstraints } from "@/lib/spots/match";
 
 export const runtime = "nodejs";
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+// See app/api/plans/route.ts's identical fix for why this is 8-4-4-4-12
+// hex with no version/variant constraint: the same strict v1-5 pattern
+// silently dropped every real curated spot id from this route's "been"/
+// exclude list too (deterministic ids, not gen_random_uuid() output) --
+// less severe than plans' hard block, but repeats weren't actually excluded.
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const MAX_DEAL = 9;
 const MAX_BEEN = 200;
 
