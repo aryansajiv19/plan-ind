@@ -107,7 +107,7 @@ function COPY({
         title: "Guest voting is paused",
         body: (
           <>
-            <strong>This link works</strong> — the host just needs to switch
+            <strong>This link works.</strong> The host just needs to switch
             guest access back on. Ask them to check, or sign in to vote.
           </>
         ),
