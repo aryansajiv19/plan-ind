@@ -477,6 +477,8 @@ export default function VotePage() {
       p_coming: nextComing,
       p_choice: choice,
       p_participant_token_hash: participantHash,
+      p_transport: mine?.transport ?? null,
+      p_seats_available: mine?.seats_available ?? null,
     });
     if (error) {
       await refetchRsvps(); // reconcile on failure
