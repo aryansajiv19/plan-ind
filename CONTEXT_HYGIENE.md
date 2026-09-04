@@ -51,9 +51,14 @@ loads only when someone works there:
 | `components/CLAUDE.md` + `app/CLAUDE.md` | Next 16 / React 19 traps, the CSS restraint rules, theme scoping |
 | `lib/ai/CLAUDE.md` | Responses-API contract (training data will steer you wrong here) |
 
-Status: **not yet built** — planned in this pass. Most of that content exists
-today inside `NEXT_AGENT.md` §1/§3 and the `.claude/skills/*`, which is the
-right content in the wrong place: it loads for everyone or no one.
+Status, corrected 2026-09-04 — **the ledger here was stale, not the work**:
+`supabase/CLAUDE.md`, `app/CLAUDE.md` and `components/CLAUDE.md` all already
+exist and hold exactly what this table says. Only `lib/ai/CLAUDE.md` is
+genuinely still missing, and for a real reason — `lib/ai/` doesn't exist as a
+directory yet (B3 blocks all AI work from starting), so there's nothing for
+it to auto-load for. Build it alongside the first real file under `lib/ai/`,
+not standalone before then; the `openai-responses` skill covers the same
+ground by explicit invocation in the meantime.
 
 ## Ledger
 
