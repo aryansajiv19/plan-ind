@@ -1,0 +1,247 @@
+<!-- @dsCard group="Foundations" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>plan-ind — Colour — direction options</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,200..800&family=Hanken+Grotesk:wght@400;500;700&display=swap">
+<style>
+:root {
+  --color-paper: #f4f0ea;
+  --color-card: #fbf8f3;
+  --color-ink: #1a1618;
+  --color-muted: #6b625c;
+  --color-line: rgba(18, 102, 110, 0.30);
+  --color-punch: #12666e;
+  --color-punch-text: #12666e;
+  --color-live: #a1481f;
+  --color-grape: #12666e;
+  --color-zest: #12666e;
+  --color-mint: #12666e;
+  --font-display: var(--font-display-family), system-ui, sans-serif;
+  --font-body: var(--font-hanken), system-ui, sans-serif;
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
+  --background: var(--color-paper);
+  --foreground: var(--color-ink);
+  --card: var(--color-card);
+  --card-foreground: var(--color-ink);
+  --popover: var(--color-card);
+  --popover-foreground: var(--color-ink);
+  --primary: var(--color-punch);
+  --primary-foreground: var(--primary-ink);
+  --secondary: var(--color-card);
+  --secondary-foreground: var(--color-ink);
+  --muted: var(--color-card);
+  --muted-foreground: var(--color-muted);
+  --accent: var(--color-accent-tint);
+  --accent-foreground: var(--color-punch);
+  --border: var(--color-line);
+  --input: var(--color-line);
+  --ring: var(--color-punch);
+  --destructive: #9a3412;
+  --destructive-foreground: var(--color-paper);
+  --color-accent-tint: rgba(18, 102, 110, 0.07);
+  --color-live-dot: #b3552c;
+  --dur-press: 200ms;
+  --dur-state: 300ms;
+  --dur-entrance: 700ms;
+  --dur-follow: 180ms;
+  --dur-return: 800ms;
+  --primary-fill: linear-gradient(180deg, #2a2225, #171315);
+  --primary-ink: #f6f2ec;
+  --photo-ink: #f6f2ec;
+  --photo-body: #ddd7cf;
+  --photo-eyebrow: #d3af78;
+  --photo-scrim: linear-gradient(
+    0deg,
+    rgba(14, 12, 14, 0.9) 6%,
+    rgba(14, 12, 14, 0.18) 56%,
+    rgba(14, 12, 14, 0.05) 100%
+  );
+  --radius-ring: 14px;
+  --radius-thumb: 18px;
+  --radius-panel: 22px;
+  --radius-pill: 26px;
+  --radius-hero: 26px 26px 92px 26px;
+}
+[data-theme="night"] {
+  --destructive: #f0a08a;
+  --color-paper: #0e0c0e;
+  --color-card: #171316;
+  --color-ink: #f4efe8;
+  --color-muted: #a49a92;
+  --color-line: rgba(104, 184, 192, 0.28);
+  --color-punch: #68b8c0;
+  --color-punch-text: #68b8c0;
+  --color-accent-tint: rgba(104, 184, 192, 0.16);
+  --color-live: #e08e63;
+  --color-live-dot: #cf7a4e;
+  --color-grape: #68b8c0;
+  --color-zest: #68b8c0;
+  --color-mint: #68b8c0;
+  --primary-fill: linear-gradient(180deg, #9ad3d9, #63aab2);
+  --primary-ink: #0e0c0e;
+}
+
+:root { --font-display: "Newsreader", Georgia, serif; --font-body: "Hanken Grotesk", system-ui, sans-serif; }
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 2rem;
+  background: var(--color-paper); color: var(--color-ink);
+  font-family: var(--font-body); -webkit-font-smoothing: antialiased;
+}
+h1,h2,h3 { font-family: var(--font-display); font-weight: 500; letter-spacing: -.02em; margin: 0; }
+.kicker { font-size:.73rem; font-weight:700; letter-spacing:.18em; text-transform:uppercase;
+  color: var(--color-punch); margin: 0 0 .5rem; }
+.note { font-size:.86rem; color: var(--color-muted); max-width: 64ch; margin:.5rem 0 1.5rem;
+  text-wrap: pretty; line-height:1.55; }
+.row { display:flex; gap:.75rem; flex-wrap:wrap; align-items:center; }
+@media (prefers-reduced-motion: reduce) { * { animation-duration:.001ms !important; transition-duration:.001ms !important; } }
+
+.btn { font-family:var(--font-display); font-size:.92rem; font-weight:700; padding:.9rem 2rem;
+  border:1px solid transparent; border-radius:var(--radius-pill); cursor:pointer;
+  background:var(--primary-fill); color:var(--primary-ink);
+  transition: transform var(--dur-press) var(--ease-spring); }
+.btn:active { transform: scale(.97); }
+.btn--ghost { background:none; border-color:var(--color-line); color:var(--color-ink); }
+.btn--small { font-size:.8rem; padding:.55rem 1.1rem; }
+.btn:disabled { opacity:.42; cursor:not-allowed; }
+.chip { padding:9px 16px; border-radius:22px; background:var(--color-accent-tint);
+  color:var(--color-punch); font-size:.79rem; font-weight:600; border:0; cursor:pointer; }
+.chip[aria-pressed="true"] { background:var(--color-punch); color:var(--primary-ink); font-weight:700; }
+.live { display:flex; align-items:center; gap:9px; font-size:.82rem; color:var(--color-live); }
+.live__dot { width:6px; height:6px; border-radius:50%; background:var(--color-live-dot); }
+</style>
+</head>
+<body>
+<p class="kicker">Decision aid — delete after the direction is picked</p><h2>Which one replaces teal?</h2>
+<p class="note">The shipped accent (teal <code>#12666e</code>/<code>#68b8c0</code> + terracotta live) read as "navy blue and gold." All four below share one live-state colour — a clean sky blue, deliberately far from anything gold-adjacent — and vary only the primary "outcome" accent, so the comparison isolates the one thing that needs to change. Each is measured AA-clear on both grounds, both as text and as a fill with its paired ink colour.</p>
+
+<div style="margin-top:2rem">
+  <h3 style="font-size:1.05rem; margin-bottom:.4rem">A — Coral & Sky</h3>
+  <p class="note" style="margin:.2rem 0 1rem">Warm and immediate — a Dubai-sunset energy that still reads confident, not childish. The coolest-feeling of the four against a warm ground.</p>
+  <div class="row" style="align-items:stretch; gap:1.25rem">
+    <div style="flex:1; min-width:280px">
+<div style="background:#f4f0ea; color:#1a1618; padding:1.5rem; border-radius:var(--radius-panel); border:1px solid color-mix(in srgb, #a8380a 32%, transparent)">
+  <p style="font-family:var(--font-display); font-weight:700; letter-spacing:.26em; color:#a8380a; margin:0 0 1rem; font-size:.85rem">PLAN</p>
+  <h3 style="font-family:var(--font-display); font-size:1.6rem; font-weight:500; letter-spacing:-.03em; margin:0 0 1rem">Dubai plans,<br><b style="font-weight:800; position:relative">without the group chat<span style="display:block; height:.06em; background:#a8380a; margin-top:.1em; width:60%"></span></b></h3>
+  <div style="display:flex; gap:.65rem; align-items:center; margin-bottom:1rem">
+    <button style="font-family:var(--font-display); font-weight:700; padding:.7rem 1.4rem; border-radius:var(--radius-pill); border:1px solid transparent; background:#a8380a; color:#fdf4e9; font-size:.85rem">Lock it in</button>
+    <button style="padding:9px 16px; border-radius:22px; background:color-mix(in srgb, #a8380a 14%, transparent); color:#a8380a; font-size:.78rem; font-weight:600; border:0">After dark</button>
+  </div>
+  <div style="display:flex; align-items:center; gap:8px; font-size:.78rem; color:#6b625c">
+    <span style="width:6px;height:6px;border-radius:50%;background:#0369a1"></span><span>Mo is looking at it now</span>
+  </div>
+</div></div>
+    <div style="flex:1; min-width:280px">
+<div style="background:#0e0c0e; color:#f4efe8; padding:1.5rem; border-radius:var(--radius-panel); border:1px solid color-mix(in srgb, #fb923c 30%, transparent)">
+  <p style="font-family:var(--font-display); font-weight:700; letter-spacing:.26em; color:#fb923c; margin:0 0 1rem; font-size:.85rem">PLAN</p>
+  <h3 style="font-family:var(--font-display); font-size:1.6rem; font-weight:500; letter-spacing:-.03em; margin:0 0 1rem">Dubai plans,<br><b style="font-weight:800; position:relative">without the group chat<span style="display:block; height:.06em; background:#fb923c; margin-top:.1em; width:60%"></span></b></h3>
+  <div style="display:flex; gap:.65rem; align-items:center; margin-bottom:1rem">
+    <button style="font-family:var(--font-display); font-weight:700; padding:.7rem 1.4rem; border-radius:var(--radius-pill); border:1px solid transparent; background:#fb923c; color:#1a1618; font-size:.85rem">Lock it in</button>
+    <button style="padding:9px 16px; border-radius:22px; background:color-mix(in srgb, #fb923c 14%, transparent); color:#fb923c; font-size:.78rem; font-weight:600; border:0">After dark</button>
+  </div>
+  <div style="display:flex; align-items:center; gap:8px; font-size:.78rem; color:#a49a92">
+    <span style="width:6px;height:6px;border-radius:50%;background:#38bdf8"></span><span>Mo is looking at it now</span>
+  </div>
+</div></div>
+  </div>
+</div>
+<div style="margin-top:2rem">
+  <h3 style="font-size:1.05rem; margin-bottom:.4rem">B — Emerald & Sky</h3>
+  <p class="note" style="margin:.2rem 0 1rem">Jewel-toned rather than muted — luxury from richness and saturation, fun from how alive it is against near-black at night.</p>
+  <div class="row" style="align-items:stretch; gap:1.25rem">
+    <div style="flex:1; min-width:280px">
+<div style="background:#f4f0ea; color:#1a1618; padding:1.5rem; border-radius:var(--radius-panel); border:1px solid color-mix(in srgb, #0a5c35 32%, transparent)">
+  <p style="font-family:var(--font-display); font-weight:700; letter-spacing:.26em; color:#0a5c35; margin:0 0 1rem; font-size:.85rem">PLAN</p>
+  <h3 style="font-family:var(--font-display); font-size:1.6rem; font-weight:500; letter-spacing:-.03em; margin:0 0 1rem">Dubai plans,<br><b style="font-weight:800; position:relative">without the group chat<span style="display:block; height:.06em; background:#0a5c35; margin-top:.1em; width:60%"></span></b></h3>
+  <div style="display:flex; gap:.65rem; align-items:center; margin-bottom:1rem">
+    <button style="font-family:var(--font-display); font-weight:700; padding:.7rem 1.4rem; border-radius:var(--radius-pill); border:1px solid transparent; background:#0a5c35; color:#f4efe8; font-size:.85rem">Lock it in</button>
+    <button style="padding:9px 16px; border-radius:22px; background:color-mix(in srgb, #0a5c35 14%, transparent); color:#0a5c35; font-size:.78rem; font-weight:600; border:0">After dark</button>
+  </div>
+  <div style="display:flex; align-items:center; gap:8px; font-size:.78rem; color:#6b625c">
+    <span style="width:6px;height:6px;border-radius:50%;background:#0369a1"></span><span>Mo is looking at it now</span>
+  </div>
+</div></div>
+    <div style="flex:1; min-width:280px">
+<div style="background:#0e0c0e; color:#f4efe8; padding:1.5rem; border-radius:var(--radius-panel); border:1px solid color-mix(in srgb, #4ade80 30%, transparent)">
+  <p style="font-family:var(--font-display); font-weight:700; letter-spacing:.26em; color:#4ade80; margin:0 0 1rem; font-size:.85rem">PLAN</p>
+  <h3 style="font-family:var(--font-display); font-size:1.6rem; font-weight:500; letter-spacing:-.03em; margin:0 0 1rem">Dubai plans,<br><b style="font-weight:800; position:relative">without the group chat<span style="display:block; height:.06em; background:#4ade80; margin-top:.1em; width:60%"></span></b></h3>
+  <div style="display:flex; gap:.65rem; align-items:center; margin-bottom:1rem">
+    <button style="font-family:var(--font-display); font-weight:700; padding:.7rem 1.4rem; border-radius:var(--radius-pill); border:1px solid transparent; background:#4ade80; color:#0e0c0e; font-size:.85rem">Lock it in</button>
+    <button style="padding:9px 16px; border-radius:22px; background:color-mix(in srgb, #4ade80 14%, transparent); color:#4ade80; font-size:.78rem; font-weight:600; border:0">After dark</button>
+  </div>
+  <div style="display:flex; align-items:center; gap:8px; font-size:.78rem; color:#a49a92">
+    <span style="width:6px;height:6px;border-radius:50%;background:#38bdf8"></span><span>Mo is looking at it now</span>
+  </div>
+</div></div>
+  </div>
+</div>
+<div style="margin-top:2rem">
+  <h3 style="font-size:1.05rem; margin-bottom:.4rem">C — Magenta & Sky</h3>
+  <p class="note" style="margin:.2rem 0 1rem">The most playful of the four. Ruby by day, bright pink by night — still reads premium because it's used with the same restraint as the others, not as decoration.</p>
+  <div class="row" style="align-items:stretch; gap:1.25rem">
+    <div style="flex:1; min-width:280px">
+<div style="background:#f4f0ea; color:#1a1618; padding:1.5rem; border-radius:var(--radius-panel); border:1px solid color-mix(in srgb, #8a0f3d 32%, transparent)">
+  <p style="font-family:var(--font-display); font-weight:700; letter-spacing:.26em; color:#8a0f3d; margin:0 0 1rem; font-size:.85rem">PLAN</p>
+  <h3 style="font-family:var(--font-display); font-size:1.6rem; font-weight:500; letter-spacing:-.03em; margin:0 0 1rem">Dubai plans,<br><b style="font-weight:800; position:relative">without the group chat<span style="display:block; height:.06em; background:#8a0f3d; margin-top:.1em; width:60%"></span></b></h3>
+  <div style="display:flex; gap:.65rem; align-items:center; margin-bottom:1rem">
+    <button style="font-family:var(--font-display); font-weight:700; padding:.7rem 1.4rem; border-radius:var(--radius-pill); border:1px solid transparent; background:#8a0f3d; color:#f4efe8; font-size:.85rem">Lock it in</button>
+    <button style="padding:9px 16px; border-radius:22px; background:color-mix(in srgb, #8a0f3d 14%, transparent); color:#8a0f3d; font-size:.78rem; font-weight:600; border:0">After dark</button>
+  </div>
+  <div style="display:flex; align-items:center; gap:8px; font-size:.78rem; color:#6b625c">
+    <span style="width:6px;height:6px;border-radius:50%;background:#0369a1"></span><span>Mo is looking at it now</span>
+  </div>
+</div></div>
+    <div style="flex:1; min-width:280px">
+<div style="background:#0e0c0e; color:#f4efe8; padding:1.5rem; border-radius:var(--radius-panel); border:1px solid color-mix(in srgb, #f472b6 30%, transparent)">
+  <p style="font-family:var(--font-display); font-weight:700; letter-spacing:.26em; color:#f472b6; margin:0 0 1rem; font-size:.85rem">PLAN</p>
+  <h3 style="font-family:var(--font-display); font-size:1.6rem; font-weight:500; letter-spacing:-.03em; margin:0 0 1rem">Dubai plans,<br><b style="font-weight:800; position:relative">without the group chat<span style="display:block; height:.06em; background:#f472b6; margin-top:.1em; width:60%"></span></b></h3>
+  <div style="display:flex; gap:.65rem; align-items:center; margin-bottom:1rem">
+    <button style="font-family:var(--font-display); font-weight:700; padding:.7rem 1.4rem; border-radius:var(--radius-pill); border:1px solid transparent; background:#f472b6; color:#1a1618; font-size:.85rem">Lock it in</button>
+    <button style="padding:9px 16px; border-radius:22px; background:color-mix(in srgb, #f472b6 14%, transparent); color:#f472b6; font-size:.78rem; font-weight:600; border:0">After dark</button>
+  </div>
+  <div style="display:flex; align-items:center; gap:8px; font-size:.78rem; color:#a49a92">
+    <span style="width:6px;height:6px;border-radius:50%;background:#38bdf8"></span><span>Mo is looking at it now</span>
+  </div>
+</div></div>
+  </div>
+</div>
+<div style="margin-top:2rem">
+  <h3 style="font-size:1.05rem; margin-bottom:.4rem">D — Violet & Sky</h3>
+  <p class="note" style="margin:.2rem 0 1rem">The most overtly luxury-coded hue family, softened by being genuinely vivid rather than muted metal — this is the safest pick if 'luxurious' should outweigh 'fun.'</p>
+  <div class="row" style="align-items:stretch; gap:1.25rem">
+    <div style="flex:1; min-width:280px">
+<div style="background:#f4f0ea; color:#1a1618; padding:1.5rem; border-radius:var(--radius-panel); border:1px solid color-mix(in srgb, #5b21b6 32%, transparent)">
+  <p style="font-family:var(--font-display); font-weight:700; letter-spacing:.26em; color:#5b21b6; margin:0 0 1rem; font-size:.85rem">PLAN</p>
+  <h3 style="font-family:var(--font-display); font-size:1.6rem; font-weight:500; letter-spacing:-.03em; margin:0 0 1rem">Dubai plans,<br><b style="font-weight:800; position:relative">without the group chat<span style="display:block; height:.06em; background:#5b21b6; margin-top:.1em; width:60%"></span></b></h3>
+  <div style="display:flex; gap:.65rem; align-items:center; margin-bottom:1rem">
+    <button style="font-family:var(--font-display); font-weight:700; padding:.7rem 1.4rem; border-radius:var(--radius-pill); border:1px solid transparent; background:#5b21b6; color:#f4efe8; font-size:.85rem">Lock it in</button>
+    <button style="padding:9px 16px; border-radius:22px; background:color-mix(in srgb, #5b21b6 14%, transparent); color:#5b21b6; font-size:.78rem; font-weight:600; border:0">After dark</button>
+  </div>
+  <div style="display:flex; align-items:center; gap:8px; font-size:.78rem; color:#6b625c">
+    <span style="width:6px;height:6px;border-radius:50%;background:#0369a1"></span><span>Mo is looking at it now</span>
+  </div>
+</div></div>
+    <div style="flex:1; min-width:280px">
+<div style="background:#0e0c0e; color:#f4efe8; padding:1.5rem; border-radius:var(--radius-panel); border:1px solid color-mix(in srgb, #c4b5fd 30%, transparent)">
+  <p style="font-family:var(--font-display); font-weight:700; letter-spacing:.26em; color:#c4b5fd; margin:0 0 1rem; font-size:.85rem">PLAN</p>
+  <h3 style="font-family:var(--font-display); font-size:1.6rem; font-weight:500; letter-spacing:-.03em; margin:0 0 1rem">Dubai plans,<br><b style="font-weight:800; position:relative">without the group chat<span style="display:block; height:.06em; background:#c4b5fd; margin-top:.1em; width:60%"></span></b></h3>
+  <div style="display:flex; gap:.65rem; align-items:center; margin-bottom:1rem">
+    <button style="font-family:var(--font-display); font-weight:700; padding:.7rem 1.4rem; border-radius:var(--radius-pill); border:1px solid transparent; background:#c4b5fd; color:#1a1618; font-size:.85rem">Lock it in</button>
+    <button style="padding:9px 16px; border-radius:22px; background:color-mix(in srgb, #c4b5fd 14%, transparent); color:#c4b5fd; font-size:.78rem; font-weight:600; border:0">After dark</button>
+  </div>
+  <div style="display:flex; align-items:center; gap:8px; font-size:.78rem; color:#a49a92">
+    <span style="width:6px;height:6px;border-radius:50%;background:#38bdf8"></span><span>Mo is looking at it now</span>
+  </div>
+</div></div>
+  </div>
+</div>
+
+</body>
+</html>
