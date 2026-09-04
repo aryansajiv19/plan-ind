@@ -3219,17 +3219,6 @@ h3 {
   color: var(--color-muted);
   text-wrap: pretty;
 }
-/* Says what is missing, plainly, rather than padding the tile. */
-.wall-tile__absent {
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  margin: 0;
-  font-size: 0.68rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-muted);
-}
 
 /* Overlay chips describe WHAT HAPPENED — "Sara + 2 saved", "In Friday's
    deal" — never the category. A chip naming the category would be the
