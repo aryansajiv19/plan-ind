@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { Plan, Rating, Rsvp, Spot } from "@/lib/types";
 import { googleCalUrl, icsHref } from "@/lib/calendar";
 import { categoryMeta } from "@/lib/categories";
+import WinnerPhotoReveal from "@/components/WinnerPhotoReveal";
 
 interface DecidedPlanProps {
   plan: Plan;
@@ -100,6 +101,15 @@ export default function DecidedPlan({
 
   return (
     <div className="vote-result mt-6 rounded-2xl border-2 border-punch bg-punch/5 p-4 sm:p-5">
+      {/* SPECS.md §14.2: the winner's photo, assembling from scattered
+          particles into itself — the reveal, not decoration on top of one.
+          Only when a real photo exists; spot.photo_url is mostly null in
+          the curated catalog today, and the existing category-badge
+          treatment below already covers that honest-empty case. */}
+      {winner.photo_url && (
+        <WinnerPhotoReveal src={winner.photo_url} alt={`${winner.name}, ${winner.area}`} />
+      )}
+
       {/* Decision summary */}
       <div className="flex items-center gap-3">
         <span
