@@ -74,10 +74,6 @@ export default function PhotoTile({
           {note.text}
         </p>
       ) : null}
-
-      {!hasPhoto ? (
-        <p className="wall-tile__absent">No photo yet</p>
-      ) : null}
     </article>
   );
 }

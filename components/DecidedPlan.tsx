@@ -217,7 +217,7 @@ export default function DecidedPlan({
                 <button
                   type="button"
                   onClick={onMarkBooked}
-                  className="vote-result__button rounded-xl border-2 border-ink bg-grape px-4 py-2 text-sm font-display font-extrabold text-white"
+                  className="vote-result__button rounded-xl border-2 border-ink px-4 py-2 text-sm font-display font-extrabold"
                 >
                   Mark as booked
                 </button>
