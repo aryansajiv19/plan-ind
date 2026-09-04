@@ -775,28 +775,41 @@ explicitly out of scope. Two cases, two different answers:
   component — no route change, no navigation, `layoutId` works exactly as
   Motion intends. This is the one to build first; it has no open technical
   question.
-- **Photo-wall card → place-page hero: needs restructuring, not a
-  `layoutId` alone.** Today this is a real route change to
-  `app/place/[id]/page.tsx`. Recommended fix: render the place page as an
-  **in-page overlay using Next.js Parallel + Intercepting Routes**
-  (`@modal` slot + a `(.)place/[id]` intercepting segment under
-  `app/home/` — both stable App Router features, not experimental) when
-  navigated to *from within the app* (the photo wall, a place card). This
-  keeps the wall mounted underneath the overlay, so a genuine `layoutId`
-  transition works between the tile and the overlay's hero photo. A direct
-  visit or shared link to `/place/[id]` still renders the full standalone
-  page exactly as it does today — the interception only fires for
-  in-app navigation, so nothing about deep-linking or sharing changes.
-  **This is a real routing-architecture change, not a CSS/animation
-  tweak** — Frontend should weigh in on the restructuring cost before
-  committing to it; if it's a bigger lift than the moment is worth right
-  now, the fallback is a manual FLIP transition (capture the source
-  tile's `getBoundingClientRect()` + photo `src` on click, stash it
-  — `sessionStorage` is enough, no need for real state management — and on
-  the place page's mount, animate the hero photo from that captured rect
-  to its final position). The FLIP fallback gets the same visual result
-  without any routing change, at the cost of being a one-off animation
-  rather than a reusable shared-element pattern.
+- **Photo-wall card → place-page hero: DROPPED (owner, 2026-09-04).** The
+  intercepting-routes recommendation below was put to the owner as the
+  real cost of this piece — not a technical objection, they just don't
+  want tile-tap turned into a modal-overlay navigation. Tile-tap stays a
+  full page navigation, plain and simple. **Do not build this piece —
+  not the intercepting-routes version, not the FLIP fallback either.**
+  Kept struck through rather than deleted so nobody re-proposes the same
+  thing without knowing it was already asked and declined. Original text,
+  for the record only:
+  > needs restructuring, not a `layoutId` alone. Today this is a real
+  > route change to `app/place/[id]/page.tsx`. Recommended fix: render
+  > the place page as an in-page overlay using Next.js Parallel +
+  > Intercepting Routes (`@modal` slot + a `(.)place/[id]` intercepting
+  > segment under `app/home/` — both stable App Router features, not
+  > experimental) when navigated to from within the app (the photo wall,
+  > a place card). This keeps the wall mounted underneath the overlay, so
+  > a genuine `layoutId` transition works between the tile and the
+  > overlay's hero photo. A direct visit or shared link to `/place/[id]`
+  > still renders the full standalone page exactly as it does today — the
+  > interception only fires for in-app navigation, so nothing about
+  > deep-linking or sharing changes. This is a real routing-architecture
+  > change, not a CSS/animation tweak — Frontend should weigh in on the
+  > restructuring cost before committing to it; if it's a bigger lift
+  > than the moment is worth right now, the fallback is a manual FLIP
+  > transition (capture the source tile's `getBoundingClientRect()` +
+  > photo `src` on click, stash it — `sessionStorage` is enough, no need
+  > for real state management — and on the place page's mount, animate
+  > the hero photo from that captured rect to its final position). The
+  > FLIP fallback gets the same visual result without any routing change,
+  > at the cost of being a one-off animation rather than a reusable
+  > shared-element pattern.
+
+  The pool-round → final-round piece above is unaffected — build that one
+  as specced. Particle-reconstruction (§14.2) and the hero depth drift
+  (§14.3) are also unaffected by this drop.
 
 ### 14.2 — One-shot particle-reconstruction, scoped to the decided-plan reveal only
 
