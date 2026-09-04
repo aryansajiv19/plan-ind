@@ -972,3 +972,71 @@ state — fixed.
 Gate green (lint/tsc/38 tests/build). Staged migration, needs owner
 approval like every migration in this directory. Frontend was blocked on
 this exact signature — ready for them now.
+
+## Carpool coordination — RSVP fields — 2026-09-04
+
+`design-system/SPECS.md` §10.2, owner-approved as originally scoped: a
+coordination list on the payoff screen, not a matcher — who's driving with
+open seats, who needs a ride, who's making their own way. No route
+optimization, no rider/driver assignment, no capacity enforcement beyond
+what the columns themselves express.
+
+**Migration 035** extends `set_plan_rsvp` directly (two new optional
+params, `p_transport`/`p_seats_available`) rather than a new RPC — this is
+two more fields on the same one-row-per-`(plan,voter)` record RSVPs already
+are, and `rsvps` keeps its existing posture: no direct write policy, this
+RPC is still the only way in. New columns: `transport text check (... in
+('driving','need_ride','own_way'))`, `seats_available smallint check
+(... between 0 and 8)`, plus a cross-column constraint
+(`rsvps_seats_only_when_driving`) so a seat count can never exist without
+`transport='driving'` — enforced at the DB level, not just documented,
+on top of the identical check re-validated inside the function body.
+
+**A real pitfall caught before it shipped, not by review**: `create or
+replace function` only replaces a function with an *identical* parameter
+signature. Adding two params — even defaulted — would have created a
+second, overloaded 7-arg function alongside the old 5-arg one instead of
+replacing it (the arity-change sibling of the return-type pitfall migration
+023 already hit once). Migration 035 explicitly `drop function if exists
+set_plan_rsvp(uuid, text, boolean, text, text)` before creating the new
+7-arg version, so there is exactly one `set_plan_rsvp` live, not two.
+
+**Verified live on the local mirror, real cases**: driving+seats succeeds;
+need_ride with no seats succeeds; seats supplied without
+`transport='driving'` is rejected with the function's own clean error, not
+a raw constraint violation; out-of-range seats rejected; an invalid
+transport string rejected; omitting both new params entirely still
+succeeds (backward compatible); switching an existing driver to
+`need_ride` correctly clears the stale seat count rather than leaving it.
+
+**`security` review**: safe to commit. Confirmed all four grant/revoke
+lines in `schema.sql` (two historical blocks reflecting this codebase's
+anon-grant-then-later-revoke pattern) were updated to the new 7-arg
+signature, none left stale. Confirmed the existing ownership gate
+(`participant_token_hash` mismatch → `42501`) still runs before both the
+insert and update branches, unchanged, so the new columns don't open any
+new write path around it. Confirmed `rsvps`' `plan_access`-scoped select
+policy is unmodified — every plan member seeing everyone else's carpool
+answer is the feature itself, not a new disclosure. Confirmed the
+`between 0 and 8` bound is correct at both layers (inclusive boundaries,
+non-integer input rejected by smallint coercion before reaching the
+function).
+
+**One real, non-security note the review caught, for Frontend**:
+`app/plan/[id]/page.tsx`'s `setRsvp()` is the current live call site and
+still only passes the original 5 params. Because the update branch
+unconditionally sets `transport`/`seats_available` from whatever the call
+provides (full replace, same as `coming`/`choice` already work — not a
+partial patch), every existing "coming/maybe/no" tap through the
+*unmodified* frontend will silently null out any previously-set carpool
+answer the moment this migration is live — even before any carpool UI
+exists to re-set it. Not a security issue (a caller can only affect their
+own row), but a real sequencing trap. **The fix is one line**: `setRsvp`
+already holds `mine` (the caller's existing rsvp row) in scope — pass
+`p_transport: mine?.transport ?? null, p_seats_available: mine?.seats_available ?? null`
+in the existing RPC call so an unrelated status change preserves whatever
+carpool answer was already there. Needs landing *before or alongside* 035
+going live, not after. Posted as a cross-lane request.
+
+Gate green (lint/tsc/38 tests/build, schema↔types drift check clean).
+Staged migration, needs owner approval like every migration here.

@@ -101,6 +101,10 @@ export interface Rsvp {
   coming: boolean;
   choice?: "coming" | "maybe" | "no";
   participant_token_hash?: string | null;
+  // Carpool coordination (migration 035) -- a list, not a matcher.
+  // seats_available is only meaningful when transport === "driving".
+  transport?: "driving" | "need_ride" | "own_way" | null;
+  seats_available?: number | null;
 }
 
 // After the visit: how was it? Closes the loop and (later) feeds "haven't

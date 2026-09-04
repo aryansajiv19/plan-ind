@@ -182,8 +182,13 @@ create table rsvps (
   coming     boolean not null default true,
   choice     text not null default 'coming' check (choice in ('coming', 'maybe', 'no')),
   participant_token_hash text,
+  -- 035: carpool coordination -- a list, not a matcher (design-system/
+  -- SPECS.md §10.2). seats_available only means something when driving.
+  transport  text check (transport in ('driving', 'need_ride', 'own_way')),
+  seats_available smallint check (seats_available is null or seats_available between 0 and 8),
   created_at timestamptz not null default now(),
-  unique (plan_id, voter_name)
+  unique (plan_id, voter_name),
+  constraint rsvps_seats_only_when_driving check (seats_available is null or transport = 'driving')
 );
 
 create index rsvps_plan_idx on rsvps (plan_id);
@@ -1039,7 +1044,8 @@ begin
 end; $$;
 
 create or replace function set_plan_rsvp(
-  p_plan_id uuid, p_voter_name text, p_coming boolean, p_choice text, p_participant_token_hash text
+  p_plan_id uuid, p_voter_name text, p_coming boolean, p_choice text, p_participant_token_hash text,
+  p_transport text default null, p_seats_available smallint default null
 ) returns void language plpgsql security definer set search_path = public, pg_temp as $$
 declare
   existing rsvps%rowtype;
@@ -1051,6 +1057,15 @@ begin
   end if;
   if clean_name = '' then
     raise exception 'Enter a name before replying' using errcode = '22023';
+  end if;
+  -- 035: carpool coordination fields, validated the same way every other
+  -- optional field in this function's family is -- explicit allow-list /
+  -- range check, not left to the column constraint alone.
+  if p_transport is not null and p_transport not in ('driving', 'need_ride', 'own_way') then
+    raise exception 'Unsupported transport choice' using errcode = '22023';
+  end if;
+  if p_seats_available is not null and (p_transport is distinct from 'driving' or p_seats_available not between 0 and 8) then
+    raise exception 'Seats only apply when driving, 0 to 8' using errcode = '22023';
   end if;
 
   -- RSVPs stay open after the plan is decided: that is when most people
@@ -1072,13 +1087,14 @@ begin
     end if;
     if existing.id is null then
       begin
-        insert into rsvps (plan_id, voter_name, coming, choice, participant_token_hash)
-        values (p_plan_id, clean_name, p_coming, p_choice, p_participant_token_hash);
+        insert into rsvps (plan_id, voter_name, coming, choice, participant_token_hash, transport, seats_available)
+        values (p_plan_id, clean_name, p_coming, p_choice, p_participant_token_hash, p_transport, p_seats_available);
         return;
       exception when unique_violation then
       end;
     else
-      update rsvps set coming = p_coming, choice = p_choice, participant_token_hash = p_participant_token_hash
+      update rsvps set coming = p_coming, choice = p_choice, participant_token_hash = p_participant_token_hash,
+        transport = p_transport, seats_available = p_seats_available
         where id = existing.id;
       return;
     end if;
@@ -1133,10 +1149,10 @@ begin
 end; $$;
 
 revoke all on function cast_plan_vote(uuid, uuid, text, boolean, text, smallint, text) from public;
-revoke all on function set_plan_rsvp(uuid, text, boolean, text, text) from public;
+revoke all on function set_plan_rsvp(uuid, text, boolean, text, text, text, smallint) from public;
 revoke all on function rate_plan(uuid, uuid, text, integer, boolean, text) from public;
 grant execute on function cast_plan_vote(uuid, uuid, text, boolean, text, smallint, text) to anon, authenticated;
-grant execute on function set_plan_rsvp(uuid, text, boolean, text, text) to anon, authenticated;
+grant execute on function set_plan_rsvp(uuid, text, boolean, text, text, text, smallint) to anon, authenticated;
 grant execute on function rate_plan(uuid, uuid, text, integer, boolean, text) to anon, authenticated;
 
 -- ── 3. Date of birth becomes server-owned and write-once ──────────────────
@@ -1308,10 +1324,10 @@ create trigger ratings_require_plan_access before insert or update on ratings
 for each row execute function enforce_plan_membership();
 
 revoke execute on function cast_plan_vote(uuid, uuid, text, boolean, text, smallint, text) from anon;
-revoke execute on function set_plan_rsvp(uuid, text, boolean, text, text) from anon;
+revoke execute on function set_plan_rsvp(uuid, text, boolean, text, text, text, smallint) from anon;
 revoke execute on function rate_plan(uuid, uuid, text, integer, boolean, text) from anon;
 grant execute on function cast_plan_vote(uuid, uuid, text, boolean, text, smallint, text) to authenticated;
-grant execute on function set_plan_rsvp(uuid, text, boolean, text, text) to authenticated;
+grant execute on function set_plan_rsvp(uuid, text, boolean, text, text, text, smallint) to authenticated;
 grant execute on function rate_plan(uuid, uuid, text, integer, boolean, text) to authenticated;
 
 -- ── Transactional, server-authoritative plan creation ─────────────
