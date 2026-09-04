@@ -61,6 +61,20 @@ media query** — that's regression territory, don't touch it. This just means
 don't spend further effort on mobile-specific verification or new mobile work
 until told otherwise. Desktop/general work continues as normal.
 
+### ⚠️ Day/night is NOT being retired — reverses Design's 578781c call
+
+Owner, 2026-09-04, after Design had already started deleting the colour-
+application layer on the "one dark identity" reading: **"i like white and
+navy blue together maybe that for the day mode i guess."**
+
+Read plainly: **day mode stays, and it's white + navy** (tentative — "I
+guess" — so treat as a strong direction to build and show, not a locked
+final). **Night mode is palette v3** (charcoal-navy `#0D1117` / champagne gold
+`#C9A876` / glass-blue `#5CC8D7` / teal `#00E0C7`, below). The dual-palette
+Dubai-clock mechanism (`dubaiHour()`, `ThemeSync`) should NOT be deleted —
+**Design: stop and reverse that specific deletion** if it's still in flight;
+the colour-application layer needs a white/navy day branch added, not removed.
+
 ### 🎨 Palette v3, 2026-09-04 — try this one instead
 
 Supersedes v2 (coral/gold/teal on `#121212`) below, which stays in the doc for

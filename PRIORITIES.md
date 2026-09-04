@@ -79,6 +79,18 @@ one and can start now.
 rules are squarely their turf); Frontend picks up the enriched-result UI once
 a real API contract exists, not before.
 
+## Collections and moodboards, Pinterest style — owner feature, 2026-09-04
+
+The layout direction for step 2/7's identified gap (`PRODUCT_FLOW.md`) —
+Discover's moodboards and Been's post-visit photo collections, both currently
+thin-to-no UI (moodboards are demo-only per Review's audit, Been is a flat log
+with no grouping). Owner wants a Pinterest-style masonry/variable-height grid
+for both, not a uniform card grid. **Design's call** to spec against the
+`visit_photos`/`visit_collections`/moodboard data that already exists
+(migration 010) — pairs naturally with the venue-link enrichment work above
+once photos exist to populate it with. Not started; queued behind the
+structural bug-fixes and the day/night palette correction.
+
 ## New frontend backlog (from the guest-vote verification)
 
 | # | Task | Why | Size |
