@@ -44,7 +44,7 @@ export default function NameGate({ planTitle, onSubmit }: NameGateProps) {
       <button
         type="submit"
         disabled={!trimmed}
-        className="vote-primary-action mt-4 w-full rounded-2xl border-2 border-ink bg-grape px-6 py-3.5 font-display text-lg font-extrabold text-white disabled:opacity-40"
+        className="vote-primary-action mt-4 w-full rounded-2xl border-2 border-ink px-6 py-3.5 font-display text-lg font-extrabold disabled:opacity-40"
       >
         Start voting
       </button>

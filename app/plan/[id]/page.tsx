@@ -765,7 +765,7 @@ export default function VotePage() {
                   else void advanceToFinal();
                 }}
                 disabled={deciding || !hasCurrentSelection || (activePool === poolCount && !allPoolsChosen)}
-                className="vote-primary-action flex-1 rounded-2xl border-2 border-ink bg-punch px-6 py-3.5 font-display text-lg font-extrabold text-white disabled:opacity-40"
+                className="vote-primary-action flex-1 rounded-2xl border-2 border-ink px-6 py-3.5 font-display text-lg font-extrabold disabled:opacity-40"
               >
                 {deciding
                   ? "Building the shortlist…"
@@ -778,7 +778,7 @@ export default function VotePage() {
                 type="button"
                 onClick={decide}
                 disabled={deciding || !hasCurrentSelection}
-                className="vote-primary-action flex-1 rounded-2xl border-2 border-ink bg-punch px-6 py-3.5 font-display text-lg font-extrabold text-white disabled:opacity-40"
+                className="vote-primary-action flex-1 rounded-2xl border-2 border-ink px-6 py-3.5 font-display text-lg font-extrabold disabled:opacity-40"
               >
                 {deciding ? "Choosing…" : "Choose the final place"}
               </button>
