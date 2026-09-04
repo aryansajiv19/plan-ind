@@ -37,6 +37,48 @@ reads → NameGate → cast a Round-1 vote → "selected" + live count bump. Fir
 the core product loop has functioned for a no-account guest. Delivery item #1 in
 `PRODUCT_STRATEGY.md` is now real. Turnstile still off (deploy checklist).
 
+## Venue-link enrichment — owner priority feature, 2026-09-04
+
+**Paste a link → get the full venue: photos, distance, how to get there.**
+This is largely **unbuilt, not broken** — a full architecture already exists
+in `PLACE_IMPORT_ARCHITECTURE.md` (dated 2026-08-07) and its schema is live
+(migration 012: `place_imports`, `place_collections`, `place_collection_items`,
+owner-scoped RLS). What exists today: `PlaceLinkImporter.tsx` (UI shell,
+localStorage-only preview), `app/api/place-import/route.ts` + `lib/place-import.ts`
+(URL validation/normalization for Instagram/TikTok/Facebook/Reddit/YouTube/web,
+tracking-param stripping, credential/malformed-link rejection). **The endpoint
+does not fetch anything and nothing persists to Supabase yet** — intentional,
+per the doc, pending the resolution pipeline below.
+
+The doc's 7-step pipeline (intake → permitted-source fetch → clue extraction →
+candidate matching against the `spots` catalog → confidence resolution →
+enrich/reconcile → present/save) and its security rules (allowlisted provider
+adapters only, **never a generic server-side fetch of an arbitrary URL**, block
+private IPs/oversized responses, treat all fetched content as untrusted) are
+already specified — read that file before building, don't re-derive it.
+
+**Two pieces need explicit scope decisions before backend work starts — real
+cost/complexity tradeoffs, not something to assume:**
+1. **Travel time/directions.** Free version: straight-line distance via the
+   `origin_latitude/longitude` ↔ `spots.latitude/longitude` columns that
+   already exist (pure math, live now) + a "open in Maps" deep link (no API
+   key). Real turn-by-turn/traffic-aware time needs a paid Directions API.
+2. **Photos.** Free version: match against the curated `spots` catalog's
+   existing `photo_url` (mostly null today) or the provider's own embed
+   metadata. Real venue photography needs a paid Places-photo API. This is
+   also what unblocks Design's deferred `next.config.ts` `images.remotePatterns`
+   decision — once a host is chosen, that gets a `security` subagent look at
+   the specific host, per the standing rule against a wildcard allowlist.
+
+AI/LLM-based clue extraction and matching (steps 3–5) are **blocked on B3**
+(OpenAI credits still zero) for anything requiring a model call — but intake,
+schema persistence, catalog-only matching, and the two items above don't need
+one and can start now.
+
+**Assigned:** Security/Backend leads (data pipeline + the SSRF/fetch-safety
+rules are squarely their turf); Frontend picks up the enriched-result UI once
+a real API contract exists, not before.
+
 ## New frontend backlog (from the guest-vote verification)
 
 | # | Task | Why | Size |
