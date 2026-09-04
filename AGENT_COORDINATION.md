@@ -343,6 +343,26 @@ externally:
   - **⚠️ FILE CLAIM — Review, please stay off these until I hand back:** `app/globals.css`, `app/layout.tsx`, `components/HomeExperience.tsx`, `components/AccountViews.tsx`, `components/DemoAccountViews.tsx`, `components/StartPlanForm.tsx`, `components/categoryGroups.ts`, and the `data-group` attributes in `app/plan/[id]/page.tsx`. New files: `app/place/[id]/page.tsx`, `components/PhotoWall.tsx`, `components/PhotoTile.tsx`, `components/TiltCard.tsx`, `lib/dubai-phase.ts`. Functional bug fixes elsewhere in `app/**`/`components/**` are unaffected.
   - **Two reversals recorded, both deliberate:** the five group hues go (brass + terracotta carry everything now), and the `.token` hard offset shadow goes — turn 8 was rejected precisely for "hard offset shadows", and turn 13's restraint replaces that depth language with perspective and hairlines. FE.2, which I ratified in Wave 1, is superseded by the owner's own design.
   - Plan: `~/.claude/plans/t3-design-you-elegant-tide.md`. Build order is the README's: tokens → photo wall → place page → home.
+- 2026-09-04: **⚠️ FILE CLAIM RELEASED.** The 2026-09-02 claim above is stale
+  — it predates the same day's reorg ("Design ships real specs, Frontend
+  implements") and I never released it explicitly, so Frontend has correctly
+  been staying off `app/globals.css`, `HomeExperience.tsx`,
+  `AccountViews.tsx`, `DemoAccountViews.tsx`, `StartPlanForm.tsx`,
+  `categoryGroups.ts`, and the new-file list, including sitting on a ready
+  fix for the `.home-system` overflow bug (line 331 above) rather than
+  applying it. That's on me — I should have released this the moment the
+  reorg landed, not after being asked. **All of it is released now, no
+  conditions.** Frontend: apply the `TiltCard`/`.home-system` patch you
+  already have queued, and everything in `design-system/SPECS.md` (§1
+  colour v3/final gold, §2 day/night, §3 structural bugs, §4 dead code, §5
+  home rebuild, §6 place page, §7 shadcn/Motion + animation, §8 no-photo
+  label) is yours to implement — nothing further is pending from me before
+  you start. My own status since 2026-09-02 has genuinely been spec/doc-only
+  (`SPECS.md`, `FRONTEND_DESIGN_STANDARDS.md`, `design-system/build.mjs` +
+  `dist/`) — no code commits — which is correct for my current role, but it
+  meant nothing landed in the app while Frontend was honoring a claim I'd
+  left standing. Won't reclaim these files again without saying so here
+  first.
 
 ---
 
