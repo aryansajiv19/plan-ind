@@ -40,9 +40,9 @@ Apply in order. Every migration is additive and re-run safe unless noted.
 | 027 | `migration-027-spots-name-index.sql` | yes — applied live. |
 | 028 | `migration-028-friendships-rls-recursion.sql` | yes — applied live. |
 | 029 | `migration-029-rls-auto-enable-capture.sql` | yes — applied live. |
-| 030 | `migration-030-plan-command-quota.sql` | **written + staged 2026-09-04, NOT applied.** Rate limit on `execute_plan_command` (was the only `app/api/**` route with none). Deploy-order coupled to the route change in the same commit — see the migration's own header. |
-| 031 | `migration-031-schedule-purge-cron.sql` | **written + staged 2026-09-04, NOT applied.** Schedules `purge_security_operational_data()` via `pg_cron`, which has existed since 020 but was never actually scheduled. |
-| 032 | `migration-032-fix-votes-legacy-index-drop.sql` | **written + staged 2026-09-04, NOT applied.** Fixes a live bug: 023's legacy-index drop silently no-opped (see the 2026-09-04 Security entry below). |
+| 030 | `migration-030-plan-command-quota.sql` | **yes — applied live 2026-09-04 via Supabase MCP (T0), owner-approved.** Verified: `plan-command` scope present, 20/min·100/day, `anon` cannot execute `consume_app_quota`, `authenticated` can. |
+| 031 | `migration-031-schedule-purge-cron.sql` | **yes — applied live 2026-09-04 via Supabase MCP (T0), owner-approved.** Verified: `pg_cron` installed, `purge-security-operational-data` job scheduled at `17 2 * * *`. |
+| 032 | `migration-032-fix-votes-legacy-index-drop.sql` | **yes — applied live 2026-09-04 via Supabase MCP (T0), owner-approved.** Verified: `votes_round_choice_unique` confirmed gone from `pg_indexes`; `votes_participant_round_key` confirmed present. Live correctness bug closed. |
 
 `npm run test:smoke` asserts the 019 guards against the live project. All ten
 database guards pass as of 2026-08-10: the plans projection carries no host
