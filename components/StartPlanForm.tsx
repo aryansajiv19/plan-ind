@@ -9,6 +9,7 @@ import { DUBAI_ORIGINS } from "@/lib/dubai-areas";
 import { minimumAgeForCategory, prohibitedVenueReason } from "@/lib/age-policy";
 import { secureJsonFetch } from "@/lib/security/csrf-client";
 import { CATEGORIES, CATEGORY_GROUPS, type Category, type GroupKey } from "@/components/categoryGroups";
+import DirectPlanForm, { type DirectPlanSpot } from "@/components/DirectPlanForm";
 
 const PRESETS = [
   { label: "In 3 hours", hours: 3 },
@@ -55,6 +56,19 @@ interface SmartIntent {
 
 export default function StartPlanForm({ age = 21, demoMode = false }: { age?: number; demoMode?: boolean }) {
   const router = useRouter();
+  // SPECS.md §10.1's second entry point: "Deal three rounds" (the existing
+  // flow, untouched below) vs "I already know where" (search, pick one
+  // spot, hand off to DirectPlanForm — same component the place page's CTA
+  // uses, so both doors converge on the same creation call). Demo-preview
+  // only shows the deal flow — the direct path needs a real session either
+  // way (create_direct_plan rejects signed-out/anonymous callers), same
+  // reasoning as gating PlaceDirectPlanCta on a real user.
+  const [mode, setMode] = useState<"deal" | "direct">("deal");
+  const [spotQuery, setSpotQuery] = useState("");
+  const [spotResults, setSpotResults] = useState<DirectPlanSpot[]>([]);
+  const [spotSearching, setSpotSearching] = useState(false);
+  const [hasSearchedSpots, setHasSearchedSpots] = useState(false);
+  const [pickedSpot, setPickedSpot] = useState<DirectPlanSpot | null>(null);
   const [category, setCategory] = useState<CategoryKey>("dinner");
   const [title, setTitle] = useState<string>(CATEGORIES[0].title);
   const [activeGroup, setActiveGroup] = useState<GroupKey>("food");
@@ -94,6 +108,30 @@ export default function StartPlanForm({ age = 21, demoMode = false }: { age?: nu
     })();
     return () => { cancelled = true; };
   }, []);
+
+  // Explicit search-on-submit, not live-as-you-type — matches the smart-
+  // search box's own pattern above, and one deliberate query beats a
+  // request per keystroke against a table with no dedicated search index.
+  async function searchSpots(event: React.FormEvent) {
+    event.preventDefault();
+    const query = spotQuery.trim();
+    if (query.length < 2) return;
+    setSpotSearching(true);
+    const { data } = await supabase
+      .from("spots")
+      .select("id,name,area,category,minimum_age")
+      .eq("source", "curated")
+      .ilike("name", `%${query}%`)
+      .order("name")
+      .limit(8);
+    setSpotSearching(false);
+    setHasSearchedSpots(true);
+    // Same age gate every other path here already enforces — a match the
+    // account can't actually use shouldn't be offered as if it could.
+    setSpotResults(
+      (data ?? []).filter((spot) => age >= Math.max(minimumAgeForCategory(spot.category), spot.minimum_age ?? 0)),
+    );
+  }
 
   // Picking a type swaps in its default prompt — unless you've written your own.
   function pickCategory(cat: Category) {
@@ -288,10 +326,64 @@ export default function StartPlanForm({ age = 21, demoMode = false }: { age?: nu
     (group) => group.key === activeGroup,
   )?.categories.filter((item) => age >= minimumAgeForCategory(item.key)) as readonly Category[] | undefined;
 
+  const modeToggle = !demoMode && (
+    <div className="plan-mode-toggle" role="group" aria-label="How do you want to plan?">
+      <button type="button" aria-pressed={mode === "deal"} onClick={() => setMode("deal")}>
+        Deal three rounds
+      </button>
+      <button type="button" aria-pressed={mode === "direct"} onClick={() => setMode("direct")}>
+        I already know where
+      </button>
+    </div>
+  );
+
+  if (mode === "direct") {
+    return (
+      <div className="plan-form">
+        {modeToggle}
+        {pickedSpot ? (
+          <DirectPlanForm spot={pickedSpot} onCancel={() => setPickedSpot(null)} />
+        ) : (
+          <form onSubmit={searchSpots} className="plan-spot-search" aria-labelledby="spot-search-heading">
+            <label htmlFor="spot-search-input" className="plan-form__label" id="spot-search-heading">
+              Search the catalogue
+            </label>
+            <div className="plan-spot-search__field">
+              <input
+                id="spot-search-input"
+                value={spotQuery}
+                onChange={(event) => { setSpotQuery(event.target.value); setHasSearchedSpots(false); }}
+                placeholder="A place you already have in mind"
+                maxLength={80}
+              />
+              <button type="submit" disabled={spotSearching || spotQuery.trim().length < 2}>
+                {spotSearching ? "Searching…" : "Search"}
+              </button>
+            </div>
+            {spotResults.length > 0 && (
+              <div className="plan-spot-search__results">
+                {spotResults.map((spot) => (
+                  <button key={spot.id} type="button" onClick={() => setPickedSpot(spot)}>
+                    <strong>{spot.name}</strong>
+                    <span>{spot.area}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            {!spotSearching && hasSearchedSpots && spotResults.length === 0 && (
+              <p className="plan-spot-search__empty">No matches yet. Try a different spelling or a shorter name.</p>
+            )}
+          </form>
+        )}
+      </div>
+    );
+  }
+
   return (
     // The composer takes the hue of whichever group is open, so switching
     // tabs visibly recolours the form. Each tab overrides it with its own.
     <form onSubmit={start} className="plan-form">
+      {modeToggle}
       <section className="plan-smart-search" aria-labelledby="smart-search-heading">
         <div className="plan-smart-search__heading">
           <div><p id="smart-search-heading" className="plan-form__label">Describe the place in your head</p><small>Atmosphere, occasion, budget, area. Write it naturally.</small></div>
