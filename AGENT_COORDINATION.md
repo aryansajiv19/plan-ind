@@ -53,6 +53,10 @@ These exist because four sessions in one tree raced and nearly lost work once.
    goes in this file. Lanes do not need to message each other directly.
 7. **`npm install` after any sync that changed `package.json`** — worktree
    `node_modules` are real directories now, not symlinks, so they drift.
+8. **Never kill processes by name pattern** (`pkill -f "next dev"` etc.) — every
+   worktree runs the same process names, so a name-pattern kill takes down
+   another lane's dev server. Kill only a PID you've confirmed is yours (check
+   the port/cwd first), or just let a stale one sit — it costs nothing.
 
 **Subagents/agent-teams:** use them for genuine fan-out (a broad search, an
 independent audit, several unrelated files) — never for a single linear task,
