@@ -61,9 +61,11 @@ origin lat/long; `spots` carries its own lat/long.
 - **Transportation / carpooling coordination** — no schema, no UI, no concept
   anywhere in the codebase today. This is new product surface, not a fix.
 
-This is real design + build work, not a Review task. Once Design has a
-direction for this screen, it's a Backend-scoped addition (new plan/RSVP
-fields at minimum for transport coordination) plus a Frontend build.
+This is real design + build work, not a Review task. **Specced 2026-09-04**
+in `design-system/SPECS.md` §10, alongside the related "direct plan, skip
+the vote" entry point (`PRIORITIES.md`) — carpool proposed as an `rsvps`
+extension (a coordination list, not a matcher), pending owner sign-off
+before Backend schemas it.
 
 ## 7. After the plan — send photos to collections
 Maps to the **Been** tab / `visit_photos` / `visit_collections` (migration

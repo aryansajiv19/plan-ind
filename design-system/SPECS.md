@@ -458,8 +458,8 @@ card treatment everywhere, not a "broken image" indicator, so it doesn't
 read as the rectangle the owner is flagging.
 
 No other component currently shows a labeled/bordered empty-photo state —
-`AccountViews.tsx`'s place card (`:201`) and the place-page hero (§6, still
-unbuilt) use the same typographic-fallback pattern; confirm neither grew its
+`AccountViews.tsx`'s place card (`:201`) and the place-page hero (§6, now
+shipped) use the same typographic-fallback pattern; confirm neither grew its
 own "no photo" label independently before calling this done.
 
 ## 9 — Full-route-surface confirmation (owner Scope note, 2026-09-04)
@@ -516,6 +516,77 @@ which is static config, not a network call) so there's no real cost to
 losing static caching — this matches how `/` already behaves. Re-run
 `npm run build` after and confirm all three flip from `○` to `ƒ` in the
 route table.
+
+## 10 — Direct plan: skip the vote (owner feature, `PRIORITIES.md`)
+
+New second entry point: someone who already knows the place locks it in
+immediately instead of deal-and-vote. Detail table (budget/age already have
+data, weather/open-now are free-tier adds, transportation ties to the
+travel-time scope decision) is in `PRIORITIES.md`; this section is the
+Design half — the entry-point flow and the carpool scoping question,
+per that doc's assignment. Backend confirms the creation-path mechanics
+(`pool_count = 1` vs. a separate path) against what's specced here; Frontend
+builds after both land.
+
+### 10.1 — Entry point: two paths in, one flow out
+
+Both land on the same immediately-decided plan, not a variant flow with a
+skipped step — the difference is only how the plan gets created:
+
+- **From a place page** (`app/place/[id]/page.tsx`, just shipped) — this is
+  the primary path, since it's exactly where "I already know this place"
+  happens: someone's browsing Discover, lands on a spot, and wants to lock
+  it in. Add a second CTA next to whatever the page's existing primary
+  action is: **"Plan it here, skip the vote"** (ghost-button weight, not
+  competing with the page's existing primary action — this is the less
+  common path even though it's a real one). Tapping it opens the same
+  plan-creation surface `StartPlanForm` uses for date/time/origin/budget
+  radius, pre-filled with this one spot, then creates the plan directly in
+  a decided state — no deal, no rounds.
+- **From `/home`'s Plan tab** — a secondary, lighter path for "I have a
+  shortlist, not one exact place yet": a toggle at the top of
+  `StartPlanForm` itself, **"Deal three rounds" / "I already know where"**.
+  Picking the second reveals a spot search/select (reuse whatever search
+  component the smart-search bar already provides) instead of the
+  category/vibe pickers, then the same date/time/origin fields, then
+  creates directly.
+- **Both converge on the same creation call** — one door via search, one
+  via a specific spot's page, same immediate-decision outcome either way.
+  Nothing about the payoff screen (`DecidedPlan.tsx`) changes; a direct
+  plan lands there exactly like a voted-through one does, just without a
+  vote history above it.
+
+### 10.2 — Carpool coordination: the open scoping question
+
+**Proposal, not a build order — this needs the owner's sign-off before
+Backend schemas anything.** The lazy-correct shape given what already
+exists: **extend the existing `rsvps` table, don't build a separate
+matching system.** `rsvps` (`supabase/schema.sql:178`) already has one row
+per plan per voter with a `choice` field (`coming`/`maybe`/`no`) — the
+natural fit is a second, independent field on the same row:
+
+- `transport text check (transport in ('driving', 'need_ride', 'own_way'))`,
+  nullable (no answer given yet, most common state until asked).
+- `seats_available smallint`, nullable, meaningful only when
+  `transport = 'driving'`.
+
+**What the UI does with it — a list, not a matcher.** The payoff screen
+(`DecidedPlan.tsx`) gets a "Getting there" section: who's driving and how
+many open seats, who needs a ride, who's making their own way — a plain
+list, sorted drivers-with-open-seats first. **The app does not assign who
+rides with whom** — that's a group-chat decision, not a feature; auto-
+matching riders to drivers is a real product (seat counts, pickup order,
+timing) this app has no reason to become. This keeps the scope to "surface
+who needs what," which is genuinely new UI but reuses the RSVP write path
+(`cast_plan_vote`'s sibling RPC for rsvps, already security-definer'd —
+Backend confirms the exact function) rather than inventing new
+infrastructure.
+
+**What this explicitly does not do**, so nobody builds past the actual
+ask: no route optimization, no automatic driver/rider pairing, no
+capacity enforcement (a driver can be shown as "full" but nothing stops
+someone RSVPing to ride with them anyway — the list is coordination, not
+a booking system).
 
 ---
 
