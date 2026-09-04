@@ -463,17 +463,6 @@ h3 {
   );
 }
 
-/* Sun by day, moon by night — it moves across the phases. */
-.sky-glow {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    58vmax 44vmax at var(--glow-x) var(--glow-y),
-    var(--glow-c),
-    transparent 70%
-  );
-}
-
 /* Wider than the viewport so the parallax drift never exposes an edge.
    The height floor makes narrow phones crop inwards (`slice`) onto the
    Burj cluster instead of shrinking the whole skyline to a hairline;
@@ -2091,6 +2080,18 @@ h3 {
 .auth-footnote { margin: 1.5rem 0 0; text-align: center; }
 @media (max-width: 760px) { .auth-shell { padding: 0; } .auth-frame { display: block; min-height: 100dvh; border: 0; } .auth-intro { min-height: 43vh; padding: 1.25rem; border-right: 0; border-bottom: 1px solid var(--auth-line); } .auth-intro h1 { margin-top: auto; font-size: clamp(3.4rem, 16vw, 5.8rem); } .auth-copy { font-size: .84rem; } .auth-panel { padding: 2rem 1.25rem 2.5rem; } }
 
+/* not-found.tsx / error.tsx (SPECS.md §16.1) — the same auth-shell
+   restraint, one hairline-bordered panel instead of the two-column split
+   since there is no intro copy to pair it with. */
+.error-shell { display: grid; place-items: center; }
+.error-panel { width: min(26rem, 100%); border: 1px solid var(--auth-line); background: var(--auth-card); padding: clamp(2rem, 6vw, 3rem); text-align: center; }
+.error-panel .auth-mark { margin: 0 auto 1.5rem; }
+.error-panel .auth-kicker { text-align: center; }
+.error-panel h1 { margin: .6rem 0 .5rem; font-size: clamp(1.6rem, 4vw, 2.2rem); letter-spacing: -.03em; }
+.error-panel .auth-copy { margin: 0 auto 1.5rem; }
+.error-panel .auth-submit { width: auto; margin: 0 auto 1rem; padding: .75rem 1.5rem; }
+.error-panel .auth-link { margin: 0 auto; }
+
 
 [data-theme="night"] .home-experience .home-grid-field {
   opacity: 0.22;
@@ -2366,14 +2367,16 @@ h3 {
   box-shadow: inset 3px 0 0 var(--color-live);
 }
 
-/* Decided cards are disabled, so they never sink — the shadow is what is
-   left of the tactility, and the winner keeps it in champagne. */
-.vote-option--winner { border-color: var(--vote-metal); box-shadow: inset 0 2px 0 var(--vote-metal), 5px 6px 0 var(--vote-metal); }
+/* Decided cards are disabled, so they never sink — a hairline top accent is
+   what is left of the tactility, and the winner keeps it in champagne.
+   No offset term: that is the exact .token signature FRONTEND_DESIGN_
+   STANDARDS.md's Components section retired (SPECS.md §16.2). */
+.vote-option--winner { border-color: var(--vote-metal); box-shadow: inset 0 2px 0 var(--vote-metal); }
 /* Decided: the outcome wins the card even if it is also the one you picked. */
 .vote-option--winner[aria-pressed="true"] {
   border-color: var(--vote-metal);
   background: color-mix(in srgb, var(--vote-metal) 8%, var(--color-card));
-  box-shadow: inset 0 2px 0 var(--vote-metal), 5px 6px 0 var(--vote-metal);
+  box-shadow: inset 0 2px 0 var(--vote-metal);
 }
 
 .vote-option__winner-label {
