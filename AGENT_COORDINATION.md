@@ -3,21 +3,25 @@
 The shared handoff medium for the four parallel sessions. Sessions share **only
 the repo** — if it isn't committed, the others can't see it.
 
-## ⟳ Re-orged 2026-09-02 — design paused, two hardening lanes
+## ⟳ Re-orged 2026-09-04 — production push, all-Opus
 
-The owner is now designing externally in Claude Design and will hand off a
-finished design later — **no new visual/CSS work in the meantime**, only
-functional bug fixes. Roles below supersede the Wave-1 lane names; **worktree
-paths and branches are unchanged**, only what each one is for.
+Owner wants real visual bugs fixed (misalignment, edge-of-screen, color) and a
+push toward production-readiness, while staying personally involved in
+frontend/UI direction. **Frontend is unfrozen** — Design ships real specs,
+Frontend implements them plus fixes what's actually broken. Worktree paths /
+branches unchanged from before.
 
 | Terminal | Worktree path | Branch | Model | Role |
 |---|---|---|---|---|
-| **T0** Orchestrator | `~/plan-ind` (main) | `ai-engineering` | Sonnet medium | Integrates every branch, owns docs/CI/deploy |
-| **Security** (was T1) | `~/plan-ind-backend` | `lane/backend` | **Opus** | Security audit + hardening + the engineering-bar techniques (concurrency, idempotency, caching, observability, rate limiting) |
-| **Review** (was T2) | `~/plan-ind-frontend` | `lane/frontend` | Sonnet medium | Bugs, errors, debugging, full-stack code review — **functional fixes only, no visual/design changes** |
-| **Design** (was T3) | `~/plan-ind-design` | `lane/design` | Sonnet medium | **Active again (2026-09-02).** Read `PRODUCT_FLOW.md` first — the owner's intended flow, cross-checked against what's built. Own turf only: `design-system/**`, `FRONTEND_DESIGN_STANDARDS.md`, Claude Design canvas. `globals.css` stays frozen until you hand off a spec — Review implements it, not you. |
+| **T0** Orchestrator | `~/plan-ind` (main) | `ai-engineering` | **Opus** | Integrates every branch, CI/CD, deploy, **context hygiene + dead-code sweep** (see `CONTEXT_HYGIENE.md`) |
+| **Frontend** | `~/plan-ind-frontend` | `lane/frontend` | **Opus** | Fix real layout/alignment/color bugs; implement Design's shipped tokens correctly; own turf: `app/**` (except `app/api/**`), `components/**`, `app/globals.css` — **unfrozen** |
+| **Security/Backend** | `~/plan-ind-backend` | `lane/backend` | **Opus** | Continue the production-readiness list below — most is done, this is the audit-and-extend pass |
+| **Design** | `~/plan-ind-design` | `lane/design` | **Opus** | Continuing — now also owns the "fun + interactive + modern + sleek" creative direction; feeds Frontend real specs, not vague notes |
 
 Branch/worktree names still say `backend`/`frontend` — that's cosmetic, ignore it.
+**Subagents/agent-teams:** use them to parallelize genuine fan-out (a broad
+search, an independent audit, several unrelated files) — never for a single
+linear task, that just burns tokens for no speed gain.
 
 ### Engineering-bar technique ownership
 
@@ -26,7 +30,7 @@ The owner's full hardening list, mapped so nothing sits unclaimed:
 | Technique | Owner |
 |---|---|
 | Concurrency-safety, idempotent mutations, DB indexing/query tuning, rate limiting, authz/input validation, audit logging, app-level structured logging + request IDs, unit/integration/concurrency tests | **Security** |
-| E2E testing (Playwright against the running app) | **Review** |
+| E2E testing (Playwright against the running app) | **Frontend** (was Review — same terminal) |
 | Redis caching | **Security implements, but only once a real hotspot is measured** — not speculative. T0's load test is what would surface one. |
 | Background jobs/queues, event-driven/outbox | **Nobody — genuinely not needed yet.** No async work or cross-system side effect exists. Revisit when the AI/RAG backfill or a booking flow lands. |
 | CI/CD, load/perf testing (p50/p95/throughput/error-rate), observability infra (metrics/tracing/error-monitoring service), production deploy/infra | **T0** |
@@ -56,25 +60,27 @@ session touches **only its own worktree** and commits **only to its own branch**
   `security` subagent before committing anything touching RLS, writes, the
   Realtime publication, or model output.
 
-## File ownership (post-2026-09-02 reorg)
+## File ownership (updated 2026-09-04 — "Review" is now "Frontend")
 
-Ownership is **fuzzier now on purpose** — Security and Review both legitimately
-touch anything with a bug or a hole in it. Two rules instead of a clean split:
+Same terminal, same worktree, renamed role: it now implements + fixes UI, not
+just reviews. Ownership stays fuzzy on purpose — Security and Frontend both
+legitimately touch anything with a bug or a hole in it:
 
 1. **Home turf, no ping needed:** Security → `supabase/**`, `app/api/**`,
    `lib/security/**`, `lib/supabase.ts`, `lib/types.ts`, `next.config.ts`
-   (headers/CSP), auth flows. Review → `app/**` (except `app/api/**`),
-   `components/**`, `lib/**` (except `lib/security/**`/`lib/supabase.ts`),
-   bug fixes and tests. T0 → `.github/**`, root `*.md`, `tests/**` config,
-   deploy config. Design → `design-system/**`, `FRONTEND_DESIGN_STANDARDS.md`
-   (idle for now).
+   (headers/CSP), auth flows. Frontend → `app/**` (except `app/api/**`),
+   `components/**`, `app/globals.css`, `lib/**` (except `lib/security/**`/
+   `lib/supabase.ts`) — **bug fixes AND implementation, `globals.css` is
+   unfrozen.** T0 → `.github/**`, root `*.md`, `tests/**` config, deploy
+   config. Design → `design-system/**`, `FRONTEND_DESIGN_STANDARDS.md`,
+   Claude Design canvas — specs for Frontend to build, real ones, not vague
+   notes.
 2. **Off your turf: post it in "Cross-lane requests" before editing**, so the
    other lane doesn't hit a surprise merge conflict. T0 sequences it across a
-   sync if needed. `globals.css` is **frozen** — no edits from anyone until the
-   owner's design handoff (functional-only fixes go through Review with a
-   cross-lane heads-up).
+   sync if needed. Design may still claim specific files under active rework
+   (see any `⚠️ FILE CLAIM` note in its status block below) — respect those.
 
-`app/page.tsx` is a route file (Review's). `qa-test` writes `tests/**` only,
+`app/page.tsx` is a route file (Frontend's). `qa-test` writes `tests/**` only,
 `security` subagent has no write tools — both remain callable from either lane.
 Original clean-split map (pre-reorg, for reference): `.claude/agents/README.md`.
 
@@ -85,12 +91,11 @@ under "Cross-lane requests". Commit it on your branch with the work it describes
 T0 resolves the (trivial, section-level) merge conflicts on integration. The
 model policy and decisions log are T0's.
 
-**Model policy.** T1 → Opus (RLS, security-definer RPCs, live migrations, the
-winner-deciding tally, concurrency, RAG). T0/T2/T3 → Sonnet medium. Temporary
-switch: T0 → Opus for a one-off architecture design pass; `security` subagent →
-Opus every run; `ai-engineer` work inside T1 → Opus for retrieval architecture /
-eval-set design. T1 on Sonnet → use *high* reasoning for migration / RLS /
-concurrency work. `security` and `qa-test` are subagents, not lanes.
+**Model policy (updated 2026-09-04): all four terminals on Opus**, per the
+owner — this phase needs complex frontend rework + continued backend/security
+depth simultaneously. (Superseded: the earlier Sonnet-for-most policy below,
+kept for history.) `security` and `qa-test` remain subagents, not lanes, callable
+from any terminal.
 
 ---
 
@@ -197,3 +202,4 @@ Format: **From → To** · _need_ · _why_ · blocked? · status
 - 2026-09-01: Wave-1 visual direction (T3, owner-approved) — front door = ratify T2's structure + After Dark night atmosphere; `.token` reach = decision-committing surfaces only; FE.6 = delete decision-orbit/ticker/scribble, keep skyline dormant until FE.3. Spec: `design-system/SPECS.md`.
 - 2026-09-01: **Moved to git worktrees.** Four sessions in one tree was racing (concurrent commits, near-collisions on `worklog.md` and this file). Each lane isolated on its own branch + worktree; T0 integrates.
 - 2026-09-02: **Re-orged.** Owner is designing externally in Claude Design; Design terminal goes idle until handoff. T1(backend)→Security+hardening+engineering-bar techniques. T2(frontend)→Review/debug/full-stack bug fixes, no visual work. `globals.css` frozen. FE.3/FE.5/FE.6 (aesthetic) paused; FE.4's functional half and FE.10 reassigned to Review.
+- 2026-09-04: **Production push.** All 4 terminals on Opus. `globals.css` unfrozen — Frontend (renamed from Review) now implements real UI fixes + Design's specs, not just bug-hunts. Security continues the production-readiness list. Context hygiene + dead-code sweep is T0's, tracked in `CONTEXT_HYGIENE.md`. Still 4 terminals total — more would make coordination the bottleneck, not the work.
