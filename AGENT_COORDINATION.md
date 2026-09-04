@@ -52,6 +52,32 @@ changes). Read literally:
   layout fixes (misalignment, edge-of-screen, overflow) are unaffected — keep
   going on those, they're not color-dependent.
 
+### 🎨 Owner's concrete palette proposal, 2026-09-04
+
+Given as a specific spec to try, not just a mood — verbatim:
+
+| Role | Value | Notes |
+|---|---|---|
+| Background | `#121212` | Near-black, not pure black — easier on eyes, photos pop |
+| Surface/Cards | `#1E1E1E` | |
+| Primary accent | `#FF6B4A` | Warm coral-orange — "energetic, reads invite/celebrate" |
+| Secondary accent | `#FFD166` | Gold — ties to Dubai without being literal, **used sparingly** (badges/streaks) |
+| Success/confirm | `#00E0C7` | Teal — RSVP confirmed, active states |
+| Text primary | `#F5F5F5` | |
+| Text secondary/muted | `#A0A0A0` | |
+| Error/urgent | `#FF5C5C` | |
+
+**Usage rule from the owner:** coral for primary CTAs (Create Event, RSVP);
+gold sparingly for accents (premium badges, streaks) only; teal for
+confirmation states; everything else (cards, nav, inputs) stays near-black/dark
+grey so the accent colors have room to breathe.
+
+Design: try this directly. It's dark-first/single-ground — check with the
+owner whether this **replaces** the day/night dual-palette mechanism with one
+dark identity, or is specifically the **night** half and day still needs its
+own definition; don't assume either way. Run the usual contrast check
+(`#A0A0A0` on `#121212` is the one to verify) before committing to it.
+
 ### Isolation rules — non-negotiable
 
 These exist because four sessions in one tree raced and nearly lost work once.
