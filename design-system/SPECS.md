@@ -930,12 +930,15 @@ shape instead of widening `Spot` to fit content it isn't.
    plus a lightweight "add to collection" action per tile (a `<select>` or
    equivalent, not a new pattern — the demo's `demo-visit__collection-action`
    CSS already exists at `:1880-1883`, unused by real `AccountViews.tsx`
-   today, ready to repoint). **Check with Backend first**: `visit_collections`
-   currently grants direct `for all to authenticated` RLS
-   (migration 010, not RPC-gated) — confirm that's the intended pattern here
-   or whether it should move to a security-definer RPC to match the
-   `votes`/`rsvps`/`ratings` no-direct-write convention (`CLAUDE.md`
-   invariant) before Frontend builds against it either way.
+   today, ready to repoint). **Resolved with Backend (2026-09-04):** the
+   direct `for all to authenticated` RLS on `visit_collections`/
+   `visit_collection_items` is intentional, not the `votes`/`rsvps`/
+   `ratings` bug class — those go through RPCs for multi-party shared
+   state on a group plan (idempotency, membership races); this is pure
+   single-owner personal data via an ownership join, the textbook-correct
+   pattern for its shape. `visit_photos` additionally tiers reads by its
+   `visibility` column through a proper join. Build against it as-is, no
+   RPC layer needed.
 
 ### 15.3 — Discover moodboards: layout ready, data genuinely blocked
 
