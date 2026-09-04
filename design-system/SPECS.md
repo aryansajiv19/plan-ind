@@ -863,6 +863,102 @@ scroll-position custom property (not a JS animation loop):
 - `prefers-reduced-motion`: freeze `--hero-scroll` at 0, effectively
   disabling the drift outright.
 
+## 15 — Collections + moodboards, Pinterest-style (owner, `PRIORITIES.md`)
+
+**Schema correction before anything else.** The ask was framed as "moodboard
+tables from migration 010" — checked, and that's not quite right. Migration
+010 gives Been's collections real schema (`visit_collections`,
+`visit_collection_items`, `visit_photos`, all RLS'd, `visit-photos` storage
+bucket live). **Moodboards have no database table anywhere.**
+`lib/planning.ts`'s `Moodboard`/`MoodboardItem` types are pure TypeScript,
+`localStorage`-only, consumed only by `DemoPlanningTools.tsx` — this is a
+fixture, not a thin real feature. That changes what's buildable now versus
+blocked, so the two get different treatment below.
+
+**Second correction, this one simplifies the work:** both "thin UI"
+features already have a *reasonably well-designed* UI pattern — it's just
+sitting in the fixture-only demo components, unconnected to real data.
+`DemoAccountViews.tsx` has a working collections bar (tabs, create, assign
+a visit to a collection) and `DemoPlanningTools.tsx` has a working
+moodboard panel (board tabs, add item by kind, note field). Neither is a
+blank slate to design from scratch — the job is mostly **rewire the
+existing pattern onto real data**, plus the Pinterest layout the owner
+specifically wants, which neither demo currently has (both are today a
+plain button-tab bar and a plain item list, not a grid at all).
+
+### 15.1 — Shared masonry mechanism (used by both)
+
+Don't invent a second grid technique — `PhotoWall`'s existing `.wall` /
+`.wall__col` (`app/globals.css:3279-3289`) is already a real masonry
+implementation: N flex columns (`grid-template-columns: repeat(4,
+minmax(0,1fr))`, `gap: 18px`), each column a `flex-direction: column`
+stack with `min-width: 0` (load-bearing — prevents intrinsic image ratios
+from inflating a track, per `PhotoWall.tsx`'s own comment) and its own
+stagger. Reuse this class pair directly for both grids below rather than
+building a second CSS masonry system; drop to 2 columns under `max-width:
+760px`, 3 under `900px`, matching this file's existing breakpoint scale
+(`:2654`, `:2834`).
+
+Tile content reuses `PhotoTile`'s established visual language — the
+typographic fallback (`.wall-tile--typographic`) for anything without a
+photo, no "empty" label per §8 — rather than a new tile component per
+grid. `PhotoTile` itself is typed to `Spot`; generalize it (or add a
+sibling tile sharing its CSS) to accept a visit or moodboard item's
+shape instead of widening `Spot` to fit content it isn't.
+
+### 15.2 — Been: buildable now, real schema exists
+
+1. **Grid**: replace `.demo-visit-grid`'s uniform 2-column grid
+   (`app/globals.css:1872`) with §15.1's masonry, keeping the featured-first
+   visit treatment (`.demo-visit--featured`) as the one wide tile in column
+   1, everything else flowing into the stagger.
+2. **Wire in `visit_photos`** — today completely unused; `AccountViews.tsx`
+   only ever shows `visit.spot?.photo_url` (the curated catalog photo, the
+   same field that's null for most spots). `visit_photos` is where a
+   visit's *own* multiple photos would live, which is what actually makes
+   the grid's heights genuinely vary rather than mostly falling back to
+   the typographic tile. This needs a real upload control (the storage
+   bucket + RLS already support authenticated upload, `:81-84` in the
+   migration) — new Frontend build, not just a read. Until it's wired,
+   the honest state is what's there today: mostly typographic tiles, a
+   real photo where `spot.photo_url` happens to be set. Same "this is the
+   common case, not a bug" framing as the photo wall.
+3. **Wire in `visit_collections`/`visit_collection_items`** as a filter
+   layer above the grid — port `DemoAccountViews.tsx`'s existing collection
+   tab bar (`:226-233`) onto real data: list the signed-in person's
+   collections, tapping one filters the grid to that collection's visits,
+   plus a lightweight "add to collection" action per tile (a `<select>` or
+   equivalent, not a new pattern — the demo's `demo-visit__collection-action`
+   CSS already exists at `:1880-1883`, unused by real `AccountViews.tsx`
+   today, ready to repoint). **Check with Backend first**: `visit_collections`
+   currently grants direct `for all to authenticated` RLS
+   (migration 010, not RPC-gated) — confirm that's the intended pattern here
+   or whether it should move to a security-definer RPC to match the
+   `votes`/`rsvps`/`ratings` no-direct-write convention (`CLAUDE.md`
+   invariant) before Frontend builds against it either way.
+
+### 15.3 — Discover moodboards: layout ready, data genuinely blocked
+
+The masonry mechanism (§15.1) applies identically here, and the item-kind
+model already in `lib/planning.ts` (`place` / `link` / `photo`, a label +
+note) is a sensible target shape — reuse it rather than redesigning. But
+**this cannot be wired to real data without new tables first** — there is
+nothing in `supabase/schema.sql` for it today. Cross-lane request to
+Backend: add `moodboards` / `moodboard_items` tables mirroring
+`lib/planning.ts`'s existing shape (id/name/theme/visibility on the board;
+id/kind/label/note/optional image+source on the item), owner-scoped RLS
+matching `visit_collections`' pattern. Once that lands, Frontend wires
+`AccountViews.tsx`'s real Discover tab to it using the same masonry grid
+and the demo panel's already-designed interaction pattern
+(`DemoPlanningTools.tsx:88`, port don't redesign).
+
+**Until the schema exists, the real Discover tab's honest state is what it
+has today** — browse/search/start-a-plan, no moodboard concept — per this
+codebase's standing rule against inventing UI for data that isn't there.
+Do not wire the real account view to the `localStorage` demo state as a
+stopgap; that would be fake data presented as a real feature, exactly what
+the honest-empty-state rule exists to prevent.
+
 ---
 
 ## Verification (for whoever implements this)
