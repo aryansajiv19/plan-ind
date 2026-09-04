@@ -190,8 +190,31 @@ a typed name is everything the app knows about them.
   original handoff's `-0.06em`/`-0.08em`) were tuned for a geometric sans
   and crush a serif's own sidebearings at display size.
 - Maintain a consistent type scale and readable line lengths.
-- Use size, weight, spacing, and contrast deliberately; avoid excessive
-  bold and very light grey body text.
+- **Weight tiers (owner, 2026-09-04 — replaces the old "avoid excessive
+  bold" line, which wasn't concrete enough to enforce).** `app/globals.css`
+  currently has **76 separate `font-weight: 700`/`800` declarations** on
+  Hanken Grotesk — headings, labels, kickers, and CTAs all competing at
+  the same weight erases the hierarchy bold exists to create. Reserve 700+
+  for the smallest set of things that genuinely need it:
+  - **700 (bold)**: the one primary action per screen (`.vote-primary-action`,
+    `.plan-submit`, equivalent), and a genuinely load-bearing number or
+    name (the streak count, the decided plan's winning spot name in
+    `DecidedPlan`). Not every button, not every label.
+  - **500 (medium)**: everything else that currently reaches for 700 out
+    of habit — form labels, uppercase kickers/eyebrows, tab/filter
+    buttons, secondary and ghost buttons, meta text. These already carry
+    hierarchy through size, letter-spacing, uppercase, and muted colour;
+    stacking bold on top of all four is the redundancy the owner is
+    flagging, not any one of them alone.
+  - **400 (regular)**: body copy, unchanged.
+  - **800**: reserved for the display serif's one-shot weight-rise
+    entrance only (below) — never a static weight on Hanken Grotesk. Note
+    `app/layout.tsx` only loads Hanken at 400/500/700 (no 800 file), so
+    every current `font-weight: 800` on body text is already rendering as
+    a synthetic-bold or silently clamped weight, not a real design choice.
+  - See `design-system/SPECS.md` §11 for the concrete sweep — this rule
+    plus a short exception list, not a request to re-litigate every
+    selector from scratch.
 - Use sentence case unless the established brand requires otherwise.
 - **No dashes anywhere in UI copy** (owner rule, 2026-09-04) — headings,
   body, buttons, empty/error/loading states, all of it. Split into two

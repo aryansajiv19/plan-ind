@@ -588,6 +588,91 @@ capacity enforcement (a driver can be shown as "full" but nothing stops
 someone RSVPing to ride with them anyway — the list is coordination, not
 a booking system).
 
+## 11 — Bold-text sweep (owner, 2026-09-04)
+
+Rule is in `FRONTEND_DESIGN_STANDARDS.md`'s Typography section (weight
+tiers: 700 for one primary action + genuinely load-bearing numbers/names,
+500 for everything else, 400 body). This is the mechanical sweep, not a
+selector-by-selector redesign — `app/globals.css` has 76
+`font-weight: 700`/`800` declarations; re-deciding each individually would
+cost more than it's worth. Bucket by pattern instead:
+
+- **Drop to 500 (medium)** — the large majority of the 76. Every
+  `font-weight: 700` on: a `label`/`legend`/uppercase kicker-style
+  selector (grep for `text-transform: uppercase` on the same rule or its
+  neighbor — a strong tell), a secondary/ghost/filter/tab button (any
+  button that isn't the screen's one primary action), meta/muted text
+  (`color: var(--color-muted)` on the same rule is the other tell). These
+  two greps together (`grep -n "font-weight: 700" app/globals.css` cross-
+  referenced against `text-transform: uppercase` / `var(--color-muted)`
+  nearby) will catch the majority of the 76 without hand-classifying each
+  one — anything that doesn't match either tell, check by hand.
+- **Keep at 700** — the actual primary-action classes
+  (`.vote-primary-action`, `.plan-submit`, `.demo-primary-action` only
+  where it's genuinely the screen's one primary button, not every
+  `.demo-*` button that happens to share the class name pattern), and
+  selectors carrying a single load-bearing number/name:
+  `.home-system-row__number`, the streak count, `.auth-input--code`
+  (already display-family, unaffected by this sweep).
+- **Drop from 800 to the tier above** — every `font-weight: 800` on a
+  non-display-family selector. Two real exceptions, both already on
+  `var(--font-display)` and correctly a logotype/emphasis use, not body
+  text: `.auth-mark` (the wordmark chip) and `.auth-input--code` (the OTP
+  digit display). Everything else at 800 today is silently clamping
+  anyway (`app/layout.tsx` only ships Hanken at 400/500/700) — this sweep
+  is also a correctness fix, not just a taste one.
+- **Verify, don't assume the buckets are exhaustive**: after the mechanical
+  pass, do one visual sweep of `/`, `/home` (all five tabs), `/plan/[id]`
+  (each `VoteState` + `DecidedPlan`), `/login`, `/place/[id]` in both
+  grounds — confirm each screen now reads with one clear point of
+  emphasis instead of five competing ones, and that nothing that
+  genuinely needed the weight (the actual primary CTA) got flattened by
+  a too-aggressive grep match.
+
+## 12 — Motion: proposals beyond what's built (owner green light, 2026-09-04)
+
+Owner gave an explicit go-ahead for more motion work, Design's judgment,
+within the existing constraints (`prefers-reduced-motion`, no excessive
+Motion usage, and — real constraint already hit once — **verify any new
+rAF-driven effect in a genuinely foregrounded browser tab**, since a
+backgrounded/hidden tab never fires `requestAnimationFrame` at all and
+will read as "broken" in automated screenshot capture when it isn't;
+`AGENT_COORDINATION.md:345` has the prior incident). Four proposals, kept
+to what's restrained and purposeful rather than a long wishlist:
+
+1. **The home hero's weight-rise headline is already specced (turn 13,
+   300→800 over 1.4s, one-shot) but unconfirmed as shipped** — check
+   before proposing anything new here; if it's not built, it's higher
+   priority than any of the three below since it's already approved, not
+   a new ask.
+2. **Photo-wall tile entrance, on scroll into view.** Each tile fades +
+   rises 8px as it crosses into the viewport (`IntersectionObserver`,
+   not scroll-position math), staggered ~40ms per tile within a row, capped
+   at ~250ms total per tile. One-shot per tile — once revealed, stays
+   revealed, doesn't replay on scroll-back. This is exactly the kind of
+   "purposeful entrance" the existing Motion rules already permit; it's
+   new only in that nothing in the wall currently does it.
+3. **Round-to-round shared continuity in voting.** When a spot wins its
+   pool and carries into the final round, its card currently just
+   re-renders in the new position — a hard cut. Give it the same Motion
+   `layoutId` treatment as §7's card→place-page transition: the winning
+   card visually travels from its pool position to its final-round slot
+   instead of disappearing and reappearing. Meaningful because it's the
+   one moment in the vote flow that's genuinely progress, not just a
+   state change — worth marking as such.
+4. **A one-shot confirmation tick, not a toast.** RSVP/vote-cast
+   confirmation today is a plain state change. Add a small inline
+   checkmark that scales in from 0 to 1 (`--ease-settle`, ~200ms) next to
+   the action taken, then stays — no auto-dismiss, no banner, nothing
+   that reads as a toast/pop-up. Deliberately stops short of anything the
+   no-confetti/no-gamified-pop-up rule (§7) would flag; this is
+   acknowledgment, not celebration.
+
+All four: build with Motion (§7's standing rule), respect
+`prefers-reduced-motion` by disabling outright (matching `TiltCard`'s
+existing pattern, not just shortening durations), and get verified in an
+actually-foregrounded tab before being called done.
+
 ---
 
 ## Verification (for whoever implements this)
