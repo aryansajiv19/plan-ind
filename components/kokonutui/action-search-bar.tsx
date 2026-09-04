@@ -10,15 +10,6 @@
  * @github: https://github.com/kokonut-labs/kokonutui
  */
 
-import {
-  AudioLines,
-  BarChart2,
-  LayoutGrid,
-  PlaneTakeoff,
-  Search,
-  Send,
-  Video,
-} from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -27,7 +18,6 @@ import useDebounce from "@/hooks/use-debounce";
 interface Action {
  id: string;
  label: string;
- icon: React.ReactNode;
  description?: string;
  short?: string;
  end?: string;
@@ -75,43 +65,27 @@ const ANIMATION_VARIANTS = {
 const allActionsSample = [
   {
  id: "1",
- label: "Book tickets",
- icon: <PlaneTakeoff className="h-4 w-4 text-punch" />,
- description: "Operator",
- short: "⌘K",
- end: "Agent",
+ label: "Search a place",
+ description: "The curated catalogue",
+ end: "Discover",
   },
   {
  id: "2",
- label: "Summarize",
- icon: <BarChart2 className="h-4 w-4 text-punch" />,
- description: "gpt-5",
- short: "⌘cmd+p",
- end: "Command",
+ label: "Start tonight's plan",
+ description: "Pick a vibe, deal three",
+ end: "Plan",
   },
   {
  id: "3",
- label: "Screen Studio",
- icon: <Video className="h-4 w-4 text-punch" />,
- description: "Claude 4.1",
- short: "",
- end: "Application",
+ label: "Find a friend",
+ description: "By name",
+ end: "Friends",
   },
   {
  id: "4",
- label: "Talk to Jarvis",
- icon: <AudioLines className="h-4 w-4 text-punch" />,
- description: "gpt-5 voice",
- short: "",
- end: "Active",
-  },
-  {
- id: "5",
- label: "Kokonut UI - Pro",
- icon: <LayoutGrid className="h-4 w-4 text-punch" />,
- description: "Components",
- short: "",
- end: "Link",
+ label: "Check where you've been",
+ description: "Your visit log",
+ end: "Been",
   },
 ];
 
@@ -215,7 +189,7 @@ function ActionSearchBar({
  className="mb-1 block font-medium text-muted text-xs"
  htmlFor="search"
           >
-            Search Commands
+            Search
           </label>
           <div className="relative">
             <Input
@@ -233,33 +207,24 @@ function ActionSearchBar({
  onChange={handleInputChange}
  onFocus={handleFocus}
  onKeyDown={handleKeyDown}
- placeholder="What's up?"
+ placeholder="Search a place, a night, or a person"
  role="combobox"
  type="text"
  value={query}
             />
-            <div className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2">
+            <div className="absolute top-1/2 right-3 -translate-y-1/2">
               <AnimatePresence mode="popLayout">
-                {query.length > 0 ? (
-                  <motion.div
+                {query.length > 0 && (
+                  <motion.span
  animate={{ y: 0, opacity: 1 }}
  exit={{ y: 20, opacity: 0 }}
  initial={{ y: -20, opacity: 0 }}
- key="send"
+ key="go"
  transition={{ duration: 0.2 }}
+ className="text-xs font-bold text-muted"
                   >
-                    <Send className="h-4 w-4 text-muted" />
-                  </motion.div>
-                ) : (
-                  <motion.div
- animate={{ y: 0, opacity: 1 }}
- exit={{ y: 20, opacity: 0 }}
- initial={{ y: -20, opacity: 0 }}
- key="search"
- transition={{ duration: 0.2 }}
-                  >
-                    <Search className="h-4 w-4 text-muted" />
-                  </motion.div>
+                    Go
+                  </motion.span>
                 )}
               </AnimatePresence>
             </div>
@@ -298,9 +263,6 @@ function ActionSearchBar({
                     >
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
-                          <span aria-hidden="true" className="text-muted">
-                            {action.icon}
-                          </span>
                           <span className="font-medium text-ink text-sm">
                             {action.label}
                           </span>
@@ -331,7 +293,7 @@ function ActionSearchBar({
                 </motion.ul>
                 <div className="mt-2 border-line border-t px-3 py-2">
                   <div className="flex items-center justify-between text-muted text-xs">
-                    <span>Press ⌘K to open commands</span>
+                    <span>↑↓ to move, Enter to select</span>
                     <span>ESC to cancel</span>
                   </div>
                 </div>
