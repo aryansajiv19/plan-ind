@@ -23,6 +23,14 @@ reasoning effort instead of the model for the hard parts: migrations, RLS, and
 concurrency work should run at *high*. Branch/worktree names still say
 `backend`/`frontend` — cosmetic, ignore it.
 
+**Sequencing (2026-09-04): long/complex work before short hardening.** In your
+plan, order your own queue so the big structural items land first — a
+half-finished redesign or a half-measured load test is worse than either done
+properly. Small polish (individual bug fixes, minor tweaks, one-line hardening)
+comes after, not interleaved ahead of the complex work. If you're unsure which
+bucket something's in, size beats novelty: multi-file/multi-step goes first,
+single-file/single-fix goes after.
+
 ### Isolation rules — non-negotiable
 
 These exist because four sessions in one tree raced and nearly lost work once.
