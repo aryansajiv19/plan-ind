@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import type { Spot } from "@/lib/types";
 
 export interface WallNote {
@@ -74,6 +75,13 @@ export default function PhotoTile({
           {note.text}
         </p>
       ) : null}
+
+      {/* Stretched-link overlay: the whole card is the tap target without
+          nesting an <article> inside an <a> (its content model, and it
+          would put the note/image inside the link's accessible name).
+          No shared-element morph — that needs React's <ViewTransition>,
+          which is canary-only; this repo runs stable React 19. */}
+      <Link href={`/place/${spot.id}`} className="wall-tile__link" aria-label={spot.name} />
     </article>
   );
 }

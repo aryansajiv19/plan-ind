@@ -3186,6 +3186,15 @@ h3 {
   background: var(--color-card);
   isolation: isolate;
 }
+.wall-tile__link {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+.wall-tile__link:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: -2px;
+}
 .wall-tile__img { object-fit: cover; }
 
 /* Text over a photograph keeps the night values in BOTH grounds — it sits
