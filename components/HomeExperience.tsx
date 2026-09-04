@@ -307,7 +307,7 @@ export default function HomeExperience({
           <div className="home-system-shadow" />
           {/* Turn 13's parallax. The panel is aria-hidden product illustration,
               so a pointer-only effect on it excludes nobody. */}
-          <TiltCard className="home-system">
+          <TiltCard className="home-system" centered>
             <div className="home-system__header">
               <span>Tonight in Dubai</span>
               <span className="home-system__status">6 friends voting</span>

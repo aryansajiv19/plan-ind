@@ -41,11 +41,22 @@ export default function TiltCard({
   className = "",
   maxTiltY = 7,
   maxTiltX = 5,
+  centered = false,
 }: {
   children: ReactNode;
   className?: string;
   maxTiltY?: number;
   maxTiltX?: number;
+  /**
+   * The caller's own CSS centers the card with `left: 50%; top: 50%;
+   * transform: translate(-50%, -50%)`. Motion writes one inline `transform`
+   * per frame and that always wins over the CSS rule, so without this the
+   * translate silently vanishes and the card renders pinned to its left/top
+   * edge — half on/off screen (SPECS.md §3.4). `transformTemplate` folds
+   * the same translate into Motion's own generated string instead of
+   * losing it.
+   */
+  centered?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
@@ -73,6 +84,9 @@ export default function TiltCard({
       ref={ref}
       className={className}
       style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+      transformTemplate={
+        centered ? (_, generated) => `translate(-50%, -50%) ${generated}` : undefined
+      }
       onPointerMove={(e) => {
         // Pointer, not mouse: a stylus should tilt it too. Touch is excluded
         // below because a finger dragging the card would fight the scroll.

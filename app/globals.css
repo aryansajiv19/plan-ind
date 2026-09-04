@@ -1,10 +1,15 @@
 @import "tailwindcss";
 
 /* ── Design tokens ─────────────────────────────────────────────────
-   Warm sand by day, warm near-black by night, a cool teal accent against
-   both, with terracotta reserved for anything live. From the owner's Claude Design
-   handoff (`design_handoff_plan/README.md`) — turn 14 for colour, turn
-   13 for weight and restraint.
+   Palette v3, production push 2026-09-04 (design-system/SPECS.md §1).
+   White/navy by day, charcoal-navy/champagne-gold by night — the owner's
+   own words: "i dont like the navy blue gold theme if we switch to more
+   fun colors but the goal is to keep the app looking modern sleek
+   luxurious as well" (out: the old brass/teal identity), then, after a
+   one-day dark-only detour (v2, coral/gold/teal on #121212) was itself
+   reversed: "i like white and navy blue together maybe that for the day
+   mode i guess" (day mode stays; the gold/navy resemblance to what was
+   rejected is a confirmed, deliberate direction, not a drift — see §1).
 
    TWO AUTHORED PALETTES, NOT ONE DIMMED. Day is the base below; night
    is a full re-authoring in the [data-theme="night"] block, selected by
@@ -16,17 +21,16 @@
    by accident:
 
    1. THE FIVE CATEGORY-GROUP HUES. Paprika / magenta / teal / green /
-      violet, one per group, are gone. The handoff rejects the whole
-      "category rainbow" of turns 1-7: the accent carries structure and
-      terracotta carries live state, and what kind of night it is comes
-      from the photograph, not from a hue. `data-group` no longer selects
-      anything.
+      violet, one per group, are gone. The accent carries structure and
+      the confirm/active job carries live state, and what kind of night
+      it is comes from the photograph, not from a hue. `data-group` no
+      longer selects anything.
    2. THE HARD OFFSET SHADOW (`.token`). Turn 8 was rejected for exactly
       that — "thick ink-brass outlines, hard offset shadows... nothing
       thinner than a 2px border" read as loud and childish. Turn 13
       replaces it: depth is pointer parallax and ONE hairline.
-   3. BRASS ITSELF. The handoff's accent was brass; the owner rejected it
-      on sight. See --color-punch below for what replaced it and why.
+   3. Brass and the v1/v2 teal/coral identities are retired too — see
+      --color-punch below for the current pick and why.
 
    Earlier still, these were a lilac ground with plum ink; `.home-experience`
    and `.vote-experience` each redefined the palette locally, so those two
@@ -34,39 +38,42 @@
    is why the overrides below are a single document-level theme scope and
    not per-screen blocks.                                            */
 @theme {
-  /* ── Day ground: warm sand. NOT white. ──────────────────────────── */
-  --color-paper: #f4f0ea; /* ground */
-  --color-card: #fbf8f3; /* surface — raised panels */
-  --color-ink: #1a1618; /* 15.79:1 on ground, 16.92:1 on surface */
-  --color-muted: #6b625c; /* 5.25:1 on ground, 5.62:1 on surface */
-  --color-line: rgba(18, 102, 110, 0.30); /* hairline — accent-tinted, not grey */
+  /* ── Day ground: white/navy, not stark white. ────────────────────── */
+  --color-paper: #f7f7f5; /* ground — off-white, not stark white */
+  --color-card: #ffffff; /* surface — pure white, so cards lift off the ground */
+  --color-ink: #141414; /* 17.17:1 on ground, 18.42:1 on surface */
+  --color-muted: #5b5f66; /* 5.98:1 on ground, 6.42:1 on surface */
+  --color-line: rgba(27, 42, 74, 0.30); /* hairline — accent-tinted, not grey */
 
   /* The accent. Carries structure, hairlines, the wordmark, and "the
-     outcome" — the winner, a decided plan.
+     outcome" — the winner, a decided plan. Navy, owner's own pairing
+     ("white and navy blue together"); 13.26:1 on ground as text, 14.22:1
+     as a white-ink fill (see --primary-ink below for the fill pairing —
+     day's primary is dark enough that, unlike the other day accents
+     below, it takes light ink on a fill, not dark). */
+  --color-punch: #1b2a4a; /* navy — 13.26:1 on ground */
+  --color-punch-text: #1b2a4a; /* no separate cut needed */
 
-     This was brass in the handoff. It is teal by owner decision: a warm
-     metal on a warm ground made everything one temperature, and the whole
-     palette went quiet. A COOL accent against warm sand and warm near-black
-     is what makes it read as interactive rather than decorative — the same
-     reasoning that put cobalt in the palette two systems ago.
+  /* Premium marker — badges, streaks. Used sparingly: never a button,
+     never body text, never more than one or two instances per screen.
+     Darker than night's #c9a876 to clear AA on a light ground, the same
+     asymmetry the very first day/night system used. */
+  --color-accent-premium: #8a6d2f; /* deep gold — 4.54:1 on ground */
 
-     Unlike brass, one value serves both fill and text on each ground: brass
-     needed a separate darker cut because that brass was 2.03:1 on sand, whereas
-     this clears AA on everything it sits on. --color-punch-text is kept as a
-     name only so the many rules that read it keep working. */
-  --color-punch: #12666e; /* 5.87:1 on ground, 6.29:1 on surface */
-  --color-punch-text: #12666e; /* no separate cut needed */
+  /* Confirm/active/"you, and now" — small components only (badges,
+     pills, status text, round dots), never a large surface or a fill. */
+  --color-live: #0e7c74; /* deep teal — 4.71:1 on ground */
 
-  /* Terracotta marks LIVE STATE and nothing else — who is looking, what
-     just changed. It never decorates and never marks an outcome. */
-  --color-live: #a1481f; /* live text — 5.34:1 on ground */
+  /* Error/urgent — validation errors, closing-soon warnings. */
+  --color-error: #b3261e; /* 6.09:1 on ground */
 
   /* Legacy aliases. `text-grape` / `bg-zest` / `text-mint` are still
-     scattered through the components; they now all resolve to brass so
-     nothing renders a dead colour mid-migration. Do not add new uses. */
-  --color-grape: #12666e;
-  --color-zest: #12666e;
-  --color-mint: #12666e;
+     scattered through the components; they now all resolve to the
+     primary accent so nothing renders a dead colour mid-migration. Do
+     not add new uses. */
+  --color-grape: #1b2a4a;
+  --color-zest: #1b2a4a;
+  --color-mint: #1b2a4a;
 
   --font-display: var(--font-display-family), system-ui, sans-serif;
   --font-body: var(--font-hanken), system-ui, sans-serif;
@@ -120,13 +127,8 @@
   --border: var(--color-line);
   --input: var(--color-line);
   --ring: var(--color-punch);
-  /* The one semantic we do not have: a destructive. Terracotta is spoken
-     for (live state), so this is a real red, dark enough for sand. */
-  --destructive: #9a3412;
+  --destructive: var(--color-error);
   --destructive-foreground: var(--color-paper);
-}
-[data-theme="night"] {
-  --destructive: #f0a08a;
 }
 
 /* Tailwind v4 only generates a `bg-primary` / `border-input` utility from a
@@ -161,8 +163,8 @@
    `var()` therefore belongs here, where it is always emitted; @theme is
    for tokens that should also generate a utility class. */
 :root {
-  --color-accent-tint: rgba(18, 102, 110, 0.07); /* inactive chip fill — composites to #e4e6e1, where the accent still measures 5.30:1. Raising it eats that headroom fast. */
-  --color-live-dot: #b3552c; /* live dot — 4.35:1; non-text, needs 3:1 */
+  --color-accent-tint: rgba(27, 42, 74, 0.07); /* inactive chip fill — composites to #e8e9e9, where the accent still measures 11.69:1. */
+  --color-live-dot: #0e7c74; /* live dot, same value as --color-live — 4.71:1 on ground; non-text, needs 3:1 */
 
   /* Durations, named so they stop being pasted as magic numbers. */
   --dur-press: 200ms;
@@ -178,38 +180,48 @@
    /onboarding, /privacy and /terms had no night variant at all under the
    old per-screen scopes. */
 [data-theme="night"] {
-  --color-paper: #0e0c0e; /* warm near-black, slight plum. Not neutral black */
-  --color-card: #171316;
-  --color-ink: #f4efe8; /* 17.04:1 on ground, 16.09:1 on surface */
-  --color-muted: #a49a92; /* 7.07:1 on ground, 6.67:1 on surface */
-  --color-line: rgba(104, 184, 192, 0.28);
+  --color-paper: #0d1117; /* deep charcoal-navy, cooler than pure black */
+  --color-card: #161b22;
+  --color-ink: #f2efe9; /* 16.49:1 on ground, 15.07:1 on surface */
+  --color-muted: #8a8f98; /* 5.82:1 on ground, 5.32:1 on surface */
+  --color-line: rgba(201, 168, 118, 0.28);
 
-  --color-punch: #68b8c0; /* 8.54:1 on ground, 8.07:1 on surface */
-  --color-punch-text: #68b8c0; /* one value serves both here too */
-  --color-accent-tint: rgba(104, 184, 192, 0.16); /* composites to #242d31; accent on it is 6.16:1 */
+  /* Gold, settled: the owner saw gold-primary and the recommended
+     glass-blue-primary/gold-sparing swap side by side and picked gold —
+     a deliberate confirmation of the navy/gold resemblance, not a drift
+     (SPECS.md §1). Build with confidence. */
+  --color-punch: #c9a876; /* champagne gold — 8.42:1 on ground, 7.7:1 on surface */
+  --color-punch-text: #c9a876; /* one value serves both here too */
+  --color-accent-premium: #5cc8d7; /* icy glass-blue — premium/badge job, sparing — 9.64:1 */
+  --color-accent-tint: rgba(201, 168, 118, 0.16); /* composites to #2b2926; accent on it is 6.46:1 */
 
-  --color-live: #e08e63; /* 7.63:1 on ground */
-  --color-live-dot: #cf7a4e; /* 6.08:1 */
+  --color-live: #00e0c7; /* teal, kept — 11.25:1 on ground. Small components only, never a large surface or fill. */
+  --color-live-dot: #00e0c7; /* same value as --color-live */
 
-  --color-grape: #68b8c0;
-  --color-zest: #68b8c0;
-  --color-mint: #68b8c0;
+  --color-error: #ff5c5c; /* 6.25:1 on ground */
+
+  --color-grape: #c9a876;
+  --color-zest: #c9a876;
+  --color-mint: #c9a876;
 
   /* Native controls, scrollbars and date pickers read this. */
   color-scheme: dark;
 }
 
-/* The primary button is the one place the two grounds disagree about
-   more than a value: brass on sand is too weak to read as the main
-   action, so DAY'S PRIMARY IS INK and night's is brass. Not a --color-*
-   because a gradient would generate a nonsense utility. */
+/* The primary button fill takes navy by day, gold by night — both
+   --color-punch itself, so this just carries the ink pairing and the
+   subtle top-to-base gradient. Not a --color-* because a gradient would
+   generate a nonsense utility. Day's navy is dark enough to take light
+   ink (SPECS.md §1's fill-contrast note — this is the one place day's
+   rule differs from night's, where the light-toned gold fill takes dark
+   ink instead). */
 :root {
-  --primary-fill: linear-gradient(180deg, #2a2225, #171315);
-  --primary-ink: #f6f2ec; /* 16.51:1 on the dark end, 13.91:1 on the light end */
+  --primary-fill: linear-gradient(180deg, #24345a, #1b2a4a);
+  --primary-ink: #ffffff; /* 14.22:1 on the base end */
 }
 [data-theme="night"] {
-  --primary-fill: linear-gradient(180deg, #9ad3d9, #63aab2);
-  --primary-ink: #0e0c0e; /* 7.35:1 on the dark end, 11.78:1 on the light end */
+  --primary-fill: linear-gradient(180deg, #d9c093, #c9a876);
+  --primary-ink: #0d1117; /* 8.42:1 on the base end, matches the night ground exactly */
 }
 
 /* ── Text over photography ─────────────────────────────────────────
@@ -1374,7 +1386,7 @@ h3 {
 .home-stats span { color: rgba(255, 255, 255, 0.68); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
 
 .home-plan-section {
-  width: min(100% - 2rem, 68rem);
+  width: min(100% - 2rem, 76rem);
   margin-inline: auto;
   padding: clamp(5rem, 10vw, 9rem) 0;
   display: grid;
@@ -2084,7 +2096,7 @@ h3 {
 .demo-photo-upload:focus-within { outline: 2px solid var(--color-ink); outline-offset: -2px; }
 
 .home-library {
-  width: min(100% - 2rem, 68rem);
+  width: min(100% - 2rem, 76rem);
   min-height: calc(100dvh - 8rem);
   margin-inline: auto;
   padding: clamp(3rem, 7vw, 6rem) 0 6rem;
@@ -2203,7 +2215,7 @@ h3 {
 .auth-submit:disabled { cursor: wait; opacity: .55; }
 .auth-message, .auth-footnote { color: var(--auth-muted); font-size: .76rem; line-height: 1.5; }
 .auth-link { display: block; color: var(--auth-metal-text); font-size: .76rem; font-weight: 700; text-align: center; text-decoration: underline; text-underline-offset: .2rem; }
-.auth-error { margin: 1rem 0 0; border-left: 2px solid #9a554d; padding: .7rem .8rem; background: rgba(154, 85, 77, .08); color: #81443d; font-size: .76rem; font-weight: 700; line-height: 1.45; }
+.auth-error { margin: 1rem 0 0; border-left: 2px solid var(--color-error); padding: .7rem .8rem; background: color-mix(in srgb, var(--color-error) 8%, transparent); color: var(--color-error); font-size: .76rem; font-weight: 700; line-height: 1.45; }
 .auth-footnote { margin: 1.5rem 0 0; text-align: center; }
 @media (max-width: 760px) { .auth-shell { padding: 0; } .auth-frame { display: block; min-height: 100dvh; border: 0; } .auth-intro { min-height: 43vh; padding: 1.25rem; border-right: 0; border-bottom: 1px solid var(--auth-line); } .auth-intro h1 { margin-top: auto; font-size: clamp(3.4rem, 16vw, 5.8rem); } .auth-copy { font-size: .84rem; } .auth-panel { padding: 2rem 1.25rem 2.5rem; } }
 
@@ -2988,7 +3000,7 @@ h3 {
    on its first screen instead, so the top of the viewport is the tool
    rather than a headline about the tool. */
 .home-appbar {
-  width: min(100% - 3rem, 76rem);
+  width: min(100% - 2rem, 76rem);
   margin: 0 auto;
   padding: 1.6rem 0 0.4rem;
 }
