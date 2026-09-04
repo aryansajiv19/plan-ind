@@ -418,6 +418,61 @@ No other component currently shows a labeled/bordered empty-photo state —
 unbuilt) use the same typographic-fallback pattern; confirm neither grew its
 own "no photo" label independently before calling this done.
 
+## 9 — Full-route-surface confirmation (owner Scope note, 2026-09-04)
+
+Checked every route the owner named against what's actually in the repo,
+not assumed. Two different situations, both real:
+
+**Already covered, no extra spec needed** — confirmed clean by direct grep,
+zero hardcoded hex/`text-white`/`bg-{gray,slate}-*` in any of them:
+`components/AccountViews.tsx` + `DemoAccountViews.tsx` (all five `app/home`
+tabs — Plan, Discover, Been, Friends, Profile — style purely through
+`--color-*` custom properties already), `components/AuthForm.tsx`
+(`app/login`), `components/AgeForm.tsx` (`app/onboarding`),
+`components/VoteState.tsx` (the `app/plan/[id]` loading/captcha/
+guest-paused/retry/cold-link states — already "colourless graphite" per
+FE.7, so §1's repoint doesn't even change these visually). §1's token
+repoint plus §3.9's four-item `text-white` fix (`app/plan/[id]/page.tsx`,
+`NameGate.tsx`, `DecidedPlan.tsx`) is the complete fix for the whole
+`app/plan/[id]` surface, including `DecidedPlan`'s payoff screen — nothing
+further to spec here, but **do visually confirm it** (see Verification
+below) since "the tokens should cascade" and "it actually looks right" are
+different claims.
+
+**A real, previously-unflagged gap — confirmed by running `npm run build`,
+not guessed:**
+
+```
+Route (app)
+○ /home-preview   (Static)
+○ /privacy        (Static)
+○ /terms          (Static)
+ƒ /               (Dynamic)   ← correct, no flash
+ƒ /home /login /onboarding /plan/[id]   (Dynamic)   ← correct, no flash
+```
+
+`app/layout.tsx:83` calls `autoGround()` (`lib/dubai-phase.ts:45`, plain
+`new Date()`, no request-scoped API) to stamp `data-theme` server-side
+specifically so there's no sand-to-black flash on first paint (see the
+comment at `app/layout.tsx:79-81`). That reasoning only holds for routes
+Next actually renders per request. `/home-preview`, `/privacy`, and
+`/terms` have no dynamic API anywhere in their tree, so Next prerenders
+them once at **build time** — `autoGround()` runs once, whatever hour the
+build happened to run, and that ground is baked into the static HTML for
+every visitor after, corrected only by `ThemeSync`'s client-side effect.
+That's exactly the flash the server-stamping exists to prevent, live on
+three routes — most visibly on `/home-preview`, which is meant to *show*
+the design.
+
+**Fix**: add `export const dynamic = "force-dynamic";` to
+`app/home-preview/page.tsx`, `app/privacy/page.tsx`, and
+`app/terms/page.tsx`. None of the three do expensive data fetching
+(`home-preview` is fixture-only, `privacy`/`terms` call `getLegalConfig()`
+which is static config, not a network call) so there's no real cost to
+losing static caching — this matches how `/` already behaves. Re-run
+`npm run build` after and confirm all three flip from `○` to `ƒ` in the
+route table.
+
 ---
 
 ## Verification (for whoever implements this)
@@ -430,6 +485,12 @@ own "no photo" label independently before calling this done.
 - Confirm `overflow: hidden`'s removal (§3.3) doesn't unclip something
   unexpected — visually sweep `/`, `/home`, `/plan/[id]` at 375/768/1280/1440
   before and after.
+- **Full-surface sweep (§9), both grounds**: `/`, `/home-preview`, `/home`
+  (all five tabs), `/login`, `/onboarding`, `/plan/[id]` (loading, each
+  `VoteState` variant, an active round, `DecidedPlan`'s payoff), `/privacy`,
+  `/terms`, `/place/[id]` once built. Confirm `/home-preview`, `/privacy`,
+  `/terms` no longer flash on load after the `force-dynamic` fix — check
+  `npm run build`'s route table shows `ƒ` not `○` for all three.
 - `npm run lint && npm run typecheck && npm test && npm run build` green.
 
 ---
