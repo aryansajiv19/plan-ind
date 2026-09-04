@@ -141,6 +141,10 @@ apply here.
   category-group hues, superseded by the turn-14 palette work). Don't let
   "icon inside a colored rounded square" or "colored left stripe" creep back
   in per-category — that's the exact pattern that was already removed once.
+- **Avoid too much blank space** (owner, 2026-09-04) — ties directly to the
+  list's own "huge whitespace just to look premium" item. Dense-but-organized
+  reads more luxurious here than empty margins do; don't let restraint tip
+  into emptiness.
 - **The front door's "Tonight in Dubai" live preview card is real product,
   not a mockup** — keep leaning on showing the actual thing, not a generic
   dashboard screenshot or fake browser window, which the list correctly flags
