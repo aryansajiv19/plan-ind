@@ -342,6 +342,56 @@ handoff research; only the colour tokens change to §1. Full detail in the
 archived Wave-1/handoff section below (radii, spacing, breakpoints) — reread
 those numbers against §1's tokens, not the retired sand/teal ones.
 
+## 7 — Component library: shadcn + Motion, and the animation direction (owner, 2026-09-04)
+
+Full rationale and reversal history in `FRONTEND_DESIGN_STANDARDS.md`'s
+Components/Motion sections — this is the build checklist.
+
+- **lucide-react resolution** (closes the §5 forward-reference above): drop
+  it. `components/kokonutui/action-search-bar.tsx`'s seven action icons go
+  text-only per §5's own note; confirm no other consumer exists
+  (`grep -rn lucide-react` across `app/**`/`components/**`) before removing
+  the dependency from `package.json`.
+- **shadcn primitives to use for the still-open build-out** — install via
+  the shadcn CLI against this repo's `components.json`
+  (`style: new-york`, `baseColor: neutral`, `cssVariables: true`, so it
+  re-tokens onto `--color-*` automatically) rather than hand-rolling:
+  - `tabs` → the place page's Photos / 360 tour / Your friends / Menu row
+    (§6).
+  - `avatar` → the sticky header's presence stack (§5) and the place page's
+    "shot by your friends" rail (§6).
+  - `badge` → the streak note (§5) and any premium marker (Colour job 3).
+  - `button` → only for genuinely new CTAs; the app's existing primary/ghost
+    button classes stay as-is, don't replace them wholesale.
+- **Shared-element transition, card → place-page hero** (§6): Motion
+  `layoutId` keyed by spot id, shared between the photo-wall tile /
+  place-card photo and the place-page hero photo. ≤350ms, `--ease-settle`.
+- **Hero scroll-parallax** on the place page's 460px hero photo (§6): image
+  layer moves at ~0.85–0.9× scroll speed inside the hero's own clipped
+  bounds. Disable under `prefers-reduced-motion`.
+- **Press feedback: no-bounce sweep.** `--ease-spring` (`app/globals.css:81`)
+  currently drives `:active`/tap transitions at lines 285, 998, 1553, 1819,
+  2434, 2559, 2669 — every one of those becomes `--ease-settle`, scale-only
+  or fade+scale, no overshoot past `scale(1)` on release. Global sweep, not
+  per-component discretion — verify each site is actually press feedback
+  (not, e.g., a hover state) before changing it.
+- **Shimmer skeleton.** `.wall-skeleton` (`app/globals.css:3518`) is a
+  static flat block today — no animation. Add the diagonal shimmer sweep
+  spec'd in `FRONTEND_DESIGN_STANDARDS.md`'s Motion section (~1.6s loop,
+  ground-aware highlight colour, contrast-checked per ground like every
+  other value in this doc). Audit for any other static skeleton/spinner in
+  `app/globals.css` and apply the same treatment.
+- **No confetti/sparkles/gamified pop-ups** on the streak/premium-badge
+  feature or any future milestone moment — state communicates through the
+  existing colour/type system only.
+
+**Density note, ties to the Visual direction reconciliation in
+`FRONTEND_DESIGN_STANDARDS.md`**: "minimalistic aesthetic luxury" reads as
+restrained and considered, not sparse — none of the above should be used to
+justify emptier layouts. Adding a shadcn primitive or a shared-element
+transition is about polish and restraint in *how* something is built, not
+about showing less.
+
 ---
 
 ## Verification (for whoever implements this)
