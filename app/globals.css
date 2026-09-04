@@ -3285,3 +3285,111 @@ h3 {
   padding: 3.5rem 0 4.5rem;
 }
 .home-wall-section .home-plan-section__intro { margin-bottom: 1.75rem; }
+
+/* ── Place page (SPECS.md §6, 12a) ───────────────────────────────── */
+.place-page { min-height: 100dvh; background: var(--color-paper); color: var(--color-ink); }
+
+.place-hero {
+  position: relative;
+  height: 460px;
+  overflow: hidden;
+  background: var(--color-card);
+}
+.place-hero__img { object-fit: cover; }
+.place-hero__scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--photo-scrim);
+}
+.place-hero--typographic .place-hero__scrim { display: none; }
+.place-hero--typographic { border-bottom: 1px solid var(--color-line); }
+
+.place-hero__body {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 2rem clamp(1.25rem, 4vw, 3rem);
+  color: var(--photo-ink);
+}
+.place-hero--typographic .place-hero__body { position: static; padding: 3rem clamp(1.25rem, 4vw, 3rem); color: var(--color-ink); }
+
+.place-hero__category {
+  margin: 0 0 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--photo-eyebrow);
+}
+.place-hero--typographic .place-hero__category { color: var(--color-punch-text); }
+
+.place-hero__name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 1.4rem + 2.4vw, 3.4rem);
+  font-weight: 800;
+  line-height: 1;
+}
+
+.place-hero__area {
+  margin: 0.5rem 0 0;
+  font-size: 0.95rem;
+  color: var(--photo-body);
+}
+.place-hero--typographic .place-hero__area { color: var(--color-muted); }
+
+.place-content {
+  width: min(100% - 2rem, 48rem);
+  margin: 0 auto;
+  padding: 2.5rem 0 5rem;
+}
+
+.place-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-muted);
+}
+
+.place-description {
+  margin: 1.25rem 0 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--color-line);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.place-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2rem; }
+
+.place-action {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.7rem 1.4rem;
+  border: 2px solid var(--color-ink);
+  border-radius: var(--radius-pill);
+  background: var(--color-ink);
+  color: var(--color-card);
+  font-weight: 700;
+  text-decoration: none;
+}
+.place-action--secondary { background: transparent; color: var(--color-ink); }
+
+.place-back {
+  display: inline-block;
+  margin-top: 2.5rem;
+  color: var(--color-muted);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 0.2rem;
+}
+
+.place-action:focus-visible,
+.place-back:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: -2px;
+}
