@@ -392,6 +392,32 @@ justify emptier layouts. Adding a shadcn primitive or a shared-element
 transition is about polish and restraint in *how* something is built, not
 about showing less.
 
+## 8 — No visible empty photo frames (owner, 2026-09-04)
+
+`components/PhotoTile.tsx:78-80` renders a `.wall-tile__absent` label — "No
+photo yet", uppercase, top-left of the photo-less tile
+(`app/globals.css:3476-3485`) — whenever `spot.photo_url` is null. That's a
+labeled gap, exactly what the owner now says not to show: *"don't render a
+visible placeholder box... either omit the slot entirely, or fall back to
+something that reads as designed... never a blank/bordered rectangle."*
+
+The good news: the tile's actual photo-less fallback (`.wall-tile--typographic`,
+`PhotoTile.tsx:46-70`) already **is** the "text-only card" the owner asks
+for — venue name in the display serif, the vibe line under a hairline rule,
+no image at all. That part stays exactly as-is; it was already designed for
+this, not a placeholder. **The only thing to remove is the "No photo yet"
+label itself** — delete `PhotoTile.tsx:78-80`'s `<p className="wall-tile__absent">`
+block and the now-unused `.wall-tile__absent` rule
+(`app/globals.css:3476-3485`). The tile keeps its 1px hairline border
+(`.wall-tile--typographic`, `:3450`) — that's this design system's normal
+card treatment everywhere, not a "broken image" indicator, so it doesn't
+read as the rectangle the owner is flagging.
+
+No other component currently shows a labeled/bordered empty-photo state —
+`AccountViews.tsx`'s place card (`:201`) and the place-page hero (§6, still
+unbuilt) use the same typographic-fallback pattern; confirm neither grew its
+own "no photo" label independently before calling this done.
+
 ---
 
 ## Verification (for whoever implements this)
