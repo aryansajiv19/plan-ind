@@ -28,6 +28,7 @@ import type {
   PersonCard,
   ProfileVisit,
   Spot,
+  SpotVisibility,
   WrappedSummaryResult,
 } from "./types";
 import { aggregateWrappedSummary, dubaiMonthWindow } from "./wrapped";
@@ -615,4 +616,181 @@ export async function getWrappedSummary(
     }),
     error: null,
   };
+}
+
+// ─── Visit collections + photos (SPECS.md §15.2) ────────────────────
+//
+// Both tables have full owner-scoped RLS ("manage own …" policies, `for
+// all`), so writes go straight through PostgREST like visits/companions
+// above — no RPC needed for either.
+
+export interface VisitCollectionView {
+  id: string;
+  name: string;
+  visitIds: string[];
+}
+
+interface RawCollection {
+  id: string;
+  name: string;
+  items: { visit_id: string }[] | null;
+}
+
+/** A person's named visit folders, each with the visit ids it holds. */
+export async function getVisitCollections(
+  personId: string,
+  db: Db = supabase,
+): Promise<VisitCollectionView[]> {
+  const { data, error } = await db
+    .from("visit_collections")
+    .select("id, name, items:visit_collection_items(visit_id)")
+    .eq("person_id", personId)
+    .order("created_at");
+  if (error || !data) return [];
+  return (data as unknown as RawCollection[]).map((c) => ({
+    id: c.id,
+    name: c.name,
+    visitIds: (c.items ?? []).map((i) => i.visit_id),
+  }));
+}
+
+/** Trimmed to the same 40-char limit as the DB check constraint. */
+export async function createVisitCollection(
+  personId: string,
+  name: string,
+  db: Db = supabase,
+): Promise<VisitCollectionView | null> {
+  const trimmed = name.trim().slice(0, 40);
+  if (!trimmed) return null;
+  const { data, error } = await db
+    .from("visit_collections")
+    .insert({ person_id: personId, name: trimmed })
+    .select("id, name")
+    .maybeSingle();
+  if (error || !data) return null;
+  return { id: data.id as string, name: data.name as string, visitIds: [] };
+}
+
+export async function addVisitToCollection(
+  collectionId: string,
+  visitId: string,
+  db: Db = supabase,
+): Promise<boolean> {
+  const { error } = await db
+    .from("visit_collection_items")
+    .upsert({ collection_id: collectionId, visit_id: visitId });
+  return !error;
+}
+
+export async function removeVisitFromCollection(
+  collectionId: string,
+  visitId: string,
+  db: Db = supabase,
+): Promise<boolean> {
+  const { error } = await db
+    .from("visit_collection_items")
+    .delete()
+    .eq("collection_id", collectionId)
+    .eq("visit_id", visitId);
+  return !error;
+}
+
+export interface VisitPhotoView {
+  id: string;
+  visit_id: string;
+  url: string | null;
+  caption: string | null;
+  visibility: SpotVisibility;
+  created_at: string;
+}
+
+/**
+ * This person's own visit photos with a short-lived signed URL for each —
+ * the `visit-photos` bucket is private, so a bare storage_path never renders.
+ * `url` is null when signing fails (RLS denied it, or the object is gone);
+ * callers show the tile without an image rather than a broken one.
+ */
+export async function getVisitPhotos(
+  personId: string,
+  db: Db = supabase,
+): Promise<VisitPhotoView[]> {
+  const { data, error } = await db
+    .from("visit_photos")
+    .select("id, visit_id, storage_path, caption, visibility, created_at")
+    .eq("person_id", personId)
+    .order("created_at", { ascending: false });
+  if (error || !data) return [];
+  const rows = data as unknown as {
+    id: string;
+    visit_id: string;
+    storage_path: string;
+    caption: string | null;
+    visibility: SpotVisibility;
+    created_at: string;
+  }[];
+  if (rows.length === 0) return [];
+
+  const { data: signed } = await db.storage
+    .from("visit-photos")
+    .createSignedUrls(rows.map((r) => r.storage_path), 3600);
+  const urlByPath = new Map(
+    (signed ?? []).map((s) => [s.path, s.error ? null : s.signedUrl]),
+  );
+
+  return rows.map((r) => ({
+    id: r.id,
+    visit_id: r.visit_id,
+    url: urlByPath.get(r.storage_path) ?? null,
+    caption: r.caption,
+    visibility: r.visibility,
+    created_at: r.created_at,
+  }));
+}
+
+/**
+ * Upload one photo for a visit: file goes to the private bucket under the
+ * signed-in user's own folder (the only path `upload own visit photos`
+ * grants), then the row that makes it visible per `visibility`. The row
+ * insert is rolled back with a best-effort delete if it fails, so a photo
+ * is never orphaned in storage with nothing pointing at it.
+ */
+export async function uploadVisitPhoto(
+  {
+    personId,
+    visitId,
+    file,
+    caption,
+    visibility,
+  }: {
+    personId: string;
+    visitId: string;
+    file: File;
+    caption?: string;
+    visibility: SpotVisibility;
+  },
+  db: Db = supabase,
+): Promise<boolean> {
+  const { data: auth } = await db.auth.getUser();
+  const uid = auth.user?.id;
+  if (!uid) return false;
+
+  const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+  const path = `${uid}/${crypto.randomUUID()}.${ext}`;
+  const { error: uploadError } = await db.storage
+    .from("visit-photos")
+    .upload(path, file, { contentType: file.type });
+  if (uploadError) return false;
+
+  const { error } = await db.from("visit_photos").insert({
+    visit_id: visitId,
+    person_id: personId,
+    storage_path: path,
+    caption: caption?.trim().slice(0, 160) || null,
+    visibility,
+  });
+  if (error) {
+    await db.storage.from("visit-photos").remove([path]);
+    return false;
+  }
+  return true;
 }
