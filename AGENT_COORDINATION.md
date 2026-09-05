@@ -506,6 +506,45 @@ externally:
     before submitting any form against a live production record rather
     than finding that out after the click. Didn't repeat it; the RSVP
     pressed-state visual is one of the unverified items above as a result.
+- 2026-09-04: **Mobile breakpoint audit, today's four new surfaces,
+  source-level (`resize_window` stays a confirmed dead end, didn't
+  re-fight it).** Real, specific finding: **all four are genuinely clean.**
+  Not a padded "looks fine" — each checked against a concrete failure
+  mode:
+  - **Been's collection tab bar + photo grid** — `PhotoWall` (reused, not
+    a new component) has real column-count breakpoints at 1100px (4→3)
+    and 760px (3→2), stagger offsets recalculated at each tier, not just
+    the column count; the tab bar (`.demo-collection-tabs`) scrolls
+    horizontally rather than wrapping, and `.demo-collection-bar` stacks
+    to one column at 850px.
+  - **`StartPlanForm`'s direct-plan toggle + spot search** — toggle
+    buttons are `flex: 1` at `min-height: 2.8rem` (44.8px, clears the
+    touch-target floor), no `white-space: nowrap`/`overflow: hidden` to
+    clip a wrapped label if "I already know where" needs two lines at
+    375px; the search field and results use `min-width: 0` on the flex
+    child, the actual pattern that prevents overflow, not just a hope.
+  - **`DecidedPlan`'s particle reveal ("getting there")** — the canvas/
+    image container is `width: 100%` with `aspect-ratio` matching the
+    fixed-pixel canvas's intrinsic size, both children `width/height:
+    100%` — genuinely fluid, not a fixed 400px box that would overflow a
+    375px viewport. "Getting there"'s distance text + link row is
+    `flex flex-wrap`, wraps safely.
+  - **404 / `error.tsx` / `global-error.tsx`** — sized with `min()`/
+    `clamp()` (`width: min(26rem,100%)`, `padding: clamp(2rem,6vw,3rem)`,
+    fluid `h1` size) rather than a fixed breakpoint, which is the correct
+    call for a single centered panel with no columns to collapse.
+    `global-error.tsx` (fires when the root layout itself crashes, so it
+    can't reuse `globals.css` or theming) uses inline styles with the
+    same `max-width`/`clamp`-equivalent safety, deliberately unthemed —
+    that's correct per its own comment, not a gap.
+  - **One stale note corrected**: the `a11y-responsive` skill still says
+    "`--auth-*` tokens have no night variant... `/privacy`/`/terms` have
+    no theme awareness" — checked, that's out of date. `--auth-*` is now
+    defined from `var(--color-*)` (`app/globals.css:2034-2041`), so
+    auth/error surfaces follow day/night correctly; confirmed visually
+    earlier this session too (`/login` rendered in the dark ground).
+    Worth someone updating that skill file so the next session doesn't
+    inherit a stale gap.
 
 ---
 

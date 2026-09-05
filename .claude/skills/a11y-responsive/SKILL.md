@@ -22,8 +22,8 @@ layout down.
 ## Non-negotiables
 
 1. **44px minimum touch target.** `globals.css` already enforces this in a media
-   block for most controls. Known open gap: `.home-avatar` is `2.5rem` = 40×40px
-   and sits in the persistent nav on all five tabs.
+   block for most controls. `.home-avatar` is `2.75rem` = 44×44px
+   (`globals.css:797`) — meets the floor, re-checked 2026-09-04.
 
 2. **No hover-only controls.** Anything reachable only by hover is unreachable on
    touch, which is most of this product's traffic. The restraint block cancels
@@ -49,12 +49,16 @@ layout down.
 
 ## Currently open in this tree
 
-- `.home-avatar` at 40×40px (`globals.css:631`) — below the 44px the same file
-  enforces at `:2850`.
-- `/login` and `/onboarding` use a separate `--auth-*` token set with **no night
-  variant**; `/privacy` and `/terms` have no theme awareness at all. Once the
-  theme follows the Dubai clock, an after-sunset visitor hits white screens
-  mid-flow.
-- The vote page's `loading` / `error` / `captcha` / `notfound` states are
-  unstyled and inconsistent with each other — a real first-touch surface for a
-  guest arriving on an expired link.
+All three items previously listed here were re-checked 2026-09-04 and are
+fixed — recorded so a future pass doesn't inherit a stale gap:
+
+- `.home-avatar` is `2.75rem` = 44×44px (`globals.css:797`), meets the floor.
+- `--auth-*` tokens are now defined from `var(--color-*)` (`globals.css:2034-
+  2041`), so `/login`, `/onboarding`, and the new `/error`/`/not-found` pages
+  follow day/night correctly. `/privacy`/`/terms` were not re-verified in this
+  pass — check before assuming.
+- The vote page's states are unified in one `<VoteState kind>` component
+  (`components/VoteState.tsx`, FE.7), not separate unstyled screens.
+
+No known open items as of this check. Re-verify rather than trust this list
+if it's been a while — it goes stale fast in an actively-shipping repo.
