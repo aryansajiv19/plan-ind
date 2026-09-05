@@ -67,3 +67,10 @@ insert into spots (id, name, category, area, cuisine, price_band, min_spend, ope
   ('70000000-0000-0000-0000-000000000002', 'Bla Bla',           'karaoke','JBR',          'Bar & karaoke',      '$$', 150, '3am',   '45 bars, big nights, karaoke corner', null),
   ('70000000-0000-0000-0000-000000000003', 'Hummingbird',       'karaoke','JW Marriott Marquis','Karaoke lounge','$$$',200,'3am',   'Glam lounge, live band backing', null),
   ('70000000-0000-0000-0000-000000000004', 'McGettigan''s',     'karaoke','JLT',          'Pub karaoke',        '$$', 110, '2am',   'Irish pub sing-alongs, lively', null);
+
+-- Coordinates are deliberately NOT seeded here. They live in
+-- migration-037-backfill-curated-coordinates.sql — geocoded once, then
+-- hand-reviewed — so they stay in one place instead of being duplicated
+-- into this tuple table where the two copies would drift. On a from-scratch
+-- rebuild, run 037 after this file; its updates are keyed by id and guarded
+-- on "latitude is null", so ordering is the only requirement.

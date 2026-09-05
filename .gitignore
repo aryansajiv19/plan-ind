@@ -64,3 +64,11 @@ next-env.d.ts
 # separately; these are CLI state/temp files only).
 /supabase/.branches/
 /supabase/.temp/
+
+# scripts/backfill-spot-coordinates.mjs writes its geocoding results here
+# for review -- a one-time local artifact, not committed output. The
+# hand-reviewed split (what to apply, what to reject) is derived from it;
+# the surviving coordinates live in migration-037, which IS committed.
+/scripts/spot-coordinates.local.json
+/scripts/spot-coordinates-apply-list.local.json
+/scripts/spot-coordinates-rejected.local.json
