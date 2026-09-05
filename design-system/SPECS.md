@@ -1138,7 +1138,7 @@ the concrete mismatch the owner is naming.
 Marketing/hero surfaces (`.home-title`, the front door, `/home-preview`)
 are unchanged — this only touches the four signed-in account-view tabs.
 
-## 19 — Palette v4: white-dominant Dubai luxury, smooth (owner, 2026-09-04)
+## 19 — Palette v4: white-dominant warm desert, light-only, smooth (owner, 2026-09-04)
 
 **Supersedes §1's palette v3 wholesale.** Owner's words: prioritise
 "white heavily, the gold, black, silver, grey," and **"I wanna emphasise
@@ -1152,71 +1152,128 @@ previous palette pass. Ratios are WCAG contrast; `ΔL*` is CIE perceptual
 lightness difference, used for surface-vs-surface separation where a
 contrast ratio is the wrong tool (see 19.3).
 
-### 19.1 — Day is now the primary identity
+> **Revised 2026-09-04, same day, after the owner sent palette
+> references and a dark-mode reversal.** The measurement method and the
+> structural findings below survive; the palette family and the day/night
+> call changed. What changed: the family is **warmer** than gold/black/
+> silver (sand, tan, camel, taupe, warm brown), **dark mode is held
+> back** rather than retuned, and **a single cool accent is back in** —
+> the references contain one, and an all-warm palette with no cool note
+> goes muddy. Superseded values are struck through rather than deleted so
+> the reasoning stays legible.
 
-The app reads as a **white product that has an after-dark mode**, not a
-dark product with a light mode. That is the whole shift. Night stays —
-it's real Dubai-clock product logic and the owner already reversed a
-delete-it call once — but it is now the variant, not the identity.
+### 19.1 — Light is the only ground; the warm desert palette
+
+Owner's newer direction: white-dominant with **warm desert neutrals** —
+sand, tan, camel, taupe, warm brown — Dubai desert at sunset, not
+gold-and-black opulence. This also serves "smooth" better than the
+previous read: warm neutrals sitting close together in value are
+inherently softer than gold on black.
+
+**Their hexes, sanity-checked before building on them** (both flagged
+label/swatch mismatches are real — reporting rather than silently
+substituting):
+
+| Given | Measured | Verdict |
+|---|---|---|
+| `#FAFAFA` | L* 98.3, saturation **0%** | A genuinely *neutral* near-white, not a warm one. Fine as the card, but it is not itself a "warm desert" value. |
+| `#F4EAE5` | L* 93.3, hue 20°, sat 41% | **Computationally a warm blush near-white**, not sand. If the reference swatch renders as sand, the swatch and the label disagree — the hex is near-white. |
+| `#D7B19C` | L* 75.0, hue 21° | True tan/camel. The palette's natural accent. |
+| `#998F8A` | L* 60.1, hue 20°, sat 7% | Warm taupe. **Fails AA as text at 3.16:1** — this is a chrome/surface value, not a text one. |
+| `#70887A` | L* 54.5, **hue 145°** | **This is a desaturated sage green, unambiguously — not brown.** If that swatch renders far browner, the label is wrong for it. Flagging rather than substituting: tell me which the owner meant. Either way it only reaches 3.82:1 on white, so it is a decorative/surface tone, never text. |
+
+**The palette:**
 
 | Role | Token | Value | Measured |
 |---|---|---|---|
-| Page canvas | `--color-paper` | `#F7F6F3` | L* 96.9 — still emphatically white, not grey |
-| Card / surface | `--color-card` | `#FFFFFF` | ΔL* 3.12 vs canvas — a clearly visible lift with **no border needed** |
-| Ink / primary text | `--color-ink` | `#141414` | 18.42:1 on card, 16.90:1 on canvas |
-| Muted text | `--color-muted` | `#5A5A5E` | 6.87:1 on card, 6.30:1 on canvas |
-| Silver — dividers/chrome, **never text** | `--color-line` | `#D8D5CE` | 1.47:1 — decorative only, see the warning below |
-| **Gold as fill** | `--color-punch` | `#C9A876` | ink `#141414` on it = **8.20:1** |
-| **Gold as text** | `--color-punch-text` | `#8C6A1A` | **5.01:1** on card, 4.60:1 on canvas |
-| Confirm / live | `--color-live` | `#0B6B64` | 6.36:1 on card |
-| Premium marker — silver | `--color-accent-premium` | `#5A5A5E` text / `#D8D5CE` fill | fill+`#141414` ink = 12.57:1 |
-| Error | `--color-error` | `#B3261E` | 6.54:1 on card |
+| Page canvas | `--color-paper` | `#F5F0EA` | warm sand-white, L* 95.0 |
+| Card / surface | `--color-card` | `#FAFAFA` | the owner's own hex; ΔL* 3.25 vs canvas — a clearly visible lift with **no border needed** |
+| Ink / primary text | `--color-ink` | `#1F1B18` | warm near-black, 17.10:1 on card |
+| Muted text | `--color-muted` | `#6E635C` | 5.83:1 on card |
+| Taupe — chrome/dividers, **never text** | `--color-line` | `#998F8A` | 3.16:1 — see the warning below |
+| **Camel as fill** | `--color-punch` | `#D7B19C` | ink `#1F1B18` on it = **8.68:1** |
+| **Camel as text** | `--color-punch-text` | `#8A5D3E` | **5.65:1** on card, 4.99:1 on canvas |
+| Cool accent — the single cool note | `--color-accent-cool` | `#4A6670` | 6.13:1 on card |
+| Confirm / live | `--color-live` | `#3F6B57` | 5.83:1 on card, 5.37:1 on canvas |
+| Error | `--color-error` | `#A33A2A` | 6.30:1 on card, 5.80:1 on canvas |
 
-**The gold split is the load-bearing find.** The current champagne
-`#C9A876` measures **2.25:1 on white — a hard fail** (it was chosen
-against a dark ground, where it scores 8.42:1). But it does *not* need
-retiring: as a **fill** with near-black ink on it, it measures 8.20:1 and
-keeps the actual Dubai-gold character that a dark bronze would lose. So
-gold takes two cuts — champagne for fills, `#8C6A1A` for gold-as-text —
-which is exactly the `--color-punch` / `--color-punch-text` split this
-codebase's token architecture already has. No new pattern, correct values.
+**The fill/text split is the load-bearing find, and it survived the
+palette change intact.** It was found on the old champagne
+(`#C9A876`: 2.25:1 as text on white, 8.20:1 as a fill with dark ink) and
+the new camel behaves identically — **`#D7B19C` measures 1.97:1 as text,
+a hard fail, but 8.68:1 as a fill with `#1F1B18` ink.** So the accent
+takes two cuts: camel for fills, `#8A5D3E` for accent-as-text. That is
+exactly the `--color-punch` / `--color-punch-text` split this codebase's
+token architecture already has — correct values in an existing pattern,
+no new token invented.
 
-**Silver is chrome, never type.** `#D8D5CE` at 1.47:1 is nowhere near
-readable and must never carry text — it is for dividers, rules, and
-edges. The premium marker's *text* cut is `#5A5A5E` (6.87:1). This is the
-same fill-vs-text discipline as the gold split; getting it wrong is the
-single most likely way to break this palette.
+**Taupe is chrome, never type.** `#998F8A` at 3.16:1 is the owner's own
+hex but it cannot carry text. Dividers, rules, edges only; muted *text*
+is `#6E635C`. Same discipline as the accent split, and the single most
+likely way to break this palette is to miss it.
 
-**Glass-blue is retired.** `#5CC8D7` carried the premium marker in v3;
-under a white/gold/black/silver system a blue accent is simply foreign to
-the palette. Silver takes that job. This is a deliberate removal, not an
-oversight.
+**On the cool accent.** Two of the three references carry a cool note
+(a dusty blue, a deep teal-navy). `#4A6670` is proposed: a dusty
+blue-teal that reads as the references' cool note, clears AA text at
+6.13:1, and is dark enough to carry links and secondary actions on white.
+Deeper alternative if it reads too soft: `#3C5A63` (7.41:1). The sage
+`#70887A` is *not* proposed for this job — at 3.82:1 it can't carry text,
+so it would be a surface tone only. ~~Glass-blue `#5CC8D7` retired as
+foreign to the palette~~ — that call was made under the gold/black/silver
+brief; the references reopen a cool accent, and this is its resolution.
 
-### 19.2 — Night, retuned and subordinate
+### 19.2 — Dark mode: parked, not deleted
 
-Navy is gone as the primary — the ground moves from v3's charcoal-navy
-`#0D1117` to a **neutral warm-black**, so night reads as the same product
-after dark rather than a second identity.
+Owner: **"no dark mode, or at least hold dark back now, we'll see
+later."** This supersedes ~~night retuned to a neutral warm-black as the
+subordinate variant~~ above.
 
-| Role | Value | Measured |
-|---|---|---|
-| Ground | `#121212` | neutral, no navy cast |
-| Card | `#1A1A1A` | ΔL* 3.80 vs ground |
-| Ink | `#F5F4F1` | 17.03:1 ground, 15.82:1 card |
-| Muted | `#9A9A9E` | 6.68:1 ground, 6.21:1 card |
-| Gold (one cut serves both here) | `#C9A876` | 8.34:1 ground, 7.75:1 card |
-| Silver / premium | `#C8CBD0` | 10.70:1 on card; as fill + `#141414` ink = 11.32:1 |
-| Confirm / live | `#00E0C7` | 10.35:1 on card |
-| Error | `#FF6B6B` | 6.27:1 on card |
+**Hold back, do not rip out.** This repo has already been burned once by
+exactly this move — night was recommended for deletion, the owner
+reversed it, and it had to come back. "We'll see later" explicitly leaves
+the door open, so the machinery stays and only the *exposure* goes:
+
+- **Keep, untouched**: `lib/dubai-phase.ts`, `components/ThemeSync.tsx`,
+  and every `[data-theme="night"]` block in `app/globals.css`.
+- **Stop exposing the path**: remove the night option from the nav
+  toggle, and stop `autoGround()`'s Dubai-clock result from selecting
+  night — pin the resolved ground to light at the single point where it
+  is decided (`app/layout.tsx:83`'s `autoGround()` call), not by editing
+  the clock logic itself, so the clock stays correct and only its
+  *application* is parked.
+- **Comment the park at each site**, in these words or close to them:
+  `// PARKED 2026-09-04 (owner: "no dark mode, or at least hold dark
+  back now, we'll see later"). Machinery intact and correct; only the
+  path that selects it is disabled. To restore: re-enable the ground
+  selection here and the nav toggle. See SPECS.md §19.2.`
+- **Do not delete the night colour values** even though §19.1 replaces
+  the light ones. If dark returns it will need retuning to the warm
+  palette anyway, but a dormant set of values is a starting point and
+  deleting them costs the next person real archaeology.
+
+The night values previously specced here are **measured, correct, and
+parked with everything else** — recorded so they don't have to be
+re-derived if dark comes back: ground `#121212`, card `#1A1A1A`
+(ΔL* 3.80), ink `#F5F4F1` (17.03:1), muted `#9A9A9E` (6.68:1), silver
+`#C8CBD0` (10.70:1 on card), confirm `#00E0C7` (10.35:1), error
+`#FF6B6B` (6.27:1). All were measured against the *old* gold/black
+palette, so treat them as a starting point needing a warm retune, not a
+drop-in set.
 
 ### 19.3 — Smooth: separation by value, not by border
 
 **Read this before "fixing" any low ratio above.** A contrast ratio is a
-*text legibility* metric. White-card-on-off-white-canvas measures 1.05:1
+*text legibility* metric. A card sitting on a canvas measures ~1.05–1.09:1
 and my script prints "FAIL" — that label is meaningless for two adjacent
-surfaces, and the correct metric is ΔL*. At `#FFFFFF` on `#F7F6F3` the
-separation is ΔL* 3.12, which is genuinely visible. `#FAFAF8` was tested
-and rejected at ΔL* 1.78 — too faint to carry the lift alone.
+surfaces, and the correct metric is ΔL*. At `#FAFAFA` on `#F5F0EA` the
+separation is **ΔL* 3.25**, which is genuinely visible.
+
+Two rejections worth keeping, both measured: `#FAFAF8` canvas was tested
+and rejected at ΔL* 1.78, and pairing the owner's `#FAFAFA` card with a
+`#F7F6F3` canvas gives only **ΔL* 1.39 — near-invisible**. That second
+one matters: honouring their `#FAFAFA` as the card is right, but it only
+works if the canvas goes deeper to `#F5F0EA`, which is why the canvas
+above is warmer and darker than the earlier `#F7F6F3` proposal.
 
 - **Cards separate from the canvas by value plus a soft diffuse shadow,
   not a hairline.** Wherever a border is currently doing the separating,
@@ -1230,8 +1287,11 @@ and rejected at ΔL* 1.78 — too faint to carry the lift alone.
   this direction requires. Worth stating plainly so this doesn't read as
   reintroducing what was retired.
 - If the lift ever reads too faint in practice, the tested next step is
-  `#F4F3EF` (ΔL* 4.18, still L* 95.8 and still clearly white) — change
-  the canvas, not the card, and never add a border back as the first fix.
+  a deeper canvas at `#F2ECE4` (ΔL* 4.62 against the `#FAFAFA` card) —
+  change the canvas, not the card, and never add a border back as the
+  first fix. Conversely if the canvas reads too beige against the
+  "emphasise white" brief, `#F7F3EE` with a pure `#FFFFFF` card holds a
+  workable ΔL* 3.98.
 
 ### 19.4 — Radii: §17's consolidation resolves upward, deliberately
 
@@ -1259,9 +1319,23 @@ respected (§7, §14) already is "smooth."
 **Do not start CSS until this spec is agreed**, and land §18's type work
 first or last but not concurrently — two half-landed passes fighting over
 the same files is exactly how the earlier palette churn got expensive.
-When it does land: §1's v3 tables are superseded, and every reversal note
-in `FRONTEND_DESIGN_STANDARDS.md`'s Colour section needs a fifth entry
-recording that navy-primary and glass-blue are both retired here.
+
+**Two open questions for the owner before implementation**, both real
+enough to change values:
+1. **The `#70887A` label.** It is measurably a sage green (hue 145°). If
+   the swatch beside that label renders brown, one of the two is wrong —
+   which did they mean? A brown belongs in the warm family; a sage would
+   be a second cool note alongside `#4A6670`.
+2. **The cool accent.** `#4A6670` is proposed from the references' dusty
+   blue / teal-navy. Worth a look before it ships, since it's the one
+   colour in the system that isn't a warm neutral.
+
+When it does land: §1's v3 tables are superseded, and
+`FRONTEND_DESIGN_STANDARDS.md`'s Colour section needs a fifth reversal
+entry recording that **navy-primary, gold-as-the-accent, and the
+night-first identity are all retired here**, and that dark mode is parked
+per §19.2 rather than removed — with the same "do not restore by
+accident" framing the other four reversals carry.
 
 ---
 
