@@ -14,7 +14,12 @@ import { readFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 
 const LOCAL_DB_URL = "http://127.0.0.1:54321";
-const LOCAL_APP_URL = "http://localhost:3010";
+// Overridable so two builds can be compared against each other. This server's
+// first runs are much slower than its later ones (JIT warm-up), and that
+// drift is bigger than the difference a routing change makes -- so measuring
+// build A then build B measures the warm-up, not the change. Start both on
+// different ports and alternate between them instead.
+const LOCAL_APP_URL = process.env.LOAD_APP_URL ?? "http://localhost:3010";
 const LOCAL_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0";
 

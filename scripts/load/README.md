@@ -140,7 +140,17 @@ node --env-file=.env.local scripts/load/seed-local-stack.mjs [planCount]   # cop
 node --env-file=.env.local scripts/load/mint-local-users.mjs [count]      # bulk permanent accounts, real @supabase/ssr sessions
 # build + start the app pointed at the local stack (see below), then:
 node scripts/load/scale.mjs <scenario> [n]
+# LOAD_APP_URL=http://localhost:3011 ... to target a second build (see the
+# before/after section below for why you'd want two running at once)
 ```
+
+**The `app_control_secrets` step is not optional and fails confusingly.** The
+local database needs the bcrypt hash of *this machine's*
+`SECURITY_CONTROL_SECRET` (`SECURITY_SETUP.md` has the insert). Skip it and
+every quota-gated route returns **429 "Too many deals"** on a freshly minted
+user's very first request — which reads like a rate limit and is actually
+`consume_app_quota` raising `42501` and `consumeQuota()` failing closed.
+The server log is the tell: `Quota control failed {"code":"42501"}`.
 
 Scenarios: `vote-scale`, `rsvp-scale` (spread across many seeded plans, not
 one — "thousands of concurrent users" for this product means many people
@@ -222,6 +232,50 @@ in `worklog.md`'s CRITICAL entry — this is a correctness finding a lot more
 important than any number in the table above, and it's the reason
 `plan-create-scale` wasn't pushed past n=50 this session: verifying the fix
 took priority over chasing a bigger number on now-stale code.
+
+### Before/after: parallelizing `getUser()` + `consumeQuota()` (7c69a9c)
+
+The ceiling above named five to six sequential Supabase round trips per
+`/api/spots/deal` request as the cause. 7c69a9c removed one of them from the
+critical path — `consumeQuota()` never needed `getUser()`'s return value, so
+both now run under one `Promise.all`. Measured, because the point of naming a
+cause is to check it.
+
+**Method.** Both builds run at once (`de74974` on :3011, `7c69a9c` on :3010;
+`LOAD_APP_URL` picks the target) and reps alternate between them. This
+matters: a single server's first runs are ~2x its later ones as the JIT
+warms, so measuring build A and then build B measures the warm-up, not the
+change — a first sequential attempt here showed "40% faster" that was
+entirely the server getting warmer. Both are warmed with 3 discarded rounds,
+reps are paired, and the median of per-rep p50s is what's compared.
+
+| n | before (median p50) | after | delta | after wins |
+|---|---|---|---|---|
+| 1 (uncontended) | 61.6ms | 56.3ms | **−5.3ms (8.5%)** | **12/12 reps** |
+| 50 | 431.0ms | 462.3ms | +31.3ms (−7.3%) | 3/8 reps |
+| 100 | 1149.8ms | 1112.2ms | −37.6ms (3.3%) | 3/6 reps |
+
+**Uncontended, the change is real but small**: ~5ms, winning all 12 paired
+reps — which is what makes a 5ms claim believable rather than noise; a coin
+lands that way once in 4,096 tries. That is about the cost of one local round
+trip, which is exactly what was removed. Against hosted Supabase, where a
+round trip is tens of milliseconds rather than five, the same saved trip
+should be worth proportionally more.
+
+**Under load it does not help, and the ceiling did not move.** At n=50 and
+n=100 the deltas sit well inside run-to-run noise (single reps swing
+880-1905ms at n=100), paired wins are a coin flip, and error counts stay
+erratic in *both* builds (0-34 per 100). That is a **null result for the
+thing it was aimed at**, and worth recording as one. The ceiling was never
+serial round trips: it is one `next start` process saturating, and issuing
+two queries simultaneously instead of consecutively doesn't reduce the work
+queued behind them. Removing a round trip shortens a request; it doesn't
+widen the pipe.
+
+Keep the change — strictly less waiting per request, costs nothing, worth
+more off-loopback. Don't credit it with raising the ceiling. Moving n=100
+is a horizontal lever (serverless instances, which a real deployment already
+provides), not a matter of shaving trips off a saturated single process.
 
 ### Bonus: `npm run test:db` runs for real now
 
