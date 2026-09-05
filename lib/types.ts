@@ -200,6 +200,31 @@ export interface VisitPhoto {
   created_at: string;
 }
 
+// Discover moodboards (migration 036, design-system/SPECS.md §15.3). Same
+// free-form user-named-collection shape as VisitCollection, not
+// PlaceCollection's fixed-default-pair model.
+export interface Moodboard {
+  id: string;
+  person_id: string;
+  name: string;
+  theme: string | null;
+  visibility: "private" | "friends" | "shared";
+  created_at: string;
+}
+
+export interface MoodboardItem {
+  id: string;
+  moodboard_id: string;
+  kind: "place" | "link" | "photo";
+  label: string;
+  note: string | null;
+  // Real image bytes live in Storage, same pattern as VisitPhoto.storage_path
+  // -- not lib/planning.ts's demo-only inline base64 imageDataUrl.
+  storage_path: string | null;
+  source_url: string | null;
+  created_at: string;
+}
+
 export interface PlaceCollection {
   id: string;
   person_id: string;

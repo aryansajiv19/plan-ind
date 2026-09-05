@@ -64,6 +64,8 @@ drop table if exists member_ages cascade;
 drop table if exists place_collection_items cascade;
 drop table if exists place_imports cascade;
 drop table if exists place_collections cascade;
+drop table if exists moodboard_items cascade;
+drop table if exists moodboards cascade;
 drop table if exists visit_photos cascade;
 drop table if exists visit_collection_items cascade;
 drop table if exists visit_collections cascade;
@@ -528,6 +530,35 @@ create table visit_photos (
 create index visit_photos_visit_idx on visit_photos (visit_id, created_at);
 create index visit_photos_person_idx on visit_photos (person_id, created_at desc);
 
+-- 036: Discover moodboards (design-system/SPECS.md §15.3). Same free-form,
+-- user-named-collection shape as visit_collections above, not
+-- place_collections' fixed-default-pair model. storage_path (not an inline
+-- base64 image) matches visit_photos' real-image-bytes pattern -- see
+-- migration 036's header for why that's a deliberate deviation from
+-- lib/planning.ts's demo-only imageDataUrl shape.
+create table moodboards (
+  id         uuid primary key default gen_random_uuid(),
+  person_id  uuid not null references people(id) on delete cascade,
+  name       text not null check (char_length(trim(name)) between 1 and 40),
+  theme      text check (theme is null or char_length(theme) <= 40),
+  visibility text not null default 'private' check (visibility in ('private', 'friends', 'shared')),
+  created_at timestamptz not null default now()
+);
+create unique index moodboards_name_ci_idx
+  on moodboards (person_id, lower(trim(name)));
+
+create table moodboard_items (
+  id           uuid primary key default gen_random_uuid(),
+  moodboard_id uuid not null references moodboards(id) on delete cascade,
+  kind         text not null check (kind in ('place', 'link', 'photo')),
+  label        text not null check (char_length(trim(label)) between 1 and 80),
+  note         text check (note is null or char_length(note) <= 280),
+  storage_path text,
+  source_url   text check (source_url is null or char_length(source_url) <= 2048),
+  created_at   timestamptz not null default now()
+);
+create index moodboard_items_moodboard_idx on moodboard_items (moodboard_id);
+
 -- Links discovered on social platforms enter as imports, then resolve to a
 -- real spot. Lists can hold either a resolved spot or an import still waiting
 -- for identification, so the user never loses the original post.
@@ -611,6 +642,8 @@ alter table visit_companions enable row level security;
 alter table visit_collections enable row level security;
 alter table visit_collection_items enable row level security;
 alter table visit_photos enable row level security;
+alter table moodboards enable row level security;
+alter table moodboard_items enable row level security;
 alter table place_collections enable row level security;
 alter table place_imports enable row level security;
 alter table place_collection_items enable row level security;
@@ -736,6 +769,22 @@ create policy "manage own visit collection items" on visit_collection_items for 
     join visits v on v.id = visit_id and v.person_id = c.person_id
     join people p on p.id = c.person_id
     where c.id = collection_id and p.auth_user_id = (select auth.uid())
+  ));
+
+-- 036: moodboards. Owner-scoped, matches "manage own visit collections"
+-- exactly.
+create policy "manage own moodboards" on moodboards for all to authenticated
+  using (exists (select 1 from people p where p.id = person_id and p.auth_user_id = (select auth.uid())))
+  with check (exists (select 1 from people p where p.id = person_id and p.auth_user_id = (select auth.uid())));
+
+create policy "manage own moodboard items" on moodboard_items for all to authenticated
+  using (exists (
+    select 1 from moodboards b join people p on p.id = b.person_id
+    where b.id = moodboard_id and p.auth_user_id = (select auth.uid())
+  ))
+  with check (exists (
+    select 1 from moodboards b join people p on p.id = b.person_id
+    where b.id = moodboard_id and p.auth_user_id = (select auth.uid())
   ));
 
 create policy "read permitted visit photos" on visit_photos for select to anon, authenticated using (
