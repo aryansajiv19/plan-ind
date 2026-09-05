@@ -1028,6 +1028,77 @@ alone means if anyone ever wires it up later without checking, it directly
 violates the no-glowing-borders rule. Flagging so it gets deleted next
 dead-code pass rather than resurrected.
 
+## 17 — Transferable consistency principles from Airbnb's token reference (owner, 2026-09-04)
+
+**Not a redesign brief — this is polish on top of the already-approved
+direction.** Their coral/white/pill-everything system is explicitly not
+being adopted; only the underlying consistency principles are checked
+against our own CSS. Four points, audited, not assumed:
+
+### 17.1 — Radius discipline: one real finding
+
+The named token scale (`--radius-ring/thumb/panel/pill/hero`,
+`app/globals.css:249-253`) is itself fine — five values, each serving a
+genuinely distinct, already-documented purpose (ring photos, thumbnails,
+panels, pills, the one asymmetric hero corner), not sloppy. **The actual
+gap is that most of the codebase doesn't use these tokens at all**: only
+7 of the file's ~40 `border-radius` declarations reference a named token.
+The rest are literals, and five of those literals — `0.1rem`, `0.12rem`,
+`0.14rem`, `0.15rem`, `0.2rem` — are all doing the same visual job (a
+barely-rounded button/input/card corner) on functionally similar controls
+(`.home-primary-cta`/`.plan-submit`/`.home-nav__signin` at `0.1rem`;
+`.vote-option`/`.vote-result__button`/`.vote-field` at `0.12rem`;
+`.vote-toggle` alone at `0.14rem`, no apparent reason it differs from its
+neighbours; `.plan-custom-place__saved button`/`.plan-custom-place__editor
+textarea` at `0.15rem`; `.plan-deadline`/`.plan-form__input` at `0.2rem`).
+13 call sites, 5 near-identical values, no token — this is the real
+"not neat" tell the Airbnb reference is naming.
+
+**Fix**: add one token, `--radius-tight: 0.12rem` (splits the difference,
+and matches the vote flow — the app's highest-traffic surface), and
+repoint all 13 sites above onto it. Two more small literal-vs-token
+mismatches while sweeping: `.wall-tile__note` (`:3378`) hardcodes
+`border-radius: 20px` for what's already a pill-shaped chip — repoint to
+`var(--radius-pill)`. `.home-title strong::after`'s `border-radius: 99px`
+(`:949`) is correctly left alone — it's a decorative underline swash
+rounding off a thin bar's ends, not a card/button radius, a genuinely
+different case the Airbnb principle doesn't cover.
+
+### 17.2 — Full-bleed card images: already matches where it matters, correctly doesn't elsewhere
+
+`PhotoWall`/`PhotoTile` (the actual Pinterest-style tiles this principle
+targets) already have zero gap between image and text — the photo fills
+the tile edge-to-edge (`overflow: hidden` on `.wall-tile`) and text sits
+directly on it via a scrim (`.wall-tile__body`), not below it in separate
+white space. **This is real, not a redesign to make.**
+
+Two other card families do have a real image-to-text gap
+(`.demo-place-card__body { padding: 1rem 0 1.5rem }`, Discover's live
+place-card list; `.demo-visit__content { padding: 1rem 0 1.4rem }`, the
+`DemoAccountViews.tsx`-only fixture visit grid, superseded by `PhotoWall`
+in the real `AccountViews.tsx` per §15.2) — **neither should change to
+match this principle.** They're a different card genre (an editorial
+browse-result row with meta and description beneath the photo, not a
+photo-first Pinterest tile), and forcing every card in the app into one
+photo-tile shape is exactly the "adopt their system wholesale" move this
+task explicitly isn't asking for. No action here.
+
+### 17.3 — One accent colour for action only: already matches, no action
+
+Already true — the four-job colour system (Colour, §1) reserves the
+accent for the primary/outcome job specifically; it was never used for
+backgrounds or headings. Noting alignment, not changing anything.
+
+### 17.4 — Section-title-plus-arrow for horizontal scroll rows: not applicable
+
+There are no horizontal-scroll carousel rows anywhere in this product
+today — the photo wall is a vertical masonry grid showing everything, not
+a "see all" preview row, and Discover has no carousel sections. Nothing
+to audit for consistency because the pattern this principle describes
+doesn't exist here yet. If a horizontal row ever gets built (a future
+"more like this" rail, say), this is the reference for what its header
+should look like — not a retrofit onto anything that exists now.
+
 ---
 
 ## Verification (for whoever implements this)
