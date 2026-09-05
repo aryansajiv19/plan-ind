@@ -1203,11 +1203,20 @@ described, since the swatch itself isn't measurable from here — hue 26°,
 L* 36.0, sitting on the rung between camel (L* 75) and ink (L* 10) that
 the warm family was missing. It clears AA comfortably (7.17:1), so unlike
 the taupe it can carry real work: headings, secondary text, a dark warm
-fill. **One assumption worth checking against the actual swatch:** the
-mislabelled `#70887A` was L* 54.5, notably lighter than this. If their
-brown is meant to sit at that lighter level rather than genuinely deep,
-`#7A5A40` (L* 40.9, 5.98:1) is the tested alternative and still clears
-AA. Either works; this is a lightness call, not a hue one.
+fill.
+
+**The lightness call, and how firm it actually is.** The mislabelled
+`#70887A` was L* 54.5, notably lighter than this pick, so "deep" was an
+assumption worth checking. It has since been checked by the one person
+here who saw the reference image: that swatch is the darkest of the five
+and reads clearly darker than the taupe above it, anchoring the bottom of
+the stack — much closer to L* 36.0 than to L* 54.5. **Recorded with its
+real limits**: that is a confident read of a compressed image viewed
+once, not a measurement, and it is worth knowing which of those it is.
+`#6B4F3A` stands. If it looks wrong beside the reference once rendered,
+`#7A5A40` (L* 40.9, 5.98:1) is the tested alternative, still clears AA,
+and swapping is cheap — this is a lightness call, not a hue one, so
+neither choice can break the system.
 
 **The system is now: an all-warm base plus exactly one cool accent.**
 Canvas, card, ink, muted, brown, taupe and camel are all warm (hues
