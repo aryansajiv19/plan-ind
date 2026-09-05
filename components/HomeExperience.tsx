@@ -262,7 +262,7 @@ export default function HomeExperience({
         <div className="home-nav__right">
           {accountTabs && (
             <div className="home-nav__search" style={{ maxWidth: "18rem" }}>
-              <ActionSearchBar />
+              <ActionSearchBar age={age} onQuickAction={showView} />
             </div>
           )}
           {accountTabs && (
