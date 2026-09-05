@@ -1138,6 +1138,131 @@ the concrete mismatch the owner is naming.
 Marketing/hero surfaces (`.home-title`, the front door, `/home-preview`)
 are unchanged — this only touches the four signed-in account-view tabs.
 
+## 19 — Palette v4: white-dominant Dubai luxury, smooth (owner, 2026-09-04)
+
+**Supersedes §1's palette v3 wholesale.** Owner's words: prioritise
+"white heavily, the gold, black, silver, grey," and **"I wanna emphasise
+white, that's gonna be the main colour of the app"** — plus, same pass,
+**"I want an aesthetic smooth vibe."** Pointing at the same Airbnb
+reference behind §17: white canvas, cards lifting off an off-white
+ground, minimal chrome, photography-led.
+
+**Every value below was measured, not asserted** — same method as every
+previous palette pass. Ratios are WCAG contrast; `ΔL*` is CIE perceptual
+lightness difference, used for surface-vs-surface separation where a
+contrast ratio is the wrong tool (see 19.3).
+
+### 19.1 — Day is now the primary identity
+
+The app reads as a **white product that has an after-dark mode**, not a
+dark product with a light mode. That is the whole shift. Night stays —
+it's real Dubai-clock product logic and the owner already reversed a
+delete-it call once — but it is now the variant, not the identity.
+
+| Role | Token | Value | Measured |
+|---|---|---|---|
+| Page canvas | `--color-paper` | `#F7F6F3` | L* 96.9 — still emphatically white, not grey |
+| Card / surface | `--color-card` | `#FFFFFF` | ΔL* 3.12 vs canvas — a clearly visible lift with **no border needed** |
+| Ink / primary text | `--color-ink` | `#141414` | 18.42:1 on card, 16.90:1 on canvas |
+| Muted text | `--color-muted` | `#5A5A5E` | 6.87:1 on card, 6.30:1 on canvas |
+| Silver — dividers/chrome, **never text** | `--color-line` | `#D8D5CE` | 1.47:1 — decorative only, see the warning below |
+| **Gold as fill** | `--color-punch` | `#C9A876` | ink `#141414` on it = **8.20:1** |
+| **Gold as text** | `--color-punch-text` | `#8C6A1A` | **5.01:1** on card, 4.60:1 on canvas |
+| Confirm / live | `--color-live` | `#0B6B64` | 6.36:1 on card |
+| Premium marker — silver | `--color-accent-premium` | `#5A5A5E` text / `#D8D5CE` fill | fill+`#141414` ink = 12.57:1 |
+| Error | `--color-error` | `#B3261E` | 6.54:1 on card |
+
+**The gold split is the load-bearing find.** The current champagne
+`#C9A876` measures **2.25:1 on white — a hard fail** (it was chosen
+against a dark ground, where it scores 8.42:1). But it does *not* need
+retiring: as a **fill** with near-black ink on it, it measures 8.20:1 and
+keeps the actual Dubai-gold character that a dark bronze would lose. So
+gold takes two cuts — champagne for fills, `#8C6A1A` for gold-as-text —
+which is exactly the `--color-punch` / `--color-punch-text` split this
+codebase's token architecture already has. No new pattern, correct values.
+
+**Silver is chrome, never type.** `#D8D5CE` at 1.47:1 is nowhere near
+readable and must never carry text — it is for dividers, rules, and
+edges. The premium marker's *text* cut is `#5A5A5E` (6.87:1). This is the
+same fill-vs-text discipline as the gold split; getting it wrong is the
+single most likely way to break this palette.
+
+**Glass-blue is retired.** `#5CC8D7` carried the premium marker in v3;
+under a white/gold/black/silver system a blue accent is simply foreign to
+the palette. Silver takes that job. This is a deliberate removal, not an
+oversight.
+
+### 19.2 — Night, retuned and subordinate
+
+Navy is gone as the primary — the ground moves from v3's charcoal-navy
+`#0D1117` to a **neutral warm-black**, so night reads as the same product
+after dark rather than a second identity.
+
+| Role | Value | Measured |
+|---|---|---|
+| Ground | `#121212` | neutral, no navy cast |
+| Card | `#1A1A1A` | ΔL* 3.80 vs ground |
+| Ink | `#F5F4F1` | 17.03:1 ground, 15.82:1 card |
+| Muted | `#9A9A9E` | 6.68:1 ground, 6.21:1 card |
+| Gold (one cut serves both here) | `#C9A876` | 8.34:1 ground, 7.75:1 card |
+| Silver / premium | `#C8CBD0` | 10.70:1 on card; as fill + `#141414` ink = 11.32:1 |
+| Confirm / live | `#00E0C7` | 10.35:1 on card |
+| Error | `#FF6B6B` | 6.27:1 on card |
+
+### 19.3 — Smooth: separation by value, not by border
+
+**Read this before "fixing" any low ratio above.** A contrast ratio is a
+*text legibility* metric. White-card-on-off-white-canvas measures 1.05:1
+and my script prints "FAIL" — that label is meaningless for two adjacent
+surfaces, and the correct metric is ΔL*. At `#FFFFFF` on `#F7F6F3` the
+separation is ΔL* 3.12, which is genuinely visible. `#FAFAF8` was tested
+and rejected at ΔL* 1.78 — too faint to carry the lift alone.
+
+- **Cards separate from the canvas by value plus a soft diffuse shadow,
+  not a hairline.** Wherever a border is currently doing the separating,
+  the border goes and the value difference does the work — this is the
+  Airbnb model the owner keeps pointing at, and it is what "smooth"
+  means structurally.
+- **Soft diffuse elevation is not the retired `.token` offset shadow.**
+  That rule stands (`FRONTEND_DESIGN_STANDARDS.md`, and §16.2 removed the
+  last surviving offset). A hard, opaque, offset shadow is still banned;
+  a soft low-opacity diffuse one is the opposite treatment and is what
+  this direction requires. Worth stating plainly so this doesn't read as
+  reintroducing what was retired.
+- If the lift ever reads too faint in practice, the tested next step is
+  `#F4F3EF` (ΔL* 4.18, still L* 95.8 and still clearly white) — change
+  the canvas, not the card, and never add a border back as the first fix.
+
+### 19.4 — Radii: §17's consolidation resolves upward, deliberately
+
+**This reverses the value §17 proposed, on purpose.** §17 found 13 ad-hoc
+radii clustered at `0.1`–`0.2rem` (~1.6–3.2px, i.e. effectively sharp)
+and specced consolidating them at roughly their existing value. Under
+"smooth" that would be technically tidy and miss the brief — 13
+consistently sharp corners is still sharp. Consolidating them **upward**
+is the actual ask.
+
+- New token **`--radius-control: 10px`**, replacing §17's proposed
+  `--radius-tight`, applied to all 13 sites (buttons, inputs, fields).
+- The existing scale is already soft and **stays**: `--radius-ring` 14px,
+  `--radius-thumb` 18px, `--radius-panel` 22px, `--radius-pill` 26px,
+  `--radius-hero` asymmetric. Nothing here needs sharpening or softening.
+- §17's two literal-vs-token fixes still stand: `.wall-tile__note`'s
+  hardcoded `20px` → `var(--radius-pill)`, and `.home-title strong::after`'s
+  `99px` stays as-is (a decorative underline swash, not a control).
+
+Motion needs no change — `--ease-settle`, no overshoot, reduced-motion
+respected (§7, §14) already is "smooth."
+
+### 19.5 — Sequencing
+
+**Do not start CSS until this spec is agreed**, and land §18's type work
+first or last but not concurrently — two half-landed passes fighting over
+the same files is exactly how the earlier palette churn got expensive.
+When it does land: §1's v3 tables are superseded, and every reversal note
+in `FRONTEND_DESIGN_STANDARDS.md`'s Colour section needs a fifth entry
+recording that navy-primary and glass-blue are both retired here.
+
 ---
 
 ## Verification (for whoever implements this)
