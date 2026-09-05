@@ -577,3 +577,117 @@ covered it, but every other people-owned table is listed explicitly).
 Two commits: `659d250` (checklist items), `d11d83a` (moodboards, staged,
 not applied — needs owner approval like every migration here). Gate green
 throughout (lint/tsc/38 tests/build, schema↔types drift clean).
+
+---
+
+## 2026-09-05 — T1 Security/Backend: coordinate backfill (staged) + a benchmark that came back null
+
+**The gap.** All 82 curated spots had null `latitude`/`longitude` on the
+live project, so "getting there" (haversine distance + Maps link, shipped
+that morning) could never render for a real user. Not a code bug — missing
+data.
+
+**Backfilled 40 of 82, not 82, and the gap is the point.**
+`scripts/backfill-spot-coordinates.mjs` geocodes against Nominatim (OSM's
+free geocoder — no paid Places API, per the standing call), sequentially at
+~1 req/sec with a real User-Agent per their usage policy. It only reads the
+live catalog and writes a local review file; it never touches the database
+and no live code path depends on it. One-off, not a pipeline.
+
+The strict `"name, area, Dubai"` query matched 27. A looser name-only
+fallback matched 26 more — and **half of those were the wrong venue**.
+"DRIFT Beach Dubai" matched Drift Burgers. "Garage Dubai" matched the Dubai
+Mall Zaabeel Parking Garage. "BLU Dubai" (Al Habtoor City) matched Radisson
+Blu Deira Creek. McGettigan's and VOX each matched a real branch, just the
+wrong one. 13 rejected by hand, 13 kept.
+
+The other 42 stay null deliberately. A null hides the distance line; a wrong
+coordinate walks somebody to the far side of the city. Loosening the query
+further is what produced the bad matches, so the remainder wants a hand
+lookup, not a cleverer script. Coordinates live only in
+`migration-037-backfill-curated-coordinates.sql`, with a pointer from
+`seed-categories.sql` rather than a duplicate copy that would drift the
+moment one of the 42 is hand-corrected. Updates are keyed by id and guarded
+on `latitude is null`, so a re-run can't clobber a correction. Validated on
+the local stack: 40 rows on the first run, 0 on the second. **Staged, not
+applied** — owner's call, same as every migration here.
+
+**Benchmarked 7c69a9c (T0's `Promise.all` on `getUser` + `consumeQuota`):
+real uncontended, null at the ceiling.** n=1: 61.6ms → 56.3ms median p50,
+winning 12/12 paired reps — about one local round trip, which is exactly
+what was removed. n=50 and n=100: nothing outside run-to-run noise, and the
+~n=100 ceiling did not move. The README's stated cause looks simply wrong —
+the wall isn't serial round trips, it's one `next start` process saturating,
+and firing two queries at once doesn't shrink the queue behind them. Kept
+the change (free, less waiting, worth more off-loopback), recorded as a null
+result rather than dressed up as 3%.
+
+**Method note, because it nearly fooled me:** measuring one build then the
+other showed a clean ~40% win that was entirely JIT warm-up — a cold server
+runs ~2x its warm self, dwarfing the effect. Rebuilt to run both commits
+simultaneously on separate ports with alternating paired reps and discarded
+warm-up rounds; `scale.mjs` takes `LOAD_APP_URL` for this now. Any earlier
+sequential before/after number in this repo is suspect for the same reason.
+
+Also documented a setup trap: with `app_control_secrets` unseeded locally,
+every quota-gated route returns 429 "Too many deals" on a fresh user's first
+request — actually `consume_app_quota` raising 42501 and `consumeQuota()`
+failing closed.
+
+Commits: `b733703` (geocoding + migration 037, staged), `4e5a68b`
+(benchmark + harness). Gate green throughout.
+
+---
+
+## 2026-09-05 — T1 Security/Backend: one account through the whole arc
+
+`scripts/verify-journey.mjs` walks a single fresh account end to end against
+the local stack and asserts the real rows at every hop: sign up → profile →
+age → deal → create (voting path *and* direct path) → share → a second
+identity claims access → pool votes → advance → final vote → decide → the
+last mile (event/booking) → RSVP with carpool fields → rate → log the visit
+→ Been → collection. A third identity is a negative control throughout.
+**82 checks across 19 steps, 80 passing.**
+
+**The seams hold.** `plan_access` gates an uninvited identity out of the
+plan, its spots, and voting (42501). The host token is stored only as a
+SHA-256 hash. `stage` gates `phase`, so a pool vote is refused once the
+final round opens. One participant token carries the same `voter_name`
+across vote → RSVP → rating. A re-vote replaces a pick rather than adding a
+second row. Direct plans land `decided`/`decided` with one advanced
+`plan_spot` and a host `plan_access` grant.
+
+**Finding 1 — `set_plan_rsvp`'s null-choice guard doesn't guard.**
+`p_choice not in ('coming','maybe','no')` evaluates to NULL, not TRUE, when
+`p_choice` is NULL, so the `or` never fires and a null choice reaches the
+insert and dies on the column's NOT NULL as a raw `23502` instead of the
+intended `42501`. **Not reachable from the UI** — `setRsvp` in
+`app/plan/[id]/page.tsx` is typed to the three literals — and there is no
+integrity impact, so this is latent, not live. Migration 035's newer
+`p_transport` guard avoids exactly this trap (`is not null and ... not in`);
+the older `p_choice` line never got the same treatment. One-line fix; worth
+riding along with the next migration rather than opening its own approval
+round.
+
+**Finding 2 — a decided plan still can't show "getting there".** The
+journey's winner had null coordinates *on a stack that already has migration
+037 applied*. Per category this is much sharper than "42 are null":
+
+| coverage | categories |
+|---|---|
+| 0% | beach_club, escape, padel, wellness |
+| 25-40% | brunch, dessert, karaoke, shisha, nightlife, water, dinner |
+| 50-75% | games, sports, adventure, family, live_music, beach, cafe, movie, vibes |
+
+Four categories can **never** render a distance line, and dinner — the
+most-used category — sits at 40%. If the owner wants the last mile to feel
+real, hand-pasting coordinates for those four categories (12 spots) buys
+more than any further geocoding would.
+
+**Two of my own assumptions were wrong first**, recorded so the next person
+doesn't repeat them: voting is one selection per (participant, round), not a
+yes/no per card — a `false` value DELETES your pick rather than recording a
+"no" — and the transport value is `need_ride`, not `needs_ride`.
+
+Commit `5b1ce3b`. Gate green (lint/tsc/38 tests). No schema change, no
+migration, nothing applied.
