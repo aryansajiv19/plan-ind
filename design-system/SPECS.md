@@ -1180,9 +1180,9 @@ substituting):
 | `#F4EAE5` | L* 93.3, hue 20°, sat 41% | **Computationally a warm blush near-white**, not sand. If the reference swatch renders as sand, the swatch and the label disagree — the hex is near-white. |
 | `#D7B19C` | L* 75.0, hue 21° | True tan/camel. The palette's natural accent. |
 | `#998F8A` | L* 60.1, hue 20°, sat 7% | Warm taupe. **Fails AA as text at 3.16:1** — this is a chrome/surface value, not a text one. |
-| `#70887A` | L* 54.5, **hue 145°** | **This is a desaturated sage green, unambiguously — not brown.** If that swatch renders far browner, the label is wrong for it. Flagging rather than substituting: tell me which the owner meant. Either way it only reaches 3.82:1 on white, so it is a decorative/surface tone, never text. |
+| ~~`#70887A`~~ | L* 54.5, **hue 145°** — a desaturated sage green | **The source label is wrong. Do not restore this hex.** Owner confirmed 2026-09-04 that they meant the colour they saw in the swatch, which is a deep warm brown — not this value. Sage is dropped from the system entirely; the slot is `#6B4F3A` below. Recorded explicitly so nobody "corrects" the brown back to `#70887A` later by matching the reference's label. |
 
-**The palette:**
+**The palette — resolved 2026-09-04, both open questions answered:**
 
 | Role | Token | Value | Measured |
 |---|---|---|---|
@@ -1190,12 +1190,33 @@ substituting):
 | Card / surface | `--color-card` | `#FAFAFA` | the owner's own hex; ΔL* 3.25 vs canvas — a clearly visible lift with **no border needed** |
 | Ink / primary text | `--color-ink` | `#1F1B18` | warm near-black, 17.10:1 on card |
 | Muted text | `--color-muted` | `#6E635C` | 5.83:1 on card |
+| **Deep warm brown** | `--color-bark` | `#6B4F3A` | **7.17:1** on card, 6.61:1 on canvas — text-capable |
 | Taupe — chrome/dividers, **never text** | `--color-line` | `#998F8A` | 3.16:1 — see the warning below |
 | **Camel as fill** | `--color-punch` | `#D7B19C` | ink `#1F1B18` on it = **8.68:1** |
 | **Camel as text** | `--color-punch-text` | `#8A5D3E` | **5.65:1** on card, 4.99:1 on canvas |
-| Cool accent — the single cool note | `--color-accent-cool` | `#4A6670` | 6.13:1 on card |
+| Cool accent — the single cool note, **approved** | `--color-accent-cool` | `#4A6670` | 6.13:1 on card |
 | Confirm / live | `--color-live` | `#3F6B57` | 5.83:1 on card, 5.37:1 on canvas |
 | Error | `--color-error` | `#A33A2A` | 6.30:1 on card, 5.80:1 on canvas |
+
+**On the deep brown (`#6B4F3A`).** Chosen to match "deep warm brown" as
+described, since the swatch itself isn't measurable from here — hue 26°,
+L* 36.0, sitting on the rung between camel (L* 75) and ink (L* 10) that
+the warm family was missing. It clears AA comfortably (7.17:1), so unlike
+the taupe it can carry real work: headings, secondary text, a dark warm
+fill. **One assumption worth checking against the actual swatch:** the
+mislabelled `#70887A` was L* 54.5, notably lighter than this. If their
+brown is meant to sit at that lighter level rather than genuinely deep,
+`#7A5A40` (L* 40.9, 5.98:1) is the tested alternative and still clears
+AA. Either works; this is a lightness call, not a hue one.
+
+**The system is now: an all-warm base plus exactly one cool accent.**
+Canvas, card, ink, muted, brown, taupe and camel are all warm (hues
+20–34°); `#4A6670` is the single cool note. Its 6.13:1 is what earns it
+the job — it can carry text, links and actions rather than being
+decoration, which is the contrast an all-warm base otherwise lacks.
+**Do not let a second cool value in beside it** — that's what turns a
+coherent warm system muddy, and it's the specific failure this accent
+exists to prevent.
 
 **The fill/text split is the load-bearing find, and it survived the
 palette change intact.** It was found on the old champagne
@@ -1212,15 +1233,15 @@ hex but it cannot carry text. Dividers, rules, edges only; muted *text*
 is `#6E635C`. Same discipline as the accent split, and the single most
 likely way to break this palette is to miss it.
 
-**On the cool accent.** Two of the three references carry a cool note
-(a dusty blue, a deep teal-navy). `#4A6670` is proposed: a dusty
-blue-teal that reads as the references' cool note, clears AA text at
-6.13:1, and is dark enough to carry links and secondary actions on white.
-Deeper alternative if it reads too soft: `#3C5A63` (7.41:1). The sage
-`#70887A` is *not* proposed for this job — at 3.82:1 it can't carry text,
-so it would be a surface tone only. ~~Glass-blue `#5CC8D7` retired as
-foreign to the palette~~ — that call was made under the gold/black/silver
-brief; the references reopen a cool accent, and this is its resolution.
+**On the cool accent — approved 2026-09-04, closed.** Two of the three
+references carry a cool note (a dusty blue, a deep teal-navy).
+`#4A6670` is the pick: a dusty blue-teal that reads as that note and
+clears AA text at 6.13:1, which is precisely why it earns the job — it
+carries links, secondary actions and text rather than sitting as
+decoration. Deeper alternative on record if it ever reads too soft:
+`#3C5A63` (7.41:1). ~~Glass-blue `#5CC8D7` retired as foreign to the
+palette~~ — that call was made under the gold/black/silver brief; the
+references reopened a cool accent and `#4A6670` is its resolution.
 
 ### 19.2 — Dark mode: parked, not deleted
 
@@ -1320,15 +1341,15 @@ respected (§7, §14) already is "smooth."
 first or last but not concurrently — two half-landed passes fighting over
 the same files is exactly how the earlier palette churn got expensive.
 
-**Two open questions for the owner before implementation**, both real
-enough to change values:
-1. **The `#70887A` label.** It is measurably a sage green (hue 145°). If
-   the swatch beside that label renders brown, one of the two is wrong —
-   which did they mean? A brown belongs in the warm family; a sage would
-   be a second cool note alongside `#4A6670`.
-2. **The cool accent.** `#4A6670` is proposed from the references' dusty
-   blue / teal-navy. Worth a look before it ships, since it's the one
-   colour in the system that isn't a warm neutral.
+**Both open questions are now closed** (owner, 2026-09-04):
+1. **The `#70887A` label was wrong, the swatch was right** — that slot is
+   a deep warm brown, `#6B4F3A`. Sage is out of the system. The one
+   remaining judgement is its *lightness*, not its hue — see the note
+   under the palette table.
+2. **The cool accent is approved** — `#4A6670`, and it stays the only
+   cool value in the system.
+
+The palette is therefore settled and this section is implementable.
 
 When it does land: §1's v3 tables are superseded, and
 `FRONTEND_DESIGN_STANDARDS.md`'s Colour section needs a fifth reversal
