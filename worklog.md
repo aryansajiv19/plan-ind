@@ -496,3 +496,84 @@ going live, not after. Posted as a cross-lane request.
 
 Gate green (lint/tsc/38 tests/build, schema↔types drift check clean).
 Staged migration, needs owner approval like every migration here.
+
+## Production-readiness checklist pass — 2026-09-04
+
+Owner away, migrations can't be approved; T0 kept the lane moving on
+code-level items from `PRODUCTION_CHECKLISTS.md`'s "Genuinely open" list.
+Five items, three closed with verified evidence and no code change, two
+small/subtractive diffs — matching the owner's later standing instruction
+(relayed by T0) against over-engineering: ship the smallest thing that
+actually answers the question, "already sufficient" is a valid close.
+
+- **CORS** — verified, not fixed: grepped every route + `next.config.ts`,
+  no `Access-Control-Allow-*` header anywhere. That's Next's secure
+  default (no CORS headers = browser enforces same-origin). Confirmed
+  **live**: a GET, a POST, and an `OPTIONS` preflight, all with a foreign
+  `Origin`, came back with zero CORS headers — a real browser's preflight
+  fails and the cross-origin request never sends. Documented in
+  `next.config.ts` so a permissive header doesn't get added later without
+  someone knowing what it opens.
+- **Cookie flags** — verified, not fixed: `SameSite`/`Secure` already
+  correct in both `lib/supabase/server.ts` and `lib/supabase/client.ts`.
+  `HttpOnly` is deliberately absent — checked `@supabase/ssr`'s own source
+  (never touches `httpOnly`), and the browser client reads/writes the
+  *same* cookie to manage its session, so `httpOnly` would break sign-in,
+  not secure it further. The compensating control is the CSP already in
+  place. Documented in both files against a future "fix" that breaks auth.
+- **Trim `select("*")`** — `lib/place-import/resolve.ts` (own file)
+  narrowed to exactly what `match.ts` reads, with an honest
+  `CuratedSpotRow` type (`Pick<Spot,...>`) instead of overclaiming the
+  full shape. `app/plan/[id]/page.tsx`'s spot fetch and `app/home/
+  page.tsx`'s `spots` read (the one migration 022's comment named) both
+  traced field-by-field against `OptionCard`/`DecidedPlan`/`AccountViews`
+  before trimming — `created_by_user_id` had no reason reaching every
+  shared-link voter. Left component prop *types* as `Spot` (not narrowed)
+  since `OptionCard`/`DecidedPlan` are consumed from more than one place
+  now (`DirectPlanForm.tsx` too) — re-typing those is Frontend's call, not
+  a side effect of trimming a query; each trimmed select has a comment
+  naming exactly what's safe to read back. `votes`/`rsvps`/`ratings`/
+  `plan_spots` reads left alone — small tables, not worth the diff.
+- **`npm audit` CI gate** — one line in `ci.yml`'s `quality` job,
+  `--omit=dev --audit-level=high` (matches this repo's own stated
+  tolerance; `high` avoids flapping on dev-only-transitive noise). 0
+  vulnerabilities today.
+- **Account lockout equivalent** — wrote up the real math instead of
+  waving it through: OTP-verify's day-cap (20/day, migration 026)
+  dominates regardless of the exact OTP TTL (`SECURITY_SETUP.md`'s "10
+  minutes or less") — at 8/min, an attacker hits the day-cap in under 3
+  minutes, so no matter how many codes get issued in a day, they never get
+  more than 20 total guesses against a 6-digit code. ~0.002%/day.
+
+All five documented in `PRODUCTION_CHECKLISTS.md` directly (moved out of
+"genuinely open" with the reasoning inline, not just a checkmark).
+
+**Also drafted** (Design's cross-lane request, §15.3): `migration-036-
+moodboards.sql` — `moodboards`/`moodboard_items`, mirroring
+`visit_collections`/`visit_collection_items` byte-for-byte (owner-scoped
+RLS, same free-form-collection shape). One deliberate deviation from
+`lib/planning.ts`'s demo shape: `storage_path` instead of an inline base64
+`imageDataUrl`, matching `visit_photos`' real-image pattern. No RPC, no
+route, no auto-creation trigger, no friends/shared read policy — Design's
+spec only asked for owner CRUD, so that's all this builds (confirmed the
+later addition is purely additive, no schema change needed).
+
+**Verified live on a local mirror, real cross-user cases**: owner creates
+a board + item; a second user gets an empty read, a 403 attaching an item
+to the owner's board, a 403 creating a board under the owner's
+`person_id`; invalid `kind`/`visibility` hit the CHECK constraints; a
+case-insensitive duplicate name hits the unique index.
+
+**`security` review**: safe, no widened access. Confirmed the items
+policy's `WITH CHECK` correctly has no second join to pair against
+(unlike `visit_collection_items`, a moodboard item has no owned-row FK to
+protect — "this board is mine" is the complete condition). Confirmed
+`visibility`'s `'friends'`/`'shared'` values are genuinely inert today
+(no policy references them, not in `supabase_realtime`), not just assumed
+inert. One consistency fix taken from review: `schema.sql`'s explicit
+table-drop list now lists both new tables (cascade via `people` already
+covered it, but every other people-owned table is listed explicitly).
+
+Two commits: `659d250` (checklist items), `d11d83a` (moodboards, staged,
+not applied — needs owner approval like every migration here). Gate green
+throughout (lint/tsc/38 tests/build, schema↔types drift clean).
