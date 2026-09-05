@@ -48,3 +48,12 @@ const FALLBACK: CategoryMeta = { code: "PLN" };
 export function categoryMeta(category: string): CategoryMeta {
   return META[category] ?? FALLBACK;
 }
+
+// The category strings are DB enum values (snake_case); most read fine as-is
+// ("beach", "brunch") but the few with an underscore ("beach_club",
+// "live_music") rendered raw in the Discover filter pills and place-card
+// meta line. One-line fix, not a label dictionary -- nothing here needs a
+// different word, just a space where the underscore is.
+export function categoryLabel(category: string): string {
+  return category.replace(/_/g, " ");
+}

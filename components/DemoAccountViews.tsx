@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import PlaceLinkImporter from "@/components/PlaceLinkImporter";
 import DemoPlanningTools from "@/components/DemoPlanningTools";
 import { validateImageFile } from "@/lib/upload";
+import { categoryLabel } from "@/lib/categories";
 
 type AccountView = "discover" | "been" | "friends" | "profile";
 
@@ -191,7 +192,7 @@ export default function DemoAccountViews({
           <label><span>Search places</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Area, place or category" /></label>
           <div className="demo-filter-tabs" aria-label="Filter places">
             {["All", "Dinner", "Beach club", "Sports", "Escape"].map((filter) => (
-              <button key={filter} type="button" onClick={() => setPlaceFilter(filter)} aria-pressed={placeFilter === filter}>{filter}</button>
+              <button key={filter} type="button" onClick={() => setPlaceFilter(filter)} aria-pressed={placeFilter === filter}>{categoryLabel(filter)}</button>
             ))}
           </div>
         </div>
@@ -202,7 +203,7 @@ export default function DemoAccountViews({
               <article key={place.name} className="demo-place-card">
                 <div className="demo-place-card__image"><Image src={place.image} alt={`Community visit at ${place.name}`} fill sizes="(max-width: 700px) 100vw, 50vw" /></div>
                 <div className="demo-place-card__body">
-                  <div className="demo-place-card__meta"><span>{place.category}</span><span>{place.rating} / 5</span></div>
+                  <div className="demo-place-card__meta"><span>{categoryLabel(place.category)}</span><span>{place.rating} / 5</span></div>
                   <h2>{place.name}</h2><p className="demo-place-card__area">{place.area} · {place.price}</p>
                   <p>{place.note}</p><p className="demo-place-card__context">{place.friendNote}</p>
                   <button type="button" onClick={onStartPlan}>Start a vote with this place</button>

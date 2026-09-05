@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import PlaceLinkImporter from "@/components/PlaceLinkImporter";
 import PhotoWall, { type WallItem } from "@/components/PhotoWall";
-import { categoryMeta } from "@/lib/categories";
+import { categoryLabel, categoryMeta } from "@/lib/categories";
 import { avatarStyle, initialsOf } from "@/lib/avatar";
 import { validateImageFile } from "@/lib/upload";
 import {
@@ -209,7 +209,7 @@ function PlaceCard({ spot, onStartPlan }: { spot: Spot; onStartPlan: () => void 
       )}
       <div className="demo-place-card__body">
         <div className="demo-place-card__meta">
-          <span>{spot.cuisine || spot.category}</span>
+          <span>{spot.cuisine || categoryLabel(spot.category)}</span>
           <span>Open till {spot.open_till}</span>
         </div>
         <h2>{spot.name}</h2>
@@ -404,7 +404,7 @@ export default function AccountViews({
           <label><span>Search places</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Area, place or category" /></label>
           <div className="demo-filter-tabs" aria-label="Filter places">
             {categories.slice(0, 8).map((filter) => (
-              <button key={filter} type="button" onClick={() => setPlaceFilter(filter)} aria-pressed={placeFilter === filter}>{filter}</button>
+              <button key={filter} type="button" onClick={() => setPlaceFilter(filter)} aria-pressed={placeFilter === filter}>{categoryLabel(filter)}</button>
             ))}
           </div>
         </div>
