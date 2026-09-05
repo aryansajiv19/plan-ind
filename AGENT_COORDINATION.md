@@ -552,6 +552,21 @@ externally:
     earlier this session too (`/login` rendered in the dark ground).
     Worth someone updating that skill file so the next session doesn't
     inherit a stale gap.
+- 2026-09-04: **Checked whether §18's "one shared rule serving unrelated
+  screens" pattern recurs elsewhere. It doesn't — reporting clean rather
+  than manufacturing a second finding.** Same method: found every other
+  multi-selector heading rule (`.demo-place-card h2, .demo-visit h2` at
+  `1.45rem`; `.vote-shell h1, .vote-name-gate h1`, size set per-context
+  via Tailwind, weight/tracking only shared) and confirmed both are
+  proportionate to their actual role, not hero-scale bleed. Swept every
+  CSS-defined button (`cursor: pointer` grep, same technique as §13) —
+  all cluster `0.58rem`–`0.78rem`, no outliers. Swept form labels —
+  `0.62rem`–`0.74rem`, consistent. Checked the primary-CTA buttons styled
+  via Tailwind utilities in JSX (`vote-primary-action`'s `text-lg
+  font-extrabold`, `.plan-submit`'s `1rem`/700) — appropriately weighted
+  for being the one primary action on their screen, not the same class of
+  bug as a data label at hero scale. §18 was the actual instance of this
+  pattern; nothing else in the tree currently has it.
 
 ---
 
