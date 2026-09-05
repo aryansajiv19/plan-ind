@@ -636,3 +636,58 @@ failing closed.
 
 Commits: `b733703` (geocoding + migration 037, staged), `4e5a68b`
 (benchmark + harness). Gate green throughout.
+
+---
+
+## 2026-09-05 — T1 Security/Backend: one account through the whole arc
+
+`scripts/verify-journey.mjs` walks a single fresh account end to end against
+the local stack and asserts the real rows at every hop: sign up → profile →
+age → deal → create (voting path *and* direct path) → share → a second
+identity claims access → pool votes → advance → final vote → decide → the
+last mile (event/booking) → RSVP with carpool fields → rate → log the visit
+→ Been → collection. A third identity is a negative control throughout.
+**82 checks across 19 steps, 80 passing.**
+
+**The seams hold.** `plan_access` gates an uninvited identity out of the
+plan, its spots, and voting (42501). The host token is stored only as a
+SHA-256 hash. `stage` gates `phase`, so a pool vote is refused once the
+final round opens. One participant token carries the same `voter_name`
+across vote → RSVP → rating. A re-vote replaces a pick rather than adding a
+second row. Direct plans land `decided`/`decided` with one advanced
+`plan_spot` and a host `plan_access` grant.
+
+**Finding 1 — `set_plan_rsvp`'s null-choice guard doesn't guard.**
+`p_choice not in ('coming','maybe','no')` evaluates to NULL, not TRUE, when
+`p_choice` is NULL, so the `or` never fires and a null choice reaches the
+insert and dies on the column's NOT NULL as a raw `23502` instead of the
+intended `42501`. **Not reachable from the UI** — `setRsvp` in
+`app/plan/[id]/page.tsx` is typed to the three literals — and there is no
+integrity impact, so this is latent, not live. Migration 035's newer
+`p_transport` guard avoids exactly this trap (`is not null and ... not in`);
+the older `p_choice` line never got the same treatment. One-line fix; worth
+riding along with the next migration rather than opening its own approval
+round.
+
+**Finding 2 — a decided plan still can't show "getting there".** The
+journey's winner had null coordinates *on a stack that already has migration
+037 applied*. Per category this is much sharper than "42 are null":
+
+| coverage | categories |
+|---|---|
+| 0% | beach_club, escape, padel, wellness |
+| 25-40% | brunch, dessert, karaoke, shisha, nightlife, water, dinner |
+| 50-75% | games, sports, adventure, family, live_music, beach, cafe, movie, vibes |
+
+Four categories can **never** render a distance line, and dinner — the
+most-used category — sits at 40%. If the owner wants the last mile to feel
+real, hand-pasting coordinates for those four categories (12 spots) buys
+more than any further geocoding would.
+
+**Two of my own assumptions were wrong first**, recorded so the next person
+doesn't repeat them: voting is one selection per (participant, round), not a
+yes/no per card — a `false` value DELETES your pick rather than recording a
+"no" — and the transport value is `need_ride`, not `needs_ride`.
+
+Commit `5b1ce3b`. Gate green (lint/tsc/38 tests). No schema change, no
+migration, nothing applied.
