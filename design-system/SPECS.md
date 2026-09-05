@@ -1099,6 +1099,45 @@ doesn't exist here yet. If a horizontal row ever gets built (a future
 "more like this" rail, say), this is the reference for what its header
 should look like — not a retrofit onto anything that exists now.
 
+## 18 — Account-view type is oversized relative to the real hero (owner, 2026-09-04)
+
+Sizing/weight adjustment only, not a typography system change. The
+concrete finding is sharper than it first looked: **the account-view
+section headings are larger and heavier than the actual front-door hero.**
+`.home-title` (`app/globals.css:905-911` — "Dubai plans, without the group
+chat.", the real marketing hero) tops out at `clamp(3rem, 1.5rem+4.2vw,
+4.75rem)`, weight 500. `.demo-view__header h1` (`:1728-1735`, shared by
+Discover/Been/Friends/Profile) tops out at `clamp(2.8rem, 6vw, 5.8rem)`,
+weight 600 — bigger and bolder than the hero it's supposed to sit
+underneath in the visual hierarchy. Two more specific overrides on top of
+that base rule make it worse for genuinely functional content:
+`.demo-profile-head h1` (`:1912`) applies that same scale to the plain
+signed-in username — a data label, not copy — and `.demo-wrapped h2`
+(`:2821`, "Planind Wrapped") applies `clamp(2rem, 4vw, 3.4rem)` to a small
+recap card's heading. For calibration: the app's actual emotional-payoff
+moment, `DecidedPlan`'s "It's 3Fils." reveal, renders at `text-xl` — 20px.
+A profile name at up to 80px next to a real headline moment at 20px is
+the concrete mismatch the owner is naming.
+
+**Fix, three tiers, all smaller than the real hero's ceiling of 4.75rem:**
+
+- **`.demo-view__header h1`** (Discover/Been/Friends' real section
+  headlines — "Places worth considering.", "The people you actually go
+  out with." — these stay as genuine section headers, just resized):
+  `clamp(2.8rem, 6vw, 5.8rem)` / weight 600 →
+  **`clamp(2.2rem, 4vw, 3.4rem)` / weight 500** (matching the hero's
+  weight, sitting comfortably under its size).
+- **`.demo-profile-head h1`** (the signed-in name — functional, not
+  copy): `clamp(2.8rem, 6vw, 5rem)` →
+  **`clamp(1.6rem, 2.5vw, 2.2rem)`**, weight unchanged (600 was never the
+  problem here, size was).
+- **`.demo-wrapped h2`** ("Planind Wrapped," a card heading inside a
+  bordered recap strip, not a section header):
+  `clamp(2rem, 4vw, 3.4rem)` → **`clamp(1.3rem, 2vw, 1.6rem)`**.
+
+Marketing/hero surfaces (`.home-title`, the front door, `/home-preview`)
+are unchanged — this only touches the four signed-in account-view tabs.
+
 ---
 
 ## Verification (for whoever implements this)
