@@ -29,11 +29,18 @@ assumed.
   minted (the live project's signup rate limit caps real testing around
   n≈15-30, so this used a local stack instead, explicitly caveated as
   loopback-local, not a field number): votes/RSVPs/ratings clean through
-  n≈200; `/api/spots/deal` hits a real, specific ceiling around n=100 from
-  five to six sequential Supabase round trips per request (a real
-  optimization target if it's ever load-bearing, not fixed yet, not
-  deploy-blocking either). One genuine correctness bug (not a perf finding)
-  surfaced by this testing and already fixed — migration 033.
+  n≈200; `/api/spots/deal` hits a real ceiling around n=100. **Corrected
+  2026-09-05:** this file previously blamed that ceiling on "five to six
+  sequential Supabase round trips per request." A proper paired benchmark
+  (both builds running at once on separate ports, alternating reps, warm-up
+  discarded — `scripts/load/README.md`) disproved it. Removing one of those
+  round trips is worth ~5ms uncontended and nothing at all at n=50/n=100.
+  The wall is one `next start` process saturating, not the round trips
+  behind it: firing two queries together shortens a request without
+  widening the pipe. It's a horizontal-scaling lever, which a real
+  deployment already provides — not deploy-blocking. One genuine
+  correctness bug (not a perf finding) surfaced by this testing and already
+  fixed — migration 033.
 - Venue-link enrichment (paste a link → get the venue) is **built**, not
   queued — the result/candidate-picker UI and the "getting there" distance +
   transit-deep-link feature both shipped today. The sequencing question this
