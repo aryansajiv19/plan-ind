@@ -1,8 +1,13 @@
 import type { Spot } from "@/lib/types";
 import type { ExtractedClues } from "./oembed";
 
+// Only what this module actually reads -- callers select just these
+// columns (not select("*")), so the type should say that honestly rather
+// than claim the full Spot shape.
+export type CuratedSpotRow = Pick<Spot, "id" | "name" | "cuisine" | "vibe" | "description">;
+
 export interface MatchCandidate {
-  spot: Spot;
+  spot: CuratedSpotRow;
   score: number; // 0..1, normalized token overlap
 }
 
@@ -41,7 +46,7 @@ function clueTokens(clues: ExtractedClues): Set<string> {
   return tokenize(text);
 }
 
-export function matchCandidates(clues: ExtractedClues, curatedSpots: Spot[]): MatchCandidate[] {
+export function matchCandidates(clues: ExtractedClues, curatedSpots: CuratedSpotRow[]): MatchCandidate[] {
   const clueSet = clueTokens(clues);
   if (clueSet.size === 0) return [];
 

@@ -37,22 +37,84 @@ directory listings.
 - **Turnstile CAPTCHA is still not enabled in production** — this is an owner
   dashboard action (Attack Protection), flagged before, still open. Remind the
   owner; not something you can fix in code.
-- **CORS** — not explicitly verified/locked down anywhere in this codebase's
-  history. Check it.
-- **Secure cookie flags** (`Secure`/`HttpOnly`/`SameSite`) — Supabase's SSR
-  client sets some of this by default; verify it's actually correct here, not
-  assumed.
+- ~~**CORS**~~ — **Verified, 2026-09-04 (Security/Backend). Already correct,
+  by omission.** Grepped every `app/api/**` route and `next.config.ts`: no
+  `Access-Control-Allow-*` header is set anywhere. That's the secure default,
+  not a gap — Next.js App Router route handlers send no CORS headers unless
+  you add them, so a browser enforces same-origin by default. Confirmed
+  **live**, not just reasoned: a GET and a POST with a foreign `Origin`
+  header, and an `OPTIONS` preflight for one, all came back with zero
+  `Access-Control-*` headers — a real browser's preflight would fail and the
+  cross-origin request would never be sent. `validateMutationRequest`'s own
+  origin/CSRF check is a second, independent layer for the mutating routes,
+  not the only thing standing here. Documented in a comment at
+  `next.config.ts` so a future permissive `Access-Control-Allow-Origin`
+  isn't added without someone realizing what it opens. No live caller needs
+  cross-origin access today — if one ever does, add the header for that
+  specific origin only, never a wildcard.
+- ~~**Secure cookie flags**~~ — **Verified, 2026-09-04 (Security/Backend).**
+  `SameSite=Lax` and `Secure` (prod-only, correctly — `Secure` on `http://`
+  dev would silently drop the cookie) are both explicitly set in
+  `lib/supabase/server.ts` and `lib/supabase/client.ts`. `HttpOnly` is **not**
+  set on the auth session cookie, and that's deliberate, not an oversight:
+  `@supabase/ssr`'s own source never touches `httpOnly` at all (checked
+  `node_modules/@supabase/ssr/dist/module/*.js`), and the browser client
+  (`createBrowserClient`) reads/writes that *same* cookie to manage its own
+  session — an `httpOnly` cookie would be invisible to it and break sign-in
+  outright. This is `@supabase/ssr`'s standard architecture, not a defect in
+  this codebase. The compensating control is the strict CSP already in place
+  (`proxy.ts`: nonce-based `script-src`, no `unsafe-inline` in production) —
+  that's what actually keeps XSS from reaching `document.cookie` in the
+  first place. The separate CSRF cookie (`csrf`/`__Host-csrf`) is correctly
+  `httpOnly: false` **on purpose** (the double-submit pattern needs it
+  JS-readable) — already right, not a related gap. Documented in both files
+  so this isn't "fixed" into a broken auth flow later. If the owner wants a
+  genuinely `httpOnly` session, that's a real architecture change (moving
+  off `@supabase/ssr`'s shared-cookie model), not a one-line flag flip — ask
+  before assuming that's wanted.
 - ~~**Purge Git secrets**~~ — **Done, 2026-09-04 (T0).** `gitleaks detect --source . --log-opts="--all"` across all 186 commits, 22 hits, all triaged individually, zero real secrets: 4 are the well-known public local-Supabase-CLI demo JWT (`iss: supabase-demo`, ships with every `supabase start`, local-only, not a live credential), 1 is `ci.yml`'s self-evidently-named `ci-placeholder-secret-at-least-32-chars`, 17 are SHA-256 content-hashes in `graphify-out/cache/stat-index.json` that gitleaks' generic-api-key regex misread as keys. That cache file was also committed 6× with identical content (churns every graphify rebuild) — untracked going forward (`.gitignore` + `git rm --cached`), not purged from history since a rewrite would break every worktree's shared history without a real secret to justify it. Re-run before any real secret is ever suspected; this pass doesn't need repeating on a schedule.
-- **Trim API responses** — migration 022's own comment flags this as unfinished:
-  `spots` reads still use broad `select("*")` in places; narrow the select
-  lists, especially before any embedding column lands.
-- **`npm audit` as a CI gate**, not just ad-hoc — add it to `ci.yml`.
+- ~~**Trim API responses**~~ — **Done, 2026-09-04 (Security/Backend), where it
+  could be verified safe.** `lib/place-import/resolve.ts` (own file, fully
+  traced) narrowed to `id, name, cuisine, vibe, description` — the exact set
+  `match.ts` reads — and the `MatchCandidate`/`matchCandidates` types now say
+  so honestly (`CuratedSpotRow`, a `Pick<Spot,...>`) instead of claiming the
+  full `Spot` shape. `app/plan/[id]/page.tsx`'s spot fetch (feeds
+  `OptionCard`/`DecidedPlan`) and `app/home/page.tsx`'s `spots` read (feeds
+  `AccountViews`'s Discover tab, the migration-022-flagged one) were both
+  traced field-by-field before trimming — `created_by_user_id` in particular
+  had no reason reaching every shared-link voter. Left as `Spot`-typed at the
+  component-prop level rather than also narrowing `OptionCard`/`DecidedPlan`'s
+  prop types, since those are consumed from more than one place
+  (`DirectPlanForm.tsx` too) and re-typing them is Frontend's call, not a
+  side effect of a select-trim — each trimmed query has a comment naming
+  exactly what it's safe to read back. `votes`/`rsvps`/`ratings`/`plan_spots`
+  reads left as `select("*")` deliberately — small tables (4-9 columns), not
+  worth the diff for the size of the win.
+- ~~**`npm audit` as a CI gate**~~ — **Done, 2026-09-04.** `ci.yml`'s `quality`
+  job runs `npm audit --omit=dev --audit-level=high` right after `npm ci`.
+  `--omit=dev` matches this repo's own already-stated tolerance (dev-only
+  transitive deps don't ship); `--audit-level=high` avoids the gate flapping
+  on low/moderate advisories that don't matter here. Currently 0
+  vulnerabilities at that level.
 - **Block prompt injection** — the `openai-responses` skill's contract exists,
   but is unverified live since B3 (OpenAI credits) has blocked all AI testing.
   Re-verify once that's unblocked, don't assume it holds.
-- **Account lockout after failed logins** — OTP-verify's rate limit is the
-  closest equivalent (8/min, 20/day); there's no traditional password login to
-  "lock." Confirm this is actually sufficient, don't just wave it through.
+- ~~**Account lockout after failed logins**~~ — **Verified sufficient,
+  2026-09-04 (Security/Backend), with the actual math, not waved through.**
+  There's no password to lock — OTP-verify's rate limit
+  (`consume_otp_limit`, migration 026: 8/min, 20/day, keyed on the HMAC'd
+  target email) is the real equivalent. `SECURITY_SETUP.md`'s own dashboard
+  instruction sets OTP expiry to 10 minutes or less. The day-cap is the
+  binding constraint regardless of the exact TTL: at 8 guesses/minute, an
+  attacker reaches the 20/day cap in well under 3 minutes — far inside any
+  reasonable OTP validity window — so no matter how many codes get issued in
+  a day, the attacker never gets more than 20 total guesses against a
+  6-digit code (1,000,000 possibilities) before being cut off for the rest
+  of that day. That's ≈0.002% per day, growing only linearly with sustained
+  daily attempts (≈0.06% after a month of persistent daily attacks against
+  one target) — a real, low, defensible number, not an assumption. GoTrue's
+  own per-IP verify-rate limit (documented in migration 026's own comment)
+  is a second, independent layer on top, not the only thing holding here.
 - **Encrypt sensitive data at rest** — secrets/tokens are hashed (SHA-256/
   bcrypt) correctly; Supabase encrypts the underlying storage. If "encrypt"
   means something more specific the owner wants (column-level encryption on a

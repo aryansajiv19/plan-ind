@@ -1,11 +1,11 @@
 import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Spot, PlaceImport } from "@/lib/types";
+import type { PlaceImport } from "@/lib/types";
 import { SafeFetchError } from "./safe-fetch";
 import { fetchOembedClues, type ExtractedClues } from "./oembed";
 import { fetchWebClues } from "./web-adapter";
-import { matchCandidates, type MatchCandidate } from "./match";
+import { matchCandidates, type MatchCandidate, type CuratedSpotRow } from "./match";
 
 // A score this far above the runner-up, with the top score also over
 // RESOLVE_FLOOR, is confident enough to resolve automatically. Below that,
@@ -49,7 +49,7 @@ function summarizeCandidates(candidates: MatchCandidate[]): Array<{ spotId: stri
 async function resolveOutcome(
   provider: PlaceImport["provider"],
   normalizedUrl: string,
-  curatedSpots: Spot[],
+  curatedSpots: CuratedSpotRow[],
 ): Promise<ResolveOutcome> {
   if (provider === "instagram" || provider === "facebook") {
     // No credentials for either exist in this project -- their oEmbed/Graph
@@ -103,11 +103,15 @@ export async function resolvePlaceImport(
   supabase: SupabaseClient,
   importRow: { id: string; provider: PlaceImport["provider"]; normalizedUrl: string },
 ): Promise<void> {
-  const { data: curatedSpots } = await supabase.from("spots").select("*").eq("source", "curated");
+  // match.ts only ever reads id/name/cuisine/vibe/description from these
+  // rows -- narrowed from select("*") per the production-readiness pass
+  // (migration 022's own comment flagged this, especially ahead of any
+  // future embedding column on spots).
+  const { data: curatedSpots } = await supabase.from("spots").select("id, name, cuisine, vibe, description").eq("source", "curated");
 
   let outcome: ResolveOutcome;
   try {
-    outcome = await resolveOutcome(importRow.provider, importRow.normalizedUrl, (curatedSpots ?? []) as Spot[]);
+    outcome = await resolveOutcome(importRow.provider, importRow.normalizedUrl, (curatedSpots ?? []) as CuratedSpotRow[]);
   } catch {
     outcome = { status: "failed", errorCode: "unexpected_error", extractedData: {} };
   }

@@ -193,8 +193,16 @@ export default function VotePage() {
         .eq("plan_id", id);
       const spotIds = (links ?? []).map((l) => l.spot_id);
 
+      // Narrowed from select("*"): OptionCard/DecidedPlan only ever read
+      // these fields from a vote-page spot (traced 2026-09-04, production-
+      // readiness pass). minimum_age/visibility/created_by_user_id/source/
+      // address are dropped -- created_by_user_id in particular has no
+      // reason reaching every shared-link voter. Note this narrows what the
+      // row actually HAS at runtime; the `Spot` type below still claims the
+      // full shape, so don't start reading a dropped field here without
+      // adding it back to this list.
       const { data: spotRows, error: spotsErr } = spotIds.length
-        ? await supabase.from("spots").select("*").in("id", spotIds)
+        ? await supabase.from("spots").select("id, name, category, cuisine, price_band, area, description, vibe, open_till, min_spend, latitude, longitude, photo_url, booking_url").in("id", spotIds)
         : { data: [], error: null };
       // Preserve the dealt order.
       const ordered = spotIds

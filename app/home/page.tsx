@@ -51,7 +51,13 @@ export default async function HomePage({
     : "plan";
 
   const [spots, visits, friends, wrapped, collections, photos] = await Promise.all([
-    supabase.from("spots").select("*").order("name").limit(120),
+    // Narrowed from select("*"): traced every field AccountViews's Discover
+    // tab (PlaceCard, search/filter) actually reads (2026-09-04, production-
+    // readiness pass). minimum_age/booking_url/source/visibility/
+    // created_by_user_id/address/latitude/longitude are dropped here --
+    // `Spot`'s type still claims the full shape, so don't start reading a
+    // dropped field from this particular query without adding it back.
+    supabase.from("spots").select("id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, photo_url, description").order("name").limit(120),
     person ? getProfileVisits(person, 50, supabase) : Promise.resolve([]),
     person ? getPlannedWith(person, supabase) : Promise.resolve([]),
     person
