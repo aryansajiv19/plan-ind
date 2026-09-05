@@ -57,7 +57,18 @@ export async function POST(request: Request) {
   }
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  // getUser() and consumeQuota() are independent I/O -- the quota RPC reads
+  // auth.uid() from the request's own session, not from the user object
+  // below, and fails closed on its own if there's no session. Run them
+  // together instead of one-after-the-other; this is the exact round-trip
+  // this app's own load test measured as spot-deal's real ceiling
+  // (scripts/load/README.md, ~n=100 -- five to six sequential round trips
+  // per request). Still checked in the original order below, so an
+  // unauthenticated caller sees 401, never a stray 429.
+  const [{ data: { user } }, quotaOk] = await Promise.all([
+    supabase.auth.getUser(),
+    consumeQuota(supabase, "spot-deal"),
+  ]);
   if (!user || user.is_anonymous) {
     return Response.json({ error: "Sign in to deal places." }, { status: 401 });
   }
@@ -65,7 +76,7 @@ export async function POST(request: Request) {
   // and is re-rolled repeatedly, so sharing that bucket would lock a user out
   // of creating the plan they were dealing for. Requires migration 022 —
   // before that is applied the RPC raises and this returns 429 to everyone.
-  if (!(await consumeQuota(supabase, "spot-deal"))) {
+  if (!quotaOk) {
     await recordSecurityEvent(supabase, { type: "rate_limit", outcome: "blocked", subject: user.id, requestId: request.headers.get("x-vercel-id"), metadata: { scope: "spot-deal" } });
     return Response.json({ error: "Too many deals. Try again in a minute." }, { status: 429 });
   }

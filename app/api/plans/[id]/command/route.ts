@@ -31,7 +31,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     return Response.json({ error: "Invalid plan command." }, { status: 400 });
   }
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  // Independent I/O, run together -- see app/api/spots/deal/route.ts's
+  // identical comment for why this is safe.
+  const [{ data: { user } }, quotaOk] = await Promise.all([
+    supabase.auth.getUser(),
+    consumeQuota(supabase, "plan-command"),
+  ]);
   // /api/plans refuses to create a plan for an anonymous user, so no
   // legitimate host command can ever come from one -- and the quota below is
   // keyed on auth.uid(), which an anonymous sign-in can mint fresh at will.
@@ -42,7 +47,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   // all. The RPC's own row lock serializes concurrent commands per plan but
   // doesn't cap volume; a valid (or leaked) host token could otherwise
   // hammer this unbounded.
-  if (!(await consumeQuota(supabase, "plan-command"))) {
+  if (!quotaOk) {
     await recordSecurityEvent(supabase, { type: "rate_limit", outcome: "blocked", subject: user.id, requestId: request.headers.get("x-vercel-id"), metadata: { scope: "plan-command" } });
     return Response.json({ error: "Too many plan changes. Try again in a minute." }, { status: 429 });
   }
