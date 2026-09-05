@@ -1725,14 +1725,19 @@ h3 {
   align-items: end;
 }
 
+/* SPECS.md §18: these were larger and bolder than the real front-door hero
+   (.home-title, ceiling 4.75rem / weight 500) that they sit under in the
+   hierarchy. Section headers now match the hero's weight and stay well
+   below its size. .demo-profile-head h1 diverges below — a signed-in
+   username is a data label, not copy. */
 .demo-view__header h1,
 .demo-profile-head h1 {
   max-width: 48rem;
   margin-top: 0.7rem;
-  font-size: clamp(2.8rem, 6vw, 5.8rem);
+  font-size: clamp(2.2rem, 4vw, 3.4rem);
   line-height: 0.96;
   letter-spacing: -0.055em;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .demo-view__header > p { max-width: 30rem; color: var(--color-muted); line-height: 1.55; }
@@ -1909,7 +1914,7 @@ h3 {
 
 .demo-profile-head { display: flex; align-items: center; gap: 1.5rem; }
 .demo-profile-avatar { width: clamp(5rem, 10vw, 7.5rem); height: clamp(5rem, 10vw, 7.5rem); flex: 0 0 auto; font-size: 1.7rem; }
-.demo-profile-head h1 { font-size: clamp(2.8rem, 6vw, 5rem); }
+.demo-profile-head h1 { font-size: clamp(1.6rem, 2.5vw, 2.2rem); font-weight: 600; }
 .demo-profile-head > div > p:last-child { margin-top: 0.5rem; color: var(--color-muted); }
 .demo-profile-stats { margin-top: 2.5rem; display: grid; grid-template-columns: repeat(4, 1fr); border-block: 1px solid var(--color-line); }
 .demo-profile-stats span { display: grid; gap: 0.2rem; padding: 1.2rem; color: var(--color-muted); font-size: 0.68rem; }
@@ -2752,7 +2757,6 @@ h3 {
   .demo-view { width: min(100% - 1.5rem, 76rem); padding-top: 2rem; }
   .place-link-importer { grid-template-columns: 1fr; }
   .place-link-importer__intro { grid-column: auto; }
-  .demo-view__header h1 { font-size: clamp(2.7rem, 13vw, 4rem); }
   .demo-place-grid,
   .demo-visit-grid,
   .demo-profile-grid { grid-template-columns: 1fr; }
@@ -2818,7 +2822,7 @@ h3 {
 .demo-memory-upload img { object-fit: cover; }
 .demo-reminder-panel .demo-primary-action, .demo-memory-panel .demo-primary-action, .demo-moodboard-panel .demo-primary-action { margin-top: 1rem; }
 .demo-wrapped { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2rem; align-items: start; margin-top: 2.5rem; padding: 1.5rem 0; border-top: 1px solid var(--color-line); border-bottom: 1px solid var(--color-line); }
-.demo-wrapped h2 { margin: .45rem 0 .7rem; font-size: clamp(2rem, 4vw, 3.4rem); line-height: .92; }
+.demo-wrapped h2 { margin: .45rem 0 .7rem; font-size: clamp(1.3rem, 2vw, 1.6rem); line-height: .92; }
 .demo-wrapped p:not(.home-section-kicker) { max-width: 30rem; color: var(--color-muted); line-height: 1.5; }
 .demo-wrapped > .demo-primary-action { align-self: center; }
 .demo-wrapped > .demo-collection-empty { min-height: 0; align-self: stretch; padding: 1.25rem; }
