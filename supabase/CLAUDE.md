@@ -32,6 +32,13 @@ invariants; this has the rules for changing the database.
   from `public, anon, authenticated` explicitly. This is the single most
   repeated bug in this directory's history — migrations 021 and 024 both exist
   solely to clean it up.
+- **Guard an optional parameter as `p_x is not null and p_x not in (...)`.**
+  `NULL not in (...)` evaluates to NULL, not TRUE, so a bare `not in` guard
+  never fires on a null: the value slips past the check and the write dies
+  later on a column constraint, raising a raw `23502`/`23514` instead of the
+  intended `42501`. Migration 035's `p_transport` is the correct shape;
+  `set_plan_rsvp`'s older `p_choice` still has the bug (latent — the UI is
+  typed to the three literals — fold the fix into the next migration out).
 
 ## Probing the live database — traps that caused false conclusions
 
