@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>plan-ind — dark theme on palette v7, beside light</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300..700;1,300..700&family=Hanken+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ── palette v7, the owner's six, verbatim ─────────────────────── */
+:root{
+  --navy:#051822; --slate:#2D383E; --brown:#7C5841;
+  --tan:#AA7452;  --grey:#969A9E;  --light:#D4C9C7;
+  --r:10px; --rp:22px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#8E9295;font-family:"Hanken Grotesk",system-ui,sans-serif;
+     -webkit-font-smoothing:antialiased}
+img{display:block;width:100%;height:100%;object-fit:cover}
+
+.rig{max-width:1280px;margin:0 auto;padding:26px 20px 60px}
+.rig h1{font-size:1.02rem;margin:0 0 6px;color:#12222b}
+.rig>p{margin:0 0 18px;font-size:.8rem;line-height:1.55;color:#1d2f39;max-width:82ch}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+.colhead{display:flex;align-items:baseline;gap:10px;margin:0 0 8px;padding-bottom:7px;
+         border-bottom:1px solid rgba(5,24,34,.28)}
+.colhead b{font-size:.9rem;color:#0d1b23}
+.colhead span{font-size:.74rem;color:#20323d}
+
+/* ── theme scopes ──────────────────────────────────────────────── */
+.t{border-radius:var(--rp);overflow:hidden}
+.t--light{--canvas:#F7F5F4;--card:#FFFFFF;--ink:var(--navy);--ink2:var(--slate);
+          --accent:var(--brown);--muted:var(--grey);--edge:var(--tan)}
+.t--dark {--canvas:var(--navy);--card:var(--slate);--ink:var(--light);--ink2:var(--light);
+          --accent:var(--tan);--muted:var(--grey);--edge:var(--grey)}
+.t{background:var(--canvas);color:var(--ink)}
+
+.nav{display:flex;align-items:center;justify-content:space-between;padding:15px 20px}
+.mark{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;
+      border-radius:var(--r);font-family:"Cormorant",serif;font-size:.85rem;font-weight:600}
+.t--light .mark{background:var(--navy);color:#fff}
+.t--dark  .mark{background:var(--light);color:var(--navy)}
+.btn{font-family:inherit;font-size:.75rem;font-weight:500;border:0;border-radius:var(--r);
+     padding:9px 15px;cursor:pointer}
+.t--light .btn{background:var(--navy);color:#fff}          /* 18.10 */
+.t--dark  .btn{background:var(--light);color:var(--navy)}  /* 11.19 */
+
+.hero{padding:14px 20px 22px}
+.kick{margin:0 0 9px;font-size:.66rem;font-weight:500;letter-spacing:.15em;
+      text-transform:uppercase;color:var(--accent)}
+.h1{font-family:"Cormorant",serif;font-weight:500;font-size:2.5rem;line-height:1.03;
+    letter-spacing:-.02em;margin:0 0 12px;color:var(--ink)}
+.h1 em{font-style:italic;font-weight:400}
+.lede{margin:0 0 18px;font-size:.85rem;line-height:1.55;color:var(--ink2);max-width:40ch}
+.t--light .lede{color:var(--slate)}
+.acts{display:flex;gap:13px;align-items:center}
+.quiet{font-family:inherit;font-size:.78rem;font-weight:500;background:none;border:0;padding:0;
+       cursor:pointer;text-decoration:underline;text-underline-offset:3px;color:var(--accent)}
+
+.sec{padding:4px 20px 22px}
+.sech{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:11px}
+.sect{font-family:"Cormorant",serif;font-size:1.15rem;font-weight:500;margin:0;color:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+.card{border-radius:var(--rp);overflow:hidden;background:var(--card)}
+.t--light .card{box-shadow:0 1px 2px rgba(5,24,34,.05),0 7px 18px rgba(5,24,34,.07)}
+.cimg{height:88px}
+.cbody{padding:10px 11px 12px}
+.cname{font-family:"Cormorant",serif;font-size:.98rem;font-weight:600;margin:0 0 2px;color:var(--ink)}
+.cmeta{margin:0;font-size:.7rem;line-height:1.4}
+/* light: slate meta, 12.02 on white. Grey would be 2.83 and FAIL — using it
+   would have flattered light's hierarchy by breaking the floor, which would
+   make this comparison dishonest in light's favour. */
+.t--light .cmeta{color:var(--slate)}
+/* dark: forced to the same value as the name. Grey is 4.24 and tan 3.05 on
+   #2D383E, both under 4.5. This is the limitation, rendered. */
+.t--dark  .cmeta{color:var(--light)}
+
+/* payoff — §21: the one earned fill, tan with navy text, in BOTH themes */
+.payoff{margin:0 20px 22px;border-radius:var(--rp);background:var(--tan);color:var(--navy);padding:16px 18px}
+.payoff .pk{margin:0 0 5px;font-size:.64rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase}
+.payoff .pn{font-family:"Cormorant",serif;font-size:1.6rem;font-weight:600;margin:0 0 3px}
+.payoff .pm{margin:0;font-size:.75rem}
+
+.note{margin:10px 20px 20px;padding:11px 13px;border-radius:var(--r);font-size:.72rem;line-height:1.5}
+.t--dark .note{background:rgba(212,201,199,.10);color:var(--light)}
+.note b{font-weight:700}
+</style>
+</head>
+<body>
+<div class="rig">
+<h1>Dark theme on palette v7, beside light</h1>
+<p>
+  Both use the owner's six values only — dark is <b>#051822</b> canvas with <b>#2D383E</b> cards, no invented colours.
+  Same content and same three surfaces in each, so the comparison is like-for-like. Cormorant throughout.
+  §21 carried through: colour is accent text, and the payoff panel is the single earned fill per screen.
+  The dark column shows a real limitation rather than hiding it — see the note at its foot.
+</p>
+
+<div class="cols">
+
+  <!-- ───────────── LIGHT ───────────── -->
+  <div>
+    <div class="colhead"><b>Light</b><span>what ships today</span></div>
+    <div class="t t--light">
+      <div class="nav"><span class="mark">D/03</span><button class="btn">Sign in</button></div>
+      <div class="hero">
+        <p class="kick">Good evening, Dubai</p>
+        <h2 class="h1">Dubai plans, <em>without the group chat.</em></h2>
+        <p class="lede">Dinner in DIFC, padel in Al Quoz, or a beach day on the Palm. Set the budget, then let everyone choose.</p>
+        <div class="acts"><button class="btn">Open a decision</button><button class="quiet">See a sample vote</button></div>
+      </div>
+      <div class="sec">
+        <div class="sech"><p class="sect">Tonight in Dubai</p><button class="quiet">See all</button></div>
+        <div class="grid">
+          <div class="card"><div class="cimg"><img src="https://picsum.photos/id/431/400/300" alt=""></div>
+            <div class="cbody"><p class="cname">Bu Qtair</p><p class="cmeta">Umm Suqeim · AED 60</p></div></div>
+          <div class="card"><div class="cimg"><img src="https://picsum.photos/id/326/400/300" alt=""></div>
+            <div class="cbody"><p class="cname">Tresind Studio</p><p class="cmeta">DIFC · AED 550</p></div></div>
+          <div class="card"><div class="cimg"><img src="https://picsum.photos/id/1080/400/300" alt=""></div>
+            <div class="cbody"><p class="cname">Drift Beach</p><p class="cmeta">The Palm · AED 250</p></div></div>
+        </div>
+      </div>
+      <div class="payoff">
+        <p class="pk">Decided · you're going</p>
+        <p class="pn">It's 3Fils.</p>
+        <p class="pm">Jumeirah · from AED 180 · open till 11pm</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───────────── DARK ───────────── -->
+  <div>
+    <div class="colhead"><b>Dark</b><span>v7's own values, nothing invented</span></div>
+    <div class="t t--dark">
+      <div class="nav"><span class="mark">D/03</span><button class="btn">Sign in</button></div>
+      <div class="hero">
+        <p class="kick">Good evening, Dubai</p>
+        <h2 class="h1">Dubai plans, <em>without the group chat.</em></h2>
+        <p class="lede">Dinner in DIFC, padel in Al Quoz, or a beach day on the Palm. Set the budget, then let everyone choose.</p>
+        <div class="acts"><button class="btn">Open a decision</button><button class="quiet">See a sample vote</button></div>
+      </div>
+      <div class="sec">
+        <div class="sech"><p class="sect">Tonight in Dubai</p><button class="quiet">See all</button></div>
+        <div class="grid">
+          <div class="card"><div class="cimg"><img src="https://picsum.photos/id/431/400/300" alt=""></div>
+            <div class="cbody"><p class="cname">Bu Qtair</p><p class="cmeta">Umm Suqeim · AED 60</p></div></div>
+          <div class="card"><div class="cimg"><img src="https://picsum.photos/id/326/400/300" alt=""></div>
+            <div class="cbody"><p class="cname">Tresind Studio</p><p class="cmeta">DIFC · AED 550</p></div></div>
+          <div class="card"><div class="cimg"><img src="https://picsum.photos/id/1080/400/300" alt=""></div>
+            <div class="cbody"><p class="cname">Drift Beach</p><p class="cmeta">The Palm · AED 250</p></div></div>
+        </div>
+      </div>
+      <div class="payoff">
+        <p class="pk">Decided · you're going</p>
+        <p class="pn">It's 3Fils.</p>
+        <p class="pm">Jumeirah · from AED 180 · open till 11pm</p>
+      </div>
+      <div class="note">
+        <b>The honest limitation, visible above.</b> Compare the two grids. In light, a card
+        carries two legible text colours plus a third for kickers: name in navy (18.10:1),
+        meta in slate (12.02:1), kickers in brown (6.31:1).
+        In dark, <b>only one colour is legible on a card</b> — grey drops to 4.24:1 and tan to
+        3.05:1 on <b>#2D383E</b>, both below the 4.5 floor, so name and meta are forced to the
+        same value. Card interiors go mono-ink.
+        <br><br>
+        <b>And the brown accent does not exist in dark at all</b> — 2.87:1 on the canvas,
+        1.91:1 on cards. Dark's kickers above are tan, which works on the canvas (4.59:1)
+        but would fail inside a card. So dark is a flatter system than light, not a re-skin.
+        Fixing it means introducing a lighter grey the owner did not pick.
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+</body>
+</html>
