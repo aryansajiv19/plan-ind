@@ -6,6 +6,7 @@ import { googleCalUrl, icsHref } from "@/lib/calendar";
 import { categoryMeta } from "@/lib/categories";
 import { directionsUrl, haversineKm } from "@/lib/directions";
 import WinnerPhotoReveal from "@/components/WinnerPhotoReveal";
+import PhotoCredit from "@/components/PhotoCredit";
 
 interface DecidedPlanProps {
   plan: Plan;
@@ -122,7 +123,11 @@ export default function DecidedPlan({
           the curated catalog today, and the existing category-badge
           treatment below already covers that honest-empty case. */}
       {winner.photo_url && (
-        <WinnerPhotoReveal src={winner.photo_url} alt={`${winner.name}, ${winner.area}`} />
+        <>
+          <WinnerPhotoReveal src={winner.photo_url} alt={`${winner.name}, ${winner.area}`} />
+          {/* Licence obligation — see PhotoCredit. */}
+          <PhotoCredit spot={winner} />
+        </>
       )}
 
       {/* Decision summary */}

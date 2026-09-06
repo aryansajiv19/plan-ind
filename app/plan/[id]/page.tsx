@@ -202,7 +202,7 @@ export default function VotePage() {
       // full shape, so don't start reading a dropped field here without
       // adding it back to this list.
       const { data: spotRows, error: spotsErr } = spotIds.length
-        ? await supabase.from("spots").select("id, name, category, cuisine, price_band, area, description, vibe, open_till, min_spend, latitude, longitude, photo_url, booking_url").in("id", spotIds)
+        ? await supabase.from("spots").select("id, name, category, cuisine, price_band, area, description, vibe, open_till, min_spend, latitude, longitude, photo_url, photo_attribution, booking_url").in("id", spotIds)
         : { data: [], error: null };
       // Preserve the dealt order.
       const ordered = spotIds

@@ -3771,3 +3771,33 @@ h3 {
 /* The six-digit sign-in code is DATA, and at 24px in a high-contrast
    serif the digits read as decorative. Clarity wins here. */
 .auth-input--code { font-family: var(--font-body); }
+
+/* ── Photo credit (licence obligation, not a caption) ───────────────
+   Rendered by components/PhotoCredit.tsx wherever a spot photo appears.
+   Several curated photos are CC-BY, where attribution is a condition of
+   use, so this has to be legible rather than hidden: it sits on the
+   photo's own scrim treatment, small but never below the readable floor,
+   and it must not be clipped away by a parent's overflow.
+
+   Positioned bottom-left because every photo surface in this app already
+   reserves the bottom-right for its own furniture (the wall tile's note
+   chip, the place hero's body block). */
+.photo-credit {
+  position: absolute;
+  left: 10px;
+  bottom: 8px;
+  z-index: 3;
+  max-width: calc(100% - 20px);
+  padding: 3px 7px;
+  border-radius: var(--radius-control);
+  background: rgba(14, 12, 14, 0.62);
+  color: var(--photo-body);
+  /* A licence credit has to be readable to count as attribution, so this
+     does not go to the smallest size the layout would tolerate. */
+  font-size: 0.7rem;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

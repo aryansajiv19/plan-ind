@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Spot } from "@/lib/types";
+import PhotoCredit from "@/components/PhotoCredit";
 
 export interface WallNote {
   /** What HAPPENED — "Sara + 2 saved", "In Friday's deal". Never the category. */
@@ -79,6 +80,9 @@ export default function PhotoTile({
           <p className="wall-tile__vibe">{spot.vibe}</p>
         ) : null}
       </div>
+
+      {/* Licence obligation, not decoration — see PhotoCredit. */}
+      <PhotoCredit spot={spot} />
 
       {note ? (
         <p className={`wall-tile__note ${note.live ? "wall-tile__note--live" : ""}`}>
