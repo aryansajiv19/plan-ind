@@ -909,6 +909,36 @@ crossed into what's banned.
 already assembled — not a shortened version of the effect, the same
 outright-disable pattern as `TiltCard`.
 
+**⚠️ AMENDED 2026-09-07 — the subject changed from a photo to text
+(§23.9b), and three things above do not survive that change unaided.**
+Shipped as `WinnerReveal` (`72af888`). Anyone re-deriving from the
+particle cap alone inherits a real bug, which is why this is recorded here
+rather than only in §23:
+
+1. **Density is a function of coverage, not of the cap.** The 1,500-2,500
+   figure was correct *for a full-bleed photo*, where ink covers the whole
+   box. Type covers a fraction of it, so the inherited 7px cell yields
+   **45-87 particles** for real venue names — scattered dots that never
+   resolve into a word. **The cap never implied a cell size; it only ever
+   held for one subject.** At 2px cells with a 96px ceiling the live
+   catalogue measures **776** ("Museum of the Future", shrinking to 38px to
+   fit) to **1,232** ("Brasserie 2.0" at 70px) — comfortably inside the cap,
+   reached by measuring the real catalogue rather than by reasoning from it.
+2. **The canvas draws in a fixed 400×220 space scaled by CSS.** The crisp
+   text that replaces the particles must be sized against *that* box, or
+   the reveal ends on a visible jump — on the one screen that must not have
+   one. Verified by measuring rendered against reconstructed (142px against
+   142px, 79 against 79), not by reasoning.
+3. **It must wait on `document.fonts.ready`.** Sampling before the display
+   face loads reconstructs the *fallback* serif and then settles to a
+   different shape.
+
+**What the swap deleted, and this is the point:** reconstructing the name
+needs no cross-origin fetch, so `getImageData()` cannot taint the canvas
+and the whole fallback path is gone. It now runs on **every** decided plan
+instead of the ~7% with a photo, and still settles onto the photo when one
+exists. **The rewrite removed code rather than adding it.**
+
 ### 14.3 — Front-door hero: scroll-based depth drift (no cursor tracking)
 
 Distinct from `TiltCard`'s existing pointer-parallax (which stays,
@@ -1940,6 +1970,9 @@ prevent.
 computed, and the mock was audited in-browser with alpha composited through
 ancestors: **0 text failures, all component boundaries ≥3:1 on both sides.**
 
+*Numbering note: §23.5 and §23.6 became §23.11 and §23.12 when §23.7–23.10
+landed, so this section reads in order. Nothing was deleted.*
+
 ### 23.0 — This reverses two written owner directions. Say so, don't quietly drift.
 
 Both are still written down elsewhere. Someone will read the reversal as
@@ -2220,7 +2253,125 @@ after the change — a single screenshot cannot catch an interval bug, and
 this repo has already produced one confident wrong conclusion from a
 screenshot.
 
-### 23.5 — Verification
+### 23.9 — The primary fill, and the reveal panel's ground
+
+Two surfaces Frontend needed before implementing, both the same class of
+question: **a new surface needs its ink chosen *and* §23.7's ring
+re-measured against it.** Neither was decided by the floors alone.
+
+#### 23.9a — `--primary-fill` / `--primary-ink`
+
+**Five of the six candidates pass every floor**, so measurement narrowed
+this and did not decide it. Stating that plainly, because a judgement
+dressed as arithmetic is harder to revisit later:
+
+| Candidate | Boundary card / canvas | Best ink | Ring on it |
+|---|---|---|---|
+| **light `#D4C9C7`** | **11.19 / 7.43** | navy **11.19** | **11.19** |
+| white `#FFFFFF` | 18.10 / 12.02 | navy 18.10 | 18.10 |
+| tan `#AA7452` | 4.59 / 3.05 | navy 4.59 | 4.59 |
+| accent `#BF977D` | 6.84 / 4.54 | navy 6.84 | 6.84 |
+| grey `#969A9E` | 6.39 / 4.24 | navy 6.39 | 6.39 |
+| brown `#7C5841` | **2.87 / 1.91** | — | — **fails** |
+
+**Live: `--primary-fill: #D4C9C7`, `--primary-ink: #051822`.**
+
+- **Boundary** 11.19 on card, 7.43 on canvas — clears §19.7's 3:1 on both.
+- **Ink** navy on the fill, **11.19** — clears 4.5.
+- **Ring (§23.7):** outer band `#D4C9C7` is **1.00** on this fill and
+  correctly disappears; the inner band `#051822` carries it at **11.19**.
+  This is the two-band design doing exactly the job it was built for, on
+  the fifth surface — the one that did not exist when it was specced.
+
+**Why not white,** which scores higher on every line: the extra contrast is
+surplus — 11.19 is already more than double the floor — and it would be
+bought by shipping a value outside the owner's six. Same reasoning as
+§23.7's outer band. White remains the documented fallback if a future
+surface makes `#D4C9C7` unworkable.
+
+**Why not tan, accent or grey,** which all pass: **each already has a job.**
+Tan is §21.3's reserved framing fill, accent is §21's accent text, grey is
+§23.2's boundary and card-meta ink. Making any of them a button background
+overloads a token that already means something, and every screen would then
+read as if it were spending its one earned fill (§21.5) on a button.
+**A token with two jobs is the mirror of `--color-accent-premium`'s failure**
+(§19.6, a token with none) — and it is the harder one to unpick, because
+both usages look correct in isolation.
+
+**This satisfies §21.4 rather than bending it.** That clause says buttons
+take "ink or the pop colour, **never a fill**". `#D4C9C7` *is* dark's ink
+(§23.2), so the primary button is the exact inversion of light's — which
+was navy fill with light text. Nothing about §21.4 changes.
+
+**Secondary / ghost:** transparent ground, `--edge` border (3.27 canvas /
+4.93 card), `--ink` label. **Not yet specced: the destructive/error fill.**
+It carries semantic colour (§21.4 exempts it), it is a sixth surface, and
+it must be measured against the ring like this one was.
+
+#### 23.9b — The reveal panel
+
+**Live: ground `#051822` (the card value), particle ink `#D4C9C7`,
+`--edge` hairline.** Not tan.
+
+| Option | Particle ink | Boundary vs canvas | Ring |
+|---|---|---|---|
+| **card `#051822`** | **11.19** | 1.51 — needs the `--edge` hairline | 11.19 |
+| tan `#AA7452` | 4.59 | 3.05 — self-sufficient | 4.59 |
+| canvas `#2D383E` | 7.43 | 1.00 — invisible, rejected | 7.43 |
+
+Three reasons, in order of weight:
+
+1. **The particles are 2px cells.** Thin marks need contrast far more than
+   solid type does; at 4.59 on tan a 2px particle field reads as haze, at
+   11.19 it reads as letterforms. **This is the argument that decides it**,
+   and it only appears once you know the cell size — which is why §14.2's
+   amendment below matters.
+2. **The drama is light assembling out of near-black.** On a mid-tone fill
+   it is dark-on-tan, which is the flattest version of the one moment the
+   product exists to deliver.
+3. **It leaves §21.5's one-fill budget unspent on that screen.** The decided
+   screen also carries RSVP, booking and rating surfaces; the panel does not
+   need to be the thing that spends it, because at ΔL\* 15.5 against the
+   canvas it is already a distinct surface without any colour at all.
+
+**Tan remains legal** and its numbers are above if the owner wants the
+payoff to carry colour. It costs that screen its one fill.
+
+### 23.10 — Surface-dependence is general in dark, not a quirk of one token
+
+§23.2 flagged `--muted` as surface-dependent. It has now appeared twice
+more — in the reveal panel's inherited ink, and in the ring's outer band
+vanishing on `--primary-fill`. **Three instances is a property, not a
+coincidence, so state it as a rule:**
+
+> **In dark, a token's legality is a property of the token *and the surface
+> under it*, never of the token alone.** Light mode could get away with the
+> looser habit because its canvas and card differ by **ΔL\* 3.34** — barely
+> two surfaces at all, so a value legal on one was legal on the other.
+> Dark separates them by **15.54**, and adds fills at L\* 53.6 and 81.8.
+> The same token now crosses a real range.
+
+**What this obliges, concretely:**
+
+- **Every contrast figure in dark is quoted with its ground, or it is not a
+  figure.** "`#969A9E` is 6.39" is not a claim; "6.39 on the card, 4.24 on
+  the canvas — fails there" is.
+- **A component that inherits ink from `getComputedStyle` inherits the
+  surface question with it.** `WinnerReveal` reads its family and ink from
+  its own computed style — correct, and it means whatever ground the panel
+  lands on must define an ink that is legal *on that ground*. §23.9b pins
+  both together for exactly this reason.
+- **When a new surface is introduced, it is not done until it has been
+  measured against the ring** (§23.7), not only against its own text. The
+  primary fill was the fifth surface; the destructive fill will be the
+  sixth.
+- **This is the light-mode habit that must not be carried over**, and it is
+  the same shape as the mistake §23.1 fixed: the failure there was
+  importing light's *elevation metaphor*, and the failure here would be
+  importing light's *one-value-fits-every-ground* assumption. Both look
+  harmless until measured.
+
+### 23.11 — Verification  *(was §23.5 before §23.7–23.10 landed)*
 
 - Every text pair re-measured **on both dark grounds**, alpha composited
   through ancestors. `color(srgb …)` must be parsed — three sessions have
@@ -2234,8 +2385,18 @@ screenshot.
   inset on a near-black card is invisible. **Not solved here; flagged.**
 - `prefers-reduced-motion` kills the deal stagger and the particle reveal
   with no layout shift.
+- **Every new surface is measured against the ring (§23.7), not only against
+  its own text.** The primary fill was the fifth; the destructive fill will
+  be the sixth. A surface that carries legible text but kills the focus ring
+  is not finished.
+- **The reveal ends on its crisp text at the same size it reconstructed**
+  — measured rendered-against-reconstructed, not reasoned (§14.2's
+  amendment). A jump here lands on the one screen that must not have one.
+- **Light's park is watched for ≥90 seconds on a real page** (§23.8), not
+  screenshotted. The failure mode is a 60s interval, and no still frame can
+  show it.
 
-### 23.6 — Resolved, and what actually remains
+### 23.12 — Resolved, and what actually remains  *(was §23.6)*
 
 All three of this section's original open questions have been answered.
 Kept rather than deleted, because *how* they were settled is the useful part.
@@ -2253,10 +2414,13 @@ Kept rather than deleted, because *how* they were settled is the useful part.
 
 **Still genuinely open:**
 
-- **The dark primary-fill button** (`--primary-fill` / `--primary-ink`) is
-  not specced for dark. §23.7's ring was measured against the four *ground*
-  surfaces; a filled button is a fifth, and it must be re-checked against
-  the ring when its value is chosen.
+- ~~**The dark primary-fill button.**~~ **SPECCED 2026-09-07 — §23.9a.**
+  `#D4C9C7` fill, `#051822` ink, and the ring measured against it (the
+  outer band vanishes at 1.00 and the inner carries it at 11.19 — the
+  two-band design earning its keep on the fifth surface).
+- **The destructive / error fill is now the open one.** It carries semantic
+  colour, so §21.4 exempts it from the fill rules — but it is a **sixth
+  surface** and must be measured against the ring exactly as §23.9a was.
 - **`/login`, `/onboarding`, `/privacy`, `/terms`** use a separate `--auth-*`
   token set with no dark variant at all (`a11y-responsive` has this open).
   With dark as the identity these are now white screens mid-flow, which is
