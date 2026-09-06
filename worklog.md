@@ -915,3 +915,51 @@ Unchanged by this work and never rendered today; the natural place for a
 `.slice()` is whenever someone builds the "show why it matched" UI.
 
 47 unit tests. Journey 118/120. Gate green.
+
+---
+
+## 2026-09-06 — T0: migrations 035 + 036 applied live (owner approved all)
+
+Owner: "apporove all migrations". Applied via MCP, each verified by catalog
+query rather than assumed. **035, 036 and 037 are now all live; the
+`supabase/` directory has no unapplied migration left.**
+
+**035 (carpool fields).** Verified: both columns present, the
+`rsvps_seats_only_when_driving` constraint present, and **exactly one**
+`set_plan_rsvp` — the old 5-arg signature dropped cleanly rather than
+leaving an overload, which was the specific trap 035's author flagged when
+writing it. Grants correct: `anon` cannot execute, `authenticated` can.
+The frontend one-liner that had to land before or alongside this (passing
+`p_transport`/`p_seats_available` so an ordinary RSVP tap can't null a
+carpool answer) was **already shipped** — verified at
+`app/plan/[id]/page.tsx:488-489` before applying, not assumed.
+
+**036 (moodboards).** Verified: RLS enabled on both tables, one
+ownership-scoped policy each, `{authenticated}` only, no anon policy.
+
+**Deliberately NOT hand-edited at apply time:** 035 still carries the
+`p_choice not in (...)` NULL-guard bug (`NULL not in (...)` is NULL, not
+TRUE). It was parked to "ride along with the next migration," but amending
+a security-reviewed migration during its own apply — with no re-review —
+is a worse habit than shipping one latent, UI-unreachable bug. Now that the
+owner has approved migrations as a class, it gets its own numbered
+migration instead.
+
+### Live grant posture, checked across all 23 tables
+
+Every table shows `anon` holding table-level SELECT (and most, write) — the
+Supabase default grant — with **RLS as the actual gate**. 036 matches that
+posture exactly, so it is consistent with the existing model rather than a
+regression. Recording the shape so the next reader doesn't mistake the
+grant for an exposure.
+
+**One genuine exception, and it is the only one:** `visit_photos` carries
+the database's **sole anon-facing policy** — `read permitted visit photos`,
+`{anon,authenticated}`, whose first clause is `visibility = 'community'`.
+So an unauthenticated caller holding the (public-by-design) anon key can
+read any `community` row, including `person_id` and `storage_path`.
+**Not exposed today**: 0 rows in the table, and the column default is
+`'friends'`, so a user must deliberately opt in. Reads as an intended
+community-feed design with a safe default. Flagged for confirmation rather
+than as a finding — but it is the one place where "RLS is membership-scoped,
+not permissive" has a deliberate exception, and that is worth knowing.
