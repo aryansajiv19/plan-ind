@@ -12,8 +12,8 @@ superseded number as live is the main way this document can hurt you.
 | **Palette** | **§19 (v7)** | The owner's six hexes. Everything earlier is superseded. |
 | Boundary + text floors | §19.7 | Live and binding. Text ≥4.5:1, component boundaries ≥3:1. |
 | Radii | §19.4 | Live. `--radius-control: 10px`. |
-| **Ground + elevation** | **§23.1** | **Live. Dark is the identity. Cards sit BELOW the canvas.** |
-| Dark tokens | §23.2 | Live. Six owner values + one derivation. `--muted` is surface-dependent. |
+| **Ground + elevation** | **§24** | **Live. Canvas `#051822`, cards `#0B2836` (ΔL\* 7.47). Supersedes §23.1's grounds AND its rule.** |
+| Dark tokens | §23.2 + §24.4 | Live. `--canvas`/`--card` come from §24; every other token from §23.2. |
 | Energy / type scale | §23.4 | Live. Energy is scale, motion, density — never more colour. |
 | **Focus ring** | **§23.7** | **Live. Two bands, inset. §19.7's graphite ring is superseded for dark.** |
 | Light mode | §23.8 | **Parked, not deleted**, 2026-09-07 — the mirror of §19.2. Two pin sites. |
@@ -51,10 +51,12 @@ superseded number as live is the main way this document can hurt you.
   the identity (§23). The six values were chosen *before* dark was asked
   for and two of them are proper darks, which is why this is a correction
   rather than a new direction.
-- **Cards lighter than the canvas in dark** (`dark-theme-v7.html`'s
-  arrangement). It imports light mode's raised-plane metaphor, spends 15.5
-  points of L\* headroom, and leaves **one** legible text tier inside a
-  card. §23.1 inverts it. Do not "fix" the inversion back.
+- **A card sitting `#2D383E` on a `#051822` canvas** — a **15.54** ΔL\*
+  lift. It leaves `--muted` failing at 4.24, which is the card's meta ink on
+  every venue card. **Note this entry was previously written as "cards
+  lighter than the canvas", which was wrong** — direction is free, magnitude
+  is not (§24.1). The live arrangement (§24) *does* put cards above the
+  canvas, at ΔL\* 7.47.
 
 ## Two decisions worth not re-litigating
 
@@ -1992,6 +1994,14 @@ it can be the identity without introducing a seventh colour.
 
 ### 23.1 — The blocking problem, and why it was self-inflicted
 
+> **⚠️ ITS TWO GROUND VALUES ARE SUPERSEDED BY §24 (2026-09-07).** Canvas is
+> now `#051822` and cards `#0B2836`. **Its rule is also corrected there:**
+> this section concluded "cards are wells, not planes", which over-drew a
+> *directional* rule from what was really a *magnitude* finding. Read it for
+> why the near-white ground read flat (ΔL\* 3.34 — still correct and still
+> load-bearing) and why a 15.54 lift costs a tier; take the live arrangement
+> from §24.
+
 As a *theme*, mono-ink card interiors were a compromise worth stating. As the
 *identity* they are unshippable: single-value card interiors are precisely
 the flattening palette v6 was rejected for.
@@ -2023,6 +2033,11 @@ would have been just as inert; the canvas earns its size by being a
 
 ### 23.2 — The dark token set
 
+> **⚠️ `--canvas` and `--card` are superseded by §24.** Every other token
+> here is live; §24.4 re-quotes the figures against the new grounds. The
+> `--muted` surface-dependence warning below is **no longer true of the two
+> dark grounds** — see §24.5, which restates it rather than dropping it.
+
 Six owner values, **one derivation**, no seventh identity colour.
 
 | Token | Value | On canvas `#2D383E` | On card `#051822` |
@@ -2040,10 +2055,14 @@ Six owner values, **one derivation**, no seventh identity colour.
 own page chrome at 4.24 — the rule is real, and it is not obvious by eye.
 Small text on the canvas takes `--ink`.
 
-**`--edge` cannot be softened for looks.** At 0.65α it composites to
-`#71787c` = 2.68 against the canvas and fails SC 1.4.11. A vote option is a
-real `<button>` whose boundary is informational. **0.80 is a floor, not a
-preference.**
+**`--edge` at 0.80α.** ⚠️ **The justification here was measured against
+§23's grounds and §24 moved them — corrected in §24.4.** On the old pair
+0.65α failed at 2.68; on §24's closer grounds it clears at 3.10, so 0.80 is
+specified for **margin**, not because the next step down fails. The floor is
+real but lower: **0.64α is the last value that clears (3.05); 0.62α falls to
+2.94 and fails.** A vote option is a
+real `<button>` whose boundary is informational, so the margin is worth
+keeping — but do not repeat the old reason, which is no longer true.
 
 **Grey finally earns a token.** §19.1 recorded that `#969A9E` gets none
 because nothing renders it. In dark it is both the card-interior meta ink
@@ -2529,6 +2548,150 @@ finding** — the finding is what it composites to, on the ground it will
 actually sit on. Two of these three literals are correct as written. Auditing
 by pattern-match flags all three; auditing by measurement keeps the two that
 are load-bearing and finds a fourth the pattern missed.
+
+## 24 — The ground, revised: the dark blue is the canvas (owner, 2026-09-07)
+
+Owner, verbatim: **"wait dont use that as the mian color the light blue i
+just want the dark blue as the main color"** / *"or wahetevr color that is
+the darker ione"*.
+
+**Canvas becomes `#051822`. Cards become `#0B2836`.** This supersedes
+§23.1's and §23.2's two ground values. **Everything else in §23 stands** —
+tokens, accent, ring, fills, energy — and the figures that changed are
+re-quoted below rather than left to be inferred.
+
+### 24.1 — I have to correct §23.1's rule, not just its values
+
+§23.1 concluded that **"cards are wells cut into the ground, not planes
+floating above it"**, and the do-not-restore list forbade putting cards
+above the canvas. **That generalisation was over-drawn from a single data
+point, and it is mine to correct.**
+
+What §23.1 actually measured was that lifting cards from L\* 7.2 to **22.8**
+crushed a card interior to one legible tier. That is true, and the
+arrangement it rejected is still rejected. But the cause was **the size of
+the lift, not its direction** — and I stated it as a rule about direction.
+
+**The correct rule is about magnitude, and it has two bounds:**
+
+> A card must separate from the canvas by **more than ΔL\* ~3.34** — below
+> that, two surfaces read as one flat field (§23.1's still-correct finding
+> about the near-white ground). And the lift must not be so large that the
+> text-carrying surface runs out of headroom. **Direction is free; the band
+> between those bounds is what matters.**
+
+`#0B2836` sits at **ΔL\* 7.47** — more than double the lower bound, well
+inside the upper. Both surfaces stay strong, which neither the previous
+arrangement nor a naive flip achieves.
+
+### 24.2 — Why not `#2D383E` for cards, which is an owner value
+
+Because it reintroduces the exact failure §23.1 was written to prevent,
+just less severely:
+
+| Card ground | ΔL\* vs canvas | Body-legal inks on it |
+|---|---|---|
+| **`#0B2836`** | **7.47** | **4** — light 9.47, white 15.32, accent 5.79, **grey 5.41** |
+| `#0E2A38` | 8.43 | 4 — light 9.22, white 14.93, accent 5.64, grey 5.27 |
+| `#102E3C` | 10.18 | 4 — light 8.78, white 14.21, accent 5.37, grey 5.02 |
+| `#2D383E` | 15.54 | 3 — light 7.43, white 12.02, accent 4.54; **grey 4.24 FAILS** |
+
+**The token that breaks on `#2D383E` is `--muted`.** That is the card's
+meta ink — neighbourhood, price, opening time, the second line of every
+venue card in the app. Losing it does not cost a shade; it collapses the
+card's three-tier hierarchy to two on the app's most repeated component.
+**That is the mono-ink problem returning in weaker form**, and it is not
+worth paying to keep a hex in the owner's six.
+
+**Correcting one figure in the routed brief:** `#0B2836` carries **four**
+body-legal inks, not three — white at 15.32 was omitted. The only ink it
+loses against `#051822` is **tan at 4.59**, and **no token consumes tan as
+text** (§23.2 lists it as a fill). So the headline "4 tiers versus 3"
+difference is entirely in a colour nothing renders. The real comparison is
+four against four.
+
+### 24.3 — `#0B2836` is a derivation, and here is the honest case for it
+
+It is not one of the owner's six. Three things, in descending strength:
+
+1. **`--muted` survives on it and dies on the alternative** (§24.2). This is
+   the argument; the rest is supporting.
+2. **Deriving beats exception-ing** — the same reasoning that carried
+   `#BF977D` in §23.3, and `muted` / `line` / `error` / `confirm` before it.
+3. **It already ships**, as the top stop of light mode's `--primary-fill`
+   gradient (`globals.css:278`, `linear-gradient(180deg, #0b2836, #051822)`).
+   **This is the weakest of the three and should not be leaned on**: it shows
+   the value is compatible with the palette, not that the owner chose it for
+   this job.
+
+**The owner asked which colour the canvas should be. They did not rule on
+the card.** If this is judged to cross the no-unpicked-colour line, the
+fallback is `#2D383E` cards, and the cost — `--muted` failing on every venue
+card — must be stated to the owner rather than absorbed.
+
+### 24.4 — What changes, measured
+
+| Surface / token | Value | On canvas `#051822` | On card `#0B2836` |
+|---|---|---|---|
+| `--ink-strong` | `#FFFFFF` | 18.10 | 15.32 |
+| `--ink` | `#D4C9C7` | 11.19 | 9.47 |
+| `--muted` | `#969A9E` | **6.39** | **5.41** |
+| `--accent` | `#BF977D` | 6.84 | 5.79 |
+| `--color-error` | `#F08A78` | 7.42 | 6.28 |
+| `--primary-fill` boundary | `#D4C9C7` | 11.19 | 9.47 |
+| `--edge` @ 0.80α | → `#81868b` | **4.52** | **3.98** |
+
+**One of my own figures needed correcting here, and it is worth naming as a
+pattern.** §23.2 justified `--edge`'s 0.80α with "at 0.65 it falls to 2.68
+and fails". That was true of §23's grounds. On §24's closer pair, **0.65α
+clears at 3.10** — the claim expired when the ground moved, exactly like
+§23.10's `--muted` example did. **0.80 stays**, for margin; the real floor is
+**0.64α at 3.05**, with 0.62α failing at 2.94. A value can outlive the reasoning that chose it, and the
+reasoning is what rots first.
+
+**Unchanged:** the accent, the error value, the primary fill and its ink,
+the ring's two bands, §21's placement rules, §23.4's energy work.
+
+**Two consequential moves:**
+
+- **The reveal panel must move to `#0B2836`.** §23.9b put it on `#051822`,
+  which is now the canvas — it would vanish as a surface. Particle ink
+  `#D4C9C7` measures **9.47** there, still far above the 4.59-on-tan that
+  §23.9b rejected as haze, so that argument survives the change intact.
+- **The focus ring's inner band is now near-invisible on both dark
+  grounds** (1.00 on canvas, 1.18 on card) — by design. The outer band
+  carries every dark surface (11.19 / 9.47) and the inner band's job is now
+  **exclusively the light fills**: `#D4C9C7` 11.19, `#F08A78` 7.42, tan 4.59.
+  **The ring is still two-tone and still necessary**; worst case is
+  unchanged at 4.59.
+
+### 24.5 — §23.10 has to be restated, not just kept
+
+§23.10 said a token's legality depends on its surface, and used **`--muted`
+failing on the canvas at 4.24** as its worked example. **That example is now
+gone** — grey clears on both dark grounds (6.39 / 5.41). Leaving a rule
+propped up by an instance that no longer holds is how a document rots, so:
+
+> **The rule stands, and its domain has moved.** Canvas and card are now
+> 7.47 apart rather than 15.54, so a token legal on one is very likely legal
+> on the other — **the surface question is no longer canvas-versus-card. It
+> is dark grounds versus the light fills**, and that gap is far wider than
+> the one the rule was written for: L\* 7.2–14.7 against 53.6–81.8.
+
+**Every live instance is now a fill**, which is a cleaner rule than the one
+it replaces: the ring's outer band vanishing on `--primary-fill`, white ink
+being forbidden on `#F08A78`, tan needing navy rather than light. **"Every
+contrast figure in dark is quoted with its ground, or it is not a figure"
+is unchanged** — only the surfaces it most often catches have changed.
+
+### 24.6 — `#2D383E` now has no job, and that is allowed
+
+It is not the canvas, not the card, and inventing a role for it would be
+`--color-accent-premium` exactly: a token created because a value existed
+rather than because something rendered it. **Leave it unassigned.** If a
+genuinely raised chrome surface appears later — a sticky header band over
+scrolled content — it is the obvious candidate, and it can be adopted then,
+against measurement, for a consumer that exists.
 
 ## Verification (for whoever implements this)
 
