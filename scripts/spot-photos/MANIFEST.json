@@ -1,0 +1,50 @@
+[
+  {
+    "file": "87000000-0000-0000-0000-000000000003.jpg",
+    "spot": "Museum of the Future",
+    "source": "wikimedia",
+    "licence": "CC-BY-SA-4.0",
+    "attribution": "Lyonerov / Wikimedia Commons / CC-BY-SA-4.0",
+    "from": "https://en.wikipedia.org/wiki/File:Museum_of_the_future,_Dubai.jpeg"
+  },
+  {
+    "file": "89000000-0000-0000-0000-000000000002.jpg",
+    "spot": "Mall of the Emirates",
+    "source": "wikimedia",
+    "licence": "CC BY 2.0",
+    "attribution": "Peter Gronemann from Switzerland / Wikimedia Commons / CC BY 2.0",
+    "from": "https://commons.wikimedia.org/wiki/File:Mall_of_the_Emirates_(3679338750).jpg"
+  },
+  {
+    "file": "50000000-0000-0000-0000-000000000004.jpg",
+    "spot": "The Green Planet",
+    "source": "wikimedia",
+    "licence": "CC BY-SA 4.0",
+    "attribution": "WikiSilky / Wikimedia Commons / CC BY-SA 4.0",
+    "from": "https://commons.wikimedia.org/wiki/File:Green_Planet_Dubai.jpg"
+  },
+  {
+    "file": "86000000-0000-0000-0000-000000000001.jpg",
+    "spot": "Deep Dive Dubai",
+    "source": "wikimedia",
+    "licence": "CC BY-SA 4.0",
+    "attribution": "Deep dive dubai / Wikimedia Commons / CC BY-SA 4.0",
+    "from": "https://commons.wikimedia.org/wiki/File:Deep_dive_uae.jpg"
+  },
+  {
+    "file": "e0000000-0000-0000-0000-000000000001.jpg",
+    "spot": "Cinema Akil",
+    "source": "wikimedia",
+    "licence": "CC BY 2.5",
+    "attribution": "Mohamed Somji / Wikimedia Commons / CC BY 2.5",
+    "from": "https://commons.wikimedia.org/wiki/File:Cinema_akil.jpg"
+  },
+  {
+    "file": "a0000000-0000-0000-0000-000000000005.jpg",
+    "spot": "Tresind Studio",
+    "source": "venue_site",
+    "licence": "venue's own image",
+    "attribution": null,
+    "from": "https://www.tresindstudio.com"
+  }
+]

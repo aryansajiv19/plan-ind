@@ -963,3 +963,134 @@ read any `community` row, including `person_id` and `storage_path`.
 community-feed design with a safe default. Flagged for confirmation rather
 than as a finding — but it is the one place where "RLS is membership-scoped,
 not permissive" has a deliberate exception, and that is worth knowing.
+## 2026-09-06 — T1 Security/Backend: photo sourcing measured, blocked on owner input
+
+Measured all three free tiers before building anything. **The free path tops
+out at ~10 real venue photos out of 82 (12%).** Reporting rather than
+proceeding, because the gap is a product decision, not an engineering one.
+
+**Tier 1 (venue's own site, via the existing OG extraction): 1 usable.**
+Not a limitation of the machinery — a limitation of the data. Only **2 of 82**
+curated spots have any URL at all (`booking_url`), and one of those two
+(`reifother.com`) no longer resolves. The one that works, Tresind Studio,
+returned a clean og:image on the first try. So the extraction is fine; there
+is simply nothing to point it at.
+
+**Tier 2 (Wikipedia/Wikimedia): ~9 usable, and only landmarks.** My first
+probe was invalid twice over and is worth recording as a caution: 300ms
+between calls got HTTP 429, and `generator=search` returns the top hit
+regardless of relevance, which produced "Bla Bla" → the footballer Blas
+Pérez and "The Smash Room" → Dubai International Airport. Re-run with exact
+title matching and 1.2s spacing: 19/82 have a page under their own name, 11
+carry an image — but the **single-token-name problem resurfaces in a
+completely different system**. Verified against the articles' own text:
+Hummingbird is the bird, SoBe an American drink brand, Bla Bla an interactive
+animated film, Saffron the spice, and Iris / Ninive / La mer are
+disambiguation pages. Stripping those leaves **9 trustworthy**: VOX Cinemas,
+Cinema Akil, Deep Dive Dubai, Museum of the Future, Dubai Safari Park, Dubai
+Design District, Mall of the Emirates, The Green Planet, Black Tap.
+
+**Tier 3 (Unsplash/Pexels): blocked, and wrong by default anyway.** Both
+require an API key the owner must register for. More importantly a stock
+photo is not the venue — it is the exact failure mode we rejected for
+coordinates, and worse here: a wrong coordinate is invisible until someone
+navigates, a wrong photo *looks correct on the card*.
+
+**Coverage by category — 15 of 23 categories get zero:**
+
+| sourceable | categories |
+|---|---|
+| 2 of n | movie, shopping |
+| 1 of n | adventure, culture, dessert, dinner, family, outdoors |
+| **0** | beach, beach_club, brunch, cafe, escape, games, karaoke, live_music, nightlife, padel, shisha, sports, vibes, water, wellness |
+
+**The compounding is real and confirmed.** beach_club, escape, padel and
+wellness are at 0% coordinates *and* 0% photos. Those four categories can
+currently render neither a distance line nor an image — they are the weakest
+surfaces in the app, not two independent gaps.
+
+**The ask that actually unblocks this:** tier 1 is the only tier that yields
+genuine venue photography, and it fails purely for want of URLs. ~80 venue
+website URLs, pasted once, turn machinery we already own and have already
+hardened into real photos at real quality — the same shape as the 12
+hand-pasted coordinates. That is a far better use of the owner's time than
+approving a stock-image backfill that makes 72 cards *look* right while
+showing somewhere else entirely.
+
+Nothing built, nothing staged, no bucket created, no migration written —
+the design (public `spot-photos` bucket, `photo_source`/`photo_attribution`
+columns, remotePatterns at the end) is agreed but waiting on this decision,
+because the answer changes what gets built.
+
+---
+
+## 2026-09-06 — T1 Security/Backend: scale defects, and a silent-truncation class
+
+Four scale defects, measured against a seeded local catalogue at 1082 and
+5082 rows. **The headline is not performance.** Three queries were silently
+returning wrong results past 1000 rows.
+
+**PostgREST caps every table read at 1000 rows, with no error and no flag.**
+An explicit `.limit(3000)` or `.range(0, 4999)` does not lift it — both
+still return 1000 (measured). None of the affected queries had a limit
+clause, so nothing in the code looked capped:
+
+- **`dealSpotIds` — the core product loop.** At 5082 spots a dinner-family
+  deal matched 1109 rows and received 1000. Every plan was dealt from the
+  oldest 1000 spots of the family; the rest of the catalogue was undealable.
+- **`resolvePlaceImport`.** Matched a pasted link against only the first
+  1000 curated spots, reporting "no match" for venues that are in the
+  catalogue.
+- **`app/home/page.tsx`'s `.limit(120)`.** Explicit rather than silent, but
+  at 1000 venues 880 are invisible in Discover, which filters client-side.
+  **Removing the limit does not fix it** — the same 1000-row cap applies, so
+  a naive fix still truncates at 5000. This one needs server-side search;
+  it is Frontend's file and is flagged rather than edited.
+
+Both fixable queries now page via `lib/supabase/paginate.ts`. Verified at
+5082: resolve returns all 5082 (56ms, 6 round trips), deal returns all 1109.
+
+**Indexes — measured, with an honest crossover.** Medians of 15 runs of
+Postgres's own Execution Time, two warm-ups discarded.
+
+| n=5082 | common term | no match | rare term | deal |
+|---|---|---|---|---|
+| before | 0.082 ms | 2.256 ms | 2.302 ms | 0.656 ms |
+| after | 0.087 ms | **0.074 ms** | **0.109 ms** | **0.340 ms** |
+| | −6% | **30x** | **21x** | **1.9x** |
+
+Two things worth stating plainly. The existing `spots_name_idx` was **not**
+unused as assumed: with `order by name limit 8` Postgres walks it in name
+order and exits early, which is fast for a *common* term. The pathological
+case is a rare or absent term — a typo, or a venue we do not stock — where
+it must walk everything. That is the case users actually generate, and it is
+the one the trigram index fixes. The common-term case gets marginally
+*slower*; that is the right trade.
+
+**The crossover is the more useful number: ~1,200 rows.** At 1082 the
+planner ignores the trigram index and seq-scans anyway, because scanning
+1082 rows is genuinely cheaper than the GIN machinery. So this index does
+nothing at today's 82 spots and nothing at the owner's near-term 1000 — it
+starts paying just past it. Added because the target is "500–1000s", not
+because it helps today.
+
+**`area` deliberately not indexed.** It is never a SQL filter anywhere in
+this codebase — only read in JS for coordinate lookup. An index no query
+shape can use costs writes and buys nothing.
+
+**A regression I introduced, and the journey caught it.** Migration 038's
+"no client writes to spot-photos" policies were written as ordinary
+PERMISSIVE policies. Permissive policies are OR'd, so
+`with check (bucket_id <> 'spot-photos')` did the opposite of its name: it
+GRANTED insert into every other bucket unconditionally, defeating
+visit-photos' own `foldername(name)[1] = auth.uid()` ownership check and
+letting any signed-in user write into anyone's folder. `verify-journey.mjs`
+step 25 failed on exactly that assertion. Fixed with `as restrictive`, which
+is AND'd and can actually subtract permission. **A permissive policy can
+never express "deny"** — worth remembering, because the intent ("say nobody
+out loud") was right and the mechanism was backwards.
+
+Migration 040 also carries the parked `p_choice` null-guard fix, verified
+returning 42501 instead of a raw 23502.
+
+Journey 119/120 — the only remaining failure is the known coordinate gap.

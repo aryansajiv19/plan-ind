@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { minimumAgeForCategory, prohibitedVenueReason } from "../age-policy.ts";
 import { coordinatesForArea, distanceKm, type Coordinates } from "../dubai-areas.ts";
+import { fetchAllRows } from "../supabase/paginate.ts";
 
 export interface DealConstraints {
   age?: number;
@@ -181,12 +182,19 @@ export async function dealSpotIds(db: Db, input: {
   rng?: () => number;
   embed?: SpotAffinity;
 }): Promise<string[] | null> {
-  const { data, error } = await db
-    .from("spots")
-    .select(SPOT_COLUMNS)
-    .eq("source", "curated")
-    .in("category", categoryFamily(input.category));
-  if (error || !data) return null;
+  // Paged: PostgREST silently caps a table read at 1000 rows -- no error, and
+  // no limit clause here to hint at it. Measured at 5082 curated spots, a
+  // dinner-family deal matched 1109 rows and received 1000, so every plan was
+  // dealt from the oldest 1000 spots of the family and the rest of the
+  // catalogue was undealable. That is the core product loop quietly ignoring
+  // most of the catalogue, not a slow query.
+  const data = await fetchAllRows<DealSpotRow>((from, to) =>
+    db.from("spots").select(SPOT_COLUMNS)
+      .eq("source", "curated")
+      .in("category", categoryFamily(input.category))
+      .order("id").range(from, to) as never,
+  );
+  if (!data) return null;
 
   const pool = data as unknown as DealSpotRow[];
   const eligible = eligibleDealSpots({ ...input, pool });

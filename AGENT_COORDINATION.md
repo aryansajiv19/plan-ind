@@ -588,6 +588,27 @@ externally:
 
 ---
 
+
+## ⚠ Standing rule — how we report to the owner (2026-09-06)
+
+**Keep owner-facing messages SHORT.** Owner, verbatim: "whenevr youte coming
+back to me with chnages/options/status/approvals or give me the msg in short
+so i can read it easily" / "note this down for all sessions".
+
+Applies to every status update, options list, approval request and finding —
+every lane, every time. Not a style preference; they have asked twice for
+less to read.
+
+- Lead with the decision or the ask. Detail only if they ask for it.
+- Approvals: what it is, what it changes, one line of risk. Nothing else.
+- Findings: what broke, what it means, whether it's fixed.
+- No preamble, no recap of what they already know, no walls of measurements.
+- Depth belongs in `worklog.md` and the specs, where it's retrievable —
+  not in the message.
+
+The engineering rigour does not change. Only the reporting does.
+
+
 ## Cross-lane requests
 
 Format: **From → To** · _need_ · _why_ · blocked? · status

@@ -1595,6 +1595,137 @@ and explicitly warned against the drift. If a future change wants italic
 somewhere not on the §20.2 list, that is a new decision to take
 deliberately — not an extension of this permission.
 
+## 21 — Selective colour: where a tan or blue fill earns its place (owner, 2026-09-06)
+
+Owner, verbatim, after choosing direction 1: **"mayve lets use the
+energetic palette a bit dont force the colors everyhwere only wherever
+they naturally fit and look aesthetic."**
+
+Direction 1 stays the base — restrained frame, photography carries the
+page. Direction 2's coloured fills become a **selective accent layer on
+top**, never a wholesale swap. "Don't force the colours everywhere" is
+the binding half of that sentence; this section is the other half made
+reviewable, because "wherever they look aesthetic" cannot be implemented
+or checked against.
+
+### 21.1 — The rule, in one sentence
+
+> **A coloured fill stands in for a missing image. It never sits
+> alongside one.**
+
+That resolves the tension between the two directions rather than
+splitting the difference. Photography and coloured fills do the *same
+job* — they supply the colour and energy the neutral frame deliberately
+withholds. So they never compete for it: whichever is present does the
+work, and the other stands down.
+
+### 21.2 — Where a fill earns its place
+
+Two surfaces, both cases of *absence*:
+
+1. **A venue card with no photo**, inside a grid or wall of cards. Today
+   that renders as the fallback typographic tile, which is what makes the
+   wall read flat. A fill gives it presence and gives the grid rhythm.
+2. **An empty-state panel** — a collection with nothing in it, a wall
+   before anything is saved. Nothing is competing for attention there.
+
+### 21.3 — Where it stays neutral, named explicitly
+
+A general rule will not survive contact, so:
+
+- **Any card that has a photo.** The photo is the colour. Adding a fill
+  behind or beside it is the exact "forcing" the owner asked against.
+- **The hero / featured card, even when photo-less.** It is the largest
+  surface on the screen, and a full tan or blue hero reads as a *themed
+  page* rather than as punctuation. This is the carve-out most likely to
+  be argued with later, so it is stated plainly: the hero stays neutral.
+- Nav, header, footer, page canvas, form surfaces, modals.
+- Buttons and actions — those take ink or the pop colour (§19.1), never a
+  tan or blue fill.
+- Error, loading and confirmation states — they carry semantic colour and
+  must not become confusable with decorative fills.
+
+### 21.4 — The ceiling (the §20-shaped constraint)
+
+The owner has now twice asked for restraint on an expressive element, and
+§20's "at most one italic element per screen" is the shape that worked:
+
+- **At most one card in three** carries a fill, in any grid or row.
+- **Never two filled cards adjacent.** This also disposes of the blue/tan
+  pairing problem: they are 1.15:1 against each other, and while ΔL* 4.26
+  means they are fine as adjacent *surfaces*, two colour blocks side by
+  side is simply direction 2 rebuilt by accretion.
+- **The hero is never filled** (§21.3).
+
+If a screen wants a fourth filled card, the answer is no. The ratio is
+the rule, not a guideline.
+
+### 21.5 — Assign the colour by position, never by meaning
+
+Rotate tan and blue **by index within the grid**. Do **not** key the fill
+to category, price band, area, or any other attribute.
+
+This is not arbitrary. Colour-by-category *is* the retired category
+rainbow, which the anti-vibecoded list names explicitly and §16.3
+confirms has stayed retired. Encoding meaning in the fill would
+resurrect it — and would also make a card change colour when its category
+is edited, which reads as a bug. Position is stable and means nothing,
+which is exactly what is wanted here.
+
+### 21.6 — Mechanics, carried from §19.1a unchanged
+
+Non-negotiable, and the reason this is harder than "add some colour":
+
+- **Every fill carries full-strength `#3F230B`** — 5.74:1 on tan, 5.00:1
+  on blue. A softened mid-tone ink drops to ~4.0:1 and fails. That is the
+  exact mistake the first direction-2 mock made, and that its own audit
+  caught.
+- **Brown `#9F7652` is never a fill.** Nothing can sit on it: dark ink is
+  3.56:1, white is 4.05:1, both failing. Counter-intuitive, since brown
+  is the centre of the family — which is why it is stated rather than
+  left to be rediscovered.
+- **Only tan and blue are fill colours.** There is no third.
+
+### 21.7 — Why this rule is self-limiting, which is the point
+
+Verified against the live database while writing this: **0 of 82 spots
+have a photo.** `spots.photo_url` is the only photo column in the schema
+and it is null for every row. So the photo-less card is not merely the
+common case — it is currently the *only* case, and this accent layer is
+presently the entire visual treatment of every venue card in the app.
+
+Because the rule keys on **photo absence**, colour recedes on its own as
+photography lands. Every real photo sourced turns one coloured card
+neutral, with no code change and no second design decision. The "don't
+force the colours everywhere" instruction therefore holds through the
+transition rather than only today — the rule enforces it over time
+instead of relying on someone's restraint months from now.
+
+One caveat for whoever reads this next: the fills are load-bearing *right
+now* precisely because there are no photos. Do not judge §21.4's ratio
+against a fully-photographed mock; judge it against the real catalogue,
+where every card is currently plain.
+
+**How near the transition actually is, stated precisely so nobody plans
+against a softer number** (confirmed 2026-09-06, and corrected once
+already — an earlier "roughly 10, landing shortly" was a count of
+*sourceable* candidates reported as though it were live data):
+
+- **Live today: zero.** Not a single spot has a photo.
+- **Six**, not ten, survived Backend's hand-review and are staged in
+  migration 039.
+- Those six are **gated on an owner decision that has not been made** —
+  migration 038 creates a public-read bucket, which is deliberately not
+  being taken under any earlier blanket migration approval.
+
+So the realistic near-term state is **six photographed spots out of 82**,
+and only after an approval that may not come quickly. Even fully
+delivered, that is roughly one card in fourteen. §21.4's one-in-three
+ceiling is therefore the binding constraint on how much colour appears —
+photo availability will not be doing that work for a long time yet. Plan
+the implementation for a mostly-plain catalogue, and let §21.1 handle the
+photographed cards as they trickle in.
+
 ---
 
 ## Verification (for whoever implements this)
