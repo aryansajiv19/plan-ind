@@ -21,14 +21,16 @@
   --navy:#051822; --slate:#2D383E; --brown:#7C5841;
   --tan:#AA7452;  --grey:#969A9E;  --light:#D4C9C7;
 
-  --canvas:#2D383E;              /* L* 22.8 — the ground */
-  --card:#051822;                /* L*  7.2 — a well, not a raised plane */
-  --ink:#D4C9C7;                 /* 11.19 on card · 7.43 on canvas */
-  --ink-strong:#FFFFFF;          /* 18.10 on card · 12.02 on canvas */
-  --meta:#969A9E;                /* 6.39 on card — body-legal INSIDE a card */
+  /* --slate #2D383E has NO job under SS24.6 — it appears below only to draw
+     the rejected column, never as a live surface. */
+  --canvas:#051822;              /* L*  7.2 — the owner's dark blue, SS24 */
+  --card:#0B2836;                /* L* 14.7 — a 7.47 dL* lift, derived */
+  --ink:#D4C9C7;                 /*  9.47 on card · 11.19 on canvas */
+  --ink-strong:#FFFFFF;          /* 15.32 on card · 18.10 on canvas */
+  --meta:#969A9E;                /*  5.41 on card ·  6.39 on canvas — legal on BOTH now */
   --accent:#BF977D;              /* derived: tan +25% toward white.
-                                    4.54 canvas · 6.84 card — clears body on BOTH */
-  --edge:rgba(150,154,158,.8);   /* composites to #81868b: 3.27 canvas / 4.93 card */
+                                    6.84 canvas · 5.79 card — clears body on BOTH */
+  --edge:rgba(150,154,158,.8);   /* composites to #81868b: 4.52 canvas / 3.96 card */
   --r:10px; --rp:20px;
   --settle:cubic-bezier(.16,1,.3,1);
 }
@@ -95,7 +97,7 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 .cmeta{margin:0;font-size:.69rem;line-height:1.45;color:var(--meta)}
 
 /* the REJECTED interior: card lighter than canvas -> everything collapses */
-.card--flat{background:var(--slate);border-color:var(--edge)}
+.card--flat{background:var(--slate);border-color:var(--edge)}  /* #2D383E: a 15.54 dL* lift */
 .card--flat .cname,.card--flat .cmeta,.card--flat .ckick{color:var(--light)}
 
 .cname{font-family:"Cormorant",serif;font-size:1.02rem;font-weight:600;margin:0 0 2px;
@@ -202,22 +204,23 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 <div class="lede">
   <h1>Dark as the identity — and the flattening <em>solved,</em> not accepted.</h1>
   <p>
-    Making dark the standard raises one blocking problem: on <b>#2D383E</b> only <b>#D4C9C7</b> clears
-    the 4.5 floor, so card interiors go single-colour. That is the exact flattening the v6 palette was
-    rejected for, and it is not shippable as a default.
+    Dark is the identity and <b>#051822 — the darker blue — is the canvas</b>, as the owner asked.
+    That leaves one question the palette does not answer on its own: <b>how far should a card sit from
+    the ground it lies on?</b>
   </p>
   <p>
-    <b>It turned out to be self-inflicted.</b> The dark mock made cards <i>lighter</i> than the canvas,
-    copying light mode's raised-plane idea. That single choice burned 15.5 points of L* headroom — the
-    exact band grey and tan live in. <b>Put the cards below the canvas instead and the problem
-    disappears with no new colour at all:</b> four legible text tiers inside a card, which is one more
-    than light mode has.
+    <b>An earlier version of this page got that rule wrong, and the correction is the interesting
+    part.</b> It concluded that cards must sit <i>below</i> the canvas. What it had actually measured
+    was that a <b>ΔL* 15.54</b> step — the jump to #2D383E — leaves only one legible text colour
+    inside a card. That is true. But the cause was <b>the size of the step, not its direction</b>, and
+    stating it as a rule about direction was over-drawing from a single measurement.
   </p>
   <p>
-    It also answers the background complaint. Today's canvas and cards differ by <b>ΔL* 3.34</b> —
-    near-white on white, which is precisely why the ground reads as one inert field. Dark, done this
-    way, separates them by <b>ΔL* 15.54</b>. The canvas stops being a backdrop and becomes a material
-    the cards are cut into.
+    <b>Magnitude is the whole question, and it has two bounds.</b> Below <b>ΔL* 3.34</b> two surfaces
+    read as one flat field — that is exactly why the near-white ground looked monotonous, and that
+    finding still holds. Too far above it and the card runs out of headroom for text. <b>#0B2836 sits
+    at ΔL* 7.47</b>: more than double the lower bound, and it keeps every ink the card needs —
+    including <code>--muted</code>, the second line of every venue card, which dies at 4.24 on #2D383E.
   </p>
 
   <div class="rev">
@@ -232,9 +235,9 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 </div>
 
 <div class="facts">
-  <div class="fact"><span class="n">4</span>
-    <span class="l">legible text tiers inside a card, once cards sit below the canvas</span>
-    <span class="s">against 1 in the rejected arrangement</span></div>
+  <div class="fact"><span class="n">7.47</span>
+    <span class="l">ΔL* between canvas and card — the band that works</span>
+    <span class="s">3.34 reads as one field · 15.54 kills the meta ink</span></div>
   <div class="fact"><span class="n">1.25<span style="font-size:.42em">rem</span></span>
     <span class="l">"It's&nbsp;{winner}." — the payoff line, today</span>
     <span class="s">the privacy policy's heading reaches 3.5rem</span></div>
@@ -248,12 +251,13 @@ img{display:block;width:100%;height:100%;object-fit:cover}
   <div class="mhead">
     <p class="k">The blocking problem</p>
     <h2>The card interior</h2>
-    <p>Same content, same six values, same dark canvas. The only difference is <b>which way the card
-      steps</b> — up from the ground, or down into it.</p>
+    <p>Same content, same canvas <b>#051822</b>. The only difference is <b>how far the card steps
+      away from it</b>. Direction is free; <b>magnitude is the whole question</b> — below ΔL* 3.34 two
+      surfaces read as one flat field, and too far above it the card runs out of headroom for text.</p>
   </div>
   <div class="pair">
     <div class="side">
-      <div class="sidehead"><b>Rejected</b><span>card #2D383E, lighter than the ground</span></div>
+      <div class="sidehead"><b>Rejected</b><span>card #2D383E — a 15.54 &Delta;L* lift</span></div>
       <div class="stage stage--bad">
         <div class="deck">
           <div class="card card--flat"><div class="cbody">
@@ -266,13 +270,14 @@ img{display:block;width:100%;height:100%;object-fit:cover}
             <p class="ckick">Tasting menu</p><p class="cname">Tresind Studio</p>
             <p class="cmeta">DIFC · from AED 550</p></div></div>
         </div>
-        <div class="note">Kicker, name and meta are <b>forced to one value</b>. Grey drops to 4.24 and
-          tan to 3.05 on this ground, both under the floor, so there is no second or third tier to
-          demote to. Three levels of information, rendered as one.</div>
+        <div class="note"><b>The meta ink dies here.</b> Grey drops to <b>4.24</b> on this ground —
+          under the floor — and grey is the <code>--muted</code> token, the second line of every venue card in
+          the app: neighbourhood, price, opening time. A 15.54 lift buys separation by spending the
+          headroom that line needs.</div>
       </div>
     </div>
     <div class="side">
-      <div class="sidehead"><b>Proposed</b><span>card #051822, a well below the ground</span></div>
+      <div class="sidehead"><b>Live</b><span>card #0B2836 — a 7.47 &Delta;L* lift</span></div>
       <div class="stage">
         <div class="deck">
           <div class="card"><div class="cbody">
@@ -285,11 +290,12 @@ img{display:block;width:100%;height:100%;object-fit:cover}
             <p class="ckick">Tasting menu</p><p class="cname">Tresind Studio</p>
             <p class="cmeta">DIFC · from AED 550</p></div></div>
         </div>
-        <div class="note">Name <b>#FFFFFF at 18.10</b>, meta <b>#969A9E at 6.39</b>, kicker
-          <b>#BF977D at 6.84</b> — three tiers, plus <code>#D4C9C7</code> at 11.19 in reserve.
+        <div class="note">Name <b>#FFFFFF at 15.32</b>, meta <b>#969A9E at 5.41</b>, kicker
+          <b>#BF977D at 5.79</b> — three tiers, plus <code>#D4C9C7</code> at 9.47 in reserve.
           The <b>hairline is #969A9E at 0.80 alpha</b>, which composites to <code>#81868b</code>:
-          3.27 against the canvas, 4.93 against the card. <b>It cannot be softened for looks</b> —
-          at 0.65 it falls to 2.68 and fails SC 1.4.11, and a vote option is a real
+          3.98 against the card, 4.52 against the canvas. Under §24's closer grounds <b>0.65 still
+          clears</b> (3.10 on the card), so 0.80 is specified for margin rather than because the next
+          step fails — but <b>0.62 falls to 2.94</b> and does fail SC 1.4.11, and a vote option is a real
           <code>&lt;button&gt;</code> whose edge is informational.</div>
       </div>
     </div>
@@ -457,9 +463,9 @@ img{display:block;width:100%;height:100%;object-fit:cover}
       control can actually sit on.</p>
   </div>
   <div class="grounds">
-    <div class="ground ground--card"><p>Card #051822</p>
+    <div class="ground ground--card"><p>Card #0B2836</p>
       <div class="ring-demo"><button class="fbtn">Select</button><button class="fbtn">Skip</button></div></div>
-    <div class="ground ground--canvas"><p>Canvas #2D383E</p>
+    <div class="ground ground--canvas"><p>Canvas #051822</p>
       <div class="ring-demo"><button class="fbtn">Select</button><button class="fbtn">Skip</button></div></div>
     <div class="ground ground--tan"><p>Tan fill #AA7452</p>
       <div class="ring-demo"><button class="fbtn">Select</button><button class="fbtn">Skip</button></div></div>
@@ -471,8 +477,9 @@ img{display:block;width:100%;height:100%;object-fit:cover}
     navy, the derived accent — fails 3:1 on at least one of these four grounds. White fails on the
     light fill at 1.62; light fails on itself. So the ring is <b>two bands</b>:
     <b>#D4C9C7 outer, #051822 inner</b>, both owner values. On any ground at least one band clears the
-    floor — <b>worst case 4.59</b>, on the tan fill — and the two bands separate from each other at
-    <b>11.19</b>. White would score better on the two dark grounds (18.10 / 12.02) but that contrast is
+    floor — <b>worst case 4.59</b>, on the tan fill. Under §24's grounds the <b>outer</b> band carries
+    both dark surfaces (11.19 canvas, 9.47 card) and the <b>inner</b> band's job is now exclusively the
+    light fills. Two tones are still required: no single value survives both ends. White would score better on the two dark grounds (18.10 / 12.02) but that contrast is
     already surplus, and it would buy it by shipping a value outside the six.
   </div>
 </div>
@@ -480,9 +487,10 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 <div class="close">
   <h2>What I am proposing</h2>
   <ol>
-    <li><b>Dark is the identity, and cards sit below the canvas.</b> This is the whole answer to the
-      flattening — no seventh colour, four text tiers instead of one, and a ground that finally
-      differs from its cards by more than a rounding error.</li>
+    <li><b>Dark is the identity, the owner's darker blue #051822 is the canvas, and cards sit
+      ΔL* 7.47 away at #0B2836.</b> That band is the whole answer to the flattening — every ink the
+      card needs stays legible, including <code>--muted</code>, and the ground finally differs from
+      its cards by more than a rounding error. <b>Direction was never the rule; magnitude is.</b></li>
     <li><b>§21's accent is re-derived, not ported.</b> Brown dies in dark (2.87 canvas, 1.91 card).
       The replacement is <code>#BF977D</code> — tan lightened 25% toward white — which clears body
       text on <i>both</i> dark surfaces (4.54 / 6.84), so §21 keeps its single rule instead of growing
