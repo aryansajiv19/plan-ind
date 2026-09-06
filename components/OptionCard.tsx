@@ -118,6 +118,7 @@ export default function OptionCard({
               {voters.slice(-4).map((name) => (
                 <span
                   key={name}
+                  data-face-name={name}
                   style={avatarStyle(name)}
                   className={arriving.includes(name) ? "vote-face--arriving" : ""}
                 >

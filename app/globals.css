@@ -2682,6 +2682,21 @@ h3 {
 .vote-option-shell[data-lead="1"] > .token {
   border-color: #969a9e; /* solid — 6.39 on canvas, 5.41 on card (§24) */
 }
+/* §25.3 beat 3. `scale` and `opacity` only — `scale` is an independent
+   property, so this composes with gravity's `transform` on the same element
+   instead of replacing it. Folding rather than fading to nothing at speed
+   is the point: the eye should be able to follow where a card went. */
+.vote-option-shell[data-fold] {
+  opacity: 0;
+  scale: 0.94;
+  pointer-events: none;
+  transition: opacity 340ms var(--ease-settle), scale 340ms var(--ease-settle);
+}
+/* The winner then takes the row. Driven by a timer rather than by the fold's
+   own transitionend, so the layout still arrives here when the transition
+   never plays (§25.7). */
+.vote-options-grid[data-folded] { grid-template-columns: 1fr; }
+
 /* §25.5: gravity becomes a STATE rather than a journey. The cards still sit
    exactly where agreement says they sit, so nothing informational is lost —
    they simply do not travel to get there. Stated here rather than left to
@@ -3504,10 +3519,16 @@ h3 {
 
 @media (prefers-reduced-motion: no-preference) {
   /* Only names that were not on the card a moment ago. One shot. */
+  /* Pops on `scale` and `translate`, NOT `transform`. These run with `both`,
+     so whichever property the last keyframe names is held for the life of
+     the element — and §25.3's flight animates `transform` on this same
+     avatar. Third instance of that collision in this file: it produces no
+     error, the flight simply computes to an identity matrix. Independent
+     properties compose, so the face can pop in and fly at the same time. */
   .vote-face--arriving { animation: vote-face-in 460ms cubic-bezier(0.16, 1, 0.3, 1) both; }
   @keyframes vote-face-in {
-    from { opacity: 0; transform: scale(0.4) translateY(0.35rem); }
-    to   { opacity: 1; transform: scale(1) translateY(0); }
+    from { opacity: 0; scale: 0.4; translate: 0 0.35rem; }
+    to   { opacity: 1; scale: 1; translate: 0 0; }
   }
 }
 

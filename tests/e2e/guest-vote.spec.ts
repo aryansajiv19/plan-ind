@@ -80,6 +80,27 @@ test("a guest can open a shared plan and cast a vote", async ({ page }) => {
   await expect
     .poll(async () => readVoterCount(votersLabel), { timeout: 5_000 })
     .toBe(votersBefore + 1);
+
+  // §25.3 beat 1 / §25.7: the voter's face flies from the presence row onto
+  // the card. What matters here is not that it moved but where it ENDS —
+  // the FLIP animates from an offset back to the element's real layout
+  // position and must leave nothing behind, so a guest who backgrounds the
+  // tab mid-flight comes back to a landed avatar rather than one stranded in
+  // transit. An inline transform surviving here is that bug.
+  const faces = page.locator("[data-face-name]");
+  await expect(faces.first()).toBeVisible({ timeout: 10_000 });
+  await expect
+    .poll(
+      async () =>
+        page.evaluate(() =>
+          Array.from(document.querySelectorAll<HTMLElement>("[data-face-name]")).filter((node) => {
+            const t = getComputedStyle(node).transform;
+            return node.style.transform !== "" || (t !== "none" && t !== "matrix(1, 0, 0, 1, 0, 0)");
+          }).length,
+        ),
+      { timeout: 5_000, message: "faces left with a residual transform after the flight" },
+    )
+    .toBe(0);
 });
 
 async function readVoterCount(locator: import("@playwright/test").Locator): Promise<number> {
