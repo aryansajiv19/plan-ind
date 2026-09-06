@@ -15,7 +15,7 @@
 // when the protected app boots and caches the returned profile locally.
 
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { supabase } from "./supabase";
+import { getSupabase } from "./supabase";
 
 /**
  * Reads default to the browser client. Server Components pass their own
@@ -114,7 +114,7 @@ function toProfileVisit(v: RawVisit): ProfileVisit {
 
 /** One profile by id. The id is the profile-link slug, like a plan's. */
 export async function getPerson(personId: string): Promise<PersonCard | null> {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from("people")
     .select(PERSON_FIELDS)
     .eq("id", personId)
@@ -126,7 +126,7 @@ export async function getPerson(personId: string): Promise<PersonCard | null> {
 /** Several profiles at once, e.g. to resolve a list of tagged ids. */
 export async function getPeople(ids: string[]): Promise<PersonCard[]> {
   if (ids.length === 0) return [];
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from("people")
     .select(PERSON_FIELDS)
     .in("id", ids);
@@ -141,7 +141,7 @@ export async function getPeople(ids: string[]): Promise<PersonCard[]> {
  * rows, so this is a single index scan on the friendships primary key —
  * no OR across two columns.
  */
-export async function getFriends(personId: string, db: Db = supabase): Promise<PersonCard[]> {
+export async function getFriends(personId: string, db: Db = getSupabase()): Promise<PersonCard[]> {
   const { data, error } = await db
     .from("friendships")
     .select(`friend:people!friendships_friend_id_fkey(${PERSON_FIELDS})`)
@@ -162,7 +162,7 @@ export async function addFriend(
   friendId: string,
 ): Promise<boolean> {
   if (!meId || !friendId || meId === friendId) return false;
-  const { error } = await supabase
+  const { error } = await getSupabase()
     .from("friendships")
     .upsert(
       { person_id: meId, friend_id: friendId },
@@ -176,7 +176,7 @@ export async function removeFriend(
   meId: string,
   friendId: string,
 ): Promise<boolean> {
-  const { error } = await supabase
+  const { error } = await getSupabase()
     .from("friendships")
     .delete()
     .eq("person_id", meId)
@@ -189,7 +189,7 @@ export async function areFriends(
   meId: string,
   otherId: string,
 ): Promise<boolean> {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from("friendships")
     .select("person_id")
     .eq("person_id", meId)
@@ -310,7 +310,7 @@ export async function logVisit(input: LogVisitInput): Promise<string | null> {
   // Here the delete clears it and your log lands.
   const clearPlanConflict = async () => {
     if (!row.plan_id) return;
-    await supabase
+    await getSupabase()
       .from("visits")
       .delete()
       .eq("person_id", row.person_id)
@@ -318,7 +318,7 @@ export async function logVisit(input: LogVisitInput): Promise<string | null> {
   };
 
   const insert = () =>
-    supabase.from("visits").insert(row).select("id").maybeSingle();
+    getSupabase().from("visits").insert(row).select("id").maybeSingle();
 
   await clearPlanConflict();
   let { data, error } = await insert();
@@ -345,13 +345,13 @@ export async function logVisit(input: LogVisitInput): Promise<string | null> {
     input.person_id,
   );
   if (companions.length > 0) {
-    await supabase.from("visit_companions").insert(companions);
+    await getSupabase().from("visit_companions").insert(companions);
   }
   return visitId;
 }
 
 export async function deleteVisit(visitId: string): Promise<boolean> {
-  const { error } = await supabase.from("visits").delete().eq("id", visitId);
+  const { error } = await getSupabase().from("visits").delete().eq("id", visitId);
   return !error;
 }
 
@@ -370,7 +370,7 @@ export async function deleteVisit(visitId: string): Promise<boolean> {
  */
 export async function untagCompanion(companionId: string): Promise<boolean> {
   if (!companionId) return false;
-  const { error } = await supabase
+  const { error } = await getSupabase()
     .from("visit_companions")
     .delete()
     .eq("id", companionId);
@@ -407,7 +407,7 @@ export const emptyRead = <T,>(): ListRead<T> => ({ rows: [], failed: false });
 export async function getProfileVisits(
   personId: string,
   limit = 50,
-  db: Db = supabase,
+  db: Db = getSupabase(),
 ): Promise<ListRead<ProfileVisit>> {
   const { data, error } = await db
     .from("visits")
@@ -428,7 +428,7 @@ export async function getTaggedVisits(
   personId: string,
   limit = 50,
 ): Promise<ProfileVisit[]> {
-  const { data: tags, error } = await supabase
+  const { data: tags, error } = await getSupabase()
     .from("visit_companions")
     .select("visit_id")
     .eq("person_id", personId)
@@ -436,7 +436,7 @@ export async function getTaggedVisits(
   if (error || !tags || tags.length === 0) return [];
   const ids = (tags as unknown as { visit_id: string }[]).map((t) => t.visit_id);
 
-  const { data, error: e2 } = await supabase
+  const { data, error: e2 } = await getSupabase()
     .from("visits")
     .select(VISIT_SELECT)
     .in("id", ids)
@@ -472,7 +472,7 @@ export interface PlannedWith {
  */
 export async function getPlannedWith(
   personId: string,
-  db: Db = supabase,
+  db: Db = getSupabase(),
 ): Promise<ListRead<PlannedWith>> {
   const { data, error } = await db
     .from("visit_companions")
@@ -518,7 +518,7 @@ export async function getSpotVisitors(
   spotId: string,
   limit = 20,
 ): Promise<SpotVisitor[]> {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from("visits")
     .select(`id, visited_at, person:people(${PERSON_FIELDS})`)
     .eq("spot_id", spotId)
@@ -662,7 +662,7 @@ interface RawCollection {
 /** A person's named visit folders, each with the visit ids it holds. */
 export async function getVisitCollections(
   personId: string,
-  db: Db = supabase,
+  db: Db = getSupabase(),
 ): Promise<ListRead<VisitCollectionView>> {
   const { data, error } = await db
     .from("visit_collections")
@@ -681,7 +681,7 @@ export async function getVisitCollections(
 export async function createVisitCollection(
   personId: string,
   name: string,
-  db: Db = supabase,
+  db: Db = getSupabase(),
 ): Promise<VisitCollectionView | null> {
   const trimmed = name.trim().slice(0, 40);
   if (!trimmed) return null;
@@ -697,7 +697,7 @@ export async function createVisitCollection(
 export async function addVisitToCollection(
   collectionId: string,
   visitId: string,
-  db: Db = supabase,
+  db: Db = getSupabase(),
 ): Promise<boolean> {
   const { error } = await db
     .from("visit_collection_items")
@@ -708,7 +708,7 @@ export async function addVisitToCollection(
 export async function removeVisitFromCollection(
   collectionId: string,
   visitId: string,
-  db: Db = supabase,
+  db: Db = getSupabase(),
 ): Promise<boolean> {
   const { error } = await db
     .from("visit_collection_items")
@@ -735,7 +735,7 @@ export interface VisitPhotoView {
  */
 export async function getVisitPhotos(
   personId: string,
-  db: Db = supabase,
+  db: Db = getSupabase(),
 ): Promise<VisitPhotoView[]> {
   const { data, error } = await db
     .from("visit_photos")
@@ -791,7 +791,7 @@ export async function uploadVisitPhoto(
     caption?: string;
     visibility: SpotVisibility;
   },
-  db: Db = supabase,
+  db: Db = getSupabase(),
 ): Promise<boolean> {
   const { data: auth } = await db.auth.getUser();
   const uid = auth.user?.id;

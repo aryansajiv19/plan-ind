@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { cacheMe, getMe } from "@/lib/device";
 import { getPerson } from "@/lib/social";
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 
 export default function AuthProfileBridge({ fallbackName }: { fallbackName: string }) {
   useEffect(() => {
@@ -15,7 +15,7 @@ export default function AuthProfileBridge({ fallbackName }: { fallbackName: stri
         .trim()
         .slice(0, 40);
 
-      const { data: profileId, error } = await supabase.rpc(
+      const { data: profileId, error } = await getSupabase().rpc(
         "ensure_authenticated_profile",
         {
           p_display_name: displayName || "Friend",

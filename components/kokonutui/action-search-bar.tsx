@@ -23,7 +23,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import useDebounce from "@/hooks/use-debounce";
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 import { minimumAgeForCategory } from "@/lib/age-policy";
 
 export type SearchTab = "plan" | "discover" | "been" | "friends" | "profile";
@@ -108,7 +108,7 @@ function ActionSearchBar({
     const q = trimmed;
     if (q.length < MIN_QUERY) return;
     let cancelled = false;
-    supabase
+    getSupabase()
       .from("spots")
       .select("id,name,area,category,minimum_age")
       .eq("source", "curated")

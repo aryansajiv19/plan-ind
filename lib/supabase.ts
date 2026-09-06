@@ -3,7 +3,33 @@ import { createClient } from "./supabase/client";
 // Shared browser client. @supabase/ssr stores the authenticated session in
 // cookies so Server Components, Actions, Route Handlers, and browser queries
 // all observe the same user.
-export const supabase = createClient();
+//
+// ── Why this is a function, not `export const supabase = createClient()` ──
+//
+// It was the const. Constructing the client at MODULE LOAD meant importing
+// this file -- or anything importing it, which includes lib/social.ts and
+// therefore visits, friends, collections and photos -- threw without
+// NEXT_PUBLIC_SUPABASE_* set. A unit test could not import the data layer at
+// all without an env-then-dynamic-import dance.
+//
+// So a module-level side effect was quietly setting this codebase's
+// testability boundary: place-import and spots-match are well covered
+// because they import nothing that constructs a client, while the entire
+// signed-in data layer had none. That looked like neglect and was actually
+// structural -- and it mattered, because the bugs in that layer were failed
+// reads collapsing into `[]`, precisely what a unit test catches and a hand
+// sweep misses.
+//
+// Memoised, so callers still share one client and its identity stays stable
+// across renders (hook dependency arrays depend on that).
+// `createBrowserClient` is itself a browser singleton, so the memo mostly
+// matters off-browser -- but it makes the laziness free either way.
+let browserClient: ReturnType<typeof createClient> | null = null;
+
+export function getSupabase(): ReturnType<typeof createClient> {
+  browserClient ??= createClient();
+  return browserClient;
+}
 
 /**
  * Why a share link needs a session at all.
@@ -52,6 +78,7 @@ export async function bootstrapPlanAccess(
   planId: string,
   captchaToken?: string,
 ): Promise<PlanAccessResult> {
+  const supabase = getSupabase();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {

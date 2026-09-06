@@ -2061,3 +2061,45 @@ already guarded or their empty state is impossible.
 ratings read drops its "5.0 / 5 · 2 rated" summary entirely rather than
 claiming zero — honest degradation, deliberately left non-critical. Reads
 differ in whether their absence can be mistaken for content.
+
+---
+
+## 2026-09-07 — T1 Security/Backend: the module-level client is gone
+
+`lib/supabase.ts` exported `const supabase = createClient()` — a browser
+client built at MODULE LOAD, which threw without `NEXT_PUBLIC_SUPABASE_*`.
+Importing that file, or anything importing it, was therefore impossible in a
+unit test. Since `lib/social.ts` imports it, **the entire signed-in data
+layer — visits, friends, collections, photos — was structurally untestable**,
+while `place-import` and `spots-match` are well covered simply because they
+construct no client. Coverage that looked like neglect was a module-level
+side effect quietly setting the testability boundary.
+
+Now `getSupabase()`, memoised. Importing the module constructs nothing.
+
+**Checked the risk before assuming it was mechanical**, since T0 flagged
+SSR/client boundaries as the plausible trap: all five direct consumers are
+`"use client"` components, none of them touch the client at module scope, and
+`createBrowserClient` is itself a browser singleton — so laziness costs no
+extra client and identity stays stable for hook dependency arrays. The memo
+mostly matters off-browser.
+
+**The unlock is demonstrated, not asserted.**
+`tests/social-read-failure.test.ts` previously needed
+`process.env.NEXT_PUBLIC_* ??= ...` followed by a dynamic import, purely to
+get the module graph to resolve. It is now a plain static import with no env
+at all, and the file says so — if that dance ever comes back, a module-level
+client has been reintroduced.
+
+Verified against a baseline rather than trusting the diff: stashed the change,
+re-ran, and confirmed the two `/login` runtime-health failures are
+**pre-existing** and identical with and without it. Both Realtime E2E specs
+and guest-vote pass either way. 111 unit tests, journey 119/120 (the known
+coordinate gap), lint and typecheck clean.
+
+**Not fixed, flagged:** `/login` fails `runtime-health.spec.ts` with
+`page.goto` timing out — it never reaches load. It reproduces without any of
+my changes. The likely cause is the Turnstile widget on that page never
+settling in a headless context, which would make it a test-environment
+artefact rather than a product bug, but I did not confirm that and it should
+not be assumed. It is the only page in the suite that behaves this way.

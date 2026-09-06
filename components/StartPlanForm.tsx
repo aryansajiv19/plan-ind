@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 import { dealSpotsForCategory } from "@/lib/deal";
 import { DUBAI_ORIGINS } from "@/lib/dubai-areas";
 import { minimumAgeForCategory, prohibitedVenueReason } from "@/lib/age-policy";
@@ -96,9 +96,9 @@ export default function StartPlanForm({ age = 21, demoMode = false }: { age?: nu
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      const { data: auth } = await supabase.auth.getUser();
+      const { data: auth } = await getSupabase().auth.getUser();
       if (!auth.user) return;
-      const { data } = await supabase
+      const { data } = await getSupabase()
         .from("spots")
         .select("id,name,area,category,visibility,minimum_age")
         .eq("source", "custom")
@@ -117,7 +117,7 @@ export default function StartPlanForm({ age = 21, demoMode = false }: { age?: nu
     const query = spotQuery.trim();
     if (query.length < 2) return;
     setSpotSearching(true);
-    const { data } = await supabase
+    const { data } = await getSupabase()
       .from("spots")
       .select("id,name,area,category,minimum_age")
       .eq("source", "curated")
@@ -205,13 +205,13 @@ export default function StartPlanForm({ age = 21, demoMode = false }: { age?: nu
     }
     setSavingCustom(true);
     setError(null);
-    const { data: auth } = await supabase.auth.getUser();
+    const { data: auth } = await getSupabase().auth.getUser();
     if (!auth.user) {
       setError("Sign in again before saving a private place.");
       setSavingCustom(false);
       return;
     }
-    const { data, error: saveError } = await supabase
+    const { data, error: saveError } = await getSupabase()
       .from("spots")
       .insert({
         name: cleanName,

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
-import { supabase, bootstrapPlanAccess, type PlanAccessDenial } from "@/lib/supabase";
+import { getSupabase, bootstrapPlanAccess, type PlanAccessDenial } from "@/lib/supabase";
 import { addBeen } from "@/lib/device";
 import { logVisit } from "@/lib/social";
 import { avatarStyle, initialsOf } from "@/lib/avatar";
@@ -126,7 +126,7 @@ export default function VotePage() {
   // wrong, and nothing would make anyone retry.
   const refetchVotes = useCallback(async () => {
     const seq = ++fetchSeq.current.votes;
-    const { data, error } = await supabase.from("votes").select("*").eq("plan_id", id);
+    const { data, error } = await getSupabase().from("votes").select("*").eq("plan_id", id);
     if (error) return false;
     if (data && seq === fetchSeq.current.votes) setVotes(data as Vote[]);
     return true;
@@ -159,19 +159,19 @@ export default function VotePage() {
 
   const refetchRsvps = useCallback(async () => {
     const seq = ++fetchSeq.current.rsvps;
-    const { data } = await supabase.from("rsvps").select("*").eq("plan_id", id);
+    const { data } = await getSupabase().from("rsvps").select("*").eq("plan_id", id);
     if (data && seq === fetchSeq.current.rsvps) setRsvps(data as Rsvp[]);
   }, [id]);
 
   const refetchRatings = useCallback(async () => {
     const seq = ++fetchSeq.current.ratings;
-    const { data } = await supabase.from("ratings").select("*").eq("plan_id", id);
+    const { data } = await getSupabase().from("ratings").select("*").eq("plan_id", id);
     if (data && seq === fetchSeq.current.ratings) setRatings(data as Rating[]);
   }, [id]);
 
   const refetchPlanSpots = useCallback(async () => {
     const seq = ++fetchSeq.current.planSpots;
-    const { data } = await supabase.from("plan_spots").select("*").eq("plan_id", id);
+    const { data } = await getSupabase().from("plan_spots").select("*").eq("plan_id", id);
     if (data && seq === fetchSeq.current.planSpots) setPlanSpots(data as PlanSpot[]);
   }, [id]);
 
@@ -182,7 +182,7 @@ export default function VotePage() {
     if (access !== "ready") return;
     let active = true;
     (async () => {
-      const { data: planRow, error: planErr } = await supabase
+      const { data: planRow, error: planErr } = await getSupabase()
         .from("plans")
         .select("*")
         .eq("id", id)
@@ -197,7 +197,7 @@ export default function VotePage() {
         return;
       }
 
-      const { data: links, error: linksErr } = await supabase
+      const { data: links, error: linksErr } = await getSupabase()
         .from("plan_spots")
         .select("*")
         .eq("plan_id", id);
@@ -212,7 +212,7 @@ export default function VotePage() {
       // full shape, so don't start reading a dropped field here without
       // adding it back to this list.
       const { data: spotRows, error: spotsErr } = spotIds.length
-        ? await supabase.from("spots").select("id, name, category, cuisine, price_band, area, description, vibe, open_till, min_spend, latitude, longitude, photo_url, photo_attribution, booking_url").in("id", spotIds)
+        ? await getSupabase().from("spots").select("id, name, category, cuisine, price_band, area, description, vibe, open_till, min_spend, latitude, longitude, photo_url, photo_attribution, booking_url").in("id", spotIds)
         : { data: [], error: null };
       // Preserve the dealt order.
       const ordered = spotIds
@@ -264,7 +264,7 @@ export default function VotePage() {
   // ── Realtime: live votes + live "decided" for everyone ───────────
   useEffect(() => {
     if (access !== "ready") return;
-    const channel = supabase
+    const channel = getSupabase()
       .channel(`plan:${id}`)
       .on(
         "postgres_changes",
@@ -293,7 +293,7 @@ export default function VotePage() {
       )
       .subscribe();
     return () => {
-      supabase.removeChannel(channel);
+      getSupabase().removeChannel(channel);
     };
   }, [access, id, refetchVotes, refetchRsvps, refetchRatings, refetchPlanSpots]);
 
@@ -310,7 +310,7 @@ export default function VotePage() {
   useEffect(() => {
     if (access !== "ready" || !voterName) return;
     const sessionKey = crypto.randomUUID();
-    const channel = supabase.channel(`plan:${id}:presence`, {
+    const channel = getSupabase().channel(`plan:${id}:presence`, {
       config: { private: true, presence: { key: sessionKey } },
     });
     channel
@@ -326,7 +326,7 @@ export default function VotePage() {
         if (status === "SUBSCRIBED") void channel.track({ name: voterName });
       });
     return () => {
-      supabase.removeChannel(channel);
+      getSupabase().removeChannel(channel);
     };
   }, [access, id, voterName]);
 
@@ -384,7 +384,7 @@ export default function VotePage() {
       ] : rest;
     });
 
-    const { error } = await supabase.rpc("cast_plan_vote", {
+    const { error } = await getSupabase().rpc("cast_plan_vote", {
       p_plan_id: id,
       p_spot_id: spotId,
       p_voter_name: voterName,
@@ -501,7 +501,7 @@ export default function VotePage() {
       ...cur.filter((r) => r.voter_name !== voterName),
       { id: mine?.id ?? `local-${voterName}`, plan_id: id, voter_name: voterName, coming: nextComing, choice, participant_token_hash: participantHash },
     ]);
-    const { error } = await supabase.rpc("set_plan_rsvp", {
+    const { error } = await getSupabase().rpc("set_plan_rsvp", {
       p_plan_id: id,
       p_voter_name: voterName,
       p_coming: nextComing,
@@ -528,7 +528,7 @@ export default function VotePage() {
       ...cur.filter((r) => r.voter_name !== voterName),
       { id: mine?.id ?? `local-${voterName}`, plan_id: id, spot_id: winnerId, voter_name: voterName, stars, again, participant_token_hash: participantHash },
     ]);
-    const { error } = await supabase.rpc("rate_plan", {
+    const { error } = await getSupabase().rpc("rate_plan", {
       p_plan_id: id,
       p_spot_id: winnerId,
       p_voter_name: voterName,
@@ -554,10 +554,10 @@ export default function VotePage() {
   // just have nowhere personal to file it.
   async function rememberVisit() {
     if (!winnerId || !plan) return;
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getSupabase().auth.getUser();
     if (!user) return;
     // A guest arriving straight from a share link may have no profile row yet.
-    const { data: personId } = await supabase.rpc("ensure_authenticated_profile", {
+    const { data: personId } = await getSupabase().rpc("ensure_authenticated_profile", {
       p_display_name: voterName,
     });
     if (typeof personId !== "string") return;

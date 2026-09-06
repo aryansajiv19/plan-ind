@@ -17,7 +17,7 @@ import PhotoWall, { type WallItem } from "@/components/PhotoWall";
 import PhotoCredit from "@/components/PhotoCredit";
 import { categoryLabel, categoryMeta } from "@/lib/categories";
 import { minimumAgeForCategory } from "@/lib/age-policy";
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 import useDebounce from "@/hooks/use-debounce";
 import { avatarStyle, initialsOf } from "@/lib/avatar";
 import { validateImageFile } from "@/lib/upload";
@@ -440,7 +440,7 @@ export default function AccountViews({
     const filter = placeFilter;
     if (!q && filter === "All") return;
     let cancelled = false;
-    let request = supabase
+    let request = getSupabase()
       .from("spots")
       .select("id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, photo_url, photo_attribution, description, minimum_age")
       .eq("source", "curated");

@@ -2,15 +2,15 @@ import { strict as assert } from "node:assert";
 import { test } from "node:test";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-// Imported dynamically, after the env is in place: lib/social.ts pulls in
-// lib/supabase.ts, which builds a browser client AT MODULE LOAD and throws
-// without these. Nothing here talks to Supabase — every call takes an
-// injected `db` — but the module graph has to resolve first. Worth knowing:
-// that module-level side effect is why this file had no unit tests.
-process.env.NEXT_PUBLIC_SUPABASE_URL ??= "http://127.0.0.1:54321";
-process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??= "test-anon-key";
-const { getProfileVisits, getPlannedWith, getVisitCollections } =
-  await import("../lib/social.ts");
+// A plain static import, with no env set and nothing constructed.
+//
+// This used to need `process.env.NEXT_PUBLIC_SUPABASE_* ??= ...` followed by
+// a dynamic import, because lib/supabase.ts built a browser client at MODULE
+// LOAD and threw without those. That side effect is what kept the whole
+// signed-in data layer untested; lib/supabase.ts is lazy now (getSupabase()),
+// so importing it constructs nothing. If this file ever needs the env dance
+// back, a module-level client has been reintroduced somewhere.
+import { getProfileVisits, getPlannedWith, getVisitCollections } from "../lib/social.ts";
 
 // A failed read must never arrive as "there is nothing here".
 //
