@@ -239,22 +239,36 @@
      different identity entirely (champagne gold, icy blue, teal) and would
      have shipped colours §23's six do not contain.
 
-     §23.1's inversion is the whole point and it is easy to undo by
-     accident: the CARD is DARKER than the canvas here. Cards are wells cut
-     into the ground, not planes floating above it. Making the card lighter
-     imports light mode's raised-plane metaphor, spends 15.5 points of L*
-     headroom, and collapses the card interior to one legible text tier —
-     that is the flattening this section exists to fix, not a style
-     preference. ΔL* between the two is 15.54, against 3.34 in light. */
-  --color-paper: #2d383e; /* canvas, L* 22.8 */
-  --color-card: #051822;  /* card, L* 7.2 — below the ground, not above it */
+     §24 (owner: "i just want the dark blue as the main color"). The two
+     surfaces are close together on purpose, and the constraint is the SIZE
+     of the step, not its direction — §23.1 originally read "cards are
+     wells, never planes above the ground", which was over-drawn from a
+     measurement about step size and would have forbidden exactly this.
+     Bounded both ways: above ΔL* 3.34, or two surfaces read as one flat
+     field; below the point where the text-carrying surface runs out of
+     headroom. ΔL* here is 7.47.
+
+     Why these two and not the previous pair: #2D383E carried only two
+     body-legal inks, and the one it lost is grey — which is --color-muted,
+     the second line of every venue card, carrying neighbourhood, price and
+     opening time. That is the mono-ink problem returning on the app's most
+     repeated component, not merely a tier going missing. Both grounds here
+     carry four: white 18.10/15.32, ink 11.19/9.47, accent 6.84/5.79, grey
+     6.39/5.41.
+
+     #2D383E now has no job. Design deliberately did not invent one for it;
+     do not give it one either. */
+  --color-paper: #051822; /* canvas */
+  --color-card: #0b2836;  /* card */
 
   --color-ink: #d4c9c7;   /* 7.43 canvas / 11.19 card */
-  /* ⚠ SURFACE-DEPENDENT, and it is not visible by eye. Grey is body-legal
-     inside a card (6.39) and FAILS on the canvas (4.24 — large text only).
-     Small text on the canvas takes --color-ink. §23.5 asks for this token
-     specifically to be audited for canvas-level use; treat surface
-     dependence as the default assumption for every colour in dark. */
+  /* Was surface-dependent under §23 and is not under §24: grey measured
+     4.24 on the old #2D383E canvas and failed, which is what forced a
+     canvas-level override. On these grounds it is body-legal on both
+     (6.39 canvas / 5.41 card), so the override is gone rather than left
+     behind solving a problem that no longer exists. Keep treating surface
+     dependence as the default assumption to CHECK for, though — it was
+     real, and it was invisible by eye. */
   --color-ink-2: #969a9e;
   --color-muted: #969a9e;
 
@@ -267,11 +281,18 @@
   --color-punch-text: #bf977d; /* 4.54 canvas / 6.84 card */
   --color-fill-quiet: #d4c9c7; /* light fill, unchanged */
 
-  /* --edge: grey at 0.80α, compositing to #81868b — 3.27 canvas / 4.93
-     card. 0.80 is a FLOOR, not a taste value: at 0.65 it composites to
-     #71787c = 2.68 on the canvas and fails SC 1.4.11 on control
-     boundaries, and a vote option is a real button whose boundary is
-     informational. Do not soften it because it looks nicer. */
+  /* Grey at 0.80α — 4.52 on the canvas, 3.96 on the card, and the card is
+     the weaker ground here.
+
+     The old note said 0.65 "composites to #71787c = 2.68 and fails". That
+     was true of §23's grounds and is NOT true of these: on §24's pair 0.65
+     clears at 3.09 against the card, and the real floor is about 0.64.
+     Recorded because the stale reason is more dangerous than a stale
+     value — someone softening this to 0.65 while citing the corrected
+     figure would be accidentally right for the wrong reason, and would not
+     notice when the grounds move again. 0.80 stays, for margin rather than
+     because 0.65 fails. SC 1.4.11 applies: a vote option is a real button
+     whose boundary is informational. */
   --color-line: rgba(150, 154, 158, 0.8);
 
   --color-accent-premium: #bf977d; /* no seventh colour: the accent does this job */
@@ -357,48 +378,10 @@
      .vote-experience::before
    ──────────────────────────────────────────────────────────────── */
 
-/* §23.2's surface-dependence rule, applied. Grey is body-legal inside a
-   card (6.39) and fails on the canvas (4.24) — "small text on the canvas
-   takes --ink". These are the canvas-level text sites, found by measuring
-   the rendered pages rather than by reading the markup: every one of them
-   resolved to #969A9E on #2D383E at under 24px.
-
-   Scoped to dark because the token is only surface-dependent here. In
-   light --color-muted is #2D383E on near-white and passes everywhere, so
-   these selectors are correct as they stand and must not be touched.
-
-   This is a fresh rule measured against the new grounds, not a revival —
-   the deleted blocks are a list of what needed treatment, never a source
-   of values (§23.13). */
-:root[data-theme="night"] .home-hello,
-:root[data-theme="night"] .home-deck,
-:root[data-theme="night"] .home-plan-section__intro p,
-:root[data-theme="night"] .home-footer span,
-:root[data-theme="night"] .home-app-tab,
-:root[data-theme="night"] .wall-empty,
-:root[data-theme="night"] .vote-name-gate label,
-:root[data-theme="night"] .vote-name-help,
-:root[data-theme="night"] .place-meta span,
-:root[data-theme="night"] .place-back,
-:root[data-theme="night"] .home-nav__link,
-/* The global search label carries Tailwind's text-muted and has no app
-   class of its own, so it is reached through the input it labels. */
-:root[data-theme="night"] label[for="search"],
-/* /login and /onboarding do follow the ground: --auth-muted aliases
-   --color-muted, so this is the same surface-dependence, not a separate
-   auth palette. Worth knowing — §23.6 records these routes as having "no
-   dark variant at all", and that is truer of their layout than their
-   colour, which tracks the core tokens. */
-:root[data-theme="night"] .auth-copy,
-/* /privacy and /terms are entirely canvas — no card anywhere on the page —
-   so every line of their prose is the surface-dependent case rather than a
-   few stray labels. Scoped to .legal-page so the kicker keeps its muted
-   value on screens where it does sit on a card. */
-:root[data-theme="night"] .legal-page p,
-:root[data-theme="night"] .legal-page__date,
-:root[data-theme="night"] .legal-page .home-section-kicker {
-  color: var(--color-ink); /* 7.43 on the canvas */
-}
+/* The canvas-level --color-ink override that lived here is deleted, not
+   disabled: §24's grounds make grey body-legal on both surfaces, so the
+   ~15 selectors it listed are correct on the token again. Removing it
+   restores a text tier on the canvas that the override had flattened. */
 
 /* The primary button fill: the ink pairing plus a subtle top-to-base
    gradient. Not a --color-* because a gradient would generate a nonsense
