@@ -116,10 +116,20 @@ export default function VotePage() {
   // request for the same kind has already started.
   const fetchSeq = useRef({ votes: 0, rsvps: 0, ratings: 0, planSpots: 0 });
 
+  // Reports whether the read actually succeeded. A refetch that fails keeps
+  // the last good tally, which is right — a dropped poll should not wipe a
+  // working screen. But the FIRST read is different: votes starts as [], so a
+  // failure there is indistinguishable from a plan nobody has voted on, and
+  // the screen renders as a perfectly healthy live vote at zero. Measured: with
+  // this read blocked, a plan with nine voters showed "0 people voting", every
+  // option at 0 yes, no leader, and no error anywhere — fully usable, entirely
+  // wrong, and nothing would make anyone retry.
   const refetchVotes = useCallback(async () => {
     const seq = ++fetchSeq.current.votes;
-    const { data } = await supabase.from("votes").select("*").eq("plan_id", id);
+    const { data, error } = await supabase.from("votes").select("*").eq("plan_id", id);
+    if (error) return false;
     if (data && seq === fetchSeq.current.votes) setVotes(data as Vote[]);
+    return true;
   }, [id]);
 
   useEffect(() => {
@@ -220,7 +230,19 @@ export default function VotePage() {
       setPlan(planRow as Plan);
       setSpots(ordered);
       setPlanSpots((links ?? []) as PlanSpot[]);
-      await refetchVotes();
+      // The tally is load-critical, on the same reasoning as the spots above:
+      // a vote screen that cannot read the votes is not a working vote screen,
+      // and showing it at zero invites someone to vote blind on what they
+      // think is an empty plan. Retry is the honest offer.
+      const votesOk = await refetchVotes();
+      if (!active) return;
+      if (!votesOk) {
+        setLoad("error");
+        return;
+      }
+      // Deliberately NOT load-critical: these feed the decided screen's RSVP
+      // and rating rows, so a failure there costs a section rather than the
+      // screen's whole meaning. They keep their last-good behaviour.
       await refetchRsvps();
       await refetchRatings();
       setLoad("ready");
