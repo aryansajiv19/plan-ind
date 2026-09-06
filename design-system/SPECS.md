@@ -1706,6 +1706,26 @@ now* precisely because there are no photos. Do not judge §21.4's ratio
 against a fully-photographed mock; judge it against the real catalogue,
 where every card is currently plain.
 
+**How near the transition actually is, stated precisely so nobody plans
+against a softer number** (confirmed 2026-09-06, and corrected once
+already — an earlier "roughly 10, landing shortly" was a count of
+*sourceable* candidates reported as though it were live data):
+
+- **Live today: zero.** Not a single spot has a photo.
+- **Six**, not ten, survived Backend's hand-review and are staged in
+  migration 039.
+- Those six are **gated on an owner decision that has not been made** —
+  migration 038 creates a public-read bucket, which is deliberately not
+  being taken under any earlier blanket migration approval.
+
+So the realistic near-term state is **six photographed spots out of 82**,
+and only after an approval that may not come quickly. Even fully
+delivered, that is roughly one card in fourteen. §21.4's one-in-three
+ceiling is therefore the binding constraint on how much colour appears —
+photo availability will not be doing that work for a long time yet. Plan
+the implementation for a mostly-plain catalogue, and let §21.1 handle the
+photographed cards as they trickle in.
+
 ---
 
 ## Verification (for whoever implements this)
