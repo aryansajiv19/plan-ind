@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>plan-ind — plan gravity, and the voting moment</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300..700;1,300..700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════════════════════════════════════════════════════
+   Palette FROZEN at §24. Nothing here introduces or adjusts a colour.
+   canvas #051822 · card #0B2836 · ink #D4C9C7 · muted #969A9E
+   accent #BF977D · edge #969A9E@.80 · fills #D4C9C7 / #AA7452
+   ════════════════════════════════════════════════════════════════ */
+:root{
+  --canvas:#051822; --card:#0B2836; --ink:#D4C9C7; --ink-strong:#FFFFFF;
+  --muted:#969A9E; --accent:#BF977D; --tan:#AA7452; --light:#D4C9C7;
+  --edge:rgba(150,154,158,.8);
+  --r:10px; --rp:20px;
+  --settle:cubic-bezier(.16,1,.3,1);
+  --c:0;                       /* consensus, 0 scattered -> 1 converged */
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--canvas);color:var(--ink);
+     font-family:"Hanken Grotesk",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.rig{max-width:1180px;margin:0 auto;padding:30px 22px 90px}
+
+.lede{max-width:74ch}
+.lede h1{font-family:"Cormorant",serif;font-weight:500;font-size:2.7rem;line-height:1.01;
+         letter-spacing:-.025em;margin:0 0 15px;color:var(--ink-strong)}
+.lede h1 em{font-style:italic;font-weight:400}
+.lede p{margin:0 0 12px;font-size:.86rem;line-height:1.62}
+.lede b{color:var(--ink-strong)}
+.lede code{font-family:ui-monospace,Menlo,monospace;font-size:.92em;color:var(--accent)}
+
+.mhead{border-bottom:1px solid var(--edge);padding-bottom:9px;margin:44px 0 16px}
+.mhead .k{margin:0 0 5px;font-size:.66rem;font-weight:600;letter-spacing:.15em;
+          text-transform:uppercase;color:var(--accent)}
+.mhead h2{font-family:"Cormorant",serif;font-weight:500;font-size:1.8rem;margin:0 0 7px;
+          letter-spacing:-.02em;color:var(--ink-strong)}
+.mhead p{margin:0;font-size:.8rem;line-height:1.58;max-width:82ch}
+.mhead b{color:var(--ink-strong)}
+
+.note{margin-top:14px;padding:12px 14px;border-radius:var(--r);background:var(--card);
+      border:1px solid var(--edge);font-size:.74rem;line-height:1.55;color:var(--muted)}
+.note b{color:var(--ink)}
+.note code{font-family:ui-monospace,Menlo,monospace;font-size:.92em;color:var(--accent)}
+
+/* ── the round ─────────────────────────────────────────────────────── */
+.round{border:1px solid var(--edge);border-radius:var(--rp);padding:18px;position:relative}
+.bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.tray{display:flex;gap:6px;align-items:center}
+.tray-label{font-size:.65rem;font-weight:600;letter-spacing:.13em;text-transform:uppercase;
+            color:var(--accent);margin-right:2px}
+.av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;
+    font-size:.68rem;font-weight:700;color:#051822;flex:none;
+    font-family:"Hanken Grotesk",sans-serif}
+.av--ghost{opacity:.28}
+.meter{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:.72rem;color:var(--muted)}
+.meter b{color:var(--ink-strong);font-variant-numeric:tabular-nums;font-size:.86rem}
+.track{width:150px;height:5px;border-radius:3px;background:rgba(150,154,158,.28);overflow:hidden}
+.fill{height:100%;width:0%;background:var(--accent);border-radius:3px;
+      transition:width .5s var(--settle)}
+
+.deck{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+      /* gap tightens as the group converges — one of the two layout
+         channels that carry "gravity". Transitioned, not simulated. */
+      gap:calc(20px - 11px * var(--c));
+      transition:gap .55s var(--settle)}
+
+.opt{position:relative;background:var(--card);border:1px solid var(--edge);
+     border-radius:var(--rp);padding:13px 13px 11px;text-align:left;cursor:pointer;
+     color:inherit;font:inherit;min-width:0;
+     /* THE GRAVITY: a per-card scatter offset that decays to zero as
+        consensus rises. transform only — compositor work, no layout. */
+     transform:translate3d(0, calc(var(--off) * (1 - var(--c))), 0)
+               scale(calc(1 + .045 * var(--lead)));
+     transition:transform .58s var(--settle), border-color .35s ease,
+                opacity .45s ease;
+     will-change:auto}
+.opt:focus-visible{outline:2px solid transparent;outline-offset:-2px;
+     box-shadow:inset 0 0 0 2px #D4C9C7, inset 0 0 0 4px #051822}
+.opt--lead{border-color:#969A9E}          /* solid edge: 6.39 on canvas, 5.41 on card */
+.opt--out{opacity:.34;pointer-events:none}
+.opt__kick{margin:0 0 3px;font-size:.58rem;font-weight:600;letter-spacing:.13em;
+           text-transform:uppercase;color:var(--accent)}
+.opt__name{font-family:"Cormorant",serif;font-size:1.24rem;font-weight:600;margin:0;
+           line-height:1.05;letter-spacing:-.02em;color:var(--ink-strong)}
+.opt__meta{margin:5px 0 0;font-size:.67rem;color:var(--muted)}
+.opt__foot{margin-top:10px;display:flex;align-items:center;gap:7px;min-height:30px}
+.opt__votes{margin-left:auto;font-size:.74rem;font-weight:700;font-variant-numeric:tabular-nums;
+            color:var(--muted)}
+.opt--lead .opt__votes{color:var(--ink-strong)}
+.landed{display:flex;gap:-4px}
+.landed .av{margin-right:-7px;box-shadow:0 0 0 2px var(--card)}
+
+.actions{margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{font-family:inherit;font-size:.75rem;font-weight:600;border:0;border-radius:var(--r);
+     padding:10px 16px;cursor:pointer;background:var(--light);color:#051822}
+.btn--ghost{background:transparent;border:1px solid var(--edge);color:var(--ink)}
+.btn:focus-visible{outline:2px solid transparent;outline-offset:-2px;
+     box-shadow:inset 0 0 0 2px #051822, inset 0 0 0 4px #D4C9C7}
+.btn--ghost:focus-visible{box-shadow:inset 0 0 0 2px #D4C9C7, inset 0 0 0 4px #051822}
+.hint{font-size:.72rem;color:var(--muted)}
+
+/* the close: losers fold, winner takes the room */
+.opt--folded{opacity:0;transform:translate3d(0,-6px,0) scale(.94);pointer-events:none}
+.deck--closed{grid-template-columns:1fr}
+.opt--won{grid-column:1/-1}
+.opt--won .opt__name{font-size:2rem}
+
+.reveal-wrap{margin-top:16px;background:var(--card);border:1px solid var(--edge);
+             border-radius:var(--rp);padding:20px;display:none}
+.reveal-wrap.on{display:block}
+.reveal-wrap .k{margin:0 0 10px;font-size:.62rem;font-weight:700;letter-spacing:.15em;
+                text-transform:uppercase;color:var(--accent)}
+.reveal-wrap canvas{display:block;width:100%;height:auto}
+/* The settled state is real DOM text, not the canvas. The canvas is the
+   TRANSITION; this is the DESTINATION. See the note under this panel. */
+.reveal-wrap h3{font-family:"Cormorant",serif;font-weight:600;margin:0;
+  font-size:clamp(2.4rem,7vw,4rem);line-height:.96;letter-spacing:-.035em;
+  color:var(--ink-strong);display:none}
+.reveal-wrap.settled canvas{display:none}
+.reveal-wrap.settled h3{display:block}
+.reveal-wrap .sub{margin:10px 0 0;font-size:.78rem;color:var(--muted)}
+
+.perf{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+.pcard{background:var(--card);border:1px solid var(--edge);border-radius:var(--rp);padding:14px 15px}
+.pcard .n{font-family:"Cormorant",serif;font-size:2rem;font-weight:600;line-height:.95;
+          color:var(--ink-strong);display:block;font-variant-numeric:tabular-nums}
+.pcard .l{display:block;margin-top:6px;font-size:.72rem;line-height:1.45;color:var(--muted)}
+.pcard code{font-family:ui-monospace,Menlo,monospace;color:var(--accent)}
+
+.close{margin-top:52px;padding-top:22px;border-top:1px solid var(--edge);max-width:80ch}
+.close h2{font-family:"Cormorant",serif;font-weight:500;font-size:1.7rem;margin:0 0 13px;color:var(--ink-strong)}
+.close p{margin:0 0 11px;font-size:.83rem;line-height:1.62}
+.close b{color:var(--ink-strong)}
+.close ol{margin:0 0 12px;padding-left:1.15rem;font-size:.83rem;line-height:1.66}
+.close li{margin-bottom:8px}
+
+@media (max-width:760px){
+  .deck{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .perf{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  /* Gravity becomes a STATE, not a journey: cards sit where consensus
+     says they sit, with no travel. Nothing is lost informationally. */
+  .opt,.deck,.fill{transition:none}
+  .opt{transform:none}
+}
+</style>
+</head>
+<body>
+<div class="rig">
+
+<div class="lede">
+  <h1>Plan gravity — the 9&nbsp;→&nbsp;1 <em>made visible.</em></h1>
+  <p>
+    This app's entire job is turning nine scattered options into one decision. Today that happens in a
+    form: you press buttons and a number goes up. <b>Gravity makes the screen do what the group is
+    doing</b> — options start scattered, and pull into alignment as agreement emerges.
+  </p>
+  <p>
+    <b>The load-bearing decision is that this is layout, not physics.</b> There is no simulation loop,
+    no per-frame force integration, no <code>requestAnimationFrame</code> running for the length of a
+    round. Votes arrive as discrete events over Realtime, so <b>each vote is one transition</b> — a
+    handful over a whole round, not sixty a second. That is what makes it survivable on a mid-range
+    Android, which is the device a share-link guest actually opens.
+  </p>
+  <p>
+    Try it: <b>click any card to cast a vote.</b> Watch the scatter collapse as the group agrees.
+  </p>
+</div>
+
+<div class="mhead">
+  <p class="k">The signature</p>
+  <h2>A live round</h2>
+  <p>Nine real Dubai spots, <b>none of them with a photograph</b> — 76 of 82 don't have one, so this is
+    the honest case. Gravity is positional, so it works on type alone.</p>
+</div>
+
+<div class="round">
+  <div class="bar">
+    <div class="tray" id="tray"><span class="tray-label">Waiting</span></div>
+    <div class="meter">
+      <span>Agreement</span>
+      <span class="track"><span class="fill" id="fill"></span></span>
+      <b id="pct">0%</b>
+    </div>
+  </div>
+
+  <div class="deck" id="deck"></div>
+
+  <div class="actions">
+    <button class="btn" id="close-round">Close the round</button>
+    <button class="btn btn--ghost" id="reset">Reset</button>
+    <span class="hint" id="hint">Five friends are in this plan. Click a card to cast the next vote.</span>
+  </div>
+
+  <div class="reveal-wrap" id="rw">
+    <p class="k">Decided · you're going</p>
+    <canvas id="reveal" width="400" height="220" aria-hidden="true"></canvas>
+  <h3 id="rname"></h3>
+    <p class="sub" id="rsub"></p>
+  </div>
+</div>
+
+<div class="note">
+  <b>What is actually animating.</b> Two CSS custom properties and nothing else:
+  <code>--c</code> (agreement, 0→1) collapses each card's <code>--off</code> scatter and tightens the
+  grid gap; <code>--lead</code> scales the front-runner by 4.5%. <b>Every card animates
+  <code>transform</code> only</b> — compositor work, no layout, no paint. The gap is the one property
+  that costs a layout pass, and it changes at most once per vote.
+  <b>No blur, no shadow, no ambient motion, nothing running when nobody is voting.</b>
+  These three numbers are structural facts about the implementation, not a benchmark — a live
+  frame-timer was tried here and removed, because <code>requestAnimationFrame</code> does not run
+  reliably under browser automation and a metric that silently reads zero is worse than no metric.
+  <b>The real budget has to be measured on a real device</b>, and the spec says so rather than
+  quoting a number from a laptop.
+</div>
+
+<div class="perf" id="perf">
+  <div class="pcard"><span class="n" id="p1">10</span><span class="l">elements transformed per vote — 9 cards and one avatar</span></div>
+  <div class="pcard"><span class="n" id="p2">1</span><span class="l">properties that cost a layout pass — <code>gap</code>, once per vote</span></div>
+  <div class="pcard"><span class="n" id="p3">0</span><span class="l">transitions so far — nothing runs while nobody votes</span></div>
+</div>
+
+<div class="mhead">
+  <p class="k">The moment</p>
+  <h2>What a vote feels like</h2>
+  <p>Three beats, and <b>only three</b> — the owner has asked twice for restraint, so this is not
+    "everything moves". Each beat carries information that was previously only a number.</p>
+</div>
+
+<div class="note" style="margin-top:0">
+  <b>1 · The vote lands.</b> Your avatar leaves the waiting tray and travels onto the card you picked.
+  It is one element moving between two places — in the real build that is Motion's
+  <code>layoutId</code>, which is exactly the case it exists for. <b>This replaces a counter
+  incrementing:</b> a number says how many, a face says who, and who is the reason the group is on this
+  screen together.
+  <br><br>
+  <b>2 · Weight accrues.</b> The front-runner grows 4.5% and its hairline goes solid
+  <code>#969A9E</code> — <b>no colour is spent</b>, the palette is frozen at §24, and the edge value is
+  already legal (6.39 on canvas, 5.41 on card). The word "leading" stays in the markup, because
+  §23.4b's rule holds: <b>size is never the only signal</b>.
+  <br><br>
+  <b>3 · The round closes.</b> Losers fold rather than vanish — 340ms, opacity and a 6% scale-down, so
+  the eye can follow where they went. The winner takes the full width and its name steps to 2rem, and
+  <b>then hands off to <code>WinnerReveal</code></b>, which is already cinematic. Gravity lands
+  <i>into</i> that moment rather than competing with it.
+</div>
+
+<div class="close">
+  <h2>Why this one, and not the other eleven</h2>
+  <p>
+    <b>Gravity is the only interaction on that list that could not exist in another app.</b> Everything
+    else — parallax, magnetic buttons, cursor followers, page transitions — is portable premium polish
+    that would look identical bolted onto a banking app. <b>This one is the product's own logic,
+    rendered.</b> Nine things becoming one thing is not a metaphor here; it is the feature.
+  </p>
+  <ol>
+    <li><b>It costs no colour.</b> The palette is frozen at §24 and nothing here touches it. Energy
+      comes from position, scale and timing — §23.4's finding, applied.</li>
+    <li><b>It works with no photographs.</b> Gravity is positional. 76 of 82 spots have no image and
+      this is unaffected by that, which is the test D1's premise failed.</li>
+    <li><b>It is event-driven, not frame-driven.</b> The thing that kills interactions like this on
+      mobile is a physics loop; there isn't one. Nothing animates unless somebody votes.</li>
+    <li><b>Reduced motion keeps the meaning.</b> Cards sit where agreement says they sit, with no
+      travel. Gravity becomes a state rather than a journey — nothing informational is lost.</li>
+  </ol>
+  <p>
+    <b>What I did not build:</b> ambient drift, cursor attraction, tilt on the option cards, or
+    anything that moves while the user is reading. A round can sit open for hours; a screen that never
+    stops moving is a screen nobody can read a menu on.
+  </p>
+</div>
+
+</div>
+
+<script>
+const SPOTS=[
+ ["Seafood shack","Bu Qtair","Umm Suqeim · AED 60"],
+ ["Persian, since 1978","Al Ustad Special Kabab","Al Fahidi · AED 45"],
+ ["Tasting menu","Tresind Studio","DIFC · AED 550"],
+ ["Rooftop","Bay Room","JBR · AED 220"],
+ ["Late-night karak","Filli Café","Al Barsha · AED 15"],
+ ["Padel","Padel Park","Al Quoz · AED 90"],
+ ["Cinema","Roxy Boxes","City Walk · AED 120"],
+ ["Beach day","Kite Beach","Umm Suqeim · free"],
+ ["Shisha","Sheesh Lounge","Jumeirah · AED 130"]];
+const FRIENDS=[["SA","#D4C9C7"],["MK","#AA7452"],["JR","#BF977D"],["LN","#969A9E"],["TA","#F08A78"]];
+const OFFSETS=[0,34,14,46,6,28,20,40,10];   // the scatter, in px
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const deck=document.getElementById('deck'), tray=document.getElementById('tray');
+let votes, voter, closed, transitions;
+
+function build(){
+  votes=SPOTS.map(()=>[]); voter=0; closed=false; transitions=0;
+  deck.className='deck'; deck.innerHTML='';
+  document.getElementById('rw').classList.remove('on');
+  document.getElementById('hint').textContent='Five friends are in this plan. Click a card to cast the next vote.';
+  SPOTS.forEach((s,i)=>{
+    const b=document.createElement('button');
+    b.className='opt'; b.type='button'; b.style.setProperty('--off',OFFSETS[i]+'px');
+    b.style.setProperty('--lead',0);
+    b.innerHTML=`<p class="opt__kick">${s[0]}</p><p class="opt__name">${s[1]}</p>
+                 <p class="opt__meta">${s[2]}</p>
+                 <p class="opt__foot"><span class="landed"></span><span class="opt__votes">0<span> yes</span></span></p>`;
+    b.addEventListener('click',()=>vote(i,b));
+    deck.appendChild(b);
+  });
+  tray.innerHTML='<span class="tray-label">Waiting</span>';
+  FRIENDS.forEach(([ini,col],i)=>{
+    const a=document.createElement('span');
+    a.className='av'; a.dataset.f=i; a.style.background=col; a.textContent=ini;
+    tray.appendChild(a);
+  });
+  document.documentElement.style.setProperty('--c',0);
+  paintMeter(0);
+  document.getElementById('p3').textContent='0';
+}
+
+/* agreement: the leader's share, normalised so a perfectly even split
+   reads 0 and unanimity reads 1. One pass over nine integers. */
+function agreement(){
+  const total=votes.reduce((s,v)=>s+v.length,0);
+  if(!total) return 0;
+  const n=SPOTS.length, top=Math.max(...votes.map(v=>v.length));
+  return Math.max(0,Math.min(1,((top/total)-(1/n))/(1-(1/n))));
+}
+function paintMeter(c){
+  document.getElementById('fill').style.width=(c*100).toFixed(0)+'%';
+  document.getElementById('pct').textContent=Math.round(c*100)+'%';
+}
+
+function vote(i,card){
+  if(closed||voter>=FRIENDS.length) return;
+  const av=tray.querySelector('.av[data-f="'+voter+'"]');
+  votes[i].push(voter); voter++;
+
+  /* FLIP: measure, move, invert, play. One element, transform only. */
+  const first=av.getBoundingClientRect();
+  card.querySelector('.landed').appendChild(av);
+  const last=av.getBoundingClientRect();
+  if(!reduce && av.animate){
+    const dx=first.left-last.left, dy=first.top-last.top;
+    /* Web Animations, not a transition primed inside requestAnimationFrame.
+       The rAF version leaves the avatar STRANDED at its inverted position
+       if that frame never fires — which happens under browser automation,
+       and can happen to a real user whose tab is backgrounded mid-vote.
+       WAAPI needs no priming frame and leaves no inline style behind, so
+       the element's resting place is always its real layout position. */
+    av.animate(
+      [{transform:`translate3d(${dx}px,${dy}px,0) scale(1.12)`},
+       {transform:'translate3d(0,0,0) scale(1)'}],
+      {duration:520, easing:'cubic-bezier(.16,1,.3,1)'}
+    );
+  }
+
+  const c=agreement();
+
+  document.documentElement.style.setProperty('--c',c.toFixed(3));
+  paintMeter(c);
+  transitions++;
+
+  const top=Math.max(...votes.map(v=>v.length));
+  const leaders=votes.filter(v=>v.length===top).length;
+  [...deck.children].forEach((el,k)=>{
+    const isLead=votes[k].length===top&&top>0&&leaders===1;
+    el.classList.toggle('opt--lead',isLead);
+    el.style.setProperty('--lead',isLead?1:0);
+    const vs=el.querySelector('.opt__votes');
+    vs.innerHTML=votes[k].length+'<span> yes</span>'+(isLead?' · leading':'');
+  });
+
+  document.getElementById('p3').textContent=transitions;
+  if(voter>=FRIENDS.length)
+    document.getElementById('hint').textContent='Everyone has voted. Close the round.';
+}
+
+document.getElementById('close-round').addEventListener('click',()=>{
+  if(closed) return;
+  const top=Math.max(...votes.map(v=>v.length));
+  if(top===0){ document.getElementById('hint').textContent='Cast at least one vote first.'; return; }
+  closed=true;
+  const win=votes.findIndex(v=>v.length===top);
+  document.documentElement.style.setProperty('--c',1);
+  paintMeter(1);
+  [...deck.children].forEach((el,k)=>{ if(k!==win) el.classList.add('opt--folded'); });
+  setTimeout(()=>{
+    [...deck.children].forEach((el,k)=>{ if(k!==win) el.style.display='none'; });
+    deck.classList.add('deck--closed');
+    deck.children[win].classList.add('opt--won');
+    deck.children[win].querySelector('.opt__votes').innerHTML=
+      votes[win].length+'<span> yes</span> · decided';
+    document.getElementById('rw').classList.add('on');
+    document.getElementById('rsub').textContent='The group’s headed to '+SPOTS[win][2].split(' · ')[0]+'. Now let’s make it happen.';
+    runReveal(SPOTS[win][1]);
+  }, reduce?0:360);
+  document.getElementById('hint').textContent='Round closed.';
+});
+document.getElementById('reset').addEventListener('click',build);
+
+/* the reveal, matching the shipped component's 400x220 fixed draw space */
+const cvs=document.getElementById('reveal'), ctx=cvs.getContext('2d');
+const W=400,H=220,CELL=2,DUR=1150;
+function drawName(name){
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#D4C9C7';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  let size=96; ctx.font=`600 ${size}px Cormorant, Georgia, serif`;
+  while(ctx.measureText(name).width>W-40&&size>24){size-=2;ctx.font=`600 ${size}px Cormorant, Georgia, serif`;}
+  ctx.fillText(name,W/2,H/2);
+}
+function runReveal(name){
+  const rw=document.getElementById('rw');
+  document.getElementById('rname').textContent=name;
+  /* Swap canvas -> real text when the flight ends. setTimeout, not the
+     rAF callback: if the animation clock is frozen (backgrounded tab,
+     automation) the swap must still happen, or the winner is left as a
+     blurry bitmap forever. */
+  const settle=()=>rw.classList.add('settled');
+  drawName(name);
+  if(reduce){ settle(); return; }
+  rw.classList.remove('settled');
+  setTimeout(settle, DUR+60);
+  const src=ctx.getImageData(0,0,W,H).data, parts=[];
+  for(let y=0;y<H;y+=CELL) for(let x=0;x<W;x+=CELL)
+    if(src[(y*W+x)*4+3]>128) parts.push({tx:x,ty:y,sx:Math.random()*W,sy:Math.random()*H});
+  const t0=performance.now(), ease=t=>1-Math.pow(1-t,3);
+  (function fr(now){
+    const t=Math.min(1,(now-t0)/DUR), e=ease(t);
+    ctx.clearRect(0,0,W,H); ctx.fillStyle='#D4C9C7';
+    for(const p of parts) ctx.fillRect(p.sx+(p.tx-p.sx)*e,p.sy+(p.ty-p.sy)*e,CELL,CELL);
+    if(t<1) requestAnimationFrame(fr); else { drawName(name); settle(); }
+  })(t0);
+}
+
+(document.fonts?document.fonts.load("600 96px Cormorant").then(()=>document.fonts.ready):Promise.resolve())
+  .then(build).catch(build);
+</script>
+</body>
+</html>

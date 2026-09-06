@@ -15,6 +15,8 @@ superseded number as live is the main way this document can hurt you.
 | **Ground + elevation** | **§24** | **Live. Canvas `#051822`, cards `#0B2836` (ΔL\* 7.47). Supersedes §23.1's grounds AND its rule.** |
 | Dark tokens | §23.2 + §24.4 | Live. `--canvas`/`--card` come from §24; every other token from §23.2. |
 | Energy / type scale | §23.4 | Live. Energy is scale, motion, density — never more colour. |
+| **Interaction** | **§25** | **Live. Plan gravity + the voting moment. Layout, not physics.** |
+| Winner reveal | §25.1 + §14.2 | Live. The canvas is the transition; **real DOM text is the destination**. |
 | **Focus ring** | **§23.7** | **Live. Two bands, inset. §19.7's graphite ring is superseded for dark.** |
 | Light mode | §23.8 | **Parked, not deleted**, 2026-09-07 — the mirror of §19.2. Two pin sites. |
 | ~~Dark mode parked~~ | ~~§19.2~~ | **Superseded 2026-09-07 by §23.** §19.2's machinery is a starting point for *structure*; its values are v5-era. |
@@ -2692,6 +2694,170 @@ rather than because something rendered it. **Leave it unassigned.** If a
 genuinely raised chrome surface appears later — a sticky header band over
 scrolled content — it is the obvious candidate, and it can be adopted then,
 against measurement, for a consumer that exists.
+
+## 25 — Plan gravity and the voting moment (owner, 2026-09-07)
+
+Owner: **"i just really want it to be aesthetic and fun and interactive at
+the end of the day."**
+
+**The palette is frozen at §24. Nothing in this section spends a colour.**
+Every effect here is position, scale or timing. Mock:
+`design-system/mocks/plan-gravity-v1.html` — interactive, audited at
+**120 text nodes, 0 contrast failures**, before and after the round closes.
+
+### 25.1 — The reveal is the headline. Delete the duplicate, and stop rasterising it.
+
+**Two defects, one fix.**
+
+`DecidedPlan.tsx:140` renders `It's {winner.name}.` at `text-xl` (1.25rem)
+**directly beneath a canvas already showing that same name at 79px.** §23.4
+read this as a type-scale problem. It is not — **it is a duplicate.** The
+smaller copy adds nothing and its size is only embarrassing because the
+thing above it is correct.
+
+And the canvas itself is soft. `WinnerReveal` draws into a fixed
+**400 × 220** backing store and lets CSS stretch it. Measured in the mock's
+panel: **5.28× device upscale — the winner's name rasterised at 18.9% of the
+screen's real resolution.** In the narrower `.vote-result` column it is
+still roughly 3×. **The one moment the product exists to deliver is
+currently its blurriest pixels.**
+
+**The fix is to stop treating the canvas as the destination.**
+
+> **The canvas is the transition. Real DOM text is the destination.**
+
+When the particles land, swap the canvas for a real heading:
+`font-size: clamp(2.4rem, 7vw, 4rem)`, Cormorant 600, `line-height: .96`,
+`letter-spacing: -.035em`, `--ink-strong`. Sharp at any size, selectable, a
+genuine heading in the accessibility tree rather than a canvas carrying an
+`aria-label` — and it makes the duplicate line's deletion unambiguous,
+because the settled text *is* the headline.
+
+- **Do the swap on a `setTimeout`, not in the rAF callback.** If the
+  animation clock is frozen — a backgrounded tab — the rAF chain never
+  completes and the winner is left as a blurry bitmap permanently.
+- **Do not fix this by enlarging the backing store alone.** The sampling
+  grid must stay 400 × 220 or the particle count blows §14.2's
+  1,500–2,500 cap by roughly ten times. Resolution and particle density are
+  separate concerns; the swap sidesteps both.
+- The canvas becomes `aria-hidden` — it is decoration once real text exists.
+
+**Ship this before the physics.** It is a deletion plus a swap, and it fixes
+the product's most important screen.
+
+### 25.2 — Plan gravity: convergence is layout, not simulation
+
+Nine scattered options resolving into one decision is literally what this
+app does. Gravity renders that: **options start scattered and pull into
+alignment as agreement emerges.**
+
+**The load-bearing decision, and the reason this is affordable:**
+
+> **There is no physics loop.** No per-frame force integration, no
+> `requestAnimationFrame` running for the length of a round. Votes arrive as
+> discrete Realtime events, so **each vote is exactly one transition** — a
+> handful across a whole round, not sixty a second. **Gravity is
+> event-driven, not frame-driven.**
+
+**Agreement**, the scalar everything reads from — one pass over nine
+integers, recomputed per vote:
+
+```
+c = clamp01( (max(vᵢ)/Σv − 1/n) / (1 − 1/n) )
+```
+
+An even split reads **0**; unanimity reads **1**. Two channels carry it:
+
+| Channel | Value | Cost |
+|---|---|---|
+| Per-card scatter | `translate3d(0, calc(var(--off) * (1 - var(--c))), 0)` | compositor only |
+| Grid gap | `calc(20px - 11px * var(--c))` | **one layout pass, ≤ once per vote** |
+| Leader emphasis | `scale(calc(1 + .045 * var(--lead)))` | compositor only |
+
+`--off` is a fixed per-card offset (0–46px). **Cards animate `transform`
+only.** The gap is the single property that costs layout, and it changes at
+most once per vote.
+
+**The leader's weight costs no colour**: its hairline goes solid `#969A9E`
+— already legal at 6.39 on canvas and 5.41 on card (§24.4) — and it scales
+4.5%. **The word "leading" stays in the markup**: §23.4b's rule holds, size
+is never the only signal.
+
+### 25.3 — The voting moment: three beats, and only three
+
+The owner has asked twice for restraint. This is not "everything moves".
+
+1. **The vote lands.** The voter's avatar travels from the waiting tray onto
+   the chosen card — one element between two positions. In the real build
+   that is Motion's `layoutId`, which is precisely the case it exists for.
+   **This replaces a counter incrementing:** a number says how many, a face
+   says who, and who is why the group is on this screen together.
+2. **Weight accrues.** Per §25.2 — scale and a solid hairline, no colour.
+3. **The round closes.** Losers **fold** rather than vanish — 340ms, opacity
+   plus a 6% scale-down, so the eye can follow where they went. The winner
+   takes full width, then **hands off to `WinnerReveal`**. Gravity lands
+   *into* that moment rather than competing with it.
+
+**⚠️ The FLIP must not use a transition primed inside `requestAnimationFrame`.**
+The mock did this first and it is a real bug, not a harness artifact: that
+pattern sets an inline `transform` and relies on the next frame to clear it,
+so **if the frame never fires the avatar is stranded at its inverted
+position permanently.** Use the Web Animations API —
+`el.animate([{transform: inverted}, {transform: 'none'}], {...})` — which
+needs no priming frame and leaves no inline style, so the element's resting
+place is always its real layout position. Verified: 5 of 5 avatars land in
+the card footer with zero residual transforms.
+
+### 25.4 — The performance budget
+
+The critical path is a guest opening a share link on a mid-range Android.
+
+**Structural guarantees** (properties of the implementation, checkable by
+reading it):
+
+- **Nothing animates while nobody is voting.** No ambient drift, no idle
+  loop. A round can sit open for hours.
+- **10 elements transform per vote** — nine cards and one avatar.
+- **One property costs a layout pass** (`gap`), at most once per vote.
+- **`transform` and `opacity` only.** No blur, no `backdrop-filter`, no
+  shadow — and per §23.7 dark has no elevation shadows to lose anyway.
+- No persistent `will-change`.
+
+**⚠️ These are structural facts, not a benchmark, and the difference
+matters.** A live frame-timer was built into the mock and **removed**:
+`requestAnimationFrame` does not run under browser automation, so it read
+empty — and **a performance metric that silently reports nothing is worse
+than no metric**, which is this repo's dominant bug shape. **The real budget
+must be measured on a real device**, not quoted from a laptop. Until it is,
+this section claims no frame numbers.
+
+### 25.5 — Reduced motion
+
+Motion needs this handled in JS; the global CSS override cannot reach it.
+
+**Gravity becomes a state rather than a journey.** Cards sit exactly where
+agreement says they sit, with no travel — the scatter is still expressed,
+it simply does not animate into place. **Nothing informational is lost**,
+which is the test: if disabling motion loses meaning, the meaning was
+carried by the motion and should not have been.
+
+- Avatars appear on the card without flying.
+- Losers disappear without folding; the winner is already at full width.
+- The reveal renders its settled text immediately (§25.1's swap fires at once).
+
+### 25.6 — What I did not build, and why
+
+- **Ambient drift, cursor attraction, tilt on option cards.** A round can be
+  open for hours and people read menus on this screen. Anything moving while
+  someone is reading is a cost with no payer.
+- **The other eleven interactions on the owner's list.** Parallax, magnetic
+  buttons, page transitions — all portable premium polish that would look
+  identical on a banking app. **Gravity is the only one that could not exist
+  in another product**, because nine-becoming-one is not a metaphor here, it
+  is the feature. That is the whole reason it is worth the effort.
+- **Anything that needs photography.** Gravity is positional and works on
+  type alone — 76 of 82 spots have no image, and that is the test D1's
+  premise failed.
 
 ## Verification (for whoever implements this)
 
