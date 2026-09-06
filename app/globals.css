@@ -1075,6 +1075,14 @@ h3 {
 }
 
 .home-title strong {
+  /* SPECS.md §20's italic is WIRED BUT NOT ENABLED — see §20.1, which
+     gates shipping any font-style: italic on the real drawn face being
+     confirmed. The italic file is registered in layout.tsx and loads, but
+     rendered straight from the file it produces metrics identical to the
+     roman and no visible slant, which is the signature of the face not
+     being applied. Shipping italic in that state yields the synthesised
+     oblique §20 exists to prevent. Restore this one line, and the
+     matching rule on .auth-intro h1 em, once the face is confirmed. */
   position: relative;
   color: var(--color-ink);
   font-weight: 600;
@@ -2206,6 +2214,9 @@ h3 {
 .auth-mark b { margin-left: .12rem; color: var(--auth-paper); font-size: .76rem; }
 .auth-kicker, .auth-panel__heading p { margin: 0; color: var(--auth-metal-text); font-size: .68rem; font-weight: 500; letter-spacing: .16em; text-transform: uppercase; }
 .auth-intro h1 { max-width: 30rem; margin: auto 0 1.25rem; font-size: clamp(3.5rem, 7vw, 6.8rem); line-height: .96; letter-spacing: -.03em; font-weight: 500; }
+/* §20's second and third italic sites, held with the front door's for the
+   same reason (see .home-title strong). Left upright until the drawn face
+   is confirmed. */
 .auth-intro h1 em { color: var(--auth-metal); font-style: normal; }
 .auth-copy { max-width: 27rem; margin: 0; color: var(--auth-muted); font-size: .95rem; line-height: 1.65; }
 .auth-panel { display: flex; flex-direction: column; justify-content: center; padding: clamp(1.25rem, 5vw, 4rem); background: var(--auth-card); }
@@ -3713,3 +3724,50 @@ h3 {
   outline: 2px solid var(--color-ink);
   outline-offset: -2px;
 }
+
+/* ── Cormorant's size floor ─────────────────────────────────────────
+   Cormorant is a high-contrast serif and goes fragile small: its thin
+   strokes thin out further and small caps lose their shape. Design saw
+   the wordmark's "03" nearly disappear in it, and specced "display and
+   hero only, nothing small", with the wordmark either going up in size
+   or staying in the sans.
+
+   The floor implemented here is 20px. Design gave the constraint without
+   a number, so this is my call and flagged as such: measured on the
+   rendered pages, the type that actually breaks down is the 11-16px band
+   (wordmark, avatar initial, card tape, submit label), while headings at
+   23-25px hold up fine. Setting it higher would have pushed most card
+   headings into the sans, which is a much larger design change than the
+   fragility warrants.
+
+   Everything below the floor takes the body sans. These are also all
+   UI furniture rather than display type — a wordmark, an initial, a
+   button label, a tape — so the sans is the right voice for them
+   regardless of the fragility.
+
+   PLACED AT THE END OF THE FILE ON PURPOSE. These are overrides of rules
+   that set --font-display on the same selectors, at equal specificity —
+   so source order decides, and anywhere earlier they silently lose. That
+   is the same trap the §21 fills hit twice; here it is avoided by
+   position rather than by stacking class names. */
+.home-logo,
+.home-logo__three,
+.home-nav__signin,
+.home-primary-cta,
+.home-avatar,
+.home-plan-card__tape,
+.plan-submit,
+.auth-mark,
+.demo-photo-upload strong,
+.demo-profile-avatar,
+/* This one is a section heading that inherits body size (16px) because no
+   rule ever gave it one — the global h1,h2,h3 display rule is all that
+   applies. Cormorant makes the gap visible rather than causing it. Held to
+   the floor here; @Design may prefer to give it a real heading size
+   instead, which would put it back in the serif. */
+.home-plan-section__intro h2 {
+  font-family: var(--font-body);
+}
+/* The six-digit sign-in code is DATA, and at 24px in a high-contrast
+   serif the digits read as decorative. Clarity wins here. */
+.auth-input--code { font-family: var(--font-body); }
