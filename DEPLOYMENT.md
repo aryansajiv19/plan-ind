@@ -1,10 +1,38 @@
 # Deployment readiness
 
-Owned by T0. What's actually needed to put this live, and what's genuinely
-blocking it right now. **Refreshed 2026-09-04** — the previous version of
-this file was stale on several claims (test count, migration status, load
-testing, venue-link); corrected against the actual current state below, not
-assumed.
+**Refreshed 2026-09-06.** Vercel is now set up and then deliberately parked
+— read this section before assuming anything below it is still current.
+
+## Current state (2026-09-06)
+
+- **Vercel project exists and is linked**: `safebox/plan-ind`
+  (`projectId prj_ueymNv8KYRFkb6HZIl8NqkBlOjrP`). The GitHub repo is
+  connected, so pushes produce preview deployments automatically.
+- **A preview deployment was made and verified**:
+  `https://plan-mxeh0gisw-safebox.vercel.app` — front door 200, and the
+  legal pages render the owner's real entity/contact/jurisdiction rather
+  than placeholders. **Production has never been deployed.**
+- **Owner then said to skip Vercel for now**, so this is parked as-is. Do
+  not deploy, promote, or change project settings without them asking again.
+- **8 of 10 environment variables are set** across production/preview/
+  development: `NEXT_PUBLIC_SUPABASE_URL`,
+  `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
+  `SECURITY_CONTROL_SECRET` (copied from `.env.local`, **not** regenerated),
+  `OPENAI_API_KEY`, `LEGAL_OPERATOR_NAME`, `LEGAL_CONTACT_EMAIL`,
+  `LEGAL_JURISDICTION`.
+- **Still unset**: `NEXT_PUBLIC_TURNSTILE_SITE_KEY` (no widget created) and
+  `NEXT_PUBLIC_SITE_URL` (needs a settled domain).
+- **Turnstile is deprioritised while Vercel is parked.** The app requires a
+  captcha only when `NODE_ENV === "production"`, so it blocks nothing
+  locally. It remains a hard wall for a real production launch: without a
+  key, email login and guest voting both fail before they start.
+
+## Migrations — all applied except one
+
+021-038, 040 and 041 are live and verified by catalog query. **039 is held**
+because the `spot-photos` bucket is empty; see `worklog.md` 2026-09-06.
+
+---
 
 ## What's already true
 
