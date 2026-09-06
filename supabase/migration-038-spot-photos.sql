@@ -18,8 +18,14 @@
 -- anon/authenticated and grant insert/update/delete to NOBODY, so there is
 -- no user-facing write path into this bucket by construction rather than by
 -- omission: adding one would require adding a policy, which is a visible
--- change, not an oversight. Writes happen through the service role only
--- (scripts/backfill-spot-photos.mjs), which bypasses RLS by design.
+-- change, not an oversight.
+--
+-- Nothing in this project can write here through the API either: there is
+-- deliberately NO service-role key (CLAUDE.md's invariants), so
+-- scripts/backfill-spot-photos.mjs writes only to a LOCAL bucket and the
+-- live files are uploaded by the owner through the Supabase dashboard. The
+-- one credential that could bypass these policies is one only they hold --
+-- which is the point, not a gap.
 --
 -- ── Why provenance is two columns, not a boolean ─────────────────────────
 --

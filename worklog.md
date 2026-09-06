@@ -1127,3 +1127,57 @@ the guarded `where photo_url is null` clauses mean it stays a no-op until
 then.
 
 Live photo state is unchanged: **0 of 82**.
+
+---
+
+## 2026-09-06 — T1 Security/Backend: front-door wall was unreadable, not unpassed
+
+The "Dubai, right now" wall showed its empty state to every visitor. The
+reported cause — `app/page.tsx` passing no spots — was only half of it.
+
+**The other half: a signed-out visitor could not read `spots` at all.** Every
+policy on the table was granted `to authenticated`, so an anon read returned
+**zero rows and no error**. That silence is why it looked like "no spots
+passed" rather than "no permission" — the same silent-empty shape as the
+1000-row truncation class. The busiest page in the app has been telling every
+prospect "no places in the catalog yet" against a catalogue of 82.
+
+**Migration 041** grants anon `select` on `spots` scoped to
+`source = 'curated'` and nothing else. Custom (user-created) spots stay
+governed solely by the authenticated policy. Verified locally: anon reads
+curated, gets 0 custom rows, and is refused on insert.
+
+**The query is a bounded display sample, not a catalogue read**, and the
+distinction is the point: PhotoWall renders at most 12 tiles, so `limit(12)`
+is the wall's own size rather than an arbitrary cap. A query that means "all"
+and takes what it gets is a truncation bug; one that means "twelve" and asks
+for twelve is not. Photos sort first so the six queued images land where they
+earn most.
+
+**`security` review — policy sound, four findings, all fixed:**
+
+- **Medium, and a regression I introduced.** Passing 12 spots trips
+  `CardStackExample`'s `spots.length >= 9` check, so the hero deck switched
+  from its curated illustrative cards to real rows — and `toDeck` reads
+  `category` and `price_band`, which my select omitted. Every card fell back
+  to the generic chip with a blank price. **The `as Spot[]` cast is what hid
+  it from the type checker.** Both columns added; verified 0 generic chips
+  and 9 price bands rendering.
+- The query discarded its `error`, rebuilding the exact silent-empty failure
+  the migration condemns. Now logged.
+- `photo_attribution` added to the select ahead of 039: several queued photos
+  are CC-BY and the licence requires credit wherever the image renders. The
+  data is now there; **PhotoTile still does not render it**, which is
+  Frontend's and must land before 039 puts CC images on this page.
+- A comment I wrote in 038 and `schema.sql` claimed "the backfill writes via
+  the service role". There is no service-role key by design. Corrected —
+  prose asserting a credential exists is what authorises someone to mint one.
+
+Review also asked for two widenings to be stated plainly in 041's header,
+and they now are: RLS is row-level, so the policy exposes all curated
+columns rather than the nine the page selects; and "age-restricted venues
+are enumerable", previously accepted as requiring an account, now needs no
+session. Both low for a public list of licensed venues, neither should be
+rediscovered as a surprise.
+
+Journey 119/120. Gate green. 041 staged, not applied.
