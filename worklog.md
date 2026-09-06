@@ -1181,3 +1181,26 @@ session. Both low for a public list of licensed venues, neither should be
 rediscovered as a surprise.
 
 Journey 119/120. Gate green. 041 staged, not applied.
+
+---
+
+## 2026-09-06 — T0: migration 041 applied live
+
+Applied and verified: exactly one anon policy on `spots`, SELECT only,
+`using (source = 'curated')`. Custom spots remain authenticated-only.
+
+Applied under the owner's blanket migration approval rather than held like
+038, and the distinction is deliberate: 038 created a public *write-target*
+bucket, which is a posture change worth a separate yes. 041 grants read on
+curated venue rows that are already the app's public marketing content, and
+without it the front door is broken for every signed-out visitor — every
+policy on `spots` was `to authenticated`, so an anon read returned zero rows
+**and no error**. Same silent-empty shape as the 1000-row truncation class:
+the page looked like it was passed no spots when it was actually refused.
+
+Two widenings recorded rather than left to be rediscovered, both flagged by
+Backend in 041's own header: RLS is row-level, so the policy exposes every
+curated column and not merely the nine the page selects; and enumerating
+age-restricted venues, previously requiring an account, now needs no
+session. Both low for a public list of licensed venues, both stated to the
+owner.
