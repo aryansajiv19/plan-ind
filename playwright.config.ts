@@ -10,6 +10,29 @@ import { defineConfig, devices } from "@playwright/test";
 // worktrees deliberately don't do themselves — see tests/README.md.
 export default defineConfig({
   testDir: "./tests/e2e",
+  // guest-vote.spec.ts casts a REAL vote, so it runs against a disposable
+  // plan provisioned on a LOCAL Supabase stack. Setup refuses any
+  // non-loopback NEXT_PUBLIC_SUPABASE_URL: neither `plans` nor `votes` can
+  // be deleted by anything in this project (no delete policy, no
+  // service-role key), so a run against a hosted project would leave rows
+  // behind permanently. That is what kept RUN_E2E switched off.
+  globalSetup: "./tests/e2e/global-setup.ts",
+  globalTeardown: "./tests/e2e/global-teardown.ts",
+  //
+  // ⚠ WEBKIT AND MOBILE SAFARI CANNOT RUN A PRODUCTION BUILD OVER PLAIN HTTP.
+  // Not a product bug and not a WebKit bug -- it is two correct production
+  // headers doing their job: `Strict-Transport-Security` (next.config.ts) and
+  // the CSP's `upgrade-insecure-requests` (proxy.ts, added only when
+  // !isDev). Chromium and Firefox exempt localhost from HSTS; WebKit does
+  // not, so it rewrites every asset request to https://localhost:3010, gets
+  // "An SSL error has occurred", and the page hangs on "Loading the plan…".
+  // Verified by capturing WebKit's own requestfailed events.
+  //
+  // In production everything is already https, so the upgrade is a no-op and
+  // these two projects are exactly the coverage that matters (every iOS
+  // browser is WebKit). To run them locally, serve over https or point
+  // PLAYWRIGHT_BASE_URL at a deployed preview -- do NOT relax the headers to
+  // make a test pass.
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,

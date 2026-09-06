@@ -75,3 +75,6 @@ next-env.d.ts
 
 # scripts/backfill-spot-photos.mjs writes its review output here.
 /scripts/spot-photos.local.json
+
+# Playwright global-setup writes the disposable local plan id here.
+/tests/e2e/.fixture.local.json

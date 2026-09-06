@@ -1,25 +1,45 @@
 import { test, expect } from "@playwright/test";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
-// Guest vote cast, end to end, against the live Supabase project (via
-// .env.local — same credentials scripts/smoke-test.mjs uses). Requires B1
-// (anonymous sign-ins) to be live and the seeded plan
-// 22222222-2222-2222-2222-222222222222 to exist with its three round-1 spots.
-//
-// Manually verified against this exact plan in a Chromium session on
-// 2026-09-01 (see worklog.md, "Guest vote path verified end to end"); this
-// spec automates that same walk: fresh browser state -> anon session ->
+// Guest vote cast, end to end: fresh browser state -> anon session ->
 // claim_plan_access -> NameGate -> cast a vote -> the card flips to
-// aria-pressed="true" and the voter count goes up.
+// aria-pressed="true" and the voter count goes up. This is the product's
+// delivery item #1, and mostly a mobile path, which is why the matrix in
+// playwright.config.ts runs it on WebKit and two phone profiles.
 //
-// This plan is shared test fixture data — other sessions/CI runs may vote on
-// it concurrently, so the assertion is "went up by at least one", not an
-// exact before/after count.
-const PLAN_ID = "22222222-2222-2222-2222-222222222222";
+// ── Why this no longer touches the live project ──────────────────────────
+//
+// It used to vote on a hardcoded plan in the LIVE project on every run,
+// which is why RUN_E2E was left off and this never ran in CI at all.
+//
+// It could not simply be taught to clean up after itself: `plans` and
+// `votes` have NO delete policy (both are read-only to clients by design;
+// writes go through security-definer RPCs), and this project has no
+// service-role key, so nothing can remove a plan or a vote from a hosted
+// project once created. Per-run fixtures against live would leave rows
+// behind permanently -- worse than the shared fixture they replaced.
+//
+// So the fixture is a disposable plan created on the LOCAL stack by
+// global-setup.ts and deleted by global-teardown.ts. Setup refuses any
+// non-loopback URL, so a misconfigured CI cannot point the browser matrix at
+// production and start casting votes.
+//
+// Because the plan is private to this run, the voter count assertion is now
+// EXACT (0 -> 1) instead of "went up by at least one" — the old wording was
+// hedging against concurrent runs on shared data, and that ambiguity is gone.
+const PLAN_ID: string = (() => {
+  try {
+    return JSON.parse(readFileSync(join(process.cwd(), "tests/e2e/.fixture.local.json"), "utf8")).planId ?? "";
+  } catch {
+    return "";
+  }
+})();
 
 test("a guest can open a shared plan and cast a vote", async ({ page }) => {
   test.skip(
-    !process.env.NEXT_PUBLIC_SUPABASE_URL,
-    "needs NEXT_PUBLIC_SUPABASE_URL/.env.local — see tests/README.md",
+    !PLAN_ID,
+    "no local fixture — global-setup.ts provisions one against a local Supabase stack; see tests/README.md",
   );
 
   await page.goto(`/plan/${PLAN_ID}`);
@@ -55,9 +75,11 @@ test("a guest can open a shared plan and cast a vote", async ({ page }) => {
   await firstCard.click();
   await expect(firstCard).toHaveAttribute("aria-pressed", "true");
 
+  // Exact, not "greater than": this plan belongs to this run alone, so a
+  // second voter appearing would be a real bug rather than a parallel run.
   await expect
     .poll(async () => readVoterCount(votersLabel), { timeout: 5_000 })
-    .toBeGreaterThan(votersBefore);
+    .toBe(votersBefore + 1);
 });
 
 async function readVoterCount(locator: import("@playwright/test").Locator): Promise<number> {
