@@ -2474,9 +2474,27 @@ Kept rather than deleted, because *how* they were settled is the useful part.
 §19.2 preserved 45 `[data-theme="night"]` blocks so that reversing the dark
 decision would be cheap. **It was, and that discipline paid off.** But those
 blocks were tuned against a **`#121212`-era ground**, and §23's canvas is
-`#2D383E` — a full 15 L\* lighter. **Whichever mechanism Frontend uses,
-those 45 blocks either go live and need auditing, or go dead and need
-deleting. Both are a decision; neither is "nothing".**
+`#2D383E` — a full 15 L\* lighter.
+
+**Mine them for coverage, then delete them. Write §23's values fresh.**
+
+Reviving them wholesale would import values calibrated for a context that no
+longer exists — **structurally the same mistake as §23.1**, which was
+importing light mode's elevation metaphor into a ground it did not fit. The
+blocks' remaining value is not their colours; it is that they are a
+**worked list of every selector that needs dark treatment at all**, built
+by someone who walked the whole app once. That coverage is expensive to
+recreate and trivial to lose.
+
+**So the order matters, and getting it backwards loses the only useful
+part:** extract the selector list *first* and keep it — as a checklist in
+the implementing PR, or a comment block — *then* delete the rules. Deleting
+before extracting throws away the coverage and keeps nothing.
+
+**One value in them is worth carrying forward as a starting point, not as a
+figure:** §19.2's recorded night set was measured, just against the wrong
+ground. Treat those numbers as evidence that a given selector *needed* a
+value, never as the value itself.
 
 **I audited the three literals inside them. Two are false alarms, and one
 of those would do real harm if "fixed".**
