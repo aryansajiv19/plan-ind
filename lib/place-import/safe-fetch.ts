@@ -38,26 +38,58 @@ async function assertPublicHost(hostname: string): Promise<void> {
   }
 }
 
-async function readCapped(response: Response): Promise<string> {
+// Truncates at MAX_BYTES rather than throwing. The guarantee this cap exists
+// to make is "never read more than MAX_BYTES from an arbitrary host", and
+// stopping at the limit satisfies that exactly as well as aborting does --
+// but throwing also discarded metadata that had already arrived. The clues
+// this pipeline wants (<title>, og: tags) live in <head>, i.e. the first few
+// KB, so a 512KB+ page used to fail with "response was too large" while
+// holding everything needed in its first chunk. Verified on a real article:
+// the first 512KB of the Burj Khalifa Wikipedia page carries the title and
+// five og: properties.
+//
+// Truncating mid-document is safe for both consumers, by construction rather
+// than by luck:
+//  - web-adapter's regexes require a *complete* quoted attribute value
+//    (`content="..."`), and carry no anchors or lookarounds, so any match in
+//    a truncated prefix is a match at the same offset in the full document:
+//    the captured value always exists verbatim in the real page. A tag cut
+//    mid-attribute simply doesn't match. Truncation can never synthesize or
+//    garble a value. It CAN change which tag wins -- if the forward
+//    pattern's match spans the cut, metaContent falls through to its
+//    reversed-order fallback and may pick an earlier tag -- but the page
+//    author controls every candidate on their own page either way, so that
+//    is a fidelity difference, not a trust boundary.
+//  - oembed's JSON.parse of a truncated body throws, and it already converts
+//    that into a SafeFetchError, so oversized JSON still degrades to
+//    needs_input exactly as before.
+//  - a multi-byte character split at the boundary decodes to U+FFFD under
+//    the non-fatal decoder below, rather than throwing.
+// Exported only so the truncation boundary can be tested without a network
+// round trip (tests/place-import-safe-fetch.test.ts). Not part of this
+// module's intended API -- callers want safeFetch().
+export async function readCapped(response: Response): Promise<string> {
   if (!response.body) return "";
   const reader = response.body.getReader();
   const chunks: Uint8Array[] = [];
   let size = 0;
-  while (true) {
+  while (size < MAX_BYTES) {
     const { done, value } = await reader.read();
     if (done) break;
-    size += value.byteLength;
-    if (size > MAX_BYTES) {
-      await reader.cancel();
-      throw new SafeFetchError("That link's response was too large.");
-    }
     chunks.push(value);
+    size += value.byteLength;
   }
-  const bytes = new Uint8Array(size);
+  // Stop pulling bytes the moment the cap is reached; the server is not
+  // owed the rest of its own response.
+  if (size >= MAX_BYTES) await reader.cancel();
+
+  const bytes = new Uint8Array(Math.min(size, MAX_BYTES));
   let offset = 0;
   for (const chunk of chunks) {
-    bytes.set(chunk, offset);
-    offset += chunk.byteLength;
+    if (offset >= bytes.length) break;
+    const slice = chunk.subarray(0, bytes.length - offset);
+    bytes.set(slice, offset);
+    offset += slice.byteLength;
   }
   return new TextDecoder("utf-8", { fatal: false }).decode(bytes);
 }
@@ -75,34 +107,55 @@ export async function safeFetch(url: string): Promise<string> {
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
-    let response: Response;
+    // The timeout stays armed across the BODY read, not just until headers
+    // arrive. Clearing it as soon as fetch() resolved left the streaming
+    // read below unbounded: a host that sends headers instantly and then
+    // dribbles one byte per second holds this request for days while never
+    // exceeding the byte cap (confirmed against a deliberately slow local
+    // server -- still reading after 15s, 27 bytes in). This handler is
+    // synchronous, so each such request pins a server slot. TIMEOUT_MS now
+    // bounds the whole hop, which is what this module's callers already
+    // claim ("worst case adds ~5s to a save-link request").
     try {
-      response = await fetch(target, {
-        redirect: "manual",
-        signal: controller.signal,
-        headers: { accept: ALLOWED_CONTENT_TYPES.join(", ") },
-      });
-    } catch {
-      throw new SafeFetchError("That link could not be reached.");
+      let response: Response;
+      try {
+        response = await fetch(target, {
+          redirect: "manual",
+          signal: controller.signal,
+          headers: { accept: ALLOWED_CONTENT_TYPES.join(", ") },
+        });
+      } catch {
+        throw new SafeFetchError("That link could not be reached.");
+      }
+
+      if (response.status >= 300 && response.status < 400) {
+        const location = response.headers.get("location");
+        if (!location) throw new SafeFetchError("That link redirected without a destination.");
+        target = new URL(location, target);
+        continue;
+      }
+
+      if (!response.ok) throw new SafeFetchError(`That link's server returned ${response.status}.`);
+
+      const contentType = response.headers.get("content-type")?.split(";", 1)[0]?.trim() ?? "";
+      if (!ALLOWED_CONTENT_TYPES.includes(contentType)) {
+        throw new SafeFetchError("That link did not return a supported content type.");
+      }
+
+      // `return await`, deliberately: a bare `return readCapped(...)` would
+      // run the finally -- clearing the timeout -- before the body finished
+      // streaming, which is the exact bug this block exists to close.
+      try {
+        return await readCapped(response);
+      } catch (error) {
+        if (error instanceof SafeFetchError) throw error;
+        // An abort mid-stream surfaces as a raw AbortError; this module's
+        // contract is that callers only ever see SafeFetchError.
+        throw new SafeFetchError("That link took too long to send its response.");
+      }
     } finally {
       clearTimeout(timeout);
     }
-
-    if (response.status >= 300 && response.status < 400) {
-      const location = response.headers.get("location");
-      if (!location) throw new SafeFetchError("That link redirected without a destination.");
-      target = new URL(location, target);
-      continue;
-    }
-
-    if (!response.ok) throw new SafeFetchError(`That link's server returned ${response.status}.`);
-
-    const contentType = response.headers.get("content-type")?.split(";", 1)[0]?.trim() ?? "";
-    if (!ALLOWED_CONTENT_TYPES.includes(contentType)) {
-      throw new SafeFetchError("That link did not return a supported content type.");
-    }
-
-    return readCapped(response);
   }
   throw new SafeFetchError("That link redirected too many times.");
 }

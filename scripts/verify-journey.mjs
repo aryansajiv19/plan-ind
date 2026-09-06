@@ -519,11 +519,12 @@ const { data: wrappedRatings } = await host.client.from("ratings")
   .select("stars").eq("plan_id", planId).eq("participant_token_hash", host.participantTokenHash);
 eq("the rating feeding Wrapped is the 5 that was submitted", wrappedRatings?.[0]?.stars, 5);
 
-step("28. A large page loses metadata it already downloaded");
-// FINDING (see worklog): safe-fetch caps the body at 512KB by THROWING, so a
-// page above the cap resolves to fetch_failed even though its <title> and
-// og: tags arrived in the very first chunk. Truncating at the cap instead of
-// throwing would keep the SSRF/DoS protection and still read the metadata.
+step("28. A large page keeps the metadata it already downloaded");
+// Regression guard. safe-fetch used to enforce its 512KB cap by THROWING, so
+// a page above the cap failed as "response was too large" even though its
+// <title> and og: tags arrived in the first chunk. It now truncates at the
+// cap instead, which keeps the SSRF/DoS guarantee ("never read more than
+// 512KB") and still reads the metadata.
 const BIG_URL = "https://en.wikipedia.org/wiki/Burj_Khalifa";
 const bigSave = await api("/api/place-import", host, { url: BIG_URL });
 eq("saving a large page still returns 200", bigSave.status, 200);
@@ -533,13 +534,13 @@ check("a page over the 512KB cap keeps the metadata it already read",
     || !String(bigRow?.extracted_data?.detail ?? "").includes("too large"),
   `status ${bigRow?.status}, reason ${bigRow?.extracted_data?.reason}: ${bigRow?.extracted_data?.detail ?? ""}`);
 
-step("29. An exact title match should resolve, not ask");
-// FINDING (see worklog): overlapScore divides by min(a.size, b.size), so a
-// spot whose whole post-stopword name is one token scores a perfect 1.0
-// against ANY title containing that word. "The Dubai Mall" -> {mall} ties
-// 1.0 with the genuine exact match on a "Mall of the Emirates" title, and
-// the RESOLVE_MARGIN check then refuses to resolve either. 17 of the 82
-// curated spots have a single-token name, so this is not a one-off.
+step("29. An exact title match resolves rather than asking");
+// Regression guard. overlapScore used to divide by min(a.size, b.size), so a
+// spot whose whole post-stopword name was one token scored a perfect 1.0
+// against ANY title containing that word: "The Dubai Mall" -> {mall} tied at
+// 1.00 with the genuine match on a "Mall of the Emirates" title, and
+// RESOLVE_MARGIN then refused to resolve either. 17 of the 82 curated spots
+// have a single-token name. Symmetric F1 scoring fixed it -- see match.ts.
 const EXACT_URL = "https://en.wikipedia.org/wiki/Mall_of_the_Emirates";
 const exactSave = await api("/api/place-import", host, { url: EXACT_URL });
 eq("saving it returns 200", exactSave.status, 200);

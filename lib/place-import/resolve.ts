@@ -11,6 +11,24 @@ import { matchCandidates, type MatchCandidate, type CuratedSpotRow } from "./mat
 // RESOLVE_FLOOR, is confident enough to resolve automatically. Below that,
 // real candidates go to the user as a pick-one list rather than a guess --
 // the one hard rule from PLACE_IMPORT_ARCHITECTURE.md: never invent a match.
+//
+// These two survived the switch from min() to F1 scoring (match.ts), but
+// they were re-derived against F1's distribution rather than assumed to
+// carry over -- a threshold tuned to one scoring function means nothing
+// under another. Swept against the real 82-row catalog, scoring every
+// spot's own name as a title and a set of deliberately unrelated titles:
+//
+//   floor  margin 0.05 / 0.10 / 0.15      margin 0.20
+//   0.50   82/82, 1 false positive        80/82
+//   0.60   82/82, 0 false positives       80/82
+//   0.65   82/82, 0 false positives       80/82
+//   0.70   60/82  (collapses)             60/82
+//
+// 0.6/0.15 sits inside the safe plateau: 0.7 starts rejecting real exact
+// matches, 0.5 lets an unrelated title through, and 0.2 costs two genuine
+// self-matches. Of the margins that hold 82/82 with no false positives,
+// 0.15 is the most conservative -- it demands the largest gap before
+// resolving on its own -- so it is the one to keep.
 const RESOLVE_FLOOR = 0.6;
 const RESOLVE_MARGIN = 0.15;
 const MAX_CANDIDATES_SHOWN = 3;
