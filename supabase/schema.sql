@@ -2197,3 +2197,33 @@ begin
 end; $$;
 
 -- create or replace preserves the ACL, so 020/021's grants still stand.
+
+
+-- ── 044: curated_categories ──────────────────────────────────────────────
+--
+-- The Discover filter tabs were derived from a truncated 120-row catalogue
+-- read, so a category whose venues all sort late got no tab and became
+-- unreachable. DISTINCT over the whole table is not expressible in PostgREST,
+-- hence a view.
+--
+-- `security_invoker = true` is load-bearing: without it a view runs as its
+-- OWNER and bypasses RLS, which would leak the categories of every private
+-- custom spot. With it, the view inherits 041's scoping exactly, so there is
+-- no second copy of the rule to drift.
+
+drop view if exists public.curated_categories;
+create view public.curated_categories
+  with (security_invoker = true) as
+  select distinct category
+  from public.spots
+  where source = 'curated';
+
+-- Read-only by construction: a view over a select-only policy, granted
+-- select only. No insert/update/delete grant, and nothing to write to.
+grant select on public.curated_categories to anon, authenticated;
+
+-- PostgREST caches the schema, so a newly created view is invisible to the
+-- API until it reloads -- the first attempt to read it returns "Could not
+-- find the table in the schema cache", which reads like the migration failed
+-- when it did not. Ask for the reload here so applying this is one step.
+notify pgrst, 'reload schema';

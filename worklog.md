@@ -1220,6 +1220,16 @@ now cost real bugs twice in one day and both were invisible from the code.
    front-door wall read `spots` as an anon visitor and got `[]` with no
    complaint, which read as "no data passed" rather than "no read
    permission" — so the diagnosis went to the wrong half of the problem.
+3. **A malformed request arrives as an empty grid.** An unquoted search term
+   containing a comma breaks PostgREST's `or` grammar: `"a,b"` returns
+   PGRST100 and a **400**, not zero matches. The client discarded the error,
+   so someone searching "beach, dubai" saw an empty grid and read it as "no
+   such place" — a rejected request wearing the same face as an honest miss.
+   (Found by Frontend, 2026-09-07; quoting the value fixes it.)
+4. **A view created without `security_invoker` runs as its OWNER and bypasses
+   RLS entirely.** Nothing errors; it simply returns more than it should.
+   Migration 044 turns on exactly this option, and the whole safety of that
+   view rests on it.
 
 Both have the same shape: **the database answers a question it could not
 actually answer, and returns an empty success.** An empty result is
@@ -1802,3 +1812,40 @@ header naming a database the server was not using, and a migration whose
 photo URLs named objects that did not exist. Each looked correct and each
 produced a confident wrong conclusion downstream. Verify against the live
 object, not the document describing it.
+
+---
+
+## 2026-09-07 — T1 Security/Backend: curated_categories (migration 044)
+
+The Discover filter tabs were derived from whatever the 120-row catalogue
+read returned, so **a category whose venues all sort late gets no tab at all
+and becomes unreachable**. Reproduced rather than argued: padded past 120
+rows, added one curated venue named "zzz Late Venue" in a late-sorting
+category, and the 120-row read yields no tab for it while the view does.
+
+A view rather than a security-definer RPC, deliberately. A definer function
+would have to re-implement 041's "curated spots this caller may see", and a
+second copy of a security rule is a second thing to drift — which is exactly
+what caused several of this week's bugs. `security_invoker = true` (PG15+;
+both local and live are 17.6, checked not assumed) runs the view with the
+CALLER's privileges, so RLS on `spots` applies to it exactly as to a direct
+read and the view follows 041 automatically if it ever changes.
+
+**That option is load-bearing, not decoration.** Without it a view runs as
+its OWNER and bypasses RLS, which would leak the categories of every private
+custom spot in the table. Verified both halves: anon sees all 23 curated
+categories, and a private custom spot's category does **not** appear.
+
+Also added `notify pgrst, 'reload schema'` to the migration — PostgREST
+caches the schema, so a new view returns "Could not find the table in the
+schema cache" until it reloads, which reads like the migration failed when
+it did not.
+
+Frontend's two findings recorded rather than re-solved: the comma/PostgREST
+`or`-grammar bug is the **third** silent-empty-instead-of-error this week and
+is now in the property list above; and the Discover grid's missing age gate
+(now closed by Frontend, predicate byte-identical to the two existing ones
+and sourced from `current_member_age()` server-side) is worth knowing had
+existed on a browse surface.
+
+Migration 044 staged. Gate green, 69 tests.
