@@ -1094,3 +1094,36 @@ Migration 040 also carries the parked `p_choice` null-guard fix, verified
 returning 42501 instead of a raw 23502.
 
 Journey 119/120 — the only remaining failure is the known coordinate gap.
+
+---
+
+## 2026-09-06 — T0: migrations 038 + 040 applied live; 039 HELD
+
+Owner: "approve all migrations". Applied 038 and 040, verified by catalog
+query. **039 deliberately NOT applied.**
+
+**038** — verified: both photo columns present, `spot-photos` bucket exists
+and is public, 4 storage policies of which **3 are RESTRICTIVE** (the read
+policy is correctly permissive; the three write-denial policies are not).
+That restrictive/permissive distinction is the whole point: the version of
+038 staged earlier today had them as ordinary permissive policies, where
+`with check (bucket_id <> 'spot-photos')` does the opposite of its name —
+permissive policies are OR'd, so it *granted* unconditional insert into
+every other bucket, defeating `visit_photos`' folder-ownership check.
+Backend caught it via `verify-journey.mjs` step 25 and fixed it before
+apply. A permissive policy can never express "deny".
+
+**040** — verified: `pg_trgm` installed, both indexes created, and the
+parked `p_choice` NULL-guard finally shipped (`p_choice is null or p_choice
+not in (...)`), so a null choice raises 42501 instead of a raw 23502.
+
+**039 held, and this is the point of checking rather than assuming.** It
+sets `photo_url` on six spots to `.../storage/v1/object/public/spot-photos/
+<id>.jpg`. The bucket is live but **contains 0 files** — the reviewed images
+were never uploaded. Applying it would have pointed six cards at 404s, which
+is strictly worse than the null they have now: a broken image asserts that a
+photo exists. Backend uploads the six files first; 039 applies after, and
+the guarded `where photo_url is null` clauses mean it stays a no-op until
+then.
+
+Live photo state is unchanged: **0 of 82**.
