@@ -222,7 +222,7 @@ function ActionSearchBar({
               aria-autocomplete="list"
               aria-expanded={isFocused}
               autoComplete="off"
-              className="h-9 rounded-lg py-1.5 pr-9 pl-3 text-sm focus-visible:ring-offset-0"
+              className="action-search__input h-9 rounded-lg py-1.5 pr-9 pl-3 text-sm focus-visible:ring-offset-0"
               id="search"
               onBlur={handleBlur}
               onChange={handleInputChange}

@@ -1802,6 +1802,16 @@ h3 {
 .plan-location-fields { display: grid; grid-template-columns: minmax(10rem, 0.7fr) minmax(0, 1.3fr); gap: 0.8rem; align-items: end; }
 .plan-location-fields select {
   width: 100%;
+  /* `height` as well as `min-height`, and the height is the one that does
+     the work in Safari. WebKit discards an author min-height on a <select>
+     that still has its native `appearance` — computed min-height came back
+     as the UA's own 18px, so this control rendered 19px tall on Safari at
+     EVERY width while Chromium showed the intended 40.8px. Proven by
+     probe: adding `appearance: none` makes WebKit honour the min-height
+     again, but that also removes the native chevron, which would be a
+     redesign of the control rather than a fix. min-height stays for
+     Chromium and Firefox and for whenever WebKit changes its mind. */
+  height: 2.55rem;
   min-height: 2.55rem;
   padding: 0.5rem 0.7rem;
   border: 1px solid var(--color-line);
@@ -3162,6 +3172,14 @@ h3 {
   .plan-location-fields select,
   .plan-category-group,
   .plan-smart-search > button { min-height: 2.75rem; }
+  /* Paired with the height above, for the same WebKit reason. */
+  .plan-location-fields select { height: 2.75rem; }
+  /* The app's global search, and the back link on a venue page — both are
+     standalone controls that were never in this block: the search input
+     carried a 36px utility height, the venue back link measured 20px. */
+  .action-search__input,
+  .place-back { min-height: 2.75rem; }
+  .place-back { display: inline-flex; align-items: center; }
   /* Height stated, not computed from padding. The old rule added 0.7rem
      top and bottom to an 18px line, which reached 40.7px and missed the
      floor it was written to hit — and would drift again with the type
@@ -3686,6 +3704,15 @@ h3 {
   padding: 2rem clamp(1.25rem, 4vw, 3rem);
   color: var(--photo-ink);
 }
+/* §22. With a photo, .place-hero__body is absolutely positioned against
+   the bottom of the 460px hero, so the slack is spoken for. Without one it
+   goes back into flow and sat at the top of a box still reserving 460px
+   for an image that is not there — 255px of dead space above the divider
+   at 1440 and 278px at 390, which is most of a phone screen. The 460px
+   stays so a venue with a photo and a venue without one have the same
+   hero and navigating between them does not jump; the container now says
+   where its free space goes instead of leaving it at the bottom. */
+.place-hero--typographic { display: grid; align-content: center; }
 .place-hero--typographic .place-hero__body { position: static; padding: 3rem clamp(1.25rem, 4vw, 3rem); color: var(--color-ink); }
 
 .place-hero__category {
