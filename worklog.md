@@ -1958,3 +1958,57 @@ carrying the weight. Verified it fails without 045 and passes with it, with
 a message naming the cause.
 
 Gate green, 69 tests on this lane.
+
+---
+
+## 2026-09-07 — T0: migration 045 applied live (Realtime DELETE propagation)
+
+All five published tables now `replica identity full`; verified live, and all
+five confirmed still in the `supabase_realtime` publication.
+
+**This was a production defect, not a local one.** A DELETE's WAL record
+carries only the old row's replica identity, so under `default` that is the
+primary key alone — not enough for Realtime to evaluate the subscription
+filter or RLS, so it **drops the event silently while the client stays
+SUBSCRIBED.**
+
+Not an edge case: `cast_plan_vote` with `p_value:false` DELETEs the row, and
+that is how someone clears a pick. **Someone un-votes and every other
+participant keeps seeing the old count until they reload** — during a live
+round, the tally other people are reading is wrong.
+
+| | A votes → B | A un-votes → B |
+|---|---|---|
+| `default` | 1 ✓ | still 1 ✗ |
+| `full` | 1 ✓ | 0 ✓ |
+
+Cost is negligible at this scale: `full` writes the whole old row to WAL on
+every UPDATE/DELETE, and these tables are 40-136 kB. Worth revisiting only
+if any of them reaches millions of rows.
+
+### Two corrections to what was reported, both worth keeping
+
+**Local Realtime was never broken.** Container healthy, publication
+complete, presence policies present; two real browser contexts propagate
+INSERTs and presence both ways. The earlier "nothing arrives, no presence
+row" almost certainly predates the `enable_anonymous_sign_ins` fix — without
+an anonymous session neither client becomes a plan member, which produces
+exactly that symptom.
+
+**A migration was nearly justified by a false claim.** A standalone probe
+reported zero events and the conclusion drawn from it was "Realtime has
+never worked in production". The probe was wrong, not the app — it called
+`realtime.setAuth()` before joining, which the real client does not. It was
+caught only because the probe and the app disagreed and the app was trusted
+over the instrument. **The wrong version was the more dramatic one and would
+have been believed.**
+
+That is the second time today a plausible moral was drawn from an
+undiagnosed symptom and started to spread before anyone read the code path.
+The first was mine, about the vote screen reporting a wrong cause.
+
+**And the first version of the multi-client E2E spec was vacuous.** It
+asserted only that B sees A's vote, which passed with AND without 045 — the
+same false comfort as the single-client spec, one layer up. The **DELETE**
+assertion is the load-bearing one, verified to fail without 045 and pass
+with it.
