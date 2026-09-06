@@ -2039,7 +2039,11 @@ h3 {
 .demo-visit__people { margin-top: 1.2rem; display: flex; align-items: center; gap: 0.7rem; color: var(--color-muted); font-size: 0.72rem; }
 .demo-visit__collection-action { margin-top: 1rem; padding-top: 0.8rem; border-top: 1px solid var(--color-line); }
 .demo-visit__collection-action label { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; color: var(--color-muted); font-size: 0.65rem; }
-.demo-visit__collection-action select { max-width: 11rem; padding: 0.45rem 0.55rem; border: 1px solid var(--color-line); background: var(--color-card); color: var(--color-ink); font-size: 0.65rem; }
+/* height stated for the same WebKit reason as .plan-location-fields select:
+   a native <select> sized only by padding renders ~18px on Safari against
+   the ~31px Chromium gives it. The value is what Chromium already
+   produced, so this changes nothing on Chromium and fixes Safari. */
+.demo-visit__collection-action select { height: 2rem; max-width: 11rem; padding: 0.45rem 0.55rem; border: 1px solid var(--color-line); background: var(--color-card); color: var(--color-ink); font-size: 0.65rem; }
 .demo-visit__collection-action button,
 .demo-collection-empty button { padding: 0; border: 0; border-bottom: 1px solid var(--home-metal); background: transparent; color: var(--color-ink); font-size: 0.65rem; font-weight: 500; cursor: pointer; }
 .demo-collection-empty { grid-column: 1 / -1; min-height: 16rem; display: grid; place-content: center; justify-items: start; padding: 2rem; border-radius: var(--radius-panel); background: var(--color-card); box-shadow: var(--elevation-card); } /* §19.3 */
@@ -2055,7 +2059,7 @@ h3 {
 .demo-photo-upload strong { font-family: var(--font-display); }
 .demo-photo-upload small { color: var(--color-muted); }
 .demo-photo-target { display: flex; align-items: center; justify-content: space-between; gap: 0.7rem; padding: 0.7rem 0; color: var(--color-muted); font-size: 0.64rem; }
-.demo-photo-target select { padding: 0.5rem; border: 1px solid var(--color-line); background: var(--color-card); color: var(--color-ink); font-size: 0.66rem; }
+.demo-photo-target select { height: 2.15rem; padding: 0.5rem; border: 1px solid var(--color-line); background: var(--color-card); color: var(--color-ink); font-size: 0.66rem; }
 
 .demo-friend-layout { margin-top: 2.5rem; display: grid; grid-template-columns: minmax(0, 1fr) 18rem; gap: 2rem; align-items: start; }
 .demo-friend-list { border-top: 1px solid var(--color-line); }
@@ -3180,6 +3184,26 @@ h3 {
   .action-search__input,
   .place-back { min-height: 2.75rem; }
   .place-back { display: inline-flex; align-items: center; }
+  /* Swept the vote screen and all five account tabs at 390 on Chromium and
+     WebKit. Everything below was under the floor on both. The round dots
+     are the notable one: they are real enabled buttons carrying the only
+     round navigation on the product's most-used screen, and they were
+     40x33.6 — under in BOTH dimensions, hence min-width as well. */
+  .vote-pool-progress button { min-height: 2.75rem; min-width: 2.75rem; }
+  .place-link-importer fieldset button,
+  .demo-filter-tabs button,
+  .demo-collection-tabs button,
+  .demo-friend-row button,
+  .demo-reaction-row button { min-height: 2.75rem; }
+  .demo-inline-form input,
+  .demo-tool-field input { min-height: 2.75rem; }
+  /* Selects need the height, not the min-height — see the note on
+     .plan-location-fields select. */
+  .demo-visit__collection-action select,
+  .demo-photo-target select { height: 2.75rem; }
+  /* A 13px checkbox inside a 16px label. The label is what a thumb
+     actually hits, so the target belongs on it; the box keeps its size. */
+  .demo-check { display: inline-flex; align-items: center; min-height: 2.75rem; }
   /* Height stated, not computed from padding. The old rule added 0.7rem
      top and bottom to an 18px line, which reached 40.7px and missed the
      floor it was written to hit — and would drift again with the type
