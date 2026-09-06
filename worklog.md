@@ -1492,3 +1492,99 @@ instruments show imports are hot; the reasoning is in `resolve.ts`.
 **The one line worth carrying forward:** `lib/supabase/paginate.ts`'s
 contract — **`T[]` means complete, null means ask again** — because it names
 today's defining bug class in a form the type system can help enforce.
+
+---
+
+---
+
+## Frontend lane (T2) — 2026-09-05/06
+
+Palette v7 and the §21 rewrite, Cormorant and the §20 italics, photo
+attribution, the hero deck centring, and the start of the visual QA pass.
+Commits `c19753c` (deck centring, now §22) and `2935710` (QA: touch
+targets, auth centring, auth focus ring).
+
+**The type size floor is 20px, and the reason is not taste.** Cormorant's
+drawn weight is calibrated for display sizes. Between roughly 11px and
+16px its thin strokes fall below one device pixel at 1x and the face
+renders as a grey smear that reads lighter than the body font next to it —
+so a "heavier" heading looked weaker than the paragraph under it. From
+about 23-25px up it holds cleanly and the axis behaves. The floor block at
+the end of `globals.css` exists to keep small text off that face
+entirely; do not lower it to fit a layout, change the layout.
+`WeightRise` was narrowed to 300-700 for the same reason: the wider range
+spent most of its travel in the region where the strokes disappear.
+
+**A blanket token sweep reaches into the parked night blocks.** Five
+palette edits landed inside `[data-theme="night"]` scopes during the v6
+work and had to be reverted. §19.2 parks that machinery rather than
+deleting it, so those blocks still parse and still match a find-and-replace
+on a token name. Any future sweep must scope itself out of the night
+scopes explicitly, or it will silently couple a parked block to a live
+value and misfire whenever dark is unparked.
+
+**The accent's semantics inverted between v5 and v6 purely from a value
+swap.** 31 rules that were measured correct under v5 became failures under
+v6 without a single one of them being edited — the token moved across the
+large-text/small-text boundary, so every rule that had been legitimately
+using the display-size champagne was suddenly using it at caption size.
+The lesson is that a palette change is not reviewable from the diff: the
+diff shows the token, not the 31 sites whose compliance depended on its
+value. Re-measure rendered output after any token value change.
+
+**Three specificity traps in §21.6, none visible in the diff.** Getting
+full-strength ink onto the selected state took three attempts: first
+softening with opacity, which is the exact mistake the spec names; then a
+rule that tied on specificity and lost to source order; then a
+`:first-child` kicker that outranked a doubled class. All three looked
+correct in the file and were wrong on screen. Verify rendered computed
+style, not the rule you just wrote.
+
+**Contrast-auditor traps, all three mine.** `color()` 0-1 channels read as
+0-255, alpha ignored so 12% tints read as solid fills, and gradient fills
+reporting a transparent `backgroundColor` so the walker looked straight
+through the primary button. Each only ever *inflates* the failure count,
+so earlier clean results still stand — but a fresh auditor will
+re-introduce them.
+
+**`resize_window` in the Chrome MCP does not change layout width.**
+`innerWidth` stays 1440 while `outerWidth` follows the window, so the page
+never re-lays-out and a width matrix built on it measures one width N
+times. Playwright's `setViewportSize` is correct and flips the media
+queries exactly at the boundaries (verified by T0). Use Playwright for
+width coverage.
+
+### Open, in the order I would take them
+
+1. **The rest of the QA pass.** The three harness failures are closed
+   (verified at a real 390px viewport: `/`, `/privacy` and `/terms` report
+   nothing under 44px; auth shell 40/40 at 1440 and 0/0 at 390; auth input
+   focus reports `2px solid #051822` at `-2px`, no shadow). The §22 sweep
+   has covered `/`, `/login`, `/onboarding`, `/privacy`. Still unswept: the
+   vote screen, the account tabs, `/place/[id]`. The sweep script shape is
+   in the commit history — containers with an imposed height where the
+   slack lands >24px to one side, filtering out those that already declare
+   an alignment (`justify-content: flex-end` on `.wall-tile__body` and the
+   absolutely-positioned card faces are deliberate, not findings).
+
+2. **`min-h-[440px]` versus the 29rem/27rem stage.** The card floor is
+   fixed at every width while the stage drops to 464px and 432px on small
+   screens, so the deck bleeds past the stage there. The centring splits
+   that bleed evenly instead of dumping it at the bottom, which is why it
+   is not urgent, but it is the same §22 shape: a floor and a container
+   height that disagree with nobody deciding. Fix the two to agree.
+
+3. **`app/home/page.tsx` needs server-side search.** PostgREST silently
+   caps reads at 1000 rows, so removing `.limit(120)` does not fix it and
+   will read as fixed while still truncating. The catalogue query has to
+   filter on the server.
+
+4. **Mobile E2E specs.** Guest-vote coverage at mobile widths, the vote
+   screen on WebKit, and touch targets at real mobile viewports. Open
+   question I could not resolve: whether guest-vote can be made safe to
+   run without writing to the live database. `RUN_E2E` stays off in CI
+   until that is answered — it is gated on exactly this.
+
+5. **Visual-regression baselines** (`npm run test:visual:update`) once the
+   passes above have landed. Generating them earlier just bakes in the
+   layouts still being changed.
