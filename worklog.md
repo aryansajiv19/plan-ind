@@ -1588,3 +1588,68 @@ width coverage.
 5. **Visual-regression baselines** (`npm run test:visual:update`) once the
    passes above have landed. Generating them earlier just bakes in the
    layouts still being changed.
+
+---
+
+## 2026-09-07 — T1 Security/Backend: guest-vote made safe, and 4 of 12 coordinates
+
+**guest-vote.spec.ts no longer touches the live project.** It voted on a
+hardcoded live plan on every run, which is why RUN_E2E stayed off and the
+cross-browser matrix never ran on delivery item #1.
+
+The obvious fix — a per-run plan, torn down after — is **impossible against
+live**: `plans` and `votes` have no delete policy at all (read-only to
+clients; writes go through security-definer RPCs) and there is no
+service-role key, so nothing in this project can remove a plan or a vote
+once created. Per-run fixtures would have leaked rows into production
+permanently. The local stack is the only place teardown is real, so
+`global-setup.ts` provisions a disposable plan there and `global-teardown.ts`
+deletes it. **Setup refuses any non-loopback URL**, so a misconfigured CI
+cannot point five browsers at production and start voting. The voter
+assertion is now exact (0 → 1) rather than "at least one", which was only
+hedging against shared data.
+
+Two mismatches between local and production, both found by running it:
+
+- **`enable_anonymous_sign_ins` was false locally** while live has it on. The
+  guest path *is* an anonymous session, so the local stack could not run it
+  at all — and did so silently. Local config that does not mirror production
+  makes a green suite meaningless.
+- The production build gates guests behind Turnstile (`NODE_ENV ===
+  "production"` in `bootstrapPlanAccess`). Rather than bypass it, the run
+  uses Cloudflare's published always-pass test key, so the real gate is
+  exercised instead of skipped.
+
+**chromium, firefox and Mobile Chrome pass. webkit and Mobile Safari cannot
+run a production build over plain http — and it is not a product bug.**
+`Strict-Transport-Security` plus the CSP's `upgrade-insecure-requests` make
+WebKit rewrite every asset to `https://localhost:3010` and fail with an SSL
+error; Chromium and Firefox exempt localhost from HSTS, WebKit does not.
+Confirmed from WebKit's own `requestfailed` events, and by curling both
+headers off the running server. In production everything is https and the
+upgrade is a no-op. Those two projects need https or a deployed preview —
+**the headers are correct and must not be relaxed to make a test pass.**
+
+**Coordinates: 4 of 12, and the other 8 stay null.** These venues are largely
+absent from OpenStreetMap, so where the venue was missing the query targeted
+the landmark containing it, hand-checked. DRIFT Beach via One&Only Royal
+Mirage, Twiggy via Park Hyatt Dubai, Padel Pro via One Central at DWTC,
+Talise Spa via Madinat Jumeirah. These are **landmark-level, not door-level**
+— within a few hundred metres, which is materially correct for a distance
+line and a Maps link, and each row's comment records which landmark it came
+from so it is not later mistaken for a survey point.
+
+Two of the eight returned something worse than nothing, which is why they are
+rejected rather than "not found": **"Bab Al Shams" matched a laundry in
+Sharjah**, a different emirate ~60km away — the textbook false positive that
+got the loose-query fallback abandoned in 037. And Anantara World Islands'
+only available coordinate is Wikipedia's centroid for The World archipelago,
+which is kilometres of open water from the resort's island. A coordinate that
+looks plausible and is kilometres wrong is worse than null: null hides a
+line, wrong sends someone to sea.
+
+The eight want a hand-pasted coordinate from someone who knows the venues.
+Free geocoding is genuinely exhausted here.
+
+Migration 042 staged. Verified live that all four ids exist and are still
+null. Gate green, 64 tests.
