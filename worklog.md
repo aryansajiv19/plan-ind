@@ -1021,3 +1021,76 @@ Nothing built, nothing staged, no bucket created, no migration written —
 the design (public `spot-photos` bucket, `photo_source`/`photo_attribution`
 columns, remotePatterns at the end) is agreed but waiting on this decision,
 because the answer changes what gets built.
+
+---
+
+## 2026-09-06 — T1 Security/Backend: scale defects, and a silent-truncation class
+
+Four scale defects, measured against a seeded local catalogue at 1082 and
+5082 rows. **The headline is not performance.** Three queries were silently
+returning wrong results past 1000 rows.
+
+**PostgREST caps every table read at 1000 rows, with no error and no flag.**
+An explicit `.limit(3000)` or `.range(0, 4999)` does not lift it — both
+still return 1000 (measured). None of the affected queries had a limit
+clause, so nothing in the code looked capped:
+
+- **`dealSpotIds` — the core product loop.** At 5082 spots a dinner-family
+  deal matched 1109 rows and received 1000. Every plan was dealt from the
+  oldest 1000 spots of the family; the rest of the catalogue was undealable.
+- **`resolvePlaceImport`.** Matched a pasted link against only the first
+  1000 curated spots, reporting "no match" for venues that are in the
+  catalogue.
+- **`app/home/page.tsx`'s `.limit(120)`.** Explicit rather than silent, but
+  at 1000 venues 880 are invisible in Discover, which filters client-side.
+  **Removing the limit does not fix it** — the same 1000-row cap applies, so
+  a naive fix still truncates at 5000. This one needs server-side search;
+  it is Frontend's file and is flagged rather than edited.
+
+Both fixable queries now page via `lib/supabase/paginate.ts`. Verified at
+5082: resolve returns all 5082 (56ms, 6 round trips), deal returns all 1109.
+
+**Indexes — measured, with an honest crossover.** Medians of 15 runs of
+Postgres's own Execution Time, two warm-ups discarded.
+
+| n=5082 | common term | no match | rare term | deal |
+|---|---|---|---|---|
+| before | 0.082 ms | 2.256 ms | 2.302 ms | 0.656 ms |
+| after | 0.087 ms | **0.074 ms** | **0.109 ms** | **0.340 ms** |
+| | −6% | **30x** | **21x** | **1.9x** |
+
+Two things worth stating plainly. The existing `spots_name_idx` was **not**
+unused as assumed: with `order by name limit 8` Postgres walks it in name
+order and exits early, which is fast for a *common* term. The pathological
+case is a rare or absent term — a typo, or a venue we do not stock — where
+it must walk everything. That is the case users actually generate, and it is
+the one the trigram index fixes. The common-term case gets marginally
+*slower*; that is the right trade.
+
+**The crossover is the more useful number: ~1,200 rows.** At 1082 the
+planner ignores the trigram index and seq-scans anyway, because scanning
+1082 rows is genuinely cheaper than the GIN machinery. So this index does
+nothing at today's 82 spots and nothing at the owner's near-term 1000 — it
+starts paying just past it. Added because the target is "500–1000s", not
+because it helps today.
+
+**`area` deliberately not indexed.** It is never a SQL filter anywhere in
+this codebase — only read in JS for coordinate lookup. An index no query
+shape can use costs writes and buys nothing.
+
+**A regression I introduced, and the journey caught it.** Migration 038's
+"no client writes to spot-photos" policies were written as ordinary
+PERMISSIVE policies. Permissive policies are OR'd, so
+`with check (bucket_id <> 'spot-photos')` did the opposite of its name: it
+GRANTED insert into every other bucket unconditionally, defeating
+visit-photos' own `foldername(name)[1] = auth.uid()` ownership check and
+letting any signed-in user write into anyone's folder. `verify-journey.mjs`
+step 25 failed on exactly that assertion. Fixed with `as restrictive`, which
+is AND'd and can actually subtract permission. **A permissive policy can
+never express "deny"** — worth remembering, because the intent ("say nobody
+out loud") was right and the mechanism was backwards.
+
+Migration 040 also carries the parked `p_choice` null-guard fix, verified
+returning 42501 instead of a raw 23502.
+
+Journey 119/120 — the only remaining failure is the known coordinate gap.

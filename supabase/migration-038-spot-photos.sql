@@ -84,16 +84,29 @@ drop policy if exists "read spot photo files" on storage.objects;
 create policy "read spot photo files" on storage.objects for select to anon, authenticated
   using (bucket_id = 'spot-photos');
 
--- Write: nobody. Stated as explicit always-false policies rather than by
--- leaving them out, so the intent is legible to the next reader and a
--- future "just add an upload policy" has to argue with this comment first.
--- The service role bypasses RLS and is how the backfill writes.
+-- Write: nobody, via RESTRICTIVE policies. The service role bypasses RLS and
+-- is how the backfill writes.
+--
+-- ⚠ THESE MUST BE `as restrictive`. Written as ordinary (permissive)
+-- policies, `with check (bucket_id <> 'spot-photos')` does the OPPOSITE of
+-- its name: permissive policies are OR'd together, so it GRANTS insert into
+-- every other bucket unconditionally -- which silently defeats
+-- visit-photos' own `(storage.foldername(name))[1] = auth.uid()` ownership
+-- check and lets any signed-in user write into anyone's folder. That is
+-- exactly what happened on the first draft of this migration, and
+-- scripts/verify-journey.mjs step 25 caught it.
+--
+-- Restrictive policies are AND'd instead, so these subtract permission
+-- without granting any. A permissive policy can never express "deny".
 drop policy if exists "no client writes to spot photos" on storage.objects;
-create policy "no client writes to spot photos" on storage.objects for insert to anon, authenticated
+create policy "no client writes to spot photos" on storage.objects
+  as restrictive for insert to anon, authenticated
   with check (bucket_id <> 'spot-photos');
 drop policy if exists "no client updates to spot photos" on storage.objects;
-create policy "no client updates to spot photos" on storage.objects for update to anon, authenticated
+create policy "no client updates to spot photos" on storage.objects
+  as restrictive for update to anon, authenticated
   using (bucket_id <> 'spot-photos');
 drop policy if exists "no client deletes of spot photos" on storage.objects;
-create policy "no client deletes of spot photos" on storage.objects for delete to anon, authenticated
+create policy "no client deletes of spot photos" on storage.objects
+  as restrictive for delete to anon, authenticated
   using (bucket_id <> 'spot-photos');

@@ -6,6 +6,7 @@ import { SafeFetchError } from "./safe-fetch";
 import { fetchOembedClues, type ExtractedClues } from "./oembed";
 import { fetchWebClues } from "./web-adapter";
 import { matchCandidates, type MatchCandidate, type CuratedSpotRow } from "./match";
+import { fetchAllRows } from "@/lib/supabase/paginate";
 
 // A score this far above the runner-up, with the top score also over
 // RESOLVE_FLOOR, is confident enough to resolve automatically. Below that,
@@ -125,7 +126,24 @@ export async function resolvePlaceImport(
   // rows -- narrowed from select("*") per the production-readiness pass
   // (migration 022's own comment flagged this, especially ahead of any
   // future embedding column on spots).
-  const { data: curatedSpots } = await supabase.from("spots").select("id, name, cuisine, vibe, description").eq("source", "curated");
+  // Paged, because PostgREST silently caps a table read at 1000 rows: past
+  // that this matched a pasted link against only the first 1000 curated
+  // spots and reported "no match" for venues that ARE in the catalogue
+  // (measured at 5082 rows -- 1000 came back, no error). A correctness bug,
+  // not a slow query.
+  //
+  // This still transfers every curated row per import and scores them all in
+  // JS -- O(n) both ways. That is deliberate for now: the F1 scoring in
+  // match.ts is the part that was just fixed and tested (82/82 self-resolve,
+  // 0/6 false positives), and reimplementing it in SQL would trade tested
+  // semantics for speed we have not yet shown we need. The right next step,
+  // when the instruments say imports are hot, is to narrow candidates in
+  // Postgres with the trigram index from migration 040 (word_similarity)
+  // and keep the exact F1 scoring here over ~50 rows instead of 5000.
+  const curatedSpots = await fetchAllRows<CuratedSpotRow>((from, to) =>
+    supabase.from("spots").select("id, name, cuisine, vibe, description")
+      .eq("source", "curated").order("id").range(from, to) as never,
+  );
 
   let outcome: ResolveOutcome;
   try {
