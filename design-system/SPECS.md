@@ -1200,7 +1200,7 @@ holds together and why nothing else should be added to either end.
 | Tan — **never text, never behind text** | `--color-tan` | `#AB6F44` | 3.95:1 — see the hard constraint below |
 | Deep cool | `--color-cool-deep` | `#174050` | 10.67:1 on card |
 | Cool accent — links, actions | `--color-accent-cool` | `#0C657C` | 6.35:1 on card |
-| Divider / chrome, never text | `--color-line` | `#998F8A` | 3.16:1 — unchanged, still chrome-only |
+| Divider / component boundary, never text | `--color-line` | `#877A70` | 3.99:1 card, 3.67:1 canvas — clears §19.7's 3:1 floor on **both** grounds |
 | Confirm / live | `--color-live` | `#2E6B4F` | 6.04:1 on card — hue 152°, a clear 40° off the teals so it never reads as one |
 | Error | `--color-error` | `#A81E12` | 7.04:1 on card — hue 5°, sat 81% |
 
@@ -1261,16 +1261,30 @@ the door open, so the machinery stays and only the *exposure* goes:
 - **Keep, untouched**: `lib/dubai-phase.ts`, `components/ThemeSync.tsx`,
   and every `[data-theme="night"]` block in `app/globals.css`.
 - **Stop exposing the path**: remove the night option from the nav
-  toggle, and stop `autoGround()`'s Dubai-clock result from selecting
-  night — pin the resolved ground to light at the single point where it
-  is decided (`app/layout.tsx:83`'s `autoGround()` call), not by editing
-  the clock logic itself, so the clock stays correct and only its
-  *application* is parked.
+  toggle, and stop the Dubai clock's result from selecting night — pin
+  the resolved ground to light, without editing the clock logic itself,
+  so the clock stays correct and only its *application* is parked.
+- **⚠️ The ground is decided in TWO places, not one.** An earlier draft
+  of this section called `app/layout.tsx` "the single point where it is
+  decided" — **that was wrong**, and Frontend caught it in
+  implementation. Pinning only the server stamp leaves the client
+  flipping the document back to night after hydration. Both must be
+  pinned:
+  1. **Server**: `app/layout.tsx`'s `autoGround()` call, which stamps
+     `data-theme` into the markup for first paint.
+  2. **Client**: `components/ThemeSync.tsx`'s `resolveGround()` inside
+     `apply()` — which runs on mount, **again every 60s via
+     `setInterval`**, and on a `storage` event. The interval is the one
+     that bites: pin the server only and the app looks correct, then
+     turns dark up to a minute later.
 - **Comment the park at each site**, in these words or close to them:
   `// PARKED 2026-09-04 (owner: "no dark mode, or at least hold dark
   back now, we'll see later"). Machinery intact and correct; only the
-  path that selects it is disabled. To restore: re-enable the ground
-  selection here and the nav toggle. See SPECS.md §19.2.`
+  path that selects it is disabled. NOTE: the ground is pinned in TWO
+  places — app/layout.tsx (server stamp) and ThemeSync (client
+  re-resolve, incl. a 60s interval). Restoring one without the other
+  half-restores dark mode. To restore: re-enable both plus the nav
+  toggle. See SPECS.md §19.2.`
 - **Do not delete the night colour values** even though §19.1 replaces
   the light ones. If dark returns it will need retuning to the warm
   palette anyway, but a dormant set of values is a starting point and
@@ -1359,6 +1373,132 @@ entry recording that **navy-primary, gold-as-the-accent, and the
 night-first identity are all retired here**, and that dark mode is parked
 per §19.2 rather than removed — with the same "do not restore by
 accident" framing the other four reversals carry.
+
+### 19.6 — `--color-accent-premium`: retire it
+
+Frontend correctly refused to guess at this one. The answer is **retire
+it**, and the reasoning is not a palette judgement at all.
+
+**It has zero consumers.** `--color-accent-premium` is declared twice —
+`#8a6d2f` in the day `@theme` block (`app/globals.css:61`) and `#5cc8d7`
+in the night block (`:196`) — with a careful comment describing a
+badges-and-streaks job. Nothing reads it: no `var(--color-accent-premium)`
+anywhere in `app/`, `components/` or `lib/`, and no Tailwind utility
+alias. **The job it describes does not exist in the product either** —
+the only "streak" in the tree is plain `<strong>` text in
+`DemoAccountViews.tsx` (fixture-only, `/home-preview`), which does not
+use this token; the real signed-in `AccountViews.tsx` has no streak
+feature at all.
+
+So this token was **already dead before palette v5 touched anything**. It
+is not a live token stranded by the new family — it was defined for a
+feature that was never built. That reframes the question: this is not
+"what colour should the premium marker be," it is "should a token with no
+consumers and no feature survive a palette rewrite," and the answer to
+that is no.
+
+**Why "retire" does not collide with the earlier gold direction.** Two
+reasons, and the second is the decisive one:
+1. The white/gold/black/silver brief was superseded twice — first by warm
+   desert, then by the owner's exact five (§19.1). Gold is not in the
+   current direction.
+2. **Removing it changes nothing on screen**, because nothing renders it.
+   Retiring an unused token cannot remove gold from the product, since
+   the token was never putting gold anywhere. If gold is wanted later it
+   returns as a deliberate decision with a real consumer, which is
+   strictly better than keeping a dead declaration as a placeholder for a
+   direction that has already been replaced.
+
+Note also that `components/CLAUDE.md` documents Tailwind v4 tree-shaking
+unreferenced `@theme` vars, so the day declaration is likely already
+absent from the compiled CSS — making this removal close to a no-op in
+the build as well as on screen.
+
+**Do**: delete both declarations and their comment. **Do not** fold the
+value into one of the five or reassign it silently — if the streak or
+premium-badge feature is ever built, it picks a colour from §19.1's table
+at that point, as a decision made with the feature in front of you.
+
+### 19.7 — The boundary floor: components must be visible against their ground
+
+Owner, verbatim: *"sometimes some elements' colors will blend in with the
+background, and you can't see them that well. That is one major issue I'm
+finding throughout the design of this website, so let's terminate that.
+The components and the background of the website should have contrasting
+colors so you can see them clearly."*
+
+The cause is a single token with no rule behind it. `--color-line`
+(`app/globals.css:46`) is `rgba(27,42,74,0.30)`, used ~92 times, and
+composites to `#B5B9C2` on the page ground — **1.82:1**, confirmed by
+independent re-derivation of the composite. WCAG 2.1 SC 1.4.11 asks 3:1
+for a UI component's visual boundary, so effectively every bordered
+control in the app sits at ~60% of the floor, from one value. It drifted
+because nothing was written down; a number nobody can check against is a
+number that rots.
+
+**The rule, stated as a floor rather than a value:**
+
+1. **A UI component's boundary must reach ≥3:1 against the ground it sits
+   on.** Buttons, inputs, selects, textareas, toggles, checkboxes,
+   avatars, cards that are themselves interactive — anything a person
+   operates.
+2. **Check both grounds separately.** A line clearing 3:1 on the canvas
+   can fail on the lighter card, and this app puts bordered controls on
+   both `#F5F0EA` and `#FAFAFA`. One measurement is not a pass.
+3. **Text keeps its own, higher floor** — 4.5:1 for body copy, unchanged
+   and unrelated. A boundary clearing 3:1 says nothing about whether text
+   in that colour is readable.
+
+**This immediately corrects a value in §19.1, which is the point of
+having the rule.** `#998F8A` — the taupe I specced as `--color-line`,
+carried over from the *superseded* warm-desert set and never one of the
+current five — measures **3.03:1 on card and 2.79:1 on canvas**.
+It scrapes the floor on one ground and **fails on the other**. Replace it
+with **`#877A70`** (hue 26°, L* 52.1 — same warm family, still a taupe):
+**3.99:1 on card, 3.67:1 on canvas**, comfortable margin on both, so a
+later canvas tweak can't quietly re-break it. Do not carry the old
+`0.30` alpha into the new family — deriving a fresh colour and keeping
+the old transparency is exactly how a 1.8:1 boundary survives a palette
+rewrite.
+
+**When a component has no border, name what carries it.** "Borderless"
+must be a choice with a mechanism, not an absence:
+
+- **A fill** — the fill itself clears 3:1 against the ground. The brown
+  fills do this easily (`#704121` is 7.51:1 on canvas).
+- **Text alone** — legitimate only for genuinely chromeless controls (a
+  text link, a bare-label ghost button), where the label carries 4.5:1
+  and there is *no implied edge at all*. A faint border that can't be
+  seen is the failure case; no border is not.
+- **Shadow does not count.** A soft diffuse elevation (§19.3) is
+  low-contrast by construction — that is what makes it soft. It may
+  accompany a boundary, never substitute for one.
+
+**Why the card lift is held to a different standard, one line away from
+this.** §19.3 sets the card/canvas step at ΔL* 3.25 and explicitly does
+*not* hold it to 3:1. That is not an inconsistency, and the next person to
+read both will assume it is unless this says otherwise:
+
+- A **card is a passive surface** grouping content. Nobody operates its
+  edge; the question is only "is this a distinct plane," which is a
+  perceptual-step question, so ΔL* is the right metric.
+- A **control is operable**. The question is "can I see that this is a
+  thing I can use, and where it ends," which is what SC 1.4.11 governs
+  and what 3:1 measures.
+- Forcing 3:1 on a card edge would demand either a heavy visible border
+  or a much darker canvas — killing the smooth borderless direction or
+  the "emphasise white" brief respectively. The standard doesn't ask for
+  it, and the brief actively forbids both fixes.
+
+**The tan's two floors now derive instead of being a special case.**
+`#AB6F44` measures 3.95:1 on card and 3.64:1 on canvas: it **clears the
+3:1 boundary floor on both** while **failing the 4.5:1 text floor on
+both**. So it is legitimately a rule, an edge, a divider or an icon fill,
+and never a label — which is precisely what §19.1 says, now as a
+consequence of two stated floors rather than an assertion about one
+colour.
+
+---
 
 ## 20 — Italic as a restrained accent (owner, 2026-09-06)
 
