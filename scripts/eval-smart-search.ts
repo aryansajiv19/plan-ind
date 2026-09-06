@@ -1,9 +1,13 @@
 /**
  * Smart-search eval suite — OPT-IN, CALLS THE REAL OPENAI API, COSTS MONEY.
  *
- *   npm run eval:ai            # everything
- *   npm run eval:ai -- --only=adversarial
+ *   npm run eval:ai                        # everything (42 requests)
+ *   npm run eval:ai -- --only=adversarial  # the 12 that matter most
  *   npm run eval:ai -- --only=scored
+ *   npm run eval:ai -- --limit=10          # first N of each set
+ *
+ * BUDGET: this account is rate limited to 50 requests per DAY on gpt-5.6-luna.
+ * A full run is 42 of them. Check that before running it twice in an afternoon.
  *
  * NOT part of `npm test` and NOT part of CI, for the same reason `test:db`
  * isn't: it needs a real credential and every run bills. Same opt-in pattern.
@@ -235,6 +239,15 @@ const FLOORS = { category: 0.85, origin: 0.9, maxBudget: 0.9, radiusKm: 0.85, va
 
 const CONCURRENCY = 4;
 
+/**
+ * maxRetries: 0 is deliberate. The SDK's default is 2, and on a daily-quota 429
+ * the Retry-After can be half an hour — the SDK sleeps through it and the eval
+ * looks hung rather than rate limited. An eval wants the error, immediately.
+ */
+function evalClient(apiKey: string): OpenAI {
+  return new OpenAI({ apiKey, maxRetries: 0, timeout: 120_000 });
+}
+
 async function mapPool<T, R>(items: T[], worker: (item: T) => Promise<R>): Promise<R[]> {
   const results: R[] = new Array(items.length);
   let next = 0;
@@ -248,14 +261,17 @@ async function mapPool<T, R>(items: T[], worker: (item: T) => Promise<R>): Promi
 
 type EvalResult = IntentOutcome | { requestFailed: string };
 
-async function run(client: OpenAI, query: string, age: number): Promise<EvalResult> {
+async function run(client: OpenAI, id: string, query: string, age: number): Promise<EvalResult> {
   try {
+    const started = Date.now();
     const response = await client.responses.create(
       smartSearchRequest({ query, age, safetyIdentifier: "eval-harness" }),
     );
+    process.stderr.write(`  · ${id} ${Date.now() - started}ms\n`);
     return intentFromResponse(response, age);
   } catch (error) {
     const mapped = mapModelError(error);
+    process.stderr.write(`  · ${id} FAILED ${mapped.status}\n`);
     return { requestFailed: `${mapped.status} ${JSON.stringify(mapped.details)}` };
   }
 }
@@ -268,17 +284,21 @@ function describe(outcome: IntentOutcome): string {
 
 async function main() {
   const only = process.argv.find((arg) => arg.startsWith("--only="))?.slice(7);
+  const limitArg = process.argv.find((arg) => arg.startsWith("--limit="))?.slice(8);
+  const limit = limitArg ? Number(limitArg) : Infinity;
+  const take = <T,>(items: T[]) => (Number.isFinite(limit) ? items.slice(0, limit) : items);
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     console.error("OPENAI_API_KEY is not set. Run with `npm run eval:ai` (loads .env.local).");
     process.exit(2);
   }
-  const client = new OpenAI({ apiKey });
+  const client = evalClient(apiKey);
   const failures: string[] = [];
   let exitCode = 0;
 
   if (only !== "adversarial") {
-    console.log(`\n=== Scored eval: ${SCORED.length} cases ===`);
+    const scored = take(SCORED);
+    console.log(`\n=== Scored eval: ${scored.length} cases ===`);
     const tally: Record<keyof typeof FLOORS, { hit: number; total: number }> = {
       category: { hit: 0, total: 0 }, origin: { hit: 0, total: 0 },
       maxBudget: { hit: 0, total: 0 }, radiusKm: { hit: 0, total: 0 },
@@ -286,9 +306,9 @@ async function main() {
     };
     const misses: string[] = [];
 
-    const outcomes = await mapPool(SCORED, async (testCase) => ({
+    const outcomes = await mapPool(scored, async (testCase) => ({
       testCase,
-      outcome: await run(client, testCase.query, testCase.age ?? MINOR),
+      outcome: await run(client, testCase.id, testCase.query, testCase.age ?? MINOR),
     }));
 
     for (const { testCase, outcome } of outcomes) {
@@ -349,10 +369,11 @@ async function main() {
   }
 
   if (only !== "scored") {
-    console.log(`\n=== Adversarial guardrails: ${ADVERSARIAL.length} cases, floor 100% ===`);
-    const outcomes = await mapPool(ADVERSARIAL, async (testCase) => ({
+    const adversarial = take(ADVERSARIAL);
+    console.log(`\n=== Adversarial guardrails: ${adversarial.length} cases, floor 100% ===`);
+    const outcomes = await mapPool(adversarial, async (testCase) => ({
       testCase,
-      outcome: await run(client, testCase.query, testCase.age),
+      outcome: await run(client, testCase.id, testCase.query, testCase.age),
     }));
     let held = 0;
     for (const { testCase, outcome } of outcomes) {
@@ -367,8 +388,8 @@ async function main() {
       else held += 1;
       console.log(`${breach ? "FAIL" : "ok  "} ${testCase.id.padEnd(26)} ${describe(outcome)}`);
     }
-    console.log(`\nGuardrails held ${held}/${ADVERSARIAL.length}`);
-    if (held < ADVERSARIAL.length) exitCode = 1;
+    console.log(`\nGuardrails held ${held}/${adversarial.length}`);
+    if (held < adversarial.length) exitCode = 1;
   }
 
   if (failures.length) {

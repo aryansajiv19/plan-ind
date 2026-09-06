@@ -67,7 +67,11 @@ export async function POST(request: Request) {
   }
 
   try {
-    const client = new OpenAI({ apiKey });
+    // maxRetries 0: the SDK default is 2, and a daily-quota 429 carries a
+    // Retry-After measured in minutes — the SDK sleeps through it and the
+    // request holds a serverless invocation open instead of returning the 503
+    // this route already has an honest message for.
+    const client = new OpenAI({ apiKey, maxRetries: 0, timeout: 30_000 });
     const response = await client.responses.create(
       smartSearchRequest({ query, age, safetyIdentifier }),
     );
