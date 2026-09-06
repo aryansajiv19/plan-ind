@@ -1261,16 +1261,30 @@ the door open, so the machinery stays and only the *exposure* goes:
 - **Keep, untouched**: `lib/dubai-phase.ts`, `components/ThemeSync.tsx`,
   and every `[data-theme="night"]` block in `app/globals.css`.
 - **Stop exposing the path**: remove the night option from the nav
-  toggle, and stop `autoGround()`'s Dubai-clock result from selecting
-  night — pin the resolved ground to light at the single point where it
-  is decided (`app/layout.tsx:83`'s `autoGround()` call), not by editing
-  the clock logic itself, so the clock stays correct and only its
-  *application* is parked.
+  toggle, and stop the Dubai clock's result from selecting night — pin
+  the resolved ground to light, without editing the clock logic itself,
+  so the clock stays correct and only its *application* is parked.
+- **⚠️ The ground is decided in TWO places, not one.** An earlier draft
+  of this section called `app/layout.tsx` "the single point where it is
+  decided" — **that was wrong**, and Frontend caught it in
+  implementation. Pinning only the server stamp leaves the client
+  flipping the document back to night after hydration. Both must be
+  pinned:
+  1. **Server**: `app/layout.tsx`'s `autoGround()` call, which stamps
+     `data-theme` into the markup for first paint.
+  2. **Client**: `components/ThemeSync.tsx`'s `resolveGround()` inside
+     `apply()` — which runs on mount, **again every 60s via
+     `setInterval`**, and on a `storage` event. The interval is the one
+     that bites: pin the server only and the app looks correct, then
+     turns dark up to a minute later.
 - **Comment the park at each site**, in these words or close to them:
   `// PARKED 2026-09-04 (owner: "no dark mode, or at least hold dark
   back now, we'll see later"). Machinery intact and correct; only the
-  path that selects it is disabled. To restore: re-enable the ground
-  selection here and the nav toggle. See SPECS.md §19.2.`
+  path that selects it is disabled. NOTE: the ground is pinned in TWO
+  places — app/layout.tsx (server stamp) and ThemeSync (client
+  re-resolve, incl. a 60s interval). Restoring one without the other
+  half-restores dark mode. To restore: re-enable both plus the nav
+  toggle. See SPECS.md §19.2.`
 - **Do not delete the night colour values** even though §19.1 replaces
   the light ones. If dark returns it will need retuning to the warm
   palette anyway, but a dormant set of values is a starting point and
@@ -1284,6 +1298,51 @@ re-derived if dark comes back: ground `#121212`, card `#1A1A1A`
 `#FF6B6B` (6.27:1). All were measured against the *old* gold/black
 palette, so treat them as a starting point needing a warm retune, not a
 drop-in set.
+
+### 19.6 — `--color-accent-premium`: retire it
+
+Frontend correctly refused to guess at this one. The answer is **retire
+it**, and the reasoning is not a palette judgement at all.
+
+**It has zero consumers.** `--color-accent-premium` is declared twice —
+`#8a6d2f` in the day `@theme` block (`app/globals.css:61`) and `#5cc8d7`
+in the night block (`:196`) — with a careful comment describing a
+badges-and-streaks job. Nothing reads it: no `var(--color-accent-premium)`
+anywhere in `app/`, `components/` or `lib/`, and no Tailwind utility
+alias. **The job it describes does not exist in the product either** —
+the only "streak" in the tree is plain `<strong>` text in
+`DemoAccountViews.tsx` (fixture-only, `/home-preview`), which does not
+use this token; the real signed-in `AccountViews.tsx` has no streak
+feature at all.
+
+So this token was **already dead before palette v5 touched anything**. It
+is not a live token stranded by the new family — it was defined for a
+feature that was never built. That reframes the question: this is not
+"what colour should the premium marker be," it is "should a token with no
+consumers and no feature survive a palette rewrite," and the answer to
+that is no.
+
+**Why "retire" does not collide with the earlier gold direction.** Two
+reasons, and the second is the decisive one:
+1. The white/gold/black/silver brief was superseded twice — first by warm
+   desert, then by the owner's exact five (§19.1). Gold is not in the
+   current direction.
+2. **Removing it changes nothing on screen**, because nothing renders it.
+   Retiring an unused token cannot remove gold from the product, since
+   the token was never putting gold anywhere. If gold is wanted later it
+   returns as a deliberate decision with a real consumer, which is
+   strictly better than keeping a dead declaration as a placeholder for a
+   direction that has already been replaced.
+
+Note also that `components/CLAUDE.md` documents Tailwind v4 tree-shaking
+unreferenced `@theme` vars, so the day declaration is likely already
+absent from the compiled CSS — making this removal close to a no-op in
+the build as well as on screen.
+
+**Do**: delete both declarations and their comment. **Do not** fold the
+value into one of the five or reassign it silently — if the streak or
+premium-badge feature is ever built, it picks a colour from §19.1's table
+at that point, as a decision made with the feature in front of you.
 
 ### 19.3 — Smooth: separation by value, not by border
 
