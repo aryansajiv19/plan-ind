@@ -1204,3 +1204,42 @@ curated column and not merely the nine the page selects; and enumerating
 age-restricted venues, previously requiring an account, now needs no
 session. Both low for a public list of licensed venues, both stated to the
 owner.
+
+---
+
+## 2026-09-06 — Property of this system: it fails by silence, not by refusal
+
+Recording this as a pattern rather than as two coincidences, because it has
+now cost real bugs twice in one day and both were invisible from the code.
+
+1. **PostgREST caps a table read at 1000 rows** and says nothing. No error,
+   no truncation flag, and an explicit `.limit(3000)` does not lift it. Three
+   queries were silently returning wrong results — including `dealSpotIds`,
+   the core product loop, which dealt every plan from the oldest 1000 spots.
+2. **A missing RLS grant returns zero rows**, not a permission error. The
+   front-door wall read `spots` as an anon visitor and got `[]` with no
+   complaint, which read as "no data passed" rather than "no read
+   permission" — so the diagnosis went to the wrong half of the problem.
+
+Both have the same shape: **the database answers a question it could not
+actually answer, and returns an empty success.** An empty result is
+therefore never evidence of an empty table. It means "empty, or truncated,
+or forbidden", and those are indistinguishable at the call site.
+
+Practical consequences, applied in today's fixes:
+
+- Never destructure `{ data }` alone from a Supabase call whose emptiness
+  would be meaningful. Take `error` and log it (`app/page.tsx`).
+- When a query means "every matching row", say so explicitly and page —
+  `lib/supabase/paginate.ts`. When it means "a bounded sample", make the
+  limit the consumer's own size so the intent is legible (`limit(12)` for a
+  12-tile wall).
+- When probing this database, prove a positive. `verify-journey.mjs`'s
+  negative controls assert a specific error code, not merely absence of
+  rows — `supabase/CLAUDE.md` already says `200 []` is ambiguous, and these
+  two bugs are what that warning looks like in production.
+
+Related: `as Spot[]` casts over narrowed selects hide the same class of
+problem from the type checker. One of those cost a marketing-hero regression
+today (`CardStackExample` receiving rows without `category`/`price_band`).
+A cast that quiets tsc about data shape is worth distrusting on sight.
