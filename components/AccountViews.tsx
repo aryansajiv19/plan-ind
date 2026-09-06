@@ -194,11 +194,23 @@ function WrappedRecap({
 
 /** A place card. Curated spots often have no photo yet, so the typographic
  *  category code stands in rather than a stock image. */
-function PlaceCard({ spot, onStartPlan }: { spot: Spot; onStartPlan: () => void }) {
+function PlaceCard({
+  spot,
+  onStartPlan,
+  fill = null,
+}: {
+  spot: Spot;
+  onStartPlan: () => void;
+  /** SPECS.md §21 — set by the grid, which is what knows the position. */
+  fill?: "tan" | "blue" | null;
+}) {
   const meta = categoryMeta(spot.category);
+  // §21.1: a fill stands in for a MISSING image and never sits alongside
+  // one, so a card with its photo never takes one even if asked.
+  const fillClass = !spot.photo_url && fill ? ` demo-place-card--fill-${fill}` : "";
   return (
     <article
-      className={`demo-place-card ${spot.photo_url ? "" : "demo-place-card--flat"}`}
+      className={`demo-place-card ${spot.photo_url ? "" : "demo-place-card--flat"}${fillClass}`}
     >
       {spot.photo_url ? (
         <div className="demo-place-card__image">
@@ -411,7 +423,28 @@ export default function AccountViews({
 
         {visiblePlaces.length ? (
           <div className="demo-place-grid">
-            {visiblePlaces.map((spot) => <PlaceCard key={spot.id} spot={spot} onStartPlan={onStartPlan} />)}
+            {/* SPECS.md §21: every third photo-less card takes a fill,
+                alternating tan and blue. Both ceiling rules hold by
+                construction — a 1-in-3 stride cannot produce neighbours,
+                and alternating stops the two fills repeating back to back.
+                Keyed on position, never on category (§21.5). Self-limiting:
+                a card with a photo is not eligible, so the colour recedes
+                on its own as photography lands (§21.7). */}
+            {(() => {
+              let eligible = 0;
+              let assigned = 0;
+              return visiblePlaces.map((spot) => {
+                let fill: "tan" | "blue" | null = null;
+                if (!spot.photo_url) {
+                  if (eligible % 3 === 0) {
+                    fill = assigned % 2 === 0 ? "tan" : "blue";
+                    assigned += 1;
+                  }
+                  eligible += 1;
+                }
+                return <PlaceCard key={spot.id} spot={spot} onStartPlan={onStartPlan} fill={fill} />;
+              });
+            })()}
           </div>
         ) : (
           <p className="demo-empty">

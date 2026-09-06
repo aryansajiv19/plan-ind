@@ -832,7 +832,7 @@ export default function VotePage() {
         )}
 
         {notice && (
-          <p role="alert" className="mt-3 text-sm font-medium text-punch">
+          <p role="alert" className="mt-3 text-sm font-medium text-punch-text">
             {notice}
           </p>
         )}
