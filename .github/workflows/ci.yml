@@ -58,13 +58,20 @@ jobs:
           TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
 
   test-e2e:
-    # Off by default — guest-vote.spec.ts runs against the LIVE Supabase
-    # project (see tests/README.md) and votes on the shared seeded plan on
-    # every run. Opt in with a repo Actions variable (Settings → Secrets and
-    # variables → Actions → Variables → RUN_E2E = true) plus the real
-    # NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY as repo
-    # secrets. Until then this job is skipped, not failing.
-    if: vars.RUN_E2E == 'true'
+    # ON by default as of 2026-09-07. It used to vote on the LIVE shared plan
+    # every run, which is why it was opt-in; tests/e2e/global-setup.ts now
+    # provisions a disposable plan against a LOCAL Supabase stack and
+    # global-teardown removes it. Setup REFUSES any non-loopback base URL, so
+    # a misconfigured run cannot point browsers at production and start
+    # voting.
+    #
+    # Teardown is only real locally, and that is not a convenience: `plans`
+    # and `votes` have no delete policy at all (writes go through
+    # security-definer RPCs) and there is no service-role key, so nothing in
+    # this project can remove a plan or a vote from a hosted project once
+    # created. Per-run fixtures against live would have leaked rows into
+    # production permanently.
+    if: vars.RUN_E2E != 'false'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -79,8 +86,21 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      # chromium + webkit + firefox: the config's project matrix covers
-      # desktop and mobile viewports, and mobile Safari/Chrome reuse the
-      # webkit/chromium binaries rather than downloading anything extra.
-      - run: npx playwright install --with-deps chromium webkit firefox
-      - run: npm run test:e2e
+      # webkit and Mobile Safari are deliberately EXCLUDED here, and the
+      # headers are deliberately NOT relaxed to include them.
+      #
+      # The production build sends HSTS plus a CSP carrying
+      # upgrade-insecure-requests. WebKit honours both on localhost and
+      # rewrites every asset to https://, which fails with an SSL error over
+      # plain http; Chromium and Firefox exempt localhost from HSTS, so they
+      # do not. That is correct production behaviour on all three -- in
+      # production everything is https and the upgrade is a no-op. Weakening
+      # the headers to make a test pass would trade a real security control
+      # for green CI.
+      #
+      # So these three run here, and WebKit coverage comes from running the
+      # suite against an https preview deployment. Confirmed by WebKit's own
+      # requestfailed events, not inferred.
+      - run: npx playwright install --with-deps chromium firefox
+      - run: npx supabase start
+      - run: npm run test:e2e -- --project=chromium --project=firefox --project="Mobile Chrome"

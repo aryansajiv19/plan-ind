@@ -113,3 +113,25 @@ test("log emits one parseable JSON line with level and event", () => {
   assert.equal(parsed.path, "/plan/x");
   assert.ok(Date.parse(parsed.at));
 });
+
+// A security review found the third leak of this class: `referer` was
+// redacted for carrying the OAuth code, while `request.path` — which carries
+// it directly on /auth/callback — was logged raw. instrumentation.ts now
+// logs the pathname only; these pin the header half.
+test("redacts Vercel's protection-bypass and OIDC headers", () => {
+  const safe = redactHeaders({
+    "x-vercel-protection-bypass": "live-bypass-secret",
+    "x-vercel-set-bypass-cookie": "true",
+    "x-vercel-sc-headers": '{"Authorization":"Bearer eyJ..."}',
+  });
+  for (const value of Object.values(safe)) assert.equal(value, "[redacted]");
+});
+
+test("redacts client IPs, which the app HMACs everywhere it persists them", () => {
+  const safe = redactHeaders({
+    "x-forwarded-for": "203.0.113.7, 70.41.3.18",
+    "x-real-ip": "203.0.113.7",
+    "x-vercel-ip-country": "AE",
+  });
+  for (const value of Object.values(safe)) assert.equal(value, "[redacted]");
+});

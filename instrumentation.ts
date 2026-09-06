@@ -24,7 +24,19 @@ export const onRequestError: Instrumentation.onRequestError = (error, request, c
   log("error", "server_error", {
     ...serializeError(error),
     request: {
-      path: request.path,
+      // PATHNAME ONLY. Next's own docs type this as "resource path, e.g.
+      // /blog?name=foo" -- the query string is included. /auth/callback
+      // carries the OAuth `code` there, so logging it whole would write a
+      // live, still-redeemable PKCE grant into the platform log store on any
+      // unhandled throw before the exchange completes.
+      //
+      // Found by a security review, and the sting is that redactHeaders
+      // already strips `referer` for carrying exactly this value, reasoning
+      // that a partial redactor is one URL shape away from leaking. That
+      // reasoning was applied to the derivative copy while the canonical
+      // carrier one line away went untouched. Splitting is safe here because
+      // a pathname cannot contain "?".
+      path: request.path.split("?", 1)[0],
       method: request.method,
       // Redacted: these are the real request headers, and this app's session
       // cookie is JS-readable by design. See redactHeaders' own comment.

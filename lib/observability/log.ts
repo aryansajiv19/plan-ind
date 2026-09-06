@@ -40,6 +40,19 @@ const SENSITIVE_MARKERS = [
   // the referer badly enough to take that trade.
   "referer",
   "referrer",
+  // Vercel's Deployment Protection bypass secret and its OIDC-bearing
+  // header. Neither contains any of the words above, and both become live
+  // the moment Protection Bypass for Automation is enabled on the linked
+  // project — which is one dashboard toggle away.
+  "bypass",
+  "x-vercel-sc",
+  // Client IP. The app already HMACs the address everywhere it PERSISTS one
+  // (see privateIdentifier), specifically so security_events never holds a
+  // raw address — logging it in clear next to that database undoes the
+  // pseudonymisation deliberately.
+  "x-forwarded-for",
+  "x-real-ip",
+  "x-vercel-ip",
 ];
 
 /**
