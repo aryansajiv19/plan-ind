@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>plan-ind — welcome screen, three display faces</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300..700;1,300..700&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Hanken+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* ── SPECS.md §19.1 palette v5, exact values ───────────────────── */
+  :root {
+    --color-paper:  #F5F0EA;  /* canvas  L* 95.0 */
+    --color-card:   #FAFAFA;  /* card    ΔL* 3.25 lift, no border */
+    --color-ink:    #442816;  /* 12.89:1 on card */
+    --color-muted:  #6E5A4C;  /* 6.23:1 on card */
+    --color-punch:  #704121;  /* text 8.16:1 · as fill, white 8.51:1 */
+    --color-tan:    #AB6F44;  /* NON-TEXT only — rules, edges, icon fills */
+    --cool-deep:    #174050;  /* 10.67:1 on card */
+    --accent-cool:  #0C657C;  /* links + actions, 6.35:1 on card */
+    --color-line:   #877A70;  /* §19.7 floor: 3.99 card / 3.67 canvas */
+    --color-live:   #2E6B4F;
+
+    --radius-control: 10px;   /* §19.4 — resolved upward from ~2px */
+    --radius-panel:   22px;
+    --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #E8E2DA;
+    font-family: "Hanken Grotesk", system-ui, sans-serif;
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── comparison chrome (not part of the design) ────────────────── */
+  .rig { max-width: 1240px; margin: 0 auto; padding: 32px 24px 72px; }
+  .rig__head { padding: 24px 0 8px; }
+  .rig__head h1 { font-family: "Hanken Grotesk", sans-serif; font-size: 1.05rem; font-weight: 700; margin: 0 0 6px; letter-spacing: -0.01em; }
+  .rig__head p { margin: 0; font-size: .82rem; line-height: 1.55; color: #5a5148; max-width: 68ch; }
+  .rig__head code { font-family: ui-monospace, Menlo, monospace; font-size: .78rem; }
+
+  .label {
+    display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+    margin: 44px 0 10px; padding-bottom: 8px;
+    border-bottom: 1px solid #c9c0b5;
+  }
+  .label b { font-size: .95rem; font-weight: 700; letter-spacing: -0.01em; }
+  .label span { font-size: .78rem; color: #5a5148; }
+  .label i { font-size: .78rem; color: #5a5148; font-style: normal; margin-left: auto; }
+
+  /* ── the screen itself ─────────────────────────────────────────── */
+  .screen {
+    background: var(--color-paper);
+    border-radius: var(--radius-panel);
+    overflow: hidden;
+    /* §19.3 — soft diffuse elevation, never a hard offset shadow */
+    box-shadow: 0 1px 2px rgba(68,40,22,.05), 0 12px 32px rgba(68,40,22,.07);
+  }
+
+  .nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 34px;
+  }
+  .wordmark {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 42px; height: 42px; border-radius: var(--radius-control);
+    background: var(--color-ink); color: var(--color-paper);
+    font-family: var(--display); font-size: .9rem; font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .wordmark b { color: var(--color-tan); font-weight: 600; font-size: .72rem; margin-left: 1px; }
+  .nav__right { display: flex; align-items: center; gap: 22px; }
+  .nav__link { font-size: .78rem; font-weight: 500; color: var(--color-muted); text-decoration: none; }
+  .nav__cta {
+    font-size: .78rem; font-weight: 500; color: #fff;
+    background: var(--color-punch);           /* §19.7 — fill carries the boundary, 7.51:1 on canvas */
+    border: 0; border-radius: var(--radius-control);
+    padding: 11px 18px; cursor: pointer;
+    transition: transform 200ms var(--ease-settle);
+  }
+  .nav__cta:active { transform: scale(.98); }
+
+  .hero {
+    display: grid; grid-template-columns: minmax(0,1fr) 330px;
+    gap: 48px; align-items: center;
+    padding: 46px 34px 62px;
+  }
+  .kicker {
+    margin: 0 0 14px; font-size: .72rem; font-weight: 500;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--color-muted);
+  }
+  /* §18 — the front door is a genuine hero, so it keeps hero scale */
+  .headline {
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(2.6rem, 1.2rem + 3.4vw, 4.1rem);
+    line-height: 1.02; letter-spacing: -0.025em;
+    margin: 0 0 20px; color: var(--color-ink); text-wrap: balance;
+  }
+  /* §20 — THE one italic element on this screen. Display serif, welcome
+     surface, a single phrase inside a longer headline. */
+  .headline em { font-style: italic; font-weight: 400; }
+
+  .lede {
+    margin: 0 0 30px; max-width: 46ch;
+    font-size: .95rem; line-height: 1.6; color: var(--color-muted);
+    text-wrap: pretty;
+  }
+  .actions { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .btn-primary {
+    font-family: inherit; font-size: .84rem; font-weight: 500; color: #fff;
+    background: var(--color-punch); border: 0;
+    border-radius: var(--radius-control); padding: 15px 26px; cursor: pointer;
+    transition: transform 200ms var(--ease-settle);
+  }
+  .btn-primary:active { transform: scale(.98); }
+  .btn-quiet {
+    font-family: inherit; font-size: .84rem; font-weight: 500;
+    color: var(--accent-cool); background: none; border: 0; padding: 0;
+    cursor: pointer; text-decoration: underline; text-underline-offset: 4px;
+  }
+
+  /* the plan card — lifts off the canvas by value + shadow, no border */
+  .card {
+    background: var(--color-card); border-radius: var(--radius-panel);
+    padding: 24px; box-shadow: 0 1px 2px rgba(68,40,22,.06), 0 10px 26px rgba(68,40,22,.08);
+  }
+  .card__top {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: .68rem; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--color-muted); font-weight: 500;
+  }
+  .card__dot { width: 7px; height: 7px; border-radius: 50%; background: var(--color-live); display: inline-block; margin-right: 7px; }
+  .card__name {
+    font-family: var(--display); font-size: 1.85rem; font-weight: 500;
+    letter-spacing: -0.02em; margin: 14px 0 4px; color: var(--color-ink);
+  }
+  .card__area { margin: 0 0 18px; font-size: .8rem; color: var(--color-muted); }
+  .card__rule { height: 1px; background: var(--color-tan); opacity: .55; margin: 0 0 16px; }
+  .card__meta { display: flex; justify-content: space-between; font-size: .78rem; color: var(--color-muted); }
+  .card__meta b { color: var(--color-ink); font-weight: 500; }
+  .card__foot {
+    margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--color-line);
+    font-size: .74rem; color: var(--color-muted);
+  }
+
+  /* per-screen display face */
+  .s-cormorant { --display: "Cormorant", Georgia, serif; }
+  .s-newsreader { --display: "Newsreader", Georgia, serif; }
+  .s-garamond  { --display: "EB Garamond", Georgia, serif; }
+
+  /* Cormorant runs small and light for its point size; nudged so the three
+     screens compare at matched optical size rather than matched numbers. */
+  .s-cormorant .headline { font-size: clamp(3rem, 1.4rem + 3.9vw, 4.7rem); font-weight: 500; }
+  .s-cormorant .card__name { font-size: 2.05rem; }
+</style>
+</head>
+<body>
+<div class="rig">
+
+  <div class="rig__head">
+    <h1>Welcome screen in three display faces</h1>
+    <p>
+      Same screen, same copy, same palette (SPECS.md §19.1 v5 exact values), three display serifs.
+      Body text is Hanken Grotesk in all three, unchanged. Each screen carries exactly one italic
+      element per §20 (the phrase inside the headline), so the italic is being judged as well as the roman.
+      Orpheus Pro itself is commercial and is not shown; Cormorant is the closest free relative.
+    </p>
+  </div>
+
+  <!-- ─────────────────────────── 1 ─────────────────────────── -->
+  <div class="label">
+    <b>1 &nbsp;Cormorant</b>
+    <span>closest free relative to Orpheus Pro</span>
+    <i>OFL · self-hostable · genuine italic</i>
+  </div>
+
+  <div class="screen s-cormorant">
+    <div class="nav">
+      <span class="wordmark">D/<b>03</b></span>
+      <div class="nav__right">
+        <a class="nav__link" href="#">How it works</a>
+        <button class="nav__cta">Sign in</button>
+      </div>
+    </div>
+    <div class="hero">
+      <div>
+        <p class="kicker">Good evening, Dubai</p>
+        <h2 class="headline">Dubai plans, <em>without the group chat.</em></h2>
+        <p class="lede">Dinner in DIFC, padel in Al Quoz, or a beach day on the Palm. Set the budget and the distance, shortlist through three rounds, and let everyone choose.</p>
+        <div class="actions">
+          <button class="btn-primary">Open a decision</button>
+          <button class="btn-quiet">See a sample vote</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card__top"><span><span class="card__dot"></span>Deciding now</span><span>Round 2</span></div>
+        <p class="card__name">3Fils</p>
+        <p class="card__area">Jumeirah</p>
+        <div class="card__rule"></div>
+        <div class="card__meta"><span>From <b>AED 180</b> a head</span><span>Open till <b>11pm</b></span></div>
+        <p class="card__foot">Four friends voting. Closes in 40 minutes.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────── 2 ─────────────────────────── -->
+  <div class="label">
+    <b>2 &nbsp;Newsreader</b>
+    <span>what ships today, plus its real italic</span>
+    <i>OFL · already vendored · italic is a 28KB addition</i>
+  </div>
+
+  <div class="screen s-newsreader">
+    <div class="nav">
+      <span class="wordmark">D/<b>03</b></span>
+      <div class="nav__right">
+        <a class="nav__link" href="#">How it works</a>
+        <button class="nav__cta">Sign in</button>
+      </div>
+    </div>
+    <div class="hero">
+      <div>
+        <p class="kicker">Good evening, Dubai</p>
+        <h2 class="headline">Dubai plans, <em>without the group chat.</em></h2>
+        <p class="lede">Dinner in DIFC, padel in Al Quoz, or a beach day on the Palm. Set the budget and the distance, shortlist through three rounds, and let everyone choose.</p>
+        <div class="actions">
+          <button class="btn-primary">Open a decision</button>
+          <button class="btn-quiet">See a sample vote</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card__top"><span><span class="card__dot"></span>Deciding now</span><span>Round 2</span></div>
+        <p class="card__name">3Fils</p>
+        <p class="card__area">Jumeirah</p>
+        <div class="card__rule"></div>
+        <div class="card__meta"><span>From <b>AED 180</b> a head</span><span>Open till <b>11pm</b></span></div>
+        <p class="card__foot">Four friends voting. Closes in 40 minutes.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────── 3 ─────────────────────────── -->
+  <div class="label">
+    <b>3 &nbsp;EB Garamond</b>
+    <span>warmer and sturdier, the middle of the three</span>
+    <i>OFL · self-hostable · genuine italic</i>
+  </div>
+
+  <div class="screen s-garamond">
+    <div class="nav">
+      <span class="wordmark">D/<b>03</b></span>
+      <div class="nav__right">
+        <a class="nav__link" href="#">How it works</a>
+        <button class="nav__cta">Sign in</button>
+      </div>
+    </div>
+    <div class="hero">
+      <div>
+        <p class="kicker">Good evening, Dubai</p>
+        <h2 class="headline">Dubai plans, <em>without the group chat.</em></h2>
+        <p class="lede">Dinner in DIFC, padel in Al Quoz, or a beach day on the Palm. Set the budget and the distance, shortlist through three rounds, and let everyone choose.</p>
+        <div class="actions">
+          <button class="btn-primary">Open a decision</button>
+          <button class="btn-quiet">See a sample vote</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card__top"><span><span class="card__dot"></span>Deciding now</span><span>Round 2</span></div>
+        <p class="card__name">3Fils</p>
+        <p class="card__area">Jumeirah</p>
+        <div class="card__rule"></div>
+        <div class="card__meta"><span>From <b>AED 180</b> a head</span><span>Open till <b>11pm</b></span></div>
+        <p class="card__foot">Four friends voting. Closes in 40 minutes.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
