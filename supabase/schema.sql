@@ -127,6 +127,22 @@ create index spots_owner_idx on spots (created_by_user_id) where source = 'custo
 -- benchmarked ~49x faster with this index at 20k rows. See migration-027.
 create index spots_name_idx on spots (name);
 
+-- 040. Search is `name ilike '%q%'`, which no btree can serve. The btree
+-- above is still used for a COMMON term (walk in name order, stop at
+-- LIMIT 8); the pathological case is a rare or absent term, where it must
+-- walk everything. Measured at 5082 rows: a miss went 2.256 ms -> 0.074 ms.
+-- The planner ignores this index below ~1,200 rows -- a seq scan of 1082 is
+-- genuinely cheaper -- so it is dormant at today's catalogue size and starts
+-- paying just past 1000. See migration-040.
+create extension if not exists pg_trgm with schema extensions;
+create index spots_name_trgm_idx on spots using gin (name extensions.gin_trgm_ops);
+
+-- 040. dealSpotIds filters source='curated' plus a category family; partial
+-- on source since every deal query carries it. 0.656 ms -> 0.340 ms at 5082.
+-- Deliberately NOT indexing `area`: it is never a SQL filter in this
+-- codebase, only read in JS for coordinate lookup.
+create index spots_curated_category_idx on spots (category) where source = 'curated';
+
 -- A plan == one share link. The uuid IS the slug in the URL.
 create table plans (
   id             uuid primary key default gen_random_uuid(),
@@ -845,15 +861,23 @@ on conflict (id) do update set public = true;
 
 create policy "read spot photo files" on storage.objects for select to anon, authenticated
   using (bucket_id = 'spot-photos');
--- Public-read is not public-write. These three exist to say "nobody" out
--- loud rather than by omission, so adding a client write path has to argue
--- with this comment first. The backfill writes via the service role, which
--- bypasses RLS by design.
-create policy "no client writes to spot photos" on storage.objects for insert to anon, authenticated
+-- Public-read is not public-write. The backfill writes via the service role,
+-- which bypasses RLS by design.
+--
+-- ⚠ `as restrictive` is load-bearing. As ordinary permissive policies these
+-- would be OR'd with the visit-photos grants above and would GRANT insert
+-- into every other bucket unconditionally, defeating visit-photos' own
+-- folder-ownership check. Restrictive policies are AND'd, so they subtract
+-- permission without granting any. A permissive policy cannot express
+-- "deny". (Caught by verify-journey.mjs step 25 on 038's first draft.)
+create policy "no client writes to spot photos" on storage.objects
+  as restrictive for insert to anon, authenticated
   with check (bucket_id <> 'spot-photos');
-create policy "no client updates to spot photos" on storage.objects for update to anon, authenticated
+create policy "no client updates to spot photos" on storage.objects
+  as restrictive for update to anon, authenticated
   using (bucket_id <> 'spot-photos');
-create policy "no client deletes of spot photos" on storage.objects for delete to anon, authenticated
+create policy "no client deletes of spot photos" on storage.objects
+  as restrictive for delete to anon, authenticated
   using (bucket_id <> 'spot-photos');
 
 create policy "manage own place collections" on place_collections for all to authenticated
@@ -1136,7 +1160,11 @@ declare
   target plans%rowtype;
   clean_name text := left(trim(p_voter_name), 40);
 begin
-  if p_participant_token_hash !~ '^[0-9a-f]{64}$' or p_choice not in ('coming', 'maybe', 'no') then
+  -- 040: the `p_choice is null` test is load-bearing. Without it,
+  -- `NULL not in (...)` is NULL rather than TRUE, the `or` never fires, and a
+  -- null choice reaches the insert to die on NOT NULL as a raw 23502.
+  if p_participant_token_hash !~ '^[0-9a-f]{64}$'
+     or p_choice is null or p_choice not in ('coming', 'maybe', 'no') then
     raise exception 'Participant authorization required' using errcode = '42501';
   end if;
   if clean_name = '' then
