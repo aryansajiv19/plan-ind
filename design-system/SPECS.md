@@ -919,6 +919,18 @@ Shipped as `WinnerReveal` (`72af888`). Anyone re-deriving from the
 particle cap alone inherits a real bug, which is why this is recorded here
 rather than only in §23:
 
+0. **THE GENERAL RULE, after three instances: particle count is a function
+   of glyph coverage, and anything that changes how the subject is sized
+   changes it.** Photo → type was the first re-derivation; long name → short
+   name was the second (a viewport-keyed size made coverage vary with name
+   length, dropping `3Fils` to **280** particles while
+   `Reif Japanese Kushiyaki` held 1,142); §25.1's matched sizing is the
+   third. **The cap is a ceiling, never a recipe.** Whenever the subject or
+   its sizing changes, re-measure coverage across the *real catalogue* —
+   short names and long ones — and floor it. Frontend's fix is the right
+   shape: names under ~500 particles are re-sampled at a 1px cell, restoring
+   them to ~1,100, in two walks of one 400×220 buffer before any frame. **The
+   grid stays 400×220; only the cell changes.**
 1. **Density is a function of coverage, not of the cap.** The 1,500-2,500
    figure was correct *for a full-bleed photo*, where ink covers the whole
    box. Type covers a fraction of it, so the inherited 7px cell yields
@@ -2726,12 +2738,41 @@ currently its blurriest pixels.**
 
 > **The canvas is the transition. Real DOM text is the destination.**
 
-When the particles land, swap the canvas for a real heading:
-`font-size: clamp(2.4rem, 7vw, 4rem)`, Cormorant 600, `line-height: .96`,
-`letter-spacing: -.035em`, `--ink-strong`. Sharp at any size, selectable, a
-genuine heading in the accessibility tree rather than a canvas carrying an
-`aria-label` — and it makes the duplicate line's deletion unambiguous,
-because the settled text *is* the headline.
+When the particles land, swap the canvas for a real heading: Cormorant 600,
+`line-height: .96`, `letter-spacing: -.035em`, `--ink-strong`. Sharp at any
+size, selectable, a genuine heading in the accessibility tree rather than a
+canvas carrying an `aria-label` — and it makes the duplicate line's deletion
+unambiguous, because the settled text *is* the headline.
+
+**⚠️ CORRECTION — I specced `clamp(2.4rem, 7vw, 4rem)` here and it is wrong.
+It produces a visible snap on the payoff screen.** The canvas fits its name
+to a 400-unit buffer which CSS then stretches, so the particles form the
+name at `drawnSize × (panelWidth / 400)`. **A viewport-keyed clamp cannot
+know either of those numbers.** Measured in the mock at a 1056px panel:
+
+| Winner | Particles form at | Old clamp settles at | Snap |
+|---|---|---|---|
+| `3Fils` | 253.4px | 64px | **3.96×** |
+| `Brasserie 2.0` | 195.4px | 64px | 3.05× |
+| `Common Grounds` | 126.7px | 64px | 1.98× |
+| `Reif Japanese Kushiyaki` | 100.3px | 64px | 1.57× |
+
+The name assembles, then instantly shrinks — **and by a different amount for
+every winner**, so the same screen behaves differently depending on who won.
+This is exactly what §14.2's own amendment warned about and I reintroduced it.
+
+> **The settled text is sized to what the particles actually formed —
+> computed, not declared.** `fontSize = drawnSize × (panelWidth / 400)`,
+> set at swap time. The CSS clamp survives only as the pre-JS fallback.
+
+**Cap the panel, not the font.** If the reveal is ever placed in a very wide
+container the matched size grows with it; give the panel a `max-width` so
+the canvas and the text stay in range *together*. Capping the font alone
+reintroduces the mismatch this correction exists to remove.
+
+This also settles the open question of whether the heading looked small: it
+was not a calmness-versus-payoff trade at all. **It was the wrong size**,
+and matching it makes it fill its panel exactly as the particles did.
 
 - **Do the swap on a `setTimeout`, not in the rAF callback.** If the
   animation clock is frozen — a backgrounded tab — the rAF chain never
@@ -2858,6 +2899,30 @@ carried by the motion and should not have been.
 - **Anything that needs photography.** Gravity is positional and works on
   type alone — 76 of 82 spots have no image, and that is the test D1's
   premise failed.
+
+### 25.7 — "This frame will definitely arrive" is a bug, twice over
+
+Two independent defects in one week share a root, so it is stated once as a
+rule rather than twice as warnings:
+
+- **The FLIP primed inside `requestAnimationFrame`** (§25.3) sets an inline
+  `transform` and relies on the next frame to clear it. No frame, and the
+  avatar is stranded at its inverted position **permanently**.
+- **The reveal settling from inside its rAF callback** (§25.1) never swaps
+  the canvas for real text. No frame, and the winner stays a blurry bitmap
+  **permanently**.
+
+> **Never let a visual end-state depend on a frame callback firing.** A
+> backgrounded tab, a throttled renderer, or an automated browser all stop
+> delivering frames — and in every one of those cases the *user's* end state
+> must still be correct. Frame callbacks own the journey; they must never
+> own the destination.
+
+The destination belongs to something that cannot be skipped: a `setTimeout`,
+a Web Animations `finish` handler, or WAAPI's own bounded effect, which
+leaves no inline style at all. **Both bugs were first mistaken for harness
+artefacts.** They were not — they are precisely what happens to a real
+person who opens a share link, switches apps mid-vote, and comes back.
 
 ## Verification (for whoever implements this)
 
