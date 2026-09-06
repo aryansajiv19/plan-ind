@@ -1726,3 +1726,59 @@ that is trusted and wrong is worse than no ledger.
 
 Journey 119/120 (the remaining failure is the known coordinate gap), 67 unit
 tests, gate green. 043 staged.
+
+---
+
+## 2026-09-07 — T0: 026, 042 and 043 applied live
+
+**026 — production sign-in was dead, and the ledger was the bug.**
+`consume_otp_limit` did **not exist** in the live database. Confirmed by
+catalog query, not inferred. `worklog.md:44` claimed 026 was applied; it was
+not, and everything downstream trusted that row.
+
+The consequence explains the thing this project has been staring at all
+week. `consumeOtpLimit` fails closed, and the `PGRST202` fallback returns
+true only when `NODE_ENV !== "production"` — so it works locally and returns
+`false` in production, meaning **both** `requestEmailCode` and
+`verifyEmailCode` refuse before ever calling GoTrue. **62 anonymous users
+and zero permanent accounts, ever, was not lack of interest — signing up was
+structurally impossible.** Every person who tried met "Too many codes
+requested for this address" on their first attempt.
+
+The documented OTP brute-force control was also simply not running.
+Fail-closed behaviour deliberately unchanged: failing open here would trade
+a total outage for unlimited guessing against any email address.
+
+**042 — 4 of 12 zero-coverage coordinates.** beach_club 2/3, padel 1/3,
+wellness 1/3; escape still 0/3. Landmark-level, hand-checked, each row
+naming its landmark. Eight stay null and want a human who knows the venues —
+"Bab Al Shams" matched a laundry in Sharjah, 60km away and a different
+emirate, and Anantara World Islands' only free coordinate is open water.
+
+**043 — the pass-the-hash hole.** `participant_token_hash` was a bearer
+token stored in a column every co-member could read, and `cast_plan_vote`
+validated only that it was 64 hex characters. Anyone with the share link
+could read every member's hash and rewrite or delete their vote — none of it
+through an app route, so CSRF/Origin never applied, and Realtime then pushed
+the rewritten row to the victim's own screen.
+
+Now bound to `auth.uid()` on all three write RPCs, with an ownership check.
+Verified live: 3 `user_id` columns, 3 indexes, all 3 functions carry both
+`auth.uid()` and the ownership guard, `anon` still cannot execute.
+
+**Deliberate deferral, stated rather than buried:** the unique key was NOT
+moved to `(plan_id, user_id, phase, pool_number)`. That is the complete fix
+and would also stop one user voting under several self-minted hashes, but it
+needs a backfill of a column that **cannot** be backfilled — existing rows
+record only a hash, and who cast them is unrecoverable. Legacy rows keep
+`user_id is null` and are claimable by the first writer presenting that
+hash. Narrow, and its own reviewed step.
+
+### The pattern worth keeping
+
+Three of today's worst findings were not wrong code — they were **records
+that disagreed with reality**: a ledger claiming 026 was applied, a CSP
+header naming a database the server was not using, and a migration whose
+photo URLs named objects that did not exist. Each looked correct and each
+produced a confident wrong conclusion downstream. Verify against the live
+object, not the document describing it.
