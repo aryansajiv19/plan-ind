@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>plan-ind — three directions on palette v6, with photography</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Hanken+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* ── SPECS.md §19.1 palette v6 — the owner's five, verbatim ─────── */
+  :root{
+    --blue:#7D9BBC; --off-white:#F2F2F2; --tan:#CE9963;
+    --brown:#9F7652; --dark-brown:#3F230B;
+
+    /* derived (§19.1 — five identity colours cannot fill eleven roles) */
+    --ink:#3F230B; --muted:#6E6259; --line:#9F7652;
+    --accent-text:#7A5A3E;   /* §19.1a option B — their brown, deepened */
+    --pop:#BE3A1B;           /* direction 3 only */
+    --card:#FFFFFF;
+
+    --r-control:10px; --r-panel:22px;
+    --ease:cubic-bezier(.16,1,.3,1);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#DEDEDE;font-family:"Hanken Grotesk",system-ui,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+  img{display:block;width:100%;height:100%;object-fit:cover}
+
+  /* comparison chrome, not part of any design */
+  .rig{max-width:1260px;margin:0 auto;padding:30px 22px 70px}
+  .rig h1{font-size:1.05rem;margin:0 0 6px}
+  .rig>p{margin:0 0 8px;font-size:.82rem;line-height:1.55;color:#4d4740;max-width:74ch}
+  .label{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:42px 0 10px;padding-bottom:8px;border-bottom:1px solid #bdbdbd}
+  .label b{font-size:.95rem}
+  .label span{font-size:.79rem;color:#4d4740}
+  .label i{font-size:.76rem;color:#4d4740;font-style:normal;margin-left:auto}
+
+  .screen{background:var(--off-white);border-radius:var(--r-panel);overflow:hidden}
+
+  /* ── shared skeleton ───────────────────────────────────────────── */
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:18px 30px}
+  .mark{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;
+        border-radius:var(--r-control);background:var(--ink);color:#fff;
+        font-family:"Newsreader",serif;font-size:.86rem;font-weight:600}
+  .mark b{color:#EFE7DF;font-weight:600;font-size:.7rem}      /* §19.7 — off-white two-tone; no accent clears AA on ink */
+  .navr{display:flex;align-items:center;gap:20px}
+  .navlink{font-size:.78rem;color:var(--muted);text-decoration:none}
+  .btn{font-family:inherit;font-size:.8rem;font-weight:500;border:0;border-radius:var(--r-control);
+       padding:11px 20px;cursor:pointer;transition:transform .2s var(--ease)}
+  .btn:active{transform:scale(.98)}
+  .btn--primary{background:var(--ink);color:#fff}             /* 14.42:1 */
+
+  .hero{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:40px;align-items:center;padding:34px 30px 30px}
+  .kicker{margin:0 0 12px;font-size:.7rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase}
+  .h1{font-family:"Newsreader",serif;font-weight:500;font-size:clamp(2.2rem,1.1rem+2.6vw,3.2rem);
+      line-height:1.04;letter-spacing:-.022em;margin:0 0 16px;text-wrap:balance}
+  .h1 em{font-style:italic;font-weight:400}                    /* §20 — one italic, welcome surface */
+  .lede{margin:0 0 24px;max-width:44ch;font-size:.92rem;line-height:1.6;color:var(--muted);text-wrap:pretty}
+  .cta{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .quiet{font-family:inherit;font-size:.82rem;font-weight:500;background:none;border:0;padding:0;
+         cursor:pointer;text-decoration:underline;text-underline-offset:4px;color:var(--accent-text)}
+
+  .feature{border-radius:var(--r-panel);overflow:hidden;background:var(--card)}
+  .feature__img{height:224px}
+  .feature__body{padding:18px 20px 20px}
+  .feature__top{display:flex;justify-content:space-between;font-size:.66rem;letter-spacing:.13em;
+                text-transform:uppercase;color:var(--muted);font-weight:500}
+  .feature__name{font-family:"Newsreader",serif;font-size:1.6rem;font-weight:500;margin:8px 0 2px;letter-spacing:-.02em}
+  .feature__meta{margin:0;font-size:.78rem;color:var(--muted)}
+
+  .row{padding:6px 30px 34px}
+  .row__head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px}
+  .row__title{font-family:"Newsreader",serif;font-size:1.25rem;font-weight:500;margin:0}
+  .row__all{font-size:.78rem;text-decoration:underline;text-underline-offset:3px;color:var(--accent-text)}
+  .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+  .tile{border-radius:var(--r-panel);overflow:hidden;background:var(--card)}
+  .tile__img{height:132px}
+  .tile__body{padding:12px 14px 15px}
+  .tile__name{font-family:"Newsreader",serif;font-size:1.02rem;font-weight:500;margin:0 0 2px}
+  .tile__meta{margin:0;font-size:.73rem;color:var(--muted)}
+  .dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:6px;background:#2F6B4C}
+
+  /* ══ D1 — restrained frame, vivid content ═══════════════════════ */
+  .d1 .kicker{color:var(--accent-text)}
+  .d1 .feature__img{height:268px}
+  .d1 .feature,.d1 .tile{box-shadow:0 1px 2px rgba(63,35,11,.05),0 10px 26px rgba(63,35,11,.07)}
+
+  /* ══ D2 — energetic palette: tan + blue as card FILLS ═══════════ */
+  /* accessible because dark ink on tan is 5.74:1 and on blue is 5.00:1 */
+  .d2{background:var(--off-white)}
+  .d2 .kicker{color:var(--ink)}
+  .d2 .btn--primary{background:var(--pop);color:#fff}
+  /* Every coloured fill carries FULL-STRENGTH ink #3F230B — a softened
+     mid-brown drops to ~4.0:1 and fails. Measured, not assumed.
+     Brown is deliberately NOT a card fill: ink on it is 3.56:1 and white
+     on it 4.05:1, so it cannot carry text at all (§19.1). The third tile
+     stays neutral, which is the constraint rendered rather than hidden. */
+  .d2 .feature{background:var(--tan)}
+  .d2 .feature__top,.d2 .feature__meta,
+  .d2 .feature__name{color:var(--ink)}
+  .d2 .tile:nth-child(1){background:var(--blue)}
+  .d2 .tile:nth-child(2){background:var(--tan)}
+  .d2 .tile:nth-child(3){background:var(--card)}
+  .d2 .tile__name,.d2 .tile__meta{color:var(--ink)}
+  .d2 .quiet,.d2 .row__all{color:var(--ink)}
+  .d2 .hero{padding-bottom:22px}
+
+  /* ══ D3 — neutral base, one bold pop ════════════════════════════ */
+  .d3 .kicker{color:var(--pop)}                 /* 4.92:1 on canvas */
+  .d3 .btn--primary{background:var(--pop);color:#fff}   /* 5.51:1 */
+  .d3 .quiet,.d3 .row__all{color:var(--pop)}
+  .d3 .feature,.d3 .tile{box-shadow:0 1px 2px rgba(63,35,11,.05),0 8px 22px rgba(63,35,11,.06)}
+  .d3 .feature__top span:first-child{color:var(--pop);font-weight:700}
+  .d3 .dot{background:var(--pop)}
+</style>
+</head>
+<body>
+<div class="rig">
+
+<h1>Three directions on palette v6, with placeholder photography</h1>
+<p>
+  Same screen, same copy, same five owner values, same images in all three so the comparison is not
+  confounded by the pictures. Photography is the variable that was missing: all 82 spots currently
+  have a null photo, so the live app has never rendered a single venue image.
+  Images are Lorem Picsum placeholders, fixed IDs, local mock only.
+  Every direction meets §19.7 (text ≥4.5:1, component boundaries ≥3:1) — measured, not assumed.
+</p>
+
+<!-- ═══════════════════════ D1 ═══════════════════════ -->
+<div class="label"><b>1 &nbsp;Restrained frame, vivid content</b>
+  <span>neutral frame, photography supplies all the colour</span>
+  <i>kicker #7A5A3E 4.92:1 · button #3F230B 14.42:1</i></div>
+
+<div class="screen d1">
+  <div class="nav"><span class="mark">D/<b>03</b></span>
+    <div class="navr"><a class="navlink" href="#">How it works</a><button class="btn btn--primary">Sign in</button></div></div>
+  <div class="hero">
+    <div>
+      <p class="kicker">Good evening, Dubai</p>
+      <h2 class="h1">Dubai plans, <em>without the group chat.</em></h2>
+      <p class="lede">Dinner in DIFC, padel in Al Quoz, or a beach day on the Palm. Set the budget and the distance, then let everyone choose.</p>
+      <div class="cta"><button class="btn btn--primary">Open a decision</button><button class="quiet">See a sample vote</button></div>
+    </div>
+    <div class="feature">
+      <div class="feature__img"><img src="https://picsum.photos/id/292/800/600" alt=""></div>
+      <div class="feature__body">
+        <div class="feature__top"><span><span class="dot"></span>Deciding now</span><span>Round 2</span></div>
+        <p class="feature__name">3Fils</p><p class="feature__meta">Jumeirah · from AED 180 · open till 11pm</p>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="row__head"><p class="row__title">Tonight in Dubai</p><a class="row__all" href="#">See all</a></div>
+    <div class="grid">
+      <div class="tile"><div class="tile__img"><img src="https://picsum.photos/id/431/500/380" alt=""></div>
+        <div class="tile__body"><p class="tile__name">Bu Qtair</p><p class="tile__meta">Umm Suqeim · from AED 60</p></div></div>
+      <div class="tile"><div class="tile__img"><img src="https://picsum.photos/id/326/500/380" alt=""></div>
+        <div class="tile__body"><p class="tile__name">Tresind Studio</p><p class="tile__meta">DIFC · from AED 550</p></div></div>
+      <div class="tile"><div class="tile__img"><img src="https://picsum.photos/id/1080/500/380" alt=""></div>
+        <div class="tile__body"><p class="tile__name">Drift Beach</p><p class="tile__meta">The Palm · from AED 250</p></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ D2 ═══════════════════════ -->
+<div class="label"><b>2 &nbsp;Energetic palette</b>
+  <span>tan and blue as card fills, colour blocks instead of hairlines</span>
+  <i>ink on tan 5.74:1 · ink on blue 5.00:1 · both pass</i></div>
+
+<div class="screen d2">
+  <div class="nav"><span class="mark">D/<b>03</b></span>
+    <div class="navr"><a class="navlink" href="#">How it works</a><button class="btn btn--primary">Sign in</button></div></div>
+  <div class="hero">
+    <div>
+      <p class="kicker">Good evening, Dubai</p>
+      <h2 class="h1">Dubai plans, <em>without the group chat.</em></h2>
+      <p class="lede">Dinner in DIFC, padel in Al Quoz, or a beach day on the Palm. Set the budget and the distance, then let everyone choose.</p>
+      <div class="cta"><button class="btn btn--primary">Open a decision</button><button class="quiet">See a sample vote</button></div>
+    </div>
+    <div class="feature">
+      <div class="feature__img"><img src="https://picsum.photos/id/292/800/600" alt=""></div>
+      <div class="feature__body">
+        <div class="feature__top"><span><span class="dot"></span>Deciding now</span><span>Round 2</span></div>
+        <p class="feature__name">3Fils</p><p class="feature__meta">Jumeirah · from AED 180 · open till 11pm</p>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="row__head"><p class="row__title">Tonight in Dubai</p><a class="row__all" href="#">See all</a></div>
+    <div class="grid">
+      <div class="tile"><div class="tile__img"><img src="https://picsum.photos/id/431/500/380" alt=""></div>
+        <div class="tile__body"><p class="tile__name">Bu Qtair</p><p class="tile__meta">Umm Suqeim · from AED 60</p></div></div>
+      <div class="tile"><div class="tile__img"><img src="https://picsum.photos/id/326/500/380" alt=""></div>
+        <div class="tile__body"><p class="tile__name">Tresind Studio</p><p class="tile__meta">DIFC · from AED 550</p></div></div>
+      <div class="tile"><div class="tile__img"><img src="https://picsum.photos/id/1080/500/380" alt=""></div>
+        <div class="tile__body"><p class="tile__name">Drift Beach</p><p class="tile__meta">The Palm · from AED 250</p></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ D3 ═══════════════════════ -->
+<div class="label"><b>3 &nbsp;Neutral base, one bold pop</b>
+  <span>v6 base kept, a single saturated accent used sparingly</span>
+  <i>pop #BE3A1B — 4.92:1 canvas · 5.51:1 as a white-text fill</i></div>
+
+<div class="screen d3">
+  <div class="nav"><span class="mark">D/<b>03</b></span>
+    <div class="navr"><a class="navlink" href="#">How it works</a><button class="btn btn--primary">Sign in</button></div></div>
+  <div class="hero">
+    <div>
+      <p class="kicker">Good evening, Dubai</p>
+      <h2 class="h1">Dubai plans, <em>without the group chat.</em></h2>
+      <p class="lede">Dinner in DIFC, padel in Al Quoz, or a beach day on the Palm. Set the budget and the distance, then let everyone choose.</p>
+      <div class="cta"><button class="btn btn--primary">Open a decision</button><button class="quiet">See a sample vote</button></div>
+    </div>
+    <div class="feature">
+      <div class="feature__img"><img src="https://picsum.photos/id/292/800/600" alt=""></div>
+      <div class="feature__body">
+        <div class="feature__top"><span><span class="dot"></span>Deciding now</span><span>Round 2</span></div>
+        <p class="feature__name">3Fils</p><p class="feature__meta">Jumeirah · from AED 180 · open till 11pm</p>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="row__head"><p class="row__title">Tonight in Dubai</p><a class="row__all" href="#">See all</a></div>
+    <div class="grid">
+      <div class="tile"><div class="tile__img"><img src="https://picsum.photos/id/431/500/380" alt=""></div>
+        <div class="tile__body"><p class="tile__name">Bu Qtair</p><p class="tile__meta">Umm Suqeim · from AED 60</p></div></div>
+      <div class="tile"><div class="tile__img"><img src="https://picsum.photos/id/326/500/380" alt=""></div>
+        <div class="tile__body"><p class="tile__name">Tresind Studio</p><p class="tile__meta">DIFC · from AED 550</p></div></div>
+      <div class="tile"><div class="tile__img"><img src="https://picsum.photos/id/1080/500/380" alt=""></div>
+        <div class="tile__body"><p class="tile__name">Drift Beach</p><p class="tile__meta">The Palm · from AED 250</p></div></div>
+    </div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>
