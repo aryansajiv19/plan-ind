@@ -80,7 +80,16 @@ export default function RootLayout({
   // the Dubai clock is server-knowable, and a sand-to-black flash on every
   // evening load is exactly the kind of thing a themed product cannot do.
   // ThemeSync then applies any stored override and handles the 17:00 turnover.
-  const ground = autoGround();
+  //
+  // PARKED 2026-09-04 (owner: "no dark mode, or at least hold dark back
+  // now, we'll see later"). Machinery intact and correct; only the path
+  // that selects it is disabled. The clock itself is deliberately left
+  // alone and still called below — it is its APPLICATION that is parked,
+  // so lib/dubai-phase.ts stays correct and testable. To restore: return
+  // `autoGround()` here instead of "day", and bring back the nav toggle in
+  // components/HomeExperience.tsx. See SPECS.md §19.2.
+  void autoGround();
+  const ground = "day";
 
   return (
     <html

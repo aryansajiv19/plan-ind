@@ -36,7 +36,20 @@ export default function ThemeSync({ serverGround }: { serverGround: Ground }) {
         // answer, and losing the override is better than an unstyled page.
       }
       const ground = resolveGround(preference);
-      if (root.dataset.theme !== ground) root.dataset.theme = ground;
+      // PARKED 2026-09-04 (owner: "no dark mode, or at least hold dark back
+      // now, we'll see later"). Machinery intact and correct; only the path
+      // that selects it is disabled. SPECS.md §19.2 names app/layout.tsx as
+      // "the single point where it is decided", but there are two: the server
+      // stamps the first paint there, and this re-resolves it on mount and
+      // every 60s. Pinning only the server leaves the clock flipping the
+      // document to night moments after hydration, so the park has to cover
+      // this path too. The resolution above still runs, so the clock stays
+      // exercised and correct. To restore: apply `ground` instead of `parked`
+      // here, re-enable the ground selection in app/layout.tsx, and bring back
+      // the nav toggle in components/HomeExperience.tsx. See SPECS.md §19.2.
+      void ground;
+      const parked: Ground = "day";
+      if (root.dataset.theme !== parked) root.dataset.theme = parked;
     };
 
     apply();
