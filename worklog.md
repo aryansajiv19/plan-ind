@@ -1243,3 +1243,64 @@ Related: `as Spot[]` casts over narrowed selects hide the same class of
 problem from the type checker. One of those cost a marketing-hero regression
 today (`CardStackExample` receiving rows without `category`/`price_band`).
 A cast that quiets tsc about data shape is worth distrusting on sight.
+
+---
+
+## 2026-09-06 — T1 Security/Backend: the paging fix reintroduced the bug it removed
+
+A silent-failure review of today's diff found four criticals in my files. The
+first is the one that matters: **`fetchAllRows` returned the rows it had
+gathered when a later page failed**, as a plain `T[]` the caller could not
+distinguish from a complete answer. `dealSpotIds` checks only for null, so a
+transient error on page 1 would have dealt a plan from the oldest 1000
+spots — byte-for-byte the incident the helper was written to remove, reached
+through its own fix.
+
+Fixed, and the contract is now stated in the file: **`T[]` means complete,
+null means ask again.** Any page error returns null (logged, rows
+deliberately discarded); exhausting `MAX_PAGES` with every page full is also
+an error, because 50k-truncated and exactly-50k are indistinguishable — the
+PostgREST cap again with a bigger number.
+
+**Eight tests now pin that contract** (`tests/supabase-paginate.test.ts`),
+including the one the review called the highest-value in the tree: page 0
+succeeds, page 1 errors, assert the caller cannot mistake the result for
+complete. There was no test for this helper at all despite it being the fix
+for three incidents.
+
+**The ratings read** (`lib/spots/match.ts`) sat two lines below the paging
+fix, unpaged, with its error destructured away. Worse than truncation:
+unrated spots score 3.6, *above* a mediocre rating, so a short read silently
+**promotes** every spot whose ratings fell off the end — two identical plans
+dealt a second apart return different winners and both look correct. Now
+chunked at 100 ids (a large `.in()` serialises into the query string and
+returns HTTP 414 past a few thousand, which read as "nobody has rated
+anything"), paged, and fails hard: ranking on a partial read is worse than
+not dealing.
+
+**`resolvePlaceImport`'s `?? []`** turned "the read failed" into "the
+catalogue is empty", which the matcher renders as no_match — and the next
+line *wrote that to the database*. A transient error while someone saved a
+real venue durably recorded "we couldn't match this", and a resolved row is
+not re-resolved. Now returns early: leaving an import pending is
+recoverable, persisting a false negative is not. Its bare `catch {}` binds
+and logs the error (it was swallowing aborts, scorer errors and shape
+mismatches into one anonymous code, and because it caught, `onRequestError`
+never saw them), and the outcome write checks its row count — a PostgREST
+update matching zero rows is a successful no-op, so an RLS refusal left the
+import pending while the POST returned 200.
+
+**`safe-fetch` had two bounds claimed but not enforced.** `TIMEOUT_MS` was
+armed fresh per redirect hop, so three hops was 15s against an advertised
+~5s; there is now one deadline for the whole call. And `assertPublicHost`
+ran *before* the AbortController existed, so DNS was covered by no timeout
+at all — the same slot-holding failure the body-read fix closed, one
+function earlier. `lookup()` is now raced against a 2s deadline.
+
+Also: `verify-journey`'s `skip()` recorded `pass: true`, so a permanently
+broken import pipeline would skip forever and keep the suite green — the
+same "no complaint reads as success" shape. Now `pass: null`. And the
+scale seeder no longer discards its count error, since migration 040's
+benchmark numbers are quoted against the row count it reports.
+
+Journey **120/120**. 64 unit tests (was 56). Gate green.

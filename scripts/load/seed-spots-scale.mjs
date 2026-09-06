@@ -38,7 +38,13 @@ const SUFFIX = ["Kitchen", "House", "Lounge", "Club", "Room", "Garden", "Social"
 
 const pick = (arr, i) => arr[i % arr.length];
 
-const { count: existing } = await admin.from("spots").select("id", { count: "exact", head: true }).like("name", `${PREFIX}%`);
+// Not discarded: a failed count reads as 0, which would silently reseed from
+// scratch and -- worse -- the row counts this script reports are what
+// migration 040's benchmark numbers are quoted against. A benchmark against
+// a misreported catalogue size is not a benchmark.
+const { count: existing, error: countError } = await admin
+  .from("spots").select("id", { count: "exact", head: true }).like("name", `${PREFIX}%`);
+if (countError) throw new Error(`Counting existing synthetic spots failed: ${countError.message}`);
 console.log(`${existing ?? 0} synthetic spots currently seeded.`);
 
 if (target === 0) {

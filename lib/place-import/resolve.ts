@@ -7,6 +7,7 @@ import { fetchOembedClues, type ExtractedClues } from "./oembed";
 import { fetchWebClues } from "./web-adapter";
 import { matchCandidates, type MatchCandidate, type CuratedSpotRow } from "./match";
 import { fetchAllRows } from "@/lib/supabase/paginate";
+import { log, serializeError } from "@/lib/observability/log";
 
 // A score this far above the runner-up, with the top score also over
 // RESOLVE_FLOOR, is confident enough to resolve automatically. Below that,
@@ -140,15 +141,35 @@ export async function resolvePlaceImport(
   // when the instruments say imports are hot, is to narrow candidates in
   // Postgres with the trigram index from migration 040 (word_similarity)
   // and keep the exact F1 scoring here over ~50 rows instead of 5000.
-  const curatedSpots = await fetchAllRows<CuratedSpotRow>((from, to) =>
-    supabase.from("spots").select("id, name, cuisine, vibe, description")
-      .eq("source", "curated").order("id").range(from, to) as never,
+  const curatedSpots = await fetchAllRows<CuratedSpotRow>(
+    (from, to) => supabase.from("spots").select("id, name, cuisine, vibe, description")
+      .eq("source", "curated").order("id").range(from, to) as unknown as PromiseLike<{ data: CuratedSpotRow[] | null; error: unknown }>,
+    "resolvePlaceImport.catalogue",
   );
+
+  // A failed catalogue read is NOT an empty catalogue. `?? []` would send an
+  // empty pool into the matcher, which returns needs_input/no_match, and the
+  // write below would then persist "we couldn't match this" for a venue that
+  // is in the catalogue -- durably, and a resolved row is not re-resolved.
+  // Leaving the import pending is recoverable; recording a false negative is
+  // not.
+  if (!curatedSpots) {
+    log("error", "place_import.catalogue_unavailable", { importId: importRow.id, provider: importRow.provider });
+    return;
+  }
 
   let outcome: ResolveOutcome;
   try {
-    outcome = await resolveOutcome(importRow.provider, importRow.normalizedUrl, (curatedSpots ?? []) as CuratedSpotRow[]);
-  } catch {
+    outcome = await resolveOutcome(importRow.provider, importRow.normalizedUrl, curatedSpots);
+  } catch (error) {
+    // Was a bare `catch {}`. It now wraps the paging consumer and the F1
+    // scorer as well as the adapters, so shape mismatches, aborts escaping
+    // safe-fetch and scorer errors all arrived here as one anonymous
+    // "unexpected_error" -- and because it catches, Next's onRequestError
+    // never sees them either.
+    log("error", "place_import.resolve_failed", {
+      importId: importRow.id, provider: importRow.provider, ...serializeError(error),
+    });
     outcome = { status: "failed", errorCode: "unexpected_error", extractedData: {} };
   }
 
@@ -160,5 +181,16 @@ export async function resolvePlaceImport(
   if (outcome.status === "resolved") patch.resolved_spot_id = outcome.resolvedSpotId;
   if (outcome.status === "failed") patch.error_code = outcome.errorCode;
 
-  await supabase.from("place_imports").update(patch).eq("id", importRow.id);
+  // A PostgREST update matching zero rows is a SUCCESSFUL no-op, so an RLS
+  // refusal here leaves the import pending forever while the POST returns
+  // 200 and the user sees a saved link that never resolves. Count the rows
+  // rather than trusting the absence of an error.
+  const { error: updateError, count } = await supabase
+    .from("place_imports").update(patch, { count: "exact" }).eq("id", importRow.id);
+  if (updateError || !count) {
+    log("error", "place_import.outcome_write_failed", {
+      importId: importRow.id, status: outcome.status, matchedRows: count ?? 0,
+      ...serializeError(updateError),
+    });
+  }
 }

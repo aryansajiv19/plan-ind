@@ -188,11 +188,12 @@ export async function dealSpotIds(db: Db, input: {
   // dealt from the oldest 1000 spots of the family and the rest of the
   // catalogue was undealable. That is the core product loop quietly ignoring
   // most of the catalogue, not a slow query.
-  const data = await fetchAllRows<DealSpotRow>((from, to) =>
-    db.from("spots").select(SPOT_COLUMNS)
+  const data = await fetchAllRows<DealSpotRow>(
+    (from, to) => db.from("spots").select(SPOT_COLUMNS)
       .eq("source", "curated")
       .in("category", categoryFamily(input.category))
-      .order("id").range(from, to) as never,
+      .order("id").range(from, to) as unknown as PromiseLike<{ data: DealSpotRow[] | null; error: unknown }>,
+    "dealSpotIds.pool",
   );
   if (!data) return null;
 
@@ -200,10 +201,31 @@ export async function dealSpotIds(db: Db, input: {
   const eligible = eligibleDealSpots({ ...input, pool });
   if (!eligible) return null;
 
-  const { data: rated } = await db
-    .from("ratings")
-    .select("spot_id,stars,again")
-    .in("spot_id", eligible.map((spot) => spot.id));
+  // Chunked, paged, and fails hard -- none of which is fussiness here.
+  //
+  // A short or failed ratings read does NOT degrade to "no ranking": an
+  // unrated spot scores 3.6 (above a mediocre rating, so new places surface),
+  // so every spot whose ratings fell off the end gets silently PROMOTED
+  // above genuinely well-rated ones. Two identical plans dealt a second
+  // apart would return different winners and both would look correct.
+  //
+  // Two ways it could go short. The 1000-row cap applies here exactly as it
+  // does above. And `.in()` serialises every id into the query string, so a
+  // few thousand eligible spots produce a URL long enough to return HTTP
+  // 414 -- which, discarded, reads as "nobody has rated anything".
+  const ids = eligible.map((spot) => spot.id);
+  const CHUNK = 100; // ~3.7KB of uuids per request, far short of any URL limit
+  const ratings: DealRatingRow[] = [];
+  for (let i = 0; i < ids.length; i += CHUNK) {
+    const slice = ids.slice(i, i + CHUNK);
+    const rows = await fetchAllRows<DealRatingRow>(
+      (from, to) => db.from("ratings").select("spot_id,stars,again")
+        .in("spot_id", slice).order("spot_id").range(from, to) as unknown as PromiseLike<{ data: DealRatingRow[] | null; error: unknown }>,
+      "dealSpotIds.ratings",
+    );
+    if (!rows) return null; // ranking on a partial read is worse than no deal
+    ratings.push(...rows);
+  }
 
-  return dealFromPool({ ...input, pool, ratings: (rated ?? []) as unknown as DealRatingRow[] });
+  return dealFromPool({ ...input, pool, ratings });
 }

@@ -20,7 +20,13 @@ import { isPrivateAddress } from "./ip-guard";
 // ever handles something more sensitive.
 
 const MAX_BYTES = 512 * 1024;
+// Per-hop budget. TOTAL_TIMEOUT_MS is the bound that actually matters: the
+// per-hop timer was armed fresh on every redirect, so three hops could take
+// 15s while resolve.ts advertised "worst case ~5s". Callers get one deadline
+// for the whole call now, redirects and DNS included.
 const TIMEOUT_MS = 5_000;
+const TOTAL_TIMEOUT_MS = 8_000;
+const DNS_TIMEOUT_MS = 2_000;
 const MAX_REDIRECTS = 2;
 const ALLOWED_CONTENT_TYPES = ["application/json", "text/html", "text/plain"];
 
@@ -29,8 +35,19 @@ export class SafeFetchError extends Error {}
 async function assertPublicHost(hostname: string): Promise<void> {
   let address: string;
   try {
-    ({ address } = await lookup(hostname));
-  } catch {
+    // Raced against a deadline: dns.lookup takes no AbortSignal, and it ran
+    // BEFORE the fetch's AbortController existed, so it was covered by no
+    // timeout at all. A slow resolver pinned the request handler
+    // indefinitely -- the same slot-holding failure the body-read deadline
+    // closed, one function earlier.
+    ({ address } = await Promise.race([
+      lookup(hostname),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new SafeFetchError("That link's host took too long to resolve.")), DNS_TIMEOUT_MS),
+      ),
+    ]));
+  } catch (error) {
+    if (error instanceof SafeFetchError) throw error;
     throw new SafeFetchError("That link's host could not be resolved.");
   }
   if (isPrivateAddress(address)) {
@@ -99,14 +116,19 @@ export async function readCapped(response: Response): Promise<string> {
 // fetch" to the resolution pipeline (never a raw network error).
 export async function safeFetch(url: string): Promise<string> {
   let target = new URL(url);
+  const deadline = Date.now() + TOTAL_TIMEOUT_MS;
   for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
+    // The whole call is bounded, not just each hop. Without this the budget
+    // multiplied by the redirect count.
+    const remaining = deadline - Date.now();
+    if (remaining <= 0) throw new SafeFetchError("That link took too long to respond.");
     if (target.protocol !== "https:" && target.protocol !== "http:") {
       throw new SafeFetchError("Only http/https links can be fetched.");
     }
     await assertPublicHost(target.hostname);
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    const timeout = setTimeout(() => controller.abort(), Math.min(TIMEOUT_MS, remaining));
     // The timeout stays armed across the BODY read, not just until headers
     // arrive. Clearing it as soon as fetch() resolved left the streaming
     // read below unbounded: a host that sends headers instantly and then

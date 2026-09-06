@@ -53,8 +53,12 @@ function check(label, pass, detail = "") {
 // A few import checks depend on reaching the public internet. A network
 // outage is not a defect in this app, so those record as SKIP rather than
 // failing the run and sending someone hunting a bug that isn't there.
+// pass:null, NOT pass:true. A skip recorded as a pass means a permanently
+// broken import pipeline would skip on every run and keep the suite green --
+// the same "absence of a complaint reads as success" shape this script exists
+// to catch. null cannot be misread as either outcome.
 function skip(label, why) {
-  results.push({ step: currentStep, label, pass: true, skipped: true });
+  results.push({ step: currentStep, label, pass: null, skipped: true });
   console.log(`  SKIP  ${label}  -- ${why}`);
 }
 const eq = (label, actual, expected) =>
@@ -554,7 +558,7 @@ if (exactRow?.extracted_data?.reason === "fetch_failed") {
 }
 
 // ── summary ───────────────────────────────────────────────────────────────
-const failed = results.filter((r) => !r.pass);
+const failed = results.filter((r) => r.pass === false);
 const skipped = results.filter((r) => r.skipped);
 console.log(`\n${"=".repeat(68)}`);
 console.log(`${results.length - failed.length - skipped.length}/${results.length - skipped.length} checks passed across ${new Set(results.map((r) => r.step)).size} steps${skipped.length ? `, ${skipped.length} skipped` : ""}.`);
