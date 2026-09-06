@@ -48,41 +48,39 @@
      (#442816 / #704121 / #AB6F44) and one cool family at 192-197°
      (#174050 / #0C657C). That is why the set holds together, and why
      nothing should be added to either end. */
-  --color-paper: #f2f2f2; /* canvas — the owner's own off-white, L* 95.5 */
-  --color-card: #ffffff; /* surface — ΔL* 4.51 vs canvas, a stronger lift than v5's 3.25, still no border (§19.3) */
+  --color-paper: #f7f5f4; /* canvas — near-white. NOT #D4C9C7: as the canvas that drops brown text to 3.90 and fails (§19.1) */
+  --color-card: #ffffff; /* surface — ΔL* 3.34 lift, still no border (§19.3) */
 
   /* The browns lead, so body text is brown, not black. */
-  --color-ink: #3f230b; /* dark-brown — THE ONLY value in v6 that can carry body text (12.88 canvas / 14.42 card) */
-  --color-muted: #6e6259; /* derived muted — 5.28 canvas / 5.91 card */
+  --color-ink: #051822; /* ink-navy — 16.65 canvas / 18.10 card */
+  --color-ink-2: #2d383e; /* secondary ink — 11.06 canvas / 12.02 card */
 
-  /* The accent, and v6 INVERTS v5's logic — read this before reusing any
-     rule from the previous palette. v5's #704121 carried text AND took
-     white as a fill. Nothing in v6 does both:
+  /* Muted text takes the SECONDARY INK, not v7's grey. §19.1 lists
+     #969A9E as decorative only at 2.83:1 — it cannot carry text, and this
+     token is read as `color:` in ~90 rules. v7 gives three text-capable
+     values; the secondary ink is the one that means "quieter than ink".
+     The grey is deliberately not defined as a token: nothing renders it,
+     and defining a colour nothing uses is how tokens drift. */
+  --color-muted: #2d383e;
 
-       --color-punch       the tan FILL. 2.51:1 on card, so it cannot
-                           carry text and light text cannot sit on it.
-                           Dark ink on it is 5.74:1 — the only way it is
-                           allowed to hold type.
-       --color-punch-text  the derived darker cut of the owner's own
-                           brown (hue 28°, same family), deepened until
-                           legible: 5.58 canvas / 6.25 card. Every accent
-                           TEXT use points here (§19.1a, owner picked B). */
-  --color-punch: #ce9963; /* tan — FILL ONLY, never text, never behind light text */
-  --color-punch-text: #7a5a3e; /* accent as text — the only accent that reads */
+  /* The accent, split by capability (SPECS.md §19.1, v7).
 
-  /* The single cool note. Like the tan it is a FILL, not ink: 2.88:1 as
-     text on card, but dark ink on it is 5.00:1. v5's separate deep teal
-     is gone with the rest of the teals — v6 has one cool value, not a
-     family, so --color-cool-deep and the v5-only --color-tan are removed
-     rather than left behind holding colours the palette no longer has.
-     Neither had a single consumer.
+     --color-punch-text  brown #7C5841 — TEXT. 5.80 canvas / 6.31 card.
+                         This is v7's headline improvement: v6 had no
+                         text-capable accent at all, which is why the
+                         first §21 reached for coloured blocks. It is now
+                         the DEFAULT instrument for colour (§21.3), used
+                         by component role — the section kickers already
+                         point here, so that lands wherever they appear.
+     --color-punch       tan #AA7452 — FILL and boundary, never text
+                         (2.44 canvas). Navy ink on it is 4.59. */
+  --color-punch: #aa7452;
+  --color-punch-text: #7c5841;
 
-     Blue and tan contrast 1.15:1 against EACH OTHER, so they can never be
-     a text/background pair or two states of one control. They are ΔL*
-     4.26 apart though — a visible step — so they are fine as two adjacent
-     SURFACES; the blunt "never adjacent" reading forbids a legitimate
-     treatment. */
-  --color-accent-cool: #7d9bbc; /* blue — FILL ONLY, dark ink on it = 5.00:1 */
+  /* The quiet framing fill (§21.3). Navy on it is 11.19. Reserved for a
+     singular framing surface, never for repeating content. */
+  --color-fill-quiet: #d4c9c7;
+
 
   /* Divider / boundary. The owner's brown, and the ONLY v6 value clearing
      §19.7's 3:1 boundary floor (3.62 canvas / 4.05 card) — nothing else
@@ -103,7 +101,7 @@
      v5 needed a darkened taupe here because that spec's #998F8A only
      cleared against pure white; v6 needs no such divergence — the
      owner's own brown clears both real grounds unaided. */
-  --color-line: #9f7652;
+  --color-line: #aa7452; /* tan — 3.63 canvas / 3.94 card */
 
   /* Premium marker — badges, streaks. Used sparingly: never a button,
      never body text. NOTE: §19.1's table does not respec this token and
@@ -116,18 +114,18 @@
   /* Confirm/active/"you, and now" — small components only (badges,
      pills, status text, round dots), never a large surface or a fill.
      Hue 152°, a clear 40° off the teals so it never reads as one. */
-  --color-live: #2f6b4c; /* 5.64 canvas / 6.31 card */
+  --color-live: #2f6b4c; /* carried: v7's six carry no confirm colour */
 
   /* Error/urgent — validation errors, closing-soon warnings. */
-  --color-error: #a3301f; /* 6.25 canvas / 7.00 card */
+  --color-error: #a3301f; /* carried: v7's six carry no error colour */
 
   /* Legacy aliases. `text-grape` / `bg-zest` / `text-mint` are still
      scattered through the components; they resolve to the workhorse
      accent, which is safe for both the text and the background uses
      among them now that it needs no split. Do not add new uses. */
-  --color-grape: #7a5a3e;
-  --color-zest: #7a5a3e;
-  --color-mint: #7a5a3e;
+  --color-grape: #7c5841;
+  --color-zest: #7c5841;
+  --color-mint: #7c5841;
 
   --font-display: var(--font-display-family), system-ui, sans-serif;
   --font-body: var(--font-hanken), system-ui, sans-serif;
@@ -219,9 +217,9 @@
 :root {
   /* Inactive chip fill — a low-alpha tint of the workhorse accent rather
      than a new hue, so it stays on the warm ramp (SPECS.md §19.1). */
-  --color-accent-tint: rgba(159, 118, 82, 0.10); /* a tint of the owner's brown */
+  --color-accent-tint: rgba(124, 88, 65, 0.10); /* a tint of v7's brown */
   --color-live-dot: #2f6b4c; /* same value as --color-live; non-text, needs 3:1 */
-  --color-shimmer: rgba(63, 35, 11, 0.06); /* skeleton sweep highlight — warm ink on the light card, per SPECS.md §7 */
+  --color-shimmer: rgba(5, 24, 34, 0.06); /* skeleton sweep highlight — warm ink on the light card, per SPECS.md §7 */
 
   /* Durations, named so they stop being pasted as magic numbers. */
   --dur-press: 200ms;
@@ -277,8 +275,8 @@
    stop is a slight lift of the base and clears on its own, so the base
    end is the worst case across the gradient. */
 :root {
-  --primary-fill: linear-gradient(180deg, #4d2c10, #3f230b);
-  --primary-ink: #ffffff; /* 14.42:1 on the base end */
+  --primary-fill: linear-gradient(180deg, #0b2836, #051822);
+  --primary-ink: #ffffff; /* 18.10:1 on the base end */
 }
 [data-theme="night"] {
   --primary-fill: linear-gradient(180deg, #d9c093, #c9a876);
@@ -311,7 +309,7 @@
      lets a card separate from the canvas by value instead of by a
      hairline. Tinted with the warm ink rather than neutral black so it
      sits on the palette's ramp. */
-  --elevation-card: 0 1px 2px rgba(63, 35, 11, 0.05), 0 10px 26px rgba(63, 35, 11, 0.07);
+  --elevation-card: 0 1px 2px rgba(5, 24, 34, 0.05), 0 10px 26px rgba(5, 24, 34, 0.07);
 
   /* Controls — buttons, inputs, fields. SPECS.md §19.4 consolidates the
      ad-hoc 0.1-0.2rem radii UPWARD to this, deliberately reversing §17's
@@ -326,49 +324,34 @@
   --radius-hero: 26px 26px 92px 26px; /* the plan card, one corner open */
 }
 
-/* ── SPECS.md §21: selective colour ─────────────────────────────────
-   A coloured fill stands in for a MISSING image and never sits alongside
-   one — photography and fills do the same job, so whichever is present
-   does the work and the other stands down.
+/* ── SPECS.md §21: which components wear a colour ───────────────────
+   REWRITTEN. The first version filled photo-less cards, alternating tan
+   and blue by index. It met its own spec exactly — 1 in 3, none adjacent,
+   assigned by position — and the owner rejected the result as forced. The
+   diagnosis: photo presence is a per-instance data condition, so keying on
+   it looks no less arbitrary than keying on index. Both scatter.
 
-   Every fill carries FULL-STRENGTH ink: 5.74:1 on tan, 5.00:1 on blue. A
-   softened mid-brown lands ~4.0:1 and fails, which is the mistake the
-   first energetic mock made. Brown is NOT a fill colour — nothing sits on
-   it (dark ink 3.56, white 4.05) — and there is no third fill.
+   The model now: a colour belongs to a COMPONENT, not an instance. A kind
+   of surface is always the same colour, everywhere, every time.
 
-   The ratio, the alternation and the hero carve-out are enforced in
-   PhotoWall, not here: they depend on position in the grid, which CSS
-   cannot see. Assignment is by INDEX, never by category — colour-by-
-   category is the retired rainbow, and a card that changes colour when
-   its category is edited reads as a bug (§21.5). */
-.wall-tile--fill-tan,
-.wall-tile--fill-blue {
-  color: var(--color-ink);
-}
-.wall-tile--fill-tan { background: var(--color-punch); }
-.demo-place-card--fill-tan,
-.demo-place-card--fill-blue { color: var(--color-ink); }
-.demo-place-card--fill-tan { background: var(--color-punch); }
-.demo-place-card--fill-blue { background: var(--color-accent-cool); }
-/* Same rule on the place card: everything ON the fill takes full-strength
-   ink. The descendant selector is deliberate — the meta line, the area,
-   the body copy and the action each set their own colour otherwise, and
-   the muted and accent cuts both drop under the floor on tan and blue
-   (measured at 2.17-2.88:1 before this). */
-/* The doubled class is deliberate, not a typo. These rules sit above the
-   .demo-* block, and a single class ties on specificity with the rules
-   that set the muted and accent cuts down there — so source order would
-   hand it to them and the fill would keep failing. Measured 2.05-2.51:1
-   before the bump. */
-.demo-place-card.demo-place-card--fill-tan *,
-.demo-place-card.demo-place-card--fill-blue * { color: var(--color-ink); }
-.demo-place-card.demo-place-card--fill-tan .demo-place-card__code,
-.demo-place-card.demo-place-card--fill-blue .demo-place-card__code { background: transparent; }
-/* The kicker span carries the accent cut via a :first-child rule, which
-   outranks the blanket one above on specificity — so it needs naming
-   explicitly. It measured 2.17-2.49:1 on the fills. */
-.demo-place-card.demo-place-card--fill-tan .demo-place-card__meta span:first-child,
-.demo-place-card.demo-place-card--fill-blue .demo-place-card__meta span:first-child { color: var(--color-ink); }
+   - Repeating content is NEVER filled — venue cards, vote options, visit
+     tiles, wall tiles, friend rows, results. Photography is their colour.
+     That is the single biggest change here, and it is why the Discover
+     grid's fills are gone rather than retuned.
+   - A fill never sits on or behind a photographed surface. That half of
+     the old rule survives, as a constraint rather than a trigger.
+   - The DEFAULT instrument is accent TEXT, not a fill: brown #7C5841
+     carries small text natively in v7 (5.80 canvas), which v6 could not
+     do. The section kickers already read --color-punch-text, so colour
+     lands by component role wherever they appear, with no blocks and
+     nothing to scatter.
+   - The framing fill (--color-fill-quiet) is the exception, capped at ONE
+     filled surface per screen, and is deliberately unused for now: the
+     spec's own fallback is "if in doubt, brown text and no fill."
+
+   If a fill is ever added here, its ink is never softened — full white on
+   navy/slate/brown, full navy on tan/grey/light. The v6 failure was a
+   softened mid-tone landing ~4.0:1. */
 /* The action stays an action: an ink outline reads on both fills, where
    the neutral line would not (§21.3 — buttons never take a fill). */
 .demo-place-card.demo-place-card--fill-tan .demo-place-card__body button,
@@ -3794,8 +3777,11 @@ h3 {
   max-width: calc(100% - 20px);
   padding: 3px 7px;
   border-radius: var(--radius-control);
-  background: rgba(14, 12, 14, 0.62);
-  color: var(--photo-body);
+  /* Measured at 3.86:1 with the lighter photo-body ink on a 0.62 scrim —
+     under the floor, which for a licence credit is not acceptable. The
+     brighter photo ink on a denser scrim clears it. */
+  background: rgba(10, 9, 10, 0.82);
+  color: var(--photo-ink);
   /* A licence credit has to be readable to count as attribution, so this
      does not go to the smallest size the layout would tolerate. */
   font-size: 0.7rem;

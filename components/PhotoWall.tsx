@@ -83,39 +83,6 @@ export default function PhotoWall({
   const columns: WallItem[][] = Array.from({ length: COLUMNS }, () => []);
   items.forEach((item, i) => columns[i % COLUMNS].push(item));
 
-  /**
-   * SPECS.md §21: which tiles carry a coloured fill.
-   *
-   * The rule is "a fill stands in for a missing image", so only photo-less
-   * cards are eligible — a card with a photo already has its colour, and
-   * adding a fill is the "forcing" the owner asked against. On top of that
-   * the ceiling is: at most one card in three, and never two filled cards
-   * adjacent.
-   *
-   * Assignment walks the deal order (which is the order the wall fills its
-   * columns from) and takes every third ELIGIBLE tile, alternating tan and
-   * blue. Both constraints then hold by construction rather than by
-   * checking afterwards: a 1-in-3 stride cannot produce neighbours, and
-   * alternating means the two fills never repeat back to back either.
-   *
-   * Keyed on POSITION, never on category, price or area — colour-by-
-   * category is the retired rainbow, and a card that changed colour when
-   * its category was edited would read as a bug (§21.5).
-   *
-   * This is self-limiting on purpose: as real photos land, each one makes
-   * its card ineligible and the colour recedes with no code change (§21.7).
-   * With no venue photos live today, these fills are currently the entire
-   * visual treatment of the wall, which is why they read strongly now.
-   */
-  const fillFor = new Map<string, "tan" | "blue">();
-  let eligible = 0;
-  for (const item of items) {
-    if (item.kind !== "photo" || item.spot.photo_url) continue;
-    if (eligible % 3 === 0) {
-      fillFor.set(item.id, fillFor.size % 2 === 0 ? "tan" : "blue");
-    }
-    eligible += 1;
-  }
 
   return (
     <div className="wall">
@@ -142,7 +109,6 @@ export default function PhotoWall({
                     note={item.note}
                     height={HEIGHTS[index % HEIGHTS.length]}
                     priority={index < COLUMNS}
-                    fill={fillFor.get(item.id) ?? null}
                   />
                 ) : item.kind === "visit" ? (
                   <VisitTile
