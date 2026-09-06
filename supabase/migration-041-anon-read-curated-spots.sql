@@ -1,0 +1,59 @@
+-- Migration 041: let a signed-out visitor read the CURATED catalogue only.
+--
+-- ── The bug this fixes ───────────────────────────────────────────────────
+--
+-- The front door's "Dubai, right now" wall shows its empty state to every
+-- visitor. app/page.tsx passing no spots was only half of it; the other half
+-- is that it could not have worked anyway. Every policy on `spots` is
+-- granted `to authenticated`, so a signed-out visitor's read returns ZERO
+-- ROWS AND NO ERROR -- the same silent-empty shape that made this hard to
+-- spot from the code. The busiest page in the app has been telling every
+-- prospect "no places in the catalog yet" against a catalogue of 82.
+--
+-- ── Why this is narrow, and what it does NOT open ────────────────────────
+--
+-- Scoped to `source = 'curated'` and nothing else. Curated spots are a
+-- public catalogue of Dubai venues -- editorial content with no author, no
+-- owner and no personal data -- and showing twelve of them to a prospect is
+-- the entire purpose of the front door ("so someone can see what the product
+-- does before being asked for an email", app/page.tsx).
+--
+-- It deliberately does NOT expose:
+--   * `source = 'custom'` spots. Those are user-created, carry
+--     `created_by_user_id`, and have their own visibility rules. The
+--     existing authenticated policy still governs them exclusively.
+--   * anything about who saved, planned or visited a spot. `plan_access`,
+--     `visits`, `votes` and friends are untouched -- this is one table, one
+--     source value, select only.
+--
+-- No insert/update/delete for anon: unchanged, still nothing.
+--
+-- ── Two things this genuinely does widen, stated plainly ─────────────────
+--
+-- RLS is row-level, not column-level. The front-door query selects nine
+-- columns; this POLICY exposes all of them. `?select=*&source=eq.curated`
+-- with the public anon key returns every curated row's `latitude`,
+-- `longitude`, `address`, `booking_url`, `minimum_age` and so on. All of it
+-- is editorial venue data -- but "no personal data" is not the same claim as
+-- "only the wall's columns", and the difference is worth knowing.
+--
+-- It also moves an already-accepted tradeoff down one trust tier. "Age-
+-- restricted venues are enumerable" was recorded as owner-deferred while it
+-- required an account; `?select=name,area&minimum_age=gt.0` now needs no
+-- session at all. Still low for a public list of licensed Dubai venues, but
+-- strictly wider than what was signed off, so it should not be rediscovered
+-- later as a surprise. Narrowing would mean a column-restricted view rather
+-- than a table policy.
+--
+-- ── Why a policy rather than a security-definer RPC ──────────────────────
+--
+-- A definer RPC would also work and would keep the table closed, but it adds
+-- a function to maintain for what is genuinely public reference data. This
+-- repo's pattern is reads through RLS and writes through definer RPCs; a
+-- public catalogue read belongs on the read side. The narrowness is doing
+-- the work here, not the mechanism.
+
+drop policy if exists "read curated spots anonymously" on public.spots;
+create policy "read curated spots anonymously" on public.spots
+  for select to anon
+  using (source = 'curated');

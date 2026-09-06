@@ -861,8 +861,13 @@ on conflict (id) do update set public = true;
 
 create policy "read spot photo files" on storage.objects for select to anon, authenticated
   using (bucket_id = 'spot-photos');
--- Public-read is not public-write. The backfill writes via the service role,
--- which bypasses RLS by design.
+-- Public-read is not public-write, and nothing in this project can write here
+-- through the API: there is deliberately NO service-role key (see the
+-- invariants in CLAUDE.md), so the six catalogue images are uploaded by the
+-- owner through the Supabase dashboard. Stated precisely because an earlier
+-- draft of this comment said "the backfill writes via the service role",
+-- which was wrong and is the kind of prose that authorises someone to mint
+-- one later.
 --
 -- ⚠ `as restrictive` is load-bearing. As ordinary permissive policies these
 -- would be OR'd with the visit-photos grants above and would GRANT insert
@@ -1410,6 +1415,16 @@ create policy "read permitted spots" on spots for select to authenticated using 
     where ps.spot_id = spots.id and a.user_id = (select auth.uid())
   )
 );
+
+-- 041: a signed-out visitor may read the CURATED catalogue, and nothing else.
+-- Without this, every policy on `spots` was `to authenticated`, so the front
+-- door's venue wall returned zero rows and no error to every prospect --
+-- silently, which is why it read as "no spots passed" rather than "no read
+-- permission". Scoped to source='curated' on purpose: those rows are
+-- editorial venue data with no owner and no personal fields. `custom` spots
+-- stay governed solely by the authenticated policy above.
+create policy "read curated spots anonymously" on spots
+  for select to anon using (source = 'curated');
 
 -- Every participant write must follow a claimed plan membership. This trigger
 -- also covers direct future functions, so a forgotten RPC check cannot reopen
