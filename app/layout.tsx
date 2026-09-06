@@ -21,12 +21,35 @@ import "./globals.css";
 // DISPLAY ONLY — hero, titles, section heads, the wordmark. Body copy,
 // labels, chips and numerals stay Hanken Grotesk. Two families, which is the
 // cap FRONTEND_DESIGN_STANDARDS sets.
+// Cormorant, variable, wght 300-700, roman AND italic.
+//
+// The italic is a SECOND SRC ENTRY on the same family, not a second
+// localFont() call and not hand-rolled @font-face — that is what makes
+// `font-style: italic` resolve to the real drawn face. SPECS.md §20.1 is
+// about exactly this: with only a roman registered, `font-style: italic`
+// yields a browser-synthesised oblique, the roman letterforms mechanically
+// slanted. That is the cheap-looking version of the effect the owner asked
+// for, so shipping it would defeat the instruction rather than satisfy it.
+//
+// Replaces Newsreader as the display face (owner's choice). Newsreader is
+// no longer loaded: nothing references it once --font-display-family points
+// here, and leaving it registered would ship 131KB of unused font on every
+// page. The file stays in public/fonts if it is ever wanted back.
+//
+// Cormorant's axis is 300-700, narrower than Newsreader's 200-800 — see
+// WeightRise, whose entrance range is narrowed to match rather than being
+// left to clamp silently at the top.
 const display = localFont({
   src: [
     {
-      path: "../public/fonts/newsreader-variable-latin.woff2",
-      weight: "200 800",
+      path: "../public/fonts/cormorant-variable-latin.woff2",
+      weight: "300 700",
       style: "normal",
+    },
+    {
+      path: "../public/fonts/cormorant-italic-variable-latin.woff2",
+      weight: "300 700",
+      style: "italic",
     },
   ],
   variable: "--font-display-family",

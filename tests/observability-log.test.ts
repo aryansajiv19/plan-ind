@@ -44,6 +44,18 @@ test("redacts framework-invented credential headers, not just known names", () =
   for (const value of Object.values(safe)) assert.equal(value, "[redacted]");
 });
 
+// On /auth/callback the referer is the OAuth redirect, complete with its
+// `?code=` PKCE grant. It carries no marker word, so it passed the filter
+// until a review pointed it out.
+test("redacts referer, which carries the OAuth code on the auth callback", () => {
+  const safe = redactHeaders({
+    referer: "https://plan-ind.app/auth/callback?code=abc123-pkce-grant&state=xyz",
+    Referrer: "https://example.test/?token=leak",
+  });
+  assert.equal(safe.referer, "[redacted]");
+  assert.equal(safe.referrer, "[redacted]");
+});
+
 test("keeps ordinary headers so the log stays useful", () => {
   const safe = redactHeaders({ "user-agent": "curl/8", "x-vercel-id": "iad1::abc" });
   assert.equal(safe["user-agent"], "curl/8");

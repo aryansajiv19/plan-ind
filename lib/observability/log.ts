@@ -33,6 +33,13 @@ const SENSITIVE_MARKERS = [
   "api-key",
   "apikey",
   "session",
+  // `referer` carries the full previous URL, which on /auth/callback is the
+  // OAuth redirect complete with its `?code=` PKCE grant. Redacted whole
+  // rather than parsed: a partial redactor that tries to strip only the
+  // query is one URL shape away from leaking, and no log line here needs
+  // the referer badly enough to take that trade.
+  "referer",
+  "referrer",
 ];
 
 /**
