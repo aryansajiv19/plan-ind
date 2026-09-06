@@ -1138,7 +1138,7 @@ the concrete mismatch the owner is naming.
 Marketing/hero surfaces (`.home-title`, the front door, `/home-preview`)
 are unchanged — this only touches the four signed-in account-view tabs.
 
-## 19 — Palette v4: white-dominant warm desert, light-only, smooth (owner, 2026-09-04)
+## 19 — Palette v5: brown-led, white-dominant, light-only, smooth (owner, 2026-09-06)
 
 **Supersedes §1's palette v3 wholesale.** Owner's words: prioritise
 "white heavily, the gold, black, silver, grey," and **"I wanna emphasise
@@ -1152,105 +1152,100 @@ previous palette pass. Ratios are WCAG contrast; `ΔL*` is CIE perceptual
 lightness difference, used for surface-vs-surface separation where a
 contrast ratio is the wrong tool (see 19.3).
 
-> **Revised 2026-09-04, same day, after the owner sent palette
-> references and a dark-mode reversal.** The measurement method and the
-> structural findings below survive; the palette family and the day/night
-> call changed. What changed: the family is **warmer** than gold/black/
-> silver (sand, tan, camel, taupe, warm brown), **dark mode is held
-> back** rather than retuned, and **a single cool accent is back in** —
-> the references contain one, and an all-warm palette with no cool note
-> goes muddy. Superseded values are struck through rather than deleted so
-> the reasoning stays legible.
+> **Revision history.** This section has been revised twice as the brief
+> sharpened: first from gold/black/silver to warm desert (2026-09-04,
+> when dark mode was also parked), then to the owner's exact five hexes
+> (2026-09-06, §19.1). **Only §19.1's table is live** — earlier values
+> named anywhere in this section are superseded and kept solely so the
+> reasoning stays legible. What has survived every revision unchanged:
+> light-only, the `#FAFAFA`-on-`#F5F0EA` card lift at ΔL* 3.25, the
+> radius scale in §19.4, and the two anti-misreading notes in §19.3.
 
-### 19.1 — Light is the only ground; the warm desert palette
+### 19.1 — Light is the only ground; the brown-led palette
 
-Owner's newer direction: white-dominant with **warm desert neutrals** —
-sand, tan, camel, taupe, warm brown — Dubai desert at sunset, not
-gold-and-black opulence. This also serves "smooth" better than the
-previous read: warm neutrals sitting close together in value are
-inherently softer than gold on black.
+> **Revised again 2026-09-06 — the owner sent exact hex values from a
+> labelled swatch image, so this section is now built on given values, not
+> inferred ones.** This supersedes the previous warm-desert set: the
+> `#6B4F3A` brown and the `#4A6670` cool accent are both **dead**, along
+> with `#D7B19C` camel and `#8A5D3E`. Their words alongside the swatches:
+> **"i like the brown hits."** The browns lead; white remains the dominant
+> majority colour; still no dark mode.
 
-**Their hexes, sanity-checked before building on them** (both flagged
-label/swatch mismatches are real — reporting rather than silently
-substituting):
+**The five given values, independently re-measured — every figure
+confirms.** They were supplied with measurements and all five check out
+exactly, so these are given values verified, not taken on trust:
 
-| Given | Measured | Verdict |
+| Given | Measured | Role |
 |---|---|---|
-| `#FAFAFA` | L* 98.3, saturation **0%** | A genuinely *neutral* near-white, not a warm one. Fine as the card, but it is not itself a "warm desert" value. |
-| `#F4EAE5` | L* 93.3, hue 20°, sat 41% | **Computationally a warm blush near-white**, not sand. If the reference swatch renders as sand, the swatch and the label disagree — the hex is near-white. |
-| `#D7B19C` | L* 75.0, hue 21° | True tan/camel. The palette's natural accent. |
-| `#998F8A` | L* 60.1, hue 20°, sat 7% | Warm taupe. **Fails AA as text at 3.16:1** — this is a chrome/surface value, not a text one. |
-| ~~`#70887A`~~ | L* 54.5, **hue 145°** — a desaturated sage green | **The source label is wrong. Do not restore this hex.** Owner confirmed 2026-09-04 that they meant the colour they saw in the swatch, which is a deep warm brown — not this value. Sage is dropped from the system entirely; the slot is `#6B4F3A` below. Recorded explicitly so nobody "corrects" the brown back to `#70887A` later by matching the reference's label. |
+| `#442816` deep brown | L* 19.2, hue 23°, sat 51% · 13.45:1 white / 11.87 canvas / 12.89 card | **Primary ink.** The browns lead, so body text is brown, not black. |
+| `#704121` brown | L* 32.6, hue 24°, sat 54% · 8.51 / 7.51 / 8.16 | **The workhorse accent.** Text *and* fill — see the symmetry note. |
+| `#AB6F44` tan/copper | L* 52.3, hue 25°, sat 43% · 4.13 / 3.64 / 3.95 | **Non-text only.** The tightest constraint in the system, see below. |
+| `#174050` deep teal | L* 25.0, hue 197°, sat 55% · 11.14 / — / 10.67 | Deep cool: cool headings, dark cool surfaces. |
+| `#0C657C` teal blue | L* 39.3, hue 192°, sat 82% · 6.63 / 5.85 / 6.35 | **Links and actions.** Most saturated value in the system. |
 
-**The palette — resolved 2026-09-04, both open questions answered:**
+The three warms sit at hue 23–25° and the two cools at 192–197°. That is
+not five colours, it is **two coherent tonal ramps** — a warm one at three
+depths and a cool one at two. Worth knowing, because it is why the set
+holds together and why nothing else should be added to either end.
+
+**The palette:**
 
 | Role | Token | Value | Measured |
 |---|---|---|---|
-| Page canvas | `--color-paper` | `#F5F0EA` | warm sand-white, L* 95.0 |
-| Card / surface | `--color-card` | `#FAFAFA` | the owner's own hex; ΔL* 3.25 vs canvas — a clearly visible lift with **no border needed** |
-| Ink / primary text | `--color-ink` | `#1F1B18` | warm near-black, 17.10:1 on card |
-| Muted text | `--color-muted` | `#6E635C` | 5.83:1 on card |
-| **Deep warm brown** | `--color-bark` | `#6B4F3A` | **7.17:1** on card, 6.61:1 on canvas — text-capable |
-| Taupe — chrome/dividers, **never text** | `--color-line` | `#998F8A` | 3.16:1 — see the warning below |
-| **Camel as fill** | `--color-punch` | `#D7B19C` | ink `#1F1B18` on it = **8.68:1** |
-| **Camel as text** | `--color-punch-text` | `#8A5D3E` | **5.65:1** on card, 4.99:1 on canvas |
-| Cool accent — the single cool note, **approved** | `--color-accent-cool` | `#4A6670` | 6.13:1 on card |
-| Confirm / live | `--color-live` | `#3F6B57` | 5.83:1 on card, 5.37:1 on canvas |
-| Error | `--color-error` | `#A33A2A` | 6.30:1 on card, 5.80:1 on canvas |
+| Page canvas | `--color-paper` | `#F5F0EA` | warm sand-white, L* 95.0 — unchanged, settled on measurement |
+| Card / surface | `--color-card` | `#FAFAFA` | ΔL* 3.25 vs canvas — visible lift, **no border needed** |
+| Ink / primary text | `--color-ink` | `#442816` | 12.89:1 on card, 11.87:1 on canvas |
+| Muted text | `--color-muted` | `#6E5A4C` | 6.23:1 on card — a brown-family muted, harmonised to the ramp |
+| Accent, text **and** fill | `--color-punch` | `#704121` | 8.16:1 as text on card; white on it as a fill = **8.51:1** |
+| Tan — **never text, never behind text** | `--color-tan` | `#AB6F44` | 3.95:1 — see the hard constraint below |
+| Deep cool | `--color-cool-deep` | `#174050` | 10.67:1 on card |
+| Cool accent — links, actions | `--color-accent-cool` | `#0C657C` | 6.35:1 on card |
+| Divider / chrome, never text | `--color-line` | `#998F8A` | 3.16:1 — unchanged, still chrome-only |
+| Confirm / live | `--color-live` | `#2E6B4F` | 6.04:1 on card — hue 152°, a clear 40° off the teals so it never reads as one |
+| Error | `--color-error` | `#A81E12` | 7.04:1 on card — hue 5°, sat 81% |
 
-**On the deep brown (`#6B4F3A`).** Chosen to match "deep warm brown" as
-described, since the swatch itself isn't measurable from here — hue 26°,
-L* 36.0, sitting on the rung between camel (L* 75) and ink (L* 10) that
-the warm family was missing. It clears AA comfortably (7.17:1), so unlike
-the taupe it can carry real work: headings, secondary text, a dark warm
-fill.
+**The tan is the sharpest constraint in this palette, and it cuts both
+ways.** It was flagged as failing AA as *text* (4.13:1 on white). It also
+fails as a *background for text*, with every ink available: white on it
+is 4.13:1, near-black `#1F1B18` is 4.14:1, and the deep brown `#442816`
+is **3.26:1** — the intuitive "dark brown text on tan" pairing is the
+worst of the three. So:
 
-**The lightness call, and how firm it actually is.** The mislabelled
-`#70887A` was L* 54.5, notably lighter than this pick, so "deep" was an
-assumption worth checking. It has since been checked by the one person
-here who saw the reference image: that swatch is the darkest of the five
-and reads clearly darker than the taupe above it, anchoring the bottom of
-the stack — much closer to L* 36.0 than to L* 54.5. **Recorded with its
-real limits**: that is a confident read of a compressed image viewed
-once, not a measurement, and it is worth knowing which of those it is.
-`#6B4F3A` stands. If it looks wrong beside the reference once rendered,
-`#7A5A40` (L* 40.9, 5.98:1) is the tested alternative, still clears AA,
-and swapping is cheap — this is a lightness call, not a hue one, so
-neither choice can break the system.
+- **`#AB6F44` is not a button fill.** This app's button labels run
+  0.58–0.78rem (roughly 9–12px); large-text AA needs 18.66px bold or
+  24px. A tan button with a normal label fails, and it is the single most
+  likely mistake here because tan is the most "desert" colour of the five
+  and the temptation to reach for it is constant.
+- **Use it for**: rules and dividers, icon fills, image overlays,
+  decorative blocks, borders, 24px+ display type.
+- **The filled button is brown.** White on `#704121` is 8.51:1 and white
+  on `#442816` is 13.45:1. Both are comfortable. That is the answer
+  whenever someone wants a warm filled control.
 
-**The system is now: an all-warm base plus exactly one cool accent.**
-Canvas, card, ink, muted, brown, taupe and camel are all warm (hues
-20–34°); `#4A6670` is the single cool note. Its 6.13:1 is what earns it
-the job — it can carry text, links and actions rather than being
-decoration, which is the contrast an all-warm base otherwise lacks.
-**Do not let a second cool value in beside it** — that's what turns a
-coherent warm system muddy, and it's the specific failure this accent
-exists to prevent.
+**`#704121` needs no fill/text split, and that is a real change from the
+last two palettes.** The champagne and the camel both failed as text and
+worked as fills, which is why `--color-punch` / `--color-punch-text`
+existed as a pair. `#704121` is dark enough to work *both* ways —
+8.16:1 as text on the card, 8.51:1 as a fill under white — so the split
+collapses to one token here. Keep `--color-punch-text` as an alias of
+`--color-punch` rather than deleting it, so existing consumers don't
+break in the same pass as a palette change.
 
-**The fill/text split is the load-bearing find, and it survived the
-palette change intact.** It was found on the old champagne
-(`#C9A876`: 2.25:1 as text on white, 8.20:1 as a fill with dark ink) and
-the new camel behaves identically — **`#D7B19C` measures 1.97:1 as text,
-a hard fail, but 8.68:1 as a fill with `#1F1B18` ink.** So the accent
-takes two cuts: camel for fills, `#8A5D3E` for accent-as-text. That is
-exactly the `--color-punch` / `--color-punch-text` split this codebase's
-token architecture already has — correct values in an existing pattern,
-no new token invented.
+**On the two cools, and the "exactly one cool accent" rule this
+supersedes.** The earlier rule existed to stop uncoordinated cool values
+turning the palette muddy. Two cools from the owner's own set do not
+violate its purpose: at hue 192° and 197° they are **one cool family at
+two depths**, not two competing notes. The rule is therefore restated
+rather than dropped: **one cool family, these two values, no third.**
 
-**Taupe is chrome, never type.** `#998F8A` at 3.16:1 is the owner's own
-hex but it cannot carry text. Dividers, rules, edges only; muted *text*
-is `#6E635C`. Same discipline as the accent split, and the single most
-likely way to break this palette is to miss it.
-
-**On the cool accent — approved 2026-09-04, closed.** Two of the three
-references carry a cool note (a dusty blue, a deep teal-navy).
-`#4A6670` is the pick: a dusty blue-teal that reads as that note and
-clears AA text at 6.13:1, which is precisely why it earns the job — it
-carries links, secondary actions and text rather than sitting as
-decoration. Deeper alternative on record if it ever reads too soft:
-`#3C5A63` (7.41:1). ~~Glass-blue `#5CC8D7` retired as foreign to the
-palette~~ — that call was made under the gold/black/silver brief; the
-references reopened a cool accent and `#4A6670` is its resolution.
+**The adjacency warning, verified and made more precise.** `#442816` and
+`#174050` contrast **1.21:1** against each other — confirmed. But they are
+ΔL* **5.80** apart, which is a *visible* lightness step, not perceptually
+identical. So the accurate rule is narrower than "never adjacent": they
+are fine as two stacked surfaces, where the step reads. What they can
+never be is a **text/background pair in either direction** — 1.21:1 is
+invisible. Stating it precisely matters, because the blunt version would
+forbid a legitimate layered treatment for no reason.
 
 ### 19.2 — Dark mode: parked, not deleted
 
@@ -1346,19 +1341,17 @@ respected (§7, §14) already is "smooth."
 
 ### 19.5 — Sequencing
 
-**Do not start CSS until this spec is agreed**, and land §18's type work
-first or last but not concurrently — two half-landed passes fighting over
-the same files is exactly how the earlier palette churn got expensive.
+§18's type scale is **landed, merged and verified live** (2026-09-06), so
+that half is done and the two passes are no longer at risk of colliding.
+**Frontend implements this palette; Design does not touch `globals.css`**
+— then Design reviews the rendered result against the measured values
+above, which catches a token that resolved wrong far faster than reading
+the diff would.
 
-**Both open questions are now closed** (owner, 2026-09-04):
-1. **The `#70887A` label was wrong, the swatch was right** — that slot is
-   a deep warm brown, `#6B4F3A`. Sage is out of the system. The one
-   remaining judgement is its *lightness*, not its hue — see the note
-   under the palette table.
-2. **The cool accent is approved** — `#4A6670`, and it stays the only
-   cool value in the system.
-
-The palette is therefore settled and this section is implementable.
+**All earlier open questions are closed** — the owner supplied exact
+hexes (§19.1), which ended the `#70887A` mislabel question and the
+brown-lightness judgement in one go. No inference remains in the palette.
+The values in §19.1's table are final and implementable.
 
 When it does land: §1's v3 tables are superseded, and
 `FRONTEND_DESIGN_STANDARDS.md`'s Colour section needs a fifth reversal
@@ -1366,6 +1359,75 @@ entry recording that **navy-primary, gold-as-the-accent, and the
 night-first identity are all retired here**, and that dark mode is parked
 per §19.2 rather than removed — with the same "do not restore by
 accident" framing the other four reversals carry.
+
+## 20 — Italic as a restrained accent (owner, 2026-09-06)
+
+Owner, verbatim: **"use more italic fonts the slanted ones those give a
+classy aesthtic look for our app but dont over use it you can use it at
+the welcome pages."** The ceiling is part of the instruction, not a
+caution added on top — so it is specced as tightly as the permission.
+
+### 20.1 — Blocker: there is no italic font file today
+
+**This must be fixed before a single `font-style: italic` ships.**
+`public/fonts/` contains exactly one Newsreader file —
+`newsreader-variable-latin.woff2` — declared `style: "normal"` in
+`app/layout.tsx:29`. There is no italic face. Setting `font-style:
+italic` today therefore produces a **browser-synthesised oblique**: the
+roman letterforms mechanically slanted.
+
+That actively defeats the instruction. Newsreader's real italic is a
+separately drawn face with different letterforms (a true single-storey
+`a`, a cursive `e` and `g`) — that is where the "classy" comes from. A
+synthesised slant is the cheap-looking version of exactly this effect,
+and it will read as a mistake rather than as an intention.
+
+**Fix**: add the Newsreader italic variable file to `public/fonts/` and
+register it as a second entry in the existing `localFont` `src` array in
+`app/layout.tsx` with `style: "italic"` and the same `weight: "200 800"`
+range. No `@font-face` hand-rolling, no second `localFont` call — one
+family, two styles, so `font-style: italic` resolves to the real face.
+Hanken Grotesk needs **no** italic file: body text never goes italic
+under this spec, so the need never arises.
+
+### 20.2 — Where italic is allowed
+
+Display serif only (`--font-display`), and only on **welcome / entry
+surfaces** — the places a visitor arrives, not the places they work:
+
+- The front-door hero headline (`.home-title`).
+- `/login`'s intro headline.
+- `/onboarding`'s intro headline.
+
+**At most one italic element per screen.** Not one per section — one per
+screen. Either a short whole headline, or a single phrase inside a longer
+one, never both, and never a multi-line headline set entirely in italic
+(the effect stops reading as emphasis the moment it becomes the texture).
+
+### 20.3 — Where italic is forbidden
+
+Everything else, but naming the tempting ones specifically, because a
+general rule will not survive contact:
+
+- **All body copy, at any size, anywhere.**
+- Buttons, labels, form fields, placeholders, nav and tab items.
+- **Any data**: names, counts, times, prices, dates, distances, vote
+  tallies. Data in italic reads as uncertain.
+- Empty, loading, error and confirmation states.
+- The whole signed-in surface — the four account tabs, the vote flow,
+  the place page, `DecidedPlan`. None of these are welcome surfaces;
+  someone is working, not arriving.
+- Never as a substitute for emphasis in running text. If a word needs
+  weight, it takes weight (§18's tiers), not a slant.
+
+### 20.4 — Why the ceiling is this tight
+
+One italic line on an entry screen reads as considered. The same
+treatment on a second element reads as a theme, and on a third it reads
+as a font choice nobody made deliberately. The owner asked for the first
+and explicitly warned against the drift. If a future change wants italic
+somewhere not on the §20.2 list, that is a new decision to take
+deliberately — not an extension of this permission.
 
 ---
 
