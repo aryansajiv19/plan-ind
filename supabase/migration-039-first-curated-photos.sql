@@ -29,43 +29,52 @@
 -- delete that one object. No re-run, no cascade.
 
 -- Museum of the Future (culture) -- CC-BY-SA-4.0
+--
+-- FILENAMES DIVERGE FROM SPOT IDS, DELIBERATELY. The owner uploaded through
+-- the dashboard and the object keys arrived with their hyphens stripped;
+-- Cinema Akil's also arrived with a different final digit. Rather than ask
+-- for a re-upload, the URLs below name the objects that actually exist,
+-- mapped by byte size (unique across all six) and each verified HTTP 200
+-- before this was applied. The object key is arbitrary -- only the `where id`
+-- clause binds a photo to a spot, and those are unchanged.
+--
 update public.spots set
-  photo_url = 'https://zyojaoyatunjwgbivaqu.supabase.co/storage/v1/object/public/spot-photos/87000000-0000-0000-0000-000000000003.jpg',
+  photo_url = 'https://zyojaoyatunjwgbivaqu.supabase.co/storage/v1/object/public/spot-photos/87000000000000000000000000000003.jpg',
   photo_source = 'wikimedia',
   photo_attribution = 'Lyonerov / Wikimedia Commons / CC-BY-SA-4.0'
   where id = '87000000-0000-0000-0000-000000000003' and photo_url is null;
 
 -- Mall of the Emirates (shopping) -- CC BY 2.0
 update public.spots set
-  photo_url = 'https://zyojaoyatunjwgbivaqu.supabase.co/storage/v1/object/public/spot-photos/89000000-0000-0000-0000-000000000002.jpg',
+  photo_url = 'https://zyojaoyatunjwgbivaqu.supabase.co/storage/v1/object/public/spot-photos/89000000000000000000000000000002.jpg',
   photo_source = 'wikimedia',
   photo_attribution = 'Peter Gronemann from Switzerland / Wikimedia Commons / CC BY 2.0'
   where id = '89000000-0000-0000-0000-000000000002' and photo_url is null;
 
 -- The Green Planet (outdoors) -- CC BY-SA 4.0
 update public.spots set
-  photo_url = 'https://zyojaoyatunjwgbivaqu.supabase.co/storage/v1/object/public/spot-photos/50000000-0000-0000-0000-000000000004.jpg',
+  photo_url = 'https://zyojaoyatunjwgbivaqu.supabase.co/storage/v1/object/public/spot-photos/50000000000000000000000000000004.jpg',
   photo_source = 'wikimedia',
   photo_attribution = 'WikiSilky / Wikimedia Commons / CC BY-SA 4.0'
   where id = '50000000-0000-0000-0000-000000000004' and photo_url is null;
 
 -- Deep Dive Dubai (adventure) -- CC BY-SA 4.0
 update public.spots set
-  photo_url = 'https://zyojaoyatunjwgbivaqu.supabase.co/storage/v1/object/public/spot-photos/86000000-0000-0000-0000-000000000001.jpg',
+  photo_url = 'https://zyojaoyatunjwgbivaqu.supabase.co/storage/v1/object/public/spot-photos/86000000000000000000000000000001.jpg',
   photo_source = 'wikimedia',
   photo_attribution = 'Deep dive dubai / Wikimedia Commons / CC BY-SA 4.0'
   where id = '86000000-0000-0000-0000-000000000001' and photo_url is null;
 
 -- Cinema Akil (movie) -- CC BY 2.5
 update public.spots set
-  photo_url = 'https://zyojaoyatunjwgbivaqu.supabase.co/storage/v1/object/public/spot-photos/e0000000-0000-0000-0000-000000000001.jpg',
+  photo_url = 'https://zyojaoyatunjwgbivaqu.supabase.co/storage/v1/object/public/spot-photos/e0000000000000000000000000000006.jpg',
   photo_source = 'wikimedia',
   photo_attribution = 'Mohamed Somji / Wikimedia Commons / CC BY 2.5'
   where id = 'e0000000-0000-0000-0000-000000000001' and photo_url is null;
 
 -- Tresind Studio (dinner) -- venue's own image
 update public.spots set
-  photo_url = 'https://zyojaoyatunjwgbivaqu.supabase.co/storage/v1/object/public/spot-photos/a0000000-0000-0000-0000-000000000005.jpg',
+  photo_url = 'https://zyojaoyatunjwgbivaqu.supabase.co/storage/v1/object/public/spot-photos/a0000000000000000000000000000005.jpg',
   photo_source = 'venue_site',
   photo_attribution = null
   where id = 'a0000000-0000-0000-0000-000000000005' and photo_url is null;
