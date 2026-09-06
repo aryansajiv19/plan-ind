@@ -1158,94 +1158,113 @@ contrast ratio is the wrong tool (see 19.3).
 > (2026-09-06, §19.1). **Only §19.1's table is live** — earlier values
 > named anywhere in this section are superseded and kept solely so the
 > reasoning stays legible. What has survived every revision unchanged:
-> light-only, the `#FAFAFA`-on-`#F5F0EA` card lift at ΔL* 3.25, the
+> light-only, the card-lifts-off-canvas model (values per §19.1), the
 > radius scale in §19.4, and the two anti-misreading notes in §19.3.
 
-### 19.1 — Light is the only ground; the brown-led palette
+### 19.1 — Light is the only ground; the palette (v6)
 
-> **Revised again 2026-09-06 — the owner sent exact hex values from a
-> labelled swatch image, so this section is now built on given values, not
-> inferred ones.** This supersedes the previous warm-desert set: the
-> `#6B4F3A` brown and the `#4A6670` cool accent are both **dead**, along
-> with `#D7B19C` camel and `#8A5D3E`. Their words alongside the swatches:
-> **"i like the brown hits."** The browns lead; white remains the dominant
-> majority colour; still no dark mode.
+> **Revised 2026-09-06 (third revision) — the owner sent the palette as
+> CSS custom properties.** This supersedes v5
+> (`#442816`/`#704121`/`#AB6F44`/`#174050`/`#0C657C`) wholesale. Markedly
+> lighter and softer: the deep teals are gone, replaced by a single dusty
+> blue, and every warm value has lifted.
+>
+> **Only the five values move. The structure does not.** The token names,
+> the §19.7 floors, the borderless-mechanism rule, the parked-dark-mode
+> machinery (§19.2), the radius scale (§19.4) and the wordmark two-tone
+> all carry over unchanged. v5 is implemented and audited clean in
+> `globals.css`; this is a **re-skin, not a re-architecture**.
 
-**The five given values, independently re-measured — every figure
-confirms.** They were supplied with measurements and all five check out
-exactly, so these are given values verified, not taken on trust:
+**Owner's values, verbatim, and independently re-measured — every figure
+they supplied confirms exactly:**
 
-| Given | Measured | Role |
-|---|---|---|
-| `#442816` deep brown | L* 19.2, hue 23°, sat 51% · 13.45:1 white / 11.87 canvas / 12.89 card | **Primary ink.** The browns lead, so body text is brown, not black. |
-| `#704121` brown | L* 32.6, hue 24°, sat 54% · 8.51 / 7.51 / 8.16 | **The workhorse accent.** Text *and* fill — see the symmetry note. |
-| `#AB6F44` tan/copper | L* 52.3, hue 25°, sat 43% · 4.13 / 3.64 / 3.95 | **Non-text only.** The tightest constraint in the system, see below. |
-| `#174050` deep teal | L* 25.0, hue 197°, sat 55% · 11.14 / — / 10.67 | Deep cool: cool headings, dark cool surfaces. |
-| `#0C657C` teal blue | L* 39.3, hue 192°, sat 82% · 6.63 / 5.85 / 6.35 | **Links and actions.** Most saturated value in the system. |
+```
+--blue: #7D9BBC;  --off-white: #F2F2F2;  --tan: #CE9963;
+--brown: #9F7652; --dark-brown: #3F230B;
+```
 
-The three warms sit at hue 23–25° and the two cools at 192–197°. That is
-not five colours, it is **two coherent tonal ramps** — a warm one at three
-depths and a cool one at two. Worth knowing, because it is why the set
-holds together and why nothing else should be added to either end.
+**Measured against the two grounds this app actually renders** — canvas
+`#F2F2F2` and card `#FFFFFF`. *Not* against pure white: a white-referenced
+table is what twice nearly shipped the owner's own complaint back to them,
+so every figure below names its real ground.
 
-**The palette:**
+| Given | L* / hue | on canvas `#F2F2F2` | on card `#FFFFFF` | What it can be |
+|---|---|---|---|---|
+| `#3F230B` dark-brown | 16.9 · 28° | **12.88:1** | **14.42:1** | The only value that can carry body text. |
+| `#9F7652` brown | 52.9 · 28° | 3.62:1 | 4.05:1 | Boundary only — clears §19.7's 3:1, fails 4.5 text. |
+| `#CE9963` tan | 67.1 · 30° | 2.24:1 | 2.51:1 | **Fill only.** Fails both floors. |
+| `#7D9BBC` blue | 62.9 · 211° | 2.57:1 | 2.88:1 | **Fill only.** Fails both floors. |
+| `#F2F2F2` off-white | 95.5 · neutral | — | — | The canvas. |
 
-| Role | Token | Value | Measured |
+**The fill logic is inverted from v5, and this is the whole shape of the
+palette.** In v5 the mid warm (`#704121`) carried text *and* took white as
+a fill. Here nothing works that way:
+
+- **Blue and tan are fills that carry dark ink, never ink themselves.**
+  `#3F230B` on blue is **5.00:1**, on tan **5.74:1** — both pass.
+- **The filled primary button is dark-brown with white text** (14.42:1).
+  White on brown is only **4.05:1 and fails**, so v5's "brown is the
+  filled button" rule does **not** survive this change.
+- **One further constraint, not in the supplied set**: `#3F230B` on brown
+  is only **3.56:1**. So brown is not a text-bearing fill either — it is
+  a boundary and a large-text surface, nothing more.
+
+**The derived tokens.** Five identity colours cannot fill eleven roles;
+v5 needed derived values for muted, line, error and confirm too, so this
+is the established pattern rather than a departure:
+
+| Role | Token | Value | canvas / card |
 |---|---|---|---|
-| Page canvas | `--color-paper` | `#F5F0EA` | warm sand-white, L* 95.0 — unchanged, settled on measurement |
-| Card / surface | `--color-card` | `#FAFAFA` | ΔL* 3.25 vs canvas — visible lift, **no border needed** |
-| Ink / primary text | `--color-ink` | `#442816` | 12.89:1 on card, 11.87:1 on canvas |
-| Muted text | `--color-muted` | `#6E5A4C` | 6.23:1 on card — a brown-family muted, harmonised to the ramp |
-| Accent, text **and** fill | `--color-punch` | `#704121` | 8.16:1 as text on card; white on it as a fill = **8.51:1** |
-| Tan — **never text, never behind text** | `--color-tan` | `#AB6F44` | 3.95:1 — see the hard constraint below |
-| Deep cool | `--color-cool-deep` | `#174050` | 10.67:1 on card |
-| Cool accent — links, actions | `--color-accent-cool` | `#0C657C` | 6.35:1 on card |
-| Divider / component boundary, never text | `--color-line` | `#877A70` | 3.99:1 card, 3.67:1 canvas — clears §19.7's 3:1 floor on **both** grounds |
-| Confirm / live | `--color-live` | `#2E6B4F` | 6.04:1 on card — hue 152°, a clear 40° off the teals so it never reads as one |
-| Error | `--color-error` | `#A81E12` | 7.04:1 on card — hue 5°, sat 81% |
+| Canvas | `--color-paper` | `#F2F2F2` | — |
+| Card | `--color-card` | `#FFFFFF` | **ΔL* 4.51** — better separation than v5's 3.25 |
+| Ink | `--color-ink` | `#3F230B` | 12.88 / 14.42 |
+| Muted text | `--color-muted` | `#6E6259` | 5.28 / 5.91 |
+| Boundary | `--color-line` | `#9F7652` *(owner's brown)* | 3.62 / 4.05 |
+| Accent fill, warm | `--color-punch` | `#CE9963` *(tan)* | ink on it 5.74 |
+| Accent fill, cool | `--color-accent-cool` | `#7D9BBC` *(blue)* | ink on it 5.00 |
+| Accent **text** | `--color-punch-text` | `#7A5A3E` | **5.58 / 6.25** — see 19.1a |
+| Confirm | `--color-live` | `#2F6B4C` | 5.64 / 6.31 |
+| Error | `--color-error` | `#A3301F` | 6.25 / 7.00 |
 
-**The tan is the sharpest constraint in this palette, and it cuts both
-ways.** It was flagged as failing AA as *text* (4.13:1 on white). It also
-fails as a *background for text*, with every ink available: white on it
-is 4.13:1, near-black `#1F1B18` is 4.14:1, and the deep brown `#442816`
-is **3.26:1** — the intuitive "dark brown text on tan" pairing is the
-worst of the three. So:
+**Adjacency: blue and tan.** They contrast **1.15:1** against each other,
+so they can never be a text/background pair or two states of one control.
+But they are **ΔL* 4.26 apart, which is a visible lightness step** — as
+with v5's pair, "near-identical lightness" overstates it. They are fine
+as two adjacent *surfaces*; what they cannot do is carry each other's
+text. Precision matters here because the blunt version forbids a
+legitimate treatment.
 
-- **`#AB6F44` is not a button fill.** This app's button labels run
-  0.58–0.78rem (roughly 9–12px); large-text AA needs 18.66px bold or
-  24px. A tan button with a normal label fails, and it is the single most
-  likely mistake here because tan is the most "desert" colour of the five
-  and the temptation to reach for it is constant.
-- **Use it for**: rules and dividers, icon fills, image overlays,
-  decorative blocks, borders, 24px+ display type.
-- **The filled button is brown.** White on `#704121` is 8.51:1 and white
-  on `#442816` is 13.45:1. Both are comfortable. That is the answer
-  whenever someone wants a warm filled control.
+### 19.1a — The one real decision: v6 has no coloured text accent
 
-**`#704121` needs no fill/text split, and that is a real change from the
-last two palettes.** The champagne and the camel both failed as text and
-worked as fills, which is why `--color-punch` / `--color-punch-text`
-existed as a pair. `#704121` is dark enough to work *both* ways —
-8.16:1 as text on the card, 8.51:1 as a fill under white — so the split
-collapses to one token here. Keep `--color-punch-text` as an alias of
-`--color-punch` rather than deleting it, so existing consumers don't
-break in the same pass as a palette change.
+**This needs the owner's call, not ours** — it is a visible consequence of
+their hex list that they should weigh rather than discover.
 
-**On the two cools, and the "exactly one cool accent" rule this
-supersedes.** The earlier rule existed to stop uncoordinated cool values
-turning the palette muddy. Two cools from the owner's own set do not
-violate its purpose: at hue 192° and 197° they are **one cool family at
-two depths**, not two competing notes. The rule is therefore restated
-rather than dropped: **one cool family, these two values, no third.**
+In v5, `#704121` carried small text at 8.16:1, and that is what the
+section kickers currently use — "CREATE A PLAN", "NEW PLAN", "YOUR
+ACCOUNT". Under v6 the nearest equivalent is brown at **3.62:1 on the
+canvas**, which fails the 4.5 text floor at those sizes. So:
 
-**The adjacency warning, verified and made more precise.** `#442816` and
-`#174050` contrast **1.21:1** against each other — confirmed. But they are
-ΔL* **5.80** apart, which is a *visible* lightness step, not perceptually
-identical. So the accurate rule is narrower than "never adjacent": they
-are fine as two stacked surfaces, where the step reads. What they can
-never be is a **text/background pair in either direction** — 1.21:1 is
-invisible. Stating it precisely matters, because the blunt version would
-forbid a legitimate layered treatment for no reason.
+- **Option A — mono-ink.** Every piece of text becomes `#3F230B`.
+  Genuinely elegant and arguably the most disciplined reading of the
+  palette, but it **flattens a hierarchy the kickers currently create**:
+  the section labels would differ from body copy by size, letterspacing
+  and weight alone, not colour.
+- **Option B — derive a darker cut of their own brown (recommended).**
+  `#7A5A3E`: hue 28°, identical family to their `#9F7652`, just deepened
+  until it is legible — **5.58:1 canvas, 6.25:1 card**. It reads as their
+  brown, not a new colour, and it keeps the kicker hierarchy intact.
+
+**Recommendation: B.** The five are an *identity* palette, not a complete
+token set — muted, line, error and confirm are all already derived, in v5
+and again here, so deriving the accent-text cut is the same move rather
+than a new kind of liberty. And the kicker colour is doing real
+hierarchical work; losing it is a bigger change than a hex list makes
+obvious.
+
+**If the owner picks A**, the change is small and clean: point
+`--color-punch-text` at `--color-ink` and the kickers rely on size,
+tracking and weight. The spec supports either; it should not be decided
+silently.
 
 ### 19.2 — Dark mode: parked, not deleted
 
@@ -1304,14 +1323,16 @@ drop-in set.
 **Read this before "fixing" any low ratio above.** A contrast ratio is a
 *text legibility* metric. A card sitting on a canvas measures ~1.05–1.09:1
 and my script prints "FAIL" — that label is meaningless for two adjacent
-surfaces, and the correct metric is ΔL*. At `#FAFAFA` on `#F5F0EA` the
-separation is **ΔL* 3.25**, which is genuinely visible.
+surfaces, and the correct metric is ΔL*. Under v6, `#FFFFFF` on
+`#F2F2F2` separates by **ΔL* 4.51** — comfortably visible, and better
+than v5's 3.25, so the card lift got easier with this palette rather
+than harder.
 
-Two rejections worth keeping, both measured: `#FAFAF8` canvas was tested
-and rejected at ΔL* 1.78, and pairing the owner's `#FAFAFA` card with a
-`#F7F6F3` canvas gives only **ΔL* 1.39 — near-invisible**. That second
-one matters: honouring their `#FAFAFA` as the card is right, but it only
-works if the canvas goes deeper to `#F5F0EA`, which is why the canvas
+Two rejections from earlier palettes, kept because the lesson holds at
+any values: a `#FAFAF8` canvas was rejected at ΔL* 1.78, and a `#FAFAFA`
+card on a `#F7F6F3` canvas gave only **ΔL* 1.39 — near-invisible**. The
+lesson is that a card and canvas chosen independently can look correct
+in a table and vanish on screen, which is why the canvas
 above is warmer and darker than the earlier `#F7F6F3` proposal.
 
 - **Cards separate from the canvas by value plus a soft diffuse shadow,
@@ -1326,11 +1347,9 @@ above is warmer and darker than the earlier `#F7F6F3` proposal.
   this direction requires. Worth stating plainly so this doesn't read as
   reintroducing what was retired.
 - If the lift ever reads too faint in practice, the tested next step is
-  a deeper canvas at `#F2ECE4` (ΔL* 4.62 against the `#FAFAFA` card) —
-  change the canvas, not the card, and never add a border back as the
-  first fix. Conversely if the canvas reads too beige against the
-  "emphasise white" brief, `#F7F3EE` with a pure `#FFFFFF` card holds a
-  workable ΔL* 3.98.
+  a deeper canvas — change the canvas, not the card, and never add a
+  border back as the first fix. v6's ΔL* 4.51 has margin, so this is
+  unlikely to be needed.
 
 ### 19.4 — Radii: §17's consolidation resolves upward, deliberately
 
@@ -1444,28 +1463,35 @@ number that rots.
    operates.
 2. **Check both grounds separately.** A line clearing 3:1 on the canvas
    can fail on the lighter card, and this app puts bordered controls on
-   both `#F5F0EA` and `#FAFAFA`. One measurement is not a pass.
+   both grounds named in §19.1. One measurement is not a pass.
 3. **Text keeps its own, higher floor** — 4.5:1 for body copy, unchanged
    and unrelated. A boundary clearing 3:1 says nothing about whether text
    in that colour is readable.
 
-**This immediately corrects a value in §19.1, which is the point of
-having the rule.** `#998F8A` — the taupe I specced as `--color-line`,
-carried over from the *superseded* warm-desert set and never one of the
-current five — measures **3.03:1 on card and 2.79:1 on canvas**.
-It scrapes the floor on one ground and **fails on the other**. Replace it
-with **`#877A70`** (hue 26°, L* 52.1 — same warm family, still a taupe):
-**3.99:1 on card, 3.67:1 on canvas**, comfortable margin on both, so a
-later canvas tweak can't quietly re-break it. Do not carry the old
-`0.30` alpha into the new family — deriving a fresh colour and keeping
-the old transparency is exactly how a 1.8:1 boundary survives a palette
-rewrite.
+**This rule has already caught two live values, which is the argument
+for stating floors instead of picking numbers.** Recorded because the
+pattern repeats, not for the specific hexes:
+
+1. `#998F8A`, specced here as `--color-line`, measured 3.03:1 on card and
+   **2.79:1 on canvas** — scraping on one ground, failing on the other.
+   Caught and replaced before Frontend consumed it.
+2. The value Frontend *did* implement against still carried a
+   white-referenced figure, and they independently darkened it for the
+   same reason. Two people caught the same class of error in one day.
+
+**The cause in both cases was quoting a figure against pure white, a
+ground this app never renders.** §19.1's table now names canvas and card
+for every value; if a future revision reintroduces a white-referenced
+number, it will reintroduce this bug. Related: do not carry a legacy
+alpha (the old `rgba(...,0.30)`) into a new family — deriving a fresh
+colour and keeping the old transparency is exactly how a 1.8:1 boundary
+survives a palette rewrite.
 
 **When a component has no border, name what carries it.** "Borderless"
 must be a choice with a mechanism, not an absence:
 
 - **A fill** — the fill itself clears 3:1 against the ground. The brown
-  fills do this easily (`#704121` is 7.51:1 on canvas).
+  fills do this easily (v6's `#3F230B` is 12.88:1 on canvas).
 - **Text alone** — legitimate only for genuinely chromeless controls (a
   text link, a bare-label ghost button), where the label carries 4.5:1
   and there is *no implied edge at all*. A faint border that can't be
@@ -1491,12 +1517,12 @@ read both will assume it is unless this says otherwise:
   it, and the brief actively forbids both fixes.
 
 **The tan's two floors now derive instead of being a special case.**
-`#AB6F44` measures 3.95:1 on card and 3.64:1 on canvas: it **clears the
-3:1 boundary floor on both** while **failing the 4.5:1 text floor on
-both**. So it is legitimately a rule, an edge, a divider or an icon fill,
-and never a label — which is precisely what §19.1 says, now as a
+v6's brown `#9F7652` measures 4.05:1 on card and 3.62:1 on canvas: it
+**clears the 3:1 boundary floor on both** while **failing the 4.5:1 text
+floor on both**. So it is legitimately a rule, an edge or a divider and
+never a label — which is exactly the role §19.1 gives it, now as a
 consequence of two stated floors rather than an assertion about one
-colour.
+colour. v6's tan and blue fail *both* floors and are fills only.
 
 ---
 
