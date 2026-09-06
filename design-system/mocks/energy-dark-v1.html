@@ -163,6 +163,35 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 .close ol{margin:0 0 12px;padding-left:1.15rem;font-size:.83rem;line-height:1.66}
 .close li{margin-bottom:8px}
 
+
+/* ── §23.7 the focus ring ──────────────────────────────────────────
+   Two-tone and INSET. No single value clears 3:1 on all four grounds a
+   control can sit on (#051822, #2D383E, #AA7452, #D4C9C7) — measured,
+   every candidate fails on at least one. A two-tone ring always has one
+   band visible: worst case 4.59, and the bands separate at 11.19.
+   Inset so an ancestor's overflow cannot clip it, and drawn with
+   box-shadow so it follows border-radius for free. Dark uses no
+   elevation shadows — a shadow needs to be darker than its ground and
+   #051822 is already at the floor — so box-shadow is unoccupied here. */
+:root{ --ring-outer:#D4C9C7; --ring-inner:#051822; }
+.ring-demo{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+.fbtn{font-family:inherit;font-size:.76rem;font-weight:600;border:1px solid var(--edge);
+      border-radius:var(--r);padding:9px 14px;cursor:pointer;background:transparent;color:inherit}
+.fbtn:focus-visible{
+  outline:2px solid transparent;      /* survives forced-colors, where box-shadow is dropped */
+  outline-offset:-2px;
+  box-shadow:inset 0 0 0 2px var(--ring-outer), inset 0 0 0 4px var(--ring-inner);
+}
+.ground{border-radius:var(--rp);padding:14px}
+.ground--card{background:var(--card);border:1px solid var(--edge)}
+.ground--canvas{background:var(--canvas);border:1px solid var(--edge)}
+.ground--tan{background:var(--tan);color:var(--navy)}
+.ground--tan .fbtn{border-color:rgba(5,24,34,.5)}
+.ground--light{background:var(--light);color:var(--navy)}
+.ground--light .fbtn{border-color:rgba(5,24,34,.5)}
+.ground p{margin:0 0 9px;font-size:.63rem;font-weight:600;letter-spacing:.13em;text-transform:uppercase}
+.grounds{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+
 @media (max-width:880px){.pair{grid-template-columns:1fr}.facts{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){.dealt{opacity:1;transform:none}.dealing .dealt{animation:none}}
 </style>
@@ -413,6 +442,38 @@ img{display:block;width:100%;height:100%;object-fit:cover}
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+
+<!-- ═══════════ THE FOCUS RING ═══════════ -->
+<div class="moment">
+  <div class="mhead">
+    <p class="k">The shipping blocker</p>
+    <h2>The focus ring</h2>
+    <p>§19.7's graphite inset ring is <b>invisible on a near-black card</b> — that is keyboard
+      accessibility on the app's primary surface, so dark cannot ship without solving it.
+      <b>Tab through the buttons below</b> (or click one) to see the ring on all four grounds a
+      control can actually sit on.</p>
+  </div>
+  <div class="grounds">
+    <div class="ground ground--card"><p>Card #051822</p>
+      <div class="ring-demo"><button class="fbtn">Select</button><button class="fbtn">Skip</button></div></div>
+    <div class="ground ground--canvas"><p>Canvas #2D383E</p>
+      <div class="ring-demo"><button class="fbtn">Select</button><button class="fbtn">Skip</button></div></div>
+    <div class="ground ground--tan"><p>Tan fill #AA7452</p>
+      <div class="ring-demo"><button class="fbtn">Select</button><button class="fbtn">Skip</button></div></div>
+    <div class="ground ground--light"><p>Light fill #D4C9C7</p>
+      <div class="ring-demo"><button class="fbtn">Select</button><button class="fbtn">Skip</button></div></div>
+  </div>
+  <div class="note" style="margin-top:14px">
+    <b>No single colour can do this job.</b> Every candidate — white, light, grey, tan, brown, slate,
+    navy, the derived accent — fails 3:1 on at least one of these four grounds. White fails on the
+    light fill at 1.62; light fails on itself. So the ring is <b>two bands</b>:
+    <b>#D4C9C7 outer, #051822 inner</b>, both owner values. On any ground at least one band clears the
+    floor — <b>worst case 4.59</b>, on the tan fill — and the two bands separate from each other at
+    <b>11.19</b>. White would score better on the two dark grounds (18.10 / 12.02) but that contrast is
+    already surplus, and it would buy it by shipping a value outside the six.
   </div>
 </div>
 

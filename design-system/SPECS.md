@@ -15,6 +15,8 @@ superseded number as live is the main way this document can hurt you.
 | **Ground + elevation** | **§23.1** | **Live. Dark is the identity. Cards sit BELOW the canvas.** |
 | Dark tokens | §23.2 | Live. Six owner values + one derivation. `--muted` is surface-dependent. |
 | Energy / type scale | §23.4 | Live. Energy is scale, motion, density — never more colour. |
+| **Focus ring** | **§23.7** | **Live. Two bands, inset. §19.7's graphite ring is superseded for dark.** |
+| Light mode | §23.8 | **Parked, not deleted**, 2026-09-07 — the mirror of §19.2. Two pin sites. |
 | ~~Dark mode parked~~ | ~~§19.2~~ | **Superseded 2026-09-07 by §23.** §19.2's machinery is a starting point for *structure*; its values are v5-era. |
 | Colour placement | §21 | Live. Colour by component role. |
 | Spacing distribution | §22 | Live, and owner-approved after seeing it. |
@@ -1363,6 +1365,13 @@ decision.
 
 ### 19.2 — Dark mode: parked, not deleted
 
+> **⚠️ SUPERSEDED 2026-09-07 by §23. Dark is now the identity, and it is
+> LIGHT that is parked (§23.8).** Read this section only for its *method* —
+> the park-don't-delete discipline, and the two-decision-point warning, both
+> of which §23.8 reuses verbatim. **Its night colour values are v5-era and
+> must not be used**; §23.2 carries the live dark tokens. This section is
+> the reason the reversal cost a spec instead of a rebuild.
+
 Owner: **"no dark mode, or at least hold dark back now, we'll see
 later."** This supersedes ~~night retuned to a neutral warm-black as the
 subordinate variant~~ above.
@@ -1562,6 +1571,12 @@ number that rots.
 3. **Text keeps its own, higher floor** — 4.5:1 for body copy, unchanged
    and unrelated. A boundary clearing 3:1 says nothing about whether text
    in that colour is readable.
+
+**The graphite inset focus ring specced under this section is superseded
+for dark by §23.7.** `var(--color-ink)` is invisible on `#051822`, and no
+single value clears 3:1 on all four grounds a control can sit on — the ring
+is now two bands. The *floors* in this section are unchanged and still
+binding; only the ring's value is.
 
 **This rule has already caught two live values, which is the argument
 for stating floors instead of picking numbers.** Recorded because the
@@ -2080,6 +2095,131 @@ Reconstruct **the winner's name** instead: same component, same canvas,
   before `document.fonts.ready` reconstructs the *fallback serif* instead.
   Await it.
 
+### 23.7 — The focus ring, solved: two bands, inset
+
+**This was a shipping blocker, not polish.** §19.7's graphite inset ring
+(`outline: 2px solid var(--color-ink)`) is invisible on a near-black card,
+and every control on a card is affected — that is keyboard accessibility
+failing on the app's primary surface.
+
+**No single colour can do this job, and that is a measured result rather
+than a judgement.** A focusable control in dark sits on **four** grounds:
+card `#051822`, canvas `#2D383E`, and the two §21.3 fills, tan `#AA7452`
+and light `#D4C9C7`. That spans L\* 7.2 → 81.8. Every candidate was tested
+against all four:
+
+| Candidate | Worst ground | Verdict |
+|---|---|---|
+| white `#FFFFFF` | 1.62 on the light fill | fails |
+| light `#D4C9C7` | 1.00 on itself | fails |
+| grey `#969A9E` | 1.39 | fails |
+| tan / brown / slate / navy / `#BF977D` | ≤1.60 | all fail |
+
+**The ring is therefore two bands**, so that whichever ground it lands on,
+at least one band clears the floor:
+
+```css
+:root { --ring-outer: #D4C9C7; --ring-inner: #051822; }
+
+.control:focus-visible {
+  outline: 2px solid transparent;   /* forced-colors fallback — see below */
+  outline-offset: -2px;
+  box-shadow: inset 0 0 0 2px var(--ring-outer),
+              inset 0 0 0 4px var(--ring-inner);
+}
+```
+
+| Ground | Outer band | Inner band | Visible band |
+|---|---|---|---|
+| card `#051822` | **11.19** | 1.00 | **11.19** |
+| canvas `#2D383E` | **7.43** | 1.51 | **7.43** |
+| tan fill `#AA7452` | 2.44 | **4.59** | **4.59** |
+| light fill `#D4C9C7` | 1.00 | **11.19** | **11.19** |
+
+**Worst case 4.59**, on the tan fill. The two bands also separate from
+*each other* at **11.19**, so the ring reads as a ring rather than a smudge.
+
+**Both values are the owner's own.** White scores better on the two dark
+grounds (18.10 / 12.02) but that contrast is already surplus — it would buy
+nothing visible and spend a value outside the six. If a future surface makes
+`#D4C9C7` unworkable as the outer band, white is the fallback and the
+worst case is unchanged at 4.59.
+
+**Four implementation details that are each load-bearing:**
+
+1. **Inset, not outset.** Same reason §19.7 gave: drawn inside the control
+   so an ancestor's `overflow` cannot clip it. `box-shadow: inset` also
+   follows `border-radius` for free, which a manually-drawn ring does not.
+2. **`box-shadow` is free in dark, and that is not a coincidence.** Dark
+   uses no elevation shadows — a shadow must be darker than its ground, and
+   `#051822` is already at the floor, so a soft elevation is *structurally
+   invisible* here. Separation in dark comes from value and the `--edge`
+   hairline (§23.1, §23.2). **If any dark surface later gains an outer
+   `box-shadow`, this rule must append rather than replace it**, or focusing
+   a card silently deletes its elevation.
+3. **Keep the transparent `outline`.** In forced-colors / Windows High
+   Contrast mode `box-shadow` is dropped entirely; a transparent outline is
+   re-coloured by the OS and the ring survives. Without this line, the ring
+   vanishes for exactly the users most likely to need it.
+4. **`:focus-visible`, not `:focus`.** Verified in-browser: programmatic
+   `.focus()` and mouse clicks correctly do *not* raise the ring; a real Tab
+   does. Testing this with a scripted `.focus()` reports a false negative —
+   it did here first — so **verify it with an actual key press**.
+
+**Mock:** the four-ground panel in `energy-dark-v1.html`. Tab into it.
+
+### 23.8 — Light mode: parked, not deleted (owner, 2026-09-07)
+
+Owner: **"Keep light mode in the dark for now. Hold it back. Let's focus
+more on the dark mode. I think I'm liking the dark side a bit more."**
+
+**This is §19.2 run in the opposite direction, and it is deliberately the
+same procedure.** §19.2 parked dark rather than deleting it; that discipline
+is the entire reason making dark the identity cost a spec instead of a
+rebuild. It has now paid off once. Apply it symmetrically and it can pay off
+again — including for light, if the owner reverses back.
+
+- **Keep, untouched:** every light value in §19.1, `lib/dubai-phase.ts`,
+  `components/ThemeSync.tsx`, and the light rules in `app/globals.css`.
+  §19's light figures are measured and correct; nothing about them is wrong.
+- **Stop exposing the path:** remove the light option from any ground
+  toggle, and pin the resolved ground to **dark** without editing the clock
+  logic itself — the Dubai clock stays correct, only its *application* is
+  parked.
+- **⚠️ THE GROUND IS DECIDED IN TWO PLACES.** §19.2 learned this the hard
+  way — an earlier draft of it named one site, Frontend caught the second in
+  implementation. **Pinning only the server stamp leaves the clock flipping
+  the document back within 60 seconds.** Both:
+  1. **Server:** `app/layout.tsx`'s `autoGround()`, which stamps
+     `data-theme` for first paint.
+  2. **Client:** `components/ThemeSync.tsx`'s `resolveGround()` inside
+     `apply()` — on mount, **again every 60s via `setInterval`**, and on a
+     `storage` event. The interval is the one that bites: pin the server
+     only and the app looks right, then flips up to a minute later.
+- **Comment the park at each site**, in these words or close to them:
+
+  ```
+  // PARKED 2026-09-07 (owner: "Keep light mode in the dark for now. Hold
+  // it back."). Light's values are intact and correct; only the path that
+  // selects them is disabled. NOTE: the ground is pinned in TWO places —
+  // app/layout.tsx (server stamp) and ThemeSync (client re-resolve, incl.
+  // a 60s interval). Restoring one without the other half-restores light.
+  // To restore: re-enable both plus the ground toggle. See SPECS.md §23.8.
+  ```
+
+- **Do not delete the light values**, and do not fold them into the dark
+  set. They are a measured, working system; if light returns it should
+  return as itself, not be re-derived from dark.
+
+**One asymmetry worth stating.** §19.2 parked dark when dark was
+*subordinate*. This parks light when light is *what the whole app currently
+renders*. So the pin is the more dangerous edit of the two: get it wrong and
+the app flickers between two complete identities on a 60-second cycle, in
+front of users. Verify by watching a real page for **at least 90 seconds**
+after the change — a single screenshot cannot catch an interval bug, and
+this repo has already produced one confident wrong conclusion from a
+screenshot.
+
 ### 23.5 — Verification
 
 - Every text pair re-measured **on both dark grounds**, alpha composited
@@ -2095,14 +2235,32 @@ Reconstruct **the winner's name** instead: same component, same canvas,
 - `prefers-reduced-motion` kills the deal stagger and the particle reveal
   with no layout shift.
 
-### 23.6 — Not decided here
+### 23.6 — Resolved, and what actually remains
 
-- **Light mode's fate.** This spec makes dark the identity. It does not say
-  whether light is retired, kept as an option, or left to rot. §19's light
-  values remain correct and measured either way.
-- **The dark focus ring** (§23.5).
-- **Whether `#BF977D` is acceptable** under the no-unpicked-colour rule.
-  The fallback if not is stated in §23.3.
+All three of this section's original open questions have been answered.
+Kept rather than deleted, because *how* they were settled is the useful part.
+
+- **Light mode's fate — SETTLED 2026-09-07.** Parked, not retired. §23.8.
+- **The dark focus ring — SOLVED 2026-09-07.** §23.7. It was the real
+  blocker: not polish, but keyboard access failing on the primary surface.
+- **`#BF977D` — ACCEPTED 2026-09-07.** Judged a derivation of the owner's
+  own tan, in the same family, made legible — the identical move already
+  accepted for `muted` / `line` / `error` / `confirm`. It was rejected for
+  `#7A5A3E` only because v7's brown made that one *unnecessary*; here it is
+  necessary, since tan alone is 3.05 on cards and would force a per-surface
+  exception into §21. **Deriving beats exception-ing** — that is the
+  reusable form of the rule.
+
+**Still genuinely open:**
+
+- **The dark primary-fill button** (`--primary-fill` / `--primary-ink`) is
+  not specced for dark. §23.7's ring was measured against the four *ground*
+  surfaces; a filled button is a fifth, and it must be re-checked against
+  the ring when its value is chosen.
+- **`/login`, `/onboarding`, `/privacy`, `/terms`** use a separate `--auth-*`
+  token set with no dark variant at all (`a11y-responsive` has this open).
+  With dark as the identity these are now white screens mid-flow, which is
+  worse than it was when dark was optional.
 
 
 ## Verification (for whoever implements this)
