@@ -48,36 +48,46 @@
      (#442816 / #704121 / #AB6F44) and one cool family at 192-197°
      (#174050 / #0C657C). That is why the set holds together, and why
      nothing should be added to either end. */
-  --color-paper: #f5f0ea; /* ground — warm sand-white, L* 95.0 */
-  --color-card: #fafafa; /* surface — ΔL* 3.25 vs ground: a visible lift with NO border needed (§19.3) */
+  --color-paper: #f2f2f2; /* canvas — the owner's own off-white, L* 95.5 */
+  --color-card: #ffffff; /* surface — ΔL* 4.51 vs canvas, a stronger lift than v5's 3.25, still no border (§19.3) */
 
   /* The browns lead, so body text is brown, not black. */
-  --color-ink: #442816; /* deep brown — 12.89:1 on card, 11.87:1 on canvas */
-  --color-muted: #6e5a4c; /* brown-family muted, harmonised to the ramp — 6.23:1 on card */
+  --color-ink: #3f230b; /* dark-brown — THE ONLY value in v6 that can carry body text (12.88 canvas / 14.42 card) */
+  --color-muted: #6e6259; /* derived muted — 5.28 canvas / 5.91 card */
 
-  /* The workhorse accent, and unlike v3's navy or v4's camel it needs no
-     fill/text split: #704121 is dark enough to work BOTH ways — 8.16:1
-     as text on the card, 8.51:1 as a fill under white ink. */
-  --color-punch: #704121;
-  /* Kept as an alias, not deleted: the split collapsed, but existing
-     consumers should not break in the same pass as a palette change. */
-  --color-punch-text: var(--color-punch);
+  /* The accent, and v6 INVERTS v5's logic — read this before reusing any
+     rule from the previous palette. v5's #704121 carried text AND took
+     white as a fill. Nothing in v6 does both:
 
-  /* Tan. NEVER text, and NEVER behind text — it fails AA both ways, and
-     the intuitive "dark brown on tan" pairing is the worst of the lot at
-     3.26:1. It is the most "desert" value here so the pull toward it is
-     constant; the filled button is --color-punch, not this. Legitimate
-     uses: rules, dividers, icon fills, image overlays, decorative
-     blocks, borders, 24px+ display type. */
-  --color-tan: #ab6f44; /* 3.95:1 on card — deliberately below AA */
+       --color-punch       the tan FILL. 2.51:1 on card, so it cannot
+                           carry text and light text cannot sit on it.
+                           Dark ink on it is 5.74:1 — the only way it is
+                           allowed to hold type.
+       --color-punch-text  the derived darker cut of the owner's own
+                           brown (hue 28°, same family), deepened until
+                           legible: 5.58 canvas / 6.25 card. Every accent
+                           TEXT use points here (§19.1a, owner picked B). */
+  --color-punch: #ce9963; /* tan — FILL ONLY, never text, never behind light text */
+  --color-punch-text: #7a5a3e; /* accent as text — the only accent that reads */
 
-  /* The cool family, two depths of one note (§19.1 restates the old
-     "exactly one cool accent" rule as: one cool family, these two
-     values, no third). */
-  --color-cool-deep: #174050; /* cool headings, dark cool surfaces — 10.67:1 on card */
-  --color-accent-cool: #0c657c; /* links and actions — 6.35:1 on card */
+  /* The single cool note. Like the tan it is a FILL, not ink: 2.88:1 as
+     text on card, but dark ink on it is 5.00:1. v5's separate deep teal
+     is gone with the rest of the teals — v6 has one cool value, not a
+     family, so --color-cool-deep and the v5-only --color-tan are removed
+     rather than left behind holding colours the palette no longer has.
+     Neither had a single consumer.
 
-  /* Divider / chrome. CHROME ONLY — it cannot carry text; muted TEXT is
+     Blue and tan contrast 1.15:1 against EACH OTHER, so they can never be
+     a text/background pair or two states of one control. They are ΔL*
+     4.26 apart though — a visible step — so they are fine as two adjacent
+     SURFACES; the blunt "never adjacent" reading forbids a legitimate
+     treatment. */
+  --color-accent-cool: #7d9bbc; /* blue — FILL ONLY, dark ink on it = 5.00:1 */
+
+  /* Divider / boundary. The owner's brown, and the ONLY v6 value clearing
+     §19.7's 3:1 boundary floor (3.62 canvas / 4.05 card) — nothing else
+     qualifies, so nothing else may be a control's edge. It still fails
+     the 4.5 text floor, so it is never text; muted TEXT is
      --color-muted above.
 
      DIVERGES FROM §19.1's LITERAL HEX, deliberately and measured. The
@@ -90,8 +100,10 @@
      contrasting colors so you can see them clearly"). Darkened along the
      same warm ramp (hue ~22°, still a taupe, still chrome) until it
      clears on BOTH grounds with headroom: 3.55:1 canvas, 3.86:1 card.
-     Flagged to Design rather than silently substituted. */
-  --color-line: #8a7c74;
+     v5 needed a darkened taupe here because that spec's #998F8A only
+     cleared against pure white; v6 needs no such divergence — the
+     owner's own brown clears both real grounds unaided. */
+  --color-line: #9f7652;
 
   /* Premium marker — badges, streaks. Used sparingly: never a button,
      never body text. NOTE: §19.1's table does not respec this token and
@@ -104,18 +116,18 @@
   /* Confirm/active/"you, and now" — small components only (badges,
      pills, status text, round dots), never a large surface or a fill.
      Hue 152°, a clear 40° off the teals so it never reads as one. */
-  --color-live: #2e6b4f; /* 6.04:1 on card, 5.56:1 on canvas */
+  --color-live: #2f6b4c; /* 5.64 canvas / 6.31 card */
 
   /* Error/urgent — validation errors, closing-soon warnings. */
-  --color-error: #a81e12; /* 7.04:1 on card, 6.48:1 on canvas */
+  --color-error: #a3301f; /* 6.25 canvas / 7.00 card */
 
   /* Legacy aliases. `text-grape` / `bg-zest` / `text-mint` are still
      scattered through the components; they resolve to the workhorse
      accent, which is safe for both the text and the background uses
      among them now that it needs no split. Do not add new uses. */
-  --color-grape: #704121;
-  --color-zest: #704121;
-  --color-mint: #704121;
+  --color-grape: #7a5a3e;
+  --color-zest: #7a5a3e;
+  --color-mint: #7a5a3e;
 
   --font-display: var(--font-display-family), system-ui, sans-serif;
   --font-body: var(--font-hanken), system-ui, sans-serif;
@@ -207,9 +219,9 @@
 :root {
   /* Inactive chip fill — a low-alpha tint of the workhorse accent rather
      than a new hue, so it stays on the warm ramp (SPECS.md §19.1). */
-  --color-accent-tint: rgba(112, 65, 33, 0.07);
-  --color-live-dot: #2e6b4f; /* same value as --color-live; non-text, needs 3:1 */
-  --color-shimmer: rgba(68, 40, 22, 0.06); /* skeleton sweep highlight — warm ink on the light card, per SPECS.md §7 */
+  --color-accent-tint: rgba(159, 118, 82, 0.10); /* a tint of the owner's brown */
+  --color-live-dot: #2f6b4c; /* same value as --color-live; non-text, needs 3:1 */
+  --color-shimmer: rgba(63, 35, 11, 0.06); /* skeleton sweep highlight — warm ink on the light card, per SPECS.md §7 */
 
   /* Durations, named so they stop being pasted as magic numbers. */
   --dur-press: 200ms;
@@ -254,18 +266,19 @@
   color-scheme: dark;
 }
 
-/* The primary button fill is --color-punch itself; this just carries the
-   ink pairing and the subtle top-to-base gradient. Not a --color-*
-   because a gradient would generate a nonsense utility.
+/* The primary button fill: the ink pairing plus a subtle top-to-base
+   gradient. Not a --color-* because a gradient would generate a nonsense
+   utility.
 
-   SPECS.md §19.1: "the filled button is brown" — the tan is not a fill
-   at any ink, so this is the answer whenever a warm filled control is
-   wanted. Brown is dark enough to take white ink; the top stop is a
-   slight lift of the base and still clears AA on its own (7.62:1), so
-   the base's 8.51:1 is the worst case across the gradient. */
+   v6 (SPECS.md §19.1) breaks this away from the accent. The filled
+   primary is DARK-BROWN with white text at 14.42:1, because white on the
+   owner's brown is only 4.05:1 and the tan is 2.51:1 — v5's "the accent
+   is the filled button" rule does not survive the palette change. The top
+   stop is a slight lift of the base and clears on its own, so the base
+   end is the worst case across the gradient. */
 :root {
-  --primary-fill: linear-gradient(180deg, #7a4724, #704121);
-  --primary-ink: #ffffff; /* 8.51:1 on the base end */
+  --primary-fill: linear-gradient(180deg, #4d2c10, #3f230b);
+  --primary-ink: #ffffff; /* 14.42:1 on the base end */
 }
 [data-theme="night"] {
   --primary-fill: linear-gradient(180deg, #d9c093, #c9a876);
@@ -883,7 +896,7 @@ h3 {
 
 .home-avatar:hover {
   transform: translateY(-1px);
-  border-color: var(--home-metal);
+  border-color: var(--color-punch-text);
   box-shadow: none;
 }
 
@@ -959,7 +972,7 @@ h3 {
   padding: 0;
   background: transparent;
   backdrop-filter: none;
-  color: var(--home-metal);
+  color: var(--color-punch-text);
   font-size: 0.65rem;
   font-weight: 500;
   letter-spacing: 0.16em;
@@ -1300,7 +1313,7 @@ h3 {
   text-align: center;
   font-family: var(--font-display);
   font-size: 0.7rem;
-  color: var(--home-metal);
+  color: var(--color-punch-text);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -1418,7 +1431,7 @@ h3 {
   cursor: pointer;
 }
 .plan-smart-search > button:disabled { cursor: not-allowed; opacity: 0.42; }
-.plan-smart-search__error { margin-top: 0.65rem; color: var(--color-punch); font-size: 0.7rem; }
+.plan-smart-search__error { margin-top: 0.65rem; color: var(--color-punch-text); font-size: 0.7rem; }
 .plan-smart-result { margin-top: 0.85rem; padding-top: 0.8rem; border-top: 1px solid var(--color-line); }
 .plan-smart-result > div:first-child { display: block; }
 .plan-smart-result strong { max-width: 28rem; font-size: 0.76rem; line-height: 1.45; }
@@ -1493,7 +1506,7 @@ h3 {
    the leading edge means the selection is still legible as a shape when the
    colour is not — this is the one control where colour does real work. */
 .plan-category-option[aria-pressed="true"] {
-  border-color: var(--home-metal);
+  border-color: var(--color-punch-text);
   background: color-mix(in srgb, var(--home-metal) 12%, transparent);
   box-shadow: inset 3px 0 0 var(--home-metal);
   color: var(--color-ink);
@@ -1504,7 +1517,7 @@ h3 {
 }
 
 .plan-deadline[aria-pressed="true"] {
-  border-color: var(--home-metal);
+  border-color: var(--color-punch-text);
   background: color-mix(in srgb, var(--home-metal) 9%, transparent);
   color: var(--color-ink);
   transform: scale(1.025);
@@ -1593,7 +1606,7 @@ h3 {
 }
 
 .plan-custom-place__saved > button[aria-pressed="true"] {
-  border-color: var(--home-metal);
+  border-color: var(--color-punch-text);
   box-shadow: inset 2px 0 0 var(--home-metal);
 }
 
@@ -1656,7 +1669,7 @@ h3 {
 }
 
 .plan-custom-place__editor fieldset button:last-child { border-right-width: 1px; }
-.plan-custom-place__editor fieldset button[aria-pressed="true"] { border-color: var(--home-metal); background: var(--home-metal); color: var(--primary-ink); } /* was #111218 = 2.20:1 on the accent fill */
+.plan-custom-place__editor fieldset button[aria-pressed="true"] { border-color: var(--color-punch-text); background: var(--home-metal); color: var(--color-ink); } /* dark ink on the tan fill = 5.74:1; --primary-ink is white in v6 and would be 2.51:1 here */
 .plan-custom-place__save { justify-self: start; padding: 0.45rem 0; }
 .plan-custom-place__save:disabled { cursor: wait; opacity: 0.45; }
 
@@ -1718,7 +1731,7 @@ h3 {
   cursor: pointer;
 }
 .plan-choice-strip button:last-child { border-right-width: 1px; }
-.plan-choice-strip button[aria-pressed="true"] { border-color: var(--home-metal); background: color-mix(in srgb, var(--home-metal) 10%, transparent); color: var(--color-ink); }
+.plan-choice-strip button[aria-pressed="true"] { border-color: var(--color-punch-text); background: color-mix(in srgb, var(--home-metal) 10%, transparent); color: var(--color-ink); }
 .plan-location-fields { display: grid; grid-template-columns: minmax(10rem, 0.7fr) minmax(0, 1.3fr); gap: 0.8rem; align-items: end; }
 .plan-location-fields select {
   width: 100%;
@@ -1839,10 +1852,10 @@ h3 {
 .place-link-importer fieldset > div { display: flex; }
 .place-link-importer fieldset button { min-height: 2.35rem; padding: 0.45rem 0.7rem; border: 1px solid var(--color-line); background: transparent; color: var(--color-muted); font-size: 0.64rem; cursor: pointer; }
 .place-link-importer fieldset button + button { border-left: 0; }
-.place-link-importer fieldset button[aria-pressed="true"] { border-color: var(--home-metal); color: var(--color-ink); }
+.place-link-importer fieldset button[aria-pressed="true"] { border-color: var(--color-punch-text); color: var(--color-ink); }
 .place-link-importer__message,
 .place-link-importer__error { margin-top: 0.65rem; font-size: 0.68rem; }
-.place-link-importer__message { color: var(--home-metal); }
+.place-link-importer__message { color: var(--color-punch-text); }
 .place-link-importer__error { color: var(--color-error); }
 .place-link-importer__saved > p { margin-bottom: 0.35rem; color: var(--color-muted); font-size: 0.62rem; font-weight: 500; }
 .place-link-importer__saved-head { display: flex; align-items: baseline; justify-content: space-between; gap: .6rem; }
@@ -1891,7 +1904,7 @@ h3 {
 .demo-filter-tabs { display: flex; gap: 0.35rem; overflow-x: auto; scrollbar-width: none; }
 .demo-filter-tabs::-webkit-scrollbar { display: none; }
 .demo-filter-tabs button { flex: 0 0 auto; min-height: var(--btn-h-sm); padding: var(--btn-pad-sm); border: 1px solid transparent; background: transparent; color: var(--color-muted); font-size: 0.72rem; font-weight: 500; cursor: pointer; }
-.demo-filter-tabs button[aria-pressed="true"] { border-color: var(--home-metal); color: var(--color-ink); }
+.demo-filter-tabs button[aria-pressed="true"] { border-color: var(--color-punch-text); color: var(--color-ink); }
 
 .demo-place-grid { margin-top: 2.5rem; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3rem 2rem; }
 /* Most Discover cards do have a photograph, so the group hue needs somewhere
@@ -1931,8 +1944,8 @@ h3 {
 .demo-collection-tabs { display: flex; gap: 0.35rem; overflow-x: auto; scrollbar-width: none; }
 .demo-collection-tabs::-webkit-scrollbar { display: none; }
 .demo-collection-tabs button { flex: 0 0 auto; min-height: var(--btn-h-sm); padding: var(--btn-pad-sm); border: 1px solid transparent; background: transparent; color: var(--color-muted); font-size: 0.68rem; font-weight: 650; cursor: pointer; }
-.demo-collection-tabs button[aria-selected="true"] { border-color: var(--home-metal); color: var(--color-ink); }
-.demo-collection-tabs span { margin-left: 0.3rem; color: var(--home-metal); font-size: 0.58rem; }
+.demo-collection-tabs button[aria-selected="true"] { border-color: var(--color-punch-text); color: var(--color-ink); }
+.demo-collection-tabs span { margin-left: 0.3rem; color: var(--color-punch-text); font-size: 0.58rem; }
 .demo-collection-create > label { display: block; margin-bottom: 0.4rem; color: var(--color-muted); font-size: 0.62rem; font-weight: 500; }
 .demo-collection-create > div { display: flex; }
 .demo-collection-create input { min-width: 0; flex: 1; min-height: 2.65rem; padding: 0.55rem 0.7rem; border: 1px solid var(--color-line); background: var(--color-card); color: var(--color-ink); }
@@ -2019,7 +2032,7 @@ h3 {
 .demo-taste-list span { padding: 0.48rem 0.65rem; border: 1px solid var(--color-line); font-size: 0.68rem; font-weight: 600; }
 .demo-privacy-options { margin-top: 1rem; display: grid; }
 .demo-privacy-options button { display: flex; align-items: center; justify-content: space-between; padding: 0.8rem 0; border: 0; border-bottom: 1px solid var(--color-line); background: transparent; color: var(--color-muted); text-align: left; cursor: pointer; }
-.demo-privacy-options button[aria-pressed="true"] { color: var(--home-metal); font-weight: 500; }
+.demo-privacy-options button[aria-pressed="true"] { color: var(--color-punch-text); font-weight: 500; }
 .demo-privacy-options small { font-weight: 500; }
 .demo-photo-strip { margin-top: 3rem; display: grid; grid-template-columns: 1.1fr repeat(4, 1fr); gap: 0.65rem; align-items: stretch; }
 .demo-photo-strip > div { padding-right: 1rem; }
@@ -2317,7 +2330,7 @@ h3 {
 
 .vote-round-label {
   margin-top: 0.75rem;
-  color: var(--vote-metal);
+  color: var(--color-punch-text);
   font-size: 0.68rem;
   font-weight: 500;
   letter-spacing: 0.08em;
@@ -2456,12 +2469,12 @@ h3 {
    what is left of the tactility, and the winner keeps it in champagne.
    No offset term: that is the exact .token signature FRONTEND_DESIGN_
    STANDARDS.md's Components section retired (SPECS.md §16.2). */
-.vote-option--winner { border-color: var(--vote-metal); box-shadow: inset 0 2px 0 var(--vote-metal); }
+.vote-option--winner { border-color: var(--color-punch-text); box-shadow: inset 0 2px 0 var(--color-punch-text); }
 /* Decided: the outcome wins the card even if it is also the one you picked. */
 .vote-option--winner[aria-pressed="true"] {
-  border-color: var(--vote-metal);
+  border-color: var(--color-punch-text);
   background: color-mix(in srgb, var(--vote-metal) 8%, var(--color-card));
-  box-shadow: inset 0 2px 0 var(--vote-metal);
+  box-shadow: inset 0 2px 0 var(--color-punch-text);
 }
 
 .vote-option__winner-label {
@@ -2469,7 +2482,7 @@ h3 {
   right: 0.7rem;
   top: -0.65rem;
   padding: 0.28rem 0.45rem;
-  border: 1px solid var(--vote-metal);
+  border: 1px solid var(--color-punch-text);
   background: var(--color-card);
   color: var(--color-punch-text);
   font-size: 0.58rem;
@@ -2486,7 +2499,7 @@ h3 {
 .vote-option__category {
   padding-left: 0.55rem;
   border-left: 2px solid var(--vote-metal);
-  color: var(--vote-metal);
+  color: var(--color-punch-text);
   font-weight: 600;
 }
 
@@ -2577,7 +2590,7 @@ h3 {
 .vote-result {
   border-width: 1px;
   border-radius: var(--radius-control);
-  border-color: var(--vote-metal);
+  border-color: var(--color-punch-text);
   background: color-mix(in srgb, var(--vote-metal) 5%, var(--color-card));
 }
 
@@ -2599,7 +2612,7 @@ h3 {
 }
 
 .vote-result__category {
-  border: 1px solid var(--vote-metal);
+  border: 1px solid var(--color-punch-text);
   border-radius: 50%;
   background: transparent;
   color: var(--color-punch-text);
@@ -2608,8 +2621,8 @@ h3 {
 }
 
 .vote-result a { color: var(--color-punch-text); text-decoration-thickness: 1px; text-underline-offset: 3px; }
-.vote-result__booked { border: 1px solid var(--vote-metal); border-radius: 0; background: transparent; color: var(--color-punch-text); }
-.vote-result button[aria-pressed="true"]:not(.vote-rating-button) { border-color: var(--vote-metal); background: var(--vote-metal); color: var(--primary-ink); }
+.vote-result__booked { border: 1px solid var(--color-punch-text); border-radius: 0; background: transparent; color: var(--color-punch-text); }
+.vote-result button[aria-pressed="true"]:not(.vote-rating-button) { border-color: var(--color-punch-text); background: var(--vote-metal); color: var(--color-ink); } /* dark ink on the tan fill = 5.74:1 */
 .vote-action-hint { margin-top: 0.65rem; color: var(--color-muted); font-size: 0.72rem; line-height: 1.45; }
 .vote-rsvp-choices { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.35rem; }
 .vote-rsvp-choices .vote-result__button { padding: 0.55rem 0.65rem; font-size: 0.68rem; }
@@ -2644,7 +2657,7 @@ h3 {
   cursor: pointer;
 }
 
-.vote-rating-button[aria-pressed="true"] { border-color: var(--vote-metal); background: var(--vote-metal); color: var(--primary-ink); } /* was #111218 = 2.20:1 on the accent fill */
+.vote-rating-button[aria-pressed="true"] { border-color: var(--color-punch-text); background: var(--vote-metal); color: var(--color-ink); } /* dark ink on the tan fill = 5.74:1 */
 
 /* ── Press feedback ────────────────────────────────────────────────
    Audited the primary actions end to end — deal, vote, continue,
@@ -2868,7 +2881,7 @@ h3 {
 .demo-tool-panel__head > button, .demo-tool-panel > button { min-height: var(--btn-h-md); padding: var(--btn-pad-md); border: 1px solid var(--color-ink); background: var(--color-ink); color: var(--color-card); font-size: .68rem; font-weight: 500; cursor: pointer; }
 .demo-circle-list { display: grid; gap: .5rem; }
 .demo-circle-list button, .demo-board-tabs button { display: flex; flex-direction: column; align-items: flex-start; gap: .2rem; padding: .8rem; border: 1px solid var(--color-line); background: transparent; color: var(--color-ink); text-align: left; cursor: pointer; }
-.demo-circle-list button.is-selected, .demo-board-tabs button[aria-pressed="true"] { border-color: var(--home-metal); background: color-mix(in srgb, var(--home-metal) 9%, transparent); }
+.demo-circle-list button.is-selected, .demo-board-tabs button[aria-pressed="true"] { border-color: var(--color-punch-text); background: color-mix(in srgb, var(--home-metal) 9%, transparent); }
 .demo-circle-list strong { font-size: .78rem; }
 .demo-circle-list span, .demo-board-tabs small { color: var(--color-muted); font-size: .68rem; }
 .demo-inline-form { display: flex; gap: .45rem; margin-top: .8rem; }
@@ -2878,14 +2891,14 @@ h3 {
 .demo-inline-form > span { align-self: center; color: var(--color-muted); font-size: .68rem; white-space: nowrap; }
 .demo-stage-line { display: flex; gap: .4rem; margin-bottom: 1.25rem; }
 .demo-stage-line span { flex: 1; padding-top: .5rem; border-top: 1px solid var(--color-line); color: var(--color-muted); font-size: .62rem; }
-.demo-stage-line span.is-current { border-color: var(--home-metal); color: var(--color-ink); font-weight: 500; }
+.demo-stage-line span.is-current { border-color: var(--color-punch-text); color: var(--color-ink); font-weight: 500; }
 .demo-tool-field { display: grid; gap: .45rem; margin: .9rem 0; }
 .demo-tool-field > span { color: var(--color-muted); font-size: .67rem; font-weight: 500; }
 .demo-tool-field textarea { min-height: 6rem; resize: vertical; }
 .demo-reaction-row { display: flex; flex-wrap: wrap; gap: .4rem; margin: 1rem 0; }
 .demo-reaction-row button, .demo-check { border: 1px solid var(--color-line); background: transparent; color: var(--color-ink); font-size: .68rem; font-weight: 650; cursor: pointer; }
 .demo-reaction-row button { padding: .55rem .65rem; }
-.demo-reaction-row button[aria-pressed="true"] { border-color: var(--home-metal); background: color-mix(in srgb, var(--home-metal) 12%, transparent); }
+.demo-reaction-row button[aria-pressed="true"] { border-color: var(--color-punch-text); background: color-mix(in srgb, var(--home-metal) 12%, transparent); }
 .demo-check { display: flex; align-items: center; gap: .5rem; border: 0; margin: 1rem 0; color: var(--color-muted); }
 .demo-check input { accent-color: var(--home-metal); }
 .demo-moodboard-panel { margin-top: 2.5rem; padding: 1.5rem 0; border-top: 1px solid var(--color-line); border-bottom: 1px solid var(--color-line); }

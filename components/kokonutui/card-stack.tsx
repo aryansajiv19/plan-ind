@@ -228,7 +228,7 @@ const Card = ({
         </div>
 
         <div className="mt-4 flex items-center gap-3 text-sm">
-          <span className="font-bold text-punch">{cat.code}</span>
+          <span className="font-bold text-punch-text">{cat.code}</span>
           <span className="text-muted">{spot.price_band}</span>
         </div>
       </div>
