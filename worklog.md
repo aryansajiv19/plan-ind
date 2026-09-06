@@ -1849,3 +1849,38 @@ and sourced from `current_member_age()` server-side) is worth knowing had
 existed on a browse surface.
 
 Migration 044 staged. Gate green, 69 tests.
+
+---
+
+## 2026-09-07 — T0: migration 044 applied live
+
+`curated_categories` view is live. Verified as an **anonymous caller over
+REST**, not just by privileged SQL: 23 categories returned, `reloptions`
+confirms `{security_invoker=true}`, `anon` has select, and every category in
+the result is a curated one.
+
+Backend's choice of a **view over a definer RPC** is the right shape and the
+reason generalises: a definer function would have to *re-implement* 041's
+"curated spots this caller may see", and a second copy of a security rule is
+a second thing to drift. `security_invoker = true` runs the view with the
+caller's privileges, so `spots`' RLS applies exactly as on a direct read and
+the view follows 041 automatically if it ever changes.
+
+**That option is load-bearing.** Without it a view runs as its owner and
+bypasses RLS, which would have leaked the categories of every private custom
+spot. Both halves verified.
+
+Operational note worth keeping: the migration carries `notify pgrst, 'reload
+schema'` because PostgREST caches the schema, and a newly created view
+returns "Could not find the table in the schema cache" until it reloads —
+which reads exactly like the migration failed when it did not. Confirmed the
+cache had reloaded by reading the view over REST rather than trusting the
+`notify`.
+
+### Silent-failure property list, now three instances
+
+Recording that the comma bug is the sharpest of the three: the 1000-row cap
+and the anon-read both returned an empty **success**, while an unquoted
+search term containing a comma returns a genuine **400** that the client
+discards — so a rejected request wears the same face as an honest miss.
+Someone searching "beach, dubai" reads "no such place".
