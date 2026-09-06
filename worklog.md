@@ -1304,3 +1304,140 @@ scale seeder no longer discards its count error, since migration 040's
 benchmark numbers are quoted against the row count it reports.
 
 Journey **120/120**. 64 unit tests (was 56). Gate green.
+
+---
+
+## 2026-09-06 — T0 session summary (69 commits, all four branches synced)
+
+Written as a handoff. `AGENT_COORDINATION.md`'s decisions log has the
+per-item detail; this is the shape of the day.
+
+### Live database — six migrations applied, one deliberately held
+
+035, 036, 037, 038, 040, 041 are **all applied and verified by catalog
+query**, not assumed. **039 is held**: it sets `photo_url` on six spots to
+`spot-photos` bucket URLs, and the bucket contains **zero files**. Applying
+it would point six cards at 404s, which is worse than the nulls they have —
+a broken image asserts a photo exists. The owner uploads the six files
+(`scripts/spot-photos/`, named by spot id, `MANIFEST.json` has each
+licence), then 039 goes.
+
+Live photo state: **0 of 82**. Live coordinates: **40 of 82**, with
+beach_club / escape / padel / wellness at 0%.
+
+**Two apply-time judgements worth keeping.** 035 shipped with its known
+`p_choice` NULL-guard bug rather than being hand-edited mid-apply —
+amending a security-reviewed migration during its own apply, with no
+re-review, is a worse habit than one latent UI-unreachable bug. It got its
+own migration (040) once blanket approval existed. And 038 was held for
+explicit approval where 041 was not: 038 created a public *write-target*
+bucket, 041 grants read on content that is already the public marketing
+surface.
+
+### The day's defining bug class
+
+**The system reporting success for a question it could not answer.** Seven
+instances, three of them found in code written the same day:
+
+- PostgREST silently caps every table read at 1000 rows, no error, no flag,
+  and an explicit `.limit(3000)` does not lift it. Every plan was dealt from
+  the oldest 1000 spots.
+- Every policy on `spots` was `to authenticated`, so an anon read returned
+  zero rows **and no error** — the front door looked unfed rather than
+  refused.
+- A Supabase Storage policy written PERMISSIVE instead of RESTRICTIVE
+  *granted* the write it was named to deny.
+- `fetchAllRows`, written to fix the first item, returned a partial page-set
+  as a plain `T[]` on a mid-page error — reintroducing the exact shape one
+  layer up.
+- The ratings read sat unpaged two lines below that fix, error discarded.
+  Worse than truncation: unrated scores 3.6, *above* mediocre, so a short
+  read **promotes** every spot whose ratings fell off the end.
+- A failed catalogue read was written to the database as the verdict
+  "no match" for a venue that is in the catalogue.
+- `verify-journey`'s `skip()` recorded `pass: true`, so a permanently broken
+  pipeline would skip forever and stay green.
+
+All fixed. `lib/supabase/paginate.ts` now states its contract — `T[]` means
+complete, `null` means ask again — with eight tests pinning it. Found by the
+`pr-review-toolkit` silent-failure agent pointed at the day's own diff.
+
+### Observability — errors were invisible
+
+`instrumentation.ts` wires Next 16's `onRequestError` to a dependency-free
+structured logger (`lib/observability/log.ts`). Before it, an unhandled
+error in a Server Component, route handler or Server Action went nowhere:
+the app's 7 `console.error` calls were all on paths that had already caught
+their error. Tracing (`@vercel/otel`) deliberately deferred — nowhere to
+send a span until a deploy target exists.
+
+**Redaction is the security half and is tested.** Verified against a running
+production server rather than by inspection, which caught two credential
+headers no exact-name list would hold: Next's own `x-middleware-set-cookie`
+(carries `__Host-csrf`) and `referer` (carries the OAuth `?code=` on
+`/auth/callback`). Matching is by substring marker for exactly that reason.
+
+### Testing
+
+- **Five environments**, not one: chromium, webkit, firefox, Mobile Safari,
+  Mobile Chrome. The guest path is mostly a *mobile* path and had never been
+  tested as one.
+- **`tests/e2e/layout-consistency.spec.ts`** asserts design-independent
+  invariants at the **real** breakpoint boundaries (520/640/760/850/1100,
+  ±1), not round numbers. Currently **red on purpose**: 3 real failures.
+- **`tests/e2e/visual.spec.ts`** scaffolded and skipping — baselines are
+  deliberately not generated mid-redesign. `npm run test:visual:update`.
+- Unit tests 38 → 64.
+
+**Harness traps recorded so they are not rediscovered:** the hero entrance
+animation does not run in the MCP browser (`/home-preview` screenshots
+blank); forcing opacity is safe but `transform:none` destroys the card fan's
+layout; the MCP's `resize_window` does not change `innerWidth`, though
+Playwright's `setViewportSize` does — verified, so the 14-width matrix is
+real.
+
+### Design — the palette settled at v7 after seven rounds
+
+Owner's six exact hexes: `#051822 #2D383E #7C5841 #AA7452 #969A9E #D4C9C7`.
+Three text-capable colours in light (v6 had one), and a real dark end, which
+is what makes a dark theme honest rather than invented.
+
+- **§20 italics**, Cormorant. The blocker was **mine**: I committed the
+  *Cyrillic* subsets of both faces because Google's css2 endpoint returns
+  one `@font-face` per unicode-range and I took `head -1`. That explained
+  every symptom — headlines falling back to a sans, and roman and italic
+  rendering identically because neither was being used. Frontend was right
+  to stop rather than enable on that evidence.
+- **§21 rewritten** after the owner rejected position-based fills as
+  "forcing the colors". Colour now belongs to a **component**, never an
+  instance; the default instrument is brown accent *text*, not fills;
+  ceiling is one filled surface per screen.
+- **§22 spacing**, from the one fix the owner explicitly approved on sight:
+  a container distributes free space through an **alignment property**,
+  never by leaving slack where it falls. 0-above/152-below was not a wrong
+  value, it was an undecided container. **Not a spacing scale** — 0/152 can
+  be built from entirely valid tokens.
+- Dark theme **mocked, not built**, at the owner's request.
+
+### Vercel — set up, then parked at the owner's request
+
+Project linked (`safebox/plan-ind`), GitHub connected, 8 env vars set,
+**preview deployed and verified** (200, legal pages render real values).
+Production never deployed. Owner then said to skip Vercel for now, so it
+sits as-is. `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `NEXT_PUBLIC_SITE_URL`
+remain unset.
+
+### Standing rules added (both owner-driven, both in AGENT_COORDINATION.md)
+
+1. **Keep owner-facing messages short.** Asked twice.
+2. **Show, do not tell** — screenshot every visible change and send it.
+   Pairs with the first: the image *is* the short version.
+
+### Open, needing the owner
+
+Upload the six photos; add `{{ .Token }}` to the Supabase email template;
+decide on the dark theme; go/no-go on the Places ingestion
+(`PLACES_INGESTION_SCOPE.md`, 5-8 days, ~$0 at 5000 venues, but review is
+the real cost — 3 of 9 photos were rejected at visual review). Turnstile is
+deprioritised while Vercel is parked, since the app only requires a captcha
+in production.
