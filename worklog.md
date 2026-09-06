@@ -1441,3 +1441,54 @@ decide on the dark theme; go/no-go on the Places ingestion
 the real cost — 3 of 9 photos were rejected at visual review). Turnstile is
 deprioritised while Vercel is parked, since the app only requires a captcha
 in production.
+
+---
+
+## 2026-09-06 — T1 Security/Backend: state at handoff
+
+Tree clean, everything committed and pushed. The cross-cutting story is T0's
+in `AGENT_COORDINATION.md`; this is only what is open on my side.
+
+**Live state:** 035/036/037/038/040/041 applied and verified. **039 held.**
+0 of 82 photos live, 40 of 82 coordinates.
+
+**Open — needs the owner, not code:**
+
+1. **Six image files must be uploaded before 039 applies.** They are in
+   `scripts/spot-photos/`, named by spot id — the filenames ARE the URLs, so
+   they cannot be renamed. `MANIFEST.json` beside them lists each one's
+   source, licence and attribution. Nothing in this project can upload them:
+   there is deliberately no service-role key, and 038's restrictive policies
+   close every client path, so the one credential that can write that bucket
+   is one only the owner holds. That is the design working, not a gap.
+   Applying 039 before the files land points six cards at 404s, which is
+   worse than the nulls they have now — a broken image asserts a photo
+   exists where null renders the designed no-photo state.
+2. **The four zero-coverage categories.** beach_club, escape, padel and
+   wellness have neither coordinates nor photos, and are also the four
+   Google Places has no clean type for. Twelve hand-pasted coordinates would
+   close the coordinate half; the photo half needs either venue URLs or the
+   Places decision.
+3. **`PLACES_INGESTION_SCOPE.md` is a decision the owner has not made.** It
+   is written to stand alone: verified SKU costs (the batched field-mask
+   route makes 5,000 venues **$0**, not the ~$80 first estimated), `place_id`
+   as a nullable unique column rather than the primary key, free freshness
+   checks, 5–8 days, and the two things deliberately not softened — Google's
+   taxonomy misses exactly our weakest four categories, and a **33%
+   post-automation photo rejection rate does not survive 1000 venues**
+   without review tooling.
+
+**Confirmed cleared:** PhotoTile now renders `PhotoCredit`, and all three
+pages that feed a photo surface (`app/page.tsx`, `app/home/page.tsx`,
+`app/plan/[id]/page.tsx`) select `photo_attribution`. The licence obligation
+is satisfied end to end, so 039's other blocker is gone.
+
+**Still open, not blocking:** `app/home/page.tsx`'s `.limit(120)` is
+Frontend's and needs server-side search rather than a bigger limit — the
+1000-row cap means raising the number cannot fix it. And the
+`word_similarity` pre-filter for place-import is the right next step once
+instruments show imports are hot; the reasoning is in `resolve.ts`.
+
+**The one line worth carrying forward:** `lib/supabase/paginate.ts`'s
+contract — **`T[]` means complete, null means ask again** — because it names
+today's defining bug class in a form the type system can help enforce.

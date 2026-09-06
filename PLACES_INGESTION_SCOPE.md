@@ -8,6 +8,22 @@ Written 2026-09-06 by the Security/Backend lane, in answer to: *"I'm aiming
 for 500–1000s of venues, Dubai is a huge city, there are so many places —
 how are we gonna make this work?"*
 
+## Where things stood when this was written
+
+So the numbers below are readable cold, without reconstructing the day:
+
+- **82 curated spots.** 40 have coordinates (migration 037, live). **0 have
+  photos** — migration 039 would make it 6, and is held pending the owner
+  uploading six image files by hand.
+- **Four categories — beach_club, escape, padel, wellness — are at 0%
+  coordinates AND 0% photos.** They are also the four Google has no clean
+  type for. That is the same weakness three times over, and §1 and §6 are
+  about why Places does not fix it on its own.
+- Free photo sourcing was measured, not estimated, and tops out at **~10 of
+  82**: only 2 spots have any website URL (one domain dead), and Wikipedia
+  yields ~9, all landmarks. That measurement is what makes Places worth
+  costing at all.
+
 ## The short version
 
 The bottleneck is **venue discovery**, not photos. The 12 missing
