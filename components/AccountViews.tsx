@@ -16,6 +16,9 @@ import PlaceLinkImporter from "@/components/PlaceLinkImporter";
 import PhotoWall, { type WallItem } from "@/components/PhotoWall";
 import PhotoCredit from "@/components/PhotoCredit";
 import { categoryLabel, categoryMeta } from "@/lib/categories";
+import { minimumAgeForCategory } from "@/lib/age-policy";
+import { supabase } from "@/lib/supabase";
+import useDebounce from "@/hooks/use-debounce";
 import { avatarStyle, initialsOf } from "@/lib/avatar";
 import { validateImageFile } from "@/lib/upload";
 import {
@@ -229,6 +232,7 @@ export default function AccountViews({
   name,
   personId,
   spots,
+  age,
   visits,
   plannedWith,
   wrappedSummary,
@@ -241,6 +245,8 @@ export default function AccountViews({
   name: string;
   personId: string | null;
   spots: Spot[];
+  /** Server-owned age, for the same gate the other catalogue paths apply. */
+  age: number;
   visits: ProfileVisit[];
   plannedWith: PlannedWith[];
   wrappedSummary: WrappedSummary | null;
@@ -354,20 +360,89 @@ export default function AccountViews({
     }
   }
 
+  // One gate, applied to both paths. The Discover grid was the only
+  // catalogue surface with none — StartPlanForm and ActionSearchBar both
+  // apply this, and a new query should not ship weaker than its siblings.
+  const allowed = useMemo(
+    () => (rows: Spot[]) =>
+      rows.filter((spot) => age >= Math.max(minimumAgeForCategory(spot.category), spot.minimum_age ?? 0)),
+    [age],
+  );
+
+  // Derived from the rows we have, which is the first 120 by name — so a
+  // category whose only venues sort late has no tab. Correcting that needs
+  // a DISTINCT over the whole table, which PostgREST cannot express and
+  // which belongs in an RPC (backend-data). Left deriving from data rather
+  // than switched to lib/categories' full list of 23, because that would
+  // render tabs that match nothing — a dead control, which is the worse of
+  // the two bugs. Flagged rather than papered over.
   const categories = useMemo(() => {
-    const found = new Set(spots.map((spot) => spot.category));
+    const found = new Set(allowed(spots).map((spot) => spot.category));
     return ["All", ...[...found].sort()];
-  }, [spots]);
+  }, [spots, allowed]);
+
+  // The catalogue is not all here. The page sends the first 120 rows by
+  // name, and even without that limit PostgREST caps a read at 1000 — so
+  // filtering the prop in memory is a search that silently stops finding
+  // things as the catalogue grows, and raising the number cannot fix it.
+  // Browsing still uses the prop, because "the first 120 by name" is
+  // exactly what an unfiltered grid shows anyway; a real query goes to the
+  // server. Same shape as ActionSearchBar, deliberately: one way to search
+  // the catalogue, not two that drift.
+  const searching = query.trim().length > 0 || placeFilter !== "All";
+  const debouncedQuery = useDebounce(query.trim(), 200);
+  const remoteKey = `${debouncedQuery}\u0000${placeFilter}`;
+  // Results carry the key they belong to, so a stale response is recognised
+  // during render rather than cleared from an effect — the React 19
+  // setState-in-effect trap this repo has hit twice.
+  const [remote, setRemote] = useState<{ key: string; rows: Spot[] } | null>(null);
+
+  useEffect(() => {
+    const q = debouncedQuery;
+    const filter = placeFilter;
+    if (!q && filter === "All") return;
+    let cancelled = false;
+    let request = supabase
+      .from("spots")
+      .select("id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, photo_url, photo_attribution, description, minimum_age")
+      .eq("source", "curated");
+    if (filter !== "All") request = request.eq("category", filter);
+    if (q) {
+      // Quote the value and escape what the quoting cares about. PostgREST's
+      // `or` uses the comma as a clause separator, so an unquoted term
+      // containing one produces PGRST100 and a 400 — verified against the
+      // live project: "a,b" failed outright, and because the failure comes
+      // back as a rejected request rather than an empty match, the grid
+      // would just show nothing. Someone searching "beach, dubai" would
+      // read that as "no such place". Quoting fixes every hostile term I
+      // could construct: commas, parentheses, quotes, apostrophes,
+      // backslashes and dots all return 200. Note `%` and `*` in a term
+      // still act as wildcards; that is PostgREST's ilike, and harmless.
+      const esc = q.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+      request = request.or(
+        `name.ilike."%${esc}%",area.ilike."%${esc}%",cuisine.ilike."%${esc}%"`,
+      );
+    }
+    request.order("name").limit(200).then(({ data }) => {
+      if (cancelled) return;
+      setRemote({ key: `${q}\u0000${filter}`, rows: (data ?? []) as Spot[] });
+    });
+    return () => { cancelled = true; };
+  }, [debouncedQuery, placeFilter]);
 
   const visiblePlaces = useMemo(() => {
-    const clean = query.trim().toLowerCase();
-    return spots.filter((spot) => {
+    if (!searching) return allowed(spots);
+    if (remote?.key === remoteKey) return allowed(remote.rows);
+    // Stale or not yet arrived: fall back to filtering what we already have,
+    // so the grid narrows immediately instead of blanking on every keystroke.
+    const clean = debouncedQuery.toLowerCase();
+    return allowed(spots).filter((spot) => {
       const matchesFilter = placeFilter === "All" || spot.category === placeFilter;
       const matchesQuery = !clean
         || `${spot.name} ${spot.area} ${spot.category} ${spot.cuisine}`.toLowerCase().includes(clean);
       return matchesFilter && matchesQuery;
     });
-  }, [spots, placeFilter, query]);
+  }, [searching, remote, remoteKey, spots, placeFilter, debouncedQuery, allowed]);
 
   // Profile figures are counted from the visit log, never stored separately —
   // a stat that can disagree with the thing it counts is worse than no stat.

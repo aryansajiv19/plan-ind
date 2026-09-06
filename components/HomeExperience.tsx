@@ -378,6 +378,7 @@ export default function HomeExperience({
               name={name}
               personId={personId}
               spots={spots}
+              age={age}
               visits={visits}
               plannedWith={plannedWith}
               wrappedSummary={wrappedSummary}

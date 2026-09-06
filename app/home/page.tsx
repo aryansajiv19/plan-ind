@@ -57,7 +57,10 @@ export default async function HomePage({
     // created_by_user_id/address/latitude/longitude are dropped here --
     // `Spot`'s type still claims the full shape, so don't start reading a
     // dropped field from this particular query without adding it back.
-    supabase.from("spots").select("id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, photo_url, photo_attribution, description").order("name").limit(120),
+    // minimum_age was added back 2026-09-07: the Discover grid now applies
+    // the same age gate as StartPlanForm and ActionSearchBar, and it cannot
+    // do that on rows that do not carry the column.
+    supabase.from("spots").select("id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, photo_url, photo_attribution, description, minimum_age").order("name").limit(120),
     person ? getProfileVisits(person, 50, supabase) : Promise.resolve([]),
     person ? getPlannedWith(person, supabase) : Promise.resolve([]),
     person
