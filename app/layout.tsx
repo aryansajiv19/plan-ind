@@ -104,15 +104,25 @@ export default function RootLayout({
   // evening load is exactly the kind of thing a themed product cannot do.
   // ThemeSync then applies any stored override and handles the 17:00 turnover.
   //
-  // PARKED 2026-09-04 (owner: "no dark mode, or at least hold dark back
-  // now, we'll see later"). Machinery intact and correct; only the path
-  // that selects it is disabled. The clock itself is deliberately left
-  // alone and still called below — it is its APPLICATION that is parked,
-  // so lib/dubai-phase.ts stays correct and testable. To restore: return
-  // `autoGround()` here instead of "day", and bring back the nav toggle in
-  // components/HomeExperience.tsx. See SPECS.md §19.2.
+  // PARKED 2026-09-07 (owner: "Keep light mode in the dark for now. Hold
+  // it back."). Light's values are intact and correct; only the path that
+  // selects them is disabled. This is §19.2's park run in the opposite
+  // direction — dark is now the identity (SPECS.md §23) and light is the
+  // one held back. The clock itself is deliberately left alone and still
+  // called below: it is its APPLICATION that is parked, so
+  // lib/dubai-phase.ts stays correct and testable.
+  //
+  // NOTE: the ground is pinned in TWO places — here (server stamp, first
+  // paint) and components/ThemeSync.tsx (client re-resolve, including a
+  // 60s interval). Restoring one without the other half-restores light,
+  // and because light is what the whole app used to render, getting this
+  // wrong flips the app between two complete identities on a 60-second
+  // cycle rather than merely showing the wrong one.
+  //
+  // To restore: return `autoGround()` here, unpin ThemeSync, and bring
+  // back the nav toggle in components/HomeExperience.tsx. See §23.8.
   void autoGround();
-  const ground = "day";
+  const ground = "night";
 
   return (
     <html

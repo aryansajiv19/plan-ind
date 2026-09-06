@@ -235,33 +235,169 @@
    /onboarding, /privacy and /terms had no night variant at all under the
    old per-screen scopes. */
 [data-theme="night"] {
-  --color-paper: #0d1117; /* deep charcoal-navy, cooler than pure black */
-  --color-card: #161b22;
-  --color-ink: #f2efe9; /* 16.49:1 on ground, 15.07:1 on surface */
-  --color-muted: #8a8f98; /* 5.82:1 on ground, 5.32:1 on surface */
-  --color-line: rgba(201, 168, 118, 0.28);
+  /* SPECS.md §23.2. Re-authored from the v5-era night set, which was a
+     different identity entirely (champagne gold, icy blue, teal) and would
+     have shipped colours §23's six do not contain.
 
-  /* Gold, settled: the owner saw gold-primary and the recommended
-     glass-blue-primary/gold-sparing swap side by side and picked gold —
-     a deliberate confirmation of the navy/gold resemblance, not a drift
-     (SPECS.md §1). Build with confidence. */
-  --color-punch: #c9a876; /* champagne gold — 8.42:1 on ground, 7.7:1 on surface */
-  --color-punch-text: #c9a876; /* one value serves both here too */
-  --color-accent-premium: #5cc8d7; /* icy glass-blue — premium/badge job, sparing — 9.64:1 */
-  --color-accent-tint: rgba(201, 168, 118, 0.16); /* composites to #2b2926; accent on it is 6.46:1 */
-  --color-shimmer: rgba(242, 239, 233, 0.08); /* skeleton sweep highlight — lighter on the dark night card */
+     §23.1's inversion is the whole point and it is easy to undo by
+     accident: the CARD is DARKER than the canvas here. Cards are wells cut
+     into the ground, not planes floating above it. Making the card lighter
+     imports light mode's raised-plane metaphor, spends 15.5 points of L*
+     headroom, and collapses the card interior to one legible text tier —
+     that is the flattening this section exists to fix, not a style
+     preference. ΔL* between the two is 15.54, against 3.34 in light. */
+  --color-paper: #2d383e; /* canvas, L* 22.8 */
+  --color-card: #051822;  /* card, L* 7.2 — below the ground, not above it */
 
-  --color-live: #00e0c7; /* teal, kept — 11.25:1 on ground. Small components only, never a large surface or fill. */
-  --color-live-dot: #00e0c7; /* same value as --color-live */
+  --color-ink: #d4c9c7;   /* 7.43 canvas / 11.19 card */
+  /* ⚠ SURFACE-DEPENDENT, and it is not visible by eye. Grey is body-legal
+     inside a card (6.39) and FAILS on the canvas (4.24 — large text only).
+     Small text on the canvas takes --color-ink. §23.5 asks for this token
+     specifically to be audited for canvas-level use; treat surface
+     dependence as the default assumption for every colour in dark. */
+  --color-ink-2: #969a9e;
+  --color-muted: #969a9e;
 
-  --color-error: #ff5c5c; /* 6.25:1 on ground */
+  /* §23.3. Brown #7C5841 does not survive dark — 2.87 canvas / 1.91 card —
+     so §21's accent is RE-DERIVED, not ported. #BF977D is tan lightened 25%
+     toward white and clears body text on both grounds, which is what lets
+     §21 keep one rule instead of growing a per-surface exception. The fills
+     themselves are unchanged. */
+  --color-punch: #aa7452;      /* tan — FILL and boundary, never text */
+  --color-punch-text: #bf977d; /* 4.54 canvas / 6.84 card */
+  --color-fill-quiet: #d4c9c7; /* light fill, unchanged */
 
-  --color-grape: #c9a876;
-  --color-zest: #c9a876;
-  --color-mint: #c9a876;
+  /* --edge: grey at 0.80α, compositing to #81868b — 3.27 canvas / 4.93
+     card. 0.80 is a FLOOR, not a taste value: at 0.65 it composites to
+     #71787c = 2.68 on the canvas and fails SC 1.4.11 on control
+     boundaries, and a vote option is a real button whose boundary is
+     informational. Do not soften it because it looks nicer. */
+  --color-line: rgba(150, 154, 158, 0.8);
+
+  --color-accent-premium: #bf977d; /* no seventh colour: the accent does this job */
+  --color-accent-tint: rgba(191, 151, 125, 0.16);
+  --color-shimmer: rgba(212, 201, 199, 0.08);
+
+  /* Carried, exactly as v7 carries them in light: §23's six contain no
+     confirm or error colour, so these two stay as documented exceptions.
+     Derived by lightening light's own values along their hue until both
+     dark grounds clear 4.5 — the same precedent as #BF977D, and the least
+     lightening that gets there rather than the prettiest. */
+  --color-live: #6fb392;     /* 4.89 canvas / 7.36 card */
+  --color-live-dot: #6fb392;
+  --color-error: #f08a78;    /* Design's value (§23.10). Error fills take
+     navy ink, not white — red-fill-white-text is a light-mode habit. */
+
+  --color-grape: #bf977d;
+  --color-zest: #bf977d;
+  --color-mint: #bf977d;
 
   /* Native controls, scrollbars and date pickers read this. */
   color-scheme: dark;
+}
+
+/* ── §23.13: the dark-treatment checklist ─────────────────────────
+   The 45-ish [data-theme="night"] component rules that used to live in
+   this file are gone. They were tuned against the v5-era night ground,
+   which was ~15 L* darker than §23's canvas, so their VALUES could not be
+   revived — a value calibrated for a ground that no longer exists looks
+   plausible and is wrong, which is the expensive kind. Reviving them
+   wholesale would have been §23.1's own mistake in a second place.
+
+   What WAS worth keeping is this list. It is a worked record of every
+   selector someone found to need dark treatment, built by walking the
+   whole app once, and it is expensive to recreate and trivial to lose.
+   §23.13 is explicit that it comes out BEFORE the rules do.
+
+   Read it as "this selector needed a value", never as "this was the
+   value". Anything still unhandled by the §23.2 tokens gets a fresh
+   value measured against the new grounds.
+
+     .home-experience .demo-discover-tools input
+     .home-experience .home-app-tab[aria-current="page"]
+     .home-experience .home-avatar
+     .home-experience .home-eyebrow
+     .home-experience .home-grid-field
+     .home-experience .home-logo
+     .home-experience .home-plan-card
+     .home-experience .home-plan-card__tape
+     .home-experience .home-primary-cta
+     .home-experience .home-system
+     .home-experience .home-system-row--active
+     .home-experience .place-link-importer__field input
+     .home-experience .plan-category-option
+     .home-experience .plan-custom-place__editor input
+     .home-experience .plan-custom-place__editor textarea
+     .home-experience .plan-deadline
+     .home-experience .plan-form__input
+     .home-experience .plan-location-fields select
+     .home-experience .plan-smart-search textarea
+     .home-experience .plan-submit
+     .vote-experience .vote-field
+     .vote-experience .vote-option
+     .vote-experience .vote-option--leader
+     .vote-experience .vote-option--leader .vote-option__category
+     .vote-experience .vote-option--leader .vote-option__votes
+     .vote-experience .vote-option--leader::after
+     .vote-experience .vote-option__votes
+     .vote-experience .vote-option__votes-unit
+     .vote-experience .vote-pool-progress
+     .vote-experience .vote-pool-progress button
+     .vote-experience .vote-pool-progress button + button::before
+     .vote-experience .vote-pool-progress button[aria-current="step"]
+     .vote-experience .vote-pool-progress button[aria-current="step"][data-complete="true"]
+     .vote-experience .vote-pool-progress button[data-complete="true"]
+     .vote-experience .vote-primary-action:not(:disabled)
+     .vote-experience .vote-result
+     .vote-experience .vote-round-label
+     .vote-experience .vote-round-label::after
+     .vote-experience .vote-round-label::before
+     .vote-experience .vote-shell
+     .vote-experience::after
+     .vote-experience::before
+   ──────────────────────────────────────────────────────────────── */
+
+/* §23.2's surface-dependence rule, applied. Grey is body-legal inside a
+   card (6.39) and fails on the canvas (4.24) — "small text on the canvas
+   takes --ink". These are the canvas-level text sites, found by measuring
+   the rendered pages rather than by reading the markup: every one of them
+   resolved to #969A9E on #2D383E at under 24px.
+
+   Scoped to dark because the token is only surface-dependent here. In
+   light --color-muted is #2D383E on near-white and passes everywhere, so
+   these selectors are correct as they stand and must not be touched.
+
+   This is a fresh rule measured against the new grounds, not a revival —
+   the deleted blocks are a list of what needed treatment, never a source
+   of values (§23.13). */
+:root[data-theme="night"] .home-hello,
+:root[data-theme="night"] .home-deck,
+:root[data-theme="night"] .home-plan-section__intro p,
+:root[data-theme="night"] .home-footer span,
+:root[data-theme="night"] .home-app-tab,
+:root[data-theme="night"] .wall-empty,
+:root[data-theme="night"] .vote-name-gate label,
+:root[data-theme="night"] .vote-name-help,
+:root[data-theme="night"] .place-meta span,
+:root[data-theme="night"] .place-back,
+:root[data-theme="night"] .home-nav__link,
+/* The global search label carries Tailwind's text-muted and has no app
+   class of its own, so it is reached through the input it labels. */
+:root[data-theme="night"] label[for="search"],
+/* /login and /onboarding do follow the ground: --auth-muted aliases
+   --color-muted, so this is the same surface-dependence, not a separate
+   auth palette. Worth knowing — §23.6 records these routes as having "no
+   dark variant at all", and that is truer of their layout than their
+   colour, which tracks the core tokens. */
+:root[data-theme="night"] .auth-copy,
+/* /privacy and /terms are entirely canvas — no card anywhere on the page —
+   so every line of their prose is the surface-dependent case rather than a
+   few stray labels. Scoped to .legal-page so the kicker keeps its muted
+   value on screens where it does sit on a card. */
+:root[data-theme="night"] .legal-page p,
+:root[data-theme="night"] .legal-page__date,
+:root[data-theme="night"] .legal-page .home-section-kicker {
+  color: var(--color-ink); /* 7.43 on the canvas */
 }
 
 /* The primary button fill: the ink pairing plus a subtle top-to-base
@@ -278,9 +414,13 @@
   --primary-fill: linear-gradient(180deg, #0b2836, #051822);
   --primary-ink: #ffffff; /* 18.10:1 on the base end */
 }
+/* Design's value (§23.6 resolved). The light fill carries the button and
+   the card value carries its label — 11.19, and no colour outside §23's
+   set. The two-band focus ring needs no re-measurement against it: the
+   pair clears 3:1 on every possible ground, not just the specced four. */
 [data-theme="night"] {
-  --primary-fill: linear-gradient(180deg, #d9c093, #c9a876);
-  --primary-ink: #0d1117; /* 8.42:1 on the base end, matches the night ground exactly */
+  --primary-fill: #d4c9c7;
+  --primary-ink: #051822; /* 11.19 on the fill */
 }
 
 /* ── Text over photography ─────────────────────────────────────────
@@ -484,6 +624,59 @@ h3 {
 :focus-visible {
   outline: 2px solid var(--color-ink);
   outline-offset: -2px;
+}
+
+/* SPECS.md §23.7 — the dark ring, and it was a shipping blocker rather
+   than polish: the graphite inset above is invisible on a near-black card,
+   which is keyboard access failing on the app's primary surface.
+
+   TWO bands, because no single colour can do the job. A focusable control
+   in dark sits on four grounds — card #051822, canvas #2D383E, and §21.3's
+   tan and light fills — spanning L* 7.2 to 81.8, and every single-value
+   candidate fails 3:1 on at least one of them (white is 1.62 on the light
+   fill; light is 1.00 on itself). Worst case for the pair is 4.59 on the
+   tan fill, and the bands separate from each other at 11.19 so the ring
+   reads as a ring rather than a smudge.
+
+   Swept the whole luminance range rather than only those four grounds: the
+   worst possible ground for this pair is mid-grey #6a6a6a at 3.35, still a
+   pass. No colour defeats it, so a new surface never needs it re-measured. */
+[data-theme="night"] {
+  --ring-outer: #d4c9c7;
+  --ring-inner: #051822;
+}
+/* `:root[...]` rather than `[data-theme="night"]` on purpose, and it is
+   load-bearing. A bare attribute selector plus :focus-visible scores
+   (0,2,0), which TIES with the ~20 per-component rules further down this
+   file (`.plan-category-group:focus-visible` and friends) — and a tie
+   loses to source order. Verified by Tab press before the fix: those rules
+   still painted their solid graphite outline over this ring, so dark
+   showed the two inset bands AND an ink outline, three visible bands on
+   one control, with an outward offset on the nav link that an ancestor's
+   overflow can clip. Adding :root takes this to (0,3,0) and it supersedes
+   them, which is the intent — §23.7 exists because the graphite ring is
+   invisible on a near-black card, so in dark it must replace rather than
+   accompany. */
+:root[data-theme="night"] :focus-visible {
+  /* Transparent, not removed. In forced-colors / Windows High Contrast the
+     box-shadow below is dropped entirely, and a transparent outline is
+     re-coloured by the OS — so this line is the ring for exactly the users
+     most likely to need it. */
+  outline: 2px solid transparent;
+  outline-offset: -2px;
+  /* Inset so an ancestor's overflow cannot clip it, and so it follows
+     border-radius for free.
+
+     ⚠ This REPLACES box-shadow, which is safe only because dark uses no
+     elevation shadows — a shadow must be darker than its ground and
+     #051822 is already at the floor, so soft elevation is structurally
+     invisible here and separation comes from value plus the --color-line
+     hairline. If any dark surface later gains an outer box-shadow, this
+     rule must APPEND to it, or focusing that surface silently deletes its
+     elevation. */
+  box-shadow:
+    inset 0 0 0 2px var(--ring-outer),
+    inset 0 0 0 4px var(--ring-inner);
 }
 
 /* ── The Dubai backdrop: a skyline that keeps Dubai time ───────────
@@ -784,8 +977,15 @@ h3 {
   height: 2.75rem;
   border: 1px solid var(--color-ink);
   border-radius: var(--radius-control);
-  background: var(--color-ink);
-  color: white;
+  /* The filled-primary pair, not `var(--color-ink)` + `color: white`.
+     Those two mechanisms agreed only by coincidence in light, where the
+     ink IS dark and white sits on it at 18.10 — so the hardcoded white
+     never looked wrong and the --primary-* pair went unused on the app's
+     own primary controls while /login quietly used it. In dark the ink is
+     #D4C9C7 and white on it is 1.62: the button's own label, unreadable.
+     Reading the pair makes both grounds correct from one declaration. */
+  background: var(--primary-fill);
+  color: var(--primary-ink);
   box-shadow: none;
   font-family: var(--font-display);
   font-weight: 800;
@@ -1117,8 +1317,15 @@ h3 {
   padding: 0.8rem 1.3rem;
   border: 1px solid var(--color-ink);
   border-radius: var(--radius-control);
-  background: var(--color-ink);
-  color: white;
+  /* The filled-primary pair, not `var(--color-ink)` + `color: white`.
+     Those two mechanisms agreed only by coincidence in light, where the
+     ink IS dark and white sits on it at 18.10 — so the hardcoded white
+     never looked wrong and the --primary-* pair went unused on the app's
+     own primary controls while /login quietly used it. In dark the ink is
+     #D4C9C7 and white on it is 1.62: the button's own label, unreadable.
+     Reading the pair makes both grounds correct from one declaration. */
+  background: var(--primary-fill);
+  color: var(--primary-ink);
   font-family: var(--font-display);
   font-weight: 700;
   transition: transform 260ms var(--ease-settle), box-shadow 150ms ease;
@@ -1836,8 +2043,15 @@ h3 {
   padding: 0.8rem 1.2rem;
   border: 1px solid var(--color-ink);
   border-radius: var(--radius-control);
-  background: var(--color-ink);
-  color: white;
+  /* The filled-primary pair, not `var(--color-ink)` + `color: white`.
+     Those two mechanisms agreed only by coincidence in light, where the
+     ink IS dark and white sits on it at 18.10 — so the hardcoded white
+     never looked wrong and the --primary-* pair went unused on the app's
+     own primary controls while /login quietly used it. In dark the ink is
+     #D4C9C7 and white on it is 1.62: the button's own label, unreadable.
+     Reading the pair makes both grounds correct from one declaration. */
+  background: var(--primary-fill);
+  color: var(--primary-ink);
   font-family: var(--font-display);
   font-size: 1rem;
   font-weight: 700;
@@ -2289,37 +2503,6 @@ h3 {
 .error-panel .auth-copy { margin: 0 auto 1.5rem; }
 .error-panel .auth-submit { width: auto; margin: 0 auto 1rem; padding: .75rem 1.5rem; }
 .error-panel .auth-link { margin: 0 auto; }
-
-
-[data-theme="night"] .home-experience .home-grid-field {
-  opacity: 0.22;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
-}
-
-[data-theme="night"] .home-experience .home-eyebrow,
-[data-theme="night"] .home-experience .home-plan-card,
-[data-theme="night"] .home-experience .plan-category-option,
-[data-theme="night"] .home-experience .plan-deadline {
-  background: rgba(255, 255, 255, 0.035);
-}
-
-[data-theme="night"] .home-experience .home-system { background: var(--color-card); }
-[data-theme="night"] .home-experience .home-system-row--active { background: var(--color-punch); color: var(--primary-ink); }
-[data-theme="night"] .home-experience .home-logo,
-[data-theme="night"] .home-experience .home-primary-cta,
-[data-theme="night"] .home-experience .plan-submit { background: var(--primary-fill); color: var(--primary-ink); }
-[data-theme="night"] .home-experience .home-app-tab[aria-current="page"] { background: transparent; color: var(--color-ink); }
-[data-theme="night"] .home-experience .home-avatar { color: var(--color-ink); }
-[data-theme="night"] .home-experience .home-plan-card__tape,
-[data-theme="night"] .home-experience .plan-form__input,
-[data-theme="night"] .home-experience .plan-location-fields select,
-[data-theme="night"] .home-experience .plan-smart-search textarea,
-[data-theme="night"] .home-experience .plan-custom-place__editor input,
-[data-theme="night"] .home-experience .plan-custom-place__editor textarea,
-[data-theme="night"] .home-experience .place-link-importer__field input,
-[data-theme="night"] .home-experience .demo-discover-tools input { background: #1a1b22; }
 
 /* Shared-plan voting uses the same language as home.
 
@@ -2850,11 +3033,6 @@ h3 {
   }
 }
 
-[data-theme="night"] .vote-experience .vote-shell,
-[data-theme="night"] .vote-experience .vote-option,
-[data-theme="night"] .vote-experience .vote-field,
-[data-theme="night"] .vote-experience .vote-result { background-color: var(--color-card); }
-
 .vote-primary-action:focus-visible,
 .vote-secondary-action:focus-visible,
 .vote-option:focus-visible,
@@ -3380,162 +3558,7 @@ h3 {
   color: var(--color-ink) !important;
 }
 
-/* ============================================================================
-   AFTER DARK — the voting round
-   Turn 1 of "Voting Round Directions.dc.html", and the temperament every
-   later turn in that canvas builds on (turns 3-7 all sit on the night
-   ground and brass; only the turn 2 strategy board stays in day).
-
-   Night only, on purpose: brass is 3.37:1 on ivory and the lattice wash
-   vanishes on a light ground. The night palette at :2098 already matches
-   the canvas exactly — now retuned: #0e0c0e / #171316 / #68b8c0 / #f4efe8 — so nothing
-   below repaints anything. This adds the three things the canvas has and
-   the shipped screen did not: texture, structure, and reveal.
-
-   The canvas's own words: "fun comes from light and reveal rather than
-   bounce". That is also why none of this collides with the restraint
-   block above — that cancels hover *transforms*, and After Dark never
-   uses one.
-   ============================================================================ */
-
-/* --- Ground: brass lattice at +/-45deg, and a slow halo behind the masthead. */
-[data-theme="night"] .vote-experience::before {
-  background:
-    repeating-linear-gradient(45deg, rgba(104, 184, 192, 0.07) 0 1px, transparent 1px 22px),
-    repeating-linear-gradient(-45deg, rgba(104, 184, 192, 0.07) 0 1px, transparent 1px 22px),
-    var(--color-paper);
-  background-size: auto;
-}
-
-/* ::before is the ground, so the halo takes ::after. `isolation: isolate` on
-   .vote-experience keeps z-index:-1 from escaping behind the page itself. */
-[data-theme="night"] .vote-experience::after {
-  content: "";
-  position: fixed;
-  z-index: -1;
-  top: -14rem;
-  left: 50%;
-  width: 26rem;
-  height: 26rem;
-  margin-left: -13rem;
-  pointer-events: none;
-  filter: blur(28px);
-  background: conic-gradient(
-    from 0deg,
-    rgba(104, 184, 192, 0.18),
-    transparent 40%,
-    rgba(104, 184, 192, 0.12) 70%,
-    transparent
-  );
-  animation: ad-halo 32s linear infinite;
-}
-
 @keyframes ad-halo { to { transform: rotate(360deg); } }
-
-/* --- Structure: the round label becomes a rule-flanked plate. */
-[data-theme="night"] .vote-experience .vote-round-label {
-  display: flex;
-  align-items: center;
-  gap: 0.625rem;
-  color: var(--vote-metal);
-  font-size: 0.6rem;
-  letter-spacing: 0.24em;
-}
-
-[data-theme="night"] .vote-experience .vote-round-label::before,
-[data-theme="night"] .vote-experience .vote-round-label::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(to right, transparent, color-mix(in srgb, var(--vote-metal) 70%, transparent));
-}
-[data-theme="night"] .vote-experience .vote-round-label::after {
-  background: linear-gradient(to left, transparent, color-mix(in srgb, var(--vote-metal) 70%, transparent));
-}
-
-/* --- Round markers: brass numerals on a hairline, not circles. The numerals
-   themselves are Roman and come from the markup, so screen readers still get
-   "Round 2 of 3" from the existing aria-label. */
-[data-theme="night"] .vote-experience .vote-pool-progress { gap: 0.75rem; }
-
-[data-theme="night"] .vote-experience .vote-pool-progress button {
-  width: auto;
-  min-width: 1.4rem;
-  height: auto;
-  padding: 0 0 2px;
-  border: 0;
-  border-bottom: 1px solid transparent;
-  border-radius: 0;
-  background: transparent;
-  color: var(--vote-metal);
-  font-size: 0.66rem;
-  letter-spacing: 0.2em;
-  opacity: 0.45;
-}
-
-[data-theme="night"] .vote-experience .vote-pool-progress button[aria-current="step"] {
-  border-bottom-color: var(--vote-metal);
-  color: var(--vote-metal);
-  opacity: 1;
-}
-
-/* A round you already chose in keeps the live accent — your state stays
-   yours, exactly as in day. Brass is reserved for where you *are*. */
-[data-theme="night"] .vote-experience .vote-pool-progress button[data-complete="true"] {
-  border-bottom-color: transparent;
-  background: transparent;
-  color: var(--color-live);
-  opacity: 1;
-}
-[data-theme="night"] .vote-experience .vote-pool-progress button[aria-current="step"][data-complete="true"] {
-  border-bottom-color: var(--color-live);
-}
-
-[data-theme="night"] .vote-experience .vote-pool-progress button + button::before {
-  content: "\25C6";
-  position: absolute;
-  left: -0.62rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--vote-metal);
-  font-size: 0.45rem;
-  letter-spacing: 0;
-  opacity: 0.5;
-}
-
-/* --- Tally: a struck brass plate rather than a sentence. The " yes" is
-   dropped here (the box reads as a count on its own); the sr-only voter
-   list in the markup is untouched, so nothing is lost non-visually. */
-[data-theme="night"] .vote-experience .vote-option__votes {
-  display: grid;
-  place-items: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  border: 1px solid color-mix(in srgb, var(--vote-metal) 35%, transparent);
-  color: var(--vote-metal);
-  font-family: var(--font-display);
-  font-size: 1.15rem;
-  font-weight: 700;
-}
-[data-theme="night"] .vote-experience .vote-option__votes-unit { display: none; }
-
-/* --- Reveal: the leader carries a slow gold sheen and a filled plate. */
-[data-theme="night"] .vote-experience .vote-option--leader {
-  border-color: color-mix(in srgb, var(--vote-metal) 60%, transparent);
-}
-[data-theme="night"] .vote-experience .vote-option--leader .vote-option__votes {
-  border-color: var(--vote-metal);
-  background: color-mix(in srgb, var(--vote-metal) 12%, transparent);
-}
-[data-theme="night"] .vote-experience .vote-option--leader::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(105deg, transparent 30%, rgba(104, 184, 192, 0.22) 48%, transparent 62%);
-  background-size: 250% 100%;
-  animation: ad-sheen 6s ease-in-out infinite;
-}
 
 @keyframes ad-sheen {
   0% { background-position: -160% 0; }
@@ -3549,17 +3572,6 @@ h3 {
   0% { background-position: 0% 0; }
   100% { background-position: 200% 0; }
 }
-
-/* --- Commit: the primary action is struck brass, ink on metal. Now the
-   themed --primary-fill pair: 6.70:1 at the dark end, 9.88:1 at the light. */
-[data-theme="night"] .vote-experience .vote-primary-action:not(:disabled) {
-  border-color: var(--vote-metal);
-  background: var(--primary-fill);
-  color: var(--primary-ink);
-}
-
-/* The leader's kicker goes brass with it, so "· leading" reads as one plate. */
-[data-theme="night"] .vote-experience .vote-option--leader .vote-option__category { color: var(--vote-metal); }
 
 /* ── The photo wall ────────────────────────────────────────────────
    Turn 9's soft masonry, at turn 13's restraint and turn 14's colour.

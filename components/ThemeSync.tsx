@@ -36,19 +36,24 @@ export default function ThemeSync({ serverGround }: { serverGround: Ground }) {
         // answer, and losing the override is better than an unstyled page.
       }
       const ground = resolveGround(preference);
-      // PARKED 2026-09-04 (owner: "no dark mode, or at least hold dark back
-      // now, we'll see later"). Machinery intact and correct; only the path
-      // that selects it is disabled. SPECS.md §19.2 names app/layout.tsx as
-      // "the single point where it is decided", but there are two: the server
-      // stamps the first paint there, and this re-resolves it on mount and
-      // every 60s. Pinning only the server leaves the clock flipping the
-      // document to night moments after hydration, so the park has to cover
-      // this path too. The resolution above still runs, so the clock stays
-      // exercised and correct. To restore: apply `ground` instead of `parked`
-      // here, re-enable the ground selection in app/layout.tsx, and bring back
-      // the nav toggle in components/HomeExperience.tsx. See SPECS.md §19.2.
+      // PARKED 2026-09-07 (owner: "Keep light mode in the dark for now. Hold
+      // it back."). Light's values are intact and correct; only the path that
+      // selects them is disabled. Dark is the identity now (SPECS.md §23), so
+      // this is §19.2's park run in the opposite direction.
+      //
+      // This is the SECOND of two pin sites, and the one that actually bites.
+      // The server stamps first paint in app/layout.tsx; this re-resolves on
+      // mount, on a `storage` event, and every 60s. Pin the server only and
+      // the app looks correct, then flips up to a minute later — which is why
+      // §19.2's "the single point where it is decided" was wrong and §23.8
+      // names both sites up front. The resolution above still runs, so the
+      // clock stays exercised and correct.
+      //
+      // To restore: apply `ground` instead of `parked` here, re-enable the
+      // ground selection in app/layout.tsx, and bring back the nav toggle in
+      // components/HomeExperience.tsx. See SPECS.md §23.8.
       void ground;
-      const parked: Ground = "day";
+      const parked: Ground = "night";
       if (root.dataset.theme !== parked) root.dataset.theme = parked;
     };
 
