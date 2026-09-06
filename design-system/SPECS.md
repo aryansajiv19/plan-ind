@@ -1756,6 +1756,73 @@ deliberately. **If in doubt, use the brown text and no fill** — that is
 the reading of "only wherever they naturally fit" that is hardest to get
 wrong.
 
+## 22 — Free space is distributed, not left where it falls (owner-approved, 2026-09-06)
+
+Owner, after seeing the hero card fan re-centred: **"yes now i like the
+padding now for the cards mantain this througout the rest of the
+application."**
+
+**They approved the principle, not the number.** The fix produced 79px
+above and below, and "maintain this throughout" will be read as *79px*
+and hard-coded somewhere unless this says otherwise. It is not a value.
+
+### 22.1 — The rule
+
+> **A container decides where its free space goes, using an alignment
+> property. It never leaves the slack wherever it happens to fall.**
+
+The bug was not a wrong padding number. `.home-stage` was 152px taller
+than the card fan inside it, and the leftover landed **0px above, 152px
+below** — because nothing had decided. The container had free space and
+no instruction about it.
+
+The fix is `align-items: center` on the container (and removing the
+deck's `mb-8`, which was compensating), giving 79/79. Verified in both
+card poses at all four stage heights the CSS defines.
+
+**Why margins are the wrong fix even when they produce identical
+pixels.** A margin is a fixed compensation for one container height. It
+looks correct today and silently goes wrong the moment the container
+resizes — a new breakpoint, a longer card, a different pose. An alignment
+property re-derives the distribution at every height, so it cannot drift.
+Same pixels now, different behaviour later.
+
+### 22.2 — What to sweep for
+
+This is the rule that makes the visual QA pass actionable, so it is
+stated as a diagnostic rather than a principle:
+
+> **Find every container that is taller (or wider) than its content, and
+> check whether the leftover space lands entirely on one side.**
+
+Where it does, the fix is an alignment property on the container — not a
+margin, not a padding, and not a magic number on the child.
+
+**Do not mistake this for a spacing scale.** A perfectly consistent scale
+of spacing values would not have caught the hero bug: 0/152 can be built
+entirely from valid scale tokens. The owner's complaint was **asymmetry**,
+which is a distribution problem. A scale answers "how much space"; this
+answers "where the space goes." Both are needed and they are not the same
+rule.
+
+### 22.3 — The related open case: a floor and a container that disagree
+
+Same shape, already known and queued for the mobile pass. The deck's
+cards carry a fixed `min-h-[440px]` at every width, while `.home-stage`
+drops to 29rem and 27rem on small screens. At those heights the floor
+exceeds the container and the deck bleeds past it.
+
+Again: nobody decided where the difference goes. A fixed floor and a
+responsive container height that disagree is the same failure as
+top-aligned slack, just with the sign reversed — overflow instead of
+gap.
+
+**Fix it principled, not numerically.** Either the floor becomes
+responsive alongside the container, or the container grows to honour the
+floor. Adding a smaller magic number at a breakpoint reproduces the
+original bug at a different width, which is exactly what §22.1 exists to
+prevent.
+
 ---
 
 ## Verification (for whoever implements this)
