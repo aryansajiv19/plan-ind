@@ -963,3 +963,61 @@ read any `community` row, including `person_id` and `storage_path`.
 community-feed design with a safe default. Flagged for confirmation rather
 than as a finding — but it is the one place where "RLS is membership-scoped,
 not permissive" has a deliberate exception, and that is worth knowing.
+## 2026-09-06 — T1 Security/Backend: photo sourcing measured, blocked on owner input
+
+Measured all three free tiers before building anything. **The free path tops
+out at ~10 real venue photos out of 82 (12%).** Reporting rather than
+proceeding, because the gap is a product decision, not an engineering one.
+
+**Tier 1 (venue's own site, via the existing OG extraction): 1 usable.**
+Not a limitation of the machinery — a limitation of the data. Only **2 of 82**
+curated spots have any URL at all (`booking_url`), and one of those two
+(`reifother.com`) no longer resolves. The one that works, Tresind Studio,
+returned a clean og:image on the first try. So the extraction is fine; there
+is simply nothing to point it at.
+
+**Tier 2 (Wikipedia/Wikimedia): ~9 usable, and only landmarks.** My first
+probe was invalid twice over and is worth recording as a caution: 300ms
+between calls got HTTP 429, and `generator=search` returns the top hit
+regardless of relevance, which produced "Bla Bla" → the footballer Blas
+Pérez and "The Smash Room" → Dubai International Airport. Re-run with exact
+title matching and 1.2s spacing: 19/82 have a page under their own name, 11
+carry an image — but the **single-token-name problem resurfaces in a
+completely different system**. Verified against the articles' own text:
+Hummingbird is the bird, SoBe an American drink brand, Bla Bla an interactive
+animated film, Saffron the spice, and Iris / Ninive / La mer are
+disambiguation pages. Stripping those leaves **9 trustworthy**: VOX Cinemas,
+Cinema Akil, Deep Dive Dubai, Museum of the Future, Dubai Safari Park, Dubai
+Design District, Mall of the Emirates, The Green Planet, Black Tap.
+
+**Tier 3 (Unsplash/Pexels): blocked, and wrong by default anyway.** Both
+require an API key the owner must register for. More importantly a stock
+photo is not the venue — it is the exact failure mode we rejected for
+coordinates, and worse here: a wrong coordinate is invisible until someone
+navigates, a wrong photo *looks correct on the card*.
+
+**Coverage by category — 15 of 23 categories get zero:**
+
+| sourceable | categories |
+|---|---|
+| 2 of n | movie, shopping |
+| 1 of n | adventure, culture, dessert, dinner, family, outdoors |
+| **0** | beach, beach_club, brunch, cafe, escape, games, karaoke, live_music, nightlife, padel, shisha, sports, vibes, water, wellness |
+
+**The compounding is real and confirmed.** beach_club, escape, padel and
+wellness are at 0% coordinates *and* 0% photos. Those four categories can
+currently render neither a distance line nor an image — they are the weakest
+surfaces in the app, not two independent gaps.
+
+**The ask that actually unblocks this:** tier 1 is the only tier that yields
+genuine venue photography, and it fails purely for want of URLs. ~80 venue
+website URLs, pasted once, turn machinery we already own and have already
+hardened into real photos at real quality — the same shape as the 12
+hand-pasted coordinates. That is a far better use of the owner's time than
+approving a stock-image backfill that makes 72 cards *look* right while
+showing somewhere else entirely.
+
+Nothing built, nothing staged, no bucket created, no migration written —
+the design (public `spot-photos` bucket, `photo_source`/`photo_attribution`
+columns, remotePatterns at the end) is agreed but waiting on this decision,
+because the answer changes what gets built.

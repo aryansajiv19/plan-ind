@@ -9,6 +9,7 @@ export type PlanStatus = "open" | "decided";
 export type PlanStage = "pool" | "final" | "decided";
 export type SpotSource = "curated" | "custom";
 export type SpotVisibility = "private" | "friends" | "community";
+export type PhotoSource = "venue_site" | "wikimedia" | "stock";
 
 // A "spot" is any hangout place, of any category. Kept table name `spots`
 // internally; `category` is what makes it multi-type.
@@ -24,6 +25,12 @@ export interface Spot {
   open_till: string; // e.g. "12am", "3am"
   vibe: string;
   photo_url: string | null; // curated now; a places API can fill this later
+  // 038. Not interchangeable claims: "venue_site" IS this venue, "wikimedia"
+  // usually is, "stock" is NOT -- it only looks like one.
+  photo_source: PhotoSource | null;
+  // A licence obligation, not metadata. Anything rendering photo_url must
+  // render this beside it when non-null, or a CC image is used in breach.
+  photo_attribution: string | null;
   description: string | null; // a review blurb to help people decide
   booking_url: string | null;
   source: SpotSource;

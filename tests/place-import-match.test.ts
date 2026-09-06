@@ -17,6 +17,8 @@ function spot(id: string, overrides: Partial<Spot> = {}): Spot {
     open_till: "12am",
     vibe: "relaxed",
     photo_url: null,
+    photo_source: null,
+    photo_attribution: null,
     description: null,
     booking_url: null,
     source: "curated",
