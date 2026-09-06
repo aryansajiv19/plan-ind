@@ -12,7 +12,10 @@ superseded number as live is the main way this document can hurt you.
 | **Palette** | **§19 (v7)** | The owner's six hexes. Everything earlier is superseded. |
 | Boundary + text floors | §19.7 | Live and binding. Text ≥4.5:1, component boundaries ≥3:1. |
 | Radii | §19.4 | Live. `--radius-control: 10px`. |
-| Dark mode | §19.2 | **Parked, not deleted.** Machinery intact. Owner is deciding. |
+| **Ground + elevation** | **§23.1** | **Live. Dark is the identity. Cards sit BELOW the canvas.** |
+| Dark tokens | §23.2 | Live. Six owner values + one derivation. `--muted` is surface-dependent. |
+| Energy / type scale | §23.4 | Live. Energy is scale, motion, density — never more colour. |
+| ~~Dark mode parked~~ | ~~§19.2~~ | **Superseded 2026-09-07 by §23.** §19.2's machinery is a starting point for *structure*; its values are v5-era. |
 | Colour placement | §21 | Live. Colour by component role. |
 | Spacing distribution | §22 | Live, and owner-approved after seeing it. |
 | Italic | §20 | Live. Cormorant is confirmed and both faces are vendored. |
@@ -37,14 +40,30 @@ superseded number as live is the main way this document can hurt you.
   half survives: a fill never sits on a photographed surface.
 - **Colour keyed to category, price or any datum** (§21.5). That is the
   retired category rainbow.
+- **"Emphasise white heavily" / the white-dominant light-only brief.**
+  Reversed **2026-09-07** — the owner called the near-white ground
+  monotonous, and §23.1 measures why it was always going to read that way
+  (canvas and card differed by ΔL\* 3.34). See §23.0; this is a decision,
+  not drift.
+- **"No dark mode, hold it back."** Reversed **2026-09-07** — dark is now
+  the identity (§23). The six values were chosen *before* dark was asked
+  for and two of them are proper darks, which is why this is a correction
+  rather than a new direction.
+- **Cards lighter than the canvas in dark** (`dark-theme-v7.html`'s
+  arrangement). It imports light mode's raised-plane metaphor, spends 15.5
+  points of L\* headroom, and leaves **one** legible text tier inside a
+  card. §23.1 inverts it. Do not "fix" the inversion back.
 
 ## Two decisions worth not re-litigating
 
 - **`--color-muted` takes the secondary ink, not v7's grey.** The token is
   read as `color:` in ~90 rules, so it must be text-capable; grey is 2.83
   on white and fails.
-- **v7's grey `#969A9E` gets no token at all**, because nothing renders
-  it. A token with no consumer is how `--color-accent-premium` happened.
+- **v7's grey `#969A9E` gets no token in light**, because nothing renders
+  it there. A token with no consumer is how `--color-accent-premium`
+  happened. **Superseded for dark by §23.2**, where grey is both the
+  card-interior meta ink (6.39) and the boundary hairline — it has real
+  consumers, so it gets a token.
 
 ## The measurement rule that kept catching real bugs
 
@@ -1899,6 +1918,192 @@ original bug at a different width, which is exactly what §22.1 exists to
 prevent.
 
 ---
+
+## 23 — Dark is the identity, and the flattening is solved (owner, 2026-09-07)
+
+**Mock:** `design-system/mocks/energy-dark-v1.html`. Every figure below was
+computed, and the mock was audited in-browser with alpha composited through
+ancestors: **0 text failures, all component boundaries ≥3:1 on both sides.**
+
+### 23.0 — This reverses two written owner directions. Say so, don't quietly drift.
+
+Both are still written down elsewhere. Someone will read the reversal as
+drift and try to restore them — that has already happened once in this
+project. It hasn't drifted; it was decided.
+
+| Reversed | Was | Superseded |
+|---|---|---|
+| **"Emphasise white heavily"** | White-dominant, light-only (§19) | **2026-09-07** — *"the main color in the bg is just white lets not keep it like that seems monotnous"* |
+| **"No dark mode, hold it back"** | Dark parked in §19.2 | **2026-09-07** — *"i think i like the dark theme more"*, against their own stated condition *"if that looks really good then we can keep that as the standard look"* |
+
+**Why this is a correction and not drift:** the owner chose these six values
+**before** dark was ever discussed, and two of them are proper darks
+(`#051822` L\* 7.2, `#2D383E` L\* 22.8). Dark was latent in the palette they
+picked. It is not a theme bolted onto a light system — which is exactly why
+it can be the identity without introducing a seventh colour.
+
+### 23.1 — The blocking problem, and why it was self-inflicted
+
+As a *theme*, mono-ink card interiors were a compromise worth stating. As the
+*identity* they are unshippable: single-value card interiors are precisely
+the flattening palette v6 was rejected for.
+
+The cause was not the palette. `dark-theme-v7.html` made cards **lighter**
+than the canvas (`#2D383E` on `#051822`), importing light mode's
+raised-plane metaphor. That one choice spends 15.5 points of L\* headroom —
+the exact band grey and tan occupy — so on the card ground only `#D4C9C7`
+survives.
+
+**Invert the elevation and the problem disappears with no new colour.**
+
+| | Rejected (card above ground) | **Live (card below ground)** |
+|---|---|---|
+| Canvas | `#051822` | **`#2D383E`** (L\* 22.8) |
+| Card | `#2D383E` | **`#051822`** (L\* 7.2) |
+| Legible text tiers **inside a card** | **1** | **4** |
+
+Cards are **wells cut into the ground**, not planes floating above it. This
+is correct for dark UI generally — depth reads as recession, not elevation —
+and here it is also the only arrangement that clears the floors.
+
+**It also answers the background complaint.** Today's canvas and card differ
+by **ΔL\* 3.34** (`#F7F5F4` vs `#FFFFFF`) — near-white on white, which is
+*why* the ground reads as one inert field. The live arrangement separates
+them by **ΔL\* 15.54**, over four times the differentiation. A flat `#051822`
+would have been just as inert; the canvas earns its size by being a
+*different material* from the cards, not by being dark.
+
+### 23.2 — The dark token set
+
+Six owner values, **one derivation**, no seventh identity colour.
+
+| Token | Value | On canvas `#2D383E` | On card `#051822` |
+|---|---|---|---|
+| `--canvas` | `#2D383E` | — | — |
+| `--card` | `#051822` | — | — |
+| `--ink-strong` | `#FFFFFF` | 12.02 | 18.10 |
+| `--ink` | `#D4C9C7` | 7.43 | 11.19 |
+| `--muted` | `#969A9E` | **4.24 — large text only** | **6.39 — body OK** |
+| `--accent` | `#BF977D` *(derived)* | **4.54** | **6.84** |
+| `--edge` | `#969A9E` @ **0.80α** → `#81868b` | 3.27 | 4.93 |
+
+**`--muted` is surface-dependent, and this is the trap.** Grey is body-legal
+**inside a card** and fails **on the canvas**. It caught me in this mock's
+own page chrome at 4.24 — the rule is real, and it is not obvious by eye.
+Small text on the canvas takes `--ink`.
+
+**`--edge` cannot be softened for looks.** At 0.65α it composites to
+`#71787c` = 2.68 against the canvas and fails SC 1.4.11. A vote option is a
+real `<button>` whose boundary is informational. **0.80 is a floor, not a
+preference.**
+
+**Grey finally earns a token.** §19.1 recorded that `#969A9E` gets none
+because nothing renders it. In dark it is both the card-interior meta ink
+and the boundary — so the note in §19.1 is now superseded *for dark only*.
+It still earns no token in light.
+
+### 23.3 — §21's accent, re-derived rather than ported
+
+§21's default instrument is **accent text applied by component role**. Brown
+`#7C5841` does not survive dark: **2.87** on the canvas, **1.91** on cards.
+Porting it is not an option.
+
+Tan `#AA7452` is the obvious substitute and it *almost* works — 4.59 on the
+card but **3.05 on the canvas**, which would force §21 to grow a per-surface
+exception it does not currently have.
+
+**`--accent: #BF977D`** — tan lightened 25% toward white — clears body text
+on **both** dark grounds (4.54 / 6.84), so §21 keeps its single rule.
+
+This is a **derivation, not a seventh colour**, on the same precedent
+already accepted for `muted` / `line` / `error` / `confirm`. It sits in tan's
+own hue family and desaturates slightly, as any lightening toward white
+does. **Tan and light are unchanged as fills.** The "we ship no colour the
+owner did not pick" rule is about *identity* colours; if this is judged to
+cross that line, the fallback is tan-on-cards-only plus a per-surface
+exception in §21 — worse, but available.
+
+**§21.4 and §21.5 are untouched.** Repeating content is still never filled;
+the ceiling is still one filled surface per screen.
+
+### 23.4 — Where the energy comes from (the "boring" brief, same decision)
+
+The owner has now twice called the app boring, and D1's premise — *restraint
+is fine because photography supplies the colour* — **did not hold**:
+photography never arrived at scale (**6 of 82**), and restraint against
+nothing reads as empty rather than elegant.
+
+**The finding is that energy is misallocated, not missing.** Measured in
+`app/globals.css`: **151 rules set type below 0.9rem**, against **3 at 2rem
+or above**. The display type the app owns is spent on marketing, auth and
+demo surfaces, which run headlines to `clamp(3.5rem, 7vw, 6.8rem)`.
+Meanwhile:
+
+> **`"It's {winner}."` — the one sentence this product exists to produce —
+> is set at `text-xl`, 1.25rem** (`components/DecidedPlan.tsx:140`).
+> **`.legal-page h1` reaches 3.5rem.** The privacy policy shouts louder than
+> the payoff.
+
+No palette fixes that. **Energy is scale, motion and density — never more
+colour.** Every item below is a font-size or a padding.
+
+**23.4a — The photo-less card stops reserving space for a photo.**
+Applies to **76 of 82** cards. The name grows **0.98rem → 1.72rem** Cormorant
+and occupies the region the image placeholder held; `vibe`, `cuisine` and
+`open_till` are rendered beneath it. **All three fields already exist on
+every `Spot` row** (`lib/types.ts:15-34`) and are simply not drawn today.
+A card that *does* have a photo keeps the photo and reverts to a modest
+name — the two states must look different, because the point is to stop
+pretending an image is coming. **No fill is involved; §21.4 holds.**
+
+**23.4b — The leader earns the space.** One vote row per screen, and only
+while genuinely ahead: padding `12px 14px → 20px 16px`, name to 1.55rem,
+tally as Cormorant display at 2.9rem. Same one-per-screen shape as §20's
+italic and §21's fill. **The word "leading" stays** — the state is never
+carried by size alone (`a11y-responsive`: colour and scale are not signals).
+
+**23.4c — Ungate the reveal from photography.** `WinnerPhotoReveal` is
+gated on `winner.photo_url` (`components/DecidedPlan.tsx:125`), so the
+particle animation we built and shipped **has never run for 76 of 82 spots**.
+Reconstruct **the winner's name** instead: same component, same canvas,
+`drawImage` → `fillText`.
+
+- It then runs on **every** decision instead of 7% of them.
+- It **cannot taint the canvas**, because the pixels are drawn locally
+  rather than fetched from a third-party host — this deletes the
+  `getImageData()` fallback path the current version needs.
+- **When the winner has a photo, the photo version still wins.** This is the
+  other 92%.
+- Ink `#D4C9C7` on `#051822` (11.19). `prefers-reduced-motion` renders the
+  type immediately, no particles — unchanged from the current contract.
+- **Implementation note that will bite:** Cormorant loads async. Sampling
+  before `document.fonts.ready` reconstructs the *fallback serif* instead.
+  Await it.
+
+### 23.5 — Verification
+
+- Every text pair re-measured **on both dark grounds**, alpha composited
+  through ancestors. `color(srgb …)` must be parsed — three sessions have
+  been bitten by naive parsing.
+- **Boundaries checked against both neighbours**, not just the card
+  interior. A hairline that passes inside and fails outside still fails.
+- `--muted` audited specifically for canvas-level usage: it is the one token
+  in this set whose legality changes with the surface under it.
+- 375 / 768 / 1280 / 1440, per `a11y-responsive`.
+- Focus rings: §19.7's inset rule needs re-deriving for dark — graphite
+  inset on a near-black card is invisible. **Not solved here; flagged.**
+- `prefers-reduced-motion` kills the deal stagger and the particle reveal
+  with no layout shift.
+
+### 23.6 — Not decided here
+
+- **Light mode's fate.** This spec makes dark the identity. It does not say
+  whether light is retired, kept as an option, or left to rot. §19's light
+  values remain correct and measured either way.
+- **The dark focus ring** (§23.5).
+- **Whether `#BF977D` is acceptable** under the no-unpicked-colour rule.
+  The fallback if not is stated in §23.3.
+
 
 ## Verification (for whoever implements this)
 
