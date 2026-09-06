@@ -2202,6 +2202,16 @@ h3 {
   --auth-metal-text: var(--color-punch-text);
   min-height: 100dvh;
   padding: clamp(1.25rem, 4vw, 4rem);
+  /* .auth-frame already asks to be centred — it carries `margin: auto`.
+     On a block container a vertical auto margin computes to zero, so
+     only the horizontal half of that intent ever applied and the frame
+     sat at the top with 81px of slack below it at 1440, 52px at 390.
+     Grid makes the existing declaration mean what it says in both axes
+     rather than adding a second, competing centring rule. `safe` so a
+     frame taller than the viewport overflows downward and stays
+     scrollable instead of being clipped past the top edge. */
+  display: grid;
+  align-content: safe center;
   color: var(--auth-ink);
   background: color-mix(in srgb, var(--auth-paper) 88%, transparent);
 }
@@ -2226,8 +2236,15 @@ h3 {
 .auth-field { margin-bottom: 1.15rem; }
 .auth-field label, .auth-fields label { display: block; margin-bottom: .5rem; color: var(--auth-ink); font-size: .74rem; font-weight: 500; }
 .auth-field p { margin: .55rem 0 0; color: var(--auth-muted); font-size: .7rem; line-height: 1.5; }
-.auth-input { width: 100%; min-height: 3rem; border: 1px solid var(--auth-line); border-radius: 0; padding: .75rem .85rem; background: var(--auth-paper); color: var(--auth-ink); font: inherit; font-size: .9rem; outline: none; }
-.auth-input:focus { border-color: var(--auth-metal); box-shadow: 0 0 0 3px color-mix(in srgb, var(--auth-metal) 18%, transparent); }
+.auth-input { width: 100%; min-height: 3rem; border: 1px solid var(--auth-line); border-radius: 0; padding: .75rem .85rem; background: var(--auth-paper); color: var(--auth-ink); font: inherit; font-size: .9rem; }
+/* `outline: none` plus a champagne glow used to sit here, which opted the
+   only two auth fields out of the global :focus-visible ring and replaced
+   it with an 18% tint — the tinted focus indicator the standards file
+   rules out, and too faint to carry 1.4.11 on its own. Deleted rather
+   than restated locally: the global rule above already draws the graphite
+   inset ring, so the fix is to stop overriding it. The border tint stays
+   as a soft cue for pointer focus, where no ring is drawn. */
+.auth-input:focus { border-color: var(--auth-metal); }
 .auth-input--code { text-align: center; font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; letter-spacing: .28em; }
 .auth-google, .auth-submit { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 3rem; border: 1px solid var(--auth-ink); border-radius: 0; padding: .75rem 1rem; font-size: .78rem; font-weight: 700; cursor: pointer; transition: background 160ms ease, color 160ms ease, transform 160ms ease; }
 .auth-google { gap: .7rem; background: transparent; color: var(--auth-ink); }
@@ -2895,7 +2912,7 @@ h3 {
   .home-system__footer { padding: 0.68rem; font-size: 0.46rem; }
   .home-plan-section { width: min(100% - 1.5rem, 68rem); padding-block: 5.5rem; }
   .home-plan-card { padding: 1.25rem; box-shadow: var(--elevation-card); transform: none; } /* §19.3: same soft lift as desktop; the old rgba(36,27,46) drop was heavier and cool-tinted, off the warm ramp */
-  .plan-category-group { min-height: 2.75rem; padding-inline: 0.68rem; }
+  .plan-category-group { padding-inline: 0.68rem; } /* height: touch-target block */
   .plan-smart-search { padding: 0.85rem; }
   .plan-smart-search__heading,
   .plan-smart-result > div:first-child { display: block; }
@@ -3133,8 +3150,34 @@ h3 {
   .demo-collection-create button,
   .vote-result__button { min-height: 2.75rem; padding-inline: 0.9rem; }
   .vote-rating-button { min-height: 2.75rem; min-width: 2.75rem; }
-  /* Footer link is a block, so it can take the height without hurting copy. */
-  .home-footer a { display: inline-block; padding-block: 0.7rem; }
+  /* The plan form is the longest control run in the app and every one of
+     these sat just under the floor — the strips and the region select at
+     40.8px, the smart-search submit at 42.4px. Close enough to look right
+     and still wrong under a thumb. Listed here rather than raised on each
+     base rule so desktop keeps its density, which is what this block is
+     for. .plan-category-group used to be raised in the 520px block; it is
+     the same concern as these, so it lives with them and there is one
+     place to look when the floor changes. */
+  .plan-choice-strip button,
+  .plan-location-fields select,
+  .plan-category-group,
+  .plan-smart-search > button { min-height: 2.75rem; }
+  /* Height stated, not computed from padding. The old rule added 0.7rem
+     top and bottom to an 18px line, which reached 40.7px and missed the
+     floor it was written to hit — and would drift again with the type
+     scale. inline-flex so the min-height applies and the label centres. */
+  .home-footer a,
+  /* The two standalone links on /privacy and /terms — the way back out
+     and the cross-link to the other document. Selected as direct
+     children of the page, which is precisely what makes them standalone:
+     a link inside prose is inside a <p>, so this cannot reach one and
+     the 2.5.8 inline exemption is preserved by the selector itself.
+     Both measured 21px. */
+  .legal-page > a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+  }
 }
 
 /* ── Faces ─────────────────────────────────────────────────────────
