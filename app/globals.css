@@ -3048,6 +3048,18 @@ h3 {
     gap: 1.5rem;
   }
   .home-stage { width: min(100%, 31rem); height: 29rem; margin: 0 auto; }
+  /* §22: the stage height and the deck's own floor have to agree, and
+     below this breakpoint they did not. The shell carries a fixed
+     min-h-[440px] at every width while the stage drops to 29rem (464px)
+     here and 27rem (432px) below — and the fan's rotation adds ~47px on
+     top of the shell, so the deck ran past the stage at every width under
+     768: worst case 20px above and 36px below at 520.
+
+     Neither number was wrong on its own; nobody had decided which one
+     gives. The stage owns the page rhythm at these breakpoints, so the
+     floor is what yields. Selected via the stage rather than by adding a
+     class, because the shell is the stage's only element child. */
+  .home-stage > button { min-height: 24rem; }
   .home-system,
   .home-system-shadow { height: 28rem; }
   .home-system__measure { min-height: 7.2rem; }
@@ -3097,6 +3109,7 @@ h3 {
   .home-primary-cta { width: 100%; }
   .home-secondary-cta { text-align: center; }
   .home-stage { height: 27rem; transform: none; }
+  .home-stage > button { min-height: 22.5rem; }
   .home-system,
   .home-system-shadow { width: calc(100% - 0.65rem); height: 26rem; }
   .home-system-shadow { left: calc(50% + 0.55rem); top: calc(50% + 0.65rem); }
