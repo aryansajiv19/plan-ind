@@ -1,18 +1,68 @@
-# Production push spec — 2026-09-04
+# plan-ind design spec
 
-Authoritative. Supersedes every colour/token value below this section (the
-"Wave-1" specs are archived at the foot of this file — read them for the
-component API details that still hold, e.g. `<VoteState>`'s shape; do not
-read them for colour). Written for Frontend to implement without a
-follow-up question: every item below has an exact selector, exact current
-value, exact replacement value, and a file:line anchor.
+**Read this page before anything below it.** The file grew across a long
+sequence of owner revisions — the palette alone went through seven — and
+several sections describe values that are *deliberately dead*. Reading a
+superseded number as live is the main way this document can hurt you.
 
-Owner's own words on why this exists (`AGENT_COORDINATION.md`): *"i dont
-like the navy blue gold theme if we switch to more fun colors but the goal
-is to keep the app looking modern sleek luxurious as well."* Root-caused
-(not guessed) via a full read-only audit — one Explore agent, 109K tokens,
-51 tool calls — before writing anything below. Rendered against real UI
-before presenting; see `design-system/dist/foundations/colour-next.html`.
+## What is current
+
+| Topic | Live section | State |
+|---|---|---|
+| **Palette** | **§19 (v7)** | The owner's six hexes. Everything earlier is superseded. |
+| Boundary + text floors | §19.7 | Live and binding. Text ≥4.5:1, component boundaries ≥3:1. |
+| Radii | §19.4 | Live. `--radius-control: 10px`. |
+| Dark mode | §19.2 | **Parked, not deleted.** Machinery intact. Owner is deciding. |
+| Colour placement | §21 | Live. Colour by component role. |
+| Spacing distribution | §22 | Live, and owner-approved after seeing it. |
+| Italic | §20 | Live. Cormorant is confirmed and both faces are vendored. |
+| Wave-1 (`FE.*`) | foot of file | **Archived.** Component APIs still hold; **colour does not**. |
+
+## Do not restore these — they were withdrawn on purpose
+
+- **Palettes v1–v6.** v5 (`#442816`/`#704121`/`#AB6F44`…) and v6
+  (`#7D9BBC`/`#F2F2F2`/`#CE9963`/`#9F7652`/`#3F230B`) are both dead. v6
+  died because it had **one** text-capable colour, which forced an
+  awkward derivation; v7 has three in light and three in dark.
+- **The derived accent `#7A5A3E`** (§19.1a). Retired because v7's own
+  brown `#7C5841` carries small text natively. **We ship no colour the
+  owner did not pick** — that rule is why this was removed rather than
+  kept for convenience.
+- **`--color-accent-premium`** (§19.6). Zero consumers, and the feature it
+  named was never built.
+- **"A fill stands in for a missing image"** (§21.2). This was elegant and
+  it is **withdrawn, not forgotten**. Photo presence is a *per-instance*
+  condition, so filling photo-less cards reproduced the exact scatter the
+  owner rejected, just keyed on a different variable. Only its constraint
+  half survives: a fill never sits on a photographed surface.
+- **Colour keyed to category, price or any datum** (§21.5). That is the
+  retired category rainbow.
+
+## Two decisions worth not re-litigating
+
+- **`--color-muted` takes the secondary ink, not v7's grey.** The token is
+  read as `color:` in ~90 rules, so it must be text-capable; grey is 2.83
+  on white and fails.
+- **v7's grey `#969A9E` gets no token at all**, because nothing renders
+  it. A token with no consumer is how `--color-accent-premium` happened.
+
+## The measurement rule that kept catching real bugs
+
+> **Quote every figure against the grounds the app actually renders,
+> never against pure white.**
+
+This is not a style preference. A value can pass against white and fail on
+both real grounds — `#998F8A` measured 3.16 against white, then 3.03 on
+card and **2.79 on canvas**. That pattern nearly shipped the owner's own
+"things blend into the background" complaint back to them **twice** in one
+day. Related: a **contrast ratio** and a **lightness difference (ΔL\*)**
+disagree on exactly the pairs that look alike, so use ΔL\* for
+surface-vs-surface separation and the ratio for text. Conflating them
+produced a wrong call three times.
+
+Everything below is written for implementation without a follow-up
+question: exact selector, exact current value, exact replacement, and a
+file:line anchor.
 
 ---
 
@@ -1237,13 +1287,38 @@ owner is *thinking about* dark (§19.2), not asking for it.
 | Secondary | `#969A9E` | 6.39 | 4.24 — boundary only on card |
 | Accent | `#AA7452` | 4.59 | 3.05 — boundary only on card |
 
-**What reviving dark would cost, now answerable:** the values exist and
-are the owner's own, so it is no longer a palette invention — that was
-the blocker. It is a real but bounded exercise: retune the ~30 parked
-night rules (§19.2) from v5-era colours to these, re-audit both grounds
-against §19.7, and unpin the two ground-decision points. Note the card
-tier is tighter than light: grey and tan drop to boundary-only on
-`#2D383E`, so dark has fewer text colours on cards than light does.
+#### What reviving dark would cost — the open decision
+
+**Status: the owner is deciding.** They asked to see it
+(*"show me the dark theme design"*), and the comparison mock is
+`design-system/mocks/dark-theme-v7.html` — light and dark side by side,
+three surfaces each, v7 values only. That mock is what makes this
+answerable; read it before advising either way.
+
+**The mechanical cost, and it is bounded:** the values exist and are the
+owner's own, so this is no longer a palette invention — that was the
+original blocker. Retune the ~30 parked night rules (§19.2) off their
+v5-era colours, re-audit both grounds against §19.7, and unpin the two
+ground-decision points (`app/layout.tsx` **and** `ThemeSync` — both, per
+§19.2).
+
+**The design cost, which is the real one, and it is not mechanical:**
+
+1. **Dark card interiors trend mono-ink.** On `#2D383E` cards only
+   `#D4C9C7` is legible — grey is 4.24 and tan 3.05, both under 4.5. So a
+   card's name and its meta are forced to the same colour. **That is
+   precisely the flattening the owner rejected in v6**, reappearing by a
+   different route.
+2. **§21's default instrument does not survive dark at all.** Brown accent
+   text measures **2.87 on the dark canvas and 1.91 on cards**. Dark's
+   kickers have to be tan, which works on the canvas (4.59) but would fail
+   inside a card.
+
+**So dark is a structurally flatter system than light, not a re-skin.**
+Fixing either point means introducing a lighter grey the owner did not
+pick — which the rule above (§19.1a's reasoning) says we do not do. That
+trade is the decision, and it should be put to them in those terms rather
+than as a yes/no on "dark mode."
 
 #### The fill rule, and it is unusually clean
 
