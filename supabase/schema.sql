@@ -94,6 +94,13 @@ create table spots (
   open_till   text not null,            -- e.g. '12am', '3am'
   vibe        text not null,
   photo_url   text,                     -- curated now; places-API-ready later
+  -- 038: where the photo came from, because the claims are not
+  -- interchangeable. A venue's own image IS that venue; a Wikimedia landmark
+  -- shot usually is; a stock category image is NOT -- it only looks like one.
+  -- photo_attribution is a licence obligation, not metadata: whatever renders
+  -- photo_url MUST render this beside it when non-null. See migration-038.
+  photo_source text check (photo_source is null or photo_source in ('venue_site', 'wikimedia', 'stock')),
+  photo_attribution text check (photo_attribution is null or char_length(photo_attribution) <= 300),
   description text,                     -- a review blurb to help people decide
   booking_url text,
   source      text not null default 'curated' check (source in ('curated', 'custom')),
@@ -103,6 +110,14 @@ create table spots (
   latitude    double precision,
   longitude   double precision,
   constraint spots_custom_owner_check check (source = 'curated' or created_by_user_id is not null)
+  -- 038: a source that requires crediting must carry its credit, enforced
+  -- here so an un-credited CC image cannot be inserted at all rather than
+  -- relying on the backfill script to remember. Venue sites are exempt: it
+  -- is their own image, used to represent them.
+  ,constraint spots_photo_attribution_required check (
+    photo_source is null or photo_source = 'venue_site' or photo_attribution is not null)
+  ,constraint spots_photo_source_needs_photo check (
+    photo_source is null or photo_url is not null)
   ,constraint spots_mainstream_content_check check (lower(concat_ws(' ', name, cuisine, vibe, description)) !~ '(strip[[:space:]-]*club|gentlemen''s[[:space:]]+club|adult[[:space:]-]+entertainment|erotic[[:space:]]+massage|escort[[:space:]]+service|brothel|sex[[:space:]]+club|swinger[[:space:]]+club|topless[[:space:]]+bar|nude[[:space:]]+show)')
 );
 
@@ -820,6 +835,26 @@ create policy "manage own visit photo files" on storage.objects for update to au
   with check (bucket_id = 'visit-photos' and owner_id = (select auth.uid())::text);
 create policy "delete own visit photo files" on storage.objects for delete to authenticated
   using (bucket_id = 'visit-photos' and owner_id = (select auth.uid())::text);
+
+-- 038: catalogue photos. PUBLIC, unlike visit-photos, and deliberately so:
+-- there is no owning user to sign a URL, and every visitor loads these on
+-- every card, so an expiring signed URL is the wrong shape entirely.
+insert into storage.buckets (id, name, public)
+values ('spot-photos', 'spot-photos', true)
+on conflict (id) do update set public = true;
+
+create policy "read spot photo files" on storage.objects for select to anon, authenticated
+  using (bucket_id = 'spot-photos');
+-- Public-read is not public-write. These three exist to say "nobody" out
+-- loud rather than by omission, so adding a client write path has to argue
+-- with this comment first. The backfill writes via the service role, which
+-- bypasses RLS by design.
+create policy "no client writes to spot photos" on storage.objects for insert to anon, authenticated
+  with check (bucket_id <> 'spot-photos');
+create policy "no client updates to spot photos" on storage.objects for update to anon, authenticated
+  using (bucket_id <> 'spot-photos');
+create policy "no client deletes of spot photos" on storage.objects for delete to anon, authenticated
+  using (bucket_id <> 'spot-photos');
 
 create policy "manage own place collections" on place_collections for all to authenticated
   using (exists (select 1 from people p where p.id = person_id and p.auth_user_id = (select auth.uid())))

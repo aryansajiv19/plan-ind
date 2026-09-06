@@ -72,3 +72,6 @@ next-env.d.ts
 /scripts/spot-coordinates.local.json
 /scripts/spot-coordinates-apply-list.local.json
 /scripts/spot-coordinates-rejected.local.json
+
+# scripts/backfill-spot-photos.mjs writes its review output here.
+/scripts/spot-photos.local.json
