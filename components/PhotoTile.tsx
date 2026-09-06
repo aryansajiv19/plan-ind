@@ -31,20 +31,30 @@ export default function PhotoTile({
   note,
   height,
   priority = false,
+  fill = null,
 }: {
   spot: Spot;
   note?: WallNote;
   height: number;
   priority?: boolean;
+  /**
+   * SPECS.md §21: a coloured fill stands in for a MISSING image and never
+   * sits alongside one. PhotoWall decides which tiles get one, because the
+   * ratio and the no-two-adjacent rule depend on position in the grid.
+   */
+  fill?: "tan" | "blue" | null;
 }) {
   const hasPhoto = Boolean(spot.photo_url);
+  // Belt and braces on §21.1: even if a caller asks for a fill, a tile
+  // that has its photo never takes one.
+  const fillClass = !hasPhoto && fill ? ` wall-tile--fill-${fill}` : "";
   const meta = [spot.area, spot.min_spend ? `AED ${spot.min_spend}` : null]
     .filter(Boolean)
     .join(" · ");
 
   return (
     <article
-      className={`wall-tile ${hasPhoto ? "" : "wall-tile--typographic"}`}
+      className={`wall-tile ${hasPhoto ? "" : "wall-tile--typographic"}${fillClass}`}
       style={{ height }}
     >
       {hasPhoto ? (

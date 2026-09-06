@@ -311,7 +311,7 @@
      lets a card separate from the canvas by value instead of by a
      hairline. Tinted with the warm ink rather than neutral black so it
      sits on the palette's ramp. */
-  --elevation-card: 0 1px 2px rgba(68, 40, 22, 0.04), 0 6px 16px rgba(68, 40, 22, 0.06);
+  --elevation-card: 0 1px 2px rgba(63, 35, 11, 0.05), 0 10px 26px rgba(63, 35, 11, 0.07);
 
   /* Controls — buttons, inputs, fields. SPECS.md §19.4 consolidates the
      ad-hoc 0.1-0.2rem radii UPWARD to this, deliberately reversing §17's
@@ -325,6 +325,64 @@
   --radius-pill: 26px; /* pills and buttons (24-30) */
   --radius-hero: 26px 26px 92px 26px; /* the plan card, one corner open */
 }
+
+/* ── SPECS.md §21: selective colour ─────────────────────────────────
+   A coloured fill stands in for a MISSING image and never sits alongside
+   one — photography and fills do the same job, so whichever is present
+   does the work and the other stands down.
+
+   Every fill carries FULL-STRENGTH ink: 5.74:1 on tan, 5.00:1 on blue. A
+   softened mid-brown lands ~4.0:1 and fails, which is the mistake the
+   first energetic mock made. Brown is NOT a fill colour — nothing sits on
+   it (dark ink 3.56, white 4.05) — and there is no third fill.
+
+   The ratio, the alternation and the hero carve-out are enforced in
+   PhotoWall, not here: they depend on position in the grid, which CSS
+   cannot see. Assignment is by INDEX, never by category — colour-by-
+   category is the retired rainbow, and a card that changes colour when
+   its category is edited reads as a bug (§21.5). */
+.wall-tile--fill-tan,
+.wall-tile--fill-blue {
+  color: var(--color-ink);
+}
+.wall-tile--fill-tan { background: var(--color-punch); }
+.demo-place-card--fill-tan,
+.demo-place-card--fill-blue { color: var(--color-ink); }
+.demo-place-card--fill-tan { background: var(--color-punch); }
+.demo-place-card--fill-blue { background: var(--color-accent-cool); }
+/* Same rule on the place card: everything ON the fill takes full-strength
+   ink. The descendant selector is deliberate — the meta line, the area,
+   the body copy and the action each set their own colour otherwise, and
+   the muted and accent cuts both drop under the floor on tan and blue
+   (measured at 2.17-2.88:1 before this). */
+/* The doubled class is deliberate, not a typo. These rules sit above the
+   .demo-* block, and a single class ties on specificity with the rules
+   that set the muted and accent cuts down there — so source order would
+   hand it to them and the fill would keep failing. Measured 2.05-2.51:1
+   before the bump. */
+.demo-place-card.demo-place-card--fill-tan *,
+.demo-place-card.demo-place-card--fill-blue * { color: var(--color-ink); }
+.demo-place-card.demo-place-card--fill-tan .demo-place-card__code,
+.demo-place-card.demo-place-card--fill-blue .demo-place-card__code { background: transparent; }
+/* The kicker span carries the accent cut via a :first-child rule, which
+   outranks the blanket one above on specificity — so it needs naming
+   explicitly. It measured 2.17-2.49:1 on the fills. */
+.demo-place-card.demo-place-card--fill-tan .demo-place-card__meta span:first-child,
+.demo-place-card.demo-place-card--fill-blue .demo-place-card__meta span:first-child { color: var(--color-ink); }
+/* The action stays an action: an ink outline reads on both fills, where
+   the neutral line would not (§21.3 — buttons never take a fill). */
+.demo-place-card.demo-place-card--fill-tan .demo-place-card__body button,
+.demo-place-card.demo-place-card--fill-blue .demo-place-card__body button {
+  border-color: var(--color-ink);
+  background: transparent;
+}
+.wall-tile--fill-blue { background: var(--color-accent-cool); }
+/* §21.6: EVERY fill carries FULL-STRENGTH ink. Not the muted cut, and not
+   ink at reduced opacity — a softened mid-tone lands ~4.0:1 and fails,
+   which is the mistake the first energetic mock made. So everything on a
+   fill inherits ink outright, and nothing re-softens it. */
+.wall-tile.wall-tile--fill-tan *,
+.wall-tile.wall-tile--fill-blue * { color: var(--color-ink); }
 
 /* ── Button padding scale (SPECS.md §13.2) ──────────────────────────
    The .demo-* button family had 12+ selectors each choosing padding and
