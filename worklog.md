@@ -1554,6 +1554,26 @@ times. Playwright's `setViewportSize` is correct and flips the media
 queries exactly at the boundaries (verified by T0). Use Playwright for
 width coverage.
 
+**The `demo-` class prefix is a naming legacy, not a demo-only surface.**
+I nearly skipped the whole account-tab sweep on the reasoning that
+`/home-preview` renders `DemoAccountViews` and is dev-only. The shipping
+`AccountViews` uses 43 of the same `demo-*` classes, so every finding on
+those tabs is real and ships. Check before concluding a `demo-` class does
+not matter — this produced a confidently-wrong "not applicable" that a grep
+took ten seconds to disprove. The genuinely demo-only pieces are the
+*components* (`DemoAccountViews`, `DemoPlanningTools`), not the classes.
+
+**A fail-closed state that names a plausible wrong cause is worse than an
+unstyled one.** The vote screen rendered "Guest voting is paused" and I
+reported guest access as blocked. It was not: `next.config` builds the
+CSP's `connect-src` from `NEXT_PUBLIC_SUPABASE_URL` when the server starts,
+so a later `.env.local` edit leaves the header naming a host the app no
+longer uses, and every client-side Supabase call — the anonymous sign-in
+included — was blocked before leaving the browser. The app failed closed
+and reported a cause that was not the real one. Restarting the dev server
+re-evaluates the config. If a data-dependent finding looks impossible,
+check the CSP header before believing it.
+
 ### Open, in the order I would take them
 
 1. **The rest of the QA pass.** The three harness failures are closed
