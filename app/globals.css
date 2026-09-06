@@ -1487,7 +1487,7 @@ h3 {
 }
 
 .plan-category-option:hover,
-.plan-deadline:hover { border-color: rgba(36, 27, 46, 0.42); }
+.plan-deadline:hover { border-color: var(--color-ink); } /* was a hardcoded cool rgba(36,27,46,.42) off the warm ramp */
 
 /* The chosen category fills with the open group's hue. A 3px inset bar on
    the leading edge means the selection is still legible as a shape when the
@@ -1656,7 +1656,7 @@ h3 {
 }
 
 .plan-custom-place__editor fieldset button:last-child { border-right-width: 1px; }
-.plan-custom-place__editor fieldset button[aria-pressed="true"] { border-color: var(--home-metal); background: var(--home-metal); color: #111218; }
+.plan-custom-place__editor fieldset button[aria-pressed="true"] { border-color: var(--home-metal); background: var(--home-metal); color: var(--primary-ink); } /* was #111218 = 2.20:1 on the accent fill */
 .plan-custom-place__save { justify-self: start; padding: 0.45rem 0; }
 .plan-custom-place__save:disabled { cursor: wait; opacity: 0.45; }
 
@@ -1785,7 +1785,7 @@ h3 {
 
 .demo-place-card__image,
 .demo-visit__image,
-.demo-photo-strip > span { border-radius: var(--radius-control); background: #dedbd4; }
+.demo-photo-strip > span { border-radius: var(--radius-control); background: color-mix(in srgb, var(--color-ink) 12%, var(--color-card)); } /* was a hardcoded #dedbd4 */
 
 .demo-view {
   width: min(100% - 2rem, 76rem);
@@ -1971,7 +1971,7 @@ h3 {
 .demo-friend-list { border-top: 1px solid var(--color-line); }
 .demo-friend-row { display: grid; grid-template-columns: 3rem minmax(0, 1fr) 7rem auto; gap: 1rem; align-items: center; padding: 1.1rem 0; border-bottom: 1px solid var(--color-line); }
 .demo-friend-avatar,
-.demo-profile-avatar { display: grid; place-items: center; border-radius: 50%; background: #24262a; color: #f4f1ea; font-family: var(--font-display); font-weight: 600; }
+.demo-profile-avatar { display: grid; place-items: center; border-radius: 50%; background: var(--color-ink); color: var(--color-card); font-family: var(--font-display); font-weight: 600; }
 .demo-friend-avatar { width: 2.7rem; height: 2.7rem; font-size: 0.72rem; }
 .demo-friend-row h2 { font-size: 1rem; }
 .demo-friend-row p,
@@ -2127,8 +2127,12 @@ h3 {
 }
 .auth-frame { width: min(70rem, 100%); min-height: min(44rem, calc(100dvh - 8rem)); margin: auto; display: grid; grid-template-columns: 1.05fr 0.95fr; border: 1px solid var(--auth-line); background: color-mix(in srgb, var(--auth-paper) 86%, transparent); }
 .auth-intro { display: flex; flex-direction: column; justify-content: space-between; padding: clamp(1.5rem, 5vw, 4rem); border-right: 1px solid var(--auth-line); }
-.auth-mark { display: inline-flex; align-items: center; justify-content: center; width: 3rem; height: 3rem; border: 1px solid var(--auth-ink); background: var(--auth-ink); color: #f6f3ed; font-family: var(--font-display); font-size: .95rem; font-weight: 800; letter-spacing: -.06em; text-decoration: none; }
-.auth-mark b { margin-left: .12rem; color: var(--auth-metal-text); font-size: .76rem; }
+.auth-mark { display: inline-flex; align-items: center; justify-content: center; width: 3rem; height: 3rem; border: 1px solid var(--auth-ink); background: var(--auth-ink); color: var(--auth-paper); font-family: var(--font-display); font-size: .95rem; font-weight: 800; letter-spacing: -.06em; text-decoration: none; }
+/* The /login + /onboarding twin of the .home-logo__three bug: an accent
+   ink on the ink-filled badge, 1.58:1. Fixed the same way — the accent
+   and the badge sit on the same ramp in every palette, so no accent can
+   clear AA here; the two-tone is carried by an off-white instead. */
+.auth-mark b { margin-left: .12rem; color: var(--auth-paper); font-size: .76rem; }
 .auth-kicker, .auth-panel__heading p { margin: 0; color: var(--auth-metal-text); font-size: .68rem; font-weight: 500; letter-spacing: .16em; text-transform: uppercase; }
 .auth-intro h1 { max-width: 30rem; margin: auto 0 1.25rem; font-size: clamp(3.5rem, 7vw, 6.8rem); line-height: .96; letter-spacing: -.03em; font-weight: 500; }
 .auth-intro h1 em { color: var(--auth-metal); font-style: normal; }
@@ -2640,7 +2644,7 @@ h3 {
   cursor: pointer;
 }
 
-.vote-rating-button[aria-pressed="true"] { border-color: var(--vote-metal); background: var(--vote-metal); color: #111218; }
+.vote-rating-button[aria-pressed="true"] { border-color: var(--vote-metal); background: var(--vote-metal); color: var(--primary-ink); } /* was #111218 = 2.20:1 on the accent fill */
 
 /* ── Press feedback ────────────────────────────────────────────────
    Audited the primary actions end to end — deal, vote, continue,
