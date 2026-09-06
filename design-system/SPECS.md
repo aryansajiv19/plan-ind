@@ -1161,110 +1161,111 @@ contrast ratio is the wrong tool (see 19.3).
 > light-only, the card-lifts-off-canvas model (values per §19.1), the
 > radius scale in §19.4, and the two anti-misreading notes in §19.3.
 
-### 19.1 — Light is the only ground; the palette (v6)
+### 19.1 — The palette (v7)
 
-> **Revised 2026-09-06 (third revision) — the owner sent the palette as
-> CSS custom properties.** This supersedes v5
-> (`#442816`/`#704121`/`#AB6F44`/`#174050`/`#0C657C`) wholesale. Markedly
-> lighter and softer: the deep teals are gone, replaced by a single dusty
-> blue, and every warm value has lifted.
+> **Revised 2026-09-06 (fourth revision).** Owner: *"like this palette"*,
+> with six labelled swatches. Supersedes v6
+> (`#7D9BBC`/`#F2F2F2`/`#CE9963`/`#9F7652`/`#3F230B`) wholesale.
 >
-> **Only the five values move. The structure does not.** The token names,
-> the §19.7 floors, the borderless-mechanism rule, the parked-dark-mode
-> machinery (§19.2), the radius scale (§19.4) and the wordmark two-tone
-> all carry over unchanged. v5 is implemented and audited clean in
-> `globals.css`; this is a **re-skin, not a re-architecture**.
+> **This one is structurally better than everything before it**, for a
+> reason worth naming: it has a real dark end. v6 had exactly one
+> text-capable colour, which forced the mono-ink-versus-derived-accent
+> question and made us derive a value the owner never picked. v7 has
+> three text-capable colours in light and three in dark, all theirs.
+> **Only the values move; §19.7's floors, §19.3's separation model,
+> §19.4's radii and §21's component rule all stand.**
 
-**Owner's values, verbatim, and independently re-measured — every figure
-they supplied confirms exactly:**
+**Owner's six, independently re-measured — every supplied figure confirms
+exactly:**
 
 ```
---blue: #7D9BBC;  --off-white: #F2F2F2;  --tan: #CE9963;
---brown: #9F7652; --dark-brown: #3F230B;
+#051822 ink-navy   #2D383E slate   #7C5841 brown
+#AA7452 tan        #969A9E grey    #D4C9C7 light
 ```
 
-**Measured against the two grounds this app actually renders** — canvas
-`#F2F2F2` and card `#FFFFFF`. *Not* against pure white: a white-referenced
-table is what twice nearly shipped the owner's own complaint back to them,
-so every figure below names its real ground.
+| Value | L* / hue | Character |
+|---|---|---|
+| `#051822` ink-navy | 7.2 · 201° | Near-black with a blue cast. The darkest anchor. |
+| `#2D383E` slate | 22.8 · 201° | Desaturated blue-grey. |
+| `#7C5841` brown | 40.6 · 23° | Mid warm. **Text-capable — this is the v6 problem solved.** |
+| `#AA7452` tan | 53.6 · 23° | Lighter warm. Fill and boundary only. |
+| `#969A9E` grey | 63.4 · 210° | Effectively neutral. |
+| `#D4C9C7` light | 81.8 · 9° | Warm near-light. See the ground note. |
 
-| Given | L* / hue | on canvas `#F2F2F2` | on card `#FFFFFF` | What it can be |
+#### The ground placement — one correction, and it matters
+
+`#D4C9C7` was proposed as the light-theme **canvas**. **Recommend against
+it, and use a near-white canvas with `#D4C9C7` demoted to a fill.**
+Measured both ways:
+
+| | `#D4C9C7` as canvas | `#F7F5F4` canvas, `#D4C9C7` as a fill |
+|---|---|---|
+| brown `#7C5841` as text | **3.90:1 — fails** | **5.80:1 — passes** |
+| tan `#AA7452` as text | 2.44 — fails | 3.63 — boundary only |
+| grey `#969A9E` as text | 1.75 — fails | (decorative) |
+| card lift | ΔL* 18.22 — very heavy | ΔL* 3.34 — comfortable |
+
+Making `#D4C9C7` the canvas **costs the brown text accent everywhere text
+sits on the page rather than inside a card** — which is most kickers and
+section labels. It would quietly reimport v6's one-text-colour constraint
+in a milder form, and it contradicts the standing "emphasise white"
+brief. Demoting it to a fill keeps **three text colours on every surface**
+and turns it into the quiet framing-surface fill §21 needs.
+
+#### Light theme (recommended)
+
+| Role | Token | Value | on canvas `#F7F5F4` | on card `#FFFFFF` |
 |---|---|---|---|---|
-| `#3F230B` dark-brown | 16.9 · 28° | **12.88:1** | **14.42:1** | The only value that can carry body text. |
-| `#9F7652` brown | 52.9 · 28° | 3.62:1 | 4.05:1 | Boundary only — clears §19.7's 3:1, fails 4.5 text. |
-| `#CE9963` tan | 67.1 · 30° | 2.24:1 | 2.51:1 | **Fill only.** Fails both floors. |
-| `#7D9BBC` blue | 62.9 · 211° | 2.57:1 | 2.88:1 | **Fill only.** Fails both floors. |
-| `#F2F2F2` off-white | 95.5 · neutral | — | — | The canvas. |
+| Canvas | `--color-paper` | `#F7F5F4` | — | — |
+| Card | `--color-card` | `#FFFFFF` | ΔL* 3.34 lift | — |
+| Ink | `--color-ink` | `#051822` | 16.65 | 18.10 |
+| Secondary ink | `--color-ink-2` | `#2D383E` | 11.06 | 12.02 |
+| **Accent text** | `--color-punch-text` | `#7C5841` | **5.80** | **6.31** |
+| Boundary | `--color-line` | `#AA7452` | 3.63 | 3.94 |
+| Quiet fill | `--color-fill-quiet` | `#D4C9C7` | navy on it 11.19 | — |
+| Muted | `--color-muted` | `#969A9E` | decorative only | 2.83 — never text |
 
-**The fill logic is inverted from v5, and this is the whole shape of the
-palette.** In v5 the mid warm (`#704121`) carried text *and* took white as
-a fill. Here nothing works that way:
+#### Dark theme — available, not built
 
-- **Blue and tan are fills that carry dark ink, never ink themselves.**
-  `#3F230B` on blue is **5.00:1**, on tan **5.74:1** — both pass.
-- **The filled primary button is dark-brown with white text** (14.42:1).
-  White on brown is only **4.05:1 and fails**, so v5's "brown is the
-  filled button" rule does **not** survive this change.
-- **One further constraint, not in the supplied set**: `#3F230B` on brown
-  is only **3.56:1**. So brown is not a text-bearing fill either — it is
-  a boundary and a large-text surface, nothing more.
+Recorded because it is now a real option rather than an invention. The
+owner is *thinking about* dark (§19.2), not asking for it.
 
-**The derived tokens.** Five identity colours cannot fill eleven roles;
-v5 needed derived values for muted, line, error and confirm too, so this
-is the established pattern rather than a departure:
-
-| Role | Token | Value | canvas / card |
+| Role | Value | on canvas `#051822` | on card `#2D383E` |
 |---|---|---|---|
-| Canvas | `--color-paper` | `#F2F2F2` | — |
-| Card | `--color-card` | `#FFFFFF` | **ΔL* 4.51** — better separation than v5's 3.25 |
-| Ink | `--color-ink` | `#3F230B` | 12.88 / 14.42 |
-| Muted text | `--color-muted` | `#6E6259` | 5.28 / 5.91 |
-| Boundary | `--color-line` | `#9F7652` *(owner's brown)* | 3.62 / 4.05 |
-| Accent fill, warm | `--color-punch` | `#CE9963` *(tan)* | ink on it 5.74 |
-| Accent fill, cool | `--color-accent-cool` | `#7D9BBC` *(blue)* | ink on it 5.00 |
-| Accent **text** | `--color-punch-text` | `#7A5A3E` | **5.58 / 6.25** — see 19.1a |
-| Confirm | `--color-live` | `#2F6B4C` | 5.64 / 6.31 |
-| Error | `--color-error` | `#A3301F` | 6.25 / 7.00 |
+| Canvas / card | `#051822` / `#2D383E` | ΔL* 15.54 lift | — |
+| Ink | `#D4C9C7` | 11.19 | 7.43 |
+| Secondary | `#969A9E` | 6.39 | 4.24 — boundary only on card |
+| Accent | `#AA7452` | 4.59 | 3.05 — boundary only on card |
 
-**Adjacency: blue and tan.** They contrast **1.15:1** against each other,
-so they can never be a text/background pair or two states of one control.
-But they are **ΔL* 4.26 apart, which is a visible lightness step** — as
-with v5's pair, "near-identical lightness" overstates it. They are fine
-as two adjacent *surfaces*; what they cannot do is carry each other's
-text. Precision matters here because the blunt version forbids a
-legitimate treatment.
+**What reviving dark would cost, now answerable:** the values exist and
+are the owner's own, so it is no longer a palette invention — that was
+the blocker. It is a real but bounded exercise: retune the ~30 parked
+night rules (§19.2) from v5-era colours to these, re-audit both grounds
+against §19.7, and unpin the two ground-decision points. Note the card
+tier is tighter than light: grey and tan drop to boundary-only on
+`#2D383E`, so dark has fewer text colours on cards than light does.
 
-### 19.1a — The one real decision: v6 has no coloured text accent
+#### The fill rule, and it is unusually clean
 
-**This needs the owner's call, not ours** — it is a visible consequence of
-their hex list that they should weigh rather than discover.
+The ink flips at tan, with no exceptions:
 
-In v5, `#704121` carried small text at 8.16:1, and that is what the
-section kickers currently use — "CREATE A PLAN", "NEW PLAN", "YOUR
-ACCOUNT". Under v6 the nearest equivalent is brown at **3.62:1 on the
-canvas**, which fails the 4.5 text floor at those sizes. So:
+- **`#051822`, `#2D383E`, `#7C5841` take white text** — 18.10, 12.02, 6.31.
+- **`#AA7452`, `#969A9E`, `#D4C9C7` take navy `#051822` text** — 4.59, 6.39, 11.19.
 
-- **Option A — mono-ink.** Every piece of text becomes `#3F230B`.
-  Genuinely elegant and arguably the most disciplined reading of the
-  palette, but it **flattens a hierarchy the kickers currently create**:
-  the section labels would differ from body copy by size, letterspacing
-  and weight alone, not colour.
-- **Option B — derive a darker cut of their own brown (recommended).**
-  `#7A5A3E`: hue 28°, identical family to their `#9F7652`, just deepened
-  until it is legible — **5.58:1 canvas, 6.25:1 card**. It reads as their
-  brown, not a new colour, and it keeps the kicker hierarchy intact.
+**Every colour in v7 is usable as a fill**, which v6 was not — v6's brown
+had no workable ink at all. That removes the trap that cost three
+implementation attempts.
 
-**Recommendation: B.** The five are an *identity* palette, not a complete
-token set — muted, line, error and confirm are all already derived, in v5
-and again here, so deriving the accent-text cut is the same move rather
-than a new kind of liberty. And the kicker colour is doing real
-hierarchical work; losing it is a bigger change than a hex list makes
-obvious.
+### 19.1a — Retired: the derived accent text is no longer needed
 
-**If the owner picks A**, the change is small and clean: point
-`--color-punch-text` at `--color-ink` and the kickers rely on size,
-tracking and weight. The spec supports either; it should not be decided
-silently.
+v6 had one text-capable colour, so §19.1a derived `#7A5A3E` to keep the
+kicker hierarchy. **v7 makes that unnecessary: brown `#7C5841` carries
+small text natively at 5.80 on canvas and 6.31 on card.**
+
+`#7A5A3E` is **withdrawn**. Do not carry a derived colour the owner never
+picked when one of their own does the job. The mono-ink-versus-derived
+question this section existed to pose is now moot and needs no owner
+decision.
 
 ### 19.2 — Dark mode: parked, not deleted
 
@@ -1324,9 +1325,9 @@ drop-in set.
 *text legibility* metric. A card sitting on a canvas measures ~1.05–1.09:1
 and my script prints "FAIL" — that label is meaningless for two adjacent
 surfaces, and the correct metric is ΔL*. Under v6, `#FFFFFF` on
-`#F2F2F2` separates by **ΔL* 4.51** — comfortably visible, and better
-than v5's 3.25, so the card lift got easier with this palette rather
-than harder.
+`#F7F5F4` separates by **ΔL* 3.34** under v7 — comfortably visible. (v6
+gave 4.51 and v5 3.25; every palette so far has cleared the bar, but the
+figure must be re-derived per palette, not assumed.)
 
 Two rejections from earlier palettes, kept because the lesson holds at
 any values: a `#FAFAF8` canvas was rejected at ΔL* 1.78, and a `#FAFAFA`
@@ -1491,7 +1492,7 @@ survives a palette rewrite.
 must be a choice with a mechanism, not an absence:
 
 - **A fill** — the fill itself clears 3:1 against the ground. The brown
-  fills do this easily (v6's `#3F230B` is 12.88:1 on canvas).
+  fills do this easily (v7's `#051822` is 16.65:1 on canvas).
 - **Text alone** — legitimate only for genuinely chromeless controls (a
   text link, a bare-label ghost button), where the label carries 4.5:1
   and there is *no implied edge at all*. A faint border that can't be
@@ -1517,12 +1518,13 @@ read both will assume it is unless this says otherwise:
   it, and the brief actively forbids both fixes.
 
 **The tan's two floors now derive instead of being a special case.**
-v6's brown `#9F7652` measures 4.05:1 on card and 3.62:1 on canvas: it
+v7's tan `#AA7452` measures 3.94:1 on card and 3.63:1 on canvas: it
 **clears the 3:1 boundary floor on both** while **failing the 4.5:1 text
 floor on both**. So it is legitimately a rule, an edge or a divider and
 never a label — which is exactly the role §19.1 gives it, now as a
 consequence of two stated floors rather than an assertion about one
-colour. v6's tan and blue fail *both* floors and are fills only.
+colour. Grey `#969A9E` fails *both* floors on light grounds and is
+decorative only.
 
 ---
 
@@ -1595,136 +1597,164 @@ and explicitly warned against the drift. If a future change wants italic
 somewhere not on the §20.2 list, that is a new decision to take
 deliberately — not an extension of this permission.
 
-## 21 — Selective colour: where a tan or blue fill earns its place (owner, 2026-09-06)
+## 21 — Selective colour: which components wear a colour (owner, 2026-09-06)
 
-Owner, verbatim, after choosing direction 1: **"mayve lets use the
-energetic palette a bit dont force the colors everyhwere only wherever
-they naturally fit and look aesthetic."**
+> **Rewritten 2026-09-06 after the owner rejected the first model.** The
+> first version assigned tan and blue **per card, alternating by index**
+> across the Discover grid. Frontend implemented it exactly as written —
+> 26 filled, ratio 0.32, none adjacent — and the owner's reaction was:
+> *"i think youre forcing the colors the colors shoukdnt be mixed arounds
+> you have to choose with which compenents or which layouts each color
+> will look good."*
+>
+> They were right, and the failure was in the spec, not the build.
+> **Position-based assignment is random by construction**, and at 26 cards
+> that randomness is visible as scatter. A viewer cannot tell why *this*
+> card is tan, because there is no why.
 
-Direction 1 stays the base — restrained frame, photography carries the
-page. Direction 2's coloured fills become a **selective accent layer on
-top**, never a wholesale swap. "Don't force the colours everywhere" is
-the binding half of that sentence; this section is the other half made
-reviewable, because "wherever they look aesthetic" cannot be implemented
-or checked against.
+### 21.1 — The model: a colour belongs to a component, not to an instance
 
-### 21.1 — The rule, in one sentence
+> **Each colour has a structural job. A kind of surface is always tan, or
+> always blue, or always neutral — everywhere, every time.**
 
-> **A coloured fill stands in for a missing image. It never sits
-> alongside one.**
+No per-instance variation at all. That is what kills the scatter: colour
+stops being a property a card happens to get and becomes a property of
+**what a surface is**.
 
-That resolves the tension between the two directions rather than
-splitting the difference. Photography and coloured fills do the *same
-job* — they supply the colour and energy the neutral frame deliberately
-withholds. So they never compete for it: whichever is present does the
-work, and the other stands down.
+It also cannot become the retired category rainbow, which was the reason
+the first version avoided data-driven assignment. That reasoning still
+holds and is unchanged — this model keys on **what a component IS**, never
+on the data it carries, so a spot changing category or price still never
+changes any colour.
 
-### 21.2 — Where a fill earns its place
+### 21.2 — Which principle won, stated explicitly
 
-Two surfaces, both cases of *absence*:
+The first version's rule was *"a fill stands in for a missing image."*
+**It does not survive as an assignment rule, and it is withdrawn.**
 
-1. **A venue card with no photo**, inside a grid or wall of cards. Today
-   that renders as the fallback typographic tile, which is what makes the
-   wall read flat. A fill gives it presence and gives the grid rhythm.
-2. **An empty-state panel** — a collection with nothing in it, a wall
-   before anything is saved. Nothing is competing for attention there.
+The reason is the same one that killed index assignment: photo presence
+is a **per-instance data condition**. Filling the cards that lack a photo
+and leaving the rest neutral produces exactly the scatter the owner
+rejected — arbitrary-looking, because the viewer cannot see the reason.
+Keying on absence is no less random *to look at* than keying on index.
 
-### 21.3 — Where it stays neutral, named explicitly
+**What survives from it, as a constraint rather than a trigger:**
 
-A general rule will not survive contact, so:
+> **A fill never sits on or behind a photographed surface.**
 
-- **Any card that has a photo.** The photo is the colour. Adding a fill
-  behind or beside it is the exact "forcing" the owner asked against.
-- **The hero / featured card, even when photo-less.** It is the largest
-  surface on the screen, and a full tan or blue hero reads as a *themed
-  page* rather than as punctuation. This is the carve-out most likely to
-  be argued with later, so it is stated plainly: the hero stays neutral.
-- Nav, header, footer, page canvas, form surfaces, modals.
-- Buttons and actions — those take ink or the pop colour (§19.1), never a
-  tan or blue fill.
-- Error, loading and confirmation states — they carry semantic colour and
-  must not become confusable with decorative fills.
+That half was always right — photography and coloured fills do the same
+job, so they never compete. It is now a *never*, not a *where*.
 
-### 21.4 — The ceiling (the §20-shaped constraint)
+**Cost of this change, stated honestly:** the old §21.7 gave automatic
+recession — colour thinned itself as photos arrived, with no code change.
+That property is **gone**. Under component assignment nothing self-limits,
+so the ceiling in §21.4 is now the only thing holding the line, and it has
+to be enforced by review rather than by arithmetic.
 
-The owner has now twice asked for restraint on an expressive element, and
-§20's "at most one italic element per screen" is the shape that worked:
+### 21.3 — Two instruments, and the quiet one is the default
 
-- **At most one card in three** carries a fill, in any grid or row.
-- **Never two filled cards adjacent.** This also disposes of the blue/tan
-  pairing problem: they are 1.15:1 against each other, and while ΔL* 4.26
-  means they are fine as adjacent *surfaces*, two colour blocks side by
-  side is simply direction 2 rebuilt by accretion.
-- **The hero is never filled** (§21.3).
+**Updated for palette v7 (§19.1).** v7 changes what this section can use,
+and improves it: **brown `#7C5841` carries small text natively** (5.80 on
+canvas, 6.31 on card). v6 had no text-capable accent, which is why the
+first version reached for coloured *blocks* — the only instrument it had.
 
-If a screen wants a fourth filled card, the answer is no. The ratio is
-the rule, not a guideline.
+There are now two, and they are not equal:
 
-### 21.5 — Assign the colour by position, never by meaning
+| Instrument | Value | Weight | Where |
+|---|---|---|---|
+| **Accent text** *(default)* | brown `#7C5841` | Quiet | Section kickers and labels — a **component role**, applied consistently wherever that component appears. |
+| **Framing fill** *(exception)* | light `#D4C9C7`, navy text on it 11.19 | Louder | One singular framing surface per screen (§21.4, §21.5). |
 
-Rotate tan and blue **by index within the grid**. Do **not** key the fill
-to category, price band, area, or any other attribute.
+**Reach for the text instrument first.** A brown kicker is colour applied
+by component role, everywhere that component appears, with no blocks and
+nothing to scatter — it satisfies the owner's instruction more directly
+than any fill does, and it is the thing that was unavailable when they
+said colour was being forced.
 
-This is not arbitrary. Colour-by-category *is* the retired category
-rainbow, which the anti-vibecoded list names explicitly and §16.3
-confirms has stayed retired. Encoding meaning in the fill would
-resurrect it — and would also make a card change colour when its category
-is edited, which reads as a bug. Position is stable and means nothing,
-which is exactly what is wanted here.
+**Heavier fills exist and stay in reserve**: tan `#AA7452` (navy text,
+4.59) and slate `#2D383E` (white text, 12.02). Use them only where a
+surface genuinely wants weight — realistically the payoff panel, and
+little else. Grey `#969A9E` is decorative only and never carries text.
 
-### 21.6 — Mechanics, carried from §19.1a unchanged
+### 21.4 — Colour goes on framing surfaces, never on repeating content
 
-Non-negotiable, and the reason this is harder than "add some colour":
+This is the operative distinction, and it is what makes §21.1 concrete:
 
-- **Every fill carries full-strength `#3F230B`** — 5.74:1 on tan, 5.00:1
-  on blue. A softened mid-tone ink drops to ~4.0:1 and fails. That is the
-  exact mistake the first direction-2 mock made, and that its own audit
-  caught.
-- **Brown `#9F7652` is never a fill.** Nothing can sit on it: dark ink is
-  3.56:1, white is 4.05:1, both failing. Counter-intuitive, since brown
-  is the centre of the family — which is why it is stated rather than
-  left to be rediscovered.
-- **Only tan and blue are fill colours.** There is no third.
+- **Repeating content is never filled.** Venue cards, vote option cards,
+  visit tiles, photo-wall tiles, friend rows, search results. These are
+  *content*. Photography is their colour, and filling them is precisely
+  what produced the scatter. **This is the single biggest change from the
+  first version** — the Discover grid stops being where colour lives.
+- **Singular framing surfaces may be filled.** A section intro band, an
+  empty-state panel, a callout strip, the payoff panel. Surfaces that
+  appear **once on a screen** and frame content rather than being content.
 
-### 21.7 — Why this rule is self-limiting, which is the point
+**Never filled, regardless:**
+- The hero / featured card, even when photo-less. It is the largest
+  surface on screen, so a filled hero reads as a *themed page* rather than
+  punctuation. Unchanged from the first version, and the clause most
+  likely to be argued with, which is why it is stated.
+- Nav, header, footer, page canvas, forms, modals.
+- Buttons and actions — ink or the pop colour (§19.1), never a fill.
+- Error, loading and confirmation states, which carry semantic colour.
 
-Verified against the live database while writing this: **0 of 82 spots
-have a photo.** `spots.photo_url` is the only photo column in the schema
-and it is null for every row. So the photo-less card is not merely the
-common case — it is currently the *only* case, and this accent layer is
-presently the entire visual treatment of every venue card in the app.
+### 21.5 — The ceiling
 
-Because the rule keys on **photo absence**, colour recedes on its own as
-photography lands. Every real photo sourced turns one coloured card
-neutral, with no code change and no second design decision. The "don't
-force the colours everywhere" instruction therefore holds through the
-transition rather than only today — the rule enforces it over time
-instead of relying on someone's restraint months from now.
+**At most one filled surface per screen.** Not one per section — one per
+screen.
 
-One caveat for whoever reads this next: the fills are load-bearing *right
-now* precisely because there are no photos. Do not judge §21.4's ratio
-against a fully-photographed mock; judge it against the real catalogue,
-where every card is currently plain.
+This is the same shape as §20's one-italic-per-screen, deliberately: the
+owner has now asked three times for restraint on an expressive element,
+and that shape is the one that has held. Under the old model the ceiling
+was a ratio because the fills were many and small; under this one they
+are few and large, so the ceiling is a count.
 
-**How near the transition actually is, stated precisely so nobody plans
-against a softer number** (confirmed 2026-09-06, and corrected once
-already — an earlier "roughly 10, landing shortly" was a count of
-*sourceable* candidates reported as though it were live data):
+If a screen has both a populated section band and an empty state, the
+empty state takes the colour and the band goes neutral — the rarer, more
+meaningful surface wins.
 
-- **Live today: zero.** Not a single spot has a photo.
-- **Six**, not ten, survived Backend's hand-review and are staged in
-  migration 039.
-- Those six are **gated on an owner decision that has not been made** —
-  migration 038 creates a public-read bucket, which is deliberately not
-  being taken under any earlier blanket migration approval.
+### 21.6 — Mechanics, restated for v7
 
-So the realistic near-term state is **six photographed spots out of 82**,
-and only after an approval that may not come quickly. Even fully
-delivered, that is roughly one card in fourteen. §21.4's one-in-three
-ceiling is therefore the binding constraint on how much colour appears —
-photo availability will not be doing that work for a long time yet. Plan
-the implementation for a mostly-plain catalogue, and let §21.1 handle the
-photographed cards as they trickle in.
+The *shape* of the ink rule survives — a fill's ink is never softened —
+but v7 changes the values, and for the better. **The lesson that cost
+Frontend three attempts under v6 is now structural rather than a trap:**
+
+- **The ink flips at tan, with no exceptions** (§19.1). Navy, slate and
+  brown fills take **white** text; tan, grey and light fills take **navy
+  `#051822`**. Worst case across the six is 4.59:1, all passing.
+- **Every colour in v7 is usable as a fill.** v6's brown had no workable
+  ink at all — nothing could sit on it. That trap is gone, so the rule is
+  now "pick the right ink" rather than "avoid a colour entirely."
+- **Never soften the ink.** The v6 failure was a softened mid-tone
+  dropping to ~4.0:1. The flip rule above is the whole discipline: full
+  white or full navy, nothing in between.
+- Grey `#969A9E` is never text on any ground — 2.83 on white, 1.75 on
+  `#D4C9C7`. Decorative and boundary use only.
+
+### 21.7 — What this looks like in practice
+
+Concretely, so it is reviewable rather than interpretable. Note how
+little of this is a fill:
+
+- **Everywhere**: section kickers and labels take **brown text**. That is
+  the accent, and on most screens it is the *only* colour.
+- **Discover**: grid cards neutral. The intro band may take the **quiet
+  fill `#D4C9C7`**, or the empty state does if the catalogue is empty.
+  One of the two, never both.
+- **The photo wall**: tiles neutral. The empty wall takes the quiet fill.
+- **A live plan**: the plan card is the hero, so it stays neutral (§21.4).
+  Brown kicker only.
+- **The payoff** (`DecidedPlan`): the decided panel takes **tan
+  `#AA7452`** with navy text. This is the one place a heavier fill is
+  earned — the moment the whole flow exists for, once per plan,
+  unambiguously the group's own.
+- **Been / Profile**: brown kickers. The recap strip may take the quiet
+  fill. Collections grid neutral.
+
+A screen not on this list gets no fill until someone adds it here
+deliberately. **If in doubt, use the brown text and no fill** — that is
+the reading of "only wherever they naturally fit" that is hardest to get
+wrong.
 
 ---
 
