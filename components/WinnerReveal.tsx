@@ -71,6 +71,22 @@ const CELL = 2;
 const MIN_PARTICLES = 500;
 const DURATION_MS = 1100;
 const SIDE_PADDING = 28;
+const MAX_FONT = 96; // in buffer units; ~153px rendered at a 640px panel
+const MIN_FONT = 26;
+
+/**
+ * Largest size at which `text` fits one line inside the buffer. Below
+ * MIN_FONT it is left to clip rather than shrink into illegibility — a name
+ * nobody can read is not a reveal.
+ */
+function fitFontSize(ctx: CanvasRenderingContext2D, text: string, font: (px: number) => string): number {
+  const available = WIDTH - SIDE_PADDING * 2;
+  for (let size = MAX_FONT; size > MIN_FONT; size -= 2) {
+    ctx.font = font(size);
+    if (ctx.measureText(text).width <= available) return size;
+  }
+  return MIN_FONT;
+}
 
 interface Particle {
   sx: number; sy: number; // scattered start
@@ -97,6 +113,9 @@ export default function WinnerReveal({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const [phase, setPhase] = useState<"particles" | "settled">("particles");
+  // The size the particles actually formed the name at, in rendered px.
+  // Null until measured; the CSS clamp is the pre-JS fallback.
+  const [settledPx, setSettledPx] = useState<number | null>(null);
   const reducedMotion = useSyncExternalStore(
     subscribeReducedMotion,
     getReducedMotion,
@@ -104,7 +123,20 @@ export default function WinnerReveal({
   );
 
   useEffect(() => {
-    if (reducedMotion) return; // the heading is already the rendered state
+    if (reducedMotion) {
+      // No animation, but still measure: otherwise reduced-motion users are
+      // the only ones left on the CSS fallback, at a different size from
+      // everyone else on the same screen.
+      const canvasless = document.createElement("canvas").getContext("2d");
+      const heading = headingRef.current;
+      if (canvasless && heading) {
+        const cs = getComputedStyle(heading);
+        const font = (px: number) => `${cs.fontWeight || "800"} ${px}px ${cs.fontFamily || "serif"}`;
+        const panelWidth = heading.parentElement?.getBoundingClientRect().width ?? WIDTH;
+        setSettledPx(fitFontSize(canvasless, name, font) * (panelWidth / WIDTH));
+      }
+      return;
+    }
     let cancelled = false;
     const canvas = canvasRef.current;
     const heading = headingRef.current;
@@ -133,9 +165,7 @@ export default function WinnerReveal({
       // and it keeps the backing store fixed while the reveal still scales
       // with the panel.
       const panel = canvas.getBoundingClientRect();
-      const scale = panel.width > 0 ? WIDTH / panel.width : 1;
       const headingStyle = getComputedStyle(heading);
-      const fontPx = parseFloat(headingStyle.fontSize) * scale;
       const family = headingStyle.fontFamily || "serif";
       const weight = headingStyle.fontWeight || "800";
       const ink = headingStyle.color || "#fff";
@@ -149,10 +179,23 @@ export default function WinnerReveal({
         return;
       }
 
+      // The name is fitted to the buffer, and the SETTLED TEXT is then sized
+      // to whatever that produced — not the other way round. A CSS clamp
+      // cannot do this job: the drawn size depends on how long the name is,
+      // and the rendered size depends on the panel width, and no CSS unit
+      // can see either. Declaring the settled size in CSS makes the name
+      // assemble at one size and land at another, by a different factor for
+      // every winner — measured at a 1056px panel: 3.96x for "3Fils" down to
+      // 1.57x for "Reif Japanese Kushiyaki".
+      const font = (px: number) => `${weight} ${px}px ${family}`;
+      const drawn = fitFontSize(sctx, name, font);
+      const panelWidth = panel.width > 0 ? panel.width : WIDTH;
+      setSettledPx(drawn * (panelWidth / WIDTH));
+
       // Left transparent on purpose: only glyphs get sampled below, so the
       // particle cloud is the shape of the name rather than a solid
       // rectangle of background cells.
-      sctx.font = `${weight} ${fontPx}px ${family}`;
+      sctx.font = font(drawn);
       sctx.fillStyle = ink;
       sctx.textAlign = "center";
       sctx.textBaseline = "middle";
@@ -262,6 +305,7 @@ export default function WinnerReveal({
         ref={headingRef}
         className="winner-reveal__name"
         data-hidden={showCanvas || undefined}
+        style={settledPx ? { fontSize: `${settledPx}px` } : undefined}
       >
         {name}
       </h2>

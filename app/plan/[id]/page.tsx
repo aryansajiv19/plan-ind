@@ -634,6 +634,23 @@ export default function VotePage() {
     const leaders = visibleSpots.filter((spot) => yesCount(spot.id) === top);
     return leaders.length === 1 ? leaders[0].id : null;
   })();
+  // SPECS.md §25.2 — plan gravity. The scalar everything reads from: an even
+  // split reads 0, unanimity reads 1. One pass over the visible counts,
+  // recomputed when a vote arrives rather than on a frame loop — that is the
+  // whole reason this is affordable. Votes are discrete Realtime events, so
+  // a round costs a handful of transitions, not sixty a second.
+  const agreement = (() => {
+    const counts = visibleSpots.map((spot) => yesCount(spot.id));
+    const total = counts.reduce((sum, n) => sum + n, 0);
+    const n = counts.length;
+    // No votes yet, or a single option: nothing has converged, so scatter is
+    // at full width. Guarding n <= 1 also keeps the 1/n term from dividing by
+    // zero when a round somehow renders one card.
+    if (total === 0 || n <= 1) return 0;
+    const share = Math.max(...counts) / total;
+    return Math.min(1, Math.max(0, (share - 1 / n) / (1 - 1 / n)));
+  })();
+
   const poolsChosenByMe = new Set(
     votes
       .filter((vote) => vote.voter_name === voterName && vote.value && (vote.phase ?? "final") === "pool")
@@ -726,11 +743,25 @@ export default function VotePage() {
             swapping in place. */}
         <div
           key={`round-${currentPoolNumber}`}
-          style={{ "--round-dir": roundDir } as React.CSSProperties}
-          className="vote-options-grid vote-round mt-6 grid gap-3.5 sm:grid-cols-3"
+          style={{ "--round-dir": roundDir, "--c": agreement } as React.CSSProperties}
+          // gap-3.5 removed: the gap is gravity's one layout channel now, and a
+          // Tailwind utility ties with the stylesheet rule on specificity, so
+          // whichever comes later in the cascade silently wins. Owning it in
+          // one place is the fix; adding !important would only move the tie.
+          className="vote-options-grid vote-round mt-6 grid sm:grid-cols-3"
         >
-          {visibleSpots.map((spot) => (
-            <div key={spot.id} ref={(el) => { cardRefs.current[spot.id] = el; }}>
+          {visibleSpots.map((spot, index) => (
+            <div
+              key={spot.id}
+              ref={(el) => { cardRefs.current[spot.id] = el; }}
+              className="vote-option-shell"
+              data-lead={spot.id === leaderId && !decided ? "1" : undefined}
+              // --off is a FIXED per-card offset, derived from position rather
+              // than from the vote data. It has to be stable: a scatter that
+              // re-randomises on every vote would read as jitter instead of
+              // convergence, and cards would swap places under a thumb.
+              style={{ "--off": `${(index % 3) * 23}px` } as React.CSSProperties}
+            >
               <OptionCard
                 spot={spot}
                 voters={votersFor(spot.id)}
