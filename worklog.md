@@ -754,3 +754,46 @@ Parked and deliberately untouched: `set_plan_rsvp`'s `p_choice` null-guard
 
 Commit `9b6a487`. Gate green (lint/tsc/38 tests). No product code changed,
 no migration, nothing applied.
+
+---
+
+## 2026-09-06 — T0: migration 037 applied live (owner-approved)
+
+**Owner approved 037 explicitly ("i approving migration 037"); applied via MCP
+against `zyojaoyatunjwgbivaqu`, verified by query, not assumed.**
+
+Pre-checked the file before running rather than trusting its header: 40
+`update` statements, 40 distinct ids, every one guarded `and latitude is
+null`, zero DDL and zero destructive keywords (`drop|delete|truncate|alter|
+grant|revoke` all absent). Idempotent by construction — a re-run is a no-op.
+
+**Before:** 82 spots, 0 with coordinates. **After:** 40 with coordinates, 42
+still null (the deliberate rejects — 29 with no Nominatim match, 13 that
+matched a *different* venue). All 40 land inside a UAE bounding box
+(lat 24.814–25.266, lon 55.129–56.160); the two out-of-city outliers are
+Hatta and Al Qudra, plausible for `escape`/`adventure`.
+
+**Correction to a number that was on record.** The repeated "42 are null"
+figure came from the *local* stack, where 037 had already been applied. Live
+had **all 82** null until today, because 037 had never been applied there —
+so `getting there` could not render for any spot, in any category, for any
+real user. Worth stating plainly: the local figure was right about local and
+silently wrong about production, which is the failure mode of quoting a
+number without its environment.
+
+**Live category coverage now** (this is what decides whether the distance
+line can render):
+
+| coverage | categories |
+|---|---|
+| 100% | culture, outdoors, shopping |
+| 67–75% | adventure, beach, cafe, family, live_music, movie, vibes |
+| 25–50% | brunch, dessert, dinner (40%), games, karaoke, nightlife, shisha, sports, water |
+| **0%** | **beach_club, escape, padel, wellness** |
+
+The four zero-coverage categories still cannot ever render a distance line —
+12 spots, unchanged by this migration and not fixable by more geocoding
+(they are the ones Nominatim could not match or matched wrongly). Hand-pasted
+coordinates remain the only fix, still the owner's call.
+
+Migrations 035 and 036 remain staged and unapplied.
