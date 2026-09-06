@@ -200,6 +200,9 @@ create table votes (
   phase      text not null default 'final' check (phase in ('pool', 'final')),
   pool_number smallint not null default 0 check (pool_number between 0 and 6),
   participant_token_hash text,
+  -- 043: who actually cast this. The hash beside it is an identity
+  -- marker, NOT a credential -- see the 043 section below.
+  user_id    uuid references auth.users(id) on delete set null,
   created_at timestamptz not null default now()
 );
 
@@ -221,6 +224,8 @@ create table rsvps (
   seats_available smallint check (seats_available is null or seats_available between 0 and 8),
   created_at timestamptz not null default now(),
   unique (plan_id, voter_name),
+  -- 043: who actually replied. See the 043 section below.
+  user_id    uuid references auth.users(id) on delete set null,
   constraint rsvps_seats_only_when_driving check (seats_available is null or transport = 'driving')
 );
 
@@ -235,6 +240,8 @@ create table ratings (
   stars      int  not null check (stars between 1 and 5),
   again      boolean not null,
   participant_token_hash text,
+  -- 043: who actually rated. See the 043 section below.
+  user_id    uuid references auth.users(id) on delete set null,
   created_at timestamptz not null default now(),
   unique (plan_id, voter_name)
 );
@@ -1268,9 +1275,15 @@ end; $$;
 revoke all on function cast_plan_vote(uuid, uuid, text, boolean, text, smallint, text) from public;
 revoke all on function set_plan_rsvp(uuid, text, boolean, text, text, text, smallint) from public;
 revoke all on function rate_plan(uuid, uuid, text, integer, boolean, text) from public;
-grant execute on function cast_plan_vote(uuid, uuid, text, boolean, text, smallint, text) to anon, authenticated;
-grant execute on function set_plan_rsvp(uuid, text, boolean, text, text, text, smallint) to anon, authenticated;
-grant execute on function rate_plan(uuid, uuid, text, integer, boolean, text) to anon, authenticated;
+-- These three are granted to `authenticated` ONLY. They previously read
+-- `to anon, authenticated` here and were revoked from anon 180-odd lines
+-- below (migration 020's section), which meant the file that is supposed to
+-- MIRROR live spent most of its length claiming anon could execute the write
+-- RPCs. Live was always correct; the file was not, and a reader checking
+-- "can anon write?" by grepping would have got the wrong answer.
+grant execute on function cast_plan_vote(uuid, uuid, text, boolean, text, smallint, text) to authenticated;
+grant execute on function set_plan_rsvp(uuid, text, boolean, text, text, text, smallint) to authenticated;
+grant execute on function rate_plan(uuid, uuid, text, integer, boolean, text) to authenticated;
 
 -- ── 3. Date of birth becomes server-owned and write-once ──────────────────
 --
@@ -1962,3 +1975,225 @@ create policy "add own friendships" on friendships for insert to authenticated
 drop policy if exists "remove own friendships" on friendships;
 create policy "remove own friendships" on friendships for delete to authenticated
   using (is_permanent_user() and person_id = (select auth.uid()));
+
+
+-- ── 043: participant identity is bound to auth.uid() ─────────────────────
+--
+-- `participant_token_hash` was a BEARER TOKEN every co-member could read:
+-- the RPCs checked only that it was 64 hex characters, and `read accessible
+-- votes` returns the whole row to every member. Anyone a share link was
+-- forwarded to could read another member's hash and rewrite or delete their
+-- vote -- the app's core promise inverted. auth.uid() is the one value in
+-- the exchange the caller cannot choose, so the RPCs now write and check it.
+--
+-- The unique key deliberately still hangs off the hash rather than user_id;
+-- see migration-043's header for why that half is a separate reviewed step.
+
+
+create index votes_user_idx   on votes (plan_id, user_id);
+create index rsvps_user_idx   on rsvps (plan_id, user_id);
+create index ratings_user_idx on ratings (plan_id, user_id);
+
+-- ── cast_plan_vote ───────────────────────────────────────────────────────
+create or replace function cast_plan_vote(
+  p_plan_id uuid, p_spot_id uuid, p_voter_name text, p_value boolean,
+  p_phase text, p_pool_number smallint, p_participant_token_hash text
+) returns jsonb language plpgsql security definer set search_path = public, pg_temp as $$
+declare
+  target plans%rowtype;
+  clean_name text := left(trim(p_voter_name), 40);
+  caller uuid := auth.uid();
+begin
+  if p_participant_token_hash !~ '^[0-9a-f]{64}$' then
+    raise exception 'Participant authorization required' using errcode = '42501';
+  end if;
+  if caller is null then
+    raise exception 'Participant authorization required' using errcode = '42501';
+  end if;
+  -- 043: the hash is not a credential. Refuse to touch a row that already
+  -- belongs to somebody else, whatever hash was presented.
+  if exists (
+    select 1 from votes v
+    where v.plan_id = p_plan_id and v.participant_token_hash = p_participant_token_hash
+      and v.user_id is not null and v.user_id <> caller
+  ) then
+    raise exception 'That participant identity belongs to someone else' using errcode = '42501';
+  end if;
+  if clean_name = '' then
+    raise exception 'Enter a name before voting' using errcode = '22023';
+  end if;
+  if p_phase not in ('pool', 'final') then
+    raise exception 'Unsupported voting phase' using errcode = '22023';
+  end if;
+
+  select * into target from plans where id = p_plan_id;
+  if target.id is null or target.status <> 'open' then
+    raise exception 'This plan is not open for voting' using errcode = '22023';
+  end if;
+  if p_phase <> target.stage then
+    raise exception 'This round is no longer open' using errcode = '22023';
+  end if;
+  if p_phase = 'pool' and (p_pool_number < 1 or p_pool_number > target.pool_count) then
+    raise exception 'That round does not exist' using errcode = '22023';
+  end if;
+  if p_phase = 'final' and p_pool_number <> 0 then
+    raise exception 'That round does not exist' using errcode = '22023';
+  end if;
+  if not exists (
+    select 1 from plan_spots ps
+    where ps.plan_id = p_plan_id and ps.spot_id = p_spot_id
+      and (p_phase = 'final' or ps.pool_number = p_pool_number)
+      and (p_phase = 'pool' or ps.advanced)
+  ) then
+    raise exception 'That place is not on this plan' using errcode = '22023';
+  end if;
+
+  if p_value then
+    insert into votes (plan_id, spot_id, voter_name, value, phase, pool_number, participant_token_hash, user_id)
+    values (p_plan_id, p_spot_id, clean_name, true, p_phase, p_pool_number, p_participant_token_hash, caller)
+    on conflict (plan_id, participant_token_hash, phase, pool_number)
+      where participant_token_hash is not null
+      do update set spot_id = excluded.spot_id, voter_name = excluded.voter_name,
+                    value = true, user_id = caller;
+  else
+    -- Ownership is re-checked here too: the guard above only sees rows that
+    -- already carry a user_id, and delete must not become the soft spot.
+    delete from votes
+      where plan_id = p_plan_id and participant_token_hash = p_participant_token_hash
+        and phase = p_phase and pool_number = p_pool_number
+        and (user_id is null or user_id = caller);
+  end if;
+
+  return jsonb_build_object(
+    'plan_id',     p_plan_id,
+    'phase',       p_phase,
+    'pool_number', p_pool_number,
+    'spot_id',     case when p_value then p_spot_id else null end
+  );
+end; $$;
+
+-- ── set_plan_rsvp ────────────────────────────────────────────────────────
+create or replace function set_plan_rsvp(
+  p_plan_id uuid, p_voter_name text, p_coming boolean, p_choice text, p_participant_token_hash text,
+  p_transport text default null, p_seats_available smallint default null
+) returns void language plpgsql security definer set search_path = public, pg_temp as $$
+declare
+  existing rsvps%rowtype;
+  target plans%rowtype;
+  clean_name text := left(trim(p_voter_name), 40);
+  caller uuid := auth.uid();
+begin
+  if p_participant_token_hash !~ '^[0-9a-f]{64}$'
+     or p_choice is null or p_choice not in ('coming', 'maybe', 'no') then
+    raise exception 'Participant authorization required' using errcode = '42501';
+  end if;
+  if caller is null then
+    raise exception 'Participant authorization required' using errcode = '42501';
+  end if;
+  if exists (
+    select 1 from rsvps r
+    where r.plan_id = p_plan_id and r.participant_token_hash = p_participant_token_hash
+      and r.user_id is not null and r.user_id <> caller
+  ) then
+    raise exception 'That participant identity belongs to someone else' using errcode = '42501';
+  end if;
+  if clean_name = '' then
+    raise exception 'Enter a name before replying' using errcode = '22023';
+  end if;
+  if p_transport is not null and p_transport not in ('driving', 'need_ride', 'own_way') then
+    raise exception 'Unsupported transport choice' using errcode = '22023';
+  end if;
+  if p_seats_available is not null and (p_transport is distinct from 'driving' or p_seats_available not between 0 and 8) then
+    raise exception 'Seats only apply when driving, 0 to 8' using errcode = '22023';
+  end if;
+
+  select * into target from plans where id = p_plan_id;
+  if target.id is null then
+    raise exception 'That plan does not exist' using errcode = '22023';
+  end if;
+
+  loop
+    select * into existing from rsvps where plan_id = p_plan_id and voter_name = clean_name for update;
+    if existing.id is not null and existing.user_id is not null and existing.user_id <> caller then
+      raise exception 'That participant name is already in use' using errcode = '42501';
+    end if;
+    if existing.id is not null and existing.participant_token_hash is not null
+       and existing.participant_token_hash <> p_participant_token_hash then
+      raise exception 'That participant name is already in use' using errcode = '42501';
+    end if;
+    if existing.id is null then
+      begin
+        insert into rsvps (plan_id, voter_name, coming, choice, participant_token_hash, transport, seats_available, user_id)
+        values (p_plan_id, clean_name, p_coming, p_choice, p_participant_token_hash, p_transport, p_seats_available, caller);
+        return;
+      exception when unique_violation then
+      end;
+    else
+      update rsvps set coming = p_coming, choice = p_choice, participant_token_hash = p_participant_token_hash,
+        transport = p_transport, seats_available = p_seats_available, user_id = caller
+        where id = existing.id;
+      return;
+    end if;
+  end loop;
+end; $$;
+
+-- ── rate_plan ────────────────────────────────────────────────────────────
+create or replace function rate_plan(
+  p_plan_id uuid, p_spot_id uuid, p_voter_name text, p_stars integer, p_again boolean, p_participant_token_hash text
+) returns void language plpgsql security definer set search_path = public, pg_temp as $$
+declare
+  existing ratings%rowtype;
+  target plans%rowtype;
+  clean_name text := left(trim(p_voter_name), 40);
+  caller uuid := auth.uid();
+begin
+  if p_participant_token_hash !~ '^[0-9a-f]{64}$' or p_stars not between 1 and 5 then
+    raise exception 'Participant authorization required' using errcode = '42501';
+  end if;
+  if caller is null then
+    raise exception 'Participant authorization required' using errcode = '42501';
+  end if;
+  if exists (
+    select 1 from ratings r
+    where r.plan_id = p_plan_id and r.participant_token_hash = p_participant_token_hash
+      and r.user_id is not null and r.user_id <> caller
+  ) then
+    raise exception 'That participant identity belongs to someone else' using errcode = '42501';
+  end if;
+  if clean_name = '' then
+    raise exception 'Enter a name before rating' using errcode = '22023';
+  end if;
+
+  select * into target from plans where id = p_plan_id;
+  if target.id is null or target.status <> 'decided' then
+    raise exception 'This plan has not been decided yet' using errcode = '22023';
+  end if;
+  if target.winner_spot_id is null or target.winner_spot_id <> p_spot_id then
+    raise exception 'You can only rate the place the group chose' using errcode = '22023';
+  end if;
+
+  loop
+    select * into existing from ratings where plan_id = p_plan_id and voter_name = clean_name for update;
+    if existing.id is not null and existing.user_id is not null and existing.user_id <> caller then
+      raise exception 'That participant name is already in use' using errcode = '42501';
+    end if;
+    if existing.id is not null and existing.participant_token_hash is not null
+       and existing.participant_token_hash <> p_participant_token_hash then
+      raise exception 'That participant name is already in use' using errcode = '42501';
+    end if;
+    if existing.id is null then
+      begin
+        insert into ratings (plan_id, spot_id, voter_name, stars, again, participant_token_hash, user_id)
+        values (p_plan_id, p_spot_id, clean_name, p_stars, p_again, p_participant_token_hash, caller);
+        return;
+      exception when unique_violation then
+      end;
+    else
+      update ratings set spot_id = p_spot_id, stars = p_stars, again = p_again,
+        participant_token_hash = p_participant_token_hash, user_id = caller where id = existing.id;
+      return;
+    end if;
+  end loop;
+end; $$;
+
+-- create or replace preserves the ACL, so 020/021's grants still stand.

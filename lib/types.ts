@@ -87,6 +87,9 @@ export interface Vote {
   phase: "pool" | "final";
   pool_number: number;
   participant_token_hash?: string | null;
+  /** 043: the auth uid that actually wrote this row. The hash above is an
+   *  identity marker, NOT a credential -- the RPCs check this, not it. */
+  user_id?: string | null;
 }
 
 // What cast_plan_vote returns (migration 023). The vote is idempotent per
@@ -108,6 +111,9 @@ export interface Rsvp {
   coming: boolean;
   choice?: "coming" | "maybe" | "no";
   participant_token_hash?: string | null;
+  /** 043: the auth uid that actually wrote this row. The hash above is an
+   *  identity marker, NOT a credential -- the RPCs check this, not it. */
+  user_id?: string | null;
   // Carpool coordination (migration 035) -- a list, not a matcher.
   // seats_available is only meaningful when transport === "driving".
   transport?: "driving" | "need_ride" | "own_way" | null;
@@ -124,6 +130,9 @@ export interface Rating {
   stars: number; // 1–5
   again: boolean; // would you go again?
   participant_token_hash?: string | null;
+  /** 043: the auth uid that actually wrote this row. The hash above is an
+   *  identity marker, NOT a credential -- the RPCs check this, not it. */
+  user_id?: string | null;
 }
 
 // ─── The social layer ──────────────────────────────────────────────

@@ -118,14 +118,21 @@ export async function safeFetch(url: string): Promise<string> {
   let target = new URL(url);
   const deadline = Date.now() + TOTAL_TIMEOUT_MS;
   for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
-    // The whole call is bounded, not just each hop. Without this the budget
+    // The whole call is bounded, not just each hop -- otherwise the budget
     // multiplied by the redirect count.
-    const remaining = deadline - Date.now();
-    if (remaining <= 0) throw new SafeFetchError("That link took too long to respond.");
+    if (deadline - Date.now() <= 0) throw new SafeFetchError("That link took too long to respond.");
     if (target.protocol !== "https:" && target.protocol !== "http:") {
       throw new SafeFetchError("Only http/https links can be fetched.");
     }
     await assertPublicHost(target.hostname);
+    // `remaining` is computed AFTER the DNS lookup, not before it. Computing
+    // it first left the lookup uncharged against the budget, so the real
+    // worst case was TOTAL_TIMEOUT_MS + DNS_TIMEOUT_MS per hop -- ~25% over
+    // the bound this constant advertises. Third time this drift has appeared
+    // in this function; the rule is that every wait belongs to the budget.
+
+    const remaining = deadline - Date.now();
+    if (remaining <= 0) throw new SafeFetchError("That link took too long to respond.");
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), Math.min(TIMEOUT_MS, remaining));

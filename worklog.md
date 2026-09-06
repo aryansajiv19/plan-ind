@@ -36,7 +36,7 @@ Apply in order. Every migration is additive and re-run safe unless noted.
 | 023 | `migration-023-vote-idempotency.sql` | **yes — applied live 2026-09-01 via Supabase MCP (T0)** in corrected form (`drop function` before `create` — the committed file was fixed to match in `67a0ccf`). `votes_participant_round_key` unique index live, `cast_plan_vote` returns jsonb, no vote rows deleted. |
 | 024 | `migration-024-revoke-anon-execute-sec4.sql` | **yes — applied live 2026-09-01 via Supabase MCP (T0), owner-approved.** Verified: anon EXECUTE now absent on all 7; `authenticated` kept on the 3 RPCs, dropped on the 4 internal fns; `set_birth_date` body carries the `is_permanent_user()` guard. Post-apply advisor: `anon_security_definer_function_executable` down to `record_security_event` only (intentional). |
 | 025 | `migration-025-rsvp-rating-upsert-race.sql` | yes — applied live (see 2026-09-02 Security entries below). |
-| 026 | `migration-026-otp-rate-limit.sql` | yes — applied live. |
+| 026 | `migration-026-otp-rate-limit.sql` | **yes — but this row was WRONG until 2026-09-07.** It claimed applied; `consume_otp_limit` did not exist live (confirmed by catalog query, not inference). Consequence: `consumeOtpLimit` failed closed and the PGRST202 fallback only returns true when `NODE_ENV !== "production"`, so **both** `requestEmailCode` and `verifyEmailCode` refused before ever reaching GoTrue on a production deploy. That is why the project has 62 anonymous users and zero permanent accounts ever — sign-up was structurally impossible, not unpopular. Applied and verified by T0 on 2026-09-07. A ledger that is trusted and wrong is worse than no ledger: verify against the catalog, not against this table. |
 | 027 | `migration-027-spots-name-index.sql` | yes — applied live. |
 | 028 | `migration-028-friendships-rls-recursion.sql` | yes — applied live. |
 | 029 | `migration-029-rls-auto-enable-capture.sql` | yes — applied live. |
@@ -1653,3 +1653,76 @@ Free geocoding is genuinely exhausted here.
 
 Migration 042 staged. Verified live that all four ids exist and are still
 null. Gate green, 64 tests.
+
+---
+
+## 2026-09-07 — T1 Security/Backend: two criticals from the security audit
+
+**ReDoS in `metaContent` — a whole-process outage from one pasted link.**
+The pattern used two unanchored `[^>]+` runs separated by literal anchors, so
+markup with many `property="og:title"` occurrences and no following
+`content=` backtracked super-linearly: 30KB → 3.9s, 45KB → 13.7s, 536KB →
+never returned. safe-fetch's 512KB cap is the input size that makes it
+*worst*, not a mitigation; its AbortController is already cleared before this
+runs; and `resolvePlaceImport` is awaited inside the route handler, so the
+spin is synchronous on Node's single event loop. Not a slow request — every
+route for every user stops. At 20 imports/minute, one user is an indefinite
+outage.
+
+Fixed with both changes, each load-bearing: scan only the first 16KB (og:
+tags live in `<head>`, which this module's own comment already said while the
+code read the whole body), and bound the attribute runs to `[^>]{0,200}?` so
+no super-linear path survives for a longer input. Regression test asserts a
+512KB adversarial document returns in under 50ms. Verified separately that
+this does not break real pages: Wikipedia's `og:title` sits at byte 7,904,
+well inside the window.
+
+**`participant_token_hash` was a bearer token every co-member could read.**
+The RPCs checked only that it was 64 hex characters, never that it belonged
+to the caller, and `read accessible votes` returns the whole row — hash
+included — to every member. Hashing bought nothing: the server compared a
+submitted hash against a stored hash the submitter could read. Pass-the-hash.
+
+The chain needs only the public anon key and a forwarded link: anonymous
+sign-in → `claim_plan_access` → `select *` from votes to read every member's
+hash → `cast_plan_vote` with the victim's hash. The unique key makes it DO
+UPDATE, so the vote *moves*; `p_value := false` deletes it. No app route is
+involved, so the CSRF and Origin checks are not in the path, and Realtime
+then pushes the rewritten row to the victim's screen. Anyone the link is
+forwarded to could decide where the group eats.
+
+**Migration 043** adds `user_id` to votes/rsvps/ratings, written from
+`auth.uid()` — the one value in the exchange the caller cannot choose — and
+refuses any write whose target row is already owned by someone else. The
+delete branch re-checks ownership too, so it does not become the soft spot.
+**Reproduced the full attack against the local stack and confirmed each step
+now fails**: rewrite blocked 42501, delete blocked 42501, the victim's vote
+intact and bound to their uid, and the victim can still change their own mind.
+
+Deliberately deferred: moving the unique key to `(plan_id, user_id, phase,
+pool_number)`. That is the complete fix — it would also stop one user voting
+under several self-minted hashes — but it means rewriting `ON CONFLICT` and
+backfilling a column that *cannot* be backfilled, since existing rows record
+only a hash and the user who cast them is unrecoverable. Doing that under
+time pressure on live data is how a fix becomes an outage. Legacy rows keep
+`user_id is null` and are claimable by the first writer presenting their
+hash — a narrow, stated residue.
+
+**Also fixed:** `safeFetch` computed its remaining budget *before* the DNS
+lookup, so the lookup went uncharged and the real worst case was ~25% over
+the advertised bound. Third appearance of this drift in one function; the
+rule now written down is that every wait belongs to the budget. And
+`schema.sql` granted the three write RPCs to `anon` and revoked it 180 lines
+later — live was always correct, but the file that is meant to *mirror* live
+answered "can anon write?" wrongly to anyone grepping it.
+
+**Ledger corrected:** the 026 row claimed applied; it was not, and
+`consume_otp_limit` did not exist live. `consumeOtpLimit` failed closed and
+its PGRST202 fallback only returns true off-production, so both
+`requestEmailCode` and `verifyEmailCode` refused before reaching GoTrue. That
+is why this project has 62 anonymous users and zero permanent accounts —
+sign-up was structurally impossible, not unpopular. T0 applied it. A ledger
+that is trusted and wrong is worse than no ledger.
+
+Journey 119/120 (the remaining failure is the known coordinate gap), 67 unit
+tests, gate green. 043 staged.

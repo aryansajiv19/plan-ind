@@ -69,3 +69,37 @@ test("a multi-byte character split by the cut does not throw", async () => {
   const text = await readCapped(streamed([filler, "é"]));
   assert.equal(text.length, MAX_BYTES);
 });
+
+// ── ReDoS regression ─────────────────────────────────────────────────────
+// metaContent's original pattern used two unanchored `[^>]+` runs, which
+// backtracked super-linearly on markup carrying many `property="og:title"`
+// occurrences with no following `content=`. Measured before the fix: 30KB
+// took 3.9s, 45KB took 13.7s, 536KB never finished. Because
+// resolvePlaceImport is awaited inside the route handler, that was a
+// synchronous spin on Node's single event loop -- a whole-process outage
+// from one pasted link, not a slow request.
+test("an adversarial 512KB document cannot make metaContent spin", () => {
+  // The shape that triggered it: the anchor the pattern looks for, repeated,
+  // never followed by the attribute that would complete a match.
+  const hostile = `<meta property="og:title" `.repeat(20_000).slice(0, 512 * 1024);
+  const started = performance.now();
+  const result = metaContent(hostile, "og:title");
+  const elapsed = performance.now() - started;
+  assert.equal(result, null, "no complete tag, so no match");
+  assert.ok(elapsed < 50, `took ${elapsed.toFixed(0)}ms — the pattern is backtracking again`);
+});
+
+test("a real tag past the head-scan window is not read", () => {
+  // Deliberate: og: tags live in <head>. Scanning the whole body is what let
+  // a 512KB input become the worst case, so the limit is a security bound,
+  // not an optimisation.
+  const buried = `${"x".repeat(20 * 1024)}<meta property="og:title" content="Too far in">`;
+  assert.equal(metaContent(buried, "og:title"), null);
+});
+
+test("a normal document still resolves its tags", () => {
+  const page = `<html><head><meta property="og:title" content="Museum of the Future">`
+    + `<meta content="A place" property="og:description"></head><body>x</body></html>`;
+  assert.equal(metaContent(page, "og:title"), "Museum of the Future");
+  assert.equal(metaContent(page, "og:description"), "A place", "reversed attribute order still works");
+});
