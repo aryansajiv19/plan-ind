@@ -1153,6 +1153,19 @@ h3 {
 .home-stage {
   height: 38rem;
   position: relative;
+  /* Centre the deck in the space the stage reserves.
+     The owner's report: "compare the blank space above it and below it,
+     below has some and above has none". The deck was top-aligned in a
+     container 152px taller than itself, so all the slack landed after it.
+     Measured at 1440: stage 608 tall, fan 456, gap above 0, gap below 152.
+
+     This is an ALIGNMENT property, not a top margin. A margin would
+     produce the same pixels today and drift the moment the stage height,
+     the card height or the breakpoint changes — the one-off fix the
+     owner's QA brief rules out. Distributing the free space means the
+     deck stays centred at every height it is ever given, in both poses. */
+  display: flex;
+  align-items: center;
   /* Background/depth layer, moves the most (§14.3). The standalone
      `translate` property, not `transform: translateY(...)` — .home-stage
      also carries .home-reveal, whose own entrance animates `transform`

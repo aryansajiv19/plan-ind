@@ -296,7 +296,9 @@ export default function CardStackExample({ className, spots = [] }: CardStackPro
         "min-h-[440px] w-full max-w-[90vw]",
         "md:max-w-[1200px]",
         "appearance-none border-0 bg-transparent p-0",
-        "mb-8 flex items-center justify-center",
+        // No margin here: .home-stage distributes the free space now, and a
+        // margin on the child would bias that centring by half its value.
+        "flex items-center justify-center",
         className
       )}
       onClick={handleToggle}
