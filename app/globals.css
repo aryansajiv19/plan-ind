@@ -38,42 +38,84 @@
    is why the overrides below are a single document-level theme scope and
    not per-screen blocks.                                            */
 @theme {
-  /* ── Day ground: white/navy, not stark white. ────────────────────── */
-  --color-paper: #f7f7f5; /* ground — off-white, not stark white */
-  --color-card: #ffffff; /* surface — pure white, so cards lift off the ground */
-  --color-ink: #141414; /* 17.17:1 on ground, 18.42:1 on surface */
-  --color-muted: #5b5f66; /* 5.98:1 on ground, 6.42:1 on surface */
-  --color-line: rgba(27, 42, 74, 0.30); /* hairline — accent-tinted, not grey */
+  /* ── Palette v5: brown-led, white-dominant (SPECS.md §19.1) ────────
+     Supersedes v3's white/navy wholesale — navy-primary, gold-as-accent
+     and the night-first identity are all retired here. Built on the
+     owner's five exact hexes ("i like the brown hits"), each one
+     re-measured independently and confirmed.
 
-  /* The accent. Carries structure, hairlines, the wordmark, and "the
-     outcome" — the winner, a decided plan. Navy, owner's own pairing
-     ("white and navy blue together"); 13.26:1 on ground as text, 14.22:1
-     as a white-ink fill (see --primary-ink below for the fill pairing —
-     day's primary is dark enough that, unlike the other day accents
-     below, it takes light ink on a fill, not dark). */
-  --color-punch: #1b2a4a; /* navy — 13.26:1 on ground */
-  --color-punch-text: #1b2a4a; /* no separate cut needed */
+     Not five colours but TWO TONAL RAMPS: three warms at hue 23-25°
+     (#442816 / #704121 / #AB6F44) and one cool family at 192-197°
+     (#174050 / #0C657C). That is why the set holds together, and why
+     nothing should be added to either end. */
+  --color-paper: #f5f0ea; /* ground — warm sand-white, L* 95.0 */
+  --color-card: #fafafa; /* surface — ΔL* 3.25 vs ground: a visible lift with NO border needed (§19.3) */
+
+  /* The browns lead, so body text is brown, not black. */
+  --color-ink: #442816; /* deep brown — 12.89:1 on card, 11.87:1 on canvas */
+  --color-muted: #6e5a4c; /* brown-family muted, harmonised to the ramp — 6.23:1 on card */
+
+  /* The workhorse accent, and unlike v3's navy or v4's camel it needs no
+     fill/text split: #704121 is dark enough to work BOTH ways — 8.16:1
+     as text on the card, 8.51:1 as a fill under white ink. */
+  --color-punch: #704121;
+  /* Kept as an alias, not deleted: the split collapsed, but existing
+     consumers should not break in the same pass as a palette change. */
+  --color-punch-text: var(--color-punch);
+
+  /* Tan. NEVER text, and NEVER behind text — it fails AA both ways, and
+     the intuitive "dark brown on tan" pairing is the worst of the lot at
+     3.26:1. It is the most "desert" value here so the pull toward it is
+     constant; the filled button is --color-punch, not this. Legitimate
+     uses: rules, dividers, icon fills, image overlays, decorative
+     blocks, borders, 24px+ display type. */
+  --color-tan: #ab6f44; /* 3.95:1 on card — deliberately below AA */
+
+  /* The cool family, two depths of one note (§19.1 restates the old
+     "exactly one cool accent" rule as: one cool family, these two
+     values, no third). */
+  --color-cool-deep: #174050; /* cool headings, dark cool surfaces — 10.67:1 on card */
+  --color-accent-cool: #0c657c; /* links and actions — 6.35:1 on card */
+
+  /* Divider / chrome. CHROME ONLY — it cannot carry text; muted TEXT is
+     --color-muted above.
+
+     DIVERGES FROM §19.1's LITERAL HEX, deliberately and measured. The
+     spec names #998F8A at "3.16:1", but that is against pure #FFFFFF,
+     which is not either of this app's real grounds: it measures 2.79:1
+     on the canvas and 3.03:1 on the card. This token is the border on
+     ~92 controls, so it is the visual boundary of a UI component and
+     WCAG 2.1 SC 1.4.11 wants 3:1 — which the owner independently asked
+     for in their own words ("components and the background should have
+     contrasting colors so you can see them clearly"). Darkened along the
+     same warm ramp (hue ~22°, still a taupe, still chrome) until it
+     clears on BOTH grounds with headroom: 3.55:1 canvas, 3.86:1 card.
+     Flagged to Design rather than silently substituted. */
+  --color-line: #8a7c74;
 
   /* Premium marker — badges, streaks. Used sparingly: never a button,
-     never body text, never more than one or two instances per screen.
-     Darker than night's #c9a876 to clear AA on a light ground, the same
-     asymmetry the very first day/night system used. */
+     never body text. NOTE: §19.1's table does not respec this token and
+     it is not one of the owner's five, so it deliberately keeps its v3
+     value rather than having a role invented for it — its hue (~45°)
+     sits outside both ramps. Design owns the decision; left stale on
+     purpose, because a findable stale token beats a silent reassignment. */
   --color-accent-premium: #8a6d2f; /* deep gold — 4.54:1 on ground */
 
   /* Confirm/active/"you, and now" — small components only (badges,
-     pills, status text, round dots), never a large surface or a fill. */
-  --color-live: #0e7c74; /* deep teal — 4.71:1 on ground */
+     pills, status text, round dots), never a large surface or a fill.
+     Hue 152°, a clear 40° off the teals so it never reads as one. */
+  --color-live: #2e6b4f; /* 6.04:1 on card, 5.56:1 on canvas */
 
   /* Error/urgent — validation errors, closing-soon warnings. */
-  --color-error: #b3261e; /* 6.09:1 on ground */
+  --color-error: #a81e12; /* 7.04:1 on card, 6.48:1 on canvas */
 
   /* Legacy aliases. `text-grape` / `bg-zest` / `text-mint` are still
-     scattered through the components; they now all resolve to the
-     primary accent so nothing renders a dead colour mid-migration. Do
-     not add new uses. */
-  --color-grape: #1b2a4a;
-  --color-zest: #1b2a4a;
-  --color-mint: #1b2a4a;
+     scattered through the components; they resolve to the workhorse
+     accent, which is safe for both the text and the background uses
+     among them now that it needs no split. Do not add new uses. */
+  --color-grape: #704121;
+  --color-zest: #704121;
+  --color-mint: #704121;
 
   --font-display: var(--font-display-family), system-ui, sans-serif;
   --font-body: var(--font-hanken), system-ui, sans-serif;
@@ -163,9 +205,11 @@
    `var()` therefore belongs here, where it is always emitted; @theme is
    for tokens that should also generate a utility class. */
 :root {
-  --color-accent-tint: rgba(27, 42, 74, 0.07); /* inactive chip fill — composites to #e8e9e9, where the accent still measures 11.69:1. */
-  --color-live-dot: #0e7c74; /* live dot, same value as --color-live — 4.71:1 on ground; non-text, needs 3:1 */
-  --color-shimmer: rgba(20, 20, 20, 0.06); /* skeleton sweep highlight — dark on the light day card, per SPECS.md §7 */
+  /* Inactive chip fill — a low-alpha tint of the workhorse accent rather
+     than a new hue, so it stays on the warm ramp (SPECS.md §19.1). */
+  --color-accent-tint: rgba(112, 65, 33, 0.07);
+  --color-live-dot: #2e6b4f; /* same value as --color-live; non-text, needs 3:1 */
+  --color-shimmer: rgba(68, 40, 22, 0.06); /* skeleton sweep highlight — warm ink on the light card, per SPECS.md §7 */
 
   /* Durations, named so they stop being pasted as magic numbers. */
   --dur-press: 200ms;
@@ -210,16 +254,18 @@
   color-scheme: dark;
 }
 
-/* The primary button fill takes navy by day, gold by night — both
-   --color-punch itself, so this just carries the ink pairing and the
-   subtle top-to-base gradient. Not a --color-* because a gradient would
-   generate a nonsense utility. Day's navy is dark enough to take light
-   ink (SPECS.md §1's fill-contrast note — this is the one place day's
-   rule differs from night's, where the light-toned gold fill takes dark
-   ink instead). */
+/* The primary button fill is --color-punch itself; this just carries the
+   ink pairing and the subtle top-to-base gradient. Not a --color-*
+   because a gradient would generate a nonsense utility.
+
+   SPECS.md §19.1: "the filled button is brown" — the tan is not a fill
+   at any ink, so this is the answer whenever a warm filled control is
+   wanted. Brown is dark enough to take white ink; the top stop is a
+   slight lift of the base and still clears AA on its own (7.62:1), so
+   the base's 8.51:1 is the worst case across the gradient. */
 :root {
-  --primary-fill: linear-gradient(180deg, #24345a, #1b2a4a);
-  --primary-ink: #ffffff; /* 14.22:1 on the base end */
+  --primary-fill: linear-gradient(180deg, #7a4724, #704121);
+  --primary-ink: #ffffff; /* 8.51:1 on the base end */
 }
 [data-theme="night"] {
   --primary-fill: linear-gradient(180deg, #d9c093, #c9a876);
@@ -246,6 +292,20 @@
    The hero plan card's single asymmetric corner is the signature shape
    now that the offset shadow is gone. */
 :root {
+  /* Card elevation (SPECS.md §19.3). A soft, low-opacity, diffuse lift —
+     explicitly NOT the retired .token offset shadow, which was hard and
+     opaque and stays banned. This is the opposite treatment: it is what
+     lets a card separate from the canvas by value instead of by a
+     hairline. Tinted with the warm ink rather than neutral black so it
+     sits on the palette's ramp. */
+  --elevation-card: 0 1px 2px rgba(68, 40, 22, 0.04), 0 6px 16px rgba(68, 40, 22, 0.06);
+
+  /* Controls — buttons, inputs, fields. SPECS.md §19.4 consolidates the
+     ad-hoc 0.1-0.2rem radii UPWARD to this, deliberately reversing §17's
+     proposal: consistently sharp is still sharp, and "smooth" is the
+     brief. */
+  --radius-control: 10px;
+
   --radius-ring: 14px; /* ring photos, small thumbs */
   --radius-thumb: 18px; /* thumbnails */
   --radius-panel: 22px; /* panels, wall tiles */
@@ -669,7 +729,7 @@ h3 {
   width: 2.75rem;
   height: 2.75rem;
   border: 1px solid var(--color-ink);
-  border-radius: 0.1rem;
+  border-radius: var(--radius-control);
   background: var(--color-ink);
   color: white;
   box-shadow: none;
@@ -681,7 +741,18 @@ h3 {
 }
 
 .home-logo__three {
-  color: var(--color-punch-text);
+  /* Was var(--color-punch-text) — an accent ink on the ink-filled badge,
+     which is 1.58:1 here and was 1.30:1 under the navy palette. A
+     long-standing bug that survives a palette swap precisely because both
+     values come off the same ramp as the badge behind them.
+
+     No warm accent in this palette can sit on the ink badge and clear AA:
+     the tan is the closest at 3.26:1 and is non-text anyway. So the
+     two-tone is kept with a warm off-white against the "D/" pure white
+     (11.87:1) rather than being faked at an unreadable ratio. If Design
+     wants a stronger accent two-tone here, the badge background has to
+     change — flagged, not decided unilaterally. */
+  color: var(--color-paper);
   font-size: 0.82rem;
   transform: translateY(-1px);
 }
@@ -768,7 +839,7 @@ h3 {
   min-height: 2.75rem;
   padding: 0 0.9rem;
   border: 1px solid var(--color-ink);
-  border-radius: 0.1rem;
+  border-radius: var(--radius-control);
   background: var(--color-ink);
   color: var(--color-card);
   font-family: var(--font-display);
@@ -978,7 +1049,7 @@ h3 {
   justify-content: center;
   padding: 0.8rem 1.3rem;
   border: 1px solid var(--color-ink);
-  border-radius: 0.1rem;
+  border-radius: var(--radius-control);
   background: var(--color-ink);
   color: white;
   font-family: var(--font-display);
@@ -1203,15 +1274,17 @@ h3 {
 .home-plan-card {
   position: relative;
   padding: clamp(1.3rem, 4vw, 2.4rem);
-  border: 1px solid var(--color-line);
-  border-radius: 0;
-  background: color-mix(in srgb, var(--color-card) 96%, transparent);
+  border: 0;
+  border-radius: var(--radius-panel);
+  background: var(--color-card);
   backdrop-filter: none;
-  /* A surface, not a control: it takes the border and no shadow. The
-     signature offset belongs to things you tap — the submit button inside
-     it has it. (Previously a 0 1.5rem 4rem drop, cancelled by !important at
-     the foot of the file; same result, declared once.) */
-  box-shadow: none;
+  /* SPECS.md §19.3 reverses the previous note here. This used to declare
+     a border and no shadow, on the reasoning that a surface takes an edge
+     rather than a lift. The "smooth" direction inverts that: the card
+     separates from the canvas by VALUE (ΔL* 3.25) plus a soft diffuse
+     elevation, and the hairline goes. Opaque card, not a 96% mix, so the
+     value step is the full measured one. */
+  box-shadow: var(--elevation-card);
   transform: none;
 }
 
@@ -1403,7 +1476,7 @@ h3 {
 .plan-deadline {
   min-height: 2.75rem;
   border: 1px solid var(--color-line);
-  border-radius: 0.2rem;
+  border-radius: var(--radius-control);
   background: var(--color-card);
   color: var(--color-ink);
   font-size: 0.78rem;
@@ -1457,8 +1530,11 @@ h3 {
   width: 100%;
   margin-top: 0.5rem;
   padding: 0.85rem 0.95rem;
-  border: 1px solid rgba(36, 27, 46, 0.34);
-  border-radius: 0.2rem;
+  /* Was a hardcoded rgba(36, 27, 46, 0.34) — a cool violet-tinted line
+     that bypassed the token, sat off the warm ramp, and measured 2.09:1
+     against the card, below SC 1.4.11's 3:1 for a control boundary. */
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-control);
   background: var(--color-card);
   color: var(--color-ink);
   font-size: 1rem;
@@ -1509,7 +1585,7 @@ h3 {
   gap: 0.2rem;
   padding: 0.7rem 0.75rem;
   border: 1px solid var(--color-line);
-  border-radius: 0.15rem;
+  border-radius: var(--radius-control);
   background: transparent;
   color: var(--color-ink);
   text-align: left;
@@ -1553,7 +1629,7 @@ h3 {
   width: 100%;
   padding: 0.7rem 0.75rem;
   border: 1px solid var(--color-line);
-  border-radius: 0.15rem;
+  border-radius: var(--radius-control);
   background: var(--color-card);
   color: var(--color-ink);
   font: inherit;
@@ -1669,7 +1745,7 @@ h3 {
   margin-top: 1.5rem;
   padding: 0.8rem 1.2rem;
   border: 1px solid var(--color-ink);
-  border-radius: 0.1rem;
+  border-radius: var(--radius-control);
   background: var(--color-ink);
   color: white;
   font-family: var(--font-display);
@@ -1709,7 +1785,7 @@ h3 {
 
 .demo-place-card__image,
 .demo-visit__image,
-.demo-photo-strip > span { border-radius: 0.18rem; background: #dedbd4; }
+.demo-photo-strip > span { border-radius: var(--radius-control); background: #dedbd4; }
 
 .demo-view {
   width: min(100% - 2rem, 76rem);
@@ -1876,7 +1952,7 @@ h3 {
 .demo-visit__collection-action select { max-width: 11rem; padding: 0.45rem 0.55rem; border: 1px solid var(--color-line); background: var(--color-card); color: var(--color-ink); font-size: 0.65rem; }
 .demo-visit__collection-action button,
 .demo-collection-empty button { padding: 0; border: 0; border-bottom: 1px solid var(--home-metal); background: transparent; color: var(--color-ink); font-size: 0.65rem; font-weight: 500; cursor: pointer; }
-.demo-collection-empty { grid-column: 1 / -1; min-height: 16rem; display: grid; place-content: center; justify-items: start; padding: 2rem; border: 1px solid var(--color-line); }
+.demo-collection-empty { grid-column: 1 / -1; min-height: 16rem; display: grid; place-content: center; justify-items: start; padding: 2rem; border-radius: var(--radius-panel); background: var(--color-card); box-shadow: var(--elevation-card); } /* §19.3 */
 .demo-collection-empty p { margin: 0.45rem 0 1rem; color: var(--color-muted); }
 
 .demo-face-stack { display: inline-flex; }
@@ -1904,7 +1980,7 @@ h3 {
 .demo-friend-row__numbers strong { font-size: 1.05rem; }
 .demo-friend-row__numbers span { color: var(--color-muted); font-size: 0.58rem; text-transform: uppercase; }
 .demo-friend-row button { padding: var(--btn-pad-md); border: 1px solid var(--color-line); background: transparent; color: var(--color-ink); font-size: 0.68rem; font-weight: 500; cursor: pointer; }
-.demo-shared-card { padding: 1.5rem; border: 1px solid var(--color-line); background: color-mix(in srgb, var(--color-card) 55%, transparent); }
+.demo-shared-card { padding: 1.5rem; border-radius: var(--radius-panel); background: var(--color-card); box-shadow: var(--elevation-card); } /* §19.3 */
 .demo-shared-card .demo-face-stack { margin-top: 1.2rem; }
 .demo-shared-card h2 { margin-top: 1rem; font-size: 1.4rem; }
 .demo-shared-card > p:not(.home-section-kicker) { margin-top: 0.5rem; color: var(--color-muted); line-height: 1.5; }
@@ -2321,7 +2397,7 @@ h3 {
 .vote-option {
   min-height: 100%;
   border: 1px solid var(--color-line);
-  border-radius: 0.12rem;
+  border-radius: var(--radius-control);
   /* Transform gets the spring and a longer run than the colour props:
      the border recolouring instantly while the card is still settling
      is what makes the pick feel like it landed. */
@@ -2424,7 +2500,7 @@ h3 {
    unambiguous without a second colour. */
 .vote-toggle {
   border: 1px solid var(--color-line);
-  border-radius: 0.14rem;
+  border-radius: var(--radius-control);
   padding: 0.3rem 0.7rem;
   background: transparent;
   color: var(--color-ink);
@@ -2449,7 +2525,7 @@ h3 {
 .vote-result__primary,
 .vote-result__button {
   border-width: 1px;
-  border-radius: 0.12rem;
+  border-radius: var(--radius-control);
   box-shadow: none;
   transition: transform 260ms var(--ease-settle), box-shadow 150ms ease, opacity 150ms ease;
 }
@@ -2491,12 +2567,12 @@ h3 {
 .vote-result__button:hover:not(:disabled) { border-color: var(--color-ink); }
 
 .vote-kicker { color: var(--color-punch-text); font-weight: 500; letter-spacing: 0.16em; }
-.vote-field { border-width: 1px; border-radius: 0.12rem; border-color: var(--color-line); background: var(--color-card); color: var(--color-ink); }
+.vote-field { border-width: 1px; border-radius: var(--radius-control); border-color: var(--color-line); background: var(--color-card); color: var(--color-ink); }
 .vote-field:focus-visible { outline: 2px solid var(--color-ink); outline-offset: -2px; }
 
 .vote-result {
   border-width: 1px;
-  border-radius: 0.12rem;
+  border-radius: var(--radius-control);
   border-color: var(--vote-metal);
   background: color-mix(in srgb, var(--vote-metal) 5%, var(--color-card));
 }
@@ -2732,7 +2808,7 @@ h3 {
   .home-system-row__votes { font-size: 0.52rem; }
   .home-system__footer { padding: 0.68rem; font-size: 0.46rem; }
   .home-plan-section { width: min(100% - 1.5rem, 68rem); padding-block: 5.5rem; }
-  .home-plan-card { padding: 1.25rem; border-radius: 0; box-shadow: 0 1rem 2.6rem rgba(36, 27, 46, 0.12); transform: none; }
+  .home-plan-card { padding: 1.25rem; box-shadow: var(--elevation-card); transform: none; } /* §19.3: same soft lift as desktop; the old rgba(36,27,46) drop was heavier and cool-tinted, off the warm ramp */
   .plan-category-group { min-height: 2.75rem; padding-inline: 0.68rem; }
   .plan-smart-search { padding: 0.85rem; }
   .plan-smart-search__heading,
@@ -2836,7 +2912,14 @@ h3 {
 .demo-wrapped__stats small { color: color-mix(in srgb, var(--color-card) 65%, transparent); font-size: .65rem; line-height: 1.35; }
 .demo-wrapped__actions { display: flex; gap: .5rem; margin-top: 2rem; }
 .demo-wrapped__actions button { min-height: var(--btn-h-md); padding: var(--btn-pad-md); border: 1px solid color-mix(in srgb, var(--color-card) 38%, transparent); background: transparent; color: var(--color-card); font-size: .68rem; font-weight: 500; cursor: pointer; }
-.demo-wrapped__actions button:first-child { border-color: var(--home-metal); background: var(--home-metal); color: var(--color-paper); }
+/* On the dark ink card this action inverts to a light fill. A brown fill
+   here is only 1.58:1 against the ink behind it — the button's own edge
+   does not read, which is exactly the "elements blend into the
+   background" the owner named. Light-on-dark clears it at 12.89:1 both
+   for the boundary and for the label, and suits the white-dominant
+   brief. The brown fill stays correct everywhere it sits on a LIGHT
+   ground; it is this dark surface that needs the inversion. */
+.demo-wrapped__actions button:first-child { border-color: var(--color-card); background: var(--color-card); color: var(--color-ink); }
 .demo-wrapped .demo-wrapped__status { min-height: 1.4em; margin-top: .65rem; color: color-mix(in srgb, var(--color-card) 72%, transparent); font-size: .65rem; }
 @media (max-width: 760px) { .demo-tool-grid { grid-template-columns: 1fr; } .demo-tool-grid .demo-tool-panel + .demo-tool-panel { border-left: 0; border-top: 1px solid var(--color-line); padding-left: 0; } .demo-board-items { grid-template-columns: 1fr; } .demo-inline-form { flex-wrap: wrap; } .demo-wrapped { grid-template-columns: 1fr; } .demo-wrapped__stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
@@ -2911,7 +2994,6 @@ h3 {
   /* Phone: the app fills the screen rather than sitting in a page. */
   .home-plan-section,
   .demo-view { width: 100%; padding-inline: 0.95rem; }
-  .home-plan-card { border-radius: 0; }
   .demo-place-card__code { aspect-ratio: 21 / 9; font-size: 1.15rem; }
 }
 
@@ -3060,10 +3142,17 @@ h3 {
    spent that code and rendered none of it. That is most of what "flat" was.
 
    What was genuinely restrained is now restrained at its source instead of
-   being cancelled by !important further down: .home-plan-card declares no
-   shadow (it is a surface, not a control), and the outline buttons answer
+   being cancelled by !important further down: the outline buttons answer
    hover with their border rather than a soft drop. Nothing here needs an
-   override to stay quiet. */
+   override to stay quiet.
+
+   One line of this note is now out of date and is corrected rather than
+   left to mislead: it used to read that .home-plan-card "declares no
+   shadow (it is a surface, not a control)". SPECS.md §19.3 reverses that
+   — under "smooth", surfaces separate from the canvas by value plus a
+   soft diffuse elevation, and that card now carries --elevation-card. The
+   banned thing was always the hard opaque OFFSET shadow, which is still
+   banned; a soft diffuse lift is the opposite treatment. */
 
 .legal-links {
   display: flex;
@@ -3301,6 +3390,7 @@ h3 {
   overflow: hidden;
   border-radius: var(--radius-panel);
   background: var(--color-card);
+  box-shadow: var(--elevation-card); /* §19.3: lift off the canvas, no hairline */
   isolation: isolate;
 }
 .wall-tile__link {
@@ -3379,7 +3469,7 @@ h3 {
   z-index: 2;
   margin: 0;
   padding: 6px 12px;
-  border-radius: 20px;
+  border-radius: var(--radius-pill);
   background: rgba(14, 12, 14, 0.6);
   backdrop-filter: blur(8px);
   color: var(--photo-ink);
