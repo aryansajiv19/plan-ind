@@ -2337,6 +2337,48 @@ Three reasons, in order of weight:
 **Tan remains legal** and its numbers are above if the owner wants the
 payoff to carry colour. It costs that screen its one fill.
 
+#### 23.9c — The destructive / error fill (the sixth surface)
+
+§21.4 exempts semantic colour from the fill rules, and `--color-error`
+already lives outside the owner's six in both scopes today — so this is not
+a new licence, it is an existing exemption being re-measured for dark.
+
+**Both shipped values fail on the dark canvas.** Re-measured on §23.2's
+grounds rather than the grounds they were chosen against:
+
+| Existing | Text on card | Text on canvas | Verdict |
+|---|---|---|---|
+| night `#ff5c5c` | 5.98 | **3.97** | **fails** on canvas |
+| light `#b3261e` | 2.77 | 1.84 | fails both (correctly — it is the *light* value) |
+
+`#ff5c5c` is the trap: it clears comfortably on the card and looks fine
+wherever it is first checked, then fails on the canvas. **This is §23.10
+exactly**, on a token whose whole job is to be noticed.
+
+**Live: `--color-error: #F08A78`** — the one candidate clearing 4.5 on both.
+
+| Role | Measurement |
+|---|---|
+| Text on card `#051822` | **7.42** |
+| Text on canvas `#2D383E` | **4.93** |
+| As a destructive **fill**: boundary vs canvas | **4.93** (floor 3.0) |
+| Ink on that fill — navy `#051822` | **7.42** |
+| Focus ring on that fill | **7.42** (outer band carries it) |
+
+**One value covers both roles**, error text and destructive fill, which is
+the opposite of overloading: it is one job (semantic alarm) expressed on two
+surfaces, not two jobs sharing a token. **White ink on it measures 2.40 and
+is forbidden** — the fill takes navy, like every other light surface in dark
+(§23.9a). That will read as unusual to anyone expecting red-fill-white-text;
+consistency with the system beats the convention here, and the convention is
+a light-mode habit.
+
+Sits in the palette's own warm family — tan is hue ≈23°, this is ≈9°: a
+redder, lighter cousin rather than an imported primary red.
+
+**Colour is never the only signal** (`a11y-responsive`): a destructive
+action still says what it destroys, and an error still carries text.
+
 ### 23.10 — Surface-dependence is general in dark, not a quirk of one token
 
 §23.2 flagged `--muted` as surface-dependent. It has now appeared twice
@@ -2426,6 +2468,49 @@ Kept rather than deleted, because *how* they were settled is the useful part.
   With dark as the identity these are now white screens mid-flow, which is
   worse than it was when dark was optional.
 
+
+### 23.13 — The parked night block is not free machinery
+
+§19.2 preserved 45 `[data-theme="night"]` blocks so that reversing the dark
+decision would be cheap. **It was, and that discipline paid off.** But those
+blocks were tuned against a **`#121212`-era ground**, and §23's canvas is
+`#2D383E` — a full 15 L\* lighter. **Whichever mechanism Frontend uses,
+those 45 blocks either go live and need auditing, or go dead and need
+deleting. Both are a decision; neither is "nothing".**
+
+**I audited the three literals inside them. Two are false alarms, and one
+of those would do real harm if "fixed".**
+
+1. **`.home-experience .home-grid-field` — not a problem, and not on the
+   auth surface.** It is `[data-theme="night"] .home-experience`, i.e. the
+   home page, not `/login`. Its two `rgba(255,255,255,0.06)` gradients sit
+   under a parent `opacity: 0.22`, so the **effective** alpha is 0.0132 —
+   **ΔL\* 1.35 on §23's canvas against 1.31 on the old ground.** Materially
+   identical. It was a barely-visible texture before and it stays one.
+   Quoting the 0.06 without the parent opacity overstates it by ~4.5×.
+2. **`.photo-credit`'s `rgba(10, 9, 10, 0.82)` — do not touch this.** It is
+   not a themed surface: it sits **on a photograph**, and the comment above
+   it records that it was deliberately densified because the credit measured
+   3.86:1 on a 0.62 scrim, under the floor. **Several curated photos are
+   CC-BY, where attribution is a condition of use** — lightening this scrim
+   because it looks "near-black on near-black" would put a licence
+   obligation below the readable floor. It is dark on purpose, over an
+   image, in both grounds.
+3. **The real finding is the opposite of the reported one.**
+   `[data-theme="night"] … .home-plan-card` and friends use
+   `rgba(255,255,255,0.035)`, which on §23's canvas composites to `#343f45`
+   — **ΔL\* 3.13**. §23.1's own argument is that **ΔL\* 3.34 is too little to
+   read as two surfaces**; that is why the light ground looked flat. So this
+   chip is *below the threshold this very section set*. **The bug is that it
+   will disappear, not that it will appear.** It should take `--card` and
+   the §23.1 relationship like every other surface.
+
+**The generalisable point:** a hardcoded literal on a themed surface is this
+project's most-repeated bug, but **"it is a literal" is not itself the
+finding** — the finding is what it composites to, on the ground it will
+actually sit on. Two of these three literals are correct as written. Auditing
+by pattern-match flags all three; auditing by measurement keeps the two that
+are load-bearing and finds a fourth the pattern missed.
 
 ## Verification (for whoever implements this)
 
