@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import PlaceLinkImporter from "@/components/PlaceLinkImporter";
 import PhotoWall, { type WallItem } from "@/components/PhotoWall";
+import PhotoCredit from "@/components/PhotoCredit";
 import { categoryLabel, categoryMeta } from "@/lib/categories";
 import { avatarStyle, initialsOf } from "@/lib/avatar";
 import { validateImageFile } from "@/lib/upload";
@@ -215,6 +216,7 @@ function PlaceCard({
       {spot.photo_url ? (
         <div className="demo-place-card__image">
           <Image src={spot.photo_url} alt={`${spot.name}, ${spot.area}`} fill sizes="(max-width: 700px) 100vw, 50vw" unoptimized />
+          <PhotoCredit spot={spot} />
         </div>
       ) : (
         <div className="demo-place-card__code" aria-hidden="true">{meta.code}</div>

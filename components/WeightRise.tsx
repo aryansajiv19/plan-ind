@@ -25,8 +25,14 @@ import { motion, useReducedMotion } from "motion/react";
  */
 export default function WeightRise({
   children,
+  // Narrowed from 300->800 for Cormorant, whose axis is 300-700 where
+  // Newsreader's was 200-800. Chosen deliberately rather than left to clamp:
+  // an 800 request on a 700-max axis silently pins at 700, which would have
+  // shortened the entrance by a fifth and flattened its last third into no
+  // visible change. 300->700 keeps the full-axis character the effect was
+  // built on, just across the range this face actually has.
   from = 300,
-  to = 800,
+  to = 700,
   duration = 1.4,
   delay = 0,
   className = "",

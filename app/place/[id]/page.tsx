@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import PhotoCredit from "@/components/PhotoCredit";
 import { categoryMeta } from "@/lib/categories";
 import { getCurrentUser } from "@/lib/auth";
 import PlaceDirectPlanCta from "@/components/PlaceDirectPlanCta";
@@ -30,7 +31,7 @@ const getSpot = cache(async (id: string) => {
   const { data } = await supabase
     .from("spots")
     .select(
-      "id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, photo_url, description, booking_url, address, latitude, longitude",
+      "id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, photo_url, photo_attribution, description, booking_url, address, latitude, longitude",
     )
     .eq("id", id)
     .maybeSingle();
@@ -70,17 +71,21 @@ export default async function PlacePage({
     <main className="place-page">
       <div className={`place-hero ${hasPhoto ? "" : "place-hero--typographic"}`}>
         {hasPhoto ? (
-          <Image
-            src={spot.photo_url as string}
-            alt=""
-            fill
-            sizes="100vw"
-            priority
-            className="place-hero__img"
-            // Same posture as PhotoTile: photo_url is unconstrained today and
-            // next.config has no remotePatterns allowlist.
-            unoptimized
-          />
+          <>
+            <Image
+              src={spot.photo_url as string}
+              alt=""
+              fill
+              sizes="100vw"
+              priority
+              className="place-hero__img"
+              // Same posture as PhotoTile: photo_url is unconstrained today and
+              // next.config has no remotePatterns allowlist.
+              unoptimized
+            />
+            {/* Licence obligation — see PhotoCredit. */}
+            <PhotoCredit spot={spot} />
+          </>
         ) : null}
         <div className="place-hero__scrim" aria-hidden="true" />
         <div className="place-hero__body">
