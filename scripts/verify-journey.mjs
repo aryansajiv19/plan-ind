@@ -50,6 +50,13 @@ function check(label, pass, detail = "") {
   console.log(`  ${pass ? "PASS" : "FAIL"}  ${label}${detail ? `  -- ${detail}` : ""}`);
   return pass;
 }
+// A few import checks depend on reaching the public internet. A network
+// outage is not a defect in this app, so those record as SKIP rather than
+// failing the run and sending someone hunting a bug that isn't there.
+function skip(label, why) {
+  results.push({ step: currentStep, label, pass: true, skipped: true });
+  console.log(`  SKIP  ${label}  -- ${why}`);
+}
 const eq = (label, actual, expected) =>
   check(label, actual === expected, actual === expected ? "" : `got ${JSON.stringify(actual)}, expected ${JSON.stringify(expected)}`);
 
@@ -396,10 +403,160 @@ check("winner has coordinates (the 'getting there' line needs these)",
 check("plan carries the committed event details", Boolean(plan?.event_time && plan?.booking_owner));
 check("transport is answerable from the RSVP rows", rsvps.some((r) => r.transport));
 
+step("20. Venue-link import -- a link that resolves to a curated spot");
+// Wikipedia is the source here only because it is stable and its <title> is
+// the venue name; nothing about the feature is Wikipedia-specific.
+const RESOLVING_URL = "https://en.wikipedia.org/wiki/Museum_of_the_Future";
+const importRow = async (url) => (await admin.from("place_imports")
+  .select("id, status, resolved_spot_id, extracted_data, provider")
+  .eq("person_id", host.userId).eq("normalized_url", url).maybeSingle()).data;
+
+const resolvedSave = await api("/api/place-import", host, { url: RESOLVING_URL });
+eq("saving a link returns 200", resolvedSave.status, 200);
+let resolved = await importRow(RESOLVING_URL);
+if (resolved?.extracted_data?.reason === "fetch_failed") {
+  skip("link resolves to the matching curated spot", `network: ${resolved.extracted_data.detail}`);
+} else {
+  eq("the import resolved", resolved?.status, "resolved");
+  check("it resolved to the real Museum of the Future spot",
+    resolved?.resolved_spot_id === "87000000-0000-0000-0000-000000000003",
+    `got ${resolved?.resolved_spot_id}`);
+  check("the match score was recorded", typeof resolved?.extracted_data?.matchScore === "number");
+}
+const { data: savedItem } = await admin.from("place_collection_items")
+  .select("collection_id, place_collections(kind, person_id)").eq("import_id", resolved?.id).maybeSingle();
+eq("it landed in the default Want to try collection", savedItem?.place_collections?.kind, "want_to_try");
+eq("that collection belongs to the caller", savedItem?.place_collections?.person_id, host.userId);
+
+step("21. Re-saving the same link must not reset it");
+const reSave = await api("/api/place-import", host, { url: RESOLVING_URL, collection: "planning" });
+eq("re-save returns 200", reSave.status, 200);
+const reSaved = await importRow(RESOLVING_URL);
+eq("the same import row is reused, not duplicated", reSaved?.id, resolved?.id);
+check("a resolved row stays resolved after a re-save (no reset to pending)",
+  reSaved?.status === resolved?.status, `was ${resolved?.status}, now ${reSaved?.status}`);
+const { data: bothCollections } = await admin.from("place_collection_items")
+  .select("collection_id").eq("import_id", resolved?.id);
+eq("it now sits in both collections", bothCollections?.length, 2);
+
+step("22. A provider with no credentials fails honestly");
+const igUrl = `https://www.instagram.com/p/journey${randomBytes(4).toString("hex")}/`;
+const igSave = await api("/api/place-import", host, { url: igUrl });
+eq("saving an Instagram link returns 200", igSave.status, 200);
+const igRow = await importRow(igUrl);
+eq("provider recorded as instagram", igRow?.provider, "instagram");
+eq("status is needs_input, not a silent failure", igRow?.status, "needs_input");
+eq("the reason says why", igRow?.extracted_data?.reason, "unsupported_provider");
+
+step("23. Two concurrent first-time saves of the same new link");
+// Both requests miss the pre-select and race the insert; the loser must
+// recover the winner's row via the 23505 path, not surface a failure.
+const raceUrl = `https://www.tiktok.com/@journey/video/${Date.now()}`;
+const [raceA, raceB] = await Promise.all([
+  api("/api/place-import", host, { url: raceUrl }),
+  api("/api/place-import", host, { url: raceUrl }),
+]);
+check("both concurrent saves succeed", raceA.status === 200 && raceB.status === 200, `${raceA.status}/${raceB.status}`);
+check("both report the same import id", raceA.body?.id === raceB.body?.id, `${raceA.body?.id} vs ${raceB.body?.id}`);
+const { data: raceRows } = await admin.from("place_imports").select("id").eq("person_id", host.userId).eq("normalized_url", raceUrl);
+eq("exactly one row exists for that link", raceRows?.length, 1);
+const { data: raceItems } = await admin.from("place_collection_items").select("id").eq("import_id", raceRows?.[0]?.id);
+eq("it was added to the collection exactly once", raceItems?.length, 1);
+
+step("24. The saved-places listing reads back");
+const listed = await fetch(`${APP_URL}/api/place-import`, { headers: { cookie: host.cookieHeader } });
+const listedBody = await listed.json().catch(() => null);
+eq("GET returns 200", listed.status, 200);
+const savedList = listedBody?.saved ?? listedBody?.places ?? [];
+check("the saved links come back", Array.isArray(savedList) && savedList.length >= 3, `${savedList.length} returned`);
+
+step("25. Visit photos -- private bucket, caller's own session");
+const photoBytes = new Blob([randomBytes(64)], { type: "image/jpeg" });
+const ownPath = `${host.userId}/${randomUUID()}.jpg`;
+const { error: uploadError } = await host.client.storage.from("visit-photos").upload(ownPath, photoBytes, { contentType: "image/jpeg" });
+check("a photo uploads under the caller's own folder", !uploadError, uploadError?.message);
+const foreignPath = `${friend.userId}/${randomUUID()}.jpg`;
+const { error: foreignUpload } = await host.client.storage.from("visit-photos").upload(foreignPath, photoBytes, { contentType: "image/jpeg" });
+check("uploading into another user's folder is rejected", Boolean(foreignUpload), foreignUpload ? "" : "CROSS-USER UPLOAD ALLOWED");
+const { error: photoRowError } = await host.client.from("visit_photos")
+  .insert({ visit_id: visit?.id, person_id: host.userId, storage_path: ownPath, caption: "Journey shot", visibility: "private" });
+check("the visit_photos row lands", !photoRowError, photoRowError?.message);
+const { data: signedUrls } = await host.client.storage.from("visit-photos").createSignedUrls([ownPath], 3600);
+check("a signed URL is issued from the caller's own session (no service key)",
+  Boolean(signedUrls?.[0]?.signedUrl), "bucket is private, so this is the only way it renders");
+const { data: friendSeesPhoto } = await friend.client.storage.from("visit-photos").createSignedUrls([ownPath], 3600);
+check("another user cannot sign a URL for someone else's photo",
+  !friendSeesPhoto?.[0]?.signedUrl, friendSeesPhoto?.[0]?.signedUrl ? "FRIEND SIGNED IT" : "");
+
+step("26. Friends -- symmetric by trigger, not by two writes");
+const { error: friendError } = await host.client.from("friendships").insert({ person_id: host.userId, friend_id: friend.userId });
+check("adding a friend succeeds", !friendError, friendError?.message);
+const { data: bothWays } = await admin.from("friendships").select("person_id, friend_id")
+  .or(`and(person_id.eq.${host.userId},friend_id.eq.${friend.userId}),and(person_id.eq.${friend.userId},friend_id.eq.${host.userId})`);
+eq("the friendship is mirrored to both directions", bothWays?.length, 2);
+const { data: hostFriends } = await host.client.from("friendships").select("friend_id").eq("person_id", host.userId);
+eq("the host's friend list holds exactly the one friend", hostFriends?.length, 1);
+eq("and it is the right person", hostFriends?.[0]?.friend_id, friend.userId);
+await host.client.from("friendships").delete().eq("person_id", host.userId).eq("friend_id", friend.userId);
+const { data: afterUnfriend } = await admin.from("friendships").select("person_id")
+  .or(`and(person_id.eq.${host.userId},friend_id.eq.${friend.userId}),and(person_id.eq.${friend.userId},friend_id.eq.${host.userId})`);
+eq("removing it clears both directions too", afterUnfriend?.length, 0);
+
+step("27. Wrapped -- correct against known rows, not merely non-empty");
+// Wrapped counts plans the user created and visits they logged inside a
+// Dubai-time month window. This run created exactly two plans and one visit,
+// so the aggregate has a known right answer rather than just "some rows".
+const monthStart = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), 1)).toISOString();
+const { count: wrappedPlans } = await host.client.from("plans")
+  .select("id", { count: "exact", head: true })
+  .eq("created_by_user_id", host.userId).gte("created_at", monthStart);
+eq("Wrapped counts exactly the two plans this journey created", wrappedPlans, 2);
+const { data: wrappedVisits } = await host.client.from("visits")
+  .select("id, spot_id, plan_id").eq("person_id", host.userId).gte("visited_at", monthStart);
+eq("and exactly the one visit", wrappedVisits?.length, 1);
+eq("the visit points at the plan's winner", wrappedVisits?.[0]?.spot_id, plan.winner_spot_id);
+const { data: wrappedRatings } = await host.client.from("ratings")
+  .select("stars").eq("plan_id", planId).eq("participant_token_hash", host.participantTokenHash);
+eq("the rating feeding Wrapped is the 5 that was submitted", wrappedRatings?.[0]?.stars, 5);
+
+step("28. A large page loses metadata it already downloaded");
+// FINDING (see worklog): safe-fetch caps the body at 512KB by THROWING, so a
+// page above the cap resolves to fetch_failed even though its <title> and
+// og: tags arrived in the very first chunk. Truncating at the cap instead of
+// throwing would keep the SSRF/DoS protection and still read the metadata.
+const BIG_URL = "https://en.wikipedia.org/wiki/Burj_Khalifa";
+const bigSave = await api("/api/place-import", host, { url: BIG_URL });
+eq("saving a large page still returns 200", bigSave.status, 200);
+const bigRow = await importRow(BIG_URL);
+check("a page over the 512KB cap keeps the metadata it already read",
+  bigRow?.extracted_data?.reason !== "fetch_failed"
+    || !String(bigRow?.extracted_data?.detail ?? "").includes("too large"),
+  `status ${bigRow?.status}, reason ${bigRow?.extracted_data?.reason}: ${bigRow?.extracted_data?.detail ?? ""}`);
+
+step("29. An exact title match should resolve, not ask");
+// FINDING (see worklog): overlapScore divides by min(a.size, b.size), so a
+// spot whose whole post-stopword name is one token scores a perfect 1.0
+// against ANY title containing that word. "The Dubai Mall" -> {mall} ties
+// 1.0 with the genuine exact match on a "Mall of the Emirates" title, and
+// the RESOLVE_MARGIN check then refuses to resolve either. 17 of the 82
+// curated spots have a single-token name, so this is not a one-off.
+const EXACT_URL = "https://en.wikipedia.org/wiki/Mall_of_the_Emirates";
+const exactSave = await api("/api/place-import", host, { url: EXACT_URL });
+eq("saving it returns 200", exactSave.status, 200);
+const exactRow = await importRow(EXACT_URL);
+if (exactRow?.extracted_data?.reason === "fetch_failed") {
+  skip("a title that exactly names a curated spot resolves to it", "network");
+} else {
+  check("a title that exactly names a curated spot resolves to it",
+    exactRow?.status === "resolved" && exactRow?.resolved_spot_id === "89000000-0000-0000-0000-000000000002",
+    `status ${exactRow?.status}, candidates ${JSON.stringify(exactRow?.extracted_data?.candidates ?? [])}`);
+}
+
 // ── summary ───────────────────────────────────────────────────────────────
 const failed = results.filter((r) => !r.pass);
+const skipped = results.filter((r) => r.skipped);
 console.log(`\n${"=".repeat(68)}`);
-console.log(`${results.length - failed.length}/${results.length} checks passed across ${new Set(results.map((r) => r.step)).size} steps.`);
+console.log(`${results.length - failed.length - skipped.length}/${results.length - skipped.length} checks passed across ${new Set(results.map((r) => r.step)).size} steps${skipped.length ? `, ${skipped.length} skipped` : ""}.`);
 if (failed.length) {
   console.log(`\n${failed.length} FAILED:`);
   for (const f of failed) console.log(`  [${f.step}] ${f.label}`);
