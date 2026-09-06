@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { signOut } from "@/app/auth/actions";
 import { clearMe } from "@/lib/device";
 import DemoAccountViews from "@/components/DemoAccountViews";
@@ -10,7 +10,6 @@ import type { ProfileVisit, Spot, WrappedSummary, WrappedSummaryError } from "@/
 import type { PlannedWith, VisitCollectionView, VisitPhotoView } from "@/lib/social";
 import StartPlanForm from "@/components/StartPlanForm";
 import { haptic } from "@/lib/interaction";
-import { THEME_KEY, subscribeToGround, currentGround } from "@/lib/dubai-phase";
 import WeightRise from "@/components/WeightRise";
 import PhotoWall, { type WallItem } from "@/components/PhotoWall";
 import CardStackExample from "@/components/kokonutui/card-stack";
@@ -83,9 +82,6 @@ export default function HomeExperience({
   // said "Good evening" regardless of the hour.
   const greeting = ready ? greetingFor(new Date()) : "Hello";
   const [selectedView, setSelectedView] = useState<AppView>(initialView);
-  // Read from the document, never mirrored into state — see subscribeToGround.
-  const nightMode =
-    useSyncExternalStore(subscribeToGround, currentGround, () => "day") === "night";
 
   // The account tabs need an account behind them. Signed out there is only the
   // pitch and the composer, so the tab bar, the avatar and every account view
@@ -184,21 +180,6 @@ export default function HomeExperience({
     if (nextIndex >= 0 && nextIndex < APP_VIEWS.length) showView(APP_VIEWS[nextIndex]);
   }
 
-  // The theme lives on <html data-theme>, set server-side from the Dubai clock
-  // and kept honest by ThemeSync. This used to be a local `--night` class on
-  // this one element, which meant the page could disagree with the document:
-  // the tokens went dark while the class-scoped rules stayed light, and the
-  // primary CTA rendered cream-on-cream. There is one switch now.
-  function toggleNightMode() {
-    const next = nightMode ? "day" : "night";
-    document.documentElement.dataset.theme = next;
-    try {
-      window.localStorage.setItem(THEME_KEY, next);
-    } catch {
-      // Storage blocked: the override still applies for this page view.
-    }
-  }
-
   // SPECS.md §14.3: scroll-based depth drift on the front-door hero.
   // Distinct from TiltCard's pointer parallax (unchanged) — this is for
   // anyone not hovering with a mouse, i.e. most real usage. A single
@@ -268,14 +249,11 @@ export default function HomeExperience({
           {accountTabs && (
             <button type="button" className="home-nav__link" onClick={() => showView("plan")}>Make a plan</button>
           )}
-          <button
-            type="button"
-            className="home-theme-toggle"
-            onClick={toggleNightMode}
-            aria-pressed={nightMode}
-          >
-            {nightMode ? "Day" : "Night"}
-          </button>
+          {/* PARKED 2026-09-04 (owner: "no dark mode, or at least hold
+              dark back now, we'll see later"). Machinery intact and
+              correct; only the path that selects it is disabled. To
+              restore: re-enable the ground selection in app/layout.tsx
+              and bring this toggle back. See SPECS.md §19.2. */}
           {accountTabs ? (
             <button
               type="button"
