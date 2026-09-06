@@ -691,3 +691,66 @@ yes/no per card — a `false` value DELETES your pick rather than recording a
 
 Commit `5b1ce3b`. Gate green (lint/tsc/38 tests). No schema change, no
 migration, nothing applied.
+
+---
+
+## 2026-09-06 — T1 Security/Backend: journey extended to the flows off the spine
+
+`scripts/verify-journey.mjs` now runs **120 checks across 29 steps, 116
+passing**. Steps 20-29 cover what the spine didn't: the venue-link import
+write path, visit photos, friends, and Wrapped. Same file, same assertion
+style — an extension, not a framework.
+
+**Venue-link import, verified end to end for the first time.** The write
+path needed a permanent account, which the local stack now provides. A link
+whose title names a curated spot resolves to that spot and lands in the
+caller's own default collection. A re-save into a second collection reuses
+the row and does **not** reset a resolved import to pending (the
+fetch-then-insert design holds). Instagram — no credentials by design —
+fails honestly as `needs_input`/`unsupported_provider` rather than
+pretending to have looked. Two genuinely concurrent first-time saves of the
+same new link both return 200 with the same id and leave exactly one
+`place_imports` row and one collection item: the 23505 recovery path works
+under a real race, not just in theory.
+
+**Photos, friends, Wrapped all hold.** A photo uploads only under the
+caller's own uid folder; uploading into another user's folder is refused;
+the signed URL comes from the caller's own session and the friend
+**cannot** sign a URL for it (private bucket, folder-scoped policy, no
+server credential anywhere in the path). Friendship mirrors to both
+directions on insert and clears both on delete. Wrapped's numbers are
+asserted against rows this run created — exactly 2 plans, 1 visit, the
+winner's spot, the 5 stars submitted — not merely non-empty.
+
+**Finding 3 — a large page loses metadata it already downloaded.**
+`safe-fetch.ts`'s `readCapped` enforces its 512KB limit by **throwing**, so
+any page over the cap resolves to `fetch_failed` ("response was too large")
+even though `<title>` and the `og:` tags arrived in the first chunk.
+Verified directly rather than assumed: the first 512KB of the Burj Khalifa
+article contains the title and 5 `og:` properties. Truncating at the cap and
+parsing what was read keeps the SSRF/DoS protection intact — the point of
+the cap is never reading more than 512KB, which truncation also satisfies —
+and makes the feature work on large pages. User-visible: paste a link to a
+big page, the app says it can't read it.
+
+**Finding 4 — an exact title match refuses to resolve.** `match.ts`'s
+`overlapScore` divides by `min(a.size, b.size)`, so a spot whose entire
+post-stopword name is a single token scores a perfect **1.0** against *any*
+title containing that word. On a "Mall of the Emirates" title, "The Dubai
+Mall" → `{mall}` ties at 1.0 with the genuine exact match; `RESOLVE_MARGIN`
+sees no gap and sends the user a pick-one list instead of the obvious
+answer. **17 of the 82 curated spots have a single-token effective name**
+(3Fils, Bounce, Iris, Ninive, OliOli, QDs, Saffron, Shimmers, SoBe, The
+Fridge, The Nine, …), so this is systemic, and the same asymmetry means a
+title like "Saffron risotto" will surface a venue.
+
+Both reported, neither patched — that was the instruction and it is the
+right call: the fix for #4 in particular is a scoring-semantics decision
+(asymmetric containment vs. a length floor), not a mechanical edit.
+
+Parked and deliberately untouched: `set_plan_rsvp`'s `p_choice` null-guard
+(rides along with the next migration out) and the coordinate coverage gap
+(needs the owner's 12 hand-pasted values).
+
+Commit `9b6a487`. Gate green (lint/tsc/38 tests). No product code changed,
+no migration, nothing applied.
