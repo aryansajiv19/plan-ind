@@ -1901,3 +1901,60 @@ and the anon-read both returned an empty **success**, while an unquoted
 search term containing a comma returns a genuine **400** that the client
 discards — so a rejected request wears the same face as an honest miss.
 Someone searching "beach, dubai" reads "no such place".
+
+---
+
+## 2026-09-07 — T1 Security/Backend: Realtime, and a wrong diagnosis I caught
+
+**The reported symptom was broader than the real defect, and my first
+diagnosis was wrong in the other direction. Both are worth recording.**
+
+Checked the three candidates: the Realtime container is up and healthy, the
+publication holds all five tables, and the `realtime.messages` presence
+policies exist locally. All three fine. So I measured instead of inspecting.
+
+**A standalone probe reported that Realtime delivered nothing.** I nearly
+shipped a migration justified by "Realtime has never worked in production".
+The probe was wrong, not the app: it called `realtime.setAuth()` before
+joining and the real client does not. Driving two actual browser contexts
+through the real app showed INSERTs propagating perfectly — B's count went
+0 → 1 with a visible refetch — under the very configuration I had just
+declared broken. **A claim that a two-minute test disproves is worse than no
+claim**, and the only reason it did not ship is that the numbers disagreed
+with each other and I went with the app over my probe.
+
+**The real defect is narrower and still worth fixing: DELETEs do not
+propagate.** A DELETE's WAL record carries only the old row's replica
+identity, so under `default` that is the primary key alone — not enough for
+Realtime to evaluate the subscription's filter or the row's RLS, so it drops
+the event silently while the subscriber stays SUBSCRIBED.
+
+That is not an edge case in this product. `cast_plan_vote` with
+`p_value := false` DELETEs the row, which is exactly how someone clears a
+pick or changes their mind mid-round. So **someone un-votes and everyone
+else's screen keeps showing the old count until they reload** — during a
+live group vote, the tally other people are reading is wrong, which is the
+one number this app exists to get right.
+
+| votes replica identity | A votes → B | A un-votes → B |
+|---|---|---|
+| `default` | 1 ✓ | still 1 ✗ |
+| `full` | 1 ✓ | 0 ✓ |
+
+One `alter table` between the runs. Live has `default(pk)` on all five
+published tables, so this is a production defect. Migration 045 staged.
+
+**Presence works** — A sees Ben, B sees Ana. So does the whole local
+Realtime path. The original "nothing arrives, no presence row" measurement
+does not reproduce; most likely it predates the `enable_anonymous_sign_ins`
+fix and the stack rebuild, since without an anonymous session neither client
+ever became a plan member.
+
+**`tests/e2e/realtime-multi-client.spec.ts`** asserts a second client sees
+the first client's vote *and its withdrawal*, in two separate browser
+contexts. The INSERT half alone passes with or without 045 — the same false
+comfort as the single-client spec — so the DELETE assertion is the one
+carrying the weight. Verified it fails without 045 and passes with it, with
+a message naming the cause.
+
+Gate green, 69 tests on this lane.
