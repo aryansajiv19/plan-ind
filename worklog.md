@@ -1573,16 +1573,33 @@ not matter — this produced a confidently-wrong "not applicable" that a grep
 took ten seconds to disprove. The genuinely demo-only pieces are the
 *components* (`DemoAccountViews`, `DemoPlanningTools`), not the classes.
 
-**A fail-closed state that names a plausible wrong cause is worse than an
-unstyled one.** The vote screen rendered "Guest voting is paused" and I
-reported guest access as blocked. It was not: `next.config` builds the
-CSP's `connect-src` from `NEXT_PUBLIC_SUPABASE_URL` when the server starts,
-so a later `.env.local` edit leaves the header naming a host the app no
-longer uses, and every client-side Supabase call — the anonymous sign-in
-included — was blocked before leaving the browser. The app failed closed
-and reported a cause that was not the real one. Restarting the dev server
-re-evaluates the config. If a data-dependent finding looks impossible,
-check the CSP header before believing it.
+**⚠ CORRECTED 2026-09-07 — the lesson originally recorded here was wrong,
+and it was mine.** This paragraph used to read "a fail-closed state that
+names a plausible wrong cause is worse than an unstyled one", asserting the
+app had misreported why guest voting was unavailable. **It had not.** Tested
+directly afterwards: with the auth endpoint blocked, and with all of
+Supabase blocked, the share link renders *"This plan wouldn't open. The
+connection dropped before the plan loaded."* — never "Guest voting is
+paused". The detection is precise: `bootstrapPlanAccess` returns
+`anonymous-disabled` only when GoTrue answers with the specific
+`anonymous_provider_disabled` code, which a blocked request cannot reach.
+
+So when "Guest voting is paused" appeared, **anonymous sign-ins genuinely
+were disabled at that moment** — a standing blocker in the house rules. They
+were enabled later. The stale CSP was a real but *separate, concurrent*
+problem. **The app told the truth both times; two real faults overlapped.**
+
+What survives, and is still worth knowing: `next.config` builds the CSP's
+`connect-src` from `NEXT_PUBLIC_SUPABASE_URL` when the server starts, so a
+later `.env.local` edit leaves the header naming a host the app no longer
+uses and every client-side Supabase call is blocked before leaving the
+browser. Restarting the dev server re-evaluates it. If a data-dependent
+finding looks impossible, check the CSP header before believing it.
+
+**The meta-lesson is the more useful one: a plausible moral drawn from an
+undiagnosed symptom spreads faster than the symptom.** This one reached the
+owner and three lanes before anyone read the code path that would have
+disproved it in a minute.
 
 ### Open, in the order I would take them
 

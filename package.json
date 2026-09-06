@@ -15,6 +15,7 @@
     "test:smoke": "node scripts/smoke-test.mjs",
     "test:smoke:020": "node scripts/smoke-test.mjs --020",
     "test:db": "node --experimental-strip-types --test \"tests/*.dbtest.ts\"",
+    "eval:ai": "node --env-file=.env.local --experimental-strip-types scripts/eval-smart-search.ts",
     "test:e2e": "playwright test",
     "test:visual:update": "VISUAL_BASELINES=true playwright test tests/e2e/visual.spec.ts --project=chromium --update-snapshots",
     "test:visual": "VISUAL_BASELINES=true playwright test tests/e2e/visual.spec.ts --project=chromium",
