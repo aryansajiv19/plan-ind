@@ -382,11 +382,33 @@ export async function untagCompanion(companionId: string): Promise<boolean> {
  * spot and resolved companions. Ordered by (visited_at desc, id desc) so the
  * sort is total and stable — visited_at alone ties constantly.
  */
+/**
+ * A list read that can tell "nothing there" from "could not read".
+ *
+ * Collapsing a failed read into `[]` is the trap this exists to close, and it
+ * is not the same as forgetting to check the error — these functions all
+ * checked it and then returned `[]` anyway, which reads as careful code. The
+ * test for whether that matters is whether the empty value is a plausible
+ * reading of the world. It is here: `[]` visits means "you have not been
+ * anywhere", which is exactly what a new account looks like, so a returning
+ * user whose read failed was told their history did not exist and invited to
+ * start over. `getWrappedSummary` already draws this distinction — "a partial
+ * read never becomes a partial recap" — and this is that pattern applied to
+ * the reads behind Been and Friends rather than a new one invented.
+ */
+export interface ListRead<T> {
+  rows: T[];
+  /** True when the read FAILED. Never true merely because there is nothing. */
+  failed: boolean;
+}
+
+export const emptyRead = <T,>(): ListRead<T> => ({ rows: [], failed: false });
+
 export async function getProfileVisits(
   personId: string,
   limit = 50,
   db: Db = supabase,
-): Promise<ProfileVisit[]> {
+): Promise<ListRead<ProfileVisit>> {
   const { data, error } = await db
     .from("visits")
     .select(VISIT_SELECT)
@@ -394,8 +416,8 @@ export async function getProfileVisits(
     .order("visited_at", { ascending: false })
     .order("id", { ascending: false })
     .limit(limit);
-  if (error || !data) return [];
-  return (data as unknown as RawVisit[]).map(toProfileVisit);
+  if (error) return { rows: [], failed: true };
+  return { rows: ((data ?? []) as unknown as RawVisit[]).map(toProfileVisit), failed: false };
 }
 
 /**
@@ -451,12 +473,13 @@ export interface PlannedWith {
 export async function getPlannedWith(
   personId: string,
   db: Db = supabase,
-): Promise<PlannedWith[]> {
+): Promise<ListRead<PlannedWith>> {
   const { data, error } = await db
     .from("visit_companions")
     .select(`companion_name, person:people(${PERSON_FIELDS}), visit:visits!inner(person_id)`)
     .eq("visit.person_id", personId);
-  if (error || !data) return [];
+  if (error) return { rows: [], failed: true };
+  if (!data) return { rows: [], failed: false };
 
   const tally = new Map<string, PlannedWith>();
   for (const row of data as unknown as {
@@ -477,11 +500,11 @@ export async function getPlannedWith(
     }
   }
   // Most-shared first; accounts win ties so real profiles surface.
-  return [...tally.values()].sort(
+  return { rows: [...tally.values()].sort(
     (a, b) => b.shared - a.shared
       || Number(Boolean(b.person)) - Number(Boolean(a.person))
       || a.name.localeCompare(b.name),
-  );
+  ), failed: false };
 }
 
 export interface SpotVisitor {
@@ -640,18 +663,18 @@ interface RawCollection {
 export async function getVisitCollections(
   personId: string,
   db: Db = supabase,
-): Promise<VisitCollectionView[]> {
+): Promise<ListRead<VisitCollectionView>> {
   const { data, error } = await db
     .from("visit_collections")
     .select("id, name, items:visit_collection_items(visit_id)")
     .eq("person_id", personId)
     .order("created_at");
-  if (error || !data) return [];
-  return (data as unknown as RawCollection[]).map((c) => ({
+  if (error) return { rows: [], failed: true };
+  return { rows: ((data ?? []) as unknown as RawCollection[]).map((c) => ({
     id: c.id,
     name: c.name,
     visitIds: (c.items ?? []).map((i) => i.visit_id),
-  }));
+  })), failed: false };
 }
 
 /** Trimmed to the same 40-char limit as the DB check constraint. */

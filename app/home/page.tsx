@@ -5,13 +5,15 @@ import { requireUser } from "@/lib/auth";
 import { memberAge } from "@/lib/age-policy";
 import { createClient } from "@/lib/supabase/server";
 import {
+  emptyRead,
   getPlannedWith,
   getProfileVisits,
   getVisitCollections,
   getVisitPhotos,
   getWrappedSummary,
 } from "@/lib/social";
-import type { Spot } from "@/lib/types";
+import type { PlannedWith, VisitCollectionView } from "@/lib/social";
+import type { ProfileVisit, Spot } from "@/lib/types";
 
 const APP_VIEWS = ["plan", "discover", "been", "friends", "profile"] as const;
 type AppView = (typeof APP_VIEWS)[number];
@@ -61,12 +63,12 @@ export default async function HomePage({
     // the same age gate as StartPlanForm and ActionSearchBar, and it cannot
     // do that on rows that do not carry the column.
     supabase.from("spots").select("id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, photo_url, photo_attribution, description, minimum_age").order("name").limit(120),
-    person ? getProfileVisits(person, 50, supabase) : Promise.resolve([]),
-    person ? getPlannedWith(person, supabase) : Promise.resolve([]),
+    person ? getProfileVisits(person, 50, supabase) : Promise.resolve(emptyRead<ProfileVisit>()),
+    person ? getPlannedWith(person, supabase) : Promise.resolve(emptyRead<PlannedWith>()),
     person
       ? getWrappedSummary(user.id, person, supabase)
       : Promise.resolve({ data: null, error: "visits" as const }),
-    person ? getVisitCollections(person, supabase) : Promise.resolve([]),
+    person ? getVisitCollections(person, supabase) : Promise.resolve(emptyRead<VisitCollectionView>()),
     person ? getVisitPhotos(person, supabase) : Promise.resolve([]),
   ]);
 
@@ -79,11 +81,13 @@ export default async function HomePage({
         initialView={initialView}
         personId={person}
         spots={(spots.data as Spot[] | null) ?? []}
-        visits={visits}
-        plannedWith={friends}
+        visits={visits.rows}
+        visitsUnavailable={visits.failed}
+        plannedWith={friends.rows}
+        plannedWithUnavailable={friends.failed}
         wrappedSummary={wrapped.data}
         wrappedUnavailable={wrapped.error}
-        collections={collections}
+        collections={collections.rows}
         photos={photos}
       />
     </>

@@ -196,6 +196,30 @@ function WrappedRecap({
   );
 }
 
+/**
+ * Shown when a read FAILED, in place of the empty state.
+ *
+ * An empty state makes a claim about the world — "you have not been
+ * anywhere", "nobody here yet" — and that claim is false when the read
+ * simply did not arrive. On a memory feature it is the worst possible
+ * false claim: it tells someone their history is gone and invites them to
+ * start over. This says only what is actually known.
+ */
+function UnavailableState({ what }: { what: string }) {
+  return (
+    <div className="demo-collection-empty" role="status">
+      <strong>Couldn’t load your {what}.</strong>
+      <p>
+        The connection dropped on the way. Nothing has been lost — refresh to
+        try again.
+      </p>
+      <button type="button" onClick={() => window.location.reload()}>
+        Refresh
+      </button>
+    </div>
+  );
+}
+
 /** A place card. Curated spots often have no photo yet, so the typographic
  *  category code stands in rather than a stock image. */
 function PlaceCard({ spot, onStartPlan }: { spot: Spot; onStartPlan: () => void }) {
@@ -238,6 +262,8 @@ export default function AccountViews({
   wrappedSummary,
   wrappedUnavailable,
   collections: initialCollections,
+  visitsUnavailable,
+  plannedWithUnavailable,
   photos,
   onStartPlan,
 }: {
@@ -252,6 +278,18 @@ export default function AccountViews({
   wrappedSummary: WrappedSummary | null;
   wrappedUnavailable: WrappedSummaryError | null;
   collections: VisitCollectionView[];
+  /** These mean the READ FAILED, never "there are none". Rendering an empty
+   *  state for a failed read tells a returning user their history does not
+   *  exist — see lib/social's ListRead.
+   *
+   *  Collections has no equivalent flag on purpose. A failed collections read
+   *  costs the filter tabs, which never claim anything: "All places" is always
+   *  present, and there is no "you have no collections" copy to be wrong. The
+   *  test is whether the empty value is rendered AS A CLAIM, and here it is
+   *  not — so the honest thing is no state rather than plumbing nothing
+   *  through to nowhere. */
+  visitsUnavailable: boolean;
+  plannedWithUnavailable: boolean;
   photos: VisitPhotoView[];
   onStartPlan: () => void;
 }) {
@@ -518,7 +556,9 @@ export default function AccountViews({
           )}
         </header>
 
-        {visits.length === 0 ? (
+        {visitsUnavailable ? (
+          <UnavailableState what="visits" />
+        ) : visits.length === 0 ? (
           <div className="demo-collection-empty">
             <strong>No visits logged yet.</strong>
             <p>Rate a place after a plan is decided and it lands here, with whoever came along.</p>
@@ -658,7 +698,9 @@ export default function AccountViews({
           <button type="button" className="demo-primary-action" onClick={onStartPlan}>Start a group plan</button>
         </header>
 
-        {plannedWith.length === 0 ? (
+        {plannedWithUnavailable ? (
+          <UnavailableState what="people" />
+        ) : plannedWith.length === 0 ? (
           <div className="demo-collection-empty">
             <strong>Nobody here yet.</strong>
             <p>Everyone who comes along on a plan lands here once you rate it. Start one and share the link.</p>

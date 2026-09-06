@@ -49,7 +49,9 @@ export default function HomeExperience({
   personId = null,
   spots = [],
   visits = [],
+  visitsUnavailable = false,
   plannedWith = [],
+  plannedWithUnavailable = false,
   wrappedSummary = null,
   wrappedUnavailable = null,
   collections = [],
@@ -70,7 +72,10 @@ export default function HomeExperience({
   personId?: string | null;
   spots?: Spot[];
   visits?: ProfileVisit[];
+  /** The read FAILED — not "there are none". See lib/social's ListRead. */
+  visitsUnavailable?: boolean;
   plannedWith?: PlannedWith[];
+  plannedWithUnavailable?: boolean;
   wrappedSummary?: WrappedSummary | null;
   wrappedUnavailable?: WrappedSummaryError | null;
   collections?: VisitCollectionView[];
@@ -384,6 +389,8 @@ export default function HomeExperience({
               wrappedSummary={wrappedSummary}
               wrappedUnavailable={wrappedUnavailable}
               collections={collections}
+              visitsUnavailable={visitsUnavailable}
+              plannedWithUnavailable={plannedWithUnavailable}
               photos={photos}
               onStartPlan={() => showView("plan")}
             />
