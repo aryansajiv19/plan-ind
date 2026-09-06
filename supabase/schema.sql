@@ -2227,3 +2227,21 @@ grant select on public.curated_categories to anon, authenticated;
 -- find the table in the schema cache", which reads like the migration failed
 -- when it did not. Ask for the reload here so applying this is one step.
 notify pgrst, 'reload schema';
+
+
+-- ── 045: REPLICA IDENTITY FULL for the Realtime publication ──────────────
+--
+-- INSERTs propagate under the default identity; DELETEs do not. A DELETE's
+-- WAL record carries only the old row's replica identity, so under `default`
+-- that is the primary key alone -- not enough for Realtime to evaluate the
+-- subscription filter or the row's RLS, so it drops the event silently.
+--
+-- That is not an edge case here: `cast_plan_vote` with `p_value := false`
+-- DELETEs the row, which is how someone clears a pick. Without this,
+-- everyone else's screen keeps showing a vote that was withdrawn.
+-- Measured with two browser contexts; see migration-045.
+alter table votes      replica identity full;
+alter table plans      replica identity full;
+alter table rsvps      replica identity full;
+alter table ratings    replica identity full;
+alter table plan_spots replica identity full;
