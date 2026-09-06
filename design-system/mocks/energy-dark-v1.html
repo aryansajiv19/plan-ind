@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>plan-ind — dark as the standard, and where the energy goes</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300..700;1,300..700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════════════════════════════════════════════════════
+   Palette v7 (SPECS §19.1) — the owner's six, verbatim. No seventh
+   identity colour. One DERIVED value (--accent), justified where it
+   appears, on the same precedent as muted/line/error.
+
+   THE CENTRAL MOVE: cards are DARKER than the canvas, not lighter.
+   Every contrast figure quoted on this page was computed, including
+   the alpha-composited hairline. See the panel headed "the solve".
+   ════════════════════════════════════════════════════════════════ */
+:root{
+  --navy:#051822; --slate:#2D383E; --brown:#7C5841;
+  --tan:#AA7452;  --grey:#969A9E;  --light:#D4C9C7;
+
+  --canvas:#2D383E;              /* L* 22.8 — the ground */
+  --card:#051822;                /* L*  7.2 — a well, not a raised plane */
+  --ink:#D4C9C7;                 /* 11.19 on card · 7.43 on canvas */
+  --ink-strong:#FFFFFF;          /* 18.10 on card · 12.02 on canvas */
+  --meta:#969A9E;                /* 6.39 on card — body-legal INSIDE a card */
+  --accent:#BF977D;              /* derived: tan +25% toward white.
+                                    4.54 canvas · 6.84 card — clears body on BOTH */
+  --edge:rgba(150,154,158,.8);   /* composites to #81868b: 3.27 canvas / 4.93 card */
+  --r:10px; --rp:20px;
+  --settle:cubic-bezier(.16,1,.3,1);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--canvas);color:var(--ink);
+     font-family:"Hanken Grotesk",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+img{display:block;width:100%;height:100%;object-fit:cover}
+.rig{max-width:1240px;margin:0 auto;padding:30px 22px 80px}
+
+/* ── page chrome ───────────────────────────────────────────────────── */
+.lede{max-width:76ch}
+.lede h1{font-family:"Cormorant",serif;font-weight:500;font-size:2.7rem;line-height:1.01;
+         letter-spacing:-.025em;margin:0 0 15px;color:var(--ink-strong)}
+.lede h1 em{font-style:italic;font-weight:400}
+.lede p{margin:0 0 12px;font-size:.86rem;line-height:1.62}
+.lede b{color:var(--ink-strong)}
+.rev{margin:20px 0 6px;padding:13px 15px;border-radius:var(--r);
+     border:1px solid var(--edge);background:var(--card);font-size:.77rem;line-height:1.6}
+.rev p{margin:0 0 7px}.rev p:last-child{margin:0}
+.rev b{color:var(--accent)}
+
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:24px 0 4px}
+.fact{background:var(--card);border:1px solid var(--edge);border-radius:var(--rp);padding:15px 16px}
+.fact .n{font-family:"Cormorant",serif;font-size:2.4rem;font-weight:600;line-height:.95;
+         letter-spacing:-.03em;display:block;color:var(--ink-strong);font-variant-numeric:tabular-nums}
+.fact .l{display:block;margin-top:7px;font-size:.74rem;line-height:1.45;color:var(--meta)}
+.fact .s{display:block;margin-top:5px;font-size:.68rem;line-height:1.4;color:var(--accent)}
+
+.moment{margin-top:48px}
+.mhead{border-bottom:1px solid var(--edge);padding-bottom:9px;margin-bottom:16px}
+.mhead .k{margin:0 0 5px;font-size:.66rem;font-weight:600;letter-spacing:.15em;
+          text-transform:uppercase;color:var(--accent)}
+.mhead h2{font-family:"Cormorant",serif;font-weight:500;font-size:1.8rem;margin:0 0 7px;
+          letter-spacing:-.02em;color:var(--ink-strong)}
+.mhead p{margin:0;font-size:.8rem;line-height:1.58;max-width:82ch}
+.mhead b{color:var(--ink-strong)}
+
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+.side{min-width:0}
+.sidehead{display:flex;align-items:baseline;gap:9px;margin:0 0 9px}
+.sidehead b{font-size:.78rem;color:var(--ink-strong)}
+.sidehead span{font-size:.71rem;color:var(--ink)}   /* NOT --meta: grey is 4.24 on the canvas and fails. It is body-legal only INSIDE a card (6.39). This is the rule, and it caught me in my own chrome. */
+.replay{font-family:inherit;font-size:.71rem;font-weight:600;background:none;border:0;padding:0;
+        cursor:pointer;color:var(--accent);text-decoration:underline;text-underline-offset:3px;margin-left:auto}
+.stage{border:1px solid var(--edge);border-radius:var(--rp);padding:16px;background:var(--canvas)}
+.stage--bad{border-style:dashed;background:var(--navy)}
+/* The rejected arrangement, depicted accurately: canvas #051822 with cards
+   lifted to #2D383E — exactly what dark-theme-v7.html proposed. Showing
+   those cards on a slate stage would have made them look worse than they
+   are, which would rig the comparison in the proposal's favour. */
+
+.note{margin-top:13px;padding:12px 14px;border-radius:var(--r);background:var(--card);
+      border:1px solid var(--edge);font-size:.73rem;line-height:1.55;color:var(--meta)}
+.note b{color:var(--ink)}
+.note code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.92em;color:var(--accent)}
+
+/* ── cards ─────────────────────────────────────────────────────────── */
+.deck{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.card{background:var(--card);border:1px solid var(--edge);border-radius:var(--rp);
+      overflow:hidden;min-width:0}
+.cbody{padding:11px 12px 13px}
+.ckick{margin:0 0 4px;font-size:.6rem;font-weight:600;letter-spacing:.13em;
+       text-transform:uppercase;color:var(--accent)}
+.cmeta{margin:0;font-size:.69rem;line-height:1.45;color:var(--meta)}
+
+/* the REJECTED interior: card lighter than canvas -> everything collapses */
+.card--flat{background:var(--slate);border-color:var(--edge)}
+.card--flat .cname,.card--flat .cmeta,.card--flat .ckick{color:var(--light)}
+
+.cname{font-family:"Cormorant",serif;font-size:1.02rem;font-weight:600;margin:0 0 2px;
+       line-height:1.15;color:var(--ink-strong)}
+
+/* type-as-picture, for the 76 spots with no photograph */
+.tset{padding:15px 12px 0;min-height:86px;display:flex;flex-direction:column;justify-content:flex-end}
+.tname{font-family:"Cormorant",serif;font-weight:600;font-size:1.72rem;line-height:.94;
+       letter-spacing:-.025em;margin:0;color:var(--ink-strong);overflow-wrap:anywhere}
+.tname em{font-style:italic;font-weight:500}
+.tvibe{margin:7px 0 0;font-size:.71rem;line-height:1.42;color:var(--meta);
+       display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tdiv{height:1px;background:var(--edge);margin:12px 12px 0}
+.photo{height:86px}
+.badge{display:inline-block;margin-top:9px;font-size:.64rem;font-weight:600;
+       letter-spacing:.06em;color:var(--accent)}
+
+.dealt{opacity:0;transform:translateY(16px)}
+.dealing .dealt{animation:deal .62s var(--settle) forwards}
+.dealing .dealt:nth-child(2){animation-delay:.09s}
+.dealing .dealt:nth-child(3){animation-delay:.18s}
+@keyframes deal{to{opacity:1;transform:none}}
+
+/* ── vote ──────────────────────────────────────────────────────────── */
+.vrow{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--edge);
+      border-radius:var(--rp);padding:12px 14px;margin-bottom:8px}
+.vname{font-family:"Cormorant",serif;font-size:1.02rem;font-weight:600;margin:0;line-height:1.15;
+       color:var(--ink-strong)}
+.vsub{margin:1px 0 0;font-size:.67rem;color:var(--meta)}
+.vcount{margin-left:auto;font-size:.82rem;font-weight:700;font-variant-numeric:tabular-nums;
+        color:var(--meta);white-space:nowrap}
+.vrow--lead{padding:20px 16px}
+.vrow--lead .vname{font-size:1.55rem;letter-spacing:-.02em}
+.vrow--lead .vcount{font-family:"Cormorant",serif;font-size:2.9rem;font-weight:600;line-height:.85;
+                    letter-spacing:-.04em;color:var(--ink-strong)}
+.vrow--lead .vcount i{font-style:normal;font-family:"Hanken Grotesk",sans-serif;font-size:.62rem;
+                      font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--accent);
+                      display:block;text-align:right;margin-top:4px}
+
+/* ── the reveal ────────────────────────────────────────────────────── */
+.payoff{background:var(--tan);color:var(--navy);border-radius:var(--rp);padding:22px 20px 20px}
+.payoff .k{margin:0 0 10px;font-size:.64rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase}
+.payoff canvas{display:block;width:100%;height:auto}
+.payoff .sub{margin:12px 0 0;font-size:.78rem;line-height:1.5}
+.payoff-dark{background:var(--card);border:1px solid var(--edge);border-radius:var(--rp);padding:22px 20px 20px}
+.payoff-dark .k{margin:0 0 10px;font-size:.64rem;font-weight:700;letter-spacing:.15em;
+                text-transform:uppercase;color:var(--accent)}
+.payoff-dark canvas{display:block;width:100%;height:auto}
+.payoff-dark .sub{margin:12px 0 0;font-size:.78rem;line-height:1.5;color:var(--meta)}
+
+/* NOW, on the light ground the app ships today — the honest before */
+.now{background:#F7F5F4;border-radius:var(--rp);padding:16px;color:#051822}
+.now .inner{background:#FFF;border-radius:var(--rp);padding:16px}
+.now .row{display:flex;align-items:center;gap:12px}
+.now .cat{width:48px;height:48px;flex:none;border-radius:12px;background:#D4C9C7;
+          display:grid;place-items:center;font-size:1.5rem}
+.now .k{margin:0;font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#7C5841}
+.now .n{margin:1px 0 0;font-family:"Cormorant",serif;font-size:1.25rem;font-weight:700;line-height:1.15}
+.now .sub{margin:9px 0 0;font-size:.78rem;color:#2D383E}
+
+.close{margin-top:54px;padding-top:22px;border-top:1px solid var(--edge);max-width:80ch}
+.close h2{font-family:"Cormorant",serif;font-weight:500;font-size:1.7rem;margin:0 0 13px;color:var(--ink-strong)}
+.close p{margin:0 0 11px;font-size:.83rem;line-height:1.62}
+.close b{color:var(--ink-strong)}
+.close ol{margin:0 0 12px;padding-left:1.15rem;font-size:.83rem;line-height:1.66}
+.close li{margin-bottom:8px}
+
+@media (max-width:880px){.pair{grid-template-columns:1fr}.facts{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.dealt{opacity:1;transform:none}.dealing .dealt{animation:none}}
+</style>
+</head>
+<body>
+<div class="rig">
+
+<div class="lede">
+  <h1>Dark as the identity — and the flattening <em>solved,</em> not accepted.</h1>
+  <p>
+    Making dark the standard raises one blocking problem: on <b>#2D383E</b> only <b>#D4C9C7</b> clears
+    the 4.5 floor, so card interiors go single-colour. That is the exact flattening the v6 palette was
+    rejected for, and it is not shippable as a default.
+  </p>
+  <p>
+    <b>It turned out to be self-inflicted.</b> The dark mock made cards <i>lighter</i> than the canvas,
+    copying light mode's raised-plane idea. That single choice burned 15.5 points of L* headroom — the
+    exact band grey and tan live in. <b>Put the cards below the canvas instead and the problem
+    disappears with no new colour at all:</b> four legible text tiers inside a card, which is one more
+    than light mode has.
+  </p>
+  <p>
+    It also answers the background complaint. Today's canvas and cards differ by <b>ΔL* 3.34</b> —
+    near-white on white, which is precisely why the ground reads as one inert field. Dark, done this
+    way, separates them by <b>ΔL* 15.54</b>. The canvas stops being a backdrop and becomes a material
+    the cards are cut into.
+  </p>
+
+  <div class="rev">
+    <p><b>This reverses two written directions, deliberately.</b></p>
+    <p><b>"Emphasise white heavily"</b> — superseded 2026-09-07: the owner called the near-white ground
+      monotonous. The measurement above says why it was always going to read that way.</p>
+    <p><b>"No dark mode, hold it back"</b> — superseded 2026-09-07 by "I think I like the dark theme
+      more." Worth noting this is a correction rather than drift: the six values were chosen
+      <i>before</i> dark was ever asked for, and two of them are proper darks. Dark was latent in the
+      palette the owner picked — it is not a theme bolted onto a light system.</p>
+  </div>
+</div>
+
+<div class="facts">
+  <div class="fact"><span class="n">4</span>
+    <span class="l">legible text tiers inside a card, once cards sit below the canvas</span>
+    <span class="s">against 1 in the rejected arrangement</span></div>
+  <div class="fact"><span class="n">1.25<span style="font-size:.42em">rem</span></span>
+    <span class="l">"It's&nbsp;{winner}." — the payoff line, today</span>
+    <span class="s">the privacy policy's heading reaches 3.5rem</span></div>
+  <div class="fact"><span class="n">7<span style="font-size:.42em">%</span></span>
+    <span class="l">of decisions that can play the particle reveal we built</span>
+    <span class="s">gated on a photo — 6 spots of 82</span></div>
+</div>
+
+<!-- ═══════════ THE SOLVE ═══════════ -->
+<div class="moment">
+  <div class="mhead">
+    <p class="k">The blocking problem</p>
+    <h2>The card interior</h2>
+    <p>Same content, same six values, same dark canvas. The only difference is <b>which way the card
+      steps</b> — up from the ground, or down into it.</p>
+  </div>
+  <div class="pair">
+    <div class="side">
+      <div class="sidehead"><b>Rejected</b><span>card #2D383E, lighter than the ground</span></div>
+      <div class="stage stage--bad">
+        <div class="deck">
+          <div class="card card--flat"><div class="cbody">
+            <p class="ckick">Seafood shack</p><p class="cname">Bu Qtair</p>
+            <p class="cmeta">Umm Suqeim · from AED 60</p></div></div>
+          <div class="card card--flat"><div class="cbody">
+            <p class="ckick">Persian</p><p class="cname">Al Ustad</p>
+            <p class="cmeta">Al Fahidi · from AED 45</p></div></div>
+          <div class="card card--flat"><div class="cbody">
+            <p class="ckick">Tasting menu</p><p class="cname">Tresind Studio</p>
+            <p class="cmeta">DIFC · from AED 550</p></div></div>
+        </div>
+        <div class="note">Kicker, name and meta are <b>forced to one value</b>. Grey drops to 4.24 and
+          tan to 3.05 on this ground, both under the floor, so there is no second or third tier to
+          demote to. Three levels of information, rendered as one.</div>
+      </div>
+    </div>
+    <div class="side">
+      <div class="sidehead"><b>Proposed</b><span>card #051822, a well below the ground</span></div>
+      <div class="stage">
+        <div class="deck">
+          <div class="card"><div class="cbody">
+            <p class="ckick">Seafood shack</p><p class="cname">Bu Qtair</p>
+            <p class="cmeta">Umm Suqeim · from AED 60</p></div></div>
+          <div class="card"><div class="cbody">
+            <p class="ckick">Persian</p><p class="cname">Al Ustad</p>
+            <p class="cmeta">Al Fahidi · from AED 45</p></div></div>
+          <div class="card"><div class="cbody">
+            <p class="ckick">Tasting menu</p><p class="cname">Tresind Studio</p>
+            <p class="cmeta">DIFC · from AED 550</p></div></div>
+        </div>
+        <div class="note">Name <b>#FFFFFF at 18.10</b>, meta <b>#969A9E at 6.39</b>, kicker
+          <b>#BF977D at 6.84</b> — three tiers, plus <code>#D4C9C7</code> at 11.19 in reserve.
+          The <b>hairline is #969A9E at 0.80 alpha</b>, which composites to <code>#81868b</code>:
+          3.27 against the canvas, 4.93 against the card. <b>It cannot be softened for looks</b> —
+          at 0.65 it falls to 2.68 and fails SC 1.4.11, and a vote option is a real
+          <code>&lt;button&gt;</code> whose edge is informational.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MOMENT 1 — THE DEAL ═══════════ -->
+<div class="moment">
+  <div class="mhead">
+    <p class="k">Moment one</p>
+    <h2>The deal</h2>
+    <p>The round opens. Real content state: <b>76 of 82 spots have no photograph</b>, so this is what
+      most rounds actually look like. The left column is the app today.</p>
+  </div>
+  <div class="pair">
+    <div class="side">
+      <div class="sidehead"><b>Now</b><span>light ground, name at 0.98rem</span></div>
+      <div class="stage">
+        <div class="now">
+          <div class="deck">
+            <div style="background:#FFF;border-radius:20px;overflow:hidden">
+              <div style="height:86px;background:#D4C9C7;display:grid;place-items:center;font-size:.68rem;color:#2D383E">no photo</div>
+              <div class="cbody"><p style="font-family:Cormorant,serif;font-size:.98rem;font-weight:600;margin:0 0 2px">Bu Qtair</p>
+                <p style="margin:0;font-size:.69rem;color:#2D383E">Umm Suqeim · AED 60</p></div></div>
+            <div style="background:#FFF;border-radius:20px;overflow:hidden">
+              <div style="height:86px;background:#D4C9C7;display:grid;place-items:center;font-size:.68rem;color:#2D383E">no photo</div>
+              <div class="cbody"><p style="font-family:Cormorant,serif;font-size:.98rem;font-weight:600;margin:0 0 2px">Al Ustad</p>
+                <p style="margin:0;font-size:.69rem;color:#2D383E">Al Fahidi · AED 45</p></div></div>
+            <div style="background:#FFF;border-radius:20px;overflow:hidden">
+              <div style="height:86px"><img src="https://picsum.photos/id/431/400/300" alt=""></div>
+              <div class="cbody"><p style="font-family:Cormorant,serif;font-size:.98rem;font-weight:600;margin:0 0 2px">Tresind Studio</p>
+                <p style="margin:0;font-size:.69rem;color:#2D383E">DIFC · AED 550</p></div></div>
+          </div>
+        </div>
+        <div class="note">Two thirds of the row is a slab standing in for a picture that is not coming,
+          and the names are set <b>smaller than the body text around them</b>. The card is holding a
+          space open for content that does not exist.</div>
+      </div>
+    </div>
+    <div class="side">
+      <div class="sidehead"><b>Proposed</b><span>the type is the picture</span>
+        <button class="replay" id="deal-replay">Replay the deal</button></div>
+      <div class="stage">
+        <div class="deck" id="deal-deck">
+          <div class="card dealt">
+            <div class="tset"><p class="tname">Bu Qtair</p></div><div class="tdiv"></div>
+            <div class="cbody"><p class="ckick">Seafood shack</p>
+              <p class="tvibe">Plastic chairs, a queue down the block, the best fried hammour in the city.</p>
+              <p class="cmeta" style="margin-top:7px">Umm Suqeim · AED 60 · till 12am</p></div></div>
+          <div class="card dealt">
+            <div class="tset"><p class="tname">Al Ustad <em>Special Kabab</em></p></div><div class="tdiv"></div>
+            <div class="cbody"><p class="ckick">Persian, since 1978</p>
+              <p class="tvibe">Walls papered with photographs of everyone who ever ate here. Cash only.</p>
+              <p class="cmeta" style="margin-top:7px">Al Fahidi · AED 45 · till 12am</p></div></div>
+          <div class="card dealt">
+            <div class="photo"><img src="https://picsum.photos/id/431/400/300" alt=""></div>
+            <div class="cbody" style="padding-top:12px"><p class="ckick">Tasting menu</p>
+              <p class="tname" style="font-size:1.28rem;margin-bottom:5px">Tresind Studio</p>
+              <p class="tvibe">Twenty courses of Indian cooking that argues with itself. Book weeks out.</p>
+              <p class="cmeta" style="margin-top:7px">DIFC · AED 550 · till 11pm</p>
+              <span class="badge">1 of the 6 with a photo</span></div></div>
+        </div>
+        <div class="note"><b>No colour is spent here</b> — §21.4 forbids filling repeating content and
+          this obeys it. The tile keeps the card ground; the <b>name grows 0.98rem → 1.72rem</b> and
+          takes the space the photo was reserving. <code>vibe</code>, <code>cuisine</code> and
+          <code>open_till</code> are on every row today and simply were not drawn.
+          <b>A card with a photo keeps its photo</b> and drops back to a modest name — and on this
+          ground the six real photographs finally have somewhere to glow.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MOMENT 2 — THE VOTE ═══════════ -->
+<div class="moment">
+  <div class="mhead">
+    <p class="k">Moment two</p>
+    <h2>The round, mid-vote</h2>
+    <p>Energy from <b>density</b>, not decoration. One row is winning, so it gets the room — nothing is
+      filled and nothing is tinted.</p>
+  </div>
+  <div class="pair">
+    <div class="side">
+      <div class="sidehead"><b>Now</b><span>every row the same height</span></div>
+      <div class="stage">
+        <div class="vrow"><div><p class="vname">Bu Qtair</p><p class="vsub">Umm Suqeim</p></div><span class="vcount">4 yes</span></div>
+        <div class="vrow"><div><p class="vname">Al Ustad Special Kabab</p><p class="vsub">Al Fahidi</p></div><span class="vcount">2 yes</span></div>
+        <div class="vrow" style="margin-bottom:0"><div><p class="vname">Tresind Studio</p><p class="vsub">DIFC</p></div><span class="vcount">1 yes</span></div>
+        <div class="note">The leader is marked by a number two thirds the size of the venue name.
+          Scanning this, <b>nothing tells you the round is nearly over.</b></div>
+      </div>
+    </div>
+    <div class="side">
+      <div class="sidehead"><b>Proposed</b><span>the leader earns the space</span></div>
+      <div class="stage">
+        <div class="vrow vrow--lead"><div><p class="vname">Bu Qtair</p><p class="vsub">Umm Suqeim · from AED 60</p></div>
+          <span class="vcount">4<i>leading</i></span></div>
+        <div class="vrow"><div><p class="vname">Al Ustad Special Kabab</p><p class="vsub">Al Fahidi</p></div><span class="vcount">2 yes</span></div>
+        <div class="vrow" style="margin-bottom:0"><div><p class="vname">Tresind Studio</p><p class="vsub">DIFC</p></div><span class="vcount">1 yes</span></div>
+        <div class="note"><b>One row per screen gets this</b>, and only while it is genuinely ahead —
+          the same shape as §20's one italic and §21's one fill. The word "leading" stays, so the
+          state is never carried by size alone.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MOMENT 3 — THE REVEAL ═══════════ -->
+<div class="moment">
+  <div class="mhead">
+    <p class="k">Moment three</p>
+    <h2>The reveal — the one thing this product exists to do</h2>
+    <p>We built a particle-reconstruction animation for this moment, then gated it on
+      <code style="color:var(--accent)">winner.photo_url</code>. It has therefore played for
+      <b>6 spots out of 82</b>. The fix is not to find more photographs — it is to reconstruct
+      <b>the name</b>, which every spot has.</p>
+  </div>
+  <div class="pair">
+    <div class="side">
+      <div class="sidehead"><b>Now</b><span>1.25rem, and no animation on 76 of 82</span></div>
+      <div class="stage">
+        <div class="now"><div class="inner">
+          <div class="row"><span class="cat">◍</span>
+            <div><p class="k">Decided · you're going</p><p class="n">It's Bu Qtair.</p></div></div>
+          <p class="sub">The group's headed to Umm Suqeim. Now let's make it happen.</p>
+        </div></div>
+        <div class="note">Reproduced from <code>components/DecidedPlan.tsx:140</code> —
+          <code>text-xl</code>, 1.25rem. This is the loudest the app ever gets about the thing it was
+          built to do.</div>
+      </div>
+    </div>
+    <div class="side">
+      <div class="sidehead"><b>Proposed</b><span>display scale, and it runs every time</span>
+        <button class="replay" id="reveal-replay">Replay the reveal</button></div>
+      <div class="stage">
+        <div class="payoff-dark">
+          <p class="k">Decided · you're going</p>
+          <canvas id="reveal" width="1040" height="290" role="img" aria-label="It's Bu Qtair."></canvas>
+          <p class="sub">The group's headed to Umm Suqeim. Now let's make it happen.</p>
+        </div>
+        <div class="note">
+          Same component, same canvas, one substitution: <code>drawImage</code> becomes
+          <code>fillText</code>. <b>It then runs on every decision instead of 7% of them</b>, and it
+          can never taint the canvas, because the pixels are drawn locally rather than fetched from a
+          third-party host — which deletes the fallback path the current version needs.
+          <b>When the winner does have a photo the photo version still wins</b>; this is the other 92%.
+          Light type assembling out of a near-black ground is a genuinely dramatic beat that the
+          near-white ground could not have carried. Under
+          <code>prefers-reduced-motion</code> the type simply renders, no particles.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="close">
+  <h2>What I am proposing</h2>
+  <ol>
+    <li><b>Dark is the identity, and cards sit below the canvas.</b> This is the whole answer to the
+      flattening — no seventh colour, four text tiers instead of one, and a ground that finally
+      differs from its cards by more than a rounding error.</li>
+    <li><b>§21's accent is re-derived, not ported.</b> Brown dies in dark (2.87 canvas, 1.91 card).
+      The replacement is <code>#BF977D</code> — tan lightened 25% toward white — which clears body
+      text on <i>both</i> dark surfaces (4.54 / 6.84), so §21 keeps its single rule instead of growing
+      a per-surface exception. Tan and light stay as fills, unchanged. <b>Grey finally earns a token</b>
+      as the boundary hairline, the job §19.1 said it had none for.</li>
+    <li><b>Energy is scale, motion and density — never more colour.</b> Every change in the three
+      moments above is a font-size or a padding. The palette, §21's placement rule and its
+      one-fill ceiling are untouched.</li>
+    <li><b>Ungate the reveal from photography.</b> It is the one genuinely joyful thing in the build
+      and it has been invisible since the day it shipped.</li>
+  </ol>
+  <p><b>What I did not do:</b> put colour blocks back on cards, add an identity colour, or propose
+    anything that needs photography to arrive. If the catalogue never gets past six photographs, all
+    four of these still work.</p>
+</div>
+
+</div>
+
+<script>
+const deck = document.getElementById('deal-deck');
+function playDeal(){ deck.classList.remove('dealing'); void deck.offsetWidth; deck.classList.add('dealing'); }
+document.getElementById('deal-replay').addEventListener('click', playDeal);
+
+/* the reveal: particles reconstructing TEXT, not a photograph */
+const cvs = document.getElementById('reveal');
+const ctx = cvs.getContext('2d');
+const TEXT = "It's Bu Qtair.";
+const INK  = '#D4C9C7';          /* 11.19 on #051822 */
+const CELL = 6, DUR = 1150;
+const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let raf = null;
+
+function drawType(){
+  ctx.clearRect(0,0,cvs.width,cvs.height);
+  ctx.fillStyle = INK; ctx.textBaseline = 'middle';
+  let size = 165;
+  ctx.font = '600 ' + size + 'px Cormorant, Georgia, serif';
+  while (ctx.measureText(TEXT).width > cvs.width - 40 && size > 40){
+    size -= 4; ctx.font = '600 ' + size + 'px Cormorant, Georgia, serif';
+  }
+  ctx.fillText(TEXT, 20, cvs.height/2);
+}
+function run(){
+  if (raf) cancelAnimationFrame(raf);
+  drawType();
+  if (reduce) return;
+  const src = ctx.getImageData(0,0,cvs.width,cvs.height).data;
+  const parts = [];
+  for (let y=0; y<cvs.height; y+=CELL)
+    for (let x=0; x<cvs.width; x+=CELL)
+      if (src[(y*cvs.width+x)*4+3] > 128)
+        parts.push({tx:x,ty:y,sx:x+(Math.random()-.5)*280,sy:y+(Math.random()-.5)*210});
+  const start = performance.now();
+  const ease = t => 1 - Math.pow(1-t,3);
+  (function frame(now){
+    const t = Math.min(1,(now-start)/DUR), e = ease(t);
+    ctx.clearRect(0,0,cvs.width,cvs.height);
+    ctx.fillStyle = INK;
+    for (const p of parts) ctx.fillRect(p.sx+(p.tx-p.sx)*e, p.sy+(p.ty-p.sy)*e, CELL-1, CELL-1);
+    if (t<1) raf = requestAnimationFrame(frame); else drawType();
+  })(start);
+}
+/* Cormorant loads async — sampling early reconstructs the fallback serif instead. */
+(document.fonts ? document.fonts.load("600 165px Cormorant").then(()=>document.fonts.ready) : Promise.resolve())
+  .then(()=>{ run(); playDeal(); }).catch(()=>{ run(); playDeal(); });
+document.getElementById('reveal-replay').addEventListener('click', run);
+</script>
+</body>
+</html>

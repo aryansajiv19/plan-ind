@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>plan-ind — where the energy goes</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300..700;1,300..700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ── palette v7 (SPECS §19.1), the owner's six, verbatim ──────────────
+   NOTHING in this mock spends colour. Every proposal here is scale,
+   motion or density. That is deliberate: §21 is settled, the owner has
+   asked three times for colour restraint, and the diagnosis below says
+   colour was never the missing thing. ------------------------------- */
+:root{
+  --navy:#051822; --slate:#2D383E; --brown:#7C5841;
+  --tan:#AA7452;  --grey:#969A9E;  --light:#D4C9C7;
+  --canvas:#F7F5F4; --card:#FFFFFF;
+  --r:10px; --rp:22px;
+  --settle:cubic-bezier(.16,1,.3,1);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--canvas);color:var(--navy);
+     font-family:"Hanken Grotesk",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+img{display:block;width:100%;height:100%;object-fit:cover}
+
+.rig{max-width:1240px;margin:0 auto;padding:30px 22px 80px}
+
+/* ── the diagnosis ─────────────────────────────────────────────────── */
+.lede{max-width:74ch}
+.lede h1{font-family:"Cormorant",serif;font-weight:500;font-size:2.5rem;line-height:1.02;
+         letter-spacing:-.02em;margin:0 0 14px}
+.lede h1 em{font-style:italic;font-weight:400}
+.lede p{margin:0 0 12px;font-size:.86rem;line-height:1.6;color:var(--slate)}
+.lede b{color:var(--navy)}
+
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:22px 0 8px;max-width:900px}
+.fact{background:var(--card);border-radius:var(--rp);padding:15px 16px;
+      box-shadow:0 1px 2px rgba(5,24,34,.05),0 7px 18px rgba(5,24,34,.06)}
+.fact .n{font-family:"Cormorant",serif;font-size:2.5rem;font-weight:600;line-height:.95;
+         letter-spacing:-.03em;display:block;font-variant-numeric:tabular-nums}
+.fact .l{display:block;margin-top:7px;font-size:.74rem;line-height:1.45;color:var(--slate)}
+.fact .s{display:block;margin-top:5px;font-size:.68rem;line-height:1.4;color:var(--brown)}
+
+/* ── moment panels ─────────────────────────────────────────────────── */
+.moment{margin-top:46px}
+.mhead{border-bottom:1px solid rgba(5,24,34,.14);padding-bottom:9px;margin-bottom:16px}
+.mhead .k{margin:0 0 5px;font-size:.66rem;font-weight:600;letter-spacing:.15em;
+          text-transform:uppercase;color:var(--brown)}
+.mhead h2{font-family:"Cormorant",serif;font-weight:500;font-size:1.7rem;margin:0 0 6px;
+          letter-spacing:-.02em}
+.mhead p{margin:0;font-size:.8rem;line-height:1.55;color:var(--slate);max-width:80ch}
+
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+.side{min-width:0}
+.sidehead{display:flex;align-items:baseline;gap:9px;margin:0 0 9px}
+.sidehead b{font-size:.78rem}
+.sidehead span{font-size:.71rem;color:var(--slate)}
+.stage{background:var(--canvas);border:1px solid rgba(5,24,34,.12);border-radius:var(--rp);
+       padding:16px;min-height:100%}
+.replay{font-family:inherit;font-size:.71rem;font-weight:600;background:none;border:0;padding:0;
+        cursor:pointer;color:var(--brown);text-decoration:underline;text-underline-offset:3px;
+        margin-left:auto}
+
+/* ── shared card chrome ────────────────────────────────────────────── */
+.deck{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.card{background:var(--card);border-radius:var(--rp);overflow:hidden;min-width:0;
+      box-shadow:0 1px 2px rgba(5,24,34,.05),0 7px 18px rgba(5,24,34,.06)}
+.cbody{padding:11px 12px 13px}
+.cmeta{margin:0;font-size:.69rem;line-height:1.45;color:var(--slate)}   /* 12.02 on white */
+.ckick{margin:0 0 4px;font-size:.6rem;font-weight:600;letter-spacing:.13em;
+       text-transform:uppercase;color:var(--brown)}                      /* 6.31 on white */
+
+/* NOW: the shipped photo-less card. Small name, grey slab where a photo
+   would be. Reproduced honestly, not strawmanned. */
+.now-img{height:84px;background:var(--light)}
+.now-img--empty{display:grid;place-items:center;color:var(--slate);font-size:.68rem}
+.now-name{font-family:"Cormorant",serif;font-size:.98rem;font-weight:600;margin:0 0 2px;
+          line-height:1.15}
+
+/* PROPOSED: type-as-image. The name occupies the space the photo would
+   have. No fill — §21.4 forbids filling repeating content, and this
+   respects it: the tile keeps the card ground, the TYPE is the picture. */
+.tset{padding:14px 12px 0;min-height:84px;display:flex;flex-direction:column;justify-content:flex-end}
+.tname{font-family:"Cormorant",serif;font-weight:600;font-size:1.72rem;line-height:.94;
+       letter-spacing:-.025em;margin:0;color:var(--navy);
+       overflow-wrap:anywhere;hyphens:auto}
+.tname em{font-style:italic;font-weight:500}
+.tvibe{margin:7px 0 0;font-size:.71rem;line-height:1.4;color:var(--slate);
+       display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tdiv{height:1px;background:rgba(5,24,34,.12);margin:12px 12px 0}
+
+/* the six that DO have a photo keep the photo — unchanged, shown for honesty */
+.badge{display:inline-block;margin-top:9px;font-size:.64rem;font-weight:600;
+       letter-spacing:.06em;color:var(--brown)}
+
+/* deal-in motion */
+.dealt{opacity:0;transform:translateY(16px)}
+.dealing .dealt{animation:deal .62s var(--settle) forwards}
+.dealing .dealt:nth-child(2){animation-delay:.09s}
+.dealing .dealt:nth-child(3){animation-delay:.18s}
+@keyframes deal{to{opacity:1;transform:none}}
+
+/* ── moment 2: the vote ────────────────────────────────────────────── */
+.vrow{display:flex;align-items:center;gap:11px;background:var(--card);border-radius:var(--rp);
+      padding:12px 14px;margin-bottom:8px;
+      box-shadow:0 1px 2px rgba(5,24,34,.05),0 7px 18px rgba(5,24,34,.06)}
+.vname{font-family:"Cormorant",serif;font-size:1.02rem;font-weight:600;margin:0;line-height:1.15}
+.vsub{margin:1px 0 0;font-size:.67rem;color:var(--slate)}
+.vcount{margin-left:auto;font-size:.82rem;font-weight:700;font-variant-numeric:tabular-nums;
+        color:var(--slate);white-space:nowrap}
+/* proposed: the tally IS the graphic, and the leader earns vertical room */
+.vrow--lead{padding:20px 16px}
+.vrow--lead .vname{font-size:1.55rem;letter-spacing:-.02em}
+.vrow--lead .vcount{font-family:"Cormorant",serif;font-size:2.9rem;font-weight:600;
+                    line-height:.85;letter-spacing:-.04em;color:var(--navy)}
+.vrow--lead .vcount i{font-style:normal;font-family:"Hanken Grotesk",sans-serif;
+                      font-size:.62rem;font-weight:600;letter-spacing:.13em;text-transform:uppercase;
+                      color:var(--brown);display:block;text-align:right;margin-top:4px}
+
+/* ── moment 3: the reveal ──────────────────────────────────────────── */
+/* NOW — reproduced from components/DecidedPlan.tsx: text-xl = 1.25rem */
+.now-payoff{background:var(--card);border-radius:var(--rp);padding:16px}
+.now-payoff .row{display:flex;align-items:center;gap:12px}
+.now-payoff .cat{width:48px;height:48px;flex:none;border-radius:12px;background:var(--light);
+                 display:grid;place-items:center;font-size:1.5rem;color:var(--navy)}
+.now-payoff .k{margin:0;font-size:.68rem;font-weight:700;letter-spacing:.06em;
+               text-transform:uppercase;color:var(--brown)}
+.now-payoff .n{margin:1px 0 0;font-family:"Cormorant",serif;font-size:1.25rem;font-weight:700;
+               line-height:1.15}
+.now-payoff .sub{margin:9px 0 0;font-size:.78rem;color:var(--slate)}
+
+/* PROPOSED — the one filled surface this screen is allowed (§21.5), and
+   the display scale the moment has never had. */
+.big-payoff{background:var(--tan);color:var(--navy);border-radius:var(--rp);padding:22px 20px 20px}
+.big-payoff .k{margin:0 0 10px;font-size:.64rem;font-weight:700;letter-spacing:.15em;
+               text-transform:uppercase}
+.big-payoff canvas{display:block;width:100%;height:auto;max-width:100%}
+.big-payoff .fallback{font-family:"Cormorant",serif;font-size:clamp(2.4rem,7vw,3.6rem);
+                      font-weight:600;line-height:.94;letter-spacing:-.035em;margin:0}
+.big-payoff .sub{margin:12px 0 0;font-size:.78rem;line-height:1.5}
+
+.note{margin-top:14px;padding:12px 14px;border-radius:var(--r);background:var(--card);
+      font-size:.73rem;line-height:1.55;color:var(--slate);
+      box-shadow:0 1px 2px rgba(5,24,34,.05)}
+.note b{color:var(--navy)}
+.note code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.92em;color:var(--brown)}
+
+.close{margin-top:52px;padding-top:20px;border-top:1px solid rgba(5,24,34,.14);max-width:78ch}
+.close h2{font-family:"Cormorant",serif;font-weight:500;font-size:1.6rem;margin:0 0 12px}
+.close p{margin:0 0 11px;font-size:.83rem;line-height:1.6;color:var(--slate)}
+.close b{color:var(--navy)}
+.close ol{margin:0;padding-left:1.15rem;font-size:.83rem;line-height:1.65;color:var(--slate)}
+.close li{margin-bottom:7px}
+
+@media (max-width:860px){
+  .pair{grid-template-columns:1fr}
+  .facts{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  .dealt{opacity:1;transform:none}
+  .dealing .dealt{animation:none}
+}
+</style>
+</head>
+<body>
+<div class="rig">
+
+<div class="lede">
+  <h1>The energy is not missing. It is <em>spent in the wrong places.</em></h1>
+  <p>
+    I went looking for where the app is quiet, and the measurement says something more specific than
+    "it needs more colour". <b>The app already owns loud display type — it just never uses it on the
+    product.</b> The marketing, auth and demo surfaces run headlines up to 6.8rem. The screens people
+    actually use run 151 separate rules below 0.9rem.
+  </p>
+  <p>
+    The sharpest version: the line <b>"It's 3Fils."</b> — the single sentence this entire product
+    exists to produce — is set at <b>1.25rem</b>. The privacy policy's heading goes to <b>3.5rem</b>.
+    <b>The legal page shouts louder than the payoff.</b> That is not a taste problem, and no palette
+    fixes it.
+  </p>
+  <p>
+    So nothing below spends colour. §21 stays exactly as ratified. Every proposal here is
+    <b>scale, motion or density</b> — three levers the app has never pulled, all of which work on
+    text, and none of which need a photograph to arrive.
+  </p>
+</div>
+
+<div class="facts">
+  <div class="fact">
+    <span class="n">151</span>
+    <span class="l">rules in <code>globals.css</code> setting type below 0.9rem</span>
+    <span class="s">against 3 at 2rem or above</span>
+  </div>
+  <div class="fact">
+    <span class="n">1.25<span style="font-size:.42em;letter-spacing:0">rem</span></span>
+    <span class="l">"It's&nbsp;{winner}." — the payoff line, today</span>
+    <span class="s">the legal page h1 reaches 3.5rem</span>
+  </div>
+  <div class="fact">
+    <span class="n">7<span style="font-size:.42em;letter-spacing:0">%</span></span>
+    <span class="l">of decisions that can play the particle reveal we built</span>
+    <span class="s">it is gated on a photo — 6 spots of 82</span>
+  </div>
+</div>
+
+<!-- ══════════════ MOMENT 1 — THE DEAL ══════════════ -->
+<div class="moment">
+  <div class="mhead">
+    <p class="k">Moment one</p>
+    <h2>The deal</h2>
+    <p>
+      Three places arrive and the round opens. This is the product's opening beat, and today it just
+      appears. Both columns show the real content state: <b>76 of 82 spots have no photo</b>, so this
+      is what most rounds look like.
+    </p>
+  </div>
+  <div class="pair">
+
+    <div class="side">
+      <div class="sidehead"><b>Now</b><span>what ships today</span></div>
+      <div class="stage">
+        <div class="deck">
+          <div class="card">
+            <div class="now-img now-img--empty">no photo</div>
+            <div class="cbody">
+              <p class="now-name">Bu Qtair</p>
+              <p class="cmeta">Umm Suqeim · from AED 60</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="now-img now-img--empty">no photo</div>
+            <div class="cbody">
+              <p class="now-name">Al Ustad Special Kabab</p>
+              <p class="cmeta">Al Fahidi · from AED 45</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="now-img"><img src="https://picsum.photos/id/431/400/300" alt=""></div>
+            <div class="cbody">
+              <p class="now-name">Tresind Studio</p>
+              <p class="cmeta">DIFC · from AED 550</p>
+            </div>
+          </div>
+        </div>
+        <div class="note">
+          Two thirds of this row is a grey slab standing in for a picture that does not exist, and the
+          names are set at <b>0.98rem</b> — smaller than the body text on the page around them. The card
+          is <b>holding a space open for content that is not coming</b>.
+        </div>
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="sidehead"><b>Proposed</b><span>the type is the picture</span>
+        <button class="replay" id="deal-replay">Replay the deal</button></div>
+      <div class="stage">
+        <div class="deck" id="deal-deck">
+          <div class="card dealt">
+            <div class="tset"><p class="tname">Bu Qtair</p></div>
+            <div class="tdiv"></div>
+            <div class="cbody">
+              <p class="ckick">Seafood shack</p>
+              <p class="tvibe">Plastic chairs, a queue down the block, and the best fried hammour in the city.</p>
+              <p class="cmeta" style="margin-top:7px">Umm Suqeim · from AED 60 · till 12am</p>
+            </div>
+          </div>
+          <div class="card dealt">
+            <div class="tset"><p class="tname">Al Ustad <em>Special Kabab</em></p></div>
+            <div class="tdiv"></div>
+            <div class="cbody">
+              <p class="ckick">Persian, since 1978</p>
+              <p class="tvibe">Walls papered with photographs of everyone who ever ate here. Cash, and worth it.</p>
+              <p class="cmeta" style="margin-top:7px">Al Fahidi · from AED 45 · till 12am</p>
+            </div>
+          </div>
+          <div class="card dealt">
+            <div class="now-img"><img src="https://picsum.photos/id/431/400/300" alt=""></div>
+            <div class="cbody" style="padding-top:12px">
+              <p class="ckick">Tasting menu</p>
+              <p class="tname" style="font-size:1.28rem;margin-bottom:5px">Tresind Studio</p>
+              <p class="tvibe">Twenty courses of Indian cooking that argues with itself. Book weeks out.</p>
+              <p class="cmeta" style="margin-top:7px">DIFC · from AED 550 · till 11pm</p>
+              <span class="badge">1 of the 6 with a photo</span>
+            </div>
+          </div>
+        </div>
+        <div class="note">
+          <b>No colour was spent here</b> — §21.4 forbids filling repeating content and this obeys it.
+          The tile keeps the card ground; the <b>name grows from 0.98rem to 1.72rem</b> and takes the
+          space the photo was reserving. The <code>vibe</code>, <code>cuisine</code> and
+          <code>open_till</code> fields already exist on every row and were simply not being drawn.
+          <b>A card with a photo keeps the photo</b> and drops back to a modest name — the two states
+          differ, which is the point: the layout stops pretending a photo is coming.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════ MOMENT 2 — THE VOTE ══════════════ -->
+<div class="moment">
+  <div class="mhead">
+    <p class="k">Moment two</p>
+    <h2>The round, mid-vote</h2>
+    <p>
+      Energy from <b>density</b> rather than decoration: one row is winning, so give it the room. Nothing
+      is filled, nothing is tinted — the leader simply gets more vertical space and its tally is set as
+      display type instead of a footnote.
+    </p>
+  </div>
+  <div class="pair">
+
+    <div class="side">
+      <div class="sidehead"><b>Now</b><span>every row the same height</span></div>
+      <div class="stage">
+        <div class="vrow"><div><p class="vname">Bu Qtair</p><p class="vsub">Umm Suqeim</p></div><span class="vcount">4 yes</span></div>
+        <div class="vrow"><div><p class="vname">Al Ustad Special Kabab</p><p class="vsub">Al Fahidi</p></div><span class="vcount">2 yes</span></div>
+        <div class="vrow" style="margin-bottom:0"><div><p class="vname">Tresind Studio</p><p class="vsub">DIFC</p></div><span class="vcount">1 yes</span></div>
+        <div class="note">The leader is identified by a number two thirds the size of the venue name. Scanning the
+          screen, <b>nothing tells you the round is nearly decided.</b></div>
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="sidehead"><b>Proposed</b><span>the leader earns the space</span></div>
+      <div class="stage">
+        <div class="vrow vrow--lead"><div><p class="vname">Bu Qtair</p><p class="vsub">Umm Suqeim · from AED 60</p></div>
+          <span class="vcount">4<i>leading</i></span></div>
+        <div class="vrow"><div><p class="vname">Al Ustad Special Kabab</p><p class="vsub">Al Fahidi</p></div><span class="vcount">2 yes</span></div>
+        <div class="vrow" style="margin-bottom:0"><div><p class="vname">Tresind Studio</p><p class="vsub">DIFC</p></div><span class="vcount">1 yes</span></div>
+        <div class="note"><b>One row per screen gets this</b>, and only while it is actually ahead — the same
+          shape as §20's one italic and §21's one fill. The word "leading" stays, so the state is never
+          carried by size alone.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════ MOMENT 3 — THE REVEAL ══════════════ -->
+<div class="moment">
+  <div class="mhead">
+    <p class="k">Moment three</p>
+    <h2>The reveal</h2>
+    <p>
+      The product's entire purpose, delivered. We built a particle-reconstruction animation for this
+      moment and then gated it on <code>winner.photo_url</code> — so it has played for
+      <b>6 spots out of 82</b>. The fix is not to find more photos. It is to reconstruct
+      <b>the name</b>, which every spot has.
+    </p>
+  </div>
+  <div class="pair">
+
+    <div class="side">
+      <div class="sidehead"><b>Now</b><span>1.25rem, and no animation on 76 of 82</span></div>
+      <div class="stage">
+        <div class="now-payoff">
+          <div class="row">
+            <span class="cat">◍</span>
+            <div>
+              <p class="k">Decided · you're going</p>
+              <p class="n">It's Bu Qtair.</p>
+            </div>
+          </div>
+          <p class="sub">The group's headed to Umm Suqeim. Now let's make it happen.</p>
+        </div>
+        <div class="note">Reproduced from <code>components/DecidedPlan.tsx:140</code> —
+          <code>text-xl</code>, which is 1.25rem. This is the loudest the app ever gets about the thing
+          it was built to do.</div>
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="sidehead"><b>Proposed</b><span>the one earned fill, at display scale</span>
+        <button class="replay" id="reveal-replay">Replay the reveal</button></div>
+      <div class="stage">
+        <div class="big-payoff">
+          <p class="k">Decided · you're going</p>
+          <canvas id="reveal" width="1040" height="300" role="img"
+                  aria-label="It's Bu Qtair."></canvas>
+          <p class="sub">The group's headed to Umm Suqeim. Now let's make it happen.</p>
+        </div>
+        <div class="note">
+          Same component, same canvas, one substitution: <code>drawImage</code> becomes
+          <code>fillText</code>. <b>It then runs on every decision instead of 7% of them</b>, and it
+          can never taint the canvas, because the pixels are drawn locally rather than fetched from
+          an unproven host — which removes the fallback path the current version needs.
+          <b>When the winner does have a photo, the photo version still wins</b> and this is the
+          fallback. Navy on tan measures <b>4.59:1</b>; the fill is this screen's single one (§21.5).
+          Under <code>prefers-reduced-motion</code> the type renders immediately, no particles.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="close">
+  <h2>What I am actually proposing</h2>
+  <p>
+    <b>One loud moment per screen, and the app currently has zero.</b> The instinct that produced
+    §20's one italic and §21's one fill is right and I am not reopening it — I am saying the budget
+    was set to one and then never spent. Restraint against nothing reads as empty, which is exactly
+    what the owner said twice.
+  </p>
+  <ol>
+    <li><b>Scale, not colour, is the lever we have not pulled.</b> Every change above is a font-size
+      or a padding. Nothing here touches the palette, §21's placement rule, or the ceiling.</li>
+    <li><b>The photo-less card should stop reserving space for a photo.</b> Type fills it instead, using
+      <code>vibe</code>, <code>cuisine</code> and <code>open_till</code> — fields that are on every row
+      today and go unrendered. This is the change that touches 76 of 82 cards.</li>
+    <li><b>Ungate the reveal from photography.</b> It is the one genuinely joyful thing in the build and
+      it has been invisible since it shipped.</li>
+  </ol>
+  <p>
+    <b>What I did not do:</b> put colour blocks back on cards, add a fourth instrument to §21, or
+    propose anything that needs photography to arrive. If photography never scales past six, all three
+    of these still work.
+  </p>
+</div>
+
+</div>
+
+<script>
+/* ── the deal ─────────────────────────────────────────────────────── */
+const deck = document.getElementById('deal-deck');
+function playDeal(){
+  deck.classList.remove('dealing');
+  void deck.offsetWidth;           // force reflow so the animation restarts
+  deck.classList.add('dealing');
+}
+document.getElementById('deal-replay').addEventListener('click', playDeal);
+
+/* ── the reveal: particles that reconstruct TEXT, not a photo ──────── */
+const cvs = document.getElementById('reveal');
+const ctx = cvs.getContext('2d');
+const TEXT = "It's Bu Qtair.";
+const CELL = 6;
+const DUR  = 1150;
+const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let raf = null;
+
+function drawType(){
+  ctx.clearRect(0,0,cvs.width,cvs.height);
+  ctx.fillStyle = '#051822';
+  ctx.textBaseline = 'middle';
+  // fit the line to the canvas rather than trusting a fixed size
+  let size = 170;
+  ctx.font = '600 ' + size + 'px Cormorant, Georgia, serif';
+  const max = cvs.width - 40;
+  while (ctx.measureText(TEXT).width > max && size > 40){
+    size -= 4;
+    ctx.font = '600 ' + size + 'px Cormorant, Georgia, serif';
+  }
+  ctx.fillText(TEXT, 20, cvs.height/2);
+}
+
+function run(){
+  if (raf) cancelAnimationFrame(raf);
+  drawType();
+  if (reduce) return;                    // type stays, nothing animates
+
+  const src = ctx.getImageData(0,0,cvs.width,cvs.height).data;
+  const parts = [];
+  for (let y=0; y<cvs.height; y+=CELL){
+    for (let x=0; x<cvs.width; x+=CELL){
+      if (src[(y*cvs.width + x)*4 + 3] > 128){
+        parts.push({
+          tx:x, ty:y,
+          sx:x + (Math.random()-0.5)*260,
+          sy:y + (Math.random()-0.5)*200
+        });
+      }
+    }
+  }
+  const start = performance.now();
+  const ease = t => 1 - Math.pow(1-t, 3);   // approximates --ease-settle
+  (function frame(now){
+    const t = Math.min(1, (now-start)/DUR);
+    const e = ease(t);
+    ctx.clearRect(0,0,cvs.width,cvs.height);
+    ctx.fillStyle = '#051822';
+    for (const p of parts){
+      ctx.fillRect(
+        p.sx + (p.tx-p.sx)*e,
+        p.sy + (p.ty-p.sy)*e,
+        CELL-1, CELL-1
+      );
+    }
+    if (t < 1) raf = requestAnimationFrame(frame);
+    else drawType();                        // land on real glyphs, not blocks
+  })(start);
+}
+
+/* Cormorant loads async. Sampling before it is ready reconstructs the
+   fallback serif instead — the kind of thing that ships looking wrong for
+   one frame and nobody can reproduce. */
+(document.fonts ? document.fonts.load("600 170px Cormorant").then(()=>document.fonts.ready) : Promise.resolve())
+  .then(()=>{ run(); playDeal(); })
+  .catch(()=>{ run(); playDeal(); });
+
+document.getElementById('reveal-replay').addEventListener('click', run);
+</script>
+</body>
+</html>
