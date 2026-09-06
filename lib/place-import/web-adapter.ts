@@ -8,7 +8,9 @@ import type { ExtractedClues } from "./oembed";
 // Open Graph meta tags out of the first slice of markup. No HTML-parsing
 // dependency for three attributes -- a plain regex scan over the capped
 // response is enough, cheerio/jsdom would be overkill for this.
-function metaContent(html: string, property: string): string | null {
+// Exported for tests only (tests/place-import-safe-fetch.test.ts pins how a
+// truncated document behaves here). Callers want fetchWebClues().
+export function metaContent(html: string, property: string): string | null {
   const pattern = new RegExp(
     `<meta[^>]+property=["']${property}["'][^>]+content=["']([^"']*)["']`,
     "i",

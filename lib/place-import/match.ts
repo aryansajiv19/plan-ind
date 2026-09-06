@@ -31,11 +31,31 @@ function tokenize(text: string): Set<string> {
   );
 }
 
+// Symmetric overlap (Dice/F1), NOT `shared / min(a.size, b.size)`.
+//
+// A min() divisor only ever asked "is this name contained in the title",
+// never "does this name explain the title" -- so a spot whose entire
+// post-stopword name is one token scored a perfect 1.0 against ANY title
+// containing that word. 17 of the 82 curated spots have a one-token name,
+// so this was systemic, and it failed in both directions: "The Dubai Mall"
+// -> {mall} tied at 1.00 with the genuine match on a "Mall of the Emirates"
+// title (so an exact match refused to resolve), "O Beach Dubai" -> {beach}
+// outranked "Kite Beach" on Kite Beach's own title, and "Saffron risotto
+// recipe" confidently resolved to the Saffron restaurant.
+//
+// F1 asks both directions, so a short name no longer earns a free perfect
+// score. Measured on the real 82-row catalog (worklog 2026-09-06):
+// exact-name self-resolve 77/82 -> 82/82, and confident false positives on
+// unrelated titles 6/6 -> 0/6. RESOLVE_FLOOR/RESOLVE_MARGIN were re-derived
+// against this distribution rather than carried over -- see resolve.ts.
 function overlapScore(a: Set<string>, b: Set<string>): number {
   if (a.size === 0 || b.size === 0) return 0;
   let shared = 0;
   for (const word of a) if (b.has(word)) shared++;
-  return shared / Math.min(a.size, b.size);
+  if (shared === 0) return 0;
+  const precision = shared / a.size;
+  const recall = shared / b.size;
+  return (2 * precision * recall) / (precision + recall);
 }
 
 // Combines the clue text into one bag of words -- title carries the most

@@ -754,3 +754,124 @@ Parked and deliberately untouched: `set_plan_rsvp`'s `p_choice` null-guard
 
 Commit `9b6a487`. Gate green (lint/tsc/38 tests). No product code changed,
 no migration, nothing applied.
+
+---
+
+## 2026-09-06 — T1 Security/Backend: both import findings fixed, scoring re-derived
+
+Findings 3 and 4 from the journey run are fixed, measured, and pinned with
+regression tests. Journey now **118/120 across 29 steps** — the only two
+failures left are the deliberately parked items (`p_choice` null-guard,
+coordinate coverage).
+
+**#3 — `readCapped` truncates instead of throwing** (`safe-fetch.ts`). The
+cap's guarantee is "never read more than 512KB from an arbitrary host", and
+stopping at the limit satisfies that exactly as well as aborting did — but
+aborting also threw away metadata that had already arrived, so any page over
+the cap failed with "response was too large" while holding its `<title>` and
+`og:` tags in the first chunk. Reader is still cancelled the moment the cap
+is hit. Both consumers degrade safely **by construction, not luck**:
+`web-adapter`'s regex requires a *complete* quoted attribute value, so a cut
+mid-attribute yields no match rather than a garbled title; `oembed` already
+converts a JSON parse failure into a `SafeFetchError`, so oversized JSON
+still lands as `needs_input`; and a multi-byte character split at the
+boundary decodes to U+FFFD under the non-fatal decoder rather than throwing.
+Five unit tests cover the boundary, including the straddling-tag and
+split-character cases.
+
+**#4 — symmetric F1 scoring replaces the `min()` divisor** (`match.ts`).
+`min(a.size, b.size)` only asked "is this name contained in the title",
+never "does this name explain the title", so a one-token name scored a
+perfect 1.0 against any title containing that word. **Measured on the real
+82-row catalog, not a fixture:**
+
+| | exact-name self-resolve | confident false positives |
+|---|---|---|
+| `min()` | 77/82 | **6/6** |
+| F1 | **82/82** | **0/6** |
+
+The false-positive column is the part I had under-reported: under `min()`
+*every* adversarial title resolved confidently — "Saffron risotto recipe"
+→ Saffron, "How to grow an iris in your garden" → Iris. Worse, `min()`
+actively mis-ranked real cases: on **Kite Beach's own title**, "O Beach
+Dubai" → `{beach}` outranked Kite Beach itself. So this was never only "exact
+matches don't resolve"; it was also "unrelated pages resolve to a venue".
+
+**Thresholds re-derived, not carried over.** `RESOLVE_FLOOR`/`RESOLVE_MARGIN`
+were tuned against `min()`'s distribution and mean nothing under F1, so I
+swept them against the real catalog:
+
+```
+floor   margin .05/.10/.15        margin .20
+0.50    82/82, 1 false positive   80/82
+0.60    82/82, 0 false positives  80/82
+0.65    82/82, 0 false positives  80/82
+0.70    60/82 (collapses)         60/82
+```
+
+0.6/0.15 sits inside the safe plateau and **stays unchanged** — but now
+because it was verified against F1's distribution, not because it was
+inherited. Of the margins holding 82/82 with no false positives, 0.15 is the
+most conservative (largest gap demanded before auto-resolving), so it is the
+right one to keep. The sweep is recorded in `resolve.ts` next to the
+constants.
+
+Three matcher regression tests pin both directions of the old bug (a short
+name must not tie with the title's real subject, must not score against an
+unrelated title, and must still win its own title outright).
+
+`readCapped` is now exported solely so the boundary is testable without a
+network round trip, and `tests/resolve-aliases.mjs` gained a
+`server-only`/`client-only` → empty-module shim: that package's only job is
+to break a *client bundle*, which a `node --test` run does not have, so the
+real Next build still enforces the boundary unchanged.
+
+46 unit tests (up from 38). Gate green.
+
+**`security` review of the truncation change** — sound, with one real
+(pre-existing) finding that my own new comments had made worse by asserting
+a bound the code did not provide:
+
+- **The 5s timeout only covered the response head, not the body stream.**
+  `clearTimeout` fired in the `finally` attached to `fetch()`, i.e. the
+  moment headers arrived, leaving `readCapped` streaming with no deadline. A
+  host that sends headers instantly and then dribbles one byte per second
+  held the request open for days without ever exceeding the byte cap — the
+  reviewer measured it still reading after 15s, 27 bytes in. Not introduced
+  by the truncation change (the old loop had to read 512KB+1 before it could
+  throw, so it held just as long), but `resolve.ts` and the place-import
+  route both claim "worst case adds ~5s", which was simply untrue. **Fixed:**
+  the timeout now stays armed across the body read, `return await` so the
+  `finally` runs after streaming completes rather than before, and an abort
+  mid-stream is converted to a `SafeFetchError` instead of leaking a raw
+  `AbortError`. Verified 5007ms → SafeFetchError against a stubbed
+  slow-dribble host. Not committed as a test: pinning it costs 5s of real
+  wall time in a suite that currently runs in 0.4s, and the explicit comment
+  is the cheaper guard.
+- **My "no garbled value" claim was right but stated too broadly.** The
+  regexes have no anchors or lookarounds, so any match in a truncated prefix
+  is a match at the same offset in the full document — a captured value
+  always exists verbatim in the real page, so truncation can never
+  synthesize or garble one. What it *can* change is which tag wins, because
+  `metaContent` falls through to a reversed-order fallback when the forward
+  pattern's match spans the cut. No trust impact (the page author controls
+  every candidate on their own page), but the comment now says this
+  precisely instead of claiming more than it should.
+- The straddling-tag test was re-declaring web-adapter's regex, so it could
+  have passed while the real code drifted. It now calls the exported
+  `metaContent`, and a second test pins the verbatim-substring property that
+  is the actual reason truncating is safe.
+- No concern with exporting `readCapped` (it holds no part of the SSRF
+  boundary — host validation, redirect re-validation and the content-type
+  gate all stay in `safeFetch`, and the client barrel does not re-export it),
+  and the `server-only` shim was confirmed unable to affect the real build:
+  enforcement is webpack-side (`next/dist/build/webpack-config.js`), which a
+  Node ESM resolve hook cannot reach.
+
+**Not fixed, reported instead** (pre-existing, out of scope for these two):
+there is no length cap on the extracted title between `web-adapter` and the
+`extracted_data` jsonb write, so a hostile page can persist a ~512KB title.
+Unchanged by this work and never rendered today; the natural place for a
+`.slice()` is whenever someone builds the "show why it matched" UI.
+
+47 unit tests. Journey 118/120. Gate green.

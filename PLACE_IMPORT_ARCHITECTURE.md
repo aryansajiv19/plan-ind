@@ -83,7 +83,10 @@ Show the matched place, why it matched, useful details, source freshness, and an
   from the application server" above — Deal Three's own "paste a website
   link" case needs it, and it is fully hardened rather than a raw fetch:
   DNS-resolved and private-IP-checked before connecting, every redirect hop
-  re-validated the same way, 5s timeout, 512KB streamed-and-capped response,
+  re-validated the same way, 5s timeout, response streamed and **truncated**
+  at 512KB (2026-09-06: the guarantee is "never read more than 512KB", so it
+  stops and cancels the reader there rather than discarding a body that
+  overran — metadata already received in `<head>` still counts),
   content-type allowlisted (`lib/place-import/safe-fetch.ts`). Residual risk
   is bounded to "the app can be made to issue a handful of rate-limited
   outbound requests to attacker-chosen *public* hosts" (mild relay/

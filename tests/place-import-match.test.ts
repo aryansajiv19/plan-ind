@@ -61,6 +61,38 @@ test("results are ranked, capped at 5, and stopwords don't inflate scores", () =
   for (let i = 1; i < result.length; i++) assert.ok(result[i - 1].score >= result[i].score);
 });
 
+// Regression: scoring used `shared / min(a.size, b.size)`, which handed any
+// spot whose whole post-stopword name was one token a perfect 1.0 against
+// any title containing that word. Both directions of that bug are pinned
+// here -- it beat genuine matches, and it matched unrelated text.
+test("a one-word venue name does not tie with the title's real subject", () => {
+  const spots = [
+    spot("moe", { name: "Mall of the Emirates" }),
+    spot("tdm", { name: "The Dubai Mall" }), // -> {mall}, a single token
+  ];
+  const result = matchCandidates(clues({ title: "Mall of the Emirates - Wikipedia" }), spots);
+  assert.equal(result[0].spot.id, "moe");
+  assert.ok(
+    result[0].score - result[1].score >= 0.15,
+    `exact match must clear RESOLVE_MARGIN, got ${result[0].score} vs ${result[1].score}`,
+  );
+});
+
+test("a one-word venue name does not score against an unrelated title", () => {
+  const spots = [spot("saffron", { name: "Saffron", cuisine: "International", vibe: "buffet" })];
+  const [top] = matchCandidates(clues({ title: "Saffron risotto recipe - BBC Good Food" }), spots);
+  // It may still appear as a weak candidate; what it must not do is look
+  // confident enough to resolve on its own.
+  assert.ok(!top || top.score < 0.6, `unrelated title should not clear the floor, got ${top?.score}`);
+});
+
+test("a short name still wins its own title outright", () => {
+  const spots = [spot("iris", { name: "Iris" }), spot("other", { name: "Ninive" })];
+  const [top] = matchCandidates(clues({ title: "Iris - Wikipedia" }), spots);
+  assert.equal(top.spot.id, "iris");
+  assert.ok(top.score >= 0.6, `own title must still clear the floor, got ${top.score}`);
+});
+
 test("description contributes when the title alone doesn't match", () => {
   const spots = [spot("a", { name: "Zheng He's", cuisine: "Chinese", vibe: "elegant" })];
   const result = matchCandidates(clues({ title: "Best night out", description: "authentic Chinese elegant dining" }), spots);
