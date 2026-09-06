@@ -609,6 +609,31 @@ less to read.
 The engineering rigour does not change. Only the reporting does.
 
 
+
+## ⚠ Standing rule — show the owner what changed (2026-09-06)
+
+**Never leave the owner in the dark on anything visible.** Owner, verbatim:
+"dont keep me in the dark ayn live changes and imporovements i can see aklwasy
+show me".
+
+Every lane, every time. If a change is *visible* — a colour, a layout, a font,
+a new screen, a fixed alignment — the owner sees it, not a description of it.
+
+- Land a visible change → screenshot it → send it with `SendUserFile`.
+- Before/after when the point is a fix. One image when the point is a result.
+- Don't batch a day of visual work into one summary at the end.
+- A described change they cannot see does not count as reported.
+
+Pairs with the brevity rule directly above: short words, but always the
+picture. The image *is* the short version.
+
+Known trap: the hero entrance animation does not run in the headless/MCP
+browser, so `/home-preview` screenshots blank there. That is the harness, not
+the app. Use `/login` or a signed-in `/home` for hero-adjacent shots, or force
+opacity WITHOUT touching transforms (transforms lay the card fan out — see the
+card-overlap incident).
+
+
 ## Cross-lane requests
 
 Format: **From → To** · _need_ · _why_ · blocked? · status
