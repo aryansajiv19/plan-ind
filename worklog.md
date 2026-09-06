@@ -2012,3 +2012,52 @@ asserted only that B sees A's vote, which passed with AND without 045 — the
 same false comfort as the single-client spec, one layer up. The **DELETE**
 assertion is the load-bearing one, verified to fail without 045 and pass
 with it.
+
+---
+
+## 2026-09-07 — T2 Frontend: a failed votes read rendered as an unvoted plan
+
+Fifth instance of this repo's dominant shape, and the most consequential,
+because the screen stays **fully usable** while being wrong.
+
+Each of the vote screen's four reads was blocked in turn:
+
+```
+plan_spots blocked  -> "This plan wouldn't open"    correct
+spots blocked       -> "This plan wouldn't open"    correct
+rsvps / ratings     -> plan usable, no false claim  correct
+votes blocked       -> "0 people voting", 3 cards, 0 yes each, NO error
+```
+
+A plan with **nine voters** rendered as a healthy live vote at zero — no
+leader, gravity at full scatter, no retry offered. A guest would vote
+believing they were first. On a group-decision app the tally is the entire
+content of that screen.
+
+Cause is one line and defensible in isolation: `refetchVotes` discarded its
+error and no-opped on null, which is RIGHT for a refetch — a dropped poll
+should not wipe a working screen. But `votes` starts as `[]`, so on the
+FIRST read a failure is indistinguishable from an empty plan. The same file
+already stated the correct principle four lines above, for spots ("never
+render a broken, cardless stage"); it simply had not been extended.
+
+Fixed: the first read is load-critical, later refetches keep last-good
+behaviour. Both verified — blocked from the start gives the honest error and
+a retry; blocked after a good load leaves the screen working and still
+showing nine.
+
+### The rule, in its sharpest form yet
+
+**A discarded error is only dangerous when the empty value is a plausible
+reading of the world.** `[]` votes means "nobody voted", which happens. `[]`
+spots means "a plan with no places", which does not — and is therefore
+caught by its own impossibility.
+
+That test says *which* discarded-error sites matter, instead of "check every
+error". The remaining sites were swept on that basis: the rest are either
+already guarded or their empty state is impossible.
+
+**And fixing the pattern everywhere would have been wrong.** A blocked
+ratings read drops its "5.0 / 5 · 2 rated" summary entirely rather than
+claiming zero — honest degradation, deliberately left non-critical. Reads
+differ in whether their absence can be mistaken for content.
