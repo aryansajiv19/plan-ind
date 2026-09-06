@@ -142,9 +142,11 @@ export default function DecidedPlan({
           <p className="vote-kicker text-xs font-bold uppercase tracking-wide">
             Decided · you’re going
           </p>
-          <p className="font-display text-xl font-extrabold leading-tight">
-            It’s {winner.name}.
-          </p>
+          {/* "It's {name}." used to sit here at 1.25rem, directly beneath a
+              reveal already rendering that same name as a heading. It was a
+              duplicate, not a type-scale problem — enlarging it would have
+              made the repetition louder. The reveal's settled heading is the
+              headline; this row is the badge and the status beside it. */}
         </div>
       </div>
       <p className="mt-2 text-sm text-muted">
