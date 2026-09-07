@@ -2103,3 +2103,61 @@ my changes. The likely cause is the Turnstile widget on that page never
 settling in a headless context, which would make it a test-environment
 artefact rather than a product bug, but I did not confirm that and it should
 not be assumed. It is the only page in the suite that behaves this way.
+
+---
+
+## 2026-09-07 — T1 Security/Backend: /login root-caused, and the E2E gate loosened correctly
+
+**`/login` is root-caused, and it was my own test configuration.**
+T0's hypothesis (a locally-built server vs a remote-built one) is disproven —
+it fails with a remote build too. The actual variable is
+`NEXT_PUBLIC_TURNSTILE_SITE_KEY`, which I was setting and T0 was not. Same
+build, same server, same port:
+
+| Turnstile key | runtime-health |
+|---|---|
+| unset | **9/9 pass** |
+| set to Cloudflare's test key | both `/login` tests fail, `page.goto` never reaches load |
+
+The widget keeps the load event pending in a headless context. **Not a
+product bug, but not purely environmental either, and this is the part worth
+acting on: Turnstile is deprioritised, not abandoned. The day it is
+configured, these two specs start failing in CI for a reason that has nothing
+to do with the page being broken.** The fix belongs in the spec — navigate
+`/login` with `waitUntil: "domcontentloaded"` rather than the default `load`
+— which is qa/Frontend's file, so it is reported rather than edited here.
+
+**There is a real tension in the same run, and it needs a decision:** the
+guest/vote specs REQUIRE the Turnstile key (a production build gates guests
+behind the captcha, so without a key they hit "Open this plan securely" and
+never reach voting), while runtime-health's `/login` breaks WITH it. Both
+cannot currently be satisfied in one invocation.
+
+**A genuine accessibility finding, pre-existing:**
+`layout-consistency.spec.ts` reports *"control 2 on /login shows no focus
+indicator at all"* — `outlineStyle: none`, `boxShadow: none`. A keyboard user
+cannot see where they are on the sign-in form. Fails with and without any of
+my changes, and independent of Turnstile. Frontend's to fix; flagged rather
+than touched.
+
+**The E2E gate is loosened along the axis T0 asked for, without weakening
+it.** `global-setup` no longer throws on a non-loopback target; it provisions
+nothing and returns. Read-only specs (runtime-health, layout-consistency) run
+anywhere — which matters because a preview deployment is the only place
+WebKit coverage is possible. The specs that vote are gated on the fixture's
+existence, so with no fixture they skip: **the protection is the absence of a
+plan id, not a flag someone can set.** There is deliberately no escape hatch
+that points a voting spec at production. A stale fixture from an earlier
+local run is deleted on the non-loopback path so it cannot be picked up.
+
+Verified both directions: remote target → 74 pass, 21 skip, voting specs
+skip with a reason naming the cause; local target → 76 pass, all three vote
+specs green.
+
+**And I had reintroduced the very defect I removed.** All three write specs
+shared ONE fixture plan while `fullyParallel` is on, so they voted on each
+other's rows and their exact assertions broke — the same shared-fixture
+problem that forced the original live spec to hedge with "went up by at least
+one". Now one plan per spec (`tests/e2e/fixture.ts`, `planIdFor(name)`),
+provisioned and torn down together, which also removes the read-and-parse
+logic that had been copied into three specs.

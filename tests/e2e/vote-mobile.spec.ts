@@ -1,6 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { planIdFor, NO_FIXTURE_REASON } from "./fixture";
 
 // The vote screen, on a phone.
 //
@@ -28,15 +27,7 @@ import { join } from "node:path";
 // the headers must not be relaxed to make a test pass — run WebKit against an
 // https preview via PLAYWRIGHT_BASE_URL. See playwright.config.ts.
 
-const PLAN_ID: string = (() => {
-  try {
-    return JSON.parse(
-      readFileSync(join(process.cwd(), "tests/e2e/.fixture.local.json"), "utf8"),
-    ).planId ?? "";
-  } catch {
-    return "";
-  }
-})();
+const PLAN_ID = planIdFor("vote-mobile");
 
 /** The touch floor globals.css enforces, in px. */
 const TOUCH_FLOOR = 44;
@@ -71,10 +62,7 @@ async function openVoteScreen(page: Page): Promise<void> {
 }
 
 test.describe("the vote screen", () => {
-  test.skip(
-    !PLAN_ID,
-    "no local fixture — global-setup.ts provisions one against a local Supabase stack; see tests/README.md",
-  );
+  test.skip(!PLAN_ID, NO_FIXTURE_REASON);
 
   test("has no horizontal overflow", async ({ page }) => {
     await openVoteScreen(page);
