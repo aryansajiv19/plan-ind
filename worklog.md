@@ -2106,7 +2106,6 @@ not be assumed. It is the only page in the suite that behaves this way.
 
 ---
 
-<<<<<<< HEAD
 ## 2026-09-07 — AI: eval suite + hermetic guardrail tests for smart-search
 
 **The B3 blocker record is wrong and has been for a while.** "OpenAI credits
@@ -2160,7 +2159,6 @@ paces at 8 rpm and aborts the whole run on the first per-day 429 — exit code
 day rolls: one full run per day is the entire budget.
 
 Gate green, 107 tests.
-=======
 ## 2026-09-07 — T1 Security/Backend: /login root-caused, and the E2E gate loosened correctly
 
 **`/login` is root-caused, and it was my own test configuration.**
@@ -2216,7 +2214,6 @@ problem that forced the original live spec to hedge with "went up by at least
 one". Now one plan per spec (`tests/e2e/fixture.ts`, `planIdFor(name)`),
 provisioned and torn down together, which also removes the read-and-parse
 logic that had been copied into three specs.
->>>>>>> lane/backend
 
 ---
 
