@@ -17,6 +17,34 @@ import { test, expect, type Page } from "@playwright/test";
 
 const PAGES = ["/", "/login", "/privacy", "/terms"] as const;
 
+// Turnstile keeps the load event pending forever in a headless context, so
+// `networkidle` never fires on /login ONCE A SITE KEY IS CONFIGURED. Root-
+// caused rather than guessed: same build, same server, key unset -> 9/9
+// pass, key set to Cloudflare's test key -> both /login tests hang.
+//
+// This is not an environment quirk to shrug at. Turnstile is deprioritised,
+// not abandoned, and the day it is configured these specs would start
+// failing for a reason that has nothing to do with the page. Worse, the vote
+// specs REQUIRE the key (a production build gates guests behind the captcha),
+// so without this the suite has a state where both halves cannot pass in one
+// invocation -- which is exactly why two people running it disagreed.
+//
+// `domcontentloaded` plus an explicit wait for real content keeps the
+// coverage that matters: requests still fire, failures are still collected,
+// images still resolve. Only the "wait for silence" step is dropped, and on
+// this page silence never comes by design.
+const SETTLE = { waitUntil: "domcontentloaded" } as const;
+const IDLE = { waitUntil: "networkidle" } as const;
+const gotoOptions = (path: string) => (path === "/login" ? SETTLE : IDLE);
+
+/** Give a captcha-bearing page a moment for its own requests to fire. */
+async function settle(page: Page, path: string) {
+  if (path !== "/login") return;
+  await page.locator("form").first().waitFor({ state: "visible", timeout: 10_000 });
+  await page.waitForTimeout(1_000);
+}
+
+
 // Noise that is not a defect. Keep this list short and justified — every
 // entry here is a class of bug this suite can no longer see.
 const IGNORED_CONSOLE = [
@@ -58,7 +86,8 @@ function collect(page: Page): Collected {
 for (const path of PAGES) {
   test(`no runtime errors or failed requests: ${path}`, async ({ page }) => {
     const found = collect(page);
-    await page.goto(path, { waitUntil: "networkidle" });
+    await page.goto(path, gotoOptions(path));
+    await settle(page, path);
 
     expect(found.pageErrors, `uncaught exceptions on ${path}: ${JSON.stringify(found.pageErrors, null, 1)}`)
       .toEqual([]);
@@ -74,7 +103,8 @@ for (const path of PAGES) {
   // still renders its caption, and reports nothing — naturalWidth is the only
   // signal, and only after load settles.
   test(`every image actually resolved: ${path}`, async ({ page }) => {
-    await page.goto(path, { waitUntil: "networkidle" });
+    await page.goto(path, gotoOptions(path));
+    await settle(page, path);
     const broken = await page.evaluate(() =>
       Array.from(document.querySelectorAll("img"))
         .filter((img) => {

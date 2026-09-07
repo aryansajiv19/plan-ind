@@ -439,7 +439,15 @@ async function main() {
       console.log(`${breach ? "FAIL" : "ok  "} ${testCase.id.padEnd(26)} ${describe(outcome)}`);
     }
     const attempted = adversarial.length - unrun.filter((entry) => adversarial.some((c) => entry.startsWith(`[${c.id}]`))).length;
-    console.log(`\nGuardrails held ${held}/${attempted} attempted (${adversarial.length} defined)`);
+    // "Guardrails held 0/0" reads as a pass and is not one -- it means every
+    // case was unrun. Say that instead. (Previously rescued only by the
+    // unconditional exitCode = 2 below, so fixing that alone would have
+    // exposed this.)
+    if (attempted === 0) {
+      console.log(`\nGuardrails NOT MEASURED — 0 of ${adversarial.length} adversarial cases reached the model.`);
+    } else {
+      console.log(`\nGuardrails held ${held}/${attempted} attempted (${adversarial.length} defined)`);
+    }
     if (held < attempted) exitCode = 1;
   }
 
@@ -452,7 +460,17 @@ async function main() {
     console.log(`\nUNRUN — ${unrun.length} case(s) never reached the model. These are not results.`);
     console.log(`  ${unrun[0]}`);
     if (unrun.length > 1) console.log(`  ...and ${unrun.length - 1} more, same cause.`);
-    exitCode = 2;
+    // `exitCode !== 1` is load-bearing. Setting 2 unconditionally here
+    // OVERWROTE a real failure: a run that both breached a guardrail and hit
+    // the daily quota exited 2, which this file's own header defines as
+    // "never a pass and never a failure -- there is no result to read". A
+    // full run is 43 requests against a 50/day cap, so partial-quota runs are
+    // the NORMAL case, and the adversarial floor is documented as 1.0 and
+    // non-negotiable. This was the one path that could quietly downgrade a
+    // breach of it -- the repo's dominant bug class appearing inside the code
+    // written to prevent it. A failure outranks an incomplete run: if
+    // something we did measure was wrong, that is the result.
+    if (exitCode !== 1) exitCode = 2;
   }
   process.exit(exitCode);
 }
