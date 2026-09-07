@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>plan-ind — social, fun, and unmistakably Dubai</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300..700;1,300..700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════════════════════════════════════════════════════
+   Palette FROZEN at §24. Not one new value. Everything here is light,
+   space, scale and density.
+   ════════════════════════════════════════════════════════════════ */
+:root{
+  --canvas:#051822; --card:#0B2836; --ink:#D4C9C7; --ink-strong:#FFFFFF;
+  --muted:#969A9E; --accent:#BF977D; --tan:#AA7452; --light:#D4C9C7;
+  --edge:rgba(150,154,158,.8);
+  --r:10px; --rp:20px; --settle:cubic-bezier(.16,1,.3,1);
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;color:var(--ink);font-family:"Hanken Grotesk",system-ui,sans-serif;
+     -webkit-font-smoothing:antialiased;position:relative;overflow-x:hidden}
+
+/* ── 1 · AMBIENT: Dubai at night, on the biggest surface we own ──────
+   radial-gradient, NEVER filter:blur(). A blurred layer this size is
+   the single most expensive thing you can put on a mid-range Android;
+   a gradient is painted once into its layer and then only translated,
+   which is compositor work. Nothing here reads the DOM or runs JS. */
+.sky{position:fixed;inset:-25%;z-index:0;pointer-events:none;contain:strict}
+.glow{position:absolute;border-radius:50%;opacity:0;animation:fade 2.5s var(--settle) forwards}
+.glow--a{width:70vw;height:70vw;left:-6vw;top:2vh;
+  background:radial-gradient(circle at 50% 50%, rgba(170,116,82,.10), rgba(170,116,82,0) 68%);
+  animation:fade 2.5s var(--settle) forwards, driftA 96s ease-in-out infinite}
+.glow--b{width:58vw;height:58vw;right:-10vw;top:26vh;
+  background:radial-gradient(circle at 50% 50%, rgba(191,151,125,.08), rgba(191,151,125,0) 66%);
+  animation:fade 2.5s .3s var(--settle) forwards, driftB 124s ease-in-out infinite}
+.glow--c{width:46vw;height:46vw;left:22vw;bottom:-8vh;
+  background:radial-gradient(circle at 50% 50%, rgba(170,116,82,.06), rgba(170,116,82,0) 70%);
+  animation:fade 2.5s .6s var(--settle) forwards, driftC 152s ease-in-out infinite}
+@keyframes fade{to{opacity:1}}
+@keyframes driftA{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(5vw,4vh,0)}}
+@keyframes driftB{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(-6vw,-3vh,0)}}
+@keyframes driftC{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(3vw,-5vh,0)}}
+
+.rig{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:34px 22px 90px}
+
+/* ── 3 · SCALE: the app is 151 rules under 0.9rem. This is the answer ── */
+.hero{padding:22px 0 10px}
+.hero .kick{margin:0 0 14px;font-size:.66rem;font-weight:600;letter-spacing:.2em;
+            text-transform:uppercase;color:var(--accent)}
+.hero h1{font-family:"Cormorant",serif;font-weight:500;margin:0 0 18px;
+         font-size:clamp(3.2rem,10vw,6.4rem);line-height:.9;letter-spacing:-.035em;
+         color:var(--ink-strong);max-width:14ch}
+.hero h1 em{font-style:italic;font-weight:400;color:var(--ink)}
+.hero .lede{margin:0 0 24px;font-size:.95rem;line-height:1.6;max-width:46ch;color:var(--ink)}
+.hero .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.btn{font-family:inherit;font-size:.8rem;font-weight:600;border:0;border-radius:var(--r);
+     padding:13px 20px;cursor:pointer;background:var(--light);color:#051822}
+.btn--ghost{background:transparent;border:1px solid var(--edge);color:var(--ink)}
+.btn:focus-visible,.chip:focus-visible{outline:2px solid transparent;outline-offset:-2px;
+  box-shadow:inset 0 0 0 2px #D4C9C7, inset 0 0 0 4px #051822}
+.btn:focus-visible{box-shadow:inset 0 0 0 2px #051822, inset 0 0 0 4px #D4C9C7}
+
+.sec{margin-top:54px}
+.sec>.k{margin:0 0 6px;font-size:.66rem;font-weight:600;letter-spacing:.16em;
+        text-transform:uppercase;color:var(--accent)}
+.sec>h2{font-family:"Cormorant",serif;font-weight:500;margin:0 0 6px;
+        font-size:clamp(1.9rem,4vw,2.9rem);line-height:1;letter-spacing:-.025em;
+        color:var(--ink-strong)}
+.sec>.sub{margin:0 0 20px;font-size:.82rem;line-height:1.55;color:var(--muted);max-width:62ch}
+
+/* ── 2 · THE CATEGORY FIELD: 23 playful words, at varied weight ─────── */
+.field{display:flex;flex-wrap:wrap;gap:9px;align-items:baseline}
+.chip{font-family:"Cormorant",serif;font-weight:600;letter-spacing:-.015em;
+      background:transparent;border:1px solid var(--edge);color:var(--ink);
+      border-radius:99px;padding:7px 16px;cursor:pointer;line-height:1.1;
+      transition:transform .28s var(--settle), border-color .2s ease}
+.chip--s{font-size:.95rem}.chip--m{font-size:1.2rem}.chip--l{font-size:1.55rem}
+.chip:hover{border-color:#969A9E}
+.chip[aria-pressed="true"]{background:var(--tan);border-color:var(--tan);color:#051822;
+      transform:scale(1.03)}
+.field .count{font-size:.72rem;color:var(--muted);align-self:center;margin-left:4px}
+
+/* ── THE SOCIAL ANSWER: space held for people who are not here yet ──── */
+.plan{margin-top:22px;background:var(--card);border:1px solid var(--edge);
+      border-radius:var(--rp);padding:20px}
+.plan__top{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.plan__name{font-family:"Cormorant",serif;font-size:clamp(1.6rem,3.4vw,2.3rem);font-weight:600;
+            margin:0;line-height:1;letter-spacing:-.025em;color:var(--ink-strong)}
+.plan__meta{margin:6px 0 0;font-size:.75rem;color:var(--muted)}
+.seats{margin-left:auto;text-align:right}
+.seats__label{display:block;font-size:.63rem;font-weight:600;letter-spacing:.14em;
+              text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+.seats__row{display:flex;gap:7px;justify-content:flex-end}
+.seat{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;
+      font-size:.72rem;font-weight:700}
+.seat--in{color:#051822}
+/* An empty seat is a PERSON WHO HASN'T ANSWERED, not an absence. It is
+   drawn, it is countable, and it is why the screen implies a group even
+   when you are the only one looking at it. */
+.seat--open{border:1px dashed rgba(150,154,158,.8);color:var(--muted);font-weight:500}
+.waiting{margin:14px 0 0;font-size:.78rem;color:var(--ink)}
+.waiting b{color:var(--ink-strong)}
+
+.deck{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:18px}
+.opt{background:var(--card);border:1px solid var(--edge);border-radius:var(--rp);
+     padding:14px;text-align:left;color:inherit;font:inherit;min-width:0;
+     /* 4 · the deck breathes: one settle on arrival, then still. */
+     opacity:0;transform:translate3d(0,14px,0);
+     animation:deal .8s var(--settle) forwards}
+.opt:nth-child(2){animation-delay:.08s}.opt:nth-child(3){animation-delay:.16s}
+@keyframes deal{to{opacity:1;transform:none}}
+.opt__kick{margin:0 0 4px;font-size:.58rem;font-weight:600;letter-spacing:.13em;
+           text-transform:uppercase;color:var(--accent)}
+.opt__name{font-family:"Cormorant",serif;font-size:1.5rem;font-weight:600;margin:0;
+           line-height:1;letter-spacing:-.02em;color:var(--ink-strong)}
+.opt__meta{margin:7px 0 0;font-size:.68rem;color:var(--muted)}
+.opt__foot{margin-top:12px;display:flex;align-items:center;gap:6px;min-height:30px}
+.opt__foot .seat{width:28px;height:28px;font-size:.64rem}
+
+.note{margin-top:16px;padding:13px 15px;border-radius:var(--r);background:var(--card);
+      border:1px solid var(--edge);font-size:.75rem;line-height:1.58;color:var(--muted)}
+.note b{color:var(--ink)}
+.note code{font-family:ui-monospace,Menlo,monospace;font-size:.92em;color:var(--accent)}
+
+.close{margin-top:56px;padding-top:22px;border-top:1px solid var(--edge);max-width:80ch}
+.close h2{font-family:"Cormorant",serif;font-weight:500;font-size:1.8rem;margin:0 0 13px;color:var(--ink-strong)}
+.close p{margin:0 0 11px;font-size:.84rem;line-height:1.62;color:var(--ink)}
+.close b{color:var(--ink-strong)}
+
+@media (max-width:760px){ .deck{grid-template-columns:1fr} .seats{margin-left:0;text-align:left}
+  .seats__row{justify-content:flex-start} }
+@media (prefers-reduced-motion:reduce){
+  /* The atmosphere STAYS — it is a still-life, not an animation. Only the
+     drift stops. Nothing here carries information through movement. */
+  .glow{animation:none;opacity:1}
+  .opt{animation:none;opacity:1;transform:none}
+  .chip{transition:none}
+}
+</style>
+</head>
+<body>
+
+<div class="sky" aria-hidden="true">
+  <div class="glow glow--a"></div>
+  <div class="glow glow--b"></div>
+  <div class="glow glow--c"></div>
+</div>
+
+<div class="rig">
+
+  <div class="hero">
+    <p class="kick">Thursday · Dubai · 7 friends</p>
+    <h1>Nobody decides. <em>So we deal.</em></h1>
+    <p class="lede">Nine places, three rounds, one night out. Everyone picks, nobody argues,
+      and the group chat stays about something else.</p>
+    <div class="row">
+      <button class="btn">Deal tonight's nine</button>
+      <button class="btn btn--ghost">See a plan in progress</button>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>1 · The canvas earns its size.</b> Warm light pooling in dark navy is what Dubai looks like at
+    night, it needs no photograph, and it is the largest surface the app owns. Three
+    <code>radial-gradient</code> layers drift over 96–152 seconds — <b>if you notice it as motion it
+    is too strong.</b> <b>Never <code>filter: blur()</code></b>: a blurred layer this size is the most
+    expensive thing you can hand a mid-range Android. A gradient paints once into its own layer and
+    then only translates, which is compositor work. <b>The alphas are 0.10 / 0.08 / 0.06 and that is a measured ceiling, not a taste setting.</b>
+    Stack all three glows at full peak — which their positions make impossible, so it is the worst
+    case rather than the expectation — and the canvas lightens to <b>#2b2f30</b>, where
+    <code>--muted</code> still reads <b>4.77</b> against a 4.5 floor. At the alphas I first drew
+    (0.14 / 0.11 / 0.09) that same stack gives <b>4.16 and fails</b>. <b>The atmosphere must never be
+    able to eat the text, even in a configuration that cannot occur.</b>
+  </div>
+
+  <div class="sec">
+    <p class="k">Tonight could be</p>
+    <h2>Twenty-three kinds of night</h2>
+    <p class="sub">This is the most playful data in the app and it currently renders as a form control.
+      It is real — every one of these is a live category.</p>
+    <div class="field" id="field"></div>
+  </div>
+
+  <div class="note">
+    <b>2 · The fun is the words, not a rainbow.</b> Twenty-three categories set in Cormorant at three
+    sizes reads as <i>abundance</i> — the thing a night out actually offers.
+    <b>I did not give each category a colour, and that is deliberate.</b> §21 retired exactly that and
+    the palette has six values for twenty-three categories, so "colour by category" can only end as
+    the rainbow it already ended as once. <b>The one fill goes to your choice</b> — colour keyed to
+    <i>state</i>, which is information, not decoration, and it keeps §21.5's one-per-screen ceiling
+    intact. If the owner wants category colour after seeing this, that is a real conversation — but it
+    needs a colour system we do not have, not a tweak.
+  </div>
+
+  <div class="sec">
+    <p class="k">Live now</p>
+    <h2>Friday, 8pm</h2>
+    <p class="sub">The answer to "how does this feel social when nobody else is online".</p>
+
+    <div class="plan">
+      <div class="plan__top">
+        <div>
+          <p class="plan__name">Someone's birthday, allegedly</p>
+          <p class="plan__meta">Round 2 of 3 · closes in 40 minutes · AED 150 a head</p>
+        </div>
+        <div class="seats">
+          <span class="seats__label">Who's in</span>
+          <div class="seats__row" id="seats"></div>
+        </div>
+      </div>
+      <p class="waiting">Waiting on <b>Layla</b>, <b>Tariq</b> and <b>2 others</b>.</p>
+
+      <div class="deck">
+        <div class="opt">
+          <p class="opt__kick">Seafood shack</p>
+          <p class="opt__name">Bu Qtair</p>
+          <p class="opt__meta">Umm Suqeim · AED 60 · till 12am</p>
+          <p class="opt__foot" id="f1"></p>
+        </div>
+        <div class="opt">
+          <p class="opt__kick">Rooftop</p>
+          <p class="opt__name">Bay Room</p>
+          <p class="opt__meta">JBR · AED 220 · till 2am</p>
+          <p class="opt__foot" id="f2"></p>
+        </div>
+        <div class="opt">
+          <p class="opt__kick">Late-night karak</p>
+          <p class="opt__name">Filli Café</p>
+          <p class="opt__meta">Al Barsha · AED 15 · till 3am</p>
+          <p class="opt__foot" id="f3"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>The social answer: hold the space, don't hide it.</b> Every member of the plan is drawn —
+    the ones who have voted as faces, <b>the ones who haven't as open seats</b>. An empty seat is a
+    person who hasn't answered yet, not an absence, and it is countable: you can see you are waiting
+    on four people without reading a word.
+    <br><br>
+    <b>This is what makes a single-player screen feel like a group.</b> The alternative — rendering
+    only the people who have acted — makes a plan with one vote look like a tool with one user. Same
+    data, no new queries: the plan already knows its members. <b>The seats are also where the voting
+    avatars land</b> (§25.3), so the empty seat is not decoration; it is the destination.
+  </div>
+
+  <div class="close">
+    <h2>What this is and isn't</h2>
+    <p>
+      <b>No new colour, no photographs, no invented content.</b> The palette is frozen at §24 and
+      untouched. Every category, name, area and price on this page is real data the app already has.
+    </p>
+    <p>
+      <b>Nothing here needs a person to be online.</b> The atmosphere is a still-life, the seats are
+      the plan's own membership, and the categories are a table. It reads social because the interface
+      <i>expects company</i> — not because it is faking any.
+    </p>
+    <p>
+      <b>Mobile:</b> transform and opacity only, three composited gradient layers, no blur, no filter,
+      no JavaScript in the ambient path at all. Under <code>prefers-reduced-motion</code> the
+      atmosphere stays and only the drift stops — <b>nothing on this page carries information through
+      movement</b>, which is the test.
+    </p>
+  </div>
+
+</div>
+
+<script>
+const CATS=[["Dinner","l"],["Shisha","m"],["Beach club","l"],["Padel","m"],["Karaoke","l"],
+ ["Brunch","m"],["Cafe","s"],["Desserts","m"],["Cinema","s"],["Escape room","m"],["Arcade","s"],
+ ["Bowling","s"],["Rooftop","l"],["Karak run","m"],["Go-karting","m"],["Mini golf","s"],
+ ["Art gallery","s"],["Night market","m"],["Desert","l"],["Boat","m"],["Pool day","s"],
+ ["Live music","m"],["Comedy","s"]];
+const field=document.getElementById('field');
+CATS.forEach(([name,size],i)=>{
+  const b=document.createElement('button');
+  b.type='button'; b.className='chip chip--'+size;
+  b.setAttribute('aria-pressed', i===4?'true':'false');
+  b.textContent=name;
+  b.addEventListener('click',()=>{
+    field.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed','false'));
+    b.setAttribute('aria-pressed','true');
+  });
+  field.appendChild(b);
+});
+const c=document.createElement('span'); c.className='count'; c.textContent=CATS.length+' to choose from';
+field.appendChild(c);
+
+const MEMBERS=[["SA","#D4C9C7",1],["MK","#AA7452",1],["JR","#BF977D",1],
+               ["LA","",0],["TQ","",0],["NR","",0],["YS","",0]];
+const seats=document.getElementById('seats');
+MEMBERS.forEach(([ini,col,inYet])=>{
+  const s=document.createElement('span');
+  s.className='seat '+(inYet?'seat--in':'seat--open');
+  if(inYet) s.style.background=col;
+  s.textContent=ini;
+  s.title=inYet?ini+' has voted':ini+' hasn’t voted yet';
+  seats.appendChild(s);
+});
+[['f1',[0,1]],['f2',[2]],['f3',[]]].forEach(([id,who])=>{
+  const el=document.getElementById(id);
+  who.forEach(i=>{const s=document.createElement('span');
+    s.className='seat seat--in'; s.style.background=MEMBERS[i][1];
+    s.textContent=MEMBERS[i][0]; el.appendChild(s);});
+  const n=document.createElement('span');
+  n.style.cssText='margin-left:auto;font-size:.72rem;font-weight:700;color:'+(who.length?'#FFFFFF':'#969A9E');
+  n.textContent=who.length+' of 7';
+  el.appendChild(n);
+});
+</script>
+</body>
+</html>

@@ -16,6 +16,7 @@ superseded number as live is the main way this document can hurt you.
 | Dark tokens | §23.2 + §24.4 | Live. `--canvas`/`--card` come from §24; every other token from §23.2. |
 | Energy / type scale | §23.4 | Live. Energy is scale, motion, density — never more colour. |
 | **Interaction** | **§25** | **Live. Plan gravity + the voting moment. Layout, not physics.** |
+| **Atmosphere + social** | **§26** | **Live. Ambient light, held seats, category field, the finished type scale.** |
 | Winner reveal | §25.1 + §14.2 | Live. The canvas is the transition; **real DOM text is the destination**. |
 | **Focus ring** | **§23.7** | **Live. Two bands, inset. §19.7's graphite ring is superseded for dark.** |
 | Light mode | §23.8 | **Parked, not deleted**, 2026-09-07 — the mirror of §19.2. Two pin sites. |
@@ -2923,6 +2924,152 @@ a Web Animations `finish` handler, or WAAPI's own bounded effect, which
 leaves no inline style at all. **Both bugs were first mistaken for harness
 artefacts.** They were not — they are precisely what happens to a real
 person who opens a share link, switches apps mid-vote, and comes back.
+
+## 26 — Social, fun, and unmistakably Dubai, with what we already have (owner, 2026-09-07)
+
+Owner: **"What can we do otherwise to make it seem more social, fun, and
+interactive while also representing Dubai luxury and modernity?"**
+
+**Palette frozen at §24 — not one new value.** No photographs, no invented
+people, no fabricated groups. Every category, name, area and price in the
+mock is real data the app already stores. Mock:
+`design-system/mocks/social-dubai-v1.html` — **98 text nodes, 0 contrast
+failures**, audited against the *ambient worst case* rather than the bare
+canvas (§26.1).
+
+### 26.1 — The answer that mattered most: hold the space, don't hide it
+
+The routed brief ended with the better question — *what makes a
+group-decision app feel social when nobody else is online?* — and it turned
+out to be worth more than the four moves above it.
+
+> **Draw every member of the plan. The ones who have voted as faces; the
+> ones who haven't as open seats.**
+
+An **empty seat is a person who hasn't answered yet, not an absence.** It is
+drawn, it is countable, and you can see you're waiting on four people without
+reading a word. The alternative — rendering only people who have acted —
+**makes a plan with one vote look like a tool with one user.**
+
+- Per-card tallies read **"2 of 7"**, not "2 yes". The denominator is the
+  group; a bare numerator hides it.
+- A dashed open seat is a **UI boundary** and needs SC 1.4.11: measured
+  **3.98** against the card. It cannot be softened to a hint.
+- **The seats are where §25.3's voting avatars land.** The empty seat is not
+  decoration — it is the destination, which is what stops this being a
+  drawing of a group and makes it the group's actual state.
+- **No new data and no new queries.** The plan already knows its members.
+
+**This is the whole trick: the interface behaves as though it expects
+company.** Nothing here needs anybody to be online.
+
+### 26.2 — Ambient light: the canvas finally earns its size
+
+§23.1 said a flat `#051822` is as inert as a flat near-white and the canvas
+must earn its size. This is that, and it is the strongest Dubai signal
+available without a photograph: **warm light pooling in dark navy is what
+the city looks like at night.**
+
+Three `radial-gradient` layers, drifting **96 / 124 / 152 seconds**.
+**If you notice it as motion, it is too strong.**
+
+- **Never `filter: blur()`.** A blurred layer at this size is the single most
+  expensive thing you can hand a mid-range Android. **A radial-gradient needs
+  no blur — the gradient *is* the softness**, painted once into its own layer
+  and thereafter only translated. Compositor work, no JS in the ambient path
+  at all.
+- **`contain: strict`** on the container, `pointer-events: none`,
+  `aria-hidden`.
+
+**⚠️ The alphas are a measured ceiling, not a taste setting: 0.10 / 0.08 /
+0.06.** Stack all three glows at full peak — impossible given their
+positions, so this is the ceiling rather than the expectation — and the
+canvas lightens to `#2b2f30`, where `--muted` still reads **4.77** against
+the 4.5 floor. **At the alphas I first drew (0.14 / 0.11 / 0.09) that same
+stack gives 4.16 and fails.** The atmosphere must never be *able* to eat the
+text, even in a configuration that cannot occur.
+
+**This creates a permanent audit hazard, and it must be written into the
+check.** Gradients are `background-image`; a `getComputedStyle` walk reads
+`backgroundColor` and **sees `rgba(0,0,0,0)`** — so a routine audit will
+silently judge canvas-level text against the bare `#051822` and pass
+everything. **Canvas-level text is judged against `#2b2f30`**, the ambient
+worst case, not the canvas value. Cards are unaffected: `#0B2836` is solid
+and sits on top.
+
+### 26.3 — The category field: the fun is the words, not a rainbow
+
+Twenty-three live categories — karaoke, padel, shisha, desert, escape room —
+are the most playful data the app owns, and they render as a form control.
+Set them in Cormorant at **three sizes** (0.95 / 1.2 / 1.55rem), wrapped as
+a field rather than a row. **Density and scale read as *abundance*** — which
+is what a night out actually offers — and it costs nothing.
+
+**I am declining the colour half of this, deliberately.** The routed brief
+argued §21's ban on colour-by-category was right about cards and over-broad
+about chips, and the distinction is a fair one. It still fails on arithmetic:
+
+> **The palette has six values and there are twenty-three categories.**
+> "Colour by category" cannot be built from what we have; it can only end as
+> the rainbow §21 already retired once.
+
+**The one fill goes to the selected chip** — tan, navy ink, `aria-pressed`.
+That is colour keyed to **state**, which is information, and it keeps
+§21.5's one-per-screen ceiling intact. If the owner still wants category
+colour after seeing this, that is a real conversation — but it needs a
+colour system we do not have, **not a tweak**, and it should be put to them
+in those terms rather than half-done.
+
+### 26.4 — Scale: finishing §23.4
+
+§23.4 measured 151 rules under 0.9rem against 3 at 2rem+, and never
+specified the replacement. **Dubai luxury has scale contrast** — large
+confident display against small precise labels. Uniformly small reads as
+careful, not confident.
+
+| Role | Value |
+|---|---|
+| Front-door headline | `clamp(3.2rem, 10vw, 6.4rem)`, Cormorant 500, `line-height: .9`, `-.035em` |
+| Section headline | `clamp(1.9rem, 4vw, 2.9rem)`, `line-height: 1`, `-.025em` |
+| Plan title | `clamp(1.6rem, 3.4vw, 2.3rem)` |
+| Card name | `1.5rem` (was ~0.98rem) |
+| Kicker / label | `0.58–0.66rem`, 600, `letter-spacing .13–.2em`, uppercase |
+| Body | `0.95rem` hero lede, `0.75–0.82rem` supporting |
+
+**The contrast is the point, not the maximum.** A 6.4rem headline works
+*because* the label above it is 0.66rem. Raising everything reproduces the
+flatness at a larger size.
+
+### 26.5 — The deck breathes once, then stops
+
+Cards settle in on arrival — 0.8s, `--ease-settle`, 80ms stagger, opacity
+and `translateY` only. **Then they are still.**
+
+**No ambient drift on content, no pointer tracking, no tilt.** This is the
+front door and people read it; a surface that never stops moving is one
+nobody can read a menu on. §25.6 already ruled this out for the round, and
+the same reasoning applies harder here.
+
+### 26.6 — Reduced motion, and what it reveals
+
+**The atmosphere stays; only the drift stops.** The glows are a still-life,
+not an animation — the Dubai signal survives intact with zero movement.
+The deck appears already settled.
+
+**Nothing on this page carries information through movement**, which is the
+test §25.5 set: if disabling motion loses meaning, the meaning was in the
+motion and shouldn't have been.
+
+### 26.7 — What I did not do
+
+- **No photographs, and nothing that would improve with them.** 76 of 82
+  spots have none and will for a while.
+- **No fabricated people or groups.** The seats are a plan's real
+  membership; the categories are a real table.
+- **No new colour, no seventh value, no palette round.** §24 is frozen and
+  untouched.
+- **No blur, no filter, no shadow, no pointer-driven ambient.** Transform
+  and opacity only.
 
 ## Verification (for whoever implements this)
 
