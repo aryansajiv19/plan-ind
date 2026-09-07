@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import Link from "next/link";
+import type { TurnstileStatus } from "@/components/Turnstile";
 import { usePathname } from "next/navigation";
 
 /**
@@ -32,6 +33,7 @@ export default function VoteState({
   planTitle,
   onRetry,
   children,
+  captchaStatus,
 }: {
   kind: VoteStateKind;
   /** Shown in the loading copy once the plan row is known. */
@@ -40,11 +42,14 @@ export default function VoteState({
   onRetry?: () => void;
   /** `kind="captcha"` only: the <Turnstile> widget. */
   children?: ReactNode;
+  /** `kind="captcha"` only. Explains a check that is slow or never arriving. */
+  captchaStatus?: TurnstileStatus;
 }) {
-  const content = COPY({ kind, planTitle });
+  const content = COPY({ kind, planTitle, captchaStatus });
   // So "Sign in" from a paused-guest link returns here instead of /home —
   // FE.10.
   const pathname = usePathname();
+  const captchaFailed = kind === "captcha" && captchaStatus === "failed";
 
   return (
     <main
@@ -61,16 +66,20 @@ export default function VoteState({
           </p>
         )}
 
-        {(onRetry || kind === "guest-paused") && (
+        {kind === "captcha" && captchaStatus === "loading" && (
+          <p className="vote-state__note" role="status">Checking your browser…</p>
+        )}
+
+        {(onRetry || kind === "guest-paused" || captchaFailed) && (
           <div className="vote-state__actions">
             {onRetry && (
               <button type="button" className="vote-primary-action" onClick={onRetry}>
                 Try again
               </button>
             )}
-            {kind === "guest-paused" && (
+            {(kind === "guest-paused" || captchaFailed) && (
               <Link href={`/login?next=${encodeURIComponent(pathname)}`} className="vote-secondary-action">
-                Sign in
+                {captchaFailed ? "Go to sign in" : "Sign in"}
               </Link>
             )}
           </div>
@@ -87,10 +96,31 @@ export default function VoteState({
 function COPY({
   kind,
   planTitle,
+  captchaStatus,
 }: {
   kind: VoteStateKind;
   planTitle?: string | null;
+  captchaStatus?: TurnstileStatus;
 }): { title: string | null; body: ReactNode } {
+  // A guest whose bot check never loads is in the worst position of anyone
+  // who hits this app: they did not choose it, they tapped a link a friend
+  // sent, and they have no account. Both obvious ways forward are closed by
+  // the SAME failure — guest access needs a token, and so does email
+  // sign-in — so this has to name the one path that still works rather than
+  // say "try again" and send them round the loop. Google OAuth does not
+  // touch Turnstile.
+  if (kind === "captcha" && captchaStatus === "failed") {
+    return {
+      title: "The security check didn’t load",
+      body: (
+        <>
+          It has to pass before you can open a shared plan, and email sign-in
+          needs it too. <strong>Continue with Google</strong> on the sign-in
+          page still works — or reload if you would rather try the check again.
+        </>
+      ),
+    };
+  }
   switch (kind) {
     case "loading":
       return {

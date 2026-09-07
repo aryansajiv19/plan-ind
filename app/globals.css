@@ -2620,6 +2620,8 @@ h3 {
   font-family: var(--font-display);
 }
 .vote-state__slot { margin-top: 1.5rem; }
+/* Same job as .auth-note: explains a check that is slow or never arriving. */
+.vote-state__note { margin: 0.75rem 0 0; color: var(--color-muted); font-size: 0.85rem; }
 
 .vote-round-label {
   margin-top: 0.75rem;

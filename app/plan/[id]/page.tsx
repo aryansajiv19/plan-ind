@@ -15,7 +15,7 @@ import CountUp from "@/components/CountUp";
 import OptionCard from "@/components/OptionCard";
 import NameGate from "@/components/NameGate";
 import DecidedPlan from "@/components/DecidedPlan";
-import Turnstile from "@/components/Turnstile";
+import Turnstile, { type TurnstileStatus } from "@/components/Turnstile";
 import VoteState from "@/components/VoteState";
 
 type Load = "loading" | "ready" | "notfound" | "error";
@@ -89,6 +89,8 @@ export default function VotePage() {
   // Stable identity so <Turnstile>'s effect (keyed on `onVerify`) doesn't
   // tear down and rebuild the live widget on every unrelated re-render of
   // this page while the captcha screen is showing.
+  // "loading" is what is true before the widget has reported anything.
+  const [captchaStatus, setCaptchaStatus] = useState<TurnstileStatus>("loading");
   const onCaptchaVerify = useCallback((token: string) => {
     if (token) void runAccess(token);
   }, [runAccess]);
@@ -669,8 +671,8 @@ export default function VotePage() {
 
   if (access === "captcha-required") {
     return (
-      <VoteState kind="captcha">
-        <Turnstile action="plan-access" onVerify={onCaptchaVerify} />
+      <VoteState kind="captcha" captchaStatus={captchaStatus}>
+        <Turnstile action="plan-access" onVerify={onCaptchaVerify} onStatus={setCaptchaStatus} />
       </VoteState>
     );
   }
