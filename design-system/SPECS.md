@@ -17,6 +17,7 @@ superseded number as live is the main way this document can hurt you.
 | Energy / type scale | §23.4 | Live. Energy is scale, motion, density — never more colour. |
 | **Interaction** | **§25** | **Live. Plan gravity + the voting moment. Layout, not physics.** |
 | **Atmosphere + social** | **§26** | **Live. Ambient light, held seats, category field, the finished type scale.** |
+| **`--punch`** | **§27** | **Live. `#C34A2D`, fill only, one per screen. §24's six + this one derivation.** |
 | Winner reveal | §25.1 + §14.2 | Live. The canvas is the transition; **real DOM text is the destination**. |
 | **Focus ring** | **§23.7** | **Live. Two bands, inset. §19.7's graphite ring is superseded for dark.** |
 | Light mode | §23.8 | **Parked, not deleted**, 2026-09-07 — the mirror of §19.2. Two pin sites. |
@@ -3070,6 +3071,128 @@ motion and shouldn't have been.
   untouched.
 - **No blur, no filter, no shadow, no pointer-driven ambient.** Transform
   and opacity only.
+
+## 27 — One warm accent: `--punch`, a fill and never text (owner, 2026-09-07)
+
+The owner has reached for the same warm orange **twice, unprompted** — once
+when D3 proposed `#BE3A1B` and again weeks later in a palette they sent
+themselves. **Twice is a signal, and the signal is the hue.** §24 stays
+frozen otherwise: this is one token, not a palette round. Mock:
+`design-system/mocks/punch-v1.html` — **82 text nodes, 0 contrast failures.**
+
+### 27.1 — `#BE3A1B` does not survive §24's grounds
+
+Its old figures (4.92 on canvas, 5.51 as a white-text fill) were measured on
+a **near-white canvas that no longer exists**. Re-measured — which is §23.10
+doing precisely the job it was written for:
+
+| `#BE3A1B` | On canvas `#051822` | On card `#0B2836` |
+|---|---|---|
+| As text | 3.28 — **fails** 4.5 | 2.78 — **fails** |
+| As a fill, boundary | 3.28 — clears 3.0 | **2.78 — fails 3.0** |
+
+**It cannot be used on a card at all** — not as text, and not even as a
+fill, because its own edge misses the boundary floor.
+
+**Live: `--punch: #C34A2D`, `--punch-ink: #FFFFFF`** — the same hue,
+lightened 8%.
+
+| Role | Canvas | Card |
+|---|---|---|
+| Fill boundary | **3.74** | **3.16** |
+| White ink on it | **4.84** | 4.84 |
+| As text | 3.74 — **fails** | 3.16 — **fails** |
+| Focus ring (§23.7) | inner band **3.74** | 3.16 |
+
+### 27.2 — Fill-only is not a limitation. It is the containment.
+
+It fails as text on both grounds, and **that is the feature.** This is the
+loudest colour in the system and the owner has asked for restraint three
+times; a rule that depends on discipline will erode.
+
+> **A colour that can only be a fill can only appear where there is a
+> surface.** It physically cannot spread into labels, captions and inline
+> emphasis the way a text-capable accent does.
+
+The rule enforces itself. **Never text, never a border.**
+
+### 27.3 — Where it earns its place, and the one place it does not
+
+**The primary action, and the decided moment. At most one per screen** —
+§21.5's ceiling, unchanged.
+
+**Not Plan Gravity's leader**, and the reason is not restraint for its own
+sake:
+
+> **The leader is *provisional*.** It changes hands several times in a
+> round. A loud fill hopping between cards every few votes is exactly the
+> scatter §21 was written to stop — and it would put two emphasis mechanisms
+> on one element, alongside §25.2's solid hairline and 4.5% scale, which is
+> the overloading argued against for `--primary-fill` in §23.9a.
+
+**The hairline says "ahead right now". The punch says "this is settled".**
+One is a state that moves; the other happens once.
+
+### 27.4 — ⚠️ The ambient eats the punch fill's boundary
+
+**Neither §26 nor §27 would have caught this alone.** §26's ambient light
+lightens the canvas toward `#2b2f30`. Against *that* ground the punch fill
+measures **2.79 and fails SC 1.4.11.**
+
+**No punch value fixes it.** The two constraints cross with no window:
+
+| Lightening | Boundary vs ambient | White ink |
+|---|---|---|
+| `#C34A2D` (+8%) | 2.79 ✗ | **4.84** ✓ |
+| `#C55034` (+11%) | 2.95 ✗ | 4.59 ✓ |
+| `#C7563B` (+14%) | **3.11** ✓ | 4.35 ✗ |
+
+> **The punch fill carries the standard `--edge` hairline.** 3.62 against
+> the ambient worst case, 3.98 against a card. That makes its boundary
+> **independent of whatever the atmosphere is doing** — and it is not a
+> special case, it is the same hairline every other bounded component in
+> §23.2 already uses.
+
+**The general lesson, worth more than this fix:** a variable ground makes
+*every* fill's boundary variable. §26.2 introduced one, so from here **a
+fill is never its own boundary on the canvas.**
+
+### 27.5 — Three warm values, separated by form — and a collision I introduced
+
+| Token | Value | Form | Job |
+|---|---|---|---|
+| `--punch` | `#C34A2D` | **Fill only** | Primary action, decided moment. One per screen. |
+| `--accent` | `#BF977D` | **Text only** | Kickers and labels, by component role. |
+| `--color-error` | `#F08A78` | **Bordered panel only** | Errors. Never bare text, never a filled button. |
+
+**The flagged risk — punch against error — measures fine:** ΔL\* 20.2,
+opposite ink polarity (white vs navy), and different forms.
+
+**The real collision is one I shipped, and it is not that pair.**
+`--accent #BF977D` against `--color-error #F08A78`: **15° of hue, ΔL\* 2.6,
+contrast 1.08.** They are effectively one colour — **and they are both
+text.** I introduced `#F08A78` in §23.9c without checking it against the
+accent that already existed.
+
+**Hue cannot fix it and neither can lightness.** All three warm values want
+the L\* 45–70 band, and a cool error would be off-identity. **So the
+separator is form, and it is mandatory:**
+
+- **An error always carries its bordered panel.** That is already how
+  `.auth-error` renders, so this is a rule catching up with the code.
+- **Accent text never carries a border.**
+- **The thing to forbid is "simplifying" an error into bare coloured text.**
+  At contrast 1.08 against a kicker, it is indistinguishable from a section
+  label — an error that reads as a heading is worse than no colour at all.
+
+### 27.6 — What this is a test of
+
+**If one saturated accent on the decided moment and the primary action is
+not enough energy, then the palette was never the problem** — and that is
+worth learning as much as the opposite. It is the reason this is one token
+against §24 and §26 exactly as built, rather than a tenth palette: **the
+variable is isolated.** Same grounds, same ambient, same type scale, no
+other value touched.
 
 ## Verification (for whoever implements this)
 
