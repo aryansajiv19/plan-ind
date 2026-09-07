@@ -2473,6 +2473,17 @@ h3 {
 .auth-link { display: block; color: var(--auth-metal-text); font-size: .76rem; font-weight: 500; text-align: center; text-decoration: underline; text-underline-offset: .2rem; }
 .auth-error { margin: 1rem 0 0; border-left: 2px solid var(--color-error); padding: .7rem .8rem; background: color-mix(in srgb, var(--color-error) 8%, transparent); color: var(--color-error); font-size: .76rem; font-weight: 500; line-height: 1.45; }
 .auth-footnote { margin: 1.5rem 0 0; text-align: center; }
+/* Explains a disabled submit button. Muted rather than error-red while the
+   check is still running — a slow load is progress, not a fault — and the
+   failed case reads at the same weight because it is information, not an
+   alarm the visitor caused. */
+.auth-note {
+  margin: 0.75rem 0 0;
+  color: var(--auth-muted);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  text-align: center;
+}
 /* The Terms and Privacy links inside this sentence had NO affordance at
    all: same colour as the prose around them (both resolved to #969A9E,
    parent and link identical) and text-decoration: none. Not "colour is the

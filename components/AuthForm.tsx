@@ -8,7 +8,7 @@ import {
   verifyEmailCode,
   type AuthFormState,
 } from "@/app/auth/actions";
-import Turnstile from "@/components/Turnstile";
+import Turnstile, { type TurnstileStatus } from "@/components/Turnstile";
 
 const INITIAL_STATE: AuthFormState = {};
 
@@ -27,6 +27,15 @@ function SubmitButton({ idle, pending, disabled = false }: { idle: string; pendi
 
 export default function AuthForm({ pageError, next }: { pageError?: string; next?: string }) {
   const [captchaToken, setCaptchaToken] = useState("");
+  // The gate below is right — no code is requested before the captcha passes.
+  // The SILENCE around it was the bug: with the button disabled purely on
+  // `!captchaToken` and nothing said, a visitor whose Turnstile never loads
+  // (adblocker, blocked region, a Cloudflare incident, or the pending-load
+  // case we hit headless) gets a permanently dead button on the first screen
+  // they meet, and no reason. Starts as "loading" because that is what is
+  // true before anything has reported.
+  const [captchaStatus, setCaptchaStatus] = useState<TurnstileStatus>("loading");
+  const gateClosed = process.env.NODE_ENV === "production" && !captchaToken;
   const [requestState, requestAction] = useActionState(
     requestEmailCode,
     INITIAL_STATE,
@@ -110,12 +119,26 @@ export default function AuthForm({ pageError, next }: { pageError?: string; next
               className="auth-input"
             />
           </div>
-          <Turnstile action="email-login" onVerify={setCaptchaToken} />
+          <Turnstile action="email-login" onVerify={setCaptchaToken} onStatus={setCaptchaStatus} />
           <SubmitButton
             idle="Email me a code"
             pending="Sending code…"
-            disabled={process.env.NODE_ENV === "production" && !captchaToken}
+            disabled={gateClosed}
           />
+          {/* Only ever shown while the button is actually disabled by the
+              captcha, so it explains something the visitor can see. Says what
+              is known and nothing more: "didn't load" is true and points
+              somewhere, where "something went wrong" would just occupy the
+              space. */}
+          {gateClosed && captchaStatus === "loading" && (
+            <p className="auth-note" role="status">Checking your browser…</p>
+          )}
+          {gateClosed && captchaStatus === "failed" && (
+            <p className="auth-note" role="alert">
+              Bot protection didn’t load, so email sign-in is unavailable right
+              now. Continue with Google above, or reload to try again.
+            </p>
+          )}
         </form>
       )}
 
