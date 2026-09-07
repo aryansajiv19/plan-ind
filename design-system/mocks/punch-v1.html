@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>plan-ind — one warm accent, in context</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300..700;1,300..700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --canvas:#051822; --card:#0B2836; --ink:#D4C9C7; --ink-strong:#FFFFFF;
+  --muted:#969A9E; --accent:#BF977D; --tan:#AA7452; --light:#D4C9C7;
+  --error:#F08A78; --edge:rgba(150,154,158,.8);
+  /* THE ONE NEW TOKEN. #BE3A1B lightened 8% along its own hue, because
+     BE3A1B measures 2.78 on the card and cannot even clear the 3.0
+     boundary floor there, let alone carry text. */
+  --punch:#C34A2D; --punch-ink:#FFFFFF;
+  --r:10px; --rp:20px; --settle:cubic-bezier(.16,1,.3,1);
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;color:var(--ink);font-family:"Hanken Grotesk",system-ui,sans-serif;
+     -webkit-font-smoothing:antialiased;position:relative;overflow-x:hidden}
+.sky{position:fixed;inset:-25%;z-index:0;pointer-events:none;contain:strict}
+.glow{position:absolute;border-radius:50%}
+.glow--a{width:70vw;height:70vw;left:-6vw;top:2vh;
+  background:radial-gradient(circle at 50% 50%, rgba(170,116,82,.10), rgba(170,116,82,0) 68%)}
+.glow--b{width:58vw;height:58vw;right:-10vw;top:26vh;
+  background:radial-gradient(circle at 50% 50%, rgba(191,151,125,.08), rgba(191,151,125,0) 66%)}
+.rig{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:34px 22px 90px}
+
+.lede{max-width:74ch}
+.lede h1{font-family:"Cormorant",serif;font-weight:500;font-size:clamp(2.4rem,5.5vw,3.4rem);
+  line-height:.98;letter-spacing:-.03em;margin:0 0 16px;color:var(--ink-strong)}
+.lede h1 em{font-style:italic;font-weight:400}
+.lede p{margin:0 0 12px;font-size:.86rem;line-height:1.62}
+.lede b{color:var(--ink-strong)}
+.lede code{font-family:ui-monospace,Menlo,monospace;font-size:.92em;color:var(--accent)}
+
+.mhead{border-bottom:1px solid var(--edge);padding-bottom:9px;margin:46px 0 18px}
+.mhead .k{margin:0 0 5px;font-size:.66rem;font-weight:600;letter-spacing:.16em;
+          text-transform:uppercase;color:var(--accent)}
+.mhead h2{font-family:"Cormorant",serif;font-weight:500;font-size:1.85rem;margin:0 0 7px;
+          letter-spacing:-.025em;color:var(--ink-strong)}
+.mhead p{margin:0;font-size:.81rem;line-height:1.58;max-width:82ch}
+.mhead b{color:var(--ink-strong)}
+
+.note{margin-top:15px;padding:13px 15px;border-radius:var(--r);background:var(--card);
+      border:1px solid var(--edge);font-size:.75rem;line-height:1.58;color:var(--muted)}
+.note b{color:var(--ink)} .note em{color:var(--ink)}
+.note code{font-family:ui-monospace,Menlo,monospace;font-size:.92em;color:var(--accent)}
+
+.btn{font-family:inherit;font-size:.8rem;font-weight:600;border:0;border-radius:var(--r);
+     padding:13px 20px;cursor:pointer}
+/* The fill alone is NOT a sufficient boundary. Against §26's ambient
+   worst case (#2b2f30) it measures 2.79 and fails SC 1.4.11 — the
+   atmosphere lightens the ground out from under it. No punch value fixes
+   this: lighten it enough to clear the ambient and white ink drops below
+   4.5, and the two constraints cross with no window between them.
+   So it carries the same --edge hairline every other bounded component
+   uses. That makes the boundary independent of whatever the ambient does,
+   and it is not a special case. */
+.btn--punch{background:var(--punch);color:var(--punch-ink);border:1px solid var(--edge)}
+.btn--quiet{background:transparent;border:1px solid var(--edge);color:var(--ink)}
+.btn:focus-visible{outline:2px solid transparent;outline-offset:-2px;
+  box-shadow:inset 0 0 0 2px #051822, inset 0 0 0 4px #D4C9C7}
+.btn--punch:focus-visible{box-shadow:inset 0 0 0 2px #051822, inset 0 0 0 4px #D4C9C7}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.pane{border-radius:var(--rp);padding:18px}
+.pane--canvas{border:1px dashed var(--edge)}
+.pane--card{background:var(--card);border:1px solid var(--edge)}
+.pane .lbl{margin:0 0 12px;font-size:.62rem;font-weight:600;letter-spacing:.14em;
+           text-transform:uppercase;color:var(--accent)}
+.row{display:flex;gap:11px;align-items:center;flex-wrap:wrap}
+
+/* decided */
+.won{margin-top:6px;background:var(--card);border:1px solid var(--edge);border-radius:var(--rp);
+     padding:20px;position:relative;overflow:hidden}
+.won::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--punch)}
+.won .k{margin:0 0 8px;font-size:.62rem;font-weight:700;letter-spacing:.15em;
+        text-transform:uppercase;color:var(--punch-ink);background:var(--punch);
+        display:inline-block;padding:5px 10px;border-radius:99px}
+.won h3{font-family:"Cormorant",serif;font-weight:600;margin:0;
+        font-size:clamp(2.2rem,5.5vw,3.4rem);line-height:.95;letter-spacing:-.035em;
+        color:var(--ink-strong)}
+.won p{margin:10px 0 0;font-size:.79rem;color:var(--muted)}
+
+/* the three warm values */
+.warm{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.wcard{background:var(--card);border:1px solid var(--edge);border-radius:var(--rp);padding:16px}
+.wcard .swatch{height:52px;border-radius:var(--r);display:grid;place-items:center;
+               font-size:.72rem;font-weight:700;margin-bottom:12px}
+.wcard h4{margin:0 0 4px;font-size:.86rem;color:var(--ink-strong)}
+.wcard .use{margin:0;font-size:.72rem;line-height:1.5;color:var(--muted)}
+.wcard .hex{font-family:ui-monospace,Menlo,monospace;font-size:.68rem;color:var(--muted)}
+
+/* the collision demo */
+.collide{background:var(--card);border:1px solid var(--edge);border-radius:var(--rp);padding:18px}
+.collide .bare{font-size:.8rem;margin:0 0 4px}
+.err-panel{margin-top:12px;border-left:3px solid var(--error);
+  background:rgba(240,138,120,.09);border-radius:0 var(--r) var(--r) 0;
+  padding:11px 13px;font-size:.78rem;color:var(--error);line-height:1.5}
+.kick{font-size:.62rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+
+@media (max-width:780px){.two,.warm{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="sky" aria-hidden="true"><div class="glow glow--a"></div><div class="glow glow--b"></div></div>
+<div class="rig">
+
+<div class="lede">
+  <h1>One warm accent — <em>as a fill, never as text.</em></h1>
+  <p>
+    The owner has now reached for this orange twice unprompted, so the signal is the <b>hue</b>.
+    <b><code>#BE3A1B</code> itself does not survive §24's grounds</b> — 3.28 as text on the canvas,
+    <b>2.78 on a card, which does not even clear the 3.0 boundary floor</b>, let alone carry text.
+    Those old figures were measured on a near-white canvas that no longer exists. This is §23.10
+    doing exactly the job it was written for.
+  </p>
+  <p>
+    <b><code>--punch: #C34A2D</code></b> — the same hue, lightened 8%. As a fill it clears the
+    boundary on both grounds (<b>3.74</b> canvas, <b>3.16</b> card) and carries white text at
+    <b>4.84</b>. It still <b>fails as text</b> (3.74 / 3.16), and that is not a limitation to work
+    around — <b>it is the containment.</b> A colour that can only be a fill can only appear where
+    there is a surface, so it physically cannot spread into labels the way an accent text colour does.
+  </p>
+  <p>
+    <b>One thing the mock caught that neither section would have alone:</b> §26's ambient light
+    lightens the canvas toward <code>#2b2f30</code>, and against <em>that</em> the punch fill measures
+    <b>2.79 and fails the boundary floor</b>. <b>No punch value fixes it</b> — lighten it enough to
+    clear the ambient and white ink falls under 4.5; the two constraints cross with no window between
+    them. So the punch fill <b>carries the same <code>--edge</code> hairline every other bounded
+    component uses</b> (4.16 against the ambient, 4.71 against a card), which makes its boundary
+    independent of whatever the atmosphere is doing. Not a special case — the rule catching up.
+  </p>
+</div>
+
+<div class="mhead">
+  <p class="k">In place</p>
+  <h2>The primary action, on both grounds</h2>
+  <p>A button sits on the canvas and on a card, so the fill has to clear the boundary floor against
+    both. This is the check <code>#BE3A1B</code> fails.</p>
+</div>
+
+<div class="two">
+  <div class="pane pane--canvas">
+    <p class="lbl">On the canvas #051822</p>
+    <div class="row">
+      <button class="btn btn--punch">Deal tonight's nine</button>
+      <button class="btn btn--quiet">See a plan</button>
+    </div>
+  </div>
+  <div class="pane pane--card">
+    <p class="lbl">On a card #0B2836</p>
+    <div class="row">
+      <button class="btn btn--punch">Lock it in</button>
+      <button class="btn btn--quiet">Not tonight</button>
+    </div>
+  </div>
+</div>
+
+<div class="mhead">
+  <p class="k">The moment it is for</p>
+  <h2>Decided</h2>
+  <p><b>Vermilion marks <em>decided</em>, never <em>leading</em>.</b> That distinction is the whole
+    usage rule — see the note below.</p>
+</div>
+
+<div class="won">
+  <span class="k">Decided · you're going</span>
+  <h3>Bu Qtair</h3>
+  <p>Umm Suqeim · AED 60 · till 12am · 5 of 7 voted</p>
+</div>
+
+<div class="note">
+  <b>I am not giving it to Plan Gravity's leader, and the reason is not restraint for its own sake.</b>
+  The leader is <em>provisional</em> — it changes hands several times during a round. A loud fill
+  hopping between cards every few votes is precisely the scatter §21 was written to stop, and it would
+  also put two emphasis mechanisms on one element alongside §25's solid hairline and scale.
+  <b>The hairline says "ahead right now". The vermilion says "this is settled".</b> One is a state that
+  moves; the other happens once.
+</div>
+
+<div class="mhead">
+  <p class="k">Three warm values, three different jobs</p>
+  <h2>What each one is for</h2>
+  <p>If two of these ever mean the same thing, one of them should be retired. They are separated by
+    <b>form</b> — fill, bare text, bordered panel — not by hue, because a warm palette cannot separate
+    them by hue.</p>
+</div>
+
+<div class="warm">
+  <div class="wcard">
+    <div class="swatch" style="background:#C34A2D;color:#fff">FILL ONLY</div>
+    <h4>Punch</h4>
+    <p class="hex">#C34A2D · white ink 4.84</p>
+    <p class="use">The primary action, and the decided moment. <b>At most one per screen.</b>
+      Never text, never a border.</p>
+  </div>
+  <div class="wcard">
+    <div class="swatch" style="background:transparent;border:1px solid var(--edge);color:#BF977D">TEXT ONLY</div>
+    <h4>Accent</h4>
+    <p class="hex">#BF977D · 6.84 canvas / 5.79 card</p>
+    <p class="use">Kickers and labels, by component role, wherever that component appears.
+      <b>Never a fill.</b></p>
+  </div>
+  <div class="wcard">
+    <div class="swatch" style="background:rgba(240,138,120,.12);border-left:3px solid #F08A78;color:#F08A78">PANEL ONLY</div>
+    <h4>Error</h4>
+    <p class="hex">#F08A78 · 7.42 canvas / 6.28 card</p>
+    <p class="use">Always inside its bordered panel. <b>Never bare text, never a filled button.</b></p>
+  </div>
+</div>
+
+<div class="mhead">
+  <p class="k">A collision I introduced, and it is not the one that was flagged</p>
+  <h2>Accent and error are the same colour</h2>
+  <p>The risk raised was vermilion against the error colour. Measured, that pair is fine —
+    <b>ΔL* 20.2</b>, opposite ink polarity, and different forms. <b>The real collision is
+    <code>#BF977D</code> against <code>#F08A78</code>: 15° of hue, ΔL* 2.6, contrast 1.08.</b>
+    They are effectively one colour, they are <em>both text</em>, and I shipped the second into §23.9c
+    without checking it against the first.</p>
+</div>
+
+<div class="collide">
+  <p class="kick">Tonight in Dubai</p>
+  <p class="bare">A section kicker in accent, directly above an error. Same colour, same weight.</p>
+  <p class="err-panel">We couldn't save your vote — the round closed 20 seconds ago.</p>
+</div>
+
+<div class="note">
+  <b>Hue cannot fix this and neither can lightness.</b> All three warm values want the L* 45–70 band,
+  and a cool error would be off-identity. <b>So the separator is form, and it has to be mandatory:
+  error always carries its bordered panel; accent text never has a border.</b> That is already how
+  <code>.auth-error</code> renders today, so this is a rule catching up with the code rather than a
+  change to it. <b>The thing to forbid is "simplifying" an error into bare coloured text</b> — at
+  contrast 1.08 against a kicker, that is indistinguishable from a section label.
+</div>
+
+<div class="note" style="margin-top:22px">
+  <b>If this is not enough energy, the palette was never the problem.</b> That is worth learning
+  either way, and it is why this is one token rather than a tenth palette. Everything else on this
+  page is §24 and §26 exactly as they already are: same grounds, same ambient, same type scale, no
+  other value changed.
+</div>
+
+</div>
+</body>
+</html>
