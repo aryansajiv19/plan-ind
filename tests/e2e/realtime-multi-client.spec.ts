@@ -1,6 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { planIdFor, NO_FIXTURE_REASON } from "./fixture";
 
 // TWO clients, one plan. This is the test that makes the rest of the E2E
 // suite honest.
@@ -18,13 +17,7 @@ import { join } from "node:path";
 // subscribe() still reports SUBSCRIBED. Migration 045 sets REPLICA IDENTITY
 // FULL on every published table; without 045 applied, this spec fails and
 // guest-vote still passes, which is exactly the gap it exists to close.
-const PLAN_ID: string = (() => {
-  try {
-    return JSON.parse(readFileSync(join(process.cwd(), "tests/e2e/.fixture.local.json"), "utf8")).planId ?? "";
-  } catch {
-    return "";
-  }
-})();
+const PLAN_ID = planIdFor("realtime");
 
 async function joinPlanAsGuest(page: Page, name: string): Promise<void> {
   await page.goto(`/plan/${PLAN_ID}`);
@@ -43,7 +36,7 @@ const voterCount = async (page: Page): Promise<number> => {
 };
 
 test("a second client sees the first client's vote without reloading", async ({ browser }) => {
-  test.skip(!PLAN_ID, "no local fixture — see tests/README.md");
+  test.skip(!PLAN_ID, NO_FIXTURE_REASON);
 
   // Separate contexts, not just separate pages: each needs its own anonymous
   // session and its own participant identity, the way two phones would.

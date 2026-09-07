@@ -1,6 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { planIdFor, NO_FIXTURE_REASON } from "./fixture";
 
 // Guest vote cast, end to end: fresh browser state -> anon session ->
 // claim_plan_access -> NameGate -> cast a vote -> the card flips to
@@ -28,19 +27,10 @@ import { join } from "node:path";
 // Because the plan is private to this run, the voter count assertion is now
 // EXACT (0 -> 1) instead of "went up by at least one" — the old wording was
 // hedging against concurrent runs on shared data, and that ambiguity is gone.
-const PLAN_ID: string = (() => {
-  try {
-    return JSON.parse(readFileSync(join(process.cwd(), "tests/e2e/.fixture.local.json"), "utf8")).planId ?? "";
-  } catch {
-    return "";
-  }
-})();
+const PLAN_ID = planIdFor("guest-vote");
 
 test("a guest can open a shared plan and cast a vote", async ({ page }) => {
-  test.skip(
-    !PLAN_ID,
-    "no local fixture — global-setup.ts provisions one against a local Supabase stack; see tests/README.md",
-  );
+  test.skip(!PLAN_ID, NO_FIXTURE_REASON);
 
   await page.goto(`/plan/${PLAN_ID}`);
 

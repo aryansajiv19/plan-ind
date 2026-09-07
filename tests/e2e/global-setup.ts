@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { writeFile } from "node:fs/promises";
+import { writeFile, rm } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 
 // Provisions a DISPOSABLE plan for guest-vote.spec.ts, on the LOCAL Supabase
@@ -28,16 +28,18 @@ import { randomUUID } from "node:crypto";
 //
 // ── The guard is the point ───────────────────────────────────────────────
 //
-// This refuses to run against anything but loopback. A misconfigured
-// PLAYWRIGHT/CI env cannot quietly point the browser matrix at production
-// and start casting votes -- it fails loudly instead. Safety is structural
-// here, not a convention someone has to remember.
+// A fixture is provisioned ONLY against loopback. Pointed anywhere else this
+// provisions nothing, so the specs that vote have no plan id and skip -- a
+// misconfigured CI cannot quietly point the browser matrix at production and
+// start casting votes, because there is nothing for it to vote on.
+//
+// Note the shape: the protection is the ABSENCE of a fixture, not a flag
+// that someone can set. There is deliberately no escape hatch that makes a
+// voting spec run against a hosted project. Read-only specs are unaffected
+// and run anywhere, which is what makes preview-deployment runs (the only
+// place WebKit coverage is possible) usable.
 
-import { join } from "node:path";
-
-// cwd-relative, not import.meta: Playwright transpiles these hooks to CJS,
-// where import.meta is unavailable. Playwright always runs from the repo root.
-const FIXTURE_FILE = join(process.cwd(), "tests/e2e/.fixture.local.json");
+import { FIXTURE_FILE, FIXTURE_NAMES } from "./fixture";
 const LOCAL_SERVICE_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU";
 
@@ -49,14 +51,34 @@ export default async function globalSetup(): Promise<void> {
       "Start one with `npx supabase start`, then see tests/README.md.",
     );
   }
+  // ── Non-loopback: provision NOTHING, and say so ────────────────────────
+  //
+  // This used to throw, which was right for the specs that vote and wrong for
+  // everything else: runtime-health and layout-consistency only load pages,
+  // are safe against any target, and were being blocked by a guard that
+  // exists to protect writes. They are also the only way to get WebKit
+  // coverage, since WebKit cannot run a production build over plain http
+  // (see playwright.config.ts) and therefore needs a deployed preview.
+  //
+  // So the guard moves from "refuse the run" to "withhold the fixture". The
+  // writing specs are gated on the fixture's existence and skip loudly
+  // without it, so they CANNOT reach a hosted project: there is no plan id
+  // for them to vote on. That is structural rather than a promise -- there is
+  // no flag here that makes a voting spec run against production, which is
+  // the property that must not be weakened.
   if (!/^https?:\/\/(127\.0\.0\.1|localhost)[:/]/.test(url)) {
-    throw new Error(
-      `Refusing to run E2E against ${url}.\n` +
-      "guest-vote.spec.ts CASTS A REAL VOTE, and neither plans nor votes can be\n" +
-      "deleted by anything in this project (no delete policy, no service-role\n" +
-      "key), so a run against a hosted project leaves rows behind permanently.\n" +
-      "Point NEXT_PUBLIC_SUPABASE_URL at 127.0.0.1 and re-run.",
+    // A fixture left over from an earlier LOCAL run would otherwise let a
+    // writing spec pick up a plan id while pointed at a remote target. It
+    // would 404 rather than write, but relying on that is luck; delete it.
+    await rm(FIXTURE_FILE, { force: true });
+    console.log(
+      `[e2e] ${url} is not a local stack — no fixture provisioned.\n` +
+      "      Read-only specs (runtime-health, layout-consistency) will run.\n" +
+      "      Specs that cast a vote will SKIP: neither plans nor votes can be\n" +
+      "      deleted by anything in this project (no delete policy, no\n" +
+      "      service-role key), so a write here would be permanent.",
     );
+    return;
   }
 
   const admin = createClient(url, LOCAL_SERVICE_KEY, { auth: { persistSession: false } });
@@ -75,27 +97,33 @@ export default async function globalSetup(): Promise<void> {
     );
   }
 
-  const planId = randomUUID();
-  const { error: planError } = await admin.from("plans").insert({
-    id: planId,
-    title: `E2E guest vote ${new Date().toISOString()}`,
-    category: "dinner",
-    status: "open",
-    stage: "pool",
-    pool_count: 3,
-  });
-  if (planError) throw new Error(`fixture: creating the plan failed -- ${planError.message}`);
+  // One plan per spec: they run in parallel and each asserts exact counts,
+  // so a shared plan would have them voting on each other's rows.
+  const plans: Record<string, string> = {};
+  for (const name of FIXTURE_NAMES) {
+    const planId = randomUUID();
+    const { error: planError } = await admin.from("plans").insert({
+      id: planId,
+      title: `E2E ${name} ${new Date().toISOString()}`,
+      category: "dinner",
+      status: "open",
+      stage: "pool",
+      pool_count: 3,
+    });
+    if (planError) throw new Error(`fixture(${name}): creating the plan failed -- ${planError.message}`);
 
-  const { error: spotLinkError } = await admin.from("plan_spots").insert(
-    spots.map((spot, i) => ({
-      plan_id: planId,
-      spot_id: spot.id,
-      pool_number: (i % 3) + 1,
-      advanced: false,
-    })),
-  );
-  if (spotLinkError) throw new Error(`fixture: linking spots failed -- ${spotLinkError.message}`);
+    const { error: spotLinkError } = await admin.from("plan_spots").insert(
+      spots.map((spot, i) => ({
+        plan_id: planId,
+        spot_id: spot.id,
+        pool_number: (i % 3) + 1,
+        advanced: false,
+      })),
+    );
+    if (spotLinkError) throw new Error(`fixture(${name}): linking spots failed -- ${spotLinkError.message}`);
+    plans[name] = planId;
+  }
 
-  await writeFile(FIXTURE_FILE, JSON.stringify({ planId, createdAt: new Date().toISOString() }, null, 2));
-  console.log(`[e2e] disposable plan ${planId} provisioned on the local stack`);
+  await writeFile(FIXTURE_FILE, JSON.stringify({ plans, createdAt: new Date().toISOString() }, null, 2));
+  console.log(`[e2e] provisioned ${FIXTURE_NAMES.length} disposable plans on the local stack`);
 }

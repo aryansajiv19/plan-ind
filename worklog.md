@@ -2106,6 +2106,7 @@ not be assumed. It is the only page in the suite that behaves this way.
 
 ---
 
+<<<<<<< HEAD
 ## 2026-09-07 — AI: eval suite + hermetic guardrail tests for smart-search
 
 **The B3 blocker record is wrong and has been for a while.** "OpenAI credits
@@ -2159,3 +2160,91 @@ paces at 8 rpm and aborts the whole run on the first per-day 429 — exit code
 day rolls: one full run per day is the entire budget.
 
 Gate green, 107 tests.
+=======
+## 2026-09-07 — T1 Security/Backend: /login root-caused, and the E2E gate loosened correctly
+
+**`/login` is root-caused, and it was my own test configuration.**
+T0's hypothesis (a locally-built server vs a remote-built one) is disproven —
+it fails with a remote build too. The actual variable is
+`NEXT_PUBLIC_TURNSTILE_SITE_KEY`, which I was setting and T0 was not. Same
+build, same server, same port:
+
+| Turnstile key | runtime-health |
+|---|---|
+| unset | **9/9 pass** |
+| set to Cloudflare's test key | both `/login` tests fail, `page.goto` never reaches load |
+
+The widget keeps the load event pending in a headless context. **Not a
+product bug, but not purely environmental either, and this is the part worth
+acting on: Turnstile is deprioritised, not abandoned. The day it is
+configured, these two specs start failing in CI for a reason that has nothing
+to do with the page being broken.** The fix belongs in the spec — navigate
+`/login` with `waitUntil: "domcontentloaded"` rather than the default `load`
+— which is qa/Frontend's file, so it is reported rather than edited here.
+
+**There is a real tension in the same run, and it needs a decision:** the
+guest/vote specs REQUIRE the Turnstile key (a production build gates guests
+behind the captcha, so without a key they hit "Open this plan securely" and
+never reach voting), while runtime-health's `/login` breaks WITH it. Both
+cannot currently be satisfied in one invocation.
+
+**A genuine accessibility finding, pre-existing:**
+`layout-consistency.spec.ts` reports *"control 2 on /login shows no focus
+indicator at all"* — `outlineStyle: none`, `boxShadow: none`. A keyboard user
+cannot see where they are on the sign-in form. Fails with and without any of
+my changes, and independent of Turnstile. Frontend's to fix; flagged rather
+than touched.
+
+**The E2E gate is loosened along the axis T0 asked for, without weakening
+it.** `global-setup` no longer throws on a non-loopback target; it provisions
+nothing and returns. Read-only specs (runtime-health, layout-consistency) run
+anywhere — which matters because a preview deployment is the only place
+WebKit coverage is possible. The specs that vote are gated on the fixture's
+existence, so with no fixture they skip: **the protection is the absence of a
+plan id, not a flag someone can set.** There is deliberately no escape hatch
+that points a voting spec at production. A stale fixture from an earlier
+local run is deleted on the non-loopback path so it cannot be picked up.
+
+Verified both directions: remote target → 74 pass, 21 skip, voting specs
+skip with a reason naming the cause; local target → 76 pass, all three vote
+specs green.
+
+**And I had reintroduced the very defect I removed.** All three write specs
+shared ONE fixture plan while `fullyParallel` is on, so they voted on each
+other's rows and their exact assertions broke — the same shared-fixture
+problem that forced the original live spec to hedge with "went up by at least
+one". Now one plan per spec (`tests/e2e/fixture.ts`, `planIdFor(name)`),
+provisioned and torn down together, which also removes the read-and-parse
+logic that had been copied into three specs.
+>>>>>>> lane/backend
+
+---
+
+## 2026-09-07 — T0: a `git add -A` swept a subagent's in-progress work
+
+**Process error, mine, recorded because the history is now misleading.**
+
+Commit `5fb0e89` is titled *"Correct the record: the app never reported a
+wrong cause"* and its message describes a worklog correction. It also
+contains **1,058 lines of the AI eval layer** — `lib/ai/intent.ts`, the
+rewritten `app/api/smart-search/route.ts`, `scripts/eval-smart-search.ts`
+and `tests/smart-search-guardrails.test.ts` — none of which I authored or
+reviewed. A subagent was mid-task in this same worktree and `git add -A`
+took its partial tree.
+
+`bfa944a` has the same shape from the other direction: the agent's own
+commit swept up work it had not authored.
+
+**Nothing was lost and the tree is coherent** — gate green, 107 tests, build
+clean, and `git status` empty. The damage is to the record: anyone reading
+`5fb0e89`'s message will not know the AI layer is inside it, and `git log`
+for `lib/ai/intent.ts` points at a commit about a worklog paragraph.
+
+**The rule going forward: never `git add -A` while a subagent is working in
+the same worktree.** Stage explicit paths. Worktrees isolate the four
+terminal sessions from each other; they do **not** isolate a subagent from
+its parent, and I had been treating the parent worktree as if only I wrote
+to it.
+
+Same class as the day's other findings — an operation that looked correct,
+succeeded, and quietly did more than its description claimed.
