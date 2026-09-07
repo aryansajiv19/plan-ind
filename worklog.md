@@ -2103,3 +2103,59 @@ my changes. The likely cause is the Turnstile widget on that page never
 settling in a headless context, which would make it a test-environment
 artefact rather than a product bug, but I did not confirm that and it should
 not be assumed. It is the only page in the suite that behaves this way.
+
+---
+
+## 2026-09-07 — AI: eval suite + hermetic guardrail tests for smart-search
+
+**The B3 blocker record is wrong and has been for a while.** "OpenAI credits
+exhausted" is not what is happening. Calls to `gpt-5.6-luna` succeed. The
+account is on a free tier with **two** limits: **10 requests per minute** and
+**50 per day**. The first eval run discovered both the hard way.
+
+That mattered more than the eval numbers, because of what the SDK does with
+it. `new OpenAI({ apiKey })` defaults to `maxRetries: 2`, and a per-day 429
+carries `Retry-After` measured in *minutes*. The SDK sleeps through it. The
+harness looked hung for nineteen minutes with zero output; in production the
+same default would have held a serverless invocation open for up to half an
+hour before returning the 503 the route already has an honest message for.
+Both now pass `maxRetries: 0` (harness) and `maxRetries: 0, timeout: 30_000`
+(route).
+
+**Split, deliberately.** `tests/smart-search-guardrails.test.ts` — 38 tests,
+no key, no network, in `npm test`. `scripts/eval-smart-search.ts` — 43 real
+calls, opt-in via `npm run eval:ai`, never in CI, same pattern as `test:db`.
+
+The hermetic half is where the guardrails are actually proven, and that is not
+a compromise. A live call cannot reliably produce a hostile model; a fixture
+can. The headline case — *a fully cooperative injection returns
+`category: nightlife`, `valid: true`, for a 15-year-old* — is a fixture, and
+the post-model check returns 400 on it every run. Also covered: every
+restricted category against every under-age caller, the array-payload hole
+below, truncation, error mapping against real `OpenAI.APIError` instances,
+and the pre-model length bounds.
+
+**One real hole found, in `normalizeIntent`.** Arrays are objects, so `[]`
+passed the `typeof value !== "object"` guard, every `raw.x` lookup returned
+undefined, and the function produced a *fully defaulted intent reporting
+`valid: true`* — a fabricated dinner search returned as a 200. Worse than an
+error, because nothing downstream can tell it apart. Now rejected.
+`strict: true` makes it unreachable from the model today; the whole point of
+`normalizeIntent` is that it does not rely on that.
+
+**Prose is never asserted.** `title` and `summary` vary run to run; an
+assertion on them fails for reasons nobody can act on, and a suite people
+learn to ignore is worse than no suite. Only `category`, `origin`,
+`maxBudget`, `radiusKm`, `valid` are scored, `category` against a *set* where
+the mapping is honestly ambiguous. Scored fields report a number against a
+floor; adversarial cases are hard pass/fail at 100%, because a guardrail that
+holds 29 times in 30 does not hold.
+
+**Eval numbers: UNRUN.** Two scored cases got through before the daily cap
+(both matched every asserted field); the other 41 never reached the model.
+Two is not an accuracy number and is not reported as one. The harness now
+paces at 8 rpm and aborts the whole run on the first per-day 429 — exit code
+2, printed as UNRUN, explicitly not a pass and not a failure. Re-run when the
+day rolls: one full run per day is the entire budget.
+
+Gate green, 107 tests.
