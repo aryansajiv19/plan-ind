@@ -111,31 +111,50 @@ for (const path of PAGES) {
 test("keyboard focus is visible on the login form's controls", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/login", { waitUntil: "domcontentloaded" });
-  const controls = page.locator("button:visible, input:visible");
-  const count = Math.min(await controls.count(), 6);
-  expect(count, "no focusable controls found on /login").toBeGreaterThan(0);
-  for (let i = 0; i < count; i++) {
-    const control = controls.nth(i);
-    await control.focus();
-    // Accepts either mechanism. The invariant under test is "focus is
-    // visible at all", which is the accessibility failure; WHICH mechanism
-    // draws it is a design-standards question, not a correctness one.
-    // .auth-input deliberately uses a box-shadow glow rather than an outline
-    // -- asserting `outline !== none` here would fail a control that is in
-    // fact clearly focused, which is a false positive, not a finding.
-    const ring = await control.evaluate((el) => {
+
+  // REAL Tab presses, not `control.focus()`. `:focus-visible` is a modality
+  // heuristic: after a programmatic focus with no keyboard interaction behind
+  // it, a button does NOT match, while a text input does — so the old version
+  // reported "control 2 shows no focus indicator at all" for a form where
+  // every control is in fact ringed. It was measuring the heuristic, not the
+  // stylesheet. SPECS.md §23.7 records this trap and it caught this suite.
+  //
+  // Tab also walks the real focus order, which is the thing a keyboard user
+  // actually experiences, and skips anything not reachable that way.
+  const seen: string[] = [];
+  for (let i = 0; i < 8; i++) {
+    await page.keyboard.press("Tab");
+    const control = await page.evaluate(() => {
+      const el = document.activeElement as HTMLElement | null;
+      if (!el || el === document.body) return null;
+      // Next's dev-tools overlay is injected by `next dev` and does not exist
+      // in a production build. It is not part of the app's focus order.
+      if (el.tagName.includes("-")) return null;
       const s = getComputedStyle(el);
       return {
-        outlineStyle: s.outlineStyle,
-        outlineWidth: parseFloat(s.outlineWidth) || 0,
-        boxShadow: s.boxShadow,
+        id: el.tagName + "." + (String(el.className).trim().split(/\s+/)[0] || "-"),
+        hasOutline: s.outlineStyle !== "none" && (parseFloat(s.outlineWidth) || 0) > 0,
+        hasShadowRing: s.boxShadow !== "none" && s.boxShadow !== "",
+        ring: { outlineStyle: s.outlineStyle, outlineWidth: s.outlineWidth, boxShadow: s.boxShadow.slice(0, 60) },
       };
     });
-    const hasOutline = ring.outlineStyle !== "none" && ring.outlineWidth > 0;
-    const hasShadowRing = ring.boxShadow !== "none" && ring.boxShadow !== "";
+    if (!control) continue;
+    seen.push(control.id);
+    // Tab reaches only what a keyboard user can reach, which is the point:
+    // the old version focused `button:visible` by index and hit the SUBMIT
+    // button, which is `disabled` until the captcha verifies in production.
+    // A disabled button cannot take focus, so .focus() was a no-op and the
+    // assertion measured an unfocused element — reported as "control 2 shows
+    // no focus indicator at all". Correct behaviour, read as a failure.
+    // Accepts either mechanism. The invariant is "focus is visible at all",
+    // which is the accessibility failure; WHICH mechanism draws it is a
+    // design-standards question. In dark that is §23.7's two inset bands
+    // behind a deliberately transparent outline, so the outline alone would
+    // read as absent.
     expect(
-      hasOutline || hasShadowRing,
-      `control ${i} on /login shows no focus indicator at all: ${JSON.stringify(ring)}`,
+      control.hasOutline || control.hasShadowRing,
+      `${control.id} on /login shows no focus indicator at all: ${JSON.stringify(control.ring)}`,
     ).toBe(true);
   }
+  expect(seen.length, `no focusable controls reached by Tab on /login`).toBeGreaterThan(0);
 });
