@@ -18,6 +18,7 @@ superseded number as live is the main way this document can hurt you.
 | **Interaction** | **§25** | **Live. Plan gravity + the voting moment. Layout, not physics.** |
 | **Atmosphere + social** | **§26** | **Live. Ambient light, held seats, category field, the finished type scale.** |
 | **`--punch`** | **§27** | **Live. `#C34A2D`, fill only, one per screen. §24's six + this one derivation.** |
+| Error | §27.7 | **`--color-error` is retired as a bare token.** Only the `.is-error` panel exists. |
 | Winner reveal | §25.1 + §14.2 | Live. The canvas is the transition; **real DOM text is the destination**. |
 | **Focus ring** | **§23.7** | **Live. Two bands, inset. §19.7's graphite ring is superseded for dark.** |
 | Light mode | §23.8 | **Parked, not deleted**, 2026-09-07 — the mirror of §19.2. Two pin sites. |
@@ -3185,6 +3186,11 @@ separator is form, and it is mandatory:**
   At contrast 1.08 against a kicker, it is indistinguishable from a section
   label — an error that reads as a heading is worse than no colour at all.
 
+**⚠️ That last bullet is a discipline-dependent rule, which §27.2 argues
+against in this same section. §27.7 replaces it with a structural fix** —
+the bare error token is retired, so the misuse becomes impossible rather
+than discouraged. Read §27.7 as the live version of this bullet.
+
 ### 27.6 — What this is a test of
 
 **If one saturated accent on the decided moment and the primary action is
@@ -3193,6 +3199,75 @@ worth learning as much as the opposite. It is the reason this is one token
 against §24 and §26 exactly as built, rather than a tenth palette: **the
 variable is isolated.** Same grounds, same ambient, same type scale, no
 other value touched.
+
+### 27.7 — The error fix, made structural: remove the capability, not the permission
+
+**§27.5 ended with "never let anyone simplify an error into bare coloured
+text" — which is exactly the discipline-dependent rule I argued against
+three paragraphs earlier in the same section.** Caught in review. A rule
+that needs someone to remember it is the kind this project has watched erode
+twice in a day.
+
+#### Option 2 is closed, and that is measured rather than preferred
+
+Shifting the error's hue was the alternative. It is not available:
+
+| Ground | Minimum L\* for 4.5 on the card `#0B2836` |
+|---|---|
+| `L* 54.4` | 3.99 — **fails** |
+| **`L* 58.3`** | **4.56 — the floor** |
+
+**Any legible warm error is forced into roughly L\* 58–72.** The accent sits
+at **65.5**, dead centre. Lightness cannot separate them, which leaves hue
+as the only free axis — and **hue discrimination at 0.78rem body text is
+weak**, which is the size an error message actually renders at. A hue shift
+would look like a fix in a swatch table and not be one on the screen.
+
+#### The structural fix
+
+> **Retire `--color-error` as a bare colour token. Ship the treatment
+> instead.** The error colour stops existing as something you can put on
+> text, because the only thing exported is a panel.
+
+```css
+/* The whole token. There is no bare --color-error to reach for. */
+.is-error {
+  border-left: 3px solid #F08A78;
+  background: color-mix(in srgb, #F08A78 9%, transparent);
+  color: #F08A78;
+  padding: .7rem .8rem;
+  border-radius: 0 var(--radius-control) var(--radius-control) 0;
+}
+```
+
+**An error rendered without its panel is now impossible rather than
+discouraged** — `color: var(--color-error)` does not resolve, because the
+variable is gone. **The absence of the token is the enforcement.** Same move
+that made `--punch` safe: the capability is removed, not the permission.
+
+#### Three live instances this actually fixes
+
+1. **`app/globals.css:1936` — `.place-link-importer__error { color: var(--color-error); }`**
+   is **bare coloured text today.** This is not a hypothetical: it is the
+   ambiguous case, shipping, right now. It becomes `.is-error`.
+2. **`app/globals.css:2277` — `.auth-error`** already renders the full
+   treatment. It becomes the definition rather than one instance of it.
+3. **`app/globals.css:182` — `--destructive: var(--color-error)`.** shadcn's
+   convention treats `--destructive` as a **fill**, which §27.5 forbids and
+   which would collide with `--punch` as a second warm filled button.
+   **Destructive actions are outlined, never filled** — the error border
+   plus error ink on a transparent ground.
+
+#### The general principle, now on its second application
+
+> **When a rule cannot be trusted to hold, remove the capability rather than
+> the permission.**
+
+`--punch` is safe because it *fails as text*, not because a rule says don't.
+The error is unambiguous because there *is no bare error colour*, not
+because a rule says don't. **Both turn a rule into a shape** — and a shape
+cannot be forgotten by the next person to touch the file, or by me in four
+months.
 
 ## Verification (for whoever implements this)
 
