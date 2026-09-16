@@ -1738,3 +1738,32 @@ voting-started states, validation, grants, re-run). `security` review: no C/H/M,
 delete's behaviour unchanged by the refactor. Not exercised through a running
 Next server. Frontend note (review L2): the edit response has no `plan` key, so
 it must not go through `runHostCommand`, which treats a missing plan as failure.
+
+---
+
+## 2026-09-17 — T1: C6 leave a plan, migration 056 STAGED; lock proposal corrected
+
+`leave_plan(p_plan_id)` → `left | not_member | host_cannot_leave | not_found`.
+Host refused (deletes instead). Open plan: the leaver's votes, RSVP, access go
+(tally drop intended). Decided plan: votes kept (the tally never contradicts the
+winner); RSVP, rating, access go. Rejoin via the same link starts fresh. Guests
+can leave. `for update` on the plans row serialises with advance/decide.
+
+Verified 21/21 on the live-identical rig + 052/054/055 via PostgREST, including a
+deterministic reproduction of the leaver's-own-vote race: with leave holding the
+plans lock, the vote passes the membership trigger, waits at its FK, and commits
+after the leave → **1 counted vote from a non-member**. Accepted and documented
+(self-inflicted, bounded). `security` review: no C/H.
+
+**Correction to my own proposal:** I proposed closing the race with the
+membership trigger taking the plans key-share lock (it worked on the rig for the
+INSERT race). The review showed it **deadlocks on the upsert/update path** (child
+row locked first, then plans) against `delete_plan`/`leave_plan` (plans first,
+then child rows). The right fix is `for key share` on the plans read that
+`cast_plan_vote`/`set_plan_rsvp`/`rate_plan` already do (plans always locked
+first). It also closes a pre-existing race where a vote passes the stage check
+just before advance/decide. **Folded into the 053 scope** (same three functions).
+Needs a rig check of a concurrent re-cast vs delete_plan/leave_plan.
+
+Open product call: after a leave, `plans.booking_owner` may still name the
+leaver, and a driver's seats vanish from the carpool list.

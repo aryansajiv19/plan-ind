@@ -2854,3 +2854,46 @@ $$;
 
 revoke all on function edit_plan(uuid, text, text, timestamptz) from public, anon, authenticated;
 grant execute on function edit_plan(uuid, text, text, timestamptz) to authenticated;
+
+-- 056: leave_plan -- a member (not the host) leaves; open vs decided rules and
+-- the accepted vote/leave race are in supabase/migration-056-leave-plan.sql.
+create or replace function leave_plan(p_plan_id uuid)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  uid uuid := auth.uid();
+  target plans%rowtype;
+begin
+  if uid is null then
+    raise exception 'Sign in required' using errcode = '42501';
+  end if;
+
+  select * into target from plans where id = p_plan_id for update;
+  if target.id is null then
+    return jsonb_build_object('result', 'not_found');
+  end if;
+  if target.created_by_user_id = uid then
+    return jsonb_build_object('result', 'host_cannot_leave');
+  end if;
+  if not exists (select 1 from plan_access where plan_id = p_plan_id and user_id = uid) then
+    return jsonb_build_object('result', 'not_member');
+  end if;
+
+  if target.status = 'open' then
+    delete from votes where plan_id = p_plan_id and user_id = uid;
+  end if;
+  delete from rsvps where plan_id = p_plan_id and user_id = uid;
+  if target.status <> 'open' then
+    delete from ratings where plan_id = p_plan_id and user_id = uid;
+  end if;
+  delete from plan_access where plan_id = p_plan_id and user_id = uid;
+
+  return jsonb_build_object('result', 'left');
+end;
+$$;
+
+revoke all on function leave_plan(uuid) from public, anon, authenticated;
+grant execute on function leave_plan(uuid) to authenticated;
