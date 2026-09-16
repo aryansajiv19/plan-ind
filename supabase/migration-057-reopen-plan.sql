@@ -1,5 +1,6 @@
 -- Migration 057 — reopen_plan (C7): the host reopens a decided plan. Apply
--- after 056. Additive (new function only), re-run safe. STAGED.
+-- after 056. Additive (one nullable column, plans.reopened_at, and a new
+-- function), re-run safe. STAGED.
 --
 -- Result codes: reopened | not_found | not_host | not_decided | no_rounds |
 -- booked | already_happened | invalid_deadline.
@@ -34,11 +35,20 @@
 -- validated like creation (future, at most a year out) and set; not given ->
 -- deadline is cleared (no auto-decide; the host decides manually).
 --
+-- reopened_at: set by this function only. Clients show "this plan was reopened"
+-- iff status = 'open' AND reopened_at is not null. A re-decide needs no change to
+-- execute_plan_command: status becomes 'decided', so the notice stops showing,
+-- and reopened_at stays as history (the next reopen overwrites it). Inferring a
+-- reopen from RSVPs/booking fields was wrong: 'patch' sets those on plans that
+-- were never decided.
+
 -- ACCEPTED RACE (same class as 056, closed by the 053 key-share fix): rate_plan
 -- reads the plan without taking its lock, so a rating that passed rate_plan's
 -- "decided" check can commit after this function's already_happened check. The
 -- result is a rating on a reopened plan. Rare and self-evident; not locking the
 -- rating path here.
+
+alter table plans add column if not exists reopened_at timestamptz;
 
 create or replace function reopen_plan(
   p_plan_id uuid,
@@ -96,7 +106,8 @@ begin
     status = 'open',
     stage = 'final',
     winner_spot_id = null,
-    deadline = p_deadline
+    deadline = p_deadline,
+    reopened_at = now()
   where id = p_plan_id;
 
   insert into security_events (event_type, outcome, actor_user_id, metadata)

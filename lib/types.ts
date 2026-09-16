@@ -58,6 +58,9 @@ export interface Plan {
   event_time: string | null; // ISO timestamp — when the outing actually is
   booking_owner: string | null; // voter_name of whoever's booking
   booked: boolean;
+  /** 057: set when the host reopens a decided plan. Show "reopened" only when
+   *  status is "open" and this is set; it stays as history after a re-decide. */
+  reopened_at?: string | null;
   stage: PlanStage;
   pool_count: number;
   budget_per_person: number | null;

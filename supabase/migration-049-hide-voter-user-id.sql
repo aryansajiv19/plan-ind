@@ -24,6 +24,9 @@
 -- Ceiling: a column added to these tables later is SILENTLY invisible to
 -- clients until a new migration grants it.
 
+-- One transaction: a failing grant must also undo the revoke, however it is run.
+begin;
+
 revoke select on votes, rsvps, ratings from anon, authenticated;
 
 grant select (id, plan_id, spot_id, voter_name, value, phase, pool_number,
@@ -32,3 +35,5 @@ grant select (id, plan_id, voter_name, coming, choice, participant_token_hash,
   transport, seats_available, created_at) on rsvps to authenticated;
 grant select (id, plan_id, spot_id, voter_name, stars, again,
   participant_token_hash, created_at) on ratings to authenticated;
+
+commit;

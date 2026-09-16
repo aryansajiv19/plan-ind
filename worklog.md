@@ -1870,3 +1870,22 @@ findings. Runbook: preflight row + N5b (pre-deploy, additive for the current cli
   use the session zone (same up-to-a-day skew; the plan-creation gate itself is
   now pinned).
 - Verified 47/47 on the 052–058 rig; schema.sql builds from scratch with 059.
+
+---
+
+## 2026-09-17 — T1: 057 adds `plans.reopened_at` (STAGED); 049/051 now single-transaction
+
+- `reopen_plan` sets `reopened_at = now()`. Notice rule for clients: status
+  `'open'` AND `reopened_at` set. `execute_plan_command` untouched: a re-decide
+  flips status to decided (notice hides), value kept as history. T0 accepted.
+- 051's plans grant lists `reopened_at`, so **051 must apply after 057** (runbook
+  N8 dependency + verify line; N5 verify checks the column).
+- `security` review (lane/backend @ 0d50238 + diff): no Critical/High/Medium.
+  Low adopted: 049/051 revoke-then-grant was only atomic in the SQL editor; both
+  now `begin; … commit;`. Proven on the rig: 051 run via plain `psql -f` without
+  057 errors and leaves `plans` SELECT intact; in order, grants correct.
+- Rig: 057 suite 34/34 (reopen sets it; re-decide → decided/kept/notice false;
+  never-decided plan patched with event_time/booking_owner → null; 051 after 057
+  → member reads reopened_at, created_by_user_id still refused).
+- 059: runbook N5c now requires `max(minimum_age)` of curated spots = 21 on live
+  before apply (not re-read today: a live read was not permitted from this session).

@@ -1,5 +1,6 @@
 -- Migration 051 — clients can no longer read created_by_user_id on spots or plans.
--- Apply after migration 050. Re-run safe.
+-- Apply after migration 050 AND after 057 (the plans grant names reopened_at, a
+-- column 057 adds; applied out of order it fails and rolls back). Re-run safe.
 --
 -- ⚠ DO NOT APPLY until BOTH are true:
 --   1. migration 050 is applied (my_custom_spots, count_my_hosted_plans), and
@@ -27,6 +28,9 @@
 -- .eq on the uid (a WHERE needs SELECT on the column), and never a PostgREST
 -- computed field (a whole-row reference needs SELECT on every column).
 
+-- One transaction: a failing grant must also undo the revoke, however it is run.
+begin;
+
 revoke select on spots, plans from anon, authenticated;
 
 grant select (id, name, category, minimum_age, area, cuisine, price_band,
@@ -37,5 +41,7 @@ grant select (id, name, category, minimum_age, area, cuisine, price_band,
 grant select (id, title, category, area, deadline, status, stage, pool_count,
   budget_per_person, origin_label, origin_latitude, origin_longitude, radius_km,
   smart_brief, vibe_preferences, avoid_preferences, intelligence_model,
-  winner_spot_id, event_time, booking_owner, booked, created_at)
+  winner_spot_id, event_time, booking_owner, booked, created_at, reopened_at)
   on plans to authenticated;
+
+commit;
