@@ -1422,3 +1422,47 @@ Tested on a webpack dev server: healthy → 200 no-store; PostgREST down → 503
 table missing → 503 (log PGRST205).
 
 Stopping new migrations here per T0 (MVP tonight). R2/R3/R7/R8 held.
+
+---
+
+## 2026-09-16 — T1: apply runbook rehearsed end to end; six defects fixed in it
+
+Rehearsed `supabase/APPLY_RUNBOOK.md` on a throwaway Postgres + real PostgREST
+v16.1 built at the **live-through-045 state** (`schema.sql` at `ec1c647`, last
+changed by 045), with fixtures shaped like live, and an old client (today's
+reads) plus the new client (T2's changes) exercised after every step.
+**112/112** in the original order, **32/32** in the simplified order now in
+the runbook. Every migration re-runs cleanly; both stopgap undos restore the
+old client, and re-applying re-hides.
+
+**Defects the rehearsal found in the runbook (all fixed):**
+1. **The step-4 grep gate could never pass:** it matched every `select("*")`,
+   including `plan_spots` (untouched by 049/051) and a comment. Now
+   table-specific, with commit-ancestry as the primary gate.
+2. **The gate false-passed in zsh:** `"$SHA:app/..."` is a zsh modifier, so
+   `git show` failed and `grep -c` printed `0`. It showed a pass while today's
+   tree should fail. Now `"${SHA}:path"`, plus a file-existence guard so a
+   rename prints MISSING instead of `0`. Verified in zsh and bash.
+3. **Pipes in a markdown table** turn into `\|` and break the pasted shell
+   command. The gate moved to a code block.
+4. **The live-policy check said `auth.uid()`**; Postgres prints
+   `( SELECT uid() AS uid)`, so a correct live policy would have read as
+   different. The runbook now quotes the exact printed text.
+5. **Several verify lines were prose.** All are now pasteable SQL returning
+   `t`, each confirmed.
+6. **"Function not found" right after an apply is real and transient**
+   (PGRST202 on `my_custom_spots` right after 3 back-to-back applies,
+   recovered within 1.5s). Documented so nobody reads it as a failed migration.
+
+**Order simplified to ONE client deploy:** 047 → 048 → 050 (additive, the old
+client is proven unaffected) → deploy all of T2's changes → 049 → 051. The
+two-deploy order also passes.
+
+**Not proven:** the base is an end-state file, not a replay of live's history;
+Realtime column stripping; T2's actual committed code (simulated with the
+exact calls T2 was given); 046.
+
+**Side fix:** this worktree's `node_modules` was a symlink to
+`~/plan-ind/node_modules` (the board says real directories). That's why
+Turbopack `next dev` failed. Replaced with a real `npm ci`; Turbopack now
+starts. The other worktrees were already real directories.
