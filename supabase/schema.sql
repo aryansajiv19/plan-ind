@@ -1516,7 +1516,7 @@ for each row execute function sanitize_participant_text();
 
 create or replace function create_secure_plan(p_plan jsonb, p_spot_ids uuid[])
 returns jsonb language plpgsql security definer
-set search_path = public, extensions, pg_temp as $$
+set search_path = public, extensions, pg_temp set timezone = 'Asia/Dubai' as $$
 declare
   uid uuid := auth.uid();
   title_value text := clean_app_text(p_plan->>'title', 60);
@@ -1550,8 +1550,7 @@ begin
   select extract(year from age(current_date, date_of_birth))::integer into age_value
   from member_ages where user_id = uid;
   if age_value is null then raise exception 'Complete age details first' using errcode = '42501'; end if;
-  required_age := case when category_value in ('nightlife','vibes','beach_club') then 21
-    when category_value = 'shisha' then 18 else 0 end;
+  required_age := category_min_age(category_value);
   if age_value < required_age then raise exception 'Category is not age appropriate' using errcode = '42501'; end if;
 
   -- 033: no clause requiring s.category = category_value -- no curated
@@ -1561,7 +1560,7 @@ begin
   -- span several categories. The strict match blocked every plan creation.
   if (select count(*) from spots s where s.id = any(p_spot_ids)
       and (s.source = 'curated' or s.created_by_user_id = uid)
-      and age_value >= greatest(s.minimum_age, case when s.category in ('nightlife','vibes','beach_club') then 21 when s.category='shisha' then 18 else 0 end)) <> 9 then
+      and age_value >= spot_required_age(s.category, s.minimum_age)) <> 9 then
     raise exception 'One or more places are unavailable' using errcode = '42501';
   end if;
 
@@ -1620,7 +1619,7 @@ grant execute on function create_secure_plan(jsonb, uuid[]) to authenticated;
 -- 034's header for why the invariants don't share a body cleanly.
 create or replace function create_direct_plan(p_plan jsonb, p_spot_id uuid)
 returns jsonb language plpgsql security definer
-set search_path = public, extensions, pg_temp as $$
+set search_path = public, extensions, pg_temp set timezone = 'Asia/Dubai' as $$
 declare
   uid uuid := auth.uid();
   title_value text := clean_app_text(p_plan->>'title', 60);
@@ -1653,9 +1652,7 @@ begin
   from member_ages where user_id = uid;
   if age_value is null then raise exception 'Complete age details first' using errcode = '42501'; end if;
 
-  select s.category, s.minimum_age,
-    case when s.category in ('nightlife','vibes','beach_club') then 21
-         when s.category = 'shisha' then 18 else 0 end
+  select s.category, s.minimum_age, category_min_age(s.category)
   into category_value, spot_min_age, spot_category_required_age
   from spots s
   where s.id = p_spot_id and (s.source = 'curated' or s.created_by_user_id = uid);
@@ -2979,3 +2976,103 @@ $$;
 
 revoke all on function reopen_plan(uuid, text, timestamptz) from public, anon, authenticated;
 grant execute on function reopen_plan(uuid, text, timestamptz) to authenticated;
+
+-- 059: age gates from one list (category_age_gates) used by plan creation, and
+-- correct_birth_date. See supabase/migration-059-birth-date-correction-and-age-gates.sql.
+create or replace function category_age_gates()
+returns table (category text, minimum_age smallint)
+language sql immutable set search_path = pg_catalog as $$
+  values ('shisha'::text, 18::smallint), ('nightlife', 21), ('vibes', 21), ('beach_club', 21)
+$$;
+
+create or replace function category_min_age(p_category text)
+returns smallint
+language sql immutable set search_path = public, pg_temp as $$
+  select coalesce((select g.minimum_age from category_age_gates() g where g.category = p_category), 0::smallint)
+$$;
+
+create or replace function spot_required_age(p_category text, p_spot_minimum_age smallint)
+returns integer
+language sql immutable set search_path = public, pg_temp as $$
+  select greatest(coalesce(p_spot_minimum_age, 0), category_min_age(p_category))::integer
+$$;
+
+-- Only the definer functions below call these.
+revoke all on function category_age_gates() from public, anon, authenticated;
+revoke all on function category_min_age(text) from public, anon, authenticated;
+revoke all on function spot_required_age(text, smallint) from public, anon, authenticated;
+
+alter table member_ages add column if not exists corrected_at timestamptz;
+
+create or replace function correct_birth_date(p_date_of_birth date)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public, pg_temp
+set timezone = 'Asia/Dubai'
+as $$
+declare
+  uid uuid := auth.uid();
+  current_dob date;
+  already timestamptz;
+  current_age integer;
+  new_age integer;
+  highest_gate integer;
+  gates_from integer;
+  gates_to integer;
+begin
+  if uid is null or not is_permanent_user() then
+    raise exception 'Sign in first' using errcode = '42501';
+  end if;
+
+  select date_of_birth, corrected_at into current_dob, already
+  from member_ages where user_id = uid for update;
+  if current_dob is null then
+    return jsonb_build_object('result', 'not_on_file');
+  end if;
+  if already is not null then
+    return jsonb_build_object('result', 'already_corrected');
+  end if;
+  if p_date_of_birth is null or p_date_of_birth > current_date then
+    return jsonb_build_object('result', 'invalid_date');
+  end if;
+  new_age := extract(year from age(current_date, p_date_of_birth));
+  if new_age < 13 or new_age > 120 then
+    return jsonb_build_object('result', 'invalid_date');
+  end if;
+  if p_date_of_birth = current_dob then
+    return jsonb_build_object('result', 'no_change');
+  end if;
+
+  current_age := extract(year from age(current_date, current_dob));
+  if p_date_of_birth < current_dob then
+    highest_gate := greatest(
+      (select max(g.minimum_age) from category_age_gates() g),
+      coalesce((select max(s.minimum_age) from spots s where s.source = 'curated'), 0));
+    if current_age < highest_gate then
+      -- The refused attempt is the one this function defends against: log it.
+      insert into security_events (event_type, outcome, actor_user_id, metadata)
+      values ('authorization', 'blocked', uid,
+        jsonb_build_object('command', 'correct_birth_date', 'direction', 'older', 'result', 'crosses_age_gate'));
+      return jsonb_build_object('result', 'crosses_age_gate');
+    end if;
+  end if;
+
+  update member_ages set date_of_birth = p_date_of_birth, corrected_at = now() where user_id = uid;
+
+  select count(distinct g.minimum_age) filter (where g.minimum_age <= current_age),
+         count(distinct g.minimum_age) filter (where g.minimum_age <= new_age)
+  into gates_from, gates_to from category_age_gates() g;
+  insert into security_events (event_type, outcome, actor_user_id, metadata)
+  values ('authorization', 'success', uid, jsonb_build_object(
+    'command', 'correct_birth_date',
+    'direction', case when p_date_of_birth < current_dob then 'older' else 'younger' end,
+    'gates_passed_from', gates_from, 'gates_passed_to', gates_to));
+
+  return jsonb_build_object('result', 'corrected');
+end;
+$$;
+
+revoke all on function correct_birth_date(date) from public, anon, authenticated;
+grant execute on function correct_birth_date(date) to authenticated;
+
