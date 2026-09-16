@@ -15,7 +15,7 @@ import {
   requestError,
   validateMutationRequest,
 } from "@/lib/security/request";
-import { consumeQuota, privateSubject, recordSecurityEvent } from "@/lib/security/controls";
+import { CONTROL_UNAVAILABLE_MESSAGE, consumeQuota, privateSubject, recordSecurityEvent, reportControlUnavailable } from "@/lib/security/controls";
 
 export const runtime = "nodejs";
 
@@ -56,7 +56,12 @@ export async function POST(request: Request) {
 
   const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
   const safetyIdentifier = privateIdentifier(user?.id ?? forwarded);
-  if (user && !(await consumeQuota(supabase, "smart-search"))) {
+  const quota = user ? await consumeQuota(supabase, "smart-search") : "allowed";
+  if (quota === "unavailable") {
+    reportControlUnavailable("smart-search");
+    return Response.json({ error: CONTROL_UNAVAILABLE_MESSAGE }, { status: 503 });
+  }
+  if (quota === "limited") {
     await recordSecurityEvent(supabase, { type: "ai_quota", outcome: "blocked", subject: user?.id ?? forwarded, requestId: request.headers.get("x-vercel-id") });
     return Response.json({ error: "Too many searches. Try again in a minute." }, { status: 429 });
   }

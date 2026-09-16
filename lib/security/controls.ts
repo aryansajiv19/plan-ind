@@ -24,20 +24,44 @@ export function privateSubject(value: string): string {
   return createHmac("sha256", controlSecret()).update(value).digest("hex");
 }
 
+// Three states, never a boolean: a boolean invites the caller to read every
+// failure as "too many". `limited` is the only state that is the user's doing
+// (the RPC returned false because a counter passed its cap). `unavailable` is
+// an RPC error: a wrong/missing control secret, a missing function, a
+// network failure, or no session. Callers fail closed on it, but must not
+// tell the user they did too much.
+export type ControlResult = "allowed" | "limited" | "unavailable";
+
+function controlResult(data: unknown, error: { code?: string } | null, scope: string): ControlResult {
+  if (error) {
+    if (process.env.NODE_ENV !== "production" && error.code === "PGRST202") return "allowed";
+    console.error("Security control failed", JSON.stringify({ scope, code: error.code }));
+    return "unavailable";
+  }
+  return data === true ? "allowed" : "limited";
+}
+
+export const CONTROL_UNAVAILABLE_MESSAGE = "This is temporarily unavailable. Please try again shortly.";
+
+// Call once the caller has established the request is otherwise legitimate
+// (after its auth check). consume_app_quota also raises when there is no
+// session, so logging this inside the helper would page on every anonymous
+// request that races the auth check.
+export function reportControlUnavailable(scope: string): void {
+  console.error(
+    `SECURITY CONTROL MISCONFIGURED: ${scope} -- check SECURITY_CONTROL_SECRET matches app_control_secrets and the control RPCs are deployed`,
+  );
+}
+
 export async function consumeQuota(
   supabase: SupabaseClient,
   scope: "smart-search" | "plan-create" | "place-import" | "spot-deal" | "plan-command",
-): Promise<boolean> {
+): Promise<ControlResult> {
   const { data, error } = await supabase.rpc("consume_app_quota", {
     p_secret: controlSecret(),
     p_scope: scope,
   });
-  if (error) {
-    if (process.env.NODE_ENV !== "production" && error.code === "PGRST202") return true;
-    console.error("Quota control failed", JSON.stringify({ scope, code: error.code }));
-    return false;
-  }
-  return data === true;
+  return controlResult(data, error, scope);
 }
 
 // Migration 026. Neither OTP step has a session yet, so neither can use
@@ -48,28 +72,23 @@ async function consumeOtpLimit(
   supabase: SupabaseClient,
   scope: "otp-request" | "otp-verify",
   email: string,
-): Promise<boolean> {
+): Promise<ControlResult> {
   const { data, error } = await supabase.rpc("consume_otp_limit", {
     p_secret: controlSecret(),
     p_scope: scope,
     p_subject: privateSubject(email),
   });
-  if (error) {
-    if (process.env.NODE_ENV !== "production" && error.code === "PGRST202") return true;
-    console.error("OTP rate limit control failed", JSON.stringify({ scope, code: error.code }));
-    return false;
-  }
-  return data === true;
+  return controlResult(data, error, scope);
 }
 
-export function consumeOtpRequestLimit(supabase: SupabaseClient, email: string): Promise<boolean> {
+export function consumeOtpRequestLimit(supabase: SupabaseClient, email: string): Promise<ControlResult> {
   return consumeOtpLimit(supabase, "otp-request", email);
 }
 
 // GoTrue's own rate limit on token verification is per-IP, not per-code
 // attempt, so it's bypassed by spreading guesses across a few IPs. This is
 // keyed on the target email instead, which a guesser can't route around.
-export function consumeOtpVerifyLimit(supabase: SupabaseClient, email: string): Promise<boolean> {
+export function consumeOtpVerifyLimit(supabase: SupabaseClient, email: string): Promise<ControlResult> {
   return consumeOtpLimit(supabase, "otp-verify", email);
 }
 

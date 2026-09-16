@@ -1348,3 +1348,39 @@ separately sequenced follow-up (050), not folded in here.
 
 After applying: compare `information_schema.column_privileges` with
 `columns` for the three tables (live drift is unverifiable while paused).
+
+---
+
+## 2026-09-16 — T1: security controls no longer blame the user for a server fault
+
+**Root cause (T2 found the sign-in symptom):** `consumeQuota` and
+`consumeOtpLimit` in `lib/security/controls.ts` collapsed EVERY RPC error into
+`false`, and all 8 callers rendered false as "too many". So a wrong or missing
+`SECURITY_CONTROL_SECRET` in production would lock out sign-in AND every plan
+create, host command, deal, search and link import, each telling the user they
+were doing it too much. Refused, unavailable and rate-limited collapsed into one
+value.
+
+**Fix:** helpers return `"allowed" | "limited" | "unavailable"`. `limited`
+only when the RPC returned false (a counter passed its cap). Any RPC error is
+`unavailable`: fail closed, but say "temporarily unavailable" (503 on API
+routes), and log `SECURITY CONTROL MISCONFIGURED: <scope> -- check
+SECURITY_CONTROL_SECRET ...` from the caller AFTER its auth check.
+consume_app_quota also raises with no session, so logging in the helper would
+fire on every anonymous request. No `rate_limit` security_event on that path
+(it needs the same secret, and the label would be wrong anyway). All 8 call
+sites in one commit, including T2's two in `app/auth/actions.ts` (T0-approved).
+
+**Trap:** `!(await consumeQuota(...))` still TYPECHECKS against a string
+result, and every string is truthy, so a missed call site would silently
+allow everything. Verified by grep that none remain.
+
+**SQL states checked on the throwaway DB:** wrong secret → 42501; right
+secret → true until the cap, then false; counters keyed per subject.
+
+**P1.4 closed as already built:** migration 026's otp-verify bucket (8/min,
+20/day per HMAC'd email) + `consumeOtpVerifyLimit` at `app/auth/actions.ts`.
+Verified: 9 attempts → `t×8, f`, and another address is unaffected. It now
+goes through the three-state result too.
+
+Gate green: lint, typecheck, check:schema, 111 tests, build.

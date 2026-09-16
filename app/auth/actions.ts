@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { validateBirthDate } from "@/lib/age-policy";
-import { consumeOtpRequestLimit, consumeOtpVerifyLimit, recordSecurityEvent, requestId } from "@/lib/security/controls";
+import { consumeOtpRequestLimit, consumeOtpVerifyLimit, recordSecurityEvent, reportControlUnavailable, requestId } from "@/lib/security/controls";
 import { safeNextPath } from "@/lib/auth";
 
 export interface AuthFormState {
@@ -58,7 +58,12 @@ export async function requestEmailCode(
   // Durable, per-address limit (migration 026) — Turnstile above only proves
   // "not a trivial bot", not "not spamming one address". No session exists
   // yet, so this can't reuse consume_app_quota.
-  if (!(await consumeOtpRequestLimit(supabase, email))) {
+  const limit = await consumeOtpRequestLimit(supabase, email);
+  if (limit === "unavailable") {
+    reportControlUnavailable("otp-request");
+    return { email, error: "Sign-in is temporarily unavailable. Please try again shortly." };
+  }
+  if (limit === "limited") {
     await recordSecurityEvent(supabase, {
       type: "rate_limit",
       outcome: "blocked",
@@ -120,7 +125,12 @@ export async function verifyEmailCode(
   // rate limit is per-IP, not per-code-attempt, so it doesn't stop a guesser
   // spread across a few IPs — this bucket is keyed on the target email, which
   // a guesser can't route around.
-  if (!(await consumeOtpVerifyLimit(supabase, email))) {
+  const limit = await consumeOtpVerifyLimit(supabase, email);
+  if (limit === "unavailable") {
+    reportControlUnavailable("otp-verify");
+    return { email, sent: true, error: "Sign-in is temporarily unavailable. Please try again shortly." };
+  }
+  if (limit === "limited") {
     await recordSecurityEvent(supabase, {
       type: "rate_limit",
       outcome: "blocked",
