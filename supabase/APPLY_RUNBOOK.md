@@ -50,7 +50,9 @@ select m, ok from (values
   ('054 invite trust signal', coalesce((select prosrc like '%shared_plans%' from pg_proc where proname='preview_friend_invite'), false)),
   ('055 edit_plan',           to_regproc('public.edit_plan') is not null),
   ('056 leave_plan',          to_regproc('public.leave_plan') is not null),
-  ('057 reopen_plan',         to_regproc('public.reopen_plan') is not null)
+  ('057 reopen_plan',         to_regproc('public.reopen_plan') is not null),
+  ('058 creation title guard', coalesce((select prosrc like '%clean_display_name(title_value)%' from pg_proc where proname='create_secure_plan'), false)
+                               and coalesce((select prosrc like '%clean_display_name(title_value)%' from pg_proc where proname='create_direct_plan'), false))
 ) t(m, ok);
 ```
 
@@ -98,9 +100,9 @@ DROPs every table. **One client deploy**, in the middle:
 | 6 | apply `migration-051-hide-creator-user-id.sql` | ⚠ **step 4 deployed and checked** | `select not has_column_privilege('authenticated','public.spots','created_by_user_id','select') and not has_column_privilege('authenticated','public.plans','created_by_user_id','select') and has_column_privilege('anon','public.spots','name','select');` → `t`; then `GET /api/health` → 200, and re-check the three pages from step 4 |
 | — | photos: `migration-046-*` — **not on tonight's path** | written only after the owner approves the contact sheet; must be **additive** to the 6 photos 039 already made live, and applied only after its files are in `spot-photos` | every new `photo_url` returns 200 |
 
-### Next: 052 → 054 → 055 → 056 → 057 → deploy → 049 → 051
+### Next: 052 → 054 → 055 → 056 → 057 → 058 → deploy → 049 → 051
 
-052 and 054–057 are **additive for the currently deployed client** (rehearsed,
+052 and 054–058 are **additive for the currently deployed client** (rehearsed,
 §4b) and are the **prerequisites of the new client**, which calls their
 functions. So they go BEFORE the deploy; 049/051 stay AFTER it.
 
@@ -111,6 +113,7 @@ functions. So they go BEFORE the deploy; 049/051 stay AFTER it.
 | N3 | apply `migration-055-edit-plan.sql` | N2 | `select to_regproc('public.edit_plan') is not null and not has_function_privilege('anon','public.edit_plan(uuid,text,text,timestamptz)','execute');` → `t` |
 | N4 | apply `migration-056-leave-plan.sql` | N3 | `select to_regproc('public.leave_plan') is not null and not has_function_privilege('anon','public.leave_plan(uuid)','execute');` → `t` |
 | N5 | apply `migration-057-reopen-plan.sql` | N4 | `select to_regproc('public.reopen_plan') is not null and not has_function_privilege('anon','public.reopen_plan(uuid,text,timestamptz)','execute');` → `t` |
+| N5b | apply `migration-058-plan-creation-invisible-titles.sql` | N5 (needs 052's `clean_display_name`); additive for the current client: a normal title still creates via both functions (rehearsed) | `select (select prosrc like '%clean_display_name(title_value)%' from pg_proc where proname='create_secure_plan') and (select prosrc like '%clean_display_name(title_value)%' from pg_proc where proname='create_direct_plan') and has_function_privilege('authenticated','public.create_direct_plan(jsonb,uuid)','execute') and not has_function_privilege('anon','public.create_direct_plan(jsonb,uuid)','execute');` → `t` |
 | N6 | **deploy the client** with all of T2's changes | ⚠ N1–N5 applied: the new client calls `unrate_plan`, `edit_plan`, `leave_plan`, `reopen_plan`, `shared_plans` and the NULL-emoji path; deployed first, those features 404 | run the **step 4 gate** below on the deployed sha |
 | N7 | apply `migration-049-hide-voter-user-id.sql` | ⚠ N6 deployed and checked | step 5's verify line above |
 | N8 | apply `migration-051-hide-creator-user-id.sql` | ⚠ N6 deployed and checked | step 6's verify line above |
@@ -248,3 +251,9 @@ PostgREST v16.1. **82/82.**
 live-identical rig with a valid positive control: titles of U+200B and U+200B+ZWJ
 were stored (hex `e2808b`, `e2808be2808d`). 055's `edit_plan` refuses them; the
 creation functions need their own reviewed migration and an owner go.
+
+**058, rehearsed incrementally on the 052–057 state (16/16):** negative control
+(both creation functions accepted a U+200B title), then invisible-only titles
+(ZWSP, ZWSP+ZWJ, BOM+NBSP) refused with the existing 22023 'title … required'
+error; positive controls: a normal title and a Persian title with an internal
+ZWNJ still create via both functions; grants unchanged; re-run clean.

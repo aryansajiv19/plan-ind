@@ -1540,7 +1540,7 @@ begin
      or (p_plan - array['title','category','area','deadline','budgetPerPerson','originLabel','originLatitude','originLongitude','radiusKm','smartBrief','vibePreferences','avoidPreferences']) <> '{}'::jsonb then
     raise exception 'Unsupported plan fields' using errcode = '22023';
   end if;
-  if title_value = '' or category_value = '' then
+  if title_value = '' or clean_display_name(title_value) = '' or category_value = '' then
     raise exception 'A title and category are required' using errcode = '22023';
   end if;
   if cardinality(p_spot_ids) <> 9 or (select count(distinct item) from unnest(p_spot_ids) item) <> 9 then
@@ -1645,7 +1645,7 @@ begin
      or (p_plan - array['title','area','deadline','budgetPerPerson','originLabel','originLatitude','originLongitude','radiusKm','smartBrief','vibePreferences','avoidPreferences']) <> '{}'::jsonb then
     raise exception 'Unsupported plan fields' using errcode = '22023';
   end if;
-  if title_value = '' or p_spot_id is null then
+  if title_value = '' or clean_display_name(title_value) = '' or p_spot_id is null then
     raise exception 'A title and a place are required' using errcode = '22023';
   end if;
 
@@ -2903,6 +2903,9 @@ $$;
 
 revoke all on function leave_plan(uuid) from public, anon, authenticated;
 grant execute on function leave_plan(uuid) to authenticated;
+
+-- 058: create_secure_plan and create_direct_plan (above) refuse invisible-only
+-- titles; see supabase/migration-058-plan-creation-invisible-titles.sql.
 
 -- 057: reopen_plan -- the host reopens a decided plan into its final round.
 -- Refusals, kept state, deadline rule and accepted race: see

@@ -1828,3 +1828,18 @@ words kept). T2 verified end to end.
 **OPEN, LIVE, pre-existing:** `create_direct_plan` and `create_secure_plan`
 accept invisible-only titles (stored U+200B and U+200B+ZWJ). Not patched: needs
 its own reviewed migration and an owner go.
+
+---
+
+## 2026-09-17 — T1: migration 058 STAGED — plan creation refuses invisible-only titles (Low)
+
+`create_secure_plan` / `create_direct_plan` (live) stored a title of only U+200B
+(or U+200B+ZWJ). 058 re-creates both verbatim from the checksum-proven live
+bodies, changing ONLY the title condition to also require a non-empty title
+under `clean_display_name`. Same 22023 error the client already handles; grants
+kept; stored title unchanged (`clean_app_text`, 60). Needs 052 first.
+Rehearsed incrementally on the 052–057 rig, 16/16: negative control first; then
+ZWSP / ZWSP+ZWJ / BOM+NBSP refused on both functions; positive controls: normal
+and Persian-with-ZWNJ titles still create; grants unchanged. `security` review:
+bodies byte-identical apart from the condition, emoji-only titles unaffected, no
+findings. Runbook: preflight row + N5b (pre-deploy, additive for the current client).
