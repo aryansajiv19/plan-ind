@@ -5,6 +5,7 @@ import { requireUser } from "@/lib/auth";
 import { memberAge } from "@/lib/age-policy";
 import { createClient } from "@/lib/supabase/server";
 import {
+  chosenEmoji,
   emptyRead,
   getFriends,
   getPlannedWith,
@@ -48,7 +49,7 @@ export default async function HomePage({
   // profile; greeting from it made a saved rename appear not to stick. A
   // failed read falls back to it rather than showing nothing.
   const { data: me } = person
-    ? await supabase.from("people").select("display_name").eq("id", person).maybeSingle()
+    ? await supabase.from("people").select("display_name, emoji").eq("id", person).maybeSingle()
     : { data: null };
   const displayName = me?.display_name?.trim() || fallbackName;
 
@@ -88,6 +89,7 @@ export default async function HomePage({
       <AuthProfileBridge fallbackName={fallbackName} />
       <HomeExperience
         name={displayName}
+        emoji={chosenEmoji(me?.emoji)}
         age={age}
         initialView={initialView}
         personId={person}

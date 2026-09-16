@@ -18,6 +18,7 @@ import PhotoCredit from "@/components/PhotoCredit";
 import ManageVisit from "@/components/ManageVisit";
 import FriendsPanel from "@/components/FriendsPanel";
 import ProfileNameForm from "@/components/ProfileNameForm";
+import ProfileEmojiForm from "@/components/ProfileEmojiForm";
 import BirthdayCorrection from "@/components/BirthdayCorrection";
 import UndoBar from "@/components/UndoBar";
 import { categoryLabel, categoryMeta } from "@/lib/categories";
@@ -261,6 +262,7 @@ function PlaceCard({ spot, onStartPlan }: { spot: Spot; onStartPlan: () => void 
 export default function AccountViews({
   view,
   name,
+  emoji,
   personId,
   spots,
   age,
@@ -278,6 +280,7 @@ export default function AccountViews({
 }: {
   view: AccountView;
   name: string;
+  emoji: string | null;
   personId: string | null;
   spots: Spot[];
   /** Server-owned age, for the same gate the other catalogue paths apply. */
@@ -805,11 +808,12 @@ export default function AccountViews({
   return (
     <section className="demo-view" aria-labelledby="profile-title">
       <header className="demo-profile-head">
-        <span className="demo-profile-avatar" aria-hidden="true">{initialsOf(name)}</span>
+        <span className={`demo-profile-avatar${emoji ? " demo-profile-avatar--emoji" : ""}`} aria-hidden="true">{emoji ?? initialsOf(name)}</span>
         <div><p className="home-section-kicker">Your account</p><h1 id="profile-title">{name}</h1><p>Dubai</p></div>
       </header>
 
       {personId && <ProfileNameForm personId={personId} name={name} />}
+      {personId && <ProfileEmojiForm personId={personId} emoji={emoji} />}
       {personId && <BirthdayCorrection />}
 
       <div className="demo-profile-stats">

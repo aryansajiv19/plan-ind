@@ -42,6 +42,7 @@ function viewFromParam(value: string | null | undefined): AppView {
 
 export default function HomeExperience({
   name,
+  emoji = null,
   age = 21,
   demoMode = false,
   fixtures = false,
@@ -60,6 +61,8 @@ export default function HomeExperience({
   photos = [],
 }: {
   name: string;
+  /** The account's chosen emoji, or null when none is chosen. */
+  emoji?: string | null;
   age?: number;
   /** No session: show the pitch, and the composer in its sign-in-first state. */
   demoMode?: boolean;
@@ -394,6 +397,7 @@ export default function HomeExperience({
             <AccountViews
               view={activeView}
               name={name}
+              emoji={emoji}
               personId={personId}
               spots={spots}
               age={age}
