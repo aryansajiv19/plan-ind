@@ -1837,6 +1837,22 @@ h3 {
 .profile-name-form__status { color: var(--color-muted); }
 .profile-name-form__error { color: var(--color-error); }
 
+/* C4: fix a wrong birthday. Same rail and field style as "Your name"; the
+   one-time limit reads before the save button, not after. */
+.birthday-fix { display: grid; gap: 0.45rem; max-width: 32rem; margin-top: 2.5rem; }
+.birthday-fix h2 { font-family: var(--font-body); font-size: 0.9rem; font-weight: 600; }
+.birthday-fix p { color: var(--color-muted); font-size: max(0.78rem, var(--type-floor)); line-height: 1.5; }
+.birthday-fix p a { color: var(--color-ink); text-decoration: underline; text-underline-offset: 0.2em; }
+.birthday-fix > button, .birthday-fix__cancel { justify-self: start; min-height: 2.75rem; padding: 0; border: 0; background: transparent; color: var(--color-ink); font: inherit; font-size: max(0.85rem, var(--type-floor)); text-decoration: underline; text-underline-offset: 0.25em; cursor: pointer; }
+.birthday-fix form { display: grid; gap: 0.45rem; }
+.birthday-fix__limit strong { color: var(--color-ink); font-weight: 600; }
+.birthday-fix label { margin-top: 0.3rem; font-size: 0.85rem; font-weight: 600; }
+.birthday-fix form > div { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; }
+.birthday-fix input { min-height: 2.75rem; padding: 0 0.75rem; border: 1px solid var(--color-line); background: var(--color-card); color: var(--color-ink); font: inherit; }
+.birthday-fix button[type="submit"] { min-height: 2.75rem; padding: 0 1.1rem; border: 1px solid var(--color-ink); background: var(--color-ink); color: var(--color-card); font: inherit; font-weight: 600; cursor: pointer; }
+.birthday-fix button:disabled { opacity: 0.45; cursor: default; }
+.birthday-fix .birthday-fix__error { color: var(--color-error); }
+
 /* Undo for quick reversible actions. Bottom-centre, sized to its message
    (a fixed element at left:50% otherwise wraps at half the viewport). */
 .undo-bar { position: fixed; left: 50%; bottom: calc(1.25rem + env(safe-area-inset-bottom)); z-index: 40; display: flex; align-items: center; gap: 1rem; width: max-content; max-width: calc(100vw - 2rem); padding: 0.5rem 0.6rem 0.5rem 1rem; transform: translateX(-50%); border-radius: var(--radius-control); background: var(--color-ink); color: var(--color-card); box-shadow: var(--elevation-card); font-size: max(0.85rem, var(--type-floor)); }

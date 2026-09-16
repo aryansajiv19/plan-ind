@@ -18,6 +18,7 @@ import PhotoCredit from "@/components/PhotoCredit";
 import ManageVisit from "@/components/ManageVisit";
 import FriendsPanel from "@/components/FriendsPanel";
 import ProfileNameForm from "@/components/ProfileNameForm";
+import BirthdayCorrection from "@/components/BirthdayCorrection";
 import UndoBar from "@/components/UndoBar";
 import { categoryLabel, categoryMeta } from "@/lib/categories";
 import { minimumAgeForCategory } from "@/lib/age-policy";
@@ -809,6 +810,7 @@ export default function AccountViews({
       </header>
 
       {personId && <ProfileNameForm personId={personId} name={name} />}
+      {personId && <BirthdayCorrection />}
 
       <div className="demo-profile-stats">
         <span><strong>{stats.places}</strong> places</span>
