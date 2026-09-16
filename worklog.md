@@ -1384,3 +1384,41 @@ Verified: 9 attempts → `t×8, f`, and another address is unaffected. It now
 goes through the three-state result too.
 
 Gate green: lint, typecheck, check:schema, 111 tests, build.
+
+---
+
+## 2026-09-16 — T1: creator uid hidden on spots/plans (050 + 051 STAGED), apply runbook, /api/health
+
+**050 + 051 close the two leaks the 049 review found.** `spots.created_by_user_id`
+gave ANY signed-in session (anonymous included) the uid of everyone who
+published a community custom spot, next to its address. `plans.created_by_user_id`
+gave members the host's uid. 051 = column grants without it. 050 = the owner-only
+reads that filtered on it, as definer RPCs (`my_custom_spots`,
+`count_my_hosted_plans`, `search_path = ''`), plus `execute_plan_command`'s
+return minus the column.
+
+**A PostgREST computed field (`is_mine(spots)`) was the approved design and
+does NOT work:** a whole-row reference needs SELECT on every column, so it is
+refused the moment one column is withheld (verified). Replaced by the two RPCs.
+
+**Verified against a real PostgREST v16.1 + throwaway DB, 23/23:** uid denied
+to stranger / anonymous user / anon role / via filter / via embed; community
+and curated reads intact; RPCs return only own data; the creator reads their own
+plan through a policy on the hidden column; owner insert/update/delete of custom
+spots still work; a stranger's delete affects 0 rows; the host command response
+has no uid. 047/048/049 suites still pass on the same build. Security review: no
+server-side path left. It found one more client break (`lib/social.ts:52`
+`spots(*)` embed → visit history on home), now in 051's header and the runbook.
+Realtime on plans: source-verified, not run.
+
+**`supabase/APPLY_RUNBOOK.md`:** ordered live apply from unpause to HEAD, with a
+catalog preflight query (tested) instead of trusting the ledger, the client
+deploys that must precede 049 and 051, per-step verify lines, scripts that
+break, and the stopgap undo for the two grant steps.
+
+**`/api/health`:** 200 `{"status":"ok"}` only if an anon PostgREST read of one
+curated spot succeeds within 3s; otherwise 503, with no detail in the body.
+Tested on a webpack dev server: healthy → 200 no-store; PostgREST down → 503;
+table missing → 503 (log PGRST205).
+
+Stopping new migrations here per T0 (MVP tonight). R2/R3/R7/R8 held.

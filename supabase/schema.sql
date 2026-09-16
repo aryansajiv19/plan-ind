@@ -83,6 +83,10 @@ drop table if exists plans cascade;
 drop table if exists spots cascade;
 
 -- Curated hangout places of any category. Pre-loaded so nobody researches.
+-- ⚠ Column-level SELECT grants (051). RULE: a uid column on a client-readable
+-- table is withheld from client SELECT by default and granted only deliberately.
+-- Adding a column here requires a matching grant in a new migration, or clients
+-- SILENTLY won't see it.
 create table spots (
   id          uuid primary key default gen_random_uuid(),
   name        text not null,
@@ -145,6 +149,10 @@ create index spots_name_trgm_idx on spots using gin (name extensions.gin_trgm_op
 create index spots_curated_category_idx on spots (category) where source = 'curated';
 
 -- A plan == one share link. The uuid IS the slug in the URL.
+-- ⚠ Column-level SELECT grants (051). RULE: a uid column on a client-readable
+-- table is withheld from client SELECT by default and granted only deliberately.
+-- Adding a column here requires a matching grant in a new migration, or clients
+-- SILENTLY won't see it.
 create table plans (
   id             uuid primary key default gen_random_uuid(),
   created_by_user_id uuid references auth.users(id) on delete set null,
@@ -993,7 +1001,8 @@ create index ratings_participant_token_idx on ratings (plan_id, participant_toke
 -- this file without them can be read but never written to.
 --
 -- Kept verbatim in sync with
--- supabase/migration-019-secret-isolation-and-rpc-integrity.sql.
+-- supabase/migration-019-secret-isolation-and-rpc-integrity.sql, plus 050's
+-- return that drops created_by_user_id.
 create or replace function execute_plan_command(
   p_plan_id uuid,
   p_host_token text,
@@ -1079,7 +1088,7 @@ begin
   end if;
 
   select * into target from plans where id = p_plan_id;
-  return jsonb_build_object('plan', to_jsonb(target), 'winner_spot_id', target.winner_spot_id, 'finalists', finalists);
+  return jsonb_build_object('plan', to_jsonb(target) - 'created_by_user_id', 'winner_spot_id', target.winner_spot_id, 'finalists', finalists);
 end;
 $$;
 
@@ -2457,3 +2466,50 @@ grant select (id, plan_id, voter_name, coming, choice, participant_token_hash,
   transport, seats_available, created_at) on rsvps to authenticated;
 grant select (id, plan_id, spot_id, voter_name, stars, again,
   participant_token_hash, created_at) on ratings to authenticated;
+
+-- 050: owner-only reads that don't need the uid column. See
+-- supabase/migration-050-owner-reads-without-uid.sql.
+create or replace function public.my_custom_spots()
+returns table (id uuid, name text, area text, category text, visibility text, minimum_age smallint)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select s.id, s.name, s.area, s.category, s.visibility, s.minimum_age
+  from public.spots s
+  where s.source = 'custom' and s.created_by_user_id = auth.uid()
+  order by s.name;
+$$;
+
+create or replace function public.count_my_hosted_plans(p_from timestamptz, p_to timestamptz)
+returns bigint
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select count(*) from public.plans p
+  where p.created_by_user_id = auth.uid() and p.created_at >= p_from and p.created_at < p_to;
+$$;
+
+revoke all on function public.my_custom_spots() from public, anon, authenticated;
+grant execute on function public.my_custom_spots() to authenticated;
+revoke all on function public.count_my_hosted_plans(timestamptz, timestamptz) from public, anon, authenticated;
+grant execute on function public.count_my_hosted_plans(timestamptz, timestamptz) to authenticated;
+
+-- 051: clients cannot read created_by_user_id on spots or plans. Do not apply
+-- the migration before 050 and T2's client changes; see
+-- supabase/migration-051-hide-creator-user-id.sql.
+revoke select on spots, plans from anon, authenticated;
+
+grant select (id, name, category, minimum_age, area, cuisine, price_band,
+  min_spend, open_till, vibe, photo_url, photo_source, photo_attribution,
+  description, booking_url, source, visibility, address, latitude, longitude)
+  on spots to anon, authenticated;
+
+grant select (id, title, category, area, deadline, status, stage, pool_count,
+  budget_per_person, origin_label, origin_latitude, origin_longitude, radius_km,
+  smart_brief, vibe_preferences, avoid_preferences, intelligence_model,
+  winner_spot_id, event_time, booking_owner, booked, created_at)
+  on plans to authenticated;
