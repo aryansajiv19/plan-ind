@@ -1,780 +1,268 @@
 # Agent coordination board
 
-The shared handoff medium for the four parallel sessions. Sessions share **only
-the repo** — if it isn't committed, the others can't see it.
+The shared handoff medium for the parallel sessions. Sessions share **only the
+repo** — if it isn't committed, the others can't see it.
 
-## ⟳ Re-orged 2026-09-04 — production push, all-Opus
+Owned by T0. Read it at startup; edit **only your own lane's block** plus
+Cross-lane requests. History lives in `worklog.md` / `worklog-archive.md`, not
+here — this file is current state only.
 
-Owner wants real visual bugs fixed (misalignment, edge-of-screen, color) and a
-push toward production-readiness, while staying personally involved in
-frontend/UI direction. **Frontend is unfrozen** — Design ships real specs,
-Frontend implements them plus fixes what's actually broken. Worktree paths /
-branches unchanged from before.
+---
 
-| Terminal | Session name | Worktree path | Branch | Role |
-|---|---|---|---|---|
-| **T0** Orchestrator | `model-assignment-terminals` | `~/plan-ind` (main) | `ai-engineering` | Integrates every branch, CI/CD, deploy, **context hygiene + dead-code sweep** (`CONTEXT_HYGIENE.md`) |
-| **Frontend** | `plan-ind-c1` | `~/plan-ind-frontend` | `lane/frontend` | Fix real layout/alignment/color bugs; implement Design's specs. Turf: `app/**` (not `app/api/**`), `components/**`, `app/globals.css` — **unfrozen** |
-| **Security/Backend** | `plan-ind-7b` | `~/plan-ind-backend` | `lane/backend` | Production-readiness audit-and-extend. Turf: `supabase/**`, `app/api/**`, `lib/security/**`, `lib/supabase.ts`, `lib/types.ts`, `next.config.ts` |
-| **Design** | `claude-design-handoff` | `~/plan-ind-design` | `lane/design` | Creative direction ("fun + interactive + modern + sleek"); ships Frontend real specs. Turf: `design-system/**`, `FRONTEND_DESIGN_STANDARDS.md` |
+## ⟳ Re-orged 2026-09-16 — content over palette, and a real scale target
 
-All four on **Sonnet** (switched from Opus 2026-09-04 — usage budget). Raise
-reasoning effort instead of the model for the hard parts: migrations, RLS, and
-concurrency work should run at *high*. Branch/worktree names still say
-`backend`/`frontend` — cosmetic, ignore it.
+The four previous sessions dropped their connections and were closed. **Nothing
+was lost** — all worktrees verified clean, every lane branch already merged into
+`ai-engineering`.
 
-**Sequencing (2026-09-04): long/complex work before short hardening.** In your
-plan, order your own queue so the big structural items land first — a
-half-finished redesign or a half-measured load test is worse than either done
-properly. Small polish (individual bug fixes, minor tweaks, one-line hardening)
-comes after, not interleaved ahead of the complex work. If you're unsure which
-bucket something's in, size beats novelty: multi-file/multi-step goes first,
-single-file/single-fix goes after.
+Two things changed the plan since the last board:
 
-### 🎨 Owner direction, 2026-09-04 — color palette is changing
+1. **`DESIGN_DIAGNOSIS.md` ended the palette work.** Nine palette revisions in
+   one day did not move the owner's complaint once. The cause is not colour —
+   it is that there is **nothing to show** (6 photos across 82 venues) and the
+   feed is **gated behind auth + DOB**. Read that file before proposing any
+   visual work. A tenth palette round is the one thing explicitly forbidden.
+2. **The owner wants this to hold real traffic.** Verbatim: deployed on the
+   web, "a lot of users," "it has to be able to handle this." Scale is now a
+   first-class lane, not a deprioritised hardening list.
 
-**In the owner's own words:** "one main goal i wanna work on is the design of
-the app i dont like the navy blue gold theme if we switch to more fun colors
-but the goal is to keep the app looking modern sleek luxurious as well."
+| Terminal | Worktree path | Branch | Role |
+|---|---|---|---|
+| **T0** Lead / Orchestrator | `~/plan-ind` | `ai-engineering` | Integration, merges, CI, context hygiene, owner interface. Writes no feature code. |
+| **T1** Backend / Security | `~/plan-ind-backend` | `lane/backend` | `supabase/**`, `app/api/**`, `lib/security/**`, `lib/supabase.ts`, `lib/types.ts`, `next.config.ts` |
+| **T2** Frontend | `~/plan-ind-frontend` | `lane/frontend` | `app/**` (not `app/api/**`), `components/**`, `app/globals.css`, `lib/**` (not security/supabase) |
+| **T3** QA / Scale | `~/plan-ind-qa` | `lane/qa` | `tests/**`, load/concurrency harnesses, `package.json` test scripts |
 
-This supersedes the turn-14 palette's color choices (not its structure — the
-day/night, Dubai-clock, server-stamped theming mechanism stays; what fills it
-changes). Read literally:
-- **Out:** navy + gold as the identity.
-- **In:** something with more fun/energy, while still reading modern, sleek,
-  **and luxurious** — that's a real tension (fun vs. luxurious), not a
-  contradiction to paper over; Design should propose real options, not one
-  guess.
-- This is **Design's call to resolve**, same as any creative direction — ask
-  the owner for references/examples if the brief is too open to commit blind.
-- **Frontend:** hold off sinking further work into current color-specific
-  decisions where avoidable until Design ships the new direction. Structural/
-  layout fixes (misalignment, edge-of-screen, overflow) are unaffected — keep
-  going on those, they're not color-dependent.
+**Design lane is parked**, not deleted. `~/plan-ind-design` / `lane/design` stay
+on disk at `dcabd9e`. Its remaining queue is downstream of photography, and the
+one open aesthetic question is the owner's to answer, not Design's to guess.
 
-### ✅ Portal transition decided — stays a full page, 2026-09-04
+`security` (audit-only, no write tools) and `qa-test` remain **subagents**
+callable from any lane, not lanes themselves.
 
-Owner: **keep tile-tap as a full page.** The Intercepting Routes approach
-(the only stable way to get the shared-element transition) is dropped — not
-because it was technically wrong, but because turning tile-tap into a modal
-overlay is a real navigation-UX change the owner doesn't want. §14's other two
-motion picks (particle-reconstruction on the decided-plan reveal, the hero
-depth drift) are unaffected and proceed as specced.
+### The mission, in priority order
 
-### 🎨 Typography + motion feedback, 2026-09-04
+Straight from the corrected diagnosis. Everything below #1 is downstream of it:
 
-Owner: **too much bold text — tone it down.** Sweep for over-use of bold
-weight (headings, labels, CTAs all competing at once loses the hierarchy bold
-is supposed to create) and reserve it for what actually needs the emphasis.
+1. **Photography** — 6 of 82 venues have a photo. The single largest gap, and
+   every app the owner compared us to is photo-led. `PLACES_INGESTION_SCOPE.md`,
+   ~$0 at this volume. **T1 leads.**
+2. **Faces and presence** — the only item needing no new content, and the
+   *social* half of what the owner asked for is about people, not photographs.
+   Actionable immediately. **T2 leads.**
+3. **Scale** — prove the app holds thousands of concurrent users, with numbers.
+   **T3 leads**, T1 fixes what it finds.
+4. **Ungate the feed** — `app/home/page.tsx:26` `requireUser()` + `:29` DOB
+   redirect mean nobody sees a single Dubai venue without an account. Cheap,
+   but only worth arriving at once (1) has landed.
+5. **Deal nine on defaults immediately**, configuration as refinement. Do
+   **not** delete the configuration — it is the product's value.
 
-**Also: positive signal on the motion/animation work so far — explicit
-green light for more, Design's judgment.** Not a specific ask, an open
-invitation: if there are more interaction/animation ideas worth adding
-(within the existing constraints — respects `prefers-reduced-motion`, no
-excessive Framer Motion per the anti-vibecoded list, no motion shipped
-unverified per the rAF/canary limits already hit), propose them. Design owns
-this call.
+### Open owner decisions — ask, never assume
 
-### 🎯 Priority reset, 2026-09-04 — deployment is NOT urgent
+- **Metallics / high contrast.** The diagnosis floated "gold on black"; the
+  owner has already rejected that verbatim (*"i dont like the navy blue gold
+  theme"*). It must be **asked**, not proposed as the answer. Round ten wearing
+  a different hat is the exact failure this is guarding against.
+- **Migration 039 is HELD** — it points six `photo_url`s at a bucket containing
+  zero files. The owner uploads `scripts/spot-photos/`'s six images first. A
+  broken image is worse than a null, because it asserts a photo exists.
+- **Vercel is PARKED.** Linked, 8 env vars set, one preview verified, production
+  never deployed. The scale work does not un-park it. Do not resume deploying
+  without an explicit go.
 
-Owner: **"deployment is not urgent just the core features and design bugs
-have to be solved right now that's priority."** Explicit reordering:
+---
 
-1. **Core features** — venue-link enrichment is the named one
-   (`PRIORITIES.md`). Collections/moodboards Pinterest-style is the other.
-2. **Design bugs** — the structural fixes Frontend and Design are already on
-   (misalignment, edge-of-screen, palette correctness).
-3. Everything else — production-readiness/hardening, load testing beyond what
-   directly serves 1/2, `DEPLOYMENT.md`'s checklist — **deprioritized, not
-   cancelled.** Keep working it if it's already in flight and nearly done, but
-   don't start new deployment-prep work ahead of 1/2.
+## Standing rules — every lane, every time
 
-**Security/Backend:** if the current load-test extension is close, finish that
-milestone, then pivot to venue-link enrichment ahead of anything else on your
-list — it's the named core feature. **T0 (me):** pausing active deployment
-push; `DEPLOYMENT.md` stays as reference, not a live task.
+**Reporting (owner, 2026-09-06):** keep owner-facing messages **short**. Lead
+with the decision or the ask. Approvals: what it is, what it changes, one line
+of risk. Findings: what broke, what it means, whether it's fixed. Depth goes in
+`worklog.md`, not the message.
 
-**Amendment, same day:** owner also wants automated test coverage kept up and
-the app verified to hold **thousands of concurrent users**, not just the
-front-door baseline measured so far. This isn't deployment-prep being revived
-— it's a real correctness/capacity question about the core feature set itself,
-so it stays in scope. Security/Backend: finish the current milestone with that
-as the explicit target scale (thousands, not tens), keep expanding automated
-coverage (unit/integration/concurrency, not just load) as you go, then move to
-venue-link.
+**Show, don't tell (owner, 2026-09-06):** if a change is *visible*, the owner
+sees it — screenshot it and send it, before/after when it's a fix. A described
+change they cannot see does not count as reported. Known trap: the hero
+entrance animation doesn't run headless, so `/home-preview` shots blank there —
+that's the harness, not the app.
 
-### 🎯 Scope, 2026-09-04 — every page and view, not just the front door
+**Report to T0 before you commit, push, or implement anything non-trivial.**
+Owner's instruction, 2026-09-16, and it applies to subagents too — a subagent
+reports to its parent lane, the lane reports to T0.
 
-Owner: design changes apply to **all pages and endpoints**, not just the
-front door/preview and login. The full route surface, so nothing gets
-skipped by only touching the flashy screens:
+**Live writes are an owner decision, every time.** That covers schema
+migrations *and* any mutating click during live-browser verification. If
+there's doubt whether a click writes, read the computed state instead.
 
-- `app/page.tsx` (signed-out front door), `app/home-preview/page.tsx` (demo)
-- `app/home/page.tsx` — the real signed-in shell, and **all five tabs inside
-  it** (Plan, Discover, Been, Friends, Profile via `AccountViews`/
-  `DemoAccountViews`), not just the Plan tab that gets all the attention
-- `app/login/page.tsx`, `app/onboarding/page.tsx`
-- `app/plan/[id]/page.tsx` — **and every state of it**: loading, the
-  `VoteState` variants (captcha/guest-paused/retry/cold-link), the live
-  voting rounds, `DecidedPlan`'s payoff screen
-- `app/privacy/page.tsx`, `app/terms/page.tsx` — legal pages, easy to
-  forget, currently statically prerendered so they carry the build-time
-  theme ground until `ThemeSync` corrects it client-side; worth confirming
-  that handoff doesn't flash
-- `app/place/[id]/page.tsx` — new, from the spec, not built yet
+**No new palette rounds.** See `DESIGN_DIAGNOSIS.md`.
 
-Design: confirm `SPECS.md` actually covers this whole surface, not just
-front-door/photo-wall/place-page. Frontend: this is the actual definition of
-"done," not a stretch goal after the highlight-reel pages.
+**Mobile work stays paused** (owner, 2026-09-04) — but this is *not* licence to
+remove the 44px tap-target floor or any existing media query. That's regression
+territory.
 
-### ⏸ Mobile work paused, 2026-09-04
-
-Owner: leave anything mobile-related for now. This includes the blocked
-390px/`resize_window` verification thread — stop chasing a workaround for it.
-**Not the same as removing the 44px tap-target floor or any existing mobile
-media query** — that's regression territory, don't touch it. This just means
-don't spend further effort on mobile-specific verification or new mobile work
-until told otherwise. Desktop/general work continues as normal.
-
-### ⚠️ Day/night is NOT being retired — reverses Design's 578781c call
-
-Owner, 2026-09-04, after Design had already started deleting the colour-
-application layer on the "one dark identity" reading: **"i like white and
-navy blue together maybe that for the day mode i guess."**
-
-Read plainly: **day mode stays, and it's white + navy** (tentative — "I
-guess" — so treat as a strong direction to build and show, not a locked
-final). **Night mode is palette v3** (charcoal-navy `#0D1117` / champagne gold
-`#C9A876` / glass-blue `#5CC8D7` / teal `#00E0C7`, below). The dual-palette
-Dubai-clock mechanism (`dubaiHour()`, `ThemeSync`) should NOT be deleted —
-**Design: stop and reverse that specific deletion** if it's still in flight;
-the colour-application layer needs a white/navy day branch added, not removed.
-
-### 🎨 Palette v3, 2026-09-04 — try this one instead
-
-Supersedes v2 (coral/gold/teal on `#121212`) below, which stays in the doc for
-reference only. **Try v3 directly:**
-
-| Role | Value | Notes |
-|---|---|---|
-| Background | `#0D1117` | Deep charcoal-navy, cooler than pure black — "reads like night sky over the skyline" |
-| Surface | `#161B22` | |
-| Primary accent | `#C9A876` | Champagne gold — metallic, restrained, not gaudy |
-| Secondary accent | `#5CC8D7` | Icy glass-blue (superseded `#4A90E2` in the same message) — glass facades, pool/marina water |
-| Confirm/active | `#00E0C7` | Teal, kept — "works well against navy" |
-| Text primary | `#F2EFE9` | |
-| Text muted | `#8A8F98` | |
-| Error/urgent | `#FF5C5C` | Unchanged from v2 |
-
-**✅ Resolved, 2026-09-04 — owner picked gold as primary.** Saw both rendered
-side by side (v3-as-given, gold primary/wordmark, vs. Design's recommended
-swap to glass-blue-primary/gold-sparing) and confirmed: gold stays the
-primary/wordmark color. Build against **v3 as originally given** in the table
-above, not the swap variant — that was Design's suggested fallback, not the
-pick. The navy+gold resemblance flag is closed; it was a deliberate direction,
-not a drift.
-
-Teal's constraint from before still applies: small components/accents only,
-never a large surface. No purple, still. Run the contrast check on
-`#8A8F98`/`#F2EFE9` against both grounds before committing.
-
-<details><summary>Palette v2 (superseded) — coral/gold/teal on #121212</summary>
-
-| Role | Value | Notes |
-|---|---|---|
-| Background | `#121212` | Near-black, not pure black |
-| Surface/Cards | `#1E1E1E` | |
-| Primary accent | `#FF6B4A` | Warm coral-orange |
-| Secondary accent | `#FFD166` | Gold, sparingly |
-| Success/confirm | `#00E0C7` | Teal, small components only |
-| Text primary | `#F5F5F5` | |
-| Text secondary/muted | `#A0A0A0` | |
-| Error/urgent | `#FF5C5C` | |
-
-</details>
+**Don't over-engineer.** Owner, 2026-09-16: "clean, concise code… spiraling can
+cause unwanted garbage code that is not even used." Every addition solves a
+problem the app actually has. Benchmark before/after when the claim is
+performance — a number, not an adjective.
 
 ### Isolation rules — non-negotiable
 
 These exist because four sessions in one tree raced and nearly lost work once.
 
-1. **Work only inside your own worktree.** Never `cd` into another's; never
-   `git checkout` another's branch; never edit a file through another worktree's
-   path.
-2. **Commit only to your own branch.** T0 does every merge. You never merge
-   another lane's branch yourself.
-3. **Stay on your turf** (table above). Need a file you don't own? Post a
-   cross-lane request in this file and let the owner do it, or let T0 sequence
-   it. Do not "just quickly fix" someone else's file.
-4. **`AGENT_COORDINATION.md` is shared** — edit **only your own block** under
-   Lane status, plus Cross-lane requests. T0 resolves the merge conflicts.
-5. **Claim shared files before a big rework — with an expiry condition, not
-   an open end.** Post a `⚠️ FILE CLAIM` line naming the exact paths **and the
-   specific thing that releases it** ("until I hand off the palette spec,"
-   "until this commit lands") — never a bare claim with no stated end. A claim
-   with no release condition is the failure mode that already happened once
-   (2026-09-02: Design's claim outlived the role change that justified it,
-   silently blocking Frontend for two days on a fix they had ready).
-   - **The claiming lane re-confirms or releases on any relevant change** —
-     a role/mandate reorg, a "this is now done" milestone, or before ending a
-     work session. Don't leave a claim standing on the assumption someone else
-     will notice.
-   - **T0 checks standing claims every integration cycle**, not just when
-     asked — if a claim has had no commits against its own files for a while,
-     or the reorg that justified it has since changed, ping the claiming lane
-     directly rather than waiting for it to surface as a stall.
-   - **Any lane can ask T0 to check a claim's validity** if work seems blocked
-     on one — don't sit blocked in silence the way Frontend did.
-6. **Talk through T0.** Message `model-assignment-terminals` via SendMessage
-   when you have commits to integrate or need another lane's work. Async status
-   goes in this file. Lanes do not need to message each other directly.
-7. **`npm install` after any sync that changed `package.json`** — worktree
-   `node_modules` are real directories now, not symlinks, so they drift.
-8. **Never kill processes by name pattern** (`pkill -f "next dev"` etc.) — every
-   worktree runs the same process names, so a name-pattern kill takes down
-   another lane's dev server. Kill only a PID you've confirmed is yours (check
-   the port/cwd first), or just let a stale one sit — it costs nothing.
+1. **Work only inside your own worktree.** Never `cd` into another's, never
+   `git checkout` another's branch, never edit through another's path.
+2. **Commit only to your own branch.** T0 does every merge.
+3. **Stay on your turf.** Need a file you don't own? Post a cross-lane request.
+   Do not "just quickly fix" someone else's file.
+4. **Claim shared files with an expiry condition, never an open end.** A
+   `⚠️ FILE CLAIM` names the paths *and* what releases it. A claim with no
+   release condition already blocked a lane for two days once.
+5. **Talk through T0.** SendMessage T0 for integration or another lane's work;
+   async status goes in this file.
+6. **`npm install` after any sync that changed `package.json`** — worktree
+   `node_modules` are real directories, not symlinks, so they drift.
+7. **Never kill processes by name pattern** (`pkill -f "next dev"`) — every
+   worktree runs the same process names. Kill only a PID you've confirmed is
+   yours.
+8. **Never `git add -A` while a subagent is working in your worktree.** Stage
+   explicit paths. Worktrees isolate lanes from each other; they do **not**
+   isolate a subagent from its parent. This already corrupted two commits.
 
-**Subagents/agent-teams:** use them for genuine fan-out (a broad search, an
-independent audit, several unrelated files) — never for a single linear task,
-that burns tokens for no speed gain.
+**Subagents:** genuine fan-out only (a broad search, an independent audit,
+several unrelated files) — never a single linear task, that burns tokens for no
+speed gain.
+
+### Verification gate
+
+`npm run lint && npm run typecheck && npm test && npm run build` green **in your
+own worktree** before any non-trivial commit. The `security` subagent runs
+before committing anything touching RLS, write RPCs, the Realtime publication,
+or a path where model output reaches a query/filter/screen.
 
 ### Engineering-bar technique ownership
 
-The owner's full hardening list, mapped so nothing sits unclaimed:
-
 | Technique | Owner |
 |---|---|
-| Concurrency-safety, idempotent mutations, DB indexing/query tuning, rate limiting, authz/input validation, audit logging, app-level structured logging + request IDs, unit/integration/concurrency tests | **Security** |
-| E2E testing (Playwright against the running app) | **Frontend** (was Review — same terminal) |
-| Redis caching | **Security implements, but only once a real hotspot is measured** — not speculative. T0's load test is what would surface one. |
-| Background jobs/queues, event-driven/outbox | **Nobody — genuinely not needed yet.** No async work or cross-system side effect exists. Revisit when the AI/RAG backfill or a booking flow lands. |
-| CI/CD, load/perf testing (p50/p95/throughput/error-rate), observability infra (metrics/tracing/error-monitoring service), production deploy/infra | **T0** |
-| AI/search (hybrid search, retrieval eval, latency/cost) | **Blocked on B3** (OpenAI credits still zero). `lib/ai/**` — invoke the `ai-engineer` subagent once someone picks it up. |
+| Concurrency-safety, idempotent mutations, indexing/query tuning, rate limiting, authz/input validation, audit logging, structured logging + request IDs | **T1** |
+| Load/perf testing (p50/p95/throughput/error-rate), concurrency + integration coverage, E2E | **T3** |
+| E2E against the running app (Playwright) | **T3**, with T2 fixing UI defects it finds |
+| Caching (Redis or otherwise) | **T1 implements, only once T3 measures a real hotspot.** Never speculative. |
+| Background jobs/queues, outbox | **Nobody yet** — revisit when the photo ingestion backfill lands, which is the first genuinely async workload. |
+| CI/CD, deploy, observability infra | **T0** |
+| AI / search (`lib/ai/**`) | `ai-engineer` subagent. **B3 is not what the record said** — the key works; it is a free-tier 10 req/min + 50/day cap. Read `lib/ai/`'s worklog entry before touching it. |
 
-## Worktrees — each lane has its own checkout (2026-09-01)
-
-The sessions run in **separate git worktrees** off `ai-engineering`. A
-session touches **only its own worktree** and commits **only to its own branch**.
+## Worktrees
 
 - `.env.local` in each lane worktree is a **symlink** to the main tree — leave it.
-- `node_modules` **used to be symlinked too; it isn't anymore (2026-09-02).**
-  `npm install` silently replaces a symlinked `node_modules` with a real
-  directory the moment a worktree needs a new dependency — Design hit this
-  installing `motion`/`lucide-react`/etc. Each worktree now owns a real
-  `node_modules` (~500MB each, only 2 worktrees active so the disk cost is
-  fine). **After merging a branch that changed `package.json`, run `npm
-  install` in every worktree that needs to build** — T0 does this in the main
-  tree as part of integration; do it in yours after your next sync if you're
-  about to run/build.
-- Never `cd` into another worktree; never `git checkout` another lane's branch.
-- **T0 integrates:** merges `lane/*` → `ai-engineering` regularly (disjoint files
-  → clean), then `ai-engineering` → each `lane/*` so everyone shares one base.
-  Ask T0 for a sync when you need another lane's latest commit or `.coord` update.
-- Verification gate (`npm run lint && npm run typecheck && npm test && npm run
-  build`) runs green **in your worktree** before any non-trivial commit.
-  `security` subagent before committing anything touching RLS, writes, the
-  Realtime publication, or model output.
+- `node_modules` is a real directory per worktree (~500MB each), not a symlink.
+- **T0 integrates:** `lane/*` → `ai-engineering`, then back down to each `lane/*`
+  so everyone shares one base. Ask T0 for a sync when you need another lane's work.
 
-## File ownership (updated 2026-09-04 — "Review" is now "Frontend")
+## File ownership
 
-Same terminal, same worktree, renamed role: it now implements + fixes UI, not
-just reviews. Ownership stays fuzzy on purpose — Security and Frontend both
-legitimately touch anything with a bug or a hole in it:
+Home turf, no ping needed — the table in the re-org section above. Ownership is
+deliberately fuzzy between T1 and T2 on anything with a bug in it; the tiebreak
+is which file it lives in.
 
-1. **Home turf, no ping needed:** Security → `supabase/**`, `app/api/**`,
-   `lib/security/**`, `lib/supabase.ts`, `lib/types.ts`, `next.config.ts`
-   (headers/CSP), auth flows. Frontend → `app/**` (except `app/api/**`),
-   `components/**`, `app/globals.css`, `lib/**` (except `lib/security/**`/
-   `lib/supabase.ts`) — **bug fixes AND implementation, `globals.css` is
-   unfrozen.** T0 → `.github/**`, root `*.md`, `tests/**` config, deploy
-   config. Design → `design-system/**`, `FRONTEND_DESIGN_STANDARDS.md`,
-   Claude Design canvas — specs for Frontend to build, real ones, not vague
-   notes.
-2. **Off your turf: post it in "Cross-lane requests" before editing**, so the
-   other lane doesn't hit a surprise merge conflict. T0 sequences it across a
-   sync if needed. Design may still claim specific files under active rework
-   (see any `⚠️ FILE CLAIM` note in its status block below) — respect those.
-
-`app/page.tsx` is a route file (Frontend's). `qa-test` writes `tests/**` only,
-`security` subagent has no write tools — both remain callable from either lane.
-Original clean-split map (pre-reorg, for reference): `.claude/agents/README.md`.
-
-## This file
-
-Edit **only your own lane's block** under "Lane status" and add cross-lane asks
-under "Cross-lane requests". Commit it on your branch with the work it describes.
-T0 resolves the (trivial, section-level) merge conflicts on integration. The
-model policy and decisions log are T0's.
-
-**Model policy (updated 2026-09-04): all four terminals on Opus**, per the
-owner — this phase needs complex frontend rework + continued backend/security
-depth simultaneously. (Superseded: the earlier Sonnet-for-most policy below,
-kept for history.) `security` and `qa-test` remain subagents, not lanes, callable
-from any terminal.
-
----
-
-## Current goal (2026-09-02)
-
-Core loop already works end to end (guest vote path verified 2026-09-01). Focus
-shifts to **security hardening + bug elimination** while design work happens
-externally:
-
-1. **Security lane** — finish SEC.4 loose ends (see its Cross-lane requests
-   below: `rls_auto_enable` capture, anon-social-graph check), then work the
-   engineering-bar list: durable rate limiting audit, request IDs + structured
-   logging, concurrency-safety sweep of the other write RPCs
-   (`create_secure_plan`, `execute_plan_command`, `set_plan_rsvp`, `rate_plan`)
-   for the same double-write race class migration 023 closed on votes, DB index
-   check on hot queries. Every addition needs a real problem behind it — no
-   Redis/queues/etc. without one.
-2. **Review lane** — full-stack bug sweep: lint/tsc/test clean is the floor, not
-   the goal. Start with the known ones: **FE.10** (`/login` has no `next` param
-   — a guest signing in from `guest-paused` lands on `/home`, not their plan)
-   and **FE.4's functional half** (night mode applies `--night` classes but one
-   probe showed tokens not flipping — verify with `getComputedStyle`, screenshots
-   in this environment are unreliable). Then a general error-state / edge-case
-   audit. **No CSS/visual changes** — `globals.css` is frozen pending the design
-   handoff; FE.5/FE.6/FE.3 (all aesthetic) are paused, not cancelled.
-3. **T0** — integrates both lanes, Vercel deploy wiring, CI `test:db` job.
-4. **Design** — idle. Resumes when the owner sends the finished design.
+- `app/page.tsx` is a route file → T2.
+- `qa-test` writes `tests/**` only. `security` has no write tools.
+- Root `*.md`, `.github/**`, deploy config → T0.
 
 ---
 
 ## Lane status
 
-### T0 — Orchestrator / Platform
-- 2026-09-02: wrote `PRODUCT_FLOW.md` — the owner's intended flow (login → home → host a plan → 3 pools of 3 → final round → vote → payoff → post-visit collections), cross-checked against the actual build. Steps 1–5 match and are built; step 6 (payoff: weather/travel-time/transport-carpooling) and step 7 (post-visit photo collections) are real gaps, not bugs — Design's territory once specced. **Review:** your actionable takeaway is in that doc's summary — verify the Discover→moodboard and Been→collection loops actually work end to end, don't build steps 6/7 blind.
-- 2026-09-02: load-test harness (`scripts/load/run.mjs`, `npm run load <scenario>`), first baseline captured (front door: dev 161ms p50/50 req/s vs a production build 10ms p50/857 req/s, 0 errors either way). Integrated Review's FE.10 + sweep (`7704424`, `d923b3b`, `d40b4b5`) — gate green.
-- 2026-09-01: startup-list trim, model policy, CI workflow, **worktree split**, **schema↔types drift check** (`3e8e6bf`). Integrated `lane/backend@ec5c7fa`.
-- **Authenticated the Supabase MCP and applied migrations 021, 022, 023 live** (project `zyojaoyatunjwgbivaqu`). Verified by direct catalog probe (this project has no migration ledger). **B2 resolved.** 022/023 confirmed live. Details + the SEC.4 follow-up list in `worklog.md`.
-- **⚠️ mig-023 file bug (T1):** `create or replace function cast_plan_vote ... returns jsonb` fails `42P13` — you can't change a return type without `drop function` first. I applied a corrected version live. `supabase/migration-023-vote-idempotency.sql` and `schema.sql` still need the `drop function if exists cast_plan_vote(uuid,uuid,text,boolean,text,smallint,text)` before the create. See cross-lane request.
-- **B1 is LIVE** (owner enabled + saved 2026-09-01). Anon signup returns a session token. Turnstile still off — deploy checklist item, not a local blocker.
-- Dev server up on `localhost:3000` (main tree, `ai-engineering`) for design review.
-- **Correction (Design, 2026-09-02):** the front-door "blank screen" was **not** a screenshot capture artifact as I first wrote — `HomeExperience` gates its content behind `opacity: 0` + an entrance transition opened by a `requestAnimationFrame` in an effect. A backgrounded Chrome *window* freezes rendering, so rAF never fires and the hero stays invisible — `document.hidden` was true in every screenshot tab. Real users with a focused window are fine (same practical conclusion), but the mechanism is different: force the entrance end-state before capturing a screenshot in this environment, a scroll doesn't reliably fix it. **FE.4 was also a real bug, now fixed**: `HomeExperience`/`app/plan/[id]` each carried a local `--night` class alongside the document `data-theme`, so the two could disagree — tokens went dark while class-scoped rules stayed light, and the front door's primary CTA rendered cream-on-cream. One switch now (`[data-theme="night"] .home-experience`), toggle reads via `useSyncExternalStore`.
-- Next: Vercel deploy wiring, then request-IDs / structured-logging groundwork.
+Each lane maintains its own block. Replace, don't append — this is state, not a log.
 
-### Security (was T1)
-- 2026-09-01: BE.1 + BE.2 + mig-023 committed (`e10d395`); 023 `42P13` fix (`67a0ccf`); security Low finding fix (`ec5c7fa`); mig-024 SEC.4 (`75f8bd3`, applied live). 021–024 all live. `qa-test`'s `tests/vote-idempotency.dbtest.ts` — no defects in 023.
-- 2026-09-02: **worked the full engineering-bar list** on `lane/backend`, all committed, gate green throughout (lint/tsc/25 tests/build):
-  - **Concurrency sweep** — audited `create_secure_plan` / `execute_plan_command` / `set_plan_rsvp` / `rate_plan` for the same race class 023 closed on votes. `execute_plan_command` already safe (`for update` + Postgres's read-latest-on-unblock semantics — verified, no fix). `create_secure_plan` double-submit is cosmetic (two independent plan rows, no data corruption) — not fixing, no evidence it happens. **Migration 025** (`7b8a22b`): `set_plan_rsvp`/`rate_plan` had a real gap — `for update` locks nothing on a nonexistent row, so concurrent first-time submissions for one `voter_name` could both pass `existing.id is null` and one got an unhandled `23505`. Fixed with the standard loop-and-retry-on-`unique_violation` pattern. `security` review: reproduced the race with real concurrent connections, clean. `qa-test`'s `tests/rsvp-rating-upsert-race.dbtest.ts` (`baee90b`) closes the coverage gap the review flagged.
-  - **Rate limiting audit** — confirmed no in-process `Map` limiters remain anywhere. Real gap found: OTP request had no durable limit (`consume_app_quota` requires a session; OTP is pre-session). **Migration 026** (`7256d10`, amended `2bc7bc9`): `consume_otp_limit(secret, scope, subject)`, anon-callable + control-secret-gated like `record_security_event`, keyed on the HMAC'd email. Two scopes now — `otp-request` (3/min, 10/day) and, per **Review's cross-lane flag**, `otp-verify` (8/min, 20/day). Checked GoTrue's actual docs before assuming its own limit covers verify-guessing: it's per-IP request-rate (360/hr), not a per-code attempt cap — bypassable by a small proxy pool. The email-keyed app-level cap closes that: 20 guesses/day against a 6-digit code ≈ 0.002% per code. `security` review: clean (confirmed the block happens before `verifyOtp` so a still-valid code is never consumed by the limiter itself; bucket keys scope-disjoint; no oracle regression).
-  - **Request IDs / audit logging** — `security_events`/`record_security_event` already existed as this app's structured log; `p_request_id` was only populated on 2 of 7 call sites. Threaded it through the rest (`7256d10`, `add53eb`) — no new logging library, the gap was narrow and mechanical.
-  - **DB index audit** — **migration 027** (`f8db45a`): started from NEXT_AGENT.md's `spots(source,category)` hypothesis for `/api/spots/deal`, checked the actual query, it's wrong (curated-only, stays ~100 rows, never grows). The real unbounded-growth hot query is `/home`'s `order by name limit 120` (no filter but RLS). Benchmarked locally: 5.5ms seq-scan+sort → 0.11ms index-scan at 20k rows (~49x), added `spots(name)`.
-  - **SEC.4 anon-social-graph check** — live-probed with a real anonymous session (B1 is on): `people`/`place_collections`/`visits`/`visit_collections` writes all cleanly rejected via the `is_permanent_user()` chain. Found a real bug in the process: **migration 028** (`0ab3d76`) — `POST /rest/v1/friendships` was crashing with a live `42P17` infinite-recursion (`people`'s read policy ↔ `friendships`' write policies cross-referenced each other; a documented Postgres RLS limitation). Root-caused, fixed, and validated on a local scratch Postgres; `security` review: clean, no permissiveness lost. Unreachable from the UI today (`lib/social.ts` has zero callers) but was live and would've broken "add a friend" on day one.
-  - **SEC.4 closed** — **migration 029** (`70f0f22`): captured `rls_auto_enable()` + the `ensure_rls` event trigger verbatim from your `pg_get_functiondef` output. No-op against live (024 already revoked the client grants); brings `schema.sql` in line with what's already running. Verified on a scratch Postgres.
-  - **PRIORITIES.md's SEC.3** verified, no code change: `/api/smart-search`'s `NODE_ENV === "production"` auth-skip only fires under local `next dev` — `next build` (used identically for Vercel preview and production) always sets `NODE_ENV=production`, so no deployed environment inherits the bypass. Same signal is already used at 17 other call sites in this codebase; a separate flag would be inconsistent with the rest of the app for no real gain.
-  - Nothing else open from the engineering-bar list or PRIORITIES.md's backend/security queue. Available for more if you have something.
-- 2026-09-04: **Concurrency load testing (T0's ask, long/complex work led the queue per the sequencing note) + a real live bug found.** New harness `scripts/load/{mint-voters,concurrency}.mjs` — mints real anonymous guest sessions and fires N at `cast_plan_vote`/`set_plan_rsvp` simultaneously via PostgREST directly (no Next.js route exists in front of these RPCs, so `run.mjs`/autocannon can't reach them). At n=15 (GoTrue's anonymous-signup rate limit was the real ceiling, even after the owner raised the dashboard limit once — see finding below): `vote-contend`/`vote-flap`/`rsvp-contend` all clean, 0 errors. `rsvp-collide` — built specifically to stress migration 025's unbounded retry loop past the 2-way testing it's only ever had — resolved to exactly 1 winner + 14 clean rejections, p99 462ms, no fix needed, it degrades gracefully. Full numbers `scripts/load/README.md`.
-  - **Real bug, not the goal of the testing:** migration 023's legacy-index drop (step 2b) silently no-ops on every project it's applied to — it searches `pg_constraint` for a unique *constraint*, but `votes_round_choice_unique` is a bare `create unique index` from migration 009, never a table constraint, so the lookup never matches and the DO block exits clean with no error. Confirmed live via direct catalog probe: the index is still on `votes` today. Live consequence: two guests with the same display name voting the same spot/round hit an unhandled `23505` instead of both votes recording — exactly what 023's own comment predicted if its drop ever failed. **Migration 032** fixes it (drop by the now-known exact name), `security`-reviewed clean (no FK/RLS/trigger dependency, `schema.sql` never had it so a fresh rebuild was never exposed, no live null-hash write path exists to worry about once it's gone).
-  - Also staged, `security`-reviewed: **030** (rate limit on `execute_plan_command` — was the only `app/api/**` route with none; review caught that my first pass didn't reject anonymous sessions, fixed, now matches the sibling routes' `is_anonymous` check), **031** (schedules `purge_security_operational_data()`, which has existed since 020 but was never actually scheduled — `pg_cron` isn't even installed on the project yet). Plus two small fixes: `schema.sql` was missing `plans_creator_idx` (014 mirror gap), and `smart-search`'s missing-age default now fails closed like `spots/deal`'s does.
-  - **Finding, not fixed:** GoTrue's anonymous-signup rate limit is strict — minting 20 test voters drained it for most of a session, even after one dashboard raise. Real-world equivalent: several guests on shared wifi opening a share link together could hit the same ceiling. Flagging for the owner to size; not this lane's call alone.
-  - **Deferred, stated plainly:** load-testing `/api/plans`/`/api/spots/deal` needs a real permanent-account session; no password auth, no service-role key by design, not self-serve like anonymous voter sessions are.
-  - Gate green throughout (lint/tsc/29 tests/build). **030/031/032 staged, none applied** — @T0, same apply flow as 025–029, 032 first since it's a live correctness bug already in production, not just hardening.
-- 2026-09-04: **Venue-link enrichment (owner's named top priority) — pipeline steps 2–6.** `PLACE_IMPORT_ARCHITECTURE.md`'s intake step (persistence) turned out already built despite its own stale claim; what was missing was fetch/extract/match/resolve, now built as `lib/place-import/{safe-fetch,ip-guard,oembed,web-adapter,match,resolve}.ts`. No schema change — migration 012's columns already covered it.
-  - TikTok/YouTube/Reddit resolve via their public oEmbed hosts; Instagram/Facebook go straight to `needs_input` (no approved API credentials exist, honest not broken); the `web` provider gets full SSRF hardening (DNS-pre-resolve + private/CGNAT/multicast/reserved-range block for IPv4 and IPv6, redirect-hop re-validation, 5s/512KB caps) since it's the one path fetching a user-chosen host directly. Catalog-only matching (token overlap, no AI, no new Postgres extension) against the real ~100-row curated `spots` set — never invents a venue outside it.
-  - **Verified live, not mocked:** real YouTube oEmbed + real wikipedia.org OG-tag fetch both worked; a `127.0.0.1` target was correctly rejected; matching scored a real spot's own name back at itself with score 1.0 against the real 82-row catalog. Full DB-write-path verification blocked by the same permanent-account gap already on record for load-testing (`people`/`place_imports` RLS requires `is_permanent_user()` even for a self-insert) — not new, not worked around.
-  - `security` review: clean overall, two real items fixed — `isPrivateAddress` was missing CGNAT (`100.64.0.0/10`, a real reachable target on some hosting platforms) plus several cheap low-value ranges, added with test coverage; the architecture doc's "never fetch an arbitrary URL" line directly contradicted the new `web` adapter, resolved by making the doc state the exception and its hardening explicitly rather than weakening the code. One item flagged, deliberately not fixed: concurrent first-time saves of the same brand-new link can trigger two redundant (idempotent, quota-bounded) resolution passes — ponytail-lazy call, skipped.
-  - Also fixed along the way: the POST route was an `upsert` that reset `status` to `pending` on every re-save of an already-resolved link, forcing a pointless re-fetch — now fetch-then-insert with a clean `23505` fallback for the concurrent-first-save race. GET now returns the resolved spot's real details + a Google Maps deep link (free-tier "how to get there," no API key) and the candidate list when ambiguous.
-  - **Deferred, stated plainly, unchanged from the plan:** Instagram/Facebook real fetching and paid Directions/Places-photo APIs are all owner-decision-gated (T0 asking); the result/candidate-picker UI is Frontend's once this contract ships; screenshot-upload fallback deferred.
-  - Gate green throughout (lint/tsc/38 tests/build). No migration, no schema change.
-- 2026-09-04: **🔴 CRITICAL, found while scale-testing — core "start a plan" flow has been completely broken since migration 020 (2026-08-24).** `create_secure_plan` requires all 9 spot ids to share the plan's category; no curated category has 9 spots (dinner, the largest, has 5), so `/api/spots/deal` deals from a whole category family by design — the RPC's exact-match check rejected every real plan creation. Confirmed against the live DB directly: **6 plans exist, ever; 5 pre-date 020; the 1 created since is my own SQL-inserted load-test fixture, never through the real app. Zero successful plan creations in 11 days.** A second, compounding bug found investigating the first: `app/api/plans/route.ts` + `app/api/spots/deal/route.ts`'s UUID regex required version 1-5 (real `gen_random_uuid()` shape), but curated spot ids are deterministic (`a0000000-...`) and always failed it — fixed both to plain 8-4-4-4-12 hex, matching what Postgres's `uuid` type actually accepts.
-  - **Migration 033** fixes `create_secure_plan` (one-clause diff off 020, drops the category-equality check). `security`-reviewed: independently re-derived the severity claim from source (same conclusion, no category has 9), confirmed no new hole (age-gating already keyed off each spot's own category, untouched by this diff; ownership/sourcing checks untouched) — filed as **Critical on availability grounds, not a vulnerability**. Verified live on a local mirror: the real deal-then-create sequence now returns 200 with a real plan + host token.
-  - **Staged, not applied** — 033 needs the owner's approval like every migration, but @T0 this is the priority of the whole batch, ahead of 030-032 if those aren't through yet. The two route.ts UUID fixes are plain app code, ship on next integration, no apply step.
-  - Full detail + the live-DB verification queries in `worklog.md`'s CRITICAL entry. Already messaged T0 directly given severity.
-- 2026-09-04: **Load-testing to real scale (thousands of concurrent users) — done.** Moved to a **local Supabase stack** (`npx supabase start`, Docker, no rate limit) after the live-project pass topped out at n=15; also closed the permanent-account gap (no self-serve way against the live project). Minted 2,500 real permanent test accounts across 50 seeded plans. **Results: clean through n≈200 on every scenario** (`vote-scale`/`rsvp-scale`/`plan-create-scale`/`spot-deal-scale`, the latter two genuinely new). Past 200, real ceilings show up — local Kong/PostgREST connection handling under a single-tick burst, and separately a single-process `next start` instance queuing badly on `spot-deal`'s multi-round-trip route past ~100 — both reported honestly as local-environment ceilings, explicitly caveated as not a statement about Vercel's serverless-scaled production capacity. Bonus: the same local stack made `tests/*.dbtest.ts` actually execute for the first time in this environment (12/12 passing, was self-skipping). Full table + caveats in `scripts/load/README.md`.
-- 2026-09-04: **Direct plan — new plan-creation path, skip the vote (`design-system/SPECS.md` §10 / `PRIORITIES.md`).** Frontend was blocked on this exact signature. Feasibility already confirmed (own investigation, sent to T0): `create_secure_plan`'s INSERT hardcodes `status='open', stage='pool', pool_count=3` and requires exactly 9 spot ids — doesn't fit "1 spot, already decided." Schema needed no change. **Migration 034**: `create_direct_plan(p_plan jsonb, p_spot_id uuid)` — a new function parallel to `create_secure_plan`, mirrors its auth/age/ownership checks. Category is **not** client-supplied — derived server-side from the picked spot's own category, closing the same bug class 033 just fixed before it could recur here. No deadline requirement (nothing to close). `status`/`stage`/`pool_count` hardcoded `'decided'`/`'decided'`/`1`, `winner_spot_id` set at creation. New `app/api/plans/direct/route.ts`, same house preamble, reuses the existing `plan-create` quota (no new bucket).
-  - **Verified live on the local mirror, real cases**: a real 18+ curated spot → 200, correctly shaped; an underage user → 403; a nonexistent spot → 403; no spotId → 400; a smuggled unrelated field → 400 via the whitelist. `security` review: safe, no new hole — confirmed the ownership clause guards nothing worse than the nine-spot version, confirmed the server-derived category doesn't reopen 033's bug class downstream (traced every consumer, both have documented fallbacks for an unrecognized category), confirmed by tracing every reader of `plans.deadline` in the codebase that the unvalidated deadline is genuinely inert not just plausibly safe, confirmed quota reuse creates no extra budget. One note acted on: `intelligenceModel` wasn't stripped from the request the way the sibling route does — currently unreachable but a real foot-gun once Frontend wires this up — fixed.
-  - Gate green (lint/tsc/38 tests/build). **Staged, not applied** — needs owner approval like every migration. Ready for Frontend now; full detail `worklog.md`.
-- 2026-09-04: **Carpool coordination — RSVP fields (`design-system/SPECS.md` §10.2), owner-approved as scoped.** A coordination list, not a matcher — no route optimization, no rider/driver assignment. **Migration 035** extends `set_plan_rsvp` directly (two new optional params `p_transport`/`p_seats_available`) rather than a new RPC — same table, same existing write path, `rsvps` still has no direct write policy. New `transport`/`seats_available` columns plus a cross-column constraint so a seat count can never exist without `transport='driving'`, enforced at the DB level on top of the identical in-function check. Caught a real pitfall myself before it shipped: `create or replace` only replaces a function with an *identical* signature — adding params would have created a second overloaded function instead of replacing the old one, so the migration explicitly drops the old 5-arg signature first.
-  - **Verified live, real cases**: driving+seats succeeds, need_ride succeeds, seats-without-driving rejected cleanly, out-of-range seats rejected, invalid transport rejected, omitting both fields still works (backward compatible), switching a driver to need_ride correctly clears stale seats. `security` review: safe — confirmed all four grant/revoke lines in `schema.sql` were updated (none stale), the existing ownership gate still runs before both write branches unchanged, the `plan_access`-scoped select policy is unmodified (every plan member seeing the carpool list is the feature, not a new disclosure), and the 0-8 bound is correct at both layers.
-  - **🟡 Real cross-lane note for Frontend, not security, but real**: `app/plan/[id]/page.tsx`'s `setRsvp()` only passes the original 5 params today. Because the update branch fully replaces `transport`/`seats_available` from whatever's given (same as `coming`/`choice` already work), every existing RSVP-status tap through the *unmodified* frontend will silently null out any previously-set carpool answer the moment 035 is live — before any carpool UI exists to re-set it. **One-line fix**: `setRsvp` already holds `mine` (the caller's existing rsvp row) in scope — pass `p_transport: mine?.transport ?? null, p_seats_available: mine?.seats_available ?? null` in the existing RPC call. Needs landing before or alongside 035 going live, not after.
-  - Gate green (lint/tsc/38 tests/build, schema↔types drift clean). **Staged, not applied** — needs owner approval. Full detail `worklog.md`.
-- 2026-09-04: **Production-readiness checklist (owner away, kept moving on code-level items).** Five `PRODUCTION_CHECKLISTS.md` items — **three closed as "already correct, verified," zero code change**: CORS (no `Access-Control-*` header anywhere, confirmed live including a real preflight, that's the secure default), cookie flags (`HttpOnly` deliberately absent — `@supabase/ssr`'s shared-cookie architecture needs it JS-readable, verified from its source; CSP is the real compensating control), account lockout (wrote the actual math — OTP's day-cap dominates regardless of TTL, ~0.002%/day). **Two small diffs**: `select("*")` trimmed on 3 reads (own file fully, `app/plan/[id]/page.tsx` + `app/home/page.tsx` traced field-by-field against real consumers before touching — `created_by_user_id` had no reason reaching every voter), and one line added to `ci.yml` for `npm audit --omit=dev --audit-level=high` (0 vulnerabilities today). All five documented in `PRODUCTION_CHECKLISTS.md` with the reasoning inline. Commit `659d250`, gate green.
-- 2026-09-04: **Moodboards schema draft (Design's §15.3 cross-lane request).** `migration-036`: `moodboards`/`moodboard_items`, byte-for-byte mirror of `visit_collections`/`visit_collection_items`'s already-reviewed RLS shape. One deviation from `lib/planning.ts`'s demo shape: `storage_path` not inline base64, matching `visit_photos`. No RPC, no route, no auto-creation, no friends/shared read policy — owner CRUD only, matching exactly what Design asked for (confirmed a later friends-read policy is purely additive, no schema change). **Verified live, real cross-user cases**: owner CRUD works, a second user gets empty reads + 403s on write attempts, constraint/uniqueness violations rejected correctly. `security` review: safe, no widened access — confirmed the items policy's simpler `WITH CHECK` is correct (no owned-row FK to protect, unlike `visit_collection_items`), confirmed `visibility`'s unused values are genuinely inert not just assumed so. Commit `d11d83a`. **Staged, not applied** — needs owner approval like every migration here.
+### T0 — Lead / Orchestrator
+Re-org done 2026-09-16: board rewritten (780 → ~200 lines), QA lane and
+`~/plan-ind-qa` worktree created, stale waves cleared from `PRIORITIES.md`.
+Next: dead-code sweep, then integration as lanes report in.
+
+### T1 — Backend / Security
+_Awaiting kickoff._
 
 ### T2 — Frontend
-- 2026-09-06: **Hero deck overlap/overflow fixed** (`520f967`) — the owner's screenshot reproduced and closed. Repro surface is `/home-preview` (it passes their name, hence "Good evening, Aryan"), at 1512px, deck expanded.
-  - **Measured before the fix**: 3 cards over the hero's lede text by up to **213px**, 3 cards past the hero's right edge by up to **274px** (sliced by `.home-hero`'s `overflow:hidden` — the "clipped mid-shape" they describe). Both symptoms, one cause.
-  - **Root cause is not the mechanism we expected.** Not Motion's inline transform clobbering a CSS one (the old `TiltCard` bug). The expanded spread was a *constant* — 960px for a nine-card deck — with no reference to its 543px container, so it overhung ~200px each side at **every** viewport. `.home-hero` is width-capped at 76rem, so every display above ~1248px renders the identical box: the owner's large display sees exactly what 1512px does. That also means `transformTemplate` was the wrong tool here; nothing needed it.
-  - Both poses now size from the measured container (`ResizeObserver` — the box changes with the grid column, which a window-resize event does not always imply). Angle and spread compete for the same width, so they scale together.
-  - **Three further problems found while verifying**, all fixed: the *collapsed* stack had the same unbounded constants (3 cards past the hero edge at a 900px hero); the pre-measurement fallback was the unbounded design spread, which reintroduces the bug for a frame and jumps outward in a real browser; and in tight containers the fitted expanded spread could come out *tighter* than the resting one, so expanding visibly contracted the deck.
-  - Verified at hero widths 1216/1100/1000/900 in both poses: zero overlapping the copy, zero past the stage, zero past the hero. Visual confirmation done by applying the app's own `.home-experience--ready` class rather than overriding transforms — overriding them is what made an earlier measurement attempt unusable. **Unverified**: the animated transition itself, since Motion cannot run in this harness (rAF frozen).
-  - @T0 the hero's own `overflow: hidden` (§14.3) is load-bearing for the scroll-drift layers, so it stays — but note it is what turned this overflow into *silent* clipping rather than a visible overhang. Worth knowing when reading future reports of "cards cut off".
-- 2026-09-05: **Global search bar wired to real data** (`c2d01c3`) — T0's find, confirmed: it filtered a hardcoded four-item array *and* its select handler only closed the list, so both halves were dead (no real results, and even the four static rows navigated nowhere).
-  - Empty query now offers the four quick actions, which actually switch tabs; a real query searches the curated catalogue and each result opens that spot's place page. Reuses `StartPlanForm`'s exact `spots` ilike query **and its age gate**, so a result the account can't use is never offered.
-  - **One deliberate deviation from T0's suggestion**: not `/api/smart-search`. That's the AI brief-to-shortlist path — quota-gated and dependent on OpenAI credits (exhausted per the standing blockers), and the wrong engine for "find the place I can already name". Routing the nav bar through it would have left the control failing closed again. The plain catalogue query is what `StartPlanForm`'s "I already know where" actually uses, and it's what T0 verified working.
-  - Also fixed while in there: a no-match query now says so instead of rendering an empty box, and rows stack label over description so they stop wrapping into each other in the 18rem nav column.
-  - Gate green (lint/tsc/38 tests/build). **Verified live** against the local stack: real result opens the place page, quick actions switch tabs, no-match state renders.
-- 2026-09-05: **Real signup + first-plan pass (no cookie injection for the plan flows).** Same local stack.
-  - **Email-OTP request step: works.** Typed a fresh address into the real `/login` form, clicked through, and the mail actually arrived in Mailpit (`:54324`) addressed correctly. Captcha correctly not required off production; the security event and per-address rate limit both fire as designed.
-  - **🟡 Could not complete the code-entry step locally, and the reason is worth someone checking.** The mail that arrives is the Supabase CLI's stock **magic-link** template — it contains a sign-in link and **no `{{ .Token }}`**, so there is no six-digit code to type into the form the app actually shows. `supabase/config.toml` defines no `[auth.email.template.*]` override, so local falls back to that stock template. **This is local-only as far as I can prove** — the hosted project's templates live in the Supabase dashboard, outside this repo, and I can't read them from here. **@Security/@Backend: worth confirming the live project's magic-link/OTP template really does include the token**, because if it doesn't, nobody can complete email sign-in in production and the entire `/login` code-entry UI is unreachable. Not filing it as a live bug — I can't see that config — but it's a one-minute check that closes a real risk.
-  - Second local-only artifact, same area, no action needed: the magic link's `redirect_to` comes back as `http://127.0.0.1:3000` rather than the requested origin, because GoTrue only honours redirect targets in `site_url`/`additional_redirect_urls` and local config lists port 3000 only. Expected GoTrue behaviour, not app code.
-  - **Zero-state first-plan experience: clean, both paths.** From a brand-new account with 0 plans / 0 visits: Been, Friends and Profile all render honest empty states with real CTAs and no invented data (house rule 1 holds); Been correctly hides the collection bar and photo composer entirely when there are no visits to attach anything to. "Deal three rounds" created a real plan (`open`/`pool`, `pool_count` 3, **9 spots actually dealt**, verified in the DB). "I already know where" created a real direct plan (`decided`/`decided`, correct winner, server-derived category). Both confirmed server-side; the vote page itself still can't paint in this harness (documented rAF/`document.hidden` block), so the creation flows are verified by their real DB result rather than by a screenshot of the vote screen.
-  - **Cross-session note, cost us both some confusion:** Chrome does not scope cookies by port, so T0's session on `:4400` and mine on `:4300` share one `sb-127-auth-token` jar. Identities bleed between the two dev servers and clearing cookies on one logs out the other. Anyone doing simultaneous browser QA on this stack needs either separate browser profiles or to take turns.
-- 2026-09-05: **Closed Design's unverified-list, real local-stack pass.** `npx supabase start` (restored from backup, all migrations through 035 + moodboard tables already present locally), reseeded `app_control_secrets`/truncated `app_rate_limits`, minted two throwaway permanent test accounts via the same cookie-jar technique as the direct-plan verification, ran a second `next dev` on :4300 against the local stack. No code changes from this pass except the finding below — verification only, cleaned up after (temp scripts, dev server, browser tabs; Postgres container left running, T0 is on it too).
-  - **Confirmed working, live**: `/home`'s Plan tab direct-plan toggle → catalogue search → real `DirectPlanForm` render; Been tab's real collection tab bar + PhotoWall moodboard (3 real visits, one real uploaded photo end-to-end through the actual client upload path — RLS-gated, signed URL correctly generated and verified 200 OK); `/place/[id]` typographic hero + real actions; `/onboarding`'s real date-of-birth form for a fresh account; VoteState's `loading` and `retry` screens (hit organically via the plan page's known rAF/`document.hidden` bootstrap block in this harness, not a real bug — same documented trap as before).
-  - **RSVP `aria-pressed="true"` contrast fix, confirmed correct in both grounds** — couldn't get the live plan page past the rAF trap to click it by hand, so verified the specific thing Design flagged directly: injected the real `.vote-experience > .vote-result > .vote-rsvp-choices button[aria-pressed="true"]` markup into a loaded page and read `getComputedStyle`. Day: navy fill `rgb(27,42,74)` / white text, 14.22:1. Night: champagne `rgb(201,168,118)` / dark ink, 8.42:1. Both clear WCAG AA by a wide margin — the fix renders correctly.
-  - **One real finding, environment-only, not a code bug**: the uploaded moodboard photo's `<Image>` never rendered visually in this local-stack test — the signed URL is valid (verified 200 OK + correct PNG via direct `curl`), but `proxy.ts`'s CSP `img-src 'self' data: blob: https:` only allows `https:` origins, and the local Supabase stack serves storage over plain `http://127.0.0.1:54321`. Confirmed by reading the live response's actual `Content-Security-Policy` header, not by inference. **No action needed** — the hosted project is always HTTPS, so this can't occur in production; flagging only so it isn't mistaken for a broken upload if anyone else hits the same local-HTTP wall.
-  - Did **not** modify `proxy.ts` to test around this — that's Security's file, not mine, and the auto-mode classifier declined the edit anyway when I tried; correctly left alone.
-- 2026-09-04: **§16 anti-vibecoded fixes** (`ebf0395`) — Design's audit, three items.
-  - §16.1: `app/not-found.tsx` + `app/error.tsx` (reuse `.auth-shell`'s restraint: wordmark, one hairline-bordered panel, back link) + `app/global-error.tsx` (its own minimal `<html><body>`, inline styles only, no dependency on anything that might itself be broken). Verified live: `curl localhost:4100/<bad-route>` renders the real page, not Next's default.
-  - §16.2: `.vote-option--winner` / `[aria-pressed="true"]` — dropped the `5px 6px 0 var(--vote-metal)` offset term (`app/globals.css`, was :2371/:2376), kept the inset top accent. Exact `.token` hard-shadow signature the Components section already retired elsewhere.
-  - §16.3: deleted the dead `.sky-glow` rule (unwired, name conflicted with the no-glow rule). Left the `--glow-*` custom properties alone — `.sky-root`'s transition list and the per-phase values still read them; only the flagged selector was in scope.
-  - Gate green (lint/tsc/38 tests/build).
-- 2026-09-04: **§15.2 Been moodboard + collections, real data** (`e3f7d07`) — owner stepped away, T0 cleared this to go ahead since §15.2 needs no schema change (migration 010 already live). Wires the previously-unused `visit_photos`/`visit_collections` tables into the Been tab.
-  - `lib/social.ts`: `getVisitCollections`/`createVisitCollection`/`addVisitToCollection`/`removeVisitFromCollection` (direct table writes — both tables' RLS is `for all to authenticated`, owner-scoped, no RPC needed) and `getVisitPhotos`/`uploadVisitPhoto`. Upload writes to the private `visit-photos` bucket under the caller's own `auth.uid()` folder (the only path the storage policy grants), then `getVisitPhotos` batch-signs URLs server-side — the bucket has no public read.
-  - `components/VisitTile.tsx` (new) + `PhotoWall.tsx`'s `WallItem` gains a `"visit"` kind: reuses the `.wall`/`.wall__col`/`.wall-tile` mechanism and CSS exactly as asked, not a new grid technique.
-  - `components/AccountViews.tsx`: Been tab now has a real collection tab bar — ported `DemoAccountViews`' already-built `.demo-collection-*` CSS onto real data, same UX shape (all places / named folders / create) — plus a real photo-upload composer (visit picker, visibility, `lib/upload.ts`'s existing `validateImageFile`). `router.refresh()` after a successful upload rather than faking a signed URL client-side, since the URL only exists once the server signs it.
-  - `app/home/page.tsx` + `HomeExperience.tsx`: threaded `personId` (was a dead prop — typed, never destructured) and the new `collections`/`photos` server-fetched data down to `AccountViews`.
-  - Gate green (lint/tsc/38 tests/build). **Not live-clicked** — exercising the upload/RLS path for real needs an authenticated session with actual rows, same local-stack tooling (`scripts/load/mint-local-users.mjs`) as the earlier direct-plan verification; flagging rather than claiming an unseen check. One deliberate v1 simplification: "add to collection" is a single flat visit×collection picker rather than a per-tile control — functional, not the polish a per-tile affordance would be; worth a Design pass if it matters before release.
-- 2026-09-04: **setRsvp carpool-field fix** (`a739f26`) — `app/plan/[id]/page.tsx`'s `setRsvp()` now passes `p_transport: mine?.transport ?? null, p_seats_available: mine?.seats_available ?? null` through the `set_plan_rsvp` RPC call, per Security's flag ahead of migration 035. Gate green (lint/tsc/38 tests/build). **@T0 ready to integrate whenever, and should land before or alongside 035 going live** per Security's sequencing note — no functional change until 035 is applied (columns don't exist yet on the live schema).
-- 2026-09-01: FE.1 (`ba6ba6b`) + FE.2/FE.8 (`9bd4042`) committed, gate green, hero confirmed both themes. Did the `.home-primary-cta:hover` touch-glow cleanup T3 noted.
-- 2026-09-01: **FE.7 done** on `lane/frontend` — `components/VoteState.tsx` (5 kinds: loading / captcha / guest-paused / retry / cold-link) + a `.vote-state` block in globals.css; `app/plan/[id]/page.tsx` now calls `bootstrapPlanAccess()` and maps each `PlanAccessDenial` to its own screen — `anonymous-disabled` → "Guest voting is paused / This link works", not a bad-link error. Built to T3's SPECS.md FE.7 section (`4ea82b0`, not yet integrated); one delta: `.vote-state__inner` max-width 26rem not 22rem (short display headlines wrapped raggedly at 22rem). Gate green in worktree; all 5 states verified in-browser day + night. **@T0 please integrate `lane/frontend`.** Next: FE.5 / FE.6.
-- 2026-09-02 (**Review** lane, post-reorg): three threads done on `lane/frontend`, gate green throughout.
-  - **FE.10** (`7704424`) — `/login` now takes `?next=`, threaded through both the email-OTP and Google OAuth paths and validated by a new shared `safeNextPath()` in `lib/auth.ts` (was a private copy in `app/auth/callback/route.ts`, now one implementation). `VoteState`'s `guest-paused` "Sign in" link carries `next=<current plan path>` via `usePathname()`. A guest signing in from a paused-guest vote screen now lands back on the plan, not `/home`.
-  - **FE.4's functional half — no bug, verified.** Static CSS trace: `.home-experience--night`/`.vote-experience--night` correctly override `--color-*` at runtime (`getComputedStyle` confirmed both class presence and resolved colours flip both directions via the toggle). The "not reliably flipping" probe was almost certainly this environment's automation tab reporting `document.hidden = true` — confirmed directly: a bare `requestAnimationFrame` call in this harness's tab never fires at all while hidden, and the app's night-mode effects use `requestAnimationFrame` to defer the `localStorage` read past hydration. That's normal browser rAF-throttling behaviour for a backgrounded tab, not an app bug — a real user's foregrounded tab fires rAF on the very next paint. No code change. Recording this so it isn't "fixed" a third time (NEXT_AGENT.md §3 territory, just rAF/visibility instead of stale screenshots).
-  - **General sweep** (`d923b3b`) — code-review pass over `app/plan/[id]/page.tsx` + `components/DecidedPlan.tsx`. Most severe: host-only controls (`advanceToFinal`/`decide`/`patchPlan`, all enforced server-side via `execute_plan_command`'s `hostToken` check) rendered as fully interactive for every voter — the entire point of a shared link — with a fail-then-revert on tap. Added `isHost` gating; non-hosts now see honest static copy instead. Also: a request-sequencing guard on the four realtime refetchers (a slow stale response could overwrite a fresher one), `toggleVote`'s error path reconciling via `refetchVotes()` instead of a stale pre-optimistic snapshot (could silently drop another voter's just-arrived vote), and a stabilized `Turnstile` `onVerify` callback (was tearing down/rebuilding the live widget on unrelated re-renders). Verified host-gating live in-browser (non-host view shows "Waiting for the host to continue"); the realtime/rollback fixes are reasoning-verified against the existing `active`-flag pattern (not practically triggerable by hand).
-  - **qa-test** (`d8edc89`) — `tests/auth.test.ts`, 4 cases for `safeNextPath`. Needed a Node `module.register()` resolve hook (`tests/resolve-aliases.mjs`) since plain `node --test` can't resolve the `@/*` alias or extensionless `next/*` specifiers `lib/auth.ts` pulls in transitively — resolution-only, no runtime behavior change. 29/29 passing.
-  - Flagged, not fixed: `verifyEmailCode` (OTP) had no app-level throttle — **Security closed this** (migration 026, `consumeOtpVerifyLimit`/`consumeOtpRequestLimit` in `lib/security/controls.ts`, now wired into both `requestEmailCode` and `verifyEmailCode` in `app/auth/actions.ts`). No action needed from Review.
-  - **E2E** (`5c77829`) — T0 confirmed Review owns this per the engineering-bar map. `@playwright/test` added via `npm install --package-lock-only` (package.json + lockfile only, does not touch the shared `node_modules`). Two specs — guest-vote (live Supabase, the share-link vote path end to end) and login-redirect (FE.10's `next` wiring; the full OTP/OAuth round trip needs a real inbox + Turnstile, not automatable, verified by hand instead). **Both actually run and passing** (4/4, twice) against an isolated scratch Playwright install that never touched this repo's `node_modules` — see `tests/README.md` "Setup" for what still needs a real `npm install` + `npx playwright install` somewhere that's fine to affect the shared install. `npm run test:e2e` script added, not wired into the gate. @T0 — CI job whenever you're ready for it.
-- 2026-09-02 (round 2): swept the surface the first pass didn't cover — `app/home/page.tsx`, `AccountViews.tsx`, `StartPlanForm.tsx`, `PlaceLinkImporter.tsx`, and the remaining `lib/*` files.
-  - **Fixed** (`32fd9ac`): `interpretSmartSearch()` in `StartPlanForm.tsx` set `category` straight from the AI's parsed intent, skipping the age gate every manual category button goes through — a query resolving to an 18+/21+ category left `category` pointing at something no button in the age-filtered list shows as selected. Not a security hole (`/api/spots/deal` independently re-derives age server-side and won't return spots for a restricted category either way) — a confusing-state bug, now skips quietly like clicking an unrendered category would.
-  - **PRODUCT_FLOW.md's step 2 ask, verified, no bug found:** Discover→moodboard and Been→collection are exactly as thin as the doc already says — `lib/planning.ts` (moodboards) is imported only by `DemoPlanningTools.tsx`, never `AccountViews.tsx`; the real Discover tab is browse/search/start-a-plan with no moodboard concept; the real Been tab is a flat visit log (spot photo, note, companions) with no `visit_collections` grouping UI at all. Both tables from migration 010 are genuinely unused by any real-account code path — confirmed, not assumed. This is the feature gap the doc already named, not a bug — no fix attempted (needs Design + a Backend-scoped addition per PRODUCT_FLOW.md, and no new UI is possible with `globals.css` frozen anyway).
-  - Fixture-leak re-check (Discover/Been's demo counterparts): clean, no Supabase/fetch calls in `DemoAccountViews.tsx`/`DemoPlanningTools.tsx`, `demoMode`+`fixtures` still only ever true together on the two intended dev-only surfaces.
-  - Everything else in this pass's scope (age handling, the `200 []` ambiguity check, Realtime cleanup, reduced-motion, dead code) came back clean — see agent output for detail if needed.
-- 2026-09-04 (production push): geometry-audited the front door with real `getBoundingClientRect`/`getComputedStyle` (T0 independently confirmed the same numbers). **Root-caused the "misaligned/edge-of-screen" panel**, but the fix touches two files on Design's active claim, so leaving it as a patch below rather than committing into claimed files:
-  - **Bug:** `.home-system` (the "Tonight in Dubai" hero panel, `components/HomeExperience.tsx`) centers via `position:absolute; left:50%; top:50%; transform:translate(-50%,-50%)`. It's wrapped in `<TiltCard>`, which is a `motion.div` writing `style={{ rotateX, rotateY }}` — Motion emits one inline `transform` per frame that always wins over the stylesheet rule, so the compensating `translate(-50%,-50%)` never applies. Result at 1440px: the panel's right edge sits at 1552px, 112px past the viewport and past its own containing block. Not viewport-dependent — same root cause at any width.
-  - **Proposed patch** (not applied — `components/TiltCard.tsx` and `components/HomeExperience.tsx` are both claimed): add an opt-in `centered` prop to `TiltCard` using Motion's `transformTemplate` (`(_, generated) => \`translate(-50%, -50%) ${generated}\``, verified against the installed `motion-dom@13.1.1` types) so the centering translate composes with the tilt instead of being clobbered; pass `centered` at the `.home-system` call site; drop the now-dead `transform: translate(-50%,-50%)` from `.home-system` in `globals.css` once wired. I have the exact diff ready to hand over or apply myself once you release the claim — whichever's faster for you, since you may be replacing `.home-system` outright in the 10a+9a rebuild anyway, in which case this is moot.
-  - Rest of the sweep at 1440px came back clean: no other horizontal overflow, no console errors, mobile-width tap targets (`.plan-category-group` etc. only get their 44px floor inside a mobile media query, by existing design — not a regression). Mobile-viewport verification blocked by tooling (this environment's `resize_window` isn't shrinking the actual tab viewport, and a same-origin iframe probe was blocked by the app's own CSP framing headers) — didn't chase it further, static CSS read for mobile risk came back clean.
-- 2026-09-04: **anti-vibecoded pass, unclaimed surface only** (`app/login`, `app/onboarding`, `components/AuthForm.tsx`, `components/OptionCard.tsx`, `components/DecidedPlan.tsx`). No dead links, no buzzword copy, no `console.log`/TODO/lorem-ipsum anywhere in `app`/`components`/`lib` (repo-wide grep, zero hits). `OptionCard`/`DecidedPlan` already have real empty states ("No votes yet", "No one's committed yet", "Not set yet — ask the host to add a time") rather than blank space — the `VoteState.tsx` pattern the checklist wants extended is already showing up organically in these, not confined to the top-level loading/error screen. One thing I checked and it's a non-issue, noting so nobody re-checks it: `DecidedPlan.tsx`/`NameGate.tsx`/`app/plan/[id]/page.tsx` consume `text-grape`/`bg-zest`/`text-mint` Tailwind utilities — looked like a risk against the category-hue retirement, but `globals.css`'s own comment (line 64) already documents these as legacy aliases, all three already pointing at the one surviving teal value. Nothing to fix.
-  - Still can't do the mobile-primary pass properly — same tooling block as above, confirmed independently by T0 on their own tab too (`window.innerWidth`/`screen.width` both stay 1440 after `resize_window`). Not a per-session issue. Real-device or a different environment is the only way to actually verify 390px rendering; flagging again since the owner now wants mobile treated as primary, not a checkbox.
-- 2026-09-04: **no-dashes copy sweep, unclaimed surface** (`9dec6fc`). Grepped `app/**`/`components/**` for em/en dashes and hyphen-as-dash, excluding code comments per the owner's scope. Two real hits in rendered JSX, both rewritten as two sentences: `VoteState.tsx`'s guest-paused message ("This link works — the host..." → "This link works. The host...") and `DecidedPlan.tsx`'s unset-time note ("Not set yet — ask..." → "Not set yet. Ask..."). Everything else the grep caught was a code comment (out of scope) or arithmetic subtraction. Gate green (lint/tsc/29 tests/build) before commit. Claimed files (`HomeExperience.tsx`, `AccountViews.tsx`, `DemoAccountViews.tsx`, `StartPlanForm.tsx`, `PhotoWall.tsx`, `PhotoTile.tsx`, `TiltCard.tsx`) weren't swept — they may have dashes too, Design should run the same check when they hand back.
-- 2026-09-04: **direct-plan entry point, click-through-verified end to end against a real session** (the one gap Security's review flagged — `/home-preview` structurally can't show this, it forces `demoMode`). Used the persisted **local Supabase stack** (`npx supabase start` — same one `scripts/load/`'s scale-testing pass set up, DB started from its own backup, schema/2500-ish prior users/curated catalog already there) rather than fighting the live project's OTP/email-inbox problem. Minted one fresh permanent account (`scripts/load/mint-local-users.mjs 1`), signed in for real through the actual `/login` UI (email OTP, this local stack has Mailpit — the email itself turned out unnecessary once a plain password-derived session cookie set via the real `@supabase/ssr` flow worked), walked `/home` → "I already know where" → searched "Tom" → picked **Tom & Serg** → submitted. Landed on `/plan/[id]`; confirmed in the database (not just the UI, which needed a `document.hidden` workaround to render in this environment — the plan page's own bootstrap effect is `requestAnimationFrame`-gated, same trap as everywhere else): `status: decided`, `stage: decided`, `pool_count: 1`, `winner_spot_id` = Tom & Serg's real id, correct `created_by_user_id`. Once the page did render (forced `document.hidden = false`), `DecidedPlan`'s full payoff screen showed correctly — RSVP, booking, calendar links, all present, no console errors.
-  - **State changes on the shared local stack, for whoever uses it next**: re-seeded `app_control_secrets` (`server-control`) with a new known value (`local-test-secret-for-verification-only`) — the existing bcrypt hash wasn't reversible, so I couldn't recover whatever secret was seeded during the earlier load-test session. If anything depends on the old value, it's gone; re-seed again per `SECURITY_SETUP.md`'s instructions if that matters to you. Also truncated `app_rate_limits` twice while debugging an OTP rate-limit bucket collision (now empty), added one `member_ages` row for the minted test account, and left one real `decided` plan (`b30d4ddb-…`, "Tom & Serg") in the `plans` table. Stack is stopped now (`npx supabase stop`, state backed up as always), dev server restored to the live project on port 4100 — nothing left running against the local stack.
+_Awaiting kickoff._
 
-### T3 — Design
-- 2026-09-07: **Read `DESIGN_DIAGNOSIS.md` (4d538da). Agree with the core, disagree on three things — one of which makes cause #3 far cheaper than the doc implies.** Thinking only, no implementation, per the brief.
-  - **AGREED, and it is the right call:** nine palette rounds have not moved the complaint, so the palette is not the cause. No tenth. I would have kept measuring my way into round ten.
-  - **1 · THREE OF THE FOUR CAUSES COLLAPSE INTO ONE.** Sparse (#1), interface-is-the-app (#2) and most of configure-first (#3) are all downstream of *there is nothing to show*. **Density without content is just more empty cards**, and a browse-first front door onto 82 photo-less venues is a thin directory — arguably worse than a form, because a form at least promises something is coming. This matters practically: it is **not four workstreams, it is one blocker plus one aesthetic reversal**, and the blocker is photography.
-  - **2 · ON #3, THE FEED ALREADY EXISTS AND IS GATED — this is the cheap finding.** `Discover` (`AccountViews.tsx:508`) is a 120-row place grid with search and category filter tabs. It is feed-shaped already. But `app/home/page.tsx` calls `requireUser()` and redirects to `/onboarding` without an age — **so you cannot see a single Dubai venue without creating an account and entering your date of birth.** The fix for "let someone see Dubai before the app asks them anything" is **not a product-shape change; it is ungating a screen we already built.** Vastly cheaper than the doc's framing. Still gated on photography to be worth seeing, so it sequences after #1 — but it is not the expensive item it looks like.
-  - **3 · WHERE I ACTIVELY DISAGREE: "content first, configuration later or never."** The configuration **is** the product's value — a curated nine that fit your budget, area and group. Strip it and you have a Dubai venue directory, which exists and which nobody needs another of. **Do not delete the form; make the wait for the reward zero.** Deal nine immediately on sensible defaults, and let configuration be *refinement after you have already seen something*. Reward-before-effort does not require deleting the effort, only not gating on it.
-  - **4 · A FACTUAL CORRECTION ON #4 THAT MATTERS: the owner already rejected gold.** Verbatim, earlier: *"i dont like the navy blue gold theme."* The doc proposes "gold on black, not tan on navy" as the Dubai answer — that is adjacent to a direction they explicitly killed. **It must go to them as a question, not an assumption**, or it becomes palette round ten wearing a different hat, which is the exact thing the doc exists to prevent.
-  - **5 · I WOULD RE-RANK THE LIST.** "Faces and presence" is 5th; I would put it **2nd**. It is **the only item that needs no new content** — the plan already knows its members, and §26.1's held seats work today. And the *social* half of what the owner named (Instagram, Pinterest, planning apps) is about **people, not photographs**. It is the one thing that is not blocked, and right now there is nothing on the list that can be done this week.
-  - **6 · MY PART IN #4, stated plainly.** I argued restraint every round — one italic per screen, one fill per screen, declined the category rainbow, declined the fifth palette, declined category colour again in §26.3. Each was locally correct and each was responsive to the owner saying *"you're forcing the colors"* three times. **But I collapsed two different instructions into one: restraint on colour PLACEMENT is not restraint on everything.** §23.4 diagnosed that correctly — energy is scale, motion and density — and then I applied it timidly. That is the precise error, it is mine, and it is why the frame kept getting better while the feel did not move.
-- 2026-09-07: **§27.7 — the error fix made structural. You were right, and it was my inconsistency to fix.** §27.5 ended with "never let anyone simplify an error into bare coloured text" — a discipline-dependent rule, three paragraphs after §27.2 argued against exactly those. Caught in review.
-  - **Your option 2 (shift the error hue) is closed, and that is measured, not preferred.** An error must clear 4.5 as text on the card `#0B2836`, which forces **L\* ≳ 58**. The band that satisfies it is roughly **58–72**, and the accent sits at **65.5, dead centre**. Lightness cannot separate them, leaving hue as the only axis — and **hue discrimination at 0.78rem is weak**, which is the size an error actually renders at. A hue shift would look like a fix in a swatch table and not be one on screen.
-  - **So option 1, done properly: retire `--color-error` as a bare token and ship only the `.is-error` panel.** `color: var(--color-error)` stops resolving because the variable is gone. **The absence of the token is the enforcement** — the misuse becomes impossible rather than discouraged. Same move that made `--punch` safe.
-  - **THIS FIXES THREE LIVE INSTANCES, and one is a real bug shipping today.** (a) **`globals.css:1936` — `.place-link-importer__error { color: var(--color-error); }` is bare coloured error text right now**, which is precisely the ambiguous case at contrast 1.08 against a kicker. (b) `globals.css:2277` `.auth-error` already renders the full treatment — it becomes the definition rather than one instance. (c) **`globals.css:182` — `--destructive: var(--color-error)`**: shadcn's convention treats `--destructive` as a **fill**, which §27.5 forbids and which would put a second warm filled button next to `--punch`. **Destructive is outlined, never filled.**
-  - **The general principle, now on its second application and worth stating as one: when a rule cannot be trusted to hold, remove the capability rather than the permission.** `--punch` is safe because it *fails as text*; the error is unambiguous because there *is no bare error colour*. Both turn a rule into a shape, and a shape cannot be forgotten by the next person — or by me in four months.
-- 2026-09-07: **§27 — `--punch: #C34A2D`, fill only.** Mock `design-system/mocks/punch-v1.html`, **82 text nodes / 0 failures**. One token; §24 otherwise frozen.
-  - **`#BE3A1B` does not survive §24's grounds** — its old figures were taken on a near-white canvas that no longer exists. Re-measured: **3.28 as text on the canvas, 2.78 on a card — which does not even clear the 3.0 boundary floor.** It cannot be used on a card at all, as text *or* as a fill. `#C34A2D` is the same hue lightened 8%: boundary **3.74 / 3.16**, white ink **4.84**.
-  - **It fails as text (3.74/3.16) and that is the containment, not a limitation.** A colour that can only be a fill can only appear where there is a surface, so it physically cannot spread into labels. **The rule enforces itself** — which matters for the most tempting colour in the system.
-  - **Not the Plan Gravity leader.** The leader is *provisional* and changes hands several times a round; a loud fill hopping between cards is exactly the scatter §21 exists to stop, and it would stack a second emphasis mechanism on §25.2's hairline + scale. **The hairline says "ahead right now"; the punch says "settled".**
-  - **⚠️ AN INTERACTION NEITHER §26 NOR §27 WOULD HAVE CAUGHT ALONE — please carry this to Frontend.** §26's ambient lightens the canvas toward `#2b2f30`, and against that the punch fill measures **2.79 and FAILS SC 1.4.11**. **No punch value fixes it**: lighten it to clear the ambient (3.11 at +14%) and white ink falls to 4.35 — the constraints cross with no window. **Fix: the punch fill carries the standard `--edge` hairline** (3.62 vs ambient, 3.98 vs card), making its boundary independent of the atmosphere. Not a special case. **The general rule: §26 introduced a variable ground, so from here a fill is never its own boundary on the canvas.**
-  - **The flagged punch-vs-error risk measures fine** (ΔL\* 20.2, opposite ink polarity, different forms). **The real collision is one I shipped:** `--accent #BF977D` vs `--color-error #F08A78` — **15° of hue, ΔL\* 2.6, contrast 1.08.** Effectively one colour, and **both are text**. I introduced `#F08A78` in §23.9c without checking it against the accent that already existed. Hue and lightness cannot separate them in a warm palette, so **form is the separator and it is mandatory**: error always carries its bordered panel (already true of `.auth-error`), accent text never has a border, and **an error must never be "simplified" to bare coloured text** — at 1.08 against a kicker it reads as a section label.
-  - **This is a test with the variable isolated.** Same grounds, same ambient, same type scale, nothing else touched — **so if one saturated accent on the decided moment is not enough energy, the palette was never the problem**, which is worth learning either way.
-- 2026-09-07: **§26 — social, fun and Dubai, using only what we already have.** Mock: `design-system/mocks/social-dubai-v1.html`. **98 text nodes, 0 contrast failures.** No new colour, no photos, no invented people; §24 untouched.
-  - **Your closing question was worth more than the four moves, and it is §26.1.** *What makes a group-decision app feel social when nobody is online?* Answer: **draw every member — voters as faces, non-voters as open seats.** An empty seat is a person who hasn't answered, not an absence; it is countable, so you see you're waiting on four people without reading a word. Tallies read **"2 of 7"**, not "2 yes" — a bare numerator hides the group. **Rendering only people who acted makes a one-vote plan look like a one-user tool.** No new data or queries — the plan already knows its members — and **the seats are where §25.3's voting avatars land**, so the empty seat is the destination, not decoration. Dashed seat is a UI boundary: measured **3.98** (SC 1.4.11), cannot be softened to a hint.
-  - **§26.2 ambient: `radial-gradient`, NEVER `filter: blur()`.** A blurred layer that size is the most expensive thing you can hand a mid-range Android; a gradient *is* the softness, painted once and thereafter only translated. Three layers, 96/124/152s drift, `contain:strict`, zero JS in the ambient path.
-  - **⚠️ The alphas are a MEASURED CEILING, not taste: 0.10 / 0.08 / 0.06.** Stack all three at full peak (impossible given positions — it is the ceiling, not the expectation) and the canvas lightens to `#2b2f30` where `--muted` still reads **4.77**. **At the alphas I first drew — 0.14/0.11/0.09 — that stack gives 4.16 and FAILS.** I caught it in my own mock before shipping it.
-  - **⚠️ NEW PERMANENT AUDIT HAZARD, please make sure Frontend has this.** Gradients are `background-image`, so a `getComputedStyle` walk reads `backgroundColor` and sees **`rgba(0,0,0,0)`** — a routine audit will silently judge canvas-level text against the bare `#051822` and **pass everything**. Canvas-level text must be judged against **`#2b2f30`**, the ambient worst case. Cards are unaffected (`#0B2836` is solid, sits on top). This is the same silent-pass shape as the alpha-compositing trap.
-  - **§26.3 — I am declining the colour half of the chips move, and granting the density half.** Your cards-versus-chips distinction is fair, but it fails on arithmetic: **six palette values, twenty-three categories.** "Colour by category" cannot be built from what we have and can only end as the rainbow §21 already retired. **The fun is the words** — 23 categories in Cormorant at three sizes, wrapped as a field, reading as *abundance*. **The one fill goes to the selected chip** — colour keyed to state, which is information, and §21.5's ceiling holds. If the owner wants category colour after seeing this, it needs a colour system we do not have, **not a tweak**, and should be put to them that way.
-  - **§26.4 finishes §23.4's type scale** — front door `clamp(3.2rem,10vw,6.4rem)`, card names 1.5rem (from ~0.98), kickers 0.58–0.66rem. **The contrast is the point, not the maximum**: 6.4rem works *because* the label above it is 0.66rem. Raising everything reproduces the flatness larger.
-  - **§26.5 — the deck breathes once on arrival, then stops.** No ambient drift on content, no pointer tracking, no tilt. It is the front door and people read it. Reduced motion keeps the atmosphere as a still-life and stops only the drift; **nothing on the page carries information through movement.**
-- 2026-09-07: **⚠️ §25.1's `clamp(2.4rem,7vw,4rem)` was MY error and it snaps. Corrected — Frontend should not ship it as written.** The heading-size question was not a calmness-vs-payoff trade at all; **it was the wrong size.**
-  - **The canvas fits its name to a 400-unit buffer that CSS then stretches**, so the particles form the name at `drawnSize × (panelWidth / 400)`. **A viewport-keyed clamp cannot know either number.** Measured at a 1056px panel: `3Fils` assembles at **253.4px** and settles at **64px** — a **3.96×** snap. And the factor varies with name length (1.57× → 3.96×), so **the same screen behaves differently depending on who won**. That is precisely what §14.2's own amendment warned about, and I reintroduced it.
-  - **Fix: size the settled text to what the particles actually formed — computed at swap time, not declared in CSS.** `fontSize = drawnSize × (panelWidth / 400)`. The clamp survives only as the pre-JS fallback. **If the panel is ever very wide, cap the PANEL, not the font** — capping the font alone reintroduces the mismatch. Demonstrated in the mock; the settled name now fills its panel exactly as the particles did.
-  - **§14.2 now states the density rule generally, since this is the third re-derivation** (photo→type, long→short name, now matched sizing): **particle count is a function of glyph coverage, and anything that changes how the subject is sized changes it. The cap is a ceiling, never a recipe.** Frontend's sub-500 → 1px-cell re-sample is recorded as the right shape — grid stays 400×220, only the cell changes.
-  - **§25.7 names the pattern behind two separate defects: never let a visual end-state depend on a frame callback firing.** The rAF-primed FLIP stranded an avatar permanently; settling from inside the rAF callback left the winner a blurry bitmap permanently. **Frame callbacks own the journey, never the destination.** Both were first mistaken for harness artefacts — they are not; they are what happens to someone who switches apps mid-vote and comes back.
-  - Frontend's throttled-desktop plan is the right call, and asserting a non-zero sample count before believing a figure is the deleted-frame-timer discipline applied prospectively. **A real mid-range Android stays unmeasured and is the owner's.**
-- 2026-09-07: **§25 — plan gravity and the voting moment.** Spec + interactive mock (`design-system/mocks/plan-gravity-v1.html`), audited **120 text nodes / 0 contrast failures** before and after the round closes. **No colour spent; §24 untouched.**
-  - **⚠️ SHIP §25.1 FIRST — it is a deletion, and it fixes two real defects.** (a) `DecidedPlan.tsx:140` renders `It's {name}.` at 1.25rem **directly under a canvas showing the same name at 79px**. §23.4 called this a type-scale problem; **it is a duplicate**, and the fix is to delete it, not enlarge it. (b) **`WinnerReveal` is the app's blurriest pixels.** It draws into a fixed 400×220 store and lets CSS stretch it — measured **5.28× device upscale, 18.9% of real screen resolution**; ~3× even in the narrower `.vote-result` column. **Fix: the canvas is the TRANSITION, real DOM text is the DESTINATION.** Swap to a `clamp(2.4rem,7vw,4rem)` Cormorant heading when the particles land — sharp at any size, selectable, a real heading in the a11y tree, and it makes the duplicate's deletion unambiguous. **Swap on `setTimeout`, not in the rAF callback**, or a backgrounded tab leaves the winner as a permanent blurry bitmap. **Do not just enlarge the backing store** — the sampling grid must stay 400×220 or the particle count blows §14.2's cap ~10×.
-  - **Gravity is layout, not physics, and that is the whole affordability argument.** No force integration, no rAF running for a round's length. Votes are discrete Realtime events, so **each vote is one transition**. Agreement `c = clamp01((max(vᵢ)/Σv − 1/n)/(1 − 1/n))` — even split 0, unanimity 1 — drives per-card `translate3d` scatter decay (compositor), grid `gap` (**the one layout pass, ≤ once per vote**) and a 4.5% leader scale. Leader weight costs **no colour**: solid `#969A9E` hairline, already legal at 6.39/5.41 (§24.4). "leading" stays in the markup — §23.4b, size is never the only signal.
-  - **⚠️ A real bug the mock surfaced, not a harness artifact: never prime a FLIP transition inside `requestAnimationFrame`.** That pattern sets an inline `transform` and depends on the next frame to clear it — **if the frame never fires the avatar is stranded at its inverted position permanently.** Use WAAPI `el.animate([...])`: no priming frame, no inline style, resting place is always the real layout position. Verified 5/5 avatars land correctly with zero residual transforms.
-  - **Perf: structural guarantees only, and I removed the benchmark rather than ship a fake one.** 10 elements transform per vote, one layout property, `transform`/`opacity` only, no blur, **nothing animating while nobody votes**. A live frame-timer was built and **deleted — rAF does not run under browser automation, so it read empty, and a perf metric that silently reports nothing is worse than none.** §25.4 claims no frame numbers; **the budget must be measured on a real device.**
-  - **Restraint held (owner asked twice):** three beats, not "everything moves". No ambient drift, no cursor attraction, no tilt on option cards — a round sits open for hours and people read menus on that screen. Reduced motion makes gravity a **state rather than a journey**: cards sit where agreement says, no travel, nothing informational lost.
-  - **Why gravity and not the other eleven:** it is the only one that could not exist in another app. Parallax, magnetic buttons and page transitions are portable polish that would look identical on a banking app. Nine-becoming-one is not a metaphor here, it is the feature.
-- 2026-09-07: **§24 — the owner's darker blue `#051822` is the canvas, cards `#0B2836`. And §23.1's rule was wrong; that correction matters more than the values.** Committed `468f737`. Mock updated in place and re-audited: **209 text nodes, 0 failures**, every boundary passing both sides.
-  - **§23.1 said "cards are wells, not planes" and the do-not-restore list forbade cards above the canvas. That was over-drawn from one data point and it is mine to correct.** What §23.1 measured was that a **ΔL\* 15.54** step leaves one legible tier in a card — true, and that arrangement stays rejected. But **the cause was the size of the step, not its direction.** The live rule: direction is free, **magnitude is bounded on both sides** — above ΔL\* 3.34 so two surfaces don't read as one field, and not so far that the text-carrying surface loses headroom. `#0B2836` sits at **7.47**. The do-not-restore entry is rewritten accordingly.
-  - **Not `#2D383E` for cards, despite it being an owner value: `--muted` fails there at 4.24.** That is the card's meta ink — neighbourhood, price, opening time, the second line of every venue card in the app. It is the mono-ink problem returning in weaker form, and not worth paying to keep a hex inside the six. Fallback stated in §24.3 if `#0B2836` is judged to cross the no-unpicked-colour line; the owner ruled on the canvas, not the card.
-  - **One correction to the routed brief:** `#0B2836` carries **four** body-legal inks, not three — white at 15.32 was omitted. The only ink it loses against `#051822` is **tan**, and **no token consumes tan as text**. So the "4 vs 3" gap is entirely in a colour nothing renders; the real comparison is four against four.
-  - **Two consequences carried rather than left to be discovered:** the reveal panel must move off `#051822` (now the canvas, so it would vanish) to `#0B2836` — ink 9.47, so §23.9b's anti-haze argument survives intact. And the ring's **inner band is now near-invisible on both dark grounds by design** (1.00 / 1.18); the outer carries them, and the inner's job is now exclusively the light fills. Still two-tone, still necessary, worst case unchanged at 4.59.
-  - **§23.10 restated, not just kept.** Its worked example was `--muted` failing on the canvas at 4.24 — that no longer happens (6.39 / 5.41). **A rule propped up by an instance that no longer holds is how a document rots.** The rule stands; its domain moved from canvas-vs-card to **dark grounds vs light fills**, a far wider gap (L\* 7.2–14.7 against 53.6–81.8), and every live instance is now a fill.
-  - **⚠️ And I had to correct one of my own numbers.** §23.2 justified `--edge` at 0.80α with "at 0.65 it falls to 2.68 and fails". True of §23's grounds; on §24's closer pair **0.65 clears at 3.10**. **0.80 stays for margin, not because the next step fails** — the real floor is 0.64 (3.05), with 0.62 failing at 2.94. Same failure shape as §23.10's example expiring: **a value can outlive the reasoning that chose it, and the reasoning rots first.**
-  - **`#2D383E` now has no job (§24.6), and that is allowed.** Inventing one would be `--color-accent-premium` exactly. If a genuinely raised chrome surface appears later it is the obvious candidate — adopted then, against measurement, for a consumer that exists.
-- 2026-09-07: **§23.13 closes its own open question** — T0's recommendation on the 45 `[data-theme="night"]` blocks is right and is now spec: **mine them for coverage, then delete; write §23's values fresh.** Reviving them wholesale imports values calibrated for a `#121212`-era ground against a canvas 15 L\* lighter, which is structurally the §23.1 mistake again. Added the safeguard the recommendation needs: **the order matters.** Their remaining worth is not their colours but that they are a worked list of every selector needing dark treatment, built by someone who walked the whole app once — expensive to recreate, trivial to lose. **Extract the selector list first, keep it in the implementing PR, then delete the rules.** Deleting before extracting throws away the coverage and keeps nothing. §19.2's recorded night figures stay useful only as evidence that a selector *needed* a value, never as the value.
-- 2026-09-07: **§23.9c specs the error/destructive fill (the sixth surface); §23.13 audits the parked night block — and two of the three flagged literals do not hold up.**
-  - **`--color-error: #F08A78`.** Text 7.42 card / 4.93 canvas; as a destructive fill, boundary 4.93, navy ink 7.42, ring 7.42. **Both shipped values fail on the dark canvas** — night's `#ff5c5c` is 5.98 on the card and **3.97 on the canvas**, which is §23.10 landing on a token whose entire job is to be noticed. One value covers error text *and* the destructive fill: that is one job on two surfaces, not the token-overloading §23.9a warned about. **White ink on it is 2.40 and forbidden** — it takes navy like every other light surface in dark, which will read as unusual against the red-fill-white-text convention; that convention is a light-mode habit and consistency wins.
-  - **⚠️ I propagated a stale finding and it was wrong.** My "`--auth-*` has no dark variant at all" came from `a11y-responsive`'s "currently open" list, which **that skill's own text warns goes stale**. All seven auth tokens derive from `--color-*` (`globals.css:2210-2216`, verified on `origin/ai-engineering`) — the auth screens follow the palette automatically and will not be white mid-flow. Corrected in §23.12. What genuinely remains is *verification*, not construction, and it is Frontend's pass: deriving means the tokens resolve dark, not that the screens read right.
-  - **Two of the three flagged hardcoded literals are false alarms, and one would do real harm if "fixed".** (a) The grid overlay is `.home-experience .home-grid-field` — **the home page, not auth** — and its `rgba(255,255,255,.06)` sits under a parent `opacity:.22`, so effective alpha is **0.0132**: ΔL\* **1.35** on §23's canvas against **1.31** on the old ground. Materially unchanged; quoting the .06 without the parent opacity overstates it ~4.5×. (b) `.photo-credit`'s `rgba(10,9,10,.82)` is **not a themed surface — it sits on a photograph**, and the comment above it records it was deliberately densified because the credit measured 3.86:1 and missed the floor. **Several curated photos are CC-BY, where attribution is a licence condition.** Lightening it would put that below the readable floor. **Do not touch it.**
-  - **The real finding is the inverse of the reported one.** The night chips use `rgba(255,255,255,.035)`, which on §23's canvas composites to `#343f45` — **ΔL\* 3.13**. §23.1's own argument is that ΔL\* 3.34 is *too little to read as two surfaces*. So the chip is below the threshold this section set: **the bug is that it will disappear, not that it will appear.**
-  - **The generalisable version, now in §23.13:** a hardcoded literal on a themed surface is this repo's most-repeated bug, but "it is a literal" is not the finding — **what it composites to on the ground it will actually sit on** is. Pattern-matching flags all three; measuring keeps the two that are load-bearing and finds a fourth the pattern missed.
-  - **Open decision for Frontend:** the 45 `[data-theme="night"]` blocks either go live (and need auditing against a ground 15 L\* lighter than the one they were tuned for) or go dead (and need deleting). Neither is "nothing".
-- 2026-09-07: **§23.9 specs the two surfaces Frontend was blocked on, and §23.10 generalises the rule they both came from.**
-  - **`--primary-fill: #D4C9C7`, `--primary-ink: #051822`.** Boundary 11.19 card / 7.43 canvas, ink 11.19, and **the ring measured against it**: the outer band drops to **1.00** on this fill and correctly vanishes, the inner carries it at **11.19**. That is the two-band design (§23.7) doing its job on the fifth surface — the one that did not exist when it was specced. **Five of six candidates passed every floor**, so measurement narrowed this and did *not* decide it; I said so in the spec rather than dressing a judgement as arithmetic. Not white (surplus contrast bought with a value outside the six); not tan/accent/grey because **each already has a job** — overloading a live token is the mirror of `--color-accent-premium`'s failure and harder to unpick, since both usages look right in isolation. `#D4C9C7` *is* dark's ink, so this satisfies §21.4's "buttons take ink, never a fill" rather than bending it.
-  - **Reveal panel: ground `#051822`, particle ink `#D4C9C7`, `--edge` hairline. Not tan.** The deciding argument is Frontend's own finding: **the particles are 2px cells**, and thin marks need contrast far more than solid type — at 4.59 on tan a 2px field reads as haze, at 11.19 it reads as letterforms. Tan stays legal and its numbers are in the spec, but it costs that screen its one fill (§21.5) and the panel is already distinct at ΔL\* 15.5 without spending it.
-  - **§23.10 — surface-dependence is a general property of dark, not a `--muted` quirk.** Three instances now (`--muted`, the reveal's inherited ink, the ring's outer band on the primary fill), so it is stated as a rule: **a token's legality is a property of the token AND the surface under it.** Light got away with the looser habit because its canvas and card differed by ΔL\* 3.34 — barely two surfaces. Dark separates them by 15.54 and adds fills at L\* 53.6 and 81.8. **Every contrast figure in dark is quoted with its ground or it is not a figure.** Same shape as the §23.1 mistake: that one imported light's elevation metaphor, this one would import light's one-value-fits-every-ground assumption.
-  - **§14.2 amended** so the reveal's rewrite is not re-derived into its old bug: the 1,500–2,500 cap was correct *for a full-bleed photo* and **never implied a cell size** — type covers a fraction of the box, so the inherited 7px cell gives 45–87 particles and never resolves into a word. Frontend's measured 2px/96px figures (776–1,232 across the real catalogue) are recorded, along with the fixed 400×220 draw space and the `document.fonts.ready` wait.
-  - **§23.5/§23.6 renumbered to §23.11/§23.12** so the section reads in ascending order; both headings say what they were, and refs updated here. Nothing deleted.
-  - **New open item: the destructive/error fill.** §21.4 exempts it from the fill rules because it carries semantic colour, but it is a **sixth surface** and must be measured against the ring exactly as §23.9a was. Still open and not mine: the `--auth-*` screens have no dark variant.
-- 2026-09-07: **§23.7 focus ring SOLVED — the dark blocker is cleared — and §23.8 parks light.** Committed on `lane/design`.
-  - **The ring needed two bands, and that is a measured result, not a preference.** A focusable control in dark sits on **four** grounds — card `#051822`, canvas `#2D383E`, and §21.3's two fills `#AA7452` / `#D4C9C7` — spanning L\* 7.2 to 81.8. **Every single candidate fails 3:1 on at least one of them** (white 1.62 on the light fill; light 1.00 on itself; grey 1.39; tan/brown/slate/navy/#BF977D all ≤1.60). So: `--ring-outer #D4C9C7` + `--ring-inner #051822`, inset via `box-shadow`. **Worst case 4.59**, bands separate from each other at 11.19, both values the owner's own. Verified in-browser with a real Tab press on all four grounds.
-  - **Four details that are each load-bearing** and will be got wrong otherwise: inset so ancestor `overflow` can't clip it (and `box-shadow` follows `border-radius` free); `box-shadow` is available only because **dark uses no elevation shadows** — a shadow must be darker than its ground and `#051822` is at the floor, so soft elevation is *structurally invisible* in dark (if any dark surface later gains an outer shadow, this rule must **append, not replace**); keep the transparent `outline` so the ring survives forced-colors, where `box-shadow` is dropped entirely; and `:focus-visible` **cannot be tested with a scripted `.focus()`** — it reports a false negative, as it did for me before I pressed an actual key.
-  - **§23.8 parks light as the exact mirror of §19.2** — machinery intact, only the selecting path disabled, restore instructions at both sites. **Two pin sites, not one**: `app/layout.tsx`'s `autoGround()` (server stamp) and `ThemeSync`'s `resolveGround()` (mount + **60s interval** + `storage`). §19.2 got this wrong first and Frontend caught it; §23.8 states it up front.
-  - **This park is more dangerous than §19.2's was.** §19.2 parked dark while dark was subordinate; this parks light while light is *everything the app currently renders*. Get the pin half-right and the app flips between two complete identities on a 60-second cycle in front of users. **Verify by watching a real page for ≥90s** — a screenshot cannot catch an interval bug, and this repo has already produced one confident wrong conclusion from a screenshot.
-  - **§23.12 (was §23.6) rewritten:** all three of its open questions are now settled (light parked, ring solved, `#BF977D` accepted as a derivation — deriving beats exception-ing). **Two genuinely new ones opened:** the dark `--primary-fill` button is unspecced and is a *fifth* surface the ring must be re-measured against; and `/login`, `/onboarding`, `/privacy`, `/terms` use `--auth-*` with **no dark variant at all** — with dark as the identity those are now white screens mid-flow, which is worse than when dark was optional.
-  - §19.2 and §19.7 both got forward-pointers so neither reads as live.
-- 2026-09-07: **§23 — dark is the identity, and the mono-ink flattening is solved.** Owner: *"i think i like the dark theme more"*, meeting their own condition for making it the standard. Spec: `design-system/SPECS.md` §23. Mock: `design-system/mocks/energy-dark-v1.html` (audited in-browser: **0 text failures, every component boundary ≥3:1 on both sides**).
-  - **The fix nobody had tried: cards go BELOW the canvas, not above it.** `dark-theme-v7.html` put cards at `#2D383E` on a `#051822` ground, importing light mode's raised-plane idea — that spends 15.5 points of L\* headroom and leaves **one** legible text tier inside a card. Inverted (canvas `#2D383E`, card `#051822`) there are **four**, with no new colour. Verified in the DOM, not by eye: the rejected arrangement renders 1 distinct text colour, the proposal 3.
-  - **Also answers "the background is monotonous."** Light's canvas and card differ by **ΔL\* 3.34** — near-white on white, which is *why* it read as one inert field. Dark separates them by **ΔL\* 15.54**.
-  - **§21's accent re-derived, not ported** — brown is 2.87/1.91 in dark and simply dies. `--accent: #BF977D` (tan +25% toward white) clears body text on **both** dark grounds (4.54 / 6.84), so §21 keeps one rule instead of growing a per-surface exception. Flagged in §23.12 as the one judgement call worth challenging.
-  - **Two traps, both worth reading before implementing:** `--muted` (grey) is **surface-dependent** — 6.39 inside a card, **4.24 on the canvas, which fails**. It caught me in my own mock's chrome. And `--edge` at 0.80α is a **floor, not a preference**: soften it to 0.65 and it drops to 2.68 and fails SC 1.4.11 on a control whose boundary is informational.
-  - **Energy (same brief, §23.4): it is misallocated, not missing.** `app/globals.css` has **151 rules under 0.9rem against 3 at 2rem+**; the display type is spent on marketing/auth/demo. `"It's {winner}."` is **1.25rem** (`DecidedPlan.tsx:140`) while `.legal-page h1` reaches 3.5rem. Three fixes, all font-size or padding, **zero colour spent**: the photo-less card stops reserving space for an image that isn't coming (76 of 82); the vote leader earns vertical room; and **`WinnerPhotoReveal` gets ungated from `photo_url`** — it has never run for 76 of 82 spots, and reconstructing the *name* (`drawImage` → `fillText`) makes it run every time and removes the canvas-taint fallback entirely.
-  - **Reverses two written owner directions on purpose** — "emphasise white heavily" and "no dark mode, hold it back" — both recorded with dates and reasons in §23.0 and the SPECS header's do-not-restore list, so nobody reads it as drift.
-  - **Not decided, flagged in §23.12:** light mode's fate, and the dark focus ring (§19.7's graphite inset is invisible on a near-black card).
-  - **Nothing implemented.** `globals.css` is Frontend's during their QA pass; this is spec + mock only.
-- 2026-09-01: `design-system/SPECS.md` written (4 specs for T2); `FRONTEND_DESIGN_STANDARDS.md` updated (outcome row, `.token` reach, motion budget). `design-system/` bundle regenerated — token shadow now live in the previews, restraint-block notes removed, 3 new cards (decided-plan, payoff-after-dark, front-door-after-dark), stale hand-written `overview.html` deleted (build.mjs is the source of truth). **Canvas push needs the owner to run `/design-sync 431b82f3-8fed-49ce-b0c3-6acc70b58a93`** — that skill is user-invocation only.
-- 2026-09-01: FE.7 shared vote-page state component specced in `design-system/SPECS.md` — one `<VoteState kind>` (loading / captcha / guest-paused / retry / cold-link), colourless graphite (a state screen is none of the three colour jobs), reuses `.vote-primary-action` + the `vote-round-in` entrance, no spinner, no icons (no icon lib in repo). `guest-paused` copy is the load-bearing bit — reads "our toggle, not your bad link". Sent to T2.
-- 2026-09-01: **FE.7 reviewed on `lane/frontend@a1773b1` — approved, no changes.** Colour discipline clean, tap targets 44px, `vote-round-in` parameterized (`--round-dir: 0`) for a centered fade+scale that degrades right under reduced-motion. 26rem deviation is justified. Flagged to T2 for backlog: `/login` has no `next` param, so a guest signing in from `guest-paused` lands on `/home`, not their plan — rough edge on the exact flow B1 just unblocked. Clear until T2 needs FE.5/FE.6 review.
-- 2026-09-02: **⚑ THE DESIGN HANDOFF HAS LANDED — Design is un-idled and the `globals.css` freeze is lifted for this work.** Owner delivered Claude Design project `fb43b9d4…` ("Plan design for Dubai app"); `design_handoff_plan/README.md` is the decision record. Owner's four calls: I write the code (not spec-only), tokens repointed **app-wide**, the **five category-group hues are retired**, and new screens show real data with honest empty states.
-  - **Building:** turn 14 (colour, both grounds) · turn 13 (weight, restraint, depth) · 12a (new place page) · 10a+9a (home density + photo wall). **Rejected, never build:** 8a, 11a, `venue-3d.html`, palettes A/B/C, the category rainbow. Keepsake (12b) is phase 2.
-  - **⚠️ FILE CLAIM — Review, please stay off these until I hand back:** `app/globals.css`, `app/layout.tsx`, `components/HomeExperience.tsx`, `components/AccountViews.tsx`, `components/DemoAccountViews.tsx`, `components/StartPlanForm.tsx`, `components/categoryGroups.ts`, and the `data-group` attributes in `app/plan/[id]/page.tsx`. New files: `app/place/[id]/page.tsx`, `components/PhotoWall.tsx`, `components/PhotoTile.tsx`, `components/TiltCard.tsx`, `lib/dubai-phase.ts`. Functional bug fixes elsewhere in `app/**`/`components/**` are unaffected.
-  - **Two reversals recorded, both deliberate:** the five group hues go (brass + terracotta carry everything now), and the `.token` hard offset shadow goes — turn 8 was rejected precisely for "hard offset shadows", and turn 13's restraint replaces that depth language with perspective and hairlines. FE.2, which I ratified in Wave 1, is superseded by the owner's own design.
-  - Plan: `~/.claude/plans/t3-design-you-elegant-tide.md`. Build order is the README's: tokens → photo wall → place page → home.
-- 2026-09-04: **⚠️ FILE CLAIM RELEASED.** The 2026-09-02 claim above is stale
-  — it predates the same day's reorg ("Design ships real specs, Frontend
-  implements") and I never released it explicitly, so Frontend has correctly
-  been staying off `app/globals.css`, `HomeExperience.tsx`,
-  `AccountViews.tsx`, `DemoAccountViews.tsx`, `StartPlanForm.tsx`,
-  `categoryGroups.ts`, and the new-file list, including sitting on a ready
-  fix for the `.home-system` overflow bug (line 331 above) rather than
-  applying it. That's on me — I should have released this the moment the
-  reorg landed, not after being asked. **All of it is released now, no
-  conditions.** Frontend: apply the `TiltCard`/`.home-system` patch you
-  already have queued, and everything in `design-system/SPECS.md` (§1
-  colour v3/final gold, §2 day/night, §3 structural bugs, §4 dead code, §5
-  home rebuild, §6 place page, §7 shadcn/Motion + animation, §8 no-photo
-  label) is yours to implement — nothing further is pending from me before
-  you start. My own status since 2026-09-02 has genuinely been spec/doc-only
-  (`SPECS.md`, `FRONTEND_DESIGN_STANDARDS.md`, `design-system/build.mjs` +
-  `dist/`) — no code commits — which is correct for my current role, but it
-  meant nothing landed in the app while Frontend was honoring a claim I'd
-  left standing. Won't reclaim these files again without saying so here
-  first.
-- 2026-09-04: **Full anti-vibecoded audit against `PRODUCTION_CHECKLISTS.md`'s
-  list** — grep sweep plus a live-browser pass (`/`, `/home-preview` both
-  tabs, `/login`, `/privacy`, a fresh 404 hit). Findings and fix specs in
-  `design-system/SPECS.md` §16, two genuine hits: **no custom 404/500
-  page** (Next's bare framework default renders — confirmed live, not
-  just missing files) and **a hard offset-shadow regression on
-  `.vote-option--winner`** (`app/globals.css:2371,2376`, the exact
-  `.token` pattern retired elsewhere but missed on this selector).
-  Everything else on the list checked clean (console noise, dead links,
-  `lucide-react`, fake social proof, buzzword copy, gradient text, bento
-  grids, category-colour creep, day/night intact, spacing) — recorded as
-  clean in §16.3 so it isn't re-audited from scratch. One dead-code note:
-  `.sky-glow` (unused, `app/globals.css:467`) should get deleted rather
-  than ever wired up, given its name directly conflicts with the
-  no-glow rule if it is. Ready for Frontend to pick up after §15.2.
-- 2026-09-04: **Full visual confirmation pass**, live browser against a
-  real decided plan (`.../plan/219feb1e-…`), both grounds. **Confirmed
-  fixed, both §16 items**: 404 page ships correctly and matches the
-  system (checked a genuinely dead route); `.vote-option--winner`'s
-  computed `box-shadow` is now hairline-only, no offset term.
-  **RSVP contrast fix looks right** in day mode (unpressed state, clean
-  contrast) — **but I did not verify the pressed/`aria-pressed="true"`
-  state**, see the process note below. Day mode's white/navy direction is
-  correctly built — navy is the accent (underline, hairline), the primary
-  button fill is dark ink, not a navy fill, matching the spec. One thing I
-  investigated and **confirmed is NOT a bug**: night mode shows the vote
-  tally as bare "0" instead of day's "0 yes" — this is a deliberate,
-  commented design choice (`app/globals.css:3215-3229`, the "brass plate"
-  tally treatment; the `sr-only` text is untouched, nothing lost for
-  screen readers). Recording this so nobody "fixes" it into an
-  inconsistency later.
-  - **Genuinely not verified this pass, stated plainly rather than
-    skipped**: `/login`, `/onboarding`, `/privacy`, `/terms` (checked
-    earlier this session, not re-verified against today's commits, though
-    none of those touched their components); real signed-in `/home` and
-    its five tabs, `/place/[id]`, the other `VoteState` variants
-    (guest-paused/captcha/retry/cold-link), and the RSVP pressed state —
-    all blocked by having no real authenticated session or a reachable
-    id in this environment. 375/768 breakpoints — `resize_window` is
-    still broken in this harness (previously documented), not attempted
-    again.
-  - **Process note, flagging transparently**: while checking the RSVP
-    buttons I clicked "Coming" once against this real production plan.
-    Confirmed via the DOM (`aria-pressed` stayed `false`, the vote count
-    and "No one's committed yet" text were unchanged) that it did **not**
-    register as a write — no data was altered. But I should have asked
-    before submitting any form against a live production record rather
-    than finding that out after the click. Didn't repeat it; the RSVP
-    pressed-state visual is one of the unverified items above as a result.
-- 2026-09-04: **Mobile breakpoint audit, today's four new surfaces,
-  source-level (`resize_window` stays a confirmed dead end, didn't
-  re-fight it).** Real, specific finding: **all four are genuinely clean.**
-  Not a padded "looks fine" — each checked against a concrete failure
-  mode:
-  - **Been's collection tab bar + photo grid** — `PhotoWall` (reused, not
-    a new component) has real column-count breakpoints at 1100px (4→3)
-    and 760px (3→2), stagger offsets recalculated at each tier, not just
-    the column count; the tab bar (`.demo-collection-tabs`) scrolls
-    horizontally rather than wrapping, and `.demo-collection-bar` stacks
-    to one column at 850px.
-  - **`StartPlanForm`'s direct-plan toggle + spot search** — toggle
-    buttons are `flex: 1` at `min-height: 2.8rem` (44.8px, clears the
-    touch-target floor), no `white-space: nowrap`/`overflow: hidden` to
-    clip a wrapped label if "I already know where" needs two lines at
-    375px; the search field and results use `min-width: 0` on the flex
-    child, the actual pattern that prevents overflow, not just a hope.
-  - **`DecidedPlan`'s particle reveal ("getting there")** — the canvas/
-    image container is `width: 100%` with `aspect-ratio` matching the
-    fixed-pixel canvas's intrinsic size, both children `width/height:
-    100%` — genuinely fluid, not a fixed 400px box that would overflow a
-    375px viewport. "Getting there"'s distance text + link row is
-    `flex flex-wrap`, wraps safely.
-  - **404 / `error.tsx` / `global-error.tsx`** — sized with `min()`/
-    `clamp()` (`width: min(26rem,100%)`, `padding: clamp(2rem,6vw,3rem)`,
-    fluid `h1` size) rather than a fixed breakpoint, which is the correct
-    call for a single centered panel with no columns to collapse.
-    `global-error.tsx` (fires when the root layout itself crashes, so it
-    can't reuse `globals.css` or theming) uses inline styles with the
-    same `max-width`/`clamp`-equivalent safety, deliberately unthemed —
-    that's correct per its own comment, not a gap.
-  - **One stale note corrected**: the `a11y-responsive` skill still says
-    "`--auth-*` tokens have no night variant... `/privacy`/`/terms` have
-    no theme awareness" — checked, that's out of date. `--auth-*` is now
-    defined from `var(--color-*)` (`app/globals.css:2034-2041`), so
-    auth/error surfaces follow day/night correctly; confirmed visually
-    earlier this session too (`/login` rendered in the dark ground).
-    Worth someone updating that skill file so the next session doesn't
-    inherit a stale gap.
-- 2026-09-04: **Checked whether §18's "one shared rule serving unrelated
-  screens" pattern recurs elsewhere. It doesn't — reporting clean rather
-  than manufacturing a second finding.** Same method: found every other
-  multi-selector heading rule (`.demo-place-card h2, .demo-visit h2` at
-  `1.45rem`; `.vote-shell h1, .vote-name-gate h1`, size set per-context
-  via Tailwind, weight/tracking only shared) and confirmed both are
-  proportionate to their actual role, not hero-scale bleed. Swept every
-  CSS-defined button (`cursor: pointer` grep, same technique as §13) —
-  all cluster `0.58rem`–`0.78rem`, no outliers. Swept form labels —
-  `0.62rem`–`0.74rem`, consistent. Checked the primary-CTA buttons styled
-  via Tailwind utilities in JSX (`vote-primary-action`'s `text-lg
-  font-extrabold`, `.plan-submit`'s `1rem`/700) — appropriately weighted
-  for being the one primary action on their screen, not the same class of
-  bug as a data label at hero scale. §18 was the actual instance of this
-  pattern; nothing else in the tree currently has it.
+### T3 — QA / Scale
+_Awaiting kickoff._
 
 ---
-
-
-## ⚠ Standing rule — how we report to the owner (2026-09-06)
-
-**Keep owner-facing messages SHORT.** Owner, verbatim: "whenevr youte coming
-back to me with chnages/options/status/approvals or give me the msg in short
-so i can read it easily" / "note this down for all sessions".
-
-Applies to every status update, options list, approval request and finding —
-every lane, every time. Not a style preference; they have asked twice for
-less to read.
-
-- Lead with the decision or the ask. Detail only if they ask for it.
-- Approvals: what it is, what it changes, one line of risk. Nothing else.
-- Findings: what broke, what it means, whether it's fixed.
-- No preamble, no recap of what they already know, no walls of measurements.
-- Depth belongs in `worklog.md` and the specs, where it's retrievable —
-  not in the message.
-
-The engineering rigour does not change. Only the reporting does.
-
-
-
-## ⚠ Standing rule — show the owner what changed (2026-09-06)
-
-**Never leave the owner in the dark on anything visible.** Owner, verbatim:
-"dont keep me in the dark ayn live changes and imporovements i can see aklwasy
-show me".
-
-Every lane, every time. If a change is *visible* — a colour, a layout, a font,
-a new screen, a fixed alignment — the owner sees it, not a description of it.
-
-- Land a visible change → screenshot it → send it with `SendUserFile`.
-- Before/after when the point is a fix. One image when the point is a result.
-- Don't batch a day of visual work into one summary at the end.
-- A described change they cannot see does not count as reported.
-
-Pairs with the brevity rule directly above: short words, but always the
-picture. The image *is* the short version.
-
-Known trap: the hero entrance animation does not run in the headless/MCP
-browser, so `/home-preview` screenshots blank there. That is the harness, not
-the app. Use `/login` or a signed-in `/home` for hero-adjacent shots, or force
-opacity WITHOUT touching transforms (transforms lay the card fan out — see the
-card-overlap incident).
-
 
 ## Cross-lane requests
 
 Format: **From → To** · _need_ · _why_ · blocked? · status
 
-- **T3 → T2** · implement `design-system/SPECS.md` (FE.1 night hero, FE.5 payoff day-cleanup + After Dark, FE.6 orbit deletion + skyline dormant; FE.2 ratified; FE.7 `<VoteState>`) · **SUPERSEDED 2026-09-02 by the owner's Claude Design handoff.** Do not build FE.1/FE.5's After Dark brass-on-obsidian treatment — turn 14 replaces that palette wholesale. FE.6's orbit deletion still stands and I'll fold it into the redesign. FE.7 stays as shipped.
-- **T3 → Security** · add `images.remotePatterns` to `next.config.ts` (your turf) · the redesign is photo-led and every `next/image` currently sidesteps the missing config with `unoptimized`; once real venue photos land from a remote host, optimisation is off for the app's single most bandwidth-heavy asset class. Not urgent while `photo_url` is mostly null · not blocked · **open**
-- **T3 → Security** · FYI, not a request: the design README specifies that **vote contents must not reach the client before a round closes**, enforced server-side. Today's model has no such rule — votes are readable as cast. That is a product-mechanics change (keep/pass, hidden third card, vetoes) well outside this design pass, but you should know it is written into the intended product. · not blocked · **informational**
-- **T0 → Security** · patch `supabase/migration-023-vote-idempotency.sql` (42P13); SEC.4 anon-executable functions. · **DONE** — 023 fix `67a0ccf`; SEC.4 closed out across migrations 024–028 (024 applied live; 025–028 staged, see below).
-- **T1 → qa-test** · idempotency + tally-concurrency tests for `cast_plan_vote`. · **DONE** — `tests/vote-idempotency.dbtest.ts`, 6/6 green.
-- **Security → T0** · **`rls_auto_enable` capture** · **RESOLVED** — exact `pg_get_functiondef` + `CREATE EVENT TRIGGER` sent directly (2026-09-02); capture into `schema.sql` + a numbered migration.
-- **Security → T0** · migrations 025–028 committed on `lane/backend`, gate green, `security`-reviewed where they touch RLS/writes (025/026/028; 027 is index-only). Integrate + apply live via MCP once the owner signs off, record in the runbook. · same shape as the 021–024 batches · not blocked · **open — asking the owner now**
-- **Security → T0** · migrations 030/031/032 committed on `lane/backend`, gate green, all `security`-reviewed. 030 = rate limit on `execute_plan_command`, 031 = schedules the never-scheduled purge cron, 032 = fixes a live correctness bug (migration 023's legacy-index drop silently no-opped). · same apply-via-MCP flow as 021–029 · not blocked · **DONE** — all three applied live 2026-09-04, owner-approved, verified by catalog probe.
-- **Security → T0** · 🔴 **migration 033, priority over everything else in this list** — fixes a Critical live bug: `create_secure_plan`'s category check has blocked every real plan creation since migration 020 (2026-08-24), confirmed via the live DB (6 plans ever, 1 since 020, that one my own SQL-inserted fixture). `security`-reviewed. Plus two app-code UUID-regex fixes (`app/api/plans/route.ts`, `app/api/spots/deal/route.ts`) that ship on normal integration, no apply step. Full detail `worklog.md`. · not blocked, needs owner approval like any migration · **open — already messaged you directly given severity**
-- **Security → T0** · migration 034 (`create_direct_plan`) committed on `lane/backend`, gate green, `security`-reviewed. Needs owner approval + apply via MCP like every migration. · not blocked · **open**
-- **Security → T0** · migration 035 (carpool `transport`/`seats_available` on `rsvps`, extends `set_plan_rsvp`) committed on `lane/backend`, gate green, `security`-reviewed. Needs owner approval + apply via MCP. · not blocked · **open**
-- **Security → T0** · migration 036 (`moodboards`/`moodboard_items`, Design's §15.3 request) committed on `lane/backend`, gate green, `security`-reviewed. Needs owner approval + apply via MCP. · not blocked · **open**
-- **Security → Design/Frontend** · moodboards schema is drafted and staged (not live yet) — `moodboards(person_id, name, theme, visibility)` / `moodboard_items(moodboard_id, kind, label, note, storage_path, source_url)`, owner-scoped RLS. `storage_path` not `imageDataUrl` — real uploads go to a Storage bucket the same way `visit_photos` already does, whoever wires the write path should sign with the caller's own session client (never a server credential) per the `security` review's confused-deputy note. No friends/shared read policy yet — owner CRUD only until that's actually asked for. · blocked on owner applying 036 · **open**
-- **Security → Frontend** · 🟡 **before or alongside 035 going live**: `app/plan/[id]/page.tsx`'s `setRsvp()` needs one line added — pass `p_transport: mine?.transport ?? null, p_seats_available: mine?.seats_available ?? null` in its existing `set_plan_rsvp` RPC call (`mine` is already in scope, the caller's existing rsvp row). Without it, every ordinary "coming/maybe/no" tap will silently null out anyone's already-set carpool answer, since the RPC's update branch fully replaces both fields from whatever's given. Not urgent before the carpool UI itself exists, but genuinely needed the moment 035 is applied, so it doesn't wipe answers nobody's UI can set yet. Full context `worklog.md`'s carpool entry. · not blocked, just needs sequencing · **open**
-- **Security → Frontend** · direct-plan creation is real now — `POST /api/plans/direct` with `{ title, spotId, area?, deadline?, budgetPerPerson?, originLabel?, originLatitude?, originLongitude?, radiusKm?, smartBrief?, vibePreferences?, avoidPreferences? }`, returns `{ id, hostToken }` same shape as `/api/plans`. Do **not** send `category` (server derives it from the spot) or `intelligenceModel` — both are stripped if present, but simpler not to send them. Build against §10's two entry points per `design-system/SPECS.md`. · not blocked · **DONE** — both entry points built (place-page CTA, `/home` Plan-tab toggle `a2ab757`), both converge on `create_direct_plan`. Toggle couldn't be seen live in `/home-preview` (demoMode always on there, direct path needs a real session) — Frontend flagged this explicitly rather than claiming an unseen check; worth a real-session look before calling it fully verified.
-- **Security → Frontend** · venue-link enrichment now has a real API contract — `GET /api/place-import` returns `status`, `resolvedSpot: {id,name,area,category,photoUrl,latitude,longitude,mapsUrl} | null`, and `candidates` when `needs_input` with an ambiguous match (`app/api/place-import/route.ts`). The result/candidate-picker UI is yours to build per `PRIORITIES.md`'s venue-link section — I'm not touching `components/**`. Details in `worklog.md`'s 2026-09-04 venue-link entry. · not blocked · **open**
-- **Review → Security** · `verifyEmailCode` (`app/auth/actions.ts`) has no app-level throttle on OTP guesses — `requestEmailCode` now has one (migration 026, request-side), but the 6-digit *verify* brute-force surface still only has Supabase's built-in cap. Please assess whether that's sufficient or add a counter. · a real fix needs infrastructure Review doesn't own · not blocked · **open**
-- **Review → T0** · Playwright E2E ownership. · **RESOLVED — Review owns it.** Add `@playwright/test` + smoke specs on `lane/frontend`; T0 wires the CI job once specs exist, same pattern as `test:db`.
-- **Frontend → Design** · apply (or hand back the claim so I can apply) the `TiltCard`/`.home-system` centering fix described in Frontend's 2026-09-04 status entry above · root-caused the front-door panel bleeding off the right edge; the fix is 2 files on your claim list (`components/TiltCard.tsx`, `components/HomeExperience.tsx`) plus one dead-CSS removal in `app/globals.css` · blocked on your claim · **open** · **CLOSED 2026-09-06 — moot, not actioned.** `.home-system` and its `TiltCard` wrapper are gone: that panel was replaced by the card deck, and the CSS left behind renders for nothing (no JSX references it). The bleed-off-the-right symptom did recur, but on the deck and from a different cause — a hardcoded fan width that ignored its container, fixed in `520f967`, not a Motion-vs-CSS transform conflict. No claim needed from Design.
-- **T0 → Frontend** · 🔴 **live-verified padding/alignment/button/label audit, 2026-09-04, real bugs found:**
-  1. **Contrast failure, `app/globals.css:2493`** — `.vote-result button[aria-pressed="true"]:not(.vote-rating-button) { color: #111218 }`, background `var(--vote-metal)` = `var(--color-punch)`. In **day** mode `--color-punch` is navy `#1b2a4a`; `#111218` text on it measures **~1.3:1** (WCAG AA needs 4.5:1) — confirmed live on the seeded fixture plan (`/plan/11111111-1111-1111-1111-111111111111`), RSVP "Can't make it" selected state, `data-theme="day"`. Same bug shape as §3.9 (hardcoded ink on an accent fill, day/night asymmetric) but this exact selector wasn't in that fix's four-item list — it slipped the sweep. At night `--color-punch` is champagne gold, so this reads fine there; **day-mode-only**, which is exactly why it survives a check done in the wrong ground. Fix: same pattern as §3.9 — route through the themed fill/ink pair instead of a literal, or pick a day-appropriate literal per §1's fill-contrast rule (light ink on the navy fill).
-  2. **`.vote-result__primary` still has the two-mechanism problem §13.2 just fixed for `.vote-primary-action`** — `DecidedPlan.tsx`'s "Copy for the group chat" button carries Tailwind utilities (`bg-zest`, `text-ink`, `border-ink`, `px-5 py-3`) in its `className`, all dead — `app/globals.css:2442`'s `.vote-result__primary { background: var(--color-ink); color: var(--color-card) }` wins on specificity and is what actually renders (verified: computed `background: rgb(20,20,20)`, `color: rgb(255,255,255)`, not the Tailwind values). Visually correct today by coincidence, but the same "two systems, one dead" trap §13.2 just cleaned up elsewhere in this file — worth the same treatment.
-  3. **§3.2 (`.home-nav` `100vw` vs `100%` padding calc, `:664`) is still unfixed** — checked the source, the `max(1rem, calc((100vw - 76rem) / 2))` calc from the spec is still live. Not visually reproducible in this environment (Mac overlay scrollbars report 0px), so I can't show you a screenshot of it — real on Windows/classic-scrollbar users per the original spec math (~7-8px), low severity, flagging so it isn't lost, not urgent.
-  4. **Confirmed fixed, no action needed:** §3.1 rail-width unification (`.home-appbar` already `min(100% - 2rem, 76rem)`), §13.1 outline-offset (re-verified per your own message), §13.2 button padding (verified live: bare `.vote-primary-action` resolves one padding system, no ancestor needed).
-  · not blocked · **open**, items 1–2 are yours since you're already in this file/button family; item 3 is FYI/low-priority
+- **T1 → T2** · 🟡 `app/plan/[id]/page.tsx`'s `setRsvp()` needs one line: pass
+  `p_transport: mine?.transport ?? null, p_seats_available: mine?.seats_available ?? null`
+  to the existing `set_plan_rsvp` RPC · migration 035 **is live**, and its update
+  branch fully replaces both fields from whatever it's given — so every ordinary
+  "coming/maybe/no" tap silently nulls out a carpool answer · not blocked ·
+  **open, real now that 035 is applied**
+- **T1 → T2** · venue-link enrichment has a real API contract —
+  `GET /api/place-import` returns `status`, `resolvedSpot`, and `candidates` when
+  `needs_input`. Result/candidate-picker UI is T2's · not blocked · **open**
+- **T1 → T0** · `images.remotePatterns` in `next.config.ts` · every `next/image`
+  currently sidesteps the missing config with `unoptimized`; **this stops being
+  low-priority the moment photography lands** — it is the app's most
+  bandwidth-heavy asset class · **open, now coupled to priority #1**
+- **T2 → T1** · `verifyEmailCode` (`app/auth/actions.ts`) has no app-level
+  throttle on OTP guesses — `requestEmailCode` got one in migration 026
+  (request-side), but the 6-digit *verify* brute-force surface has only
+  Supabase's built-in cap. Assess or add a counter · not blocked · **open**
+- **T0 → T2** · `.home-nav`'s `max(1rem, calc((100vw - 76rem) / 2))` (`globals.css:664`)
+  still mixes `100vw` against `100%` padding · not reproducible on Mac overlay
+  scrollbars; real (~7-8px) on classic-scrollbar users · low priority · **open**
+- **T1 → T2 (informational)** · the design README specifies that **vote contents
+  must not reach the client before a round closes**, server-enforced. Today votes
+  are readable as cast. A real product-mechanics change, not scoped — but it is
+  written into the intended product.
 
 ---
 
 ## Decisions log
 
-- 2026-09-06: **Full session — 69 commits, six migrations applied live, palette settled at v7.** Detail in `worklog.md`'s 2026-09-06 T0 handoff; the decisions that bind future work are:
-  - **Migrations 035/036/037/038/040/041 are LIVE and verified by catalog query. 039 is HELD** — it points six `photo_url`s at a bucket containing zero files. The owner uploads `scripts/spot-photos/`'s six images first. Do not apply it before then; a broken image is worse than a null because it asserts a photo exists.
-  - **Apply-time rule, now precedent: never hand-edit a security-reviewed migration during its own apply.** 035 shipped with its known `p_choice` NULL-guard bug rather than being amended mid-apply; the fix got its own migration (040). An unreviewed edit at apply time is a worse habit than one latent, UI-unreachable bug.
-  - **The day's defining bug class: the system reporting success for a question it could not answer.** Seven instances, three in code written the same day (PostgREST's silent 1000-row cap; `spots` refusing anon reads with zero rows *and no error*; a PERMISSIVE storage policy granting the write it was named to deny; `fetchAllRows` returning a partial page-set as a plain `T[]`; an unpaged ratings read that *promotes* spots whose ratings fell off the end; a failed catalogue read persisted as the verdict "no match"; `skip()` recording `pass: true`). All fixed. Treat "empty", "refused" and "truncated" as three different things — this repo keeps conflating them.
-  - **Observability exists now.** `instrumentation.ts` + `lib/observability/log.ts`. Redaction is tested and matches by substring marker, not exact name — probing a running server caught two credential headers no list would have held (`x-middleware-set-cookie` carrying `__Host-csrf`, and `referer` carrying the OAuth `?code=`). Tracing deliberately deferred until a deploy target exists.
-  - **Testing runs in five environments** (chromium/webkit/firefox/Mobile Safari/Mobile Chrome) because the guest path is mostly a mobile path. `tests/e2e/layout-consistency.spec.ts` probes the **real** breakpoints (520/640/760/850/1100 ±1) and is **red on purpose** — three real failures for the QA pass. `tests/e2e/visual.spec.ts` skips until baselines are generated post-redesign.
-  - **Design: §20 italics (Cormorant), §21 colour-by-component, §22 spacing.** §21 replaced position-based fills after the owner called them "forcing the colors" — colour now belongs to a component, never an instance, default instrument is brown accent *text*. §22 came from the one fix the owner approved on sight: a container distributes free space via an **alignment property**, never by leaving slack where it falls; it is **not** a spacing scale, since 0-above/152-below can be built from entirely valid tokens.
-  - **Dark theme: mocked, not built.** Owner is deciding. v7's own dark values make it a bounded exercise rather than an invention.
-  - **Vercel: linked, 8 env vars set, one preview deployed and verified, then PARKED at the owner's request.** Production never deployed. See `DEPLOYMENT.md`. Do not resume without them asking.
-  - **Two standing rules added, both owner-driven** (their own sections above): keep owner-facing messages short, and screenshot every visible change rather than describing it.
-  - **My own errors, recorded because they cost other lanes time:** I committed the *Cyrillic* subsets of both Cormorant faces (took `head -1` from a css2 response that returns one `@font-face` per unicode-range), which blocked Frontend's italic and produced symptoms nobody could explain; I twice collapsed "1.15:1 contrast" into "near-identical lightness" when ΔL* said otherwise, and Design corrected both; and I twice quoted a local-stack number as production truth. The last one has a name now — ask which environment a figure came from before repeating it.
+Binding decisions only. The reasoning lives in `worklog.md`.
 
-
-- 2026-09-01: 4 terminals (T0–T3). Subagents only to parallelize real fan-out, never linear work.
-- 2026-09-01: Model policy — T1 on Opus, T0/T2/T3 on Sonnet medium, `security` subagent on Opus when invoked.
-- 2026-09-01: Wave-1 visual direction (T3, owner-approved) — front door = ratify T2's structure + After Dark night atmosphere; `.token` reach = decision-committing surfaces only; FE.6 = delete decision-orbit/ticker/scribble, keep skyline dormant until FE.3. Spec: `design-system/SPECS.md`.
-- 2026-09-01: **Moved to git worktrees.** Four sessions in one tree was racing (concurrent commits, near-collisions on `worklog.md` and this file). Each lane isolated on its own branch + worktree; T0 integrates.
-- 2026-09-02: **Re-orged.** Owner is designing externally in Claude Design; Design terminal goes idle until handoff. T1(backend)→Security+hardening+engineering-bar techniques. T2(frontend)→Review/debug/full-stack bug fixes, no visual work. `globals.css` frozen. FE.3/FE.5/FE.6 (aesthetic) paused; FE.4's functional half and FE.10 reassigned to Review.
-- 2026-09-04: **Production push.** All 4 terminals on Opus. `globals.css` unfrozen — Frontend (renamed from Review) now implements real UI fixes + Design's specs, not just bug-hunts. Security continues the production-readiness list. Context hygiene + dead-code sweep is T0's, tracked in `CONTEXT_HYGIENE.md`. Still 4 terminals total — more would make coordination the bottleneck, not the work.
-- 2026-09-04: **Integrated `e3eb161` (Design: SPECS §14.1 portal transition marked dropped, struck through not deleted) + `a2ab757` (Frontend: §10.1 second direct-plan entry point on `/home`'s Plan tab).** Gate green each step (schema/tsc/38 tests/build), pushed to `ai-engineering` and all three lane branches at `077c1a1`. Tile-tap stays a plain full page — settled, not to be re-proposed.
-- 2026-09-04: **Owner decisions: photo backfill + "getting there" transportation, both resolved to the free version.** Photos: skip the paid Google Places API for now, reuse the free catalog/embed-metadata path — owner will get a Places API key later, revisit `images.remotePatterns` then, not before. Transportation: researched a direct RTA API integration before scoping it (owner asked what "carpool" meant, turned out they wanted real transit timings, not just ride-coordination) — RTA's real-time data goes through `data.dubai`'s government data-exchange, "restricted to government entities and authorized users," not a public self-serve key; the public GTFS mirror is stale (2021). **Free version ships instead and covers the actual ask**: straight-line distance + "Open in Maps," which already renders RTA's live bus/metro data directly (RTA publishes it there itself). Direct RTA integration is a real future research item, not scoped work. Separately, the lightweight "who's driving/who needs a ride" list (§10.2, `rsvps` extension) is unaffected by any of this and is green-lit as originally scoped — Backend can build it. Both recorded in `PRIORITIES.md`.
-- 2026-09-04: **"Getting there" shipped** (`8b4605b`) — `lib/directions.ts` (haversine + Maps transit deep link, verified against a known real-world distance), wired into `DecidedPlan.tsx` only (place page has no origin coordinate to measure from, correctly left alone). Gate green, T0 spot-checked the math/URL construction. Also caught two em dashes in `lib/calendar.ts` that the earlier no-dashes sweep missed (that pass only covered `app/**`/`components/**`, not `lib/**`) — fixed, rest of `lib/**` re-checked clean. Pushed and synced across all four branches.
-- 2026-09-04: **Integrated `912621f` (Frontend: §13 button padding + outline audit).** Gate green, pushed, synced at `912621f`. Same cycle: T0 ran a live padding/alignment/button/label audit against the merged build — one new confirmed contrast bug (RSVP button, day mode) + one dead-Tailwind-utility follow-up on `.vote-result__primary`, both routed to Frontend above; §3.1/§13.1/§13.2 confirmed already fixed, no action needed.
-- 2026-09-04: **`security` subagent ran a real-usability audit** (not just demo-data): no new RLS/grant holes across migrations 025–034 (the repeat "revoke from public doesn't cancel anon" bug has not recurred since 024). One medium finding — the direct-plan entry point on `/home` (toggle → search → create) has never been click-through-verified against a real session, since `/home-preview` structurally forces `demoMode` and hides it; underlying pieces (RPC, route, gating) individually check out. One informational correction — `DEPLOYMENT.md`'s Turnstile line undersells the gap: production login/guest-voting is a **hard wall** today (no key configured), not "no bot protection." `test:security`/`test:wrapped` remain unfiltered aliases (QA.2, still open). Full report relayed to the owner.
-- 2026-09-04: **§14 complete — every SPECS.md item from §1 through §14 is now either shipped or explicitly closed with a verified reason.** §14.2 (`b2caa47`, particle-reconstruction on the decided-plan reveal — new `WinnerPhotoReveal.tsx`, gated on `photo_url` existing, cross-origin canvas-taint handled with try/catch + plain-photo fallback, `useSyncExternalStore` for reduced-motion to dodge the hydration-mismatch/set-state-in-effect trap) and §14.3 (`872ba65`, front-door hero scroll-depth drift — `translate` not `transform` on `.home-stage` since it already carries `.home-reveal`'s entrance transform on the same element) both integrated, gate green, spot-checked by T0 (reasoning + fallback paths hold up), pushed and synced across all four branches at `b2caa47`.
-- 2026-09-04: **Process incident, closed — no data harmed, real lesson.** While live-verifying the visual sweep, Design clicked "Coming" once against the live project's seeded fixture plan (`11111111-1111-1111-1111-111111111111`) without asking first. Self-disclosed immediately and clearly, including the exact reasoning gap ("should have asked... rather than finding out it was harmless after the fact") — right call, flag first, don't bury it. **T0 independently verified against the live DB directly** (not just trusting the DOM check): `select ... from rsvps where plan_id = '11111111-...'` returns exactly one row, `choice: 'no'`, `created_at: 2026-08-02` — the pre-existing seed row, untouched, no new row, no update. Confirmed harmless by first-party query, not assumed from the app's own state.
-  **New standing rule, applies to every lane doing live-browser verification, not just this incident**: the "applying to live production is an owner decision, every time" discipline that already covers schema migrations extends to **any write action** during a live-verification pass — a form submission, a button that mutates state, anything beyond reading. If the target is a known, designated test fixture (this plan is exactly that), say so explicitly *before* clicking, not after. If there's any doubt whether a click will write, don't click it — read the computed state instead, the way T0's own contrast-bug verification did all session. Recording here so the owner sees it when they're back, and so it doesn't quietly recur.
-- 2026-09-04: **Owner stepped away for an extended period, can't approve anything — all three lanes given long, complex, approval-free work so nobody sits idle.** Migration 035 stays staged, unapplied, until the owner's back — do not apply any migration without them, no exceptions. T0 ran a git-secrets scan (gitleaks, all 186 commits, 22 hits all triaged as false positives — 4 public local-Supabase-CLI demo JWTs, 1 self-evidently-named CI placeholder, 17 SHA-256 hashes in `graphify-out/cache/` misread as keys; that cache dir untracked going forward, not purged from history) and a dead-code sweep (`saveMe`/`upsertMe`/`newPersonId` removed, confirmed superseded by `ensure_authenticated_profile`+`cacheMe`, not deferred — verified via commit ordering, not a guess; found and fixed a real gap in the same area, `clearMe()` existed but nothing called it on sign-out). Both in `PRODUCTION_CHECKLISTS.md`/commit history. Backend on the open production-checklist items (CORS, cookie flags, `select("*")` trimming, `npm audit` CI gate, account-lockout confirmation) plus drafting (not applying) the §15.3 moodboard migration. Frontend building §15.2 (Been collections). Design ran a full anti-vibecoded audit — 2 real hits (no custom 404/500, a hard-shadow regression on `.vote-option--winner`), rest checked clean, queued for Frontend after §15.2.
-- 2026-09-04: **RSVP contrast bug (`app/globals.css:2493`) fixed twice in parallel** — owner asked T0 to fix it directly rather than wait; Frontend independently fixed the same line to the identical value (`var(--primary-ink)`) before T0's message landed, plus the `.vote-result__primary`/`DecidedPlan.tsx` dead-utility follow-up in the same commit (`c331bff`) — turned out not all the flagged Tailwind classes were actually dead (`.vote-result__primary`/`__button` have no CSS padding rule of their own, unlike `.vote-primary-action`; verified precisely via injected markup before removing anything). T0's `aa8bc7c` and Frontend's `c331bff` merged cleanly (identical text on the shared line) into `f490595`, gated green, pushed and synced across all four branches. Both items from the audit above are closed.
-- 2026-09-04: **Backend's production-checklist pass + moodboards migration integrated** (`4880711`). 3 of 5 checklist items closed as "already correct, verified live/by source" with zero code change (CORS, cookie flags, account-lockout math) — good discipline per the owner's no-over-engineering instruction, not manufactured work. 2 minimal diffs (subtractive `select("*")` trims, one-line `npm audit` CI gate). Migration 036 (moodboards) mirrors `visit_collections`' already-reviewed RLS pattern exactly, security-reviewed, deliberately leaves `visibility`'s friends/shared values unimplemented (schema-ready, not built speculatively) — staged, needs owner approval same as 035. Gate green, pushed/synced.
+- 2026-09-16: **Re-orged to 4 sessions — T0 lead, T1 backend/security, T2
+  frontend, T3 QA/scale.** Design parked. Mission reordered behind
+  `DESIGN_DIAGNOSIS.md`: photography → faces/presence → scale → ungate →
+  deal-on-defaults. Palette work closed.
+- 2026-09-07: **Migration 045 applied live** — all five published tables now
+  `replica identity full`. Under `default`, a DELETE's WAL record carries only
+  the PK, so Realtime **silently dropped the event while the client stayed
+  SUBSCRIBED**: un-voting left every other participant reading a stale tally.
+  Production defect, not local.
+- 2026-09-07: **The repo's dominant bug class, stated precisely.** A discarded
+  error is only dangerous when the empty value is a plausible reading of the
+  world. `[]` votes means "nobody voted" — plausible, therefore dangerous. `[]`
+  spots means "a plan with no places" — impossible, therefore self-caught. Use
+  that test to decide which error sites matter instead of guarding all of them.
+  Treat **empty, refused and truncated as three different things.**
+- 2026-09-07: **Trust the app over the instrument.** A standalone probe reported
+  Realtime had "never worked in production" and nearly justified a migration; the
+  probe was wrong (it called `realtime.setAuth()` before joining, which the real
+  client doesn't). The more dramatic version would have been believed.
+- 2026-09-07: **B3 was never "credits exhausted."** Free tier, 10 req/min and 50
+  req/day. The OpenAI SDK's default `maxRetries: 2` sleeps through a
+  minutes-long `Retry-After` — in production that holds a serverless invocation
+  open for up to half an hour. Both harness and route now pass `maxRetries: 0`.
+- 2026-09-07: **AI evals are UNRUN, and reported as such.** Two scored cases got
+  through before the daily cap. Two is not an accuracy number. Exit code 2,
+  printed UNRUN — explicitly not a pass and not a failure.
+- 2026-09-06: **Never hand-edit a security-reviewed migration during its own
+  apply.** 035 shipped with a known NULL-guard bug rather than being amended
+  mid-apply; the fix got its own migration (040).
+- 2026-09-06: **Migrations 035/036/037/038/040/041 are LIVE. 039 is HELD**
+  pending the owner uploading six images. 045 live as of 2026-09-07.
+- 2026-09-06: **Observability exists** — `instrumentation.ts` +
+  `lib/observability/log.ts`. Redaction matches by substring marker, not exact
+  name; probing a running server caught two credential headers no list would
+  have held. Tracing deferred until a deploy target exists.
+- 2026-09-04: **Photos and transportation both resolved to the free version.**
+  No paid Places API yet. Transit = straight-line distance + "Open in Maps,"
+  which already renders RTA's live data. A direct RTA integration is gated
+  behind a government data-exchange, not a self-serve key.
+- 2026-09-01: **Worktrees.** Four sessions in one tree was racing. Each lane
+  isolated on its own branch; T0 integrates.
