@@ -27,6 +27,7 @@ import { validateImageFile } from "@/lib/upload";
 import {
   addVisitToCollection,
   createVisitCollection,
+  deleteVisitCollection,
   removeVisitFromCollection,
   uploadVisitPhoto,
   type PlannedWith,
@@ -312,6 +313,9 @@ export default function AccountViews({
   // renders all four views), so `initialCollections` is effectively fixed
   // for the component's lifetime — no need to re-sync it from an effect.
   const [collections, setCollections] = useState(initialCollections);
+  const [collectionDeleteArmed, setCollectionDeleteArmed] = useState(false);
+  const [collectionPending, setCollectionPending] = useState(false);
+  const [collectionError, setCollectionError] = useState<string | null>(null);
   const [activeCollection, setActiveCollection] = useState("all");
   const [newCollectionName, setNewCollectionName] = useState("");
   const [uploadFile, setUploadFile] = useState<File | null>(null);
@@ -360,6 +364,18 @@ export default function AccountViews({
     setCollections((current) => current.map((c) => c.id === collectionId
       ? { ...c, visitIds: Array.from(new Set([...c.visitIds, visitId])) }
       : c));
+  }
+
+  // Nothing leaves the screen until the server confirms the row went.
+  async function removeCollection(collectionId: string) {
+    setCollectionPending(true);
+    setCollectionError(null);
+    const ok = await deleteVisitCollection(collectionId);
+    setCollectionPending(false);
+    setCollectionDeleteArmed(false);
+    if (!ok) { setCollectionError("Couldn’t delete that collection. Try again."); return; }
+    setCollections((current) => current.filter((c) => c.id !== collectionId));
+    setActiveCollection("all");
   }
 
   async function removeFromActiveCollection(visitId: string) {
@@ -610,7 +626,26 @@ export default function AccountViews({
               emptyMessage={`${activeFolder?.name ?? "This collection"} is ready. Open All places and add visits to build it.`}
             />
 
-            {personId && <ManageVisit visits={visits} onChanged={() => router.refresh()} />}
+            {personId && <ManageVisit visits={visits} photos={photos} onChanged={() => router.refresh()} />}
+
+            {activeFolder && personId && (
+              <div className="demo-visit__collection-action manage-visit">
+                {collectionDeleteArmed ? (
+                  <p className="manage-visit__confirm" role="group" aria-label="Confirm delete collection">
+                    <span>Delete “{activeFolder.name}”? The visits in it stay in your log.</span>
+                    <button type="button" disabled={collectionPending} onClick={() => void removeCollection(activeFolder.id)}>
+                      {collectionPending ? "Deleting…" : "Delete collection"}
+                    </button>
+                    <button type="button" disabled={collectionPending} onClick={() => setCollectionDeleteArmed(false)}>Cancel</button>
+                  </p>
+                ) : (
+                  <button type="button" className="manage-visit__delete" onClick={() => setCollectionDeleteArmed(true)}>
+                    Delete this collection
+                  </button>
+                )}
+                {collectionError && <p role="alert" className="manage-visit__error">{collectionError}</p>}
+              </div>
+            )}
 
             {activeFolder && personId && visibleVisits.length > 0 && (
               <div className="demo-visit__collection-action">
