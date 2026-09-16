@@ -59,6 +59,26 @@ const CATEGORY_FAMILIES = [
   ["movie", "culture", "wellness", "shopping", "family", "escape"],
 ] as const;
 
+// Within the food family, how close each category is to the one asked for.
+// A brunch plan short of brunch places should borrow cafes before dinner, and
+// dessert and shisha last — the family used to be drawn from as one flat pool,
+// so a "Saturday brunch" could be dealt, and even won by, a dessert bar.
+const NEAREST: Record<string, readonly string[]> = {
+  brunch: ["brunch", "cafe", "dinner", "dessert", "shisha"],
+  cafe: ["cafe", "brunch", "dessert", "dinner", "shisha"],
+  dinner: ["dinner", "brunch", "cafe", "dessert", "shisha"],
+  dessert: ["dessert", "cafe", "brunch", "dinner", "shisha"],
+  shisha: ["shisha", "cafe", "dinner", "dessert", "brunch"],
+};
+
+/** 0 for the category asked for, higher for further away. */
+function categoryDistance(asked: string, spotCategory: string): number {
+  if (spotCategory === asked) return 0;
+  const order = NEAREST[asked];
+  const index = order ? order.indexOf(spotCategory) : -1;
+  return index > 0 ? index : 1;
+}
+
 export function categoryFamily(category: string): string[] {
   const family = CATEGORY_FAMILIES.find((categories) =>
     (categories as readonly string[]).includes(category),
@@ -156,14 +176,35 @@ export function dealFromPool(input: {
     );
   };
   const affinity = (spot: DealSpotRow) => embed(spot) ?? keywordScore(spot);
-  const ranked = [...eligible].sort((a, b) => {
-    const categoryBias = Number(b.category === input.category) - Number(a.category === input.category);
-    return categoryBias * 2 + affinity(b) - affinity(a) + score(b.id) - score(a.id);
-  });
-  const shortlist = ranked.slice(0, Math.min(Math.max(input.count * 2, input.count), ranked.length));
-  return shuffle(shortlist, input.rng ?? Math.random)
-    .slice(0, input.count)
-    .map((s) => s.id);
+  const rng = input.rng ?? Math.random;
+  const ranked = [...eligible].sort((a, b) => affinity(b) - affinity(a) + score(b.id) - score(a.id));
+
+  // Fill from the nearest category outward: whole tiers while they fit, then
+  // the usual shortlist-and-shuffle inside the tier that crosses the count.
+  // The old single sort gave the exact category a +2 bias and then shuffled
+  // the top 2x count, which on a family of ~20 spots erased the bias entirely.
+  const tiers = new Map<number, DealSpotRow[]>();
+  for (const spot of ranked) {
+    const d = categoryDistance(input.category, spot.category);
+    tiers.set(d, [...(tiers.get(d) ?? []), spot]);
+  }
+  const picked: DealSpotRow[] = [];
+  let tiersUsed = 0;
+  let drewPartial = false;
+  for (const d of [...tiers.keys()].sort((x, y) => x - y)) {
+    const needed = input.count - picked.length;
+    if (needed <= 0) break;
+    const tier = tiers.get(d)!;
+    tiersUsed += 1;
+    if (tier.length <= needed) { picked.push(...tier); continue; }
+    const shortlist = tier.slice(0, Math.min(needed * 2, tier.length));
+    picked.push(...shuffle(shortlist, rng).slice(0, needed));
+    drewPartial = true;
+  }
+  // One category that crossed the count was already shuffled above -- the
+  // exact draw the flat version made. Anything else (mixed tiers, or whole
+  // tiers only) is shuffled here so pools don't come out grouped.
+  return (tiersUsed === 1 && drewPartial ? picked : shuffle(picked, rng)).map((s) => s.id);
 }
 
 type Db = SupabaseClient;
