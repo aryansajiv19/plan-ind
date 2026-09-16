@@ -87,6 +87,8 @@ export default function StartPlanForm({ age = 21, demoMode = false }: { age?: nu
   const [customVisibility, setCustomVisibility] = useState<SavedCustomPlace["visibility"]>("private");
   const [savingCustom, setSavingCustom] = useState(false);
   const [savedCustom, setSavedCustom] = useState<SavedCustomPlace[]>([]);
+  // A refused read must not look like "you have no saved places".
+  const [savedCustomFailed, setSavedCustomFailed] = useState(false);
   const [selectedCustomIds, setSelectedCustomIds] = useState<string[]>([]);
   const [smartQuery, setSmartQuery] = useState("");
   const [smartIntent, setSmartIntent] = useState<SmartIntent | null>(null);
@@ -98,13 +100,13 @@ export default function StartPlanForm({ age = 21, demoMode = false }: { age?: nu
     void (async () => {
       const { data: auth } = await getSupabase().auth.getUser();
       if (!auth.user) return;
-      const { data } = await getSupabase()
-        .from("spots")
-        .select("id,name,area,category,visibility,minimum_age")
-        .eq("source", "custom")
-        .eq("created_by_user_id", auth.user.id)
-        .order("name");
-      if (!cancelled && data) setSavedCustom(data as SavedCustomPlace[]);
+      // Via RPC (migration 050): 051 hides spots.created_by_user_id from
+      // clients, so the caller's own places are resolved server-side from
+      // auth.uid(). Already ordered by name.
+      const { data, error } = await getSupabase().rpc("my_custom_spots");
+      if (cancelled) return;
+      if (error) { setSavedCustomFailed(true); return; }
+      setSavedCustom((data ?? []) as SavedCustomPlace[]);
     })();
     return () => { cancelled = true; };
   }, []);
@@ -451,6 +453,9 @@ export default function StartPlanForm({ age = 21, demoMode = false }: { age?: nu
           <button type="button" onClick={() => setCustomOpen((open) => !open)} aria-expanded={customOpen}>{customOpen ? "Close" : "Add a place"}</button>
         </div>
 
+        {savedCustomFailed && (
+          <p className="plan-custom-place__error" role="status">Couldn’t load your saved places. Refresh to try again.</p>
+        )}
         {savedCustom.length > 0 && (
           <div className="plan-custom-place__saved">
             {savedCustom.map((place) => (

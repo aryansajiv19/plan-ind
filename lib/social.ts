@@ -604,12 +604,10 @@ export async function getWrappedSummary(
 ): Promise<WrappedSummaryResult> {
   const period = dubaiMonthWindow(now);
   const [plans, visits] = await Promise.all([
-    db
-      .from("plans")
-      .select("id", { count: "exact", head: true })
-      .eq("created_by_user_id", userId)
-      .gte("created_at", period.start)
-      .lt("created_at", period.end),
+    // Via RPC (migration 050): 051 hides plans.created_by_user_id from
+    // clients. Counts for auth.uid() -- the same user as `userId` here --
+    // over the same [start, end) window the old query used.
+    db.rpc("count_my_hosted_plans", { p_from: period.start, p_to: period.end }),
     readWrappedVisits(personId, period, db),
   ]);
 
@@ -632,7 +630,7 @@ export async function getWrappedSummary(
   return {
     data: aggregateWrappedSummary({
       periodLabel: period.periodLabel,
-      planCount: plans.count ?? 0,
+      planCount: Number(plans.data ?? 0),
       visits: visitRows,
       ratings: ratingRows,
     }),

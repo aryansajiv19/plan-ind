@@ -1414,6 +1414,7 @@ h3 {
   cursor: pointer;
 }
 
+.plan-custom-place__error { margin-top: 0.6rem; color: var(--color-error); font-size: max(0.72rem, var(--type-floor)); }
 .plan-custom-place__saved {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
