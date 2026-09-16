@@ -38,6 +38,17 @@ auth-origin changes.
 | **C8** | **Been: edit a visit, remove a rating, delete photos and collections** | Unrate RPC (`p_stars` is 1–5 only); photo delete **must remove the storage object**, not just the row; collection delete | Build | M |
 | **C9** | **Undo** on quick reversible actions (untag, remove from a collection, unvote) in place of confirm dialogs | n/a | Build; destructive/irreversible actions keep confirms | S |
 
+**Must fix before public launch — migration 053 (found 2026-09-17):**
+`cast_plan_vote`, `set_plan_rsvp` and `rate_plan` let a caller who presents a
+legacy row's `participant_token_hash` claim or overwrite that row, because the
+guard only fires when `user_id` is not null, and the hash is readable by
+co-members. Bounded: 45 legacy rows (25 votes, 17 RSVPs, 3 ratings), all
+`user_id is null`, on the 6 pre-043 plans, and live has 0 accounts. Held out of
+the full-control wave so the core voting loop isn't rewritten mid-wave. Fix:
+refuse writes to `user_id is null` rows, with its own rehearsal. Alternative
+(owner's call, live data write): delete the legacy rows if the 6 plans are
+confirmed test data.
+
 **T3 owns the round trips** for C1–C9, plus the tests already queued: the
 delete-plan dbtest, the allowed/limited/unavailable regression, the 13
 `resolveAppOrigin` asserts, and the friendship-consent regression.
