@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { validateBirthDate } from "@/lib/age-policy";
 import { consumeOtpRequestLimit, consumeOtpVerifyLimit, recordSecurityEvent, reportControlUnavailable, requestId } from "@/lib/security/controls";
 import { safeNextPath } from "@/lib/auth";
+import { resolveAppOrigin } from "@/lib/app-origin";
 
 export interface AuthFormState {
   email?: string;
@@ -20,18 +21,11 @@ function birthDateFrom(formData: FormData): { dateOfBirth: string; age: number }
 }
 
 async function appOrigin(): Promise<string> {
-  const configured = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "");
-  if (configured) return configured;
-
-  if (process.env.NODE_ENV === "production") {
-    throw new Error("NEXT_PUBLIC_SITE_URL is required in production.");
-  }
-
   const headerStore = await headers();
-  const host = headerStore.get("x-forwarded-host") ?? headerStore.get("host");
-  if (!host) return "http://localhost:3000";
-  const protocol = headerStore.get("x-forwarded-proto") ?? "http";
-  return `${protocol}://${host}`;
+  return resolveAppOrigin({
+    host: headerStore.get("x-forwarded-host") ?? headerStore.get("host"),
+    forwardedProto: headerStore.get("x-forwarded-proto"),
+  });
 }
 
 function cleanEmail(value: FormDataEntryValue | null): string {
