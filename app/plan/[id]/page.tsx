@@ -307,21 +307,21 @@ export default function VotePage() {
 
   // ── Realtime: live votes + live "decided" for everyone ───────────
   //
-  // ⚠ Realtime does NOT apply the filter to DELETE events: every subscriber
-  // receives every table's deletes. So each handler checks the old row's plan
-  // itself (045 made `old` carry the full row). Without that, one un-vote
-  // anywhere refetched votes on every open plan page, and one deleted plan
-  // would end them all.
+  // Realtime checks the `plan_id=eq.<id>` filter against the FULL old row for
+  // DELETEs (045 made it available), so these events already arrive only for
+  // this plan. But the payload's `old` is cut down to the PRIMARY KEY for RLS
+  // tables, so `old.plan_id` is never there: a client-side "is this ours?"
+  // check on it (f537134) silently dropped every un-vote, RSVP delete and
+  // unrate, and other members' tallies went stale. Refetch on every event.
+  // The plans DELETE handler below can check `old.id`, because id IS the key.
   useEffect(() => {
     if (access !== "ready" || deleted) return;
-    const ours = (payload: { eventType: string; old: Record<string, unknown> }) =>
-      payload.eventType !== "DELETE" || payload.old?.plan_id === id;
     const channel = getSupabase()
       .channel(`plan:${id}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "votes", filter: `plan_id=eq.${id}` },
-        (payload) => { if (ours(payload)) void refetchVotes(); },
+        () => void refetchVotes(),
       )
       .on(
         "postgres_changes",
@@ -339,12 +339,12 @@ export default function VotePage() {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "rsvps", filter: `plan_id=eq.${id}` },
-        (payload) => { if (ours(payload)) void refetchRsvps(); },
+        () => void refetchRsvps(),
       )
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "ratings", filter: `plan_id=eq.${id}` },
-        (payload) => { if (ours(payload)) void refetchRatings(); },
+        () => void refetchRatings(),
       )
       .on(
         "postgres_changes",
