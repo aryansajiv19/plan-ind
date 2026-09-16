@@ -2572,6 +2572,11 @@ h3 {
 @media (min-width: 641px) {
   .vote-option__meta.text-xs,
   .vote-action-hint { font-size: 0.8125rem; }
+  /* Decided: the reveal spans the panel so it shares both edges with the
+     rows below it (the 42rem cap inset it ~46px each side at 1280), and the
+     copy action sizes to its label instead of a 764px bar. */
+  .vote-result .winner-reveal { max-width: none; }
+  .vote-result__primary.w-full { width: auto; min-width: 18rem; }
   /* The "New plan" tag sat across the card's top border. In flow, it
      shares the form's left edge and overlaps nothing. */
   .home-plan-card__tape { position: static; display: inline-block; margin-bottom: 1.25rem; }

@@ -979,8 +979,12 @@ export default function VotePage() {
         {/* Three places in the current round, or the three finalists. On a
             phone this is a snap carousel (see .vote-options-grid); the key
             re-mounts it per round so the next set animates in rather than
-            swapping in place. */}
-        <div
+            swapping in place.
+
+            Once decided and folded, the grid goes: the winner card beside
+            DecidedPlan's reveal showed the same place twice. Its details
+            (description, hours, price) move under the reveal. */}
+        {!foldDone && <div
           key={`round-${currentPoolNumber}`}
           data-folded={decided && foldDone ? "1" : undefined}
           style={{ "--round-dir": roundDir, "--c": agreement } as React.CSSProperties}
@@ -1025,7 +1029,7 @@ export default function VotePage() {
               />
             </div>
           ))}
-        </div>
+        </div>}
 
         {/* Controls / result */}
         {!decided ? (
