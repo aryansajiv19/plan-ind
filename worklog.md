@@ -1712,3 +1712,29 @@ diversity before trusting a fuzz result.
   statement after the lock).
 - Verified 15/15 on the live-identical rig + 052 via PostgREST, with a
   negative control. `security` review: no C/H/M.
+
+---
+
+## 2026-09-17 — T1: C5 edit a plan before voting, migration 055 STAGED + route `edit` command
+
+`edit_plan(p_plan_id, p_host_token, p_title?, p_deadline?)` → result codes
+`edited | nothing_to_change | not_found | not_host | voting_started |
+invalid_title | invalid_deadline`. Auth = delete_plan's (creator AND host token,
+not anonymous, `for update`). Voting started = status not open OR stage not pool
+OR any vote. Title/deadline validated exactly like creation. A new RPC, not an
+`execute_plan_command` branch (that one raises instead of returning codes, and it
+is the core voting function). Accepted race (a first vote landing after the
+no-votes check) is documented in the header.
+
+Route: `POST /api/plans/[id]/command {command:"edit", hostToken, title?, deadline?}`.
+delete and edit share one result-code branch; `nothing_to_change` → 200,
+404/403/409/422 for refusals, 500 on error or unknown. Deadline must be a strict
+ISO-8601 instant with `Z` or `±HH:MM` (review L1: `Date.parse` accepted "2026"
+and "UTC+4", which Postgres rejects or reads 8h apart).
+
+Verified 23/23 on the live-identical rig + 052 + 054 via PostgREST (negative
+control, every refusal including a member holding the host token, the
+voting-started states, validation, grants, re-run). `security` review: no C/H/M,
+delete's behaviour unchanged by the refactor. Not exercised through a running
+Next server. Frontend note (review L2): the edit response has no `plan` key, so
+it must not go through `runHostCommand`, which treats a missing plan as failure.
