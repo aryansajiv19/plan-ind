@@ -2534,9 +2534,11 @@ alter table people add constraint people_display_name_safe
 -- characters the check above rejects. Doing the same here makes a direct
 -- rename behave like sign-up (strip, not 23514), instead of a new error path
 -- a settings screen would have to handle (security review of 052, L1).
--- Otherwise identical to the current definition (migration 007 / schema.sql).
+-- Otherwise identical to the current definition (migration 007 / schema.sql),
+-- plus a pinned search_path (Supabase advisor function_search_path_mutable;
+-- every name below is already schema-qualified or pg_catalog).
 create or replace function people_before_write() returns trigger
-language plpgsql as $$
+language plpgsql set search_path = public, pg_temp as $$
 begin
   new.display_name := public.clean_app_text(new.display_name, 40);
   new.emoji        := trim(new.emoji);
