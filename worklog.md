@@ -1691,3 +1691,24 @@ the 028/047/048/050 applies, plus a 30,000-case fuzz (29,449 distinct inputs):
 uncorrelated. Postgres evaluated it ONCE, so all 20,000 inputs were the same
 string. Caught by counting distinct inputs (1). Always assert the generator's
 diversity before trusting a fuzz result.
+
+---
+
+## 2026-09-17 — T1: migration 054 STAGED (friend invite trust signal M1 + cap race I1)
+
+- **M1:** `preview_friend_invite` also returns `shared_plans` on a valid result:
+  the count of plans the inviter and the redeemer have both joined
+  (`plan_access`; creators have a row). Count only: no plan names, nothing about
+  third parties, nothing on invalid/self. Deliberately simple. **Known limit:**
+  `claim_plan_access` admits anyone with a plan id, so a leaked share link can
+  inflate the count, and (review Low) a leaked invite token can probe whether
+  the inviter joined a plan the prober also knows. Both close with the
+  `claim_plan_access` must-fix-before-launch item.
+- **I1: a real race, proven.** On 048's function, **25 parallel creates all
+  succeeded (cap of 20 bypassed)**. With a per-inviter
+  `pg_advisory_xact_lock`, exactly 20 succeed and 5 are refused (54000). The same
+  call deletes the caller's own used/expired invites older than 7 days (never a
+  live one). `create_friend_invite` must stay VOLATILE (fresh snapshot per
+  statement after the lock).
+- Verified 15/15 on the live-identical rig + 052 via PostgREST, with a
+  negative control. `security` review: no C/H/M.

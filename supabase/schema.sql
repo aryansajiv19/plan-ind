@@ -2709,3 +2709,81 @@ $$;
 
 revoke all on function unrate_plan(uuid) from public, anon, authenticated;
 grant execute on function unrate_plan(uuid) to authenticated;
+
+-- 054: friend invite trust signal (shared_plans) and race-free open-invite cap.
+-- create_friend_invite must stay VOLATILE (see the migration header).
+-- See supabase/migration-054-invite-trust-and-cap-lock.sql.
+create or replace function create_friend_invite()
+returns jsonb
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+as $$
+declare
+  uid uuid := auth.uid();
+  token text;
+  expires timestamptz;
+begin
+  if not is_permanent_user() then
+    raise exception 'Sign in required' using errcode = '42501';
+  end if;
+  if not exists (select 1 from people where id = uid and auth_user_id = uid) then
+    raise exception 'Create a profile first' using errcode = '42501';
+  end if;
+
+  perform pg_advisory_xact_lock(hashtextextended('friend_invite:' || uid::text, 0));
+
+  delete from friend_invites
+  where inviter_id = uid
+    and (expires_at < now() or used_at is not null)
+    and created_at < now() - interval '7 days';
+
+  if (select count(*) from friend_invites
+      where inviter_id = uid and used_at is null and expires_at > now()) >= 20 then
+    raise exception 'Too many open invites' using errcode = '54000';
+  end if;
+
+  token := encode(gen_random_bytes(32), 'hex');
+  insert into friend_invites (token_hash, inviter_id)
+  values (encode(digest(token, 'sha256'), 'hex'), uid)
+  returning expires_at into expires;
+  return jsonb_build_object('token', token, 'expires_at', expires);
+end;
+$$;
+
+create or replace function preview_friend_invite(p_token text)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = public, extensions, pg_temp
+as $$
+declare
+  inviter people%rowtype;
+begin
+  if not is_permanent_user() then
+    raise exception 'Sign in required' using errcode = '42501';
+  end if;
+  if p_token is null or p_token !~ '^[0-9a-f]{64}$' then
+    return jsonb_build_object('result', 'invalid');
+  end if;
+  select p.* into inviter from friend_invites i join people p on p.id = i.inviter_id
+  where i.token_hash = encode(digest(p_token, 'sha256'), 'hex')
+    and i.used_at is null and i.expires_at > now();
+  if inviter.id is null then
+    return jsonb_build_object('result', 'invalid');
+  end if;
+  if inviter.id = auth.uid() then
+    return jsonb_build_object('result', 'self', 'display_name', inviter.display_name, 'emoji', inviter.emoji);
+  end if;
+  return jsonb_build_object(
+    'result', 'valid',
+    'display_name', inviter.display_name,
+    'emoji', inviter.emoji,
+    'shared_plans', (
+      select count(*) from plan_access a
+      join plan_access b on b.plan_id = a.plan_id
+      where a.user_id = inviter.id and b.user_id = auth.uid()
+    ));
+end;
+$$;
