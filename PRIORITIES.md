@@ -45,8 +45,71 @@ the owner's scale requirement — real traffic, on the web, has to hold up.
 
 ### T0 — Lead
 
-Integration, merges, CI, the dead-code sweep, owner interface. Holds the two
-open owner decisions (metallics question, migration 039's held photo upload).
+Integration, merges, CI, the dead-code sweep, owner interface. Holds the open
+owner decisions (metallics question, migration 039's photo upload, Places
+quota, the paused project, the hosting-tier decision below).
+
+---
+
+## Reversibility — audited 2026-09-16, and it is the biggest gap in the product
+
+Owner, verbatim: *"sometimes a user might not be able to add an account or log
+out because we only thought about the first part… every single feature has to
+be able to be managed, reverted, and completed end to end."*
+
+A full audit of every user-facing action against its inverse, checked at **four
+layers** — database, lib, a control a real user can reach, and a test —
+because this repo has shipped features where only the first two were true.
+
+**The shape of the finding:** the forward path is built almost everywhere. The
+return path is missing, or exists in the data layer and reaches no screen.
+
+| Rank | Gap | Layer that breaks | Owner |
+|---|---|---|---|
+| **R1** | **A plan can never be cancelled or deleted.** No policy, no command, no UI, at any layer. The highest-traffic action in the product has no undo — a mis-created plan is permanent for everyone in it. | all four | T1 → T2 |
+| **R2** | **DOB is write-once with no recovery path.** One typo permanently mis-gates a real user's venue access, with no self-serve or admin fix. The write-once rule is deliberate and correct for age integrity; having *no* recovery is not. | all four | T1 |
+| **R3** | **No account deletion.** Not merely a UX gap — a GDPR/App-Store exposure the moment this launches city-wide. | all four | T1 → T2 |
+| **R4** | **`addFriend` has zero callers, so the Friends tab can never be populated.** `getFriends` *is* wired, so the UI renders a feature that is structurally incapable of having content. | UI | T2 |
+| **R5** | **`removeFriend`, `deleteVisit`, `untagCompanion` all work and are unreachable.** The exact pattern the owner described, confirmed in three more places. | UI | T2 |
+| **R6** | **Carpool (migration 035) is live in the database with no control at all** — its column is only ever preserved, never set or cleared. | UI | T2 |
+| **R7** | **`decide` is terminal.** A wrong decision cannot be reopened; the group must abandon the plan and start over. | DB | T1 |
+| **R8** | Rating cannot be removed (`p_stars` is 1–5 only); a visit cannot be edited; a collection cannot be deleted; an uploaded photo has a storage policy but no lib function. | mixed | T1 → T2 |
+
+**T3 owns the round trips.** The E2E suite today tests forward paths almost
+exclusively — the only inverse covered anywhere is vote withdrawal. Every item
+above needs a test that performs the action *and undoes it*, and the test is
+what makes the fix real.
+
+**Sequencing:** R1–R3 are the ones that hurt a real user or expose us legally,
+and they need backend work first. R4–R6 are pure wiring of things that already
+exist, which makes them the cheapest real improvement available to T2.
+
+---
+
+## Scale and system design — what this app actually needs
+
+The owner wants the system-design depth a city-scale product requires. What
+follows is ranked by **this app's real failure modes**, not by technique
+popularity. Items marked ⏳ are deliberately gated on T3's measurements —
+building them before the number exists is how you optimise the wrong layer.
+
+| # | Item | The actual problem it solves |
+|---|---|---|
+| **S1** | **Vote fan-out is N².** Every cast vote triggers *every connected client* to refetch the whole vote set for that plan. Fifty people on one plan is 50 writes × 50 refetches = 2,500 queries per round. Fix is to carry the tally in the Realtime payload, or coalesce/debounce the refetch, or aggregate server-side. ⏳ shape confirmed by T3 first. | **The single most likely thing to fall over at city scale.** T3 already flagged it ahead of WAL. |
+| **S2** | **Connection ceiling.** Thousands of concurrent guests means Realtime connection caps and a Postgres connection pool, neither of which has ever been budgeted. Needs a measured per-client connection cost and a pooling check. ⏳ | Hard limits fail as refusals, not slowness — and this repo mistakes refusal for empty. |
+| **S3** | **Hosting tier is a real decision, not a detail.** The live project **paused itself** — that is free-tier inactivity behaviour. A free tier will not hold a city under any amount of code cleverness. | Owner decision, and it gates every number T3 produces against live. |
+| **S4** | **Catalogue caching.** 82 spots that change rarely, currently served `Cache-Control: no-store` like everything else. The clearest cache candidate in the codebase, with obvious invalidation (a migration or a photo backfill). | Not measurement-gated — the data is *obviously* static. Cheap, real, benchmarkable. |
+| **S5** | **Graceful degradation when Realtime drops.** Today a dropped channel leaves a stale tally on screen with no indication it is stale. Fall back to polling and say so. | Same family as the repo's dominant bug: a screen that is confidently wrong beats one that admits it. |
+| **S6** | **Edge rate limiting + bot protection.** App-level quotas exist (020/022/030); nothing stops abuse before it reaches a function. Turnstile is configured nowhere, and is a hard wall in production when it is. | A public share link is an open door by design. |
+| **S7** | **Health + readiness endpoint.** No `/api/health` exists. Needed for uptime monitoring and any load balancer. | Missing outright. Cheap. |
+| **S8** | **Photo ingestion as a background job.** The first genuinely async workload in the product — until now the board correctly said queues solved nothing here. That changes with P1.1. | Justified by a real workload, finally. |
+| **S9** | **Index review of hot paths under measured load**, and an idempotency sweep of the write RPCs other than `cast_plan_vote` (023 covered votes only). | Concurrency-safety, where it is actually reachable. |
+| **S10** | **Timeouts and circuit-breaking on every external call.** Done for OpenAI (`maxRetries: 0`, 30s). Places is next and must ship with the same discipline. | An SDK default already nearly held a serverless invocation open for half an hour. |
+
+**The rule that governs this whole section:** every item names a problem this
+app actually has, and ships with a before/after number where the claim is
+performance. Nothing here gets built because it appears on a list of
+techniques — that is the failure mode the owner has warned about twice.
 
 ---
 

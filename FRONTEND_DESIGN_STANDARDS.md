@@ -240,7 +240,7 @@ a typed name is everything the app knows about them.
   app's existing primary/ghost patterns). Re-token every shadcn install
   through this project's CSS variables before use — never ship it in
   shadcn's own default palette. Where an existing hand-built component
-  already does the job well (the vote/place cards, `TiltCard`), keep it —
+  already does the job well (the vote/place cards), keep it —
   this is a default for **new** primitives, not a mandate to rebuild what
   already works. Motion (the animation library) is the paired default for
   any interaction/transition on top of these — see Motion below, now
@@ -272,7 +272,8 @@ a typed name is everything the app knows about them.
 > ("3D as an effect, not a place" — turn 8's offset-shadow language was
 > explicitly rejected as loud). **Do not reintroduce an offset shadow as
 > the app's signature depth cue.** What replaced it — pointer parallax via
-> `components/TiltCard.tsx` plus a single hairline border — is itself
+> `components/TiltCard.tsx` (deleted 2026-09-16, git has it at `44804eb`)
+> plus a single hairline border — is itself
 > being reconsidered as part of the 2026-09-04 pass (see
 > `design-system/SPECS.md` §3.4, §5); the load-bearing rule either way is
 > **no hard offset shadow**, not any specific replacement mechanism.
@@ -324,9 +325,10 @@ a typed name is everything the app knows about them.
   meaning ("this is happening now"), not a general licence for pulsing UI.
 - Respect `prefers-reduced-motion`. Script-driven animation must check it
   directly — a global `transition-duration` CSS override cannot reach a
-  `requestAnimationFrame` loop (e.g. `components/TiltCard.tsx`'s pointer
-  parallax, which checks `useReducedMotion()` and disables outright rather
-  than shortening).
+  `requestAnimationFrame` loop. The reference implementation was
+  `components/TiltCard.tsx`, deleted 2026-09-16 as dead code — it checked
+  `useReducedMotion()` and disabled outright rather than shortening, which
+  is still the pattern to follow. Read it at `44804eb` if you need it.
 
 ### Animation direction (owner, 2026-09-04) — build with Motion
 
@@ -342,13 +344,14 @@ rule above — not bespoke CSS keyframes, except where noted.
   detail hero — same `layoutId` string keyed by spot id in both
   `PhotoTile.tsx`/place-card markup and the place-page hero. Fast: target
   ≤350ms, `--ease-settle`, no overshoot.
-- **Subtle parallax on hero images.** Beyond `TiltCard`'s existing
-  pointer-parallax (home hero, `HomeExperience.tsx:310`): the place page's
+- **Subtle parallax on hero images.** The home hero's pointer-parallax is
+  gone with `TiltCard` (deleted 2026-09-16); if it returns it returns as new
+  work, not as an existing base to build on. The place page's
   460px hero photo (`SPECS.md` §6) gets a light scroll-parallax — image
   translates at roughly 0.85–0.9× scroll speed within its own frame, never
   the reverse (never faster than scroll), clipped to the hero's own
   bounds so nothing leaks past it. Respects `prefers-reduced-motion`
-  (disable outright, matching `TiltCard`'s existing pattern).
+  (disable outright, matching the deleted `TiltCard`'s pattern above).
 - **Micro-interactions: soft fade/scale, no bounce or squish.** This
   **reverses `--ease-spring`'s use for press feedback** (`app/globals.css`
   lines 285, 998, 1553, 1819, 2434, 2559, 2669 — every `transform ...
