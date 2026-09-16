@@ -55,6 +55,10 @@ export default function VotePage() {
   const [voterName, setVoterName] = useState<string | null>(null);
   const [deciding, setDeciding] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  // Set once the plan is gone: "self" when this host deleted it here,
+  // "remote" when the deletion arrived from somewhere else.
+  const [deleted, setDeleted] = useState<"self" | "remote" | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [visitSaved, setVisitSaved] = useState<"saved" | "failed" | null>(null);
   const [presentNames, setPresentNames] = useState<string[]>([]);
   const [copied, setCopied] = useState(false);
@@ -275,29 +279,45 @@ export default function VotePage() {
   }, [id]);
 
   // ── Realtime: live votes + live "decided" for everyone ───────────
+  //
+  // ⚠ Realtime does NOT apply the filter to DELETE events: every subscriber
+  // receives every table's deletes. So each handler checks the old row's plan
+  // itself (045 made `old` carry the full row). Without that, one un-vote
+  // anywhere refetched votes on every open plan page, and one deleted plan
+  // would end them all.
   useEffect(() => {
-    if (access !== "ready") return;
+    if (access !== "ready" || deleted) return;
+    const ours = (payload: { eventType: string; old: Record<string, unknown> }) =>
+      payload.eventType !== "DELETE" || payload.old?.plan_id === id;
     const channel = getSupabase()
       .channel(`plan:${id}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "votes", filter: `plan_id=eq.${id}` },
-        () => refetchVotes(),
+        (payload) => { if (ours(payload)) void refetchVotes(); },
       )
       .on(
         "postgres_changes",
         { event: "UPDATE", schema: "public", table: "plans", filter: `id=eq.${id}` },
         (payload) => setPlan(payload.new as Plan),
       )
+      // The cascade then fires one DELETE per vote/rsvp/rating. Ending here
+      // tears the channel down (the effect depends on `deleted`), so that
+      // burst never becomes a burst of refetches.
+      .on(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "plans", filter: `id=eq.${id}` },
+        (payload) => { if (payload.old?.id === id) setDeleted((d) => d ?? "remote"); },
+      )
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "rsvps", filter: `plan_id=eq.${id}` },
-        () => refetchRsvps(),
+        (payload) => { if (ours(payload)) void refetchRsvps(); },
       )
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "ratings", filter: `plan_id=eq.${id}` },
-        () => refetchRatings(),
+        (payload) => { if (ours(payload)) void refetchRatings(); },
       )
       .on(
         "postgres_changes",
@@ -308,7 +328,7 @@ export default function VotePage() {
     return () => {
       getSupabase().removeChannel(channel);
     };
-  }, [access, id, refetchVotes, refetchRsvps, refetchRatings, refetchPlanSpots]);
+  }, [access, deleted, id, refetchVotes, refetchRsvps, refetchRatings, refetchPlanSpots]);
 
   // ── Who else has this plan open right now ────────────────────────
   // A separate channel from the data subscriptions above: presence depends on
@@ -418,6 +438,45 @@ export default function VotePage() {
     }
   }
 
+  // A host command refused with 403 can mean the plan was deleted mid-flight
+  // (a decide racing a delete). Telling the person who just deleted it "you
+  // are not authorised" would be a lie, so look before saying anything.
+  // An empty read is ambiguous (RLS-hidden vs gone), but either way this
+  // plan is no longer reachable from here.
+  const planIsGone = useCallback(async () => {
+    const { data, error } = await getSupabase().from("plans").select("id").eq("id", id).maybeSingle();
+    return !error && !data;
+  }, [id]);
+  const failHostCommand = useCallback(async (error: unknown, fallback: string) => {
+    if (await planIsGone()) { setDeleted((d) => d ?? "remote"); return; }
+    setNotice(error instanceof Error ? error.message : fallback);
+  }, [planIsGone]);
+
+  async function deletePlan() {
+    if (!hostToken) return;
+    setDeciding(true);
+    try {
+      const response = await secureJsonFetch(`/api/plans/${id}/command`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ hostToken, command: "delete" }),
+      });
+      // 404: already gone, which is the outcome asked for.
+      if (response.ok || response.status === 404) { setDeleted("self"); return; }
+      setConfirmDelete(false);
+      setNotice(
+        response.status === 409 ? "This plan is already decided, so it can’t be deleted."
+          : response.status === 403 ? "Only the person who started this plan can delete it."
+            : response.status === 429 ? "Too many plan changes. Try again in a minute."
+              : "That plan couldn’t be deleted. Try again.",
+      );
+    } catch {
+      setNotice("That plan couldn’t be deleted. Check your connection and try again.");
+    } finally {
+      setDeciding(false);
+    }
+  }
+
   // Both transitions run entirely inside execute_plan_command: it holds the
   // row lock, does the tally and applies the same stable spot-id tie-break.
   // The client used to recompute all of that to feed a direct-write fallback,
@@ -435,11 +494,11 @@ export default function VotePage() {
       if (result?.plan) setPlan(result.plan);
       setNotice(null);
     } catch (error) {
-      setNotice(error instanceof Error ? error.message : "The shortlist didn’t save. Try again.");
+      await failHostCommand(error, "The shortlist didn’t save. Try again.");
     } finally {
       setDeciding(false);
     }
-  }, [plan, stage, hostToken, runHostCommand]);
+  }, [plan, stage, hostToken, runHostCommand, failHostCommand]);
 
   const decide = useCallback(async () => {
     if (!plan || plan.status !== "open" || spots.length === 0) return;
@@ -453,17 +512,17 @@ export default function VotePage() {
       if (result?.plan) setPlan(result.plan);
       setNotice(null);
     } catch (error) {
-      setNotice(error instanceof Error ? error.message : "The plan couldn’t be decided. Try again.");
+      await failHostCommand(error, "The plan couldn’t be decided. Try again.");
     } finally {
       setDeciding(false);
     }
-  }, [plan, spots.length, hostToken, runHostCommand]);
+  }, [plan, spots.length, hostToken, runHostCommand, failHostCommand]);
 
   // ── Deadline auto-pick ───────────────────────────────────────────
   // Host only. Everyone else receives the transition over realtime, so a
   // participant's browser never fires a command it isn't allowed to run.
   useEffect(() => {
-    if (!plan || plan.status !== "open" || !plan.deadline || !hostToken) return;
+    if (!plan || plan.status !== "open" || !plan.deadline || !hostToken || deleted) return;
     const ms = new Date(plan.deadline).getTime() - Date.now();
     // setTimeout(…, 0) defers even a past deadline, so we never call
     // setState synchronously in the effect body.
@@ -472,7 +531,7 @@ export default function VotePage() {
       else void decide();
     }, Math.max(0, ms));
     return () => clearTimeout(t);
-  }, [plan, stage, hostToken, decide, advanceToFinal]);
+  }, [plan, stage, hostToken, deleted, decide, advanceToFinal]);
 
   // Record the winner once when the decision arrives.
   useEffect(() => {
@@ -720,6 +779,9 @@ export default function VotePage() {
     }
   });
 
+  if (deleted) {
+    return <VoteState kind={deleted === "self" ? "deleted-by-you" : "deleted"} planTitle={plan?.title} />;
+  }
   if (access === "captcha-required") {
     return (
       <VoteState kind="captcha" captchaStatus={captchaStatus}>
@@ -764,6 +826,7 @@ export default function VotePage() {
     );
   }
 
+  const voterCount = new Set(votes.map((v) => v.voter_name)).size;
   // Everyone the client can see on this plan, you first. See the seats row.
   const roster = [...new Set([
     ...votes.map((v) => v.voter_name),
@@ -1023,6 +1086,32 @@ export default function VotePage() {
                     ? "All pools are set. Build the final shortlist when everyone has had a chance to vote."
                     : "The final shortlist is ready. Choose the place the group should visit."}
           </p>
+          {/* R1. A hard delete for everyone on the link, with no undo by
+              construction — acceptable only because it is hard to do by
+              accident. The confirm names the plan and who it takes with it;
+              the count is read from votes already on screen, because the
+              server only reports participants after the delete. */}
+          {isHost && (
+            <div className="vote-delete">
+              {confirmDelete ? (
+                <div className="vote-delete__confirm" role="group" aria-label="Confirm delete">
+                  <p>
+                    Delete “{plan!.title}”?{" "}
+                    {voterCount === 0
+                      ? "Nobody has voted yet."
+                      : `${voterCount} ${voterCount === 1 ? "person has" : "people have"} voted, and it disappears for all of them.`}{" "}
+                    This can’t be undone.
+                  </p>
+                  <button type="button" className="vote-delete__go" disabled={deciding} onClick={() => void deletePlan()}>
+                    {deciding ? "Deleting…" : "Delete plan"}
+                  </button>
+                  <button type="button" disabled={deciding} onClick={() => setConfirmDelete(false)}>Keep it</button>
+                </div>
+              ) : (
+                <button type="button" onClick={() => setConfirmDelete(true)}>Delete this plan</button>
+              )}
+            </div>
+          )}
           </>
         ) : (
           winnerSpot && (

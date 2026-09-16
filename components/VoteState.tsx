@@ -26,7 +26,9 @@ export type VoteStateKind =
   | "captcha"
   | "guest-paused"
   | "retry"
-  | "cold-link";
+  | "cold-link"
+  | "deleted"
+  | "deleted-by-you";
 
 export default function VoteState({
   kind,
@@ -147,10 +149,26 @@ function COPY({
         title: "This plan wouldn’t open",
         body: "The connection dropped before the plan loaded. Try again.",
       };
+    // Deliberately not "deleted": once a plan is gone its row is too, so a
+    // deleted plan and a mistyped link look identical from here. Say both.
     case "cold-link":
       return {
         title: "This link’s gone cold",
-        body: "The plan isn’t here anymore. Ask whoever sent it for a fresh link.",
+        body: "This plan isn’t here anymore — the host may have deleted it, or the link is incomplete. Ask whoever sent it for a fresh one.",
+      };
+    case "deleted":
+      return {
+        title: "This plan was deleted",
+        body: planTitle
+          ? `The host deleted “${planTitle}” while you had it open. Ask them if there’s a new plan.`
+          : "The host deleted this plan while you had it open. Ask them if there’s a new plan.",
+      };
+    case "deleted-by-you":
+      return {
+        title: "Plan deleted",
+        body: planTitle
+          ? `“${planTitle}” is gone for everyone who had the link.`
+          : "It’s gone for everyone who had the link.",
       };
   }
 }

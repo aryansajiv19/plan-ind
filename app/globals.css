@@ -2531,6 +2531,14 @@ h3 {
 .vote-action-hint { margin-top: 0.65rem; color: var(--color-muted); font-size: 0.72rem; line-height: 1.45; }
 .vote-rsvp-choices { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.35rem; }
 .vote-rsvp-choices .vote-result__button { padding: 0.55rem 0.65rem; font-size: 0.68rem; }
+/* R1: host-only delete. Quiet until armed; the armed state names the plan
+   and its voters. Red is paired with the words, never the only signal. */
+.vote-delete { margin-top: 1rem; font-size: 0.75rem; }
+.vote-delete button { min-height: 2.75rem; padding: 0; border: 0; background: transparent; color: var(--color-muted); font: inherit; text-decoration: underline; text-underline-offset: 0.25em; cursor: pointer; }
+.vote-delete__confirm { display: flex; flex-wrap: wrap; align-items: center; gap: 0.2rem 1rem; }
+.vote-delete__confirm p { flex-basis: 100%; color: var(--color-ink); line-height: 1.45; }
+.vote-delete .vote-delete__go { color: var(--color-error); }
+.vote-delete button:disabled { opacity: 0.6; cursor: default; }
 .vote-carpool { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem 0.75rem; margin-top: 0.9rem; }
 .vote-carpool__seats { display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; font-weight: 500; }
 .vote-carpool__seats select { min-height: 2.75rem; padding: 0 0.6rem; font-size: 0.8rem; }
