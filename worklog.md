@@ -1273,3 +1273,46 @@ Settle them with Places `businessStatus` when a key exists, not by search.
 **Instrument trap:** an audit is only as current as the checkout it reads.
 Today's schema.sql "drift" finding cited a stale `main` checkout, with no
 signal in its output. Verify against a database built from the current file.
+
+---
+
+## 2026-09-16 — T1: friendship consent, migration 048 STAGED (not applied)
+
+**The hole, reproduced (not source-read) on a DB built from current
+schema.sql:** "add own friendships" left `friend_id` unconstrained. A signed-in
+attacker inserted (me → victim) and went from 0 to all of the victim's visits
+(note text included) plus their profile; the mirror trigger's (victim → me)
+unlocked their friends-only photos. High, pre-launch (never deployed, project
+paused).
+
+**Fix: invite tokens, not a pending/accepted state.** Insert policy dropped
+and table INSERT revoked. The only write path is `redeem_friend_invite(token)`
+on a token from `create_friend_invite()` (256-bit, sha256 stored, 7 days,
+single use, ≤20 open per inviter). `preview_friend_invite(token)` shows the
+redeemer who they'd befriend first (security review, Medium: without it
+consent is only as good as a name in an attacker-controlled link). Result
+codes: friends / already_friends / self / invalid. Every existing read policy
+is unchanged and now correct, because an edge's existence is the proof both
+people acted. Unfriend stays one-sided.
+
+**Verified on a fresh throwaway Postgres from schema.sql: 32/32** (exploit
+refused, full flow, preview, self/reused/expired/garbage/already-friends, unfriend
+removes both edges, two concurrent redemptions → one edge, cap, grants,
+invites table unreadable). R1's 16/16 still pass on the same build.
+`security` review (branch/commit echoed): no C/H after the preview fix.
+
+**Supersede notes** added to migrations 007 and 028: re-applying either
+after 048 reopens the hole.
+
+**To verify when the project unpauses (source-only until then):**
+- existing live `friendships` rows. addFriend never had a caller, so any
+  present were hand-written and still grant reads. Owner decides, no purge
+  without that.
+- that the live insert policy really is 028's text before 048 drops it
+- `mirror_friendship`'s owner role
+- `authenticated`'s table-level INSERT on `friendships` (048 revokes it)
+
+**T2 contract** (lib/social.ts is theirs): delete `addFriend` (it now fails
+silently with 42501). Invite page: preview first, redeem only from an explicit
+button that shows the previewed name, never on load. Token in the URL fragment
+or `Referrer-Policy: no-referrer` on that route.

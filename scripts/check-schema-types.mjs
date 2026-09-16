@@ -24,7 +24,7 @@ const NOISE = new Set(["id", "created_at", "updated_at"]);
 // lib/types.ts deliberately has no interface for these.
 const SERVER_ONLY = new Set([
   "plan_host_tokens", "member_ages", "plan_access",
-  "app_control_secrets", "app_rate_limits", "security_events",
+  "app_control_secrets", "app_rate_limits", "security_events", "friend_invites",
 ]);
 
 // Lines inside a create-table body that are constraints, not columns.

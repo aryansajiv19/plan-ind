@@ -1,3 +1,5 @@
+-- ⚠ SUPERSEDED by migration 048: do NOT re-apply after 048. Its "add own friendships"
+-- insert policy is the unconsented-friendship hole 048 closes.
 -- Migration 007 — Supabase Auth ownership and social-write RLS.
 --
 -- ADDITIVE / SAFE TO RE-RUN. Apply after 005 and 006. Shared plan reads,

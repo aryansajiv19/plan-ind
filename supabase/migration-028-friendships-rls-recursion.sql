@@ -1,3 +1,5 @@
+-- ⚠ SUPERSEDED by migration 048: do NOT re-apply after 048. Its "add own friendships"
+-- insert policy is the unconsented-friendship hole 048 closes.
 -- Migration 028 — fix a real 42P17 (infinite recursion detected in policy)
 -- on every write to `friendships`. Apply after 027. Additive replace of two
 -- policies; no table/column/constraint change; re-run safe.
