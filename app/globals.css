@@ -1081,7 +1081,12 @@ h3 {
   gap: clamp(2rem, 7vw, 6rem);
 }
 
-.home-plan-section__intro { position: sticky; top: 3rem; }
+/* Sticky below the sticky nav (~5.4rem tall), not under it. */
+.home-plan-section__intro { position: sticky; top: 7rem; }
+/* Signed in, the section follows the app bar directly: the front door's
+   9rem of air above a headline became dead space under one. */
+.home-plan-section--app { padding-top: 2.5rem; }
+.home-plan-section--app .home-plan-section__intro > p:last-child { margin-top: 0.8rem; }
 .home-section-kicker { color: var(--color-punch-text); font-size: max(0.66rem, var(--type-floor)); font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; }
 /* One clamp across every width. This heading used to be clamp(2.8rem, 5vw,
    5rem) with separate overrides at 520px and 640px, which measured 72px on
@@ -1116,7 +1121,8 @@ h3 {
 .home-plan-card__tape {
   position: absolute;
   top: -1rem;
-  left: 1.5rem;
+  /* Same inset as the card's padding, so the tag shares the form's left edge. */
+  left: clamp(1.3rem, 4vw, 2.4rem);
   width: auto;
   padding: 0.45rem;
   border: 1px solid var(--color-line);
@@ -2557,6 +2563,19 @@ h3 {
 .vote-result__booked { border: 1px solid var(--color-punch-text); border-radius: 0; background: transparent; color: var(--color-punch-text); }
 .vote-result button[aria-pressed="true"]:not(.vote-rating-button) { border-color: var(--color-punch-text); background: var(--vote-metal); color: var(--color-ink); } /* dark ink on the tan fill = 5.74:1 */
 .vote-action-hint { margin-top: 0.65rem; color: var(--color-muted); font-size: max(0.72rem, var(--type-floor)); line-height: 1.45; }
+
+/* Desktop reading tier (owner, 2026-09-16). Labels hold the 12px floor; the
+   lines a person actually reads to decide — a card's hours and price, the
+   hint under the round — get 13px. The plan form's helper text stays on the
+   floor: at 13px it matched the label it sits under. Scoped to those,
+   not the global floor, so the gap to 14-16px body text survives. */
+@media (min-width: 641px) {
+  .vote-option__meta.text-xs,
+  .vote-action-hint { font-size: 0.8125rem; }
+  /* The "New plan" tag sat across the card's top border. In flow, it
+     shares the form's left edge and overlaps nothing. */
+  .home-plan-card__tape { position: static; display: inline-block; margin-bottom: 1.25rem; }
+}
 .vote-rsvp-choices { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.35rem; }
 .vote-rsvp-choices .vote-result__button { padding: 0.55rem 0.65rem; font-size: max(0.68rem, var(--type-floor)); }
 /* R1: host-only delete. Quiet until armed; the armed state names the plan

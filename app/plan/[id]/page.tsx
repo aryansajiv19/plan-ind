@@ -196,7 +196,7 @@ export default function VotePage() {
     (async () => {
       const { data: planRow, error: planErr } = await getSupabase()
         .from("plans")
-        .select("*")
+        .select("id,title,category,area,deadline,status,stage,pool_count,budget_per_person,origin_label,origin_latitude,origin_longitude,radius_km,smart_brief,vibe_preferences,avoid_preferences,intelligence_model,winner_spot_id,event_time,booking_owner,booked,created_at")
         .eq("id", id)
         .maybeSingle();
       if (!active) return;

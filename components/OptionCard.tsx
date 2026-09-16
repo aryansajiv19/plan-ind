@@ -104,7 +104,7 @@ export default function OptionCard({
         {spot.description ?? spot.vibe}
       </p>
 
-      <p className="mt-2 text-xs text-muted">
+      <p className="vote-option__meta mt-2 text-xs text-muted">
         Open till {spot.open_till} · from AED {spot.min_spend}pp{distanceKm != null ? ` · ${Math.max(1, Math.round(distanceKm))} km away` : ""}
       </p>
 

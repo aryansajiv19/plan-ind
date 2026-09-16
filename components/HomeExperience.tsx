@@ -340,10 +340,12 @@ export default function HomeExperience({
         </section>
       )}
 
-      <section id="plan-lab" className="home-plan-section">
+      {/* Signed in, "What are we doing?" above is already the page's headline;
+          a second big heading beside the form said the same thing again. */}
+      <section id="plan-lab" className={`home-plan-section${demoMode ? "" : " home-plan-section--app"}`}>
         <div className="home-plan-section__intro">
           <p className="home-section-kicker">Create a plan</p>
-          <h2>{demoMode ? "What does the group feel like doing?" : "Set the shape of the night"}</h2>
+          {demoMode && <h2>What does the group feel like doing?</h2>}
           <p>Choose the category, budget and travel radius. We’ll deal nine relevant places across three quick rounds.</p>
         </div>
 

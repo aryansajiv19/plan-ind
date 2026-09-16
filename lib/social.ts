@@ -49,7 +49,7 @@ const PERSON_FIELDS = "id, display_name, emoji, color";
 
 const VISIT_SELECT = `
   id, person_id, spot_id, plan_id, visited_at, group_label, note, created_at,
-  spot:spots(*),
+  spot:spots(id,name,category,area,cuisine,price_band,min_spend,open_till,vibe,photo_url,photo_attribution,description,minimum_age,address,latitude,longitude),
   companions:visit_companions(id, person_id, companion_name, created_at,
     person:people(${PERSON_FIELDS}))
 `;
