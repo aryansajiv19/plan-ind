@@ -1843,3 +1843,30 @@ ZWSP / ZWSP+ZWJ / BOM+NBSP refused on both functions; positive controls: normal
 and Persian-with-ZWNJ titles still create; grants unchanged. `security` review:
 bodies byte-identical apart from the condition, emoji-only titles unaffected, no
 findings. Runbook: preflight row + N5b (pre-deploy, additive for the current client).
+
+---
+
+## 2026-09-17 — T1: C4 migration 059 STAGED — birthday correction (direction rule) + one age-gate source
+
+- **One source for gates:** `category_age_gates()` (immutable VALUES list),
+  `category_min_age()`, `spot_required_age()`; the two creation functions'
+  three hardcoded CASE copies are replaced (re-created from 058's bodies). Full
+  age matrix at creation (ages 16/18/20/21 × dinner/shisha/nightlife × both
+  functions) identical before/after. A function, not a table (T0): values change
+  only by migration.
+- **`correct_birth_date`:** one correction (`member_ages.corrected_at`).
+  DIRECTION rule (T0's correction to my band rule, which let 17.0→17.99 unlock
+  18 the next day): younger always allowed (≥13); older only if already past the
+  highest gate = greatest(max category gate, max `minimum_age` of CURATED spots;
+  live max 21, values 0/18/21; custom spots excluded so a junk 99 can't block
+  everyone). Otherwise `crosses_age_gate` → contact support (manual, outside the app).
+- Security review adopted: **time zone.** `current_date` followed the session
+  zone, which a PostgREST caller sets per request (`Prefer: timezone=`).
+  **Verified on the rig before acting:** the header moved the date. The three
+  gate functions now pin `Asia/Dubai`; the rig negative control (a user turning
+  21 today in Dubai was refused under GMT+12) passes after. **Refused crossings
+  are audited** (outcome blocked, no dates). Helpers revoked from anon/authenticated.
+- **Pre-existing, not widened:** `set_birth_date` and `current_member_age` still
+  use the session zone (same up-to-a-day skew; the plan-creation gate itself is
+  now pinned).
+- Verified 47/47 on the 052–058 rig; schema.sql builds from scratch with 059.
