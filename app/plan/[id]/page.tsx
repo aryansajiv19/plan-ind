@@ -69,6 +69,8 @@ export default function VotePage() {
   // C6: this member left. Holds which confirm they saw, for the after-copy.
   const [left, setLeft] = useState<"open" | "decided" | null>(null);
   const [confirmLeave, setConfirmLeave] = useState(false);
+  const [confirmReopen, setConfirmReopen] = useState(false);
+  const [reopening, setReopening] = useState(false);
   const [leaving, setLeaving] = useState(false);
   // The live channels, so leaving can close them BEFORE the page moves on:
   // left open, the leaver lingers as "here now" for everyone until their
@@ -554,6 +556,43 @@ export default function VotePage() {
     }
   }
 
+  // C7 (migration 057): the host takes a decided plan back to its final round.
+  // Like edit, reopen answers { result } with no `plan`, so it doesn't go
+  // through runHostCommand. The deadline is omitted: it clears, and the host
+  // decides by hand.
+  async function reopenPlan() {
+    if (!hostToken) return;
+    setReopening(true);
+    try {
+      const response = await secureJsonFetch(`/api/plans/${id}/command`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ command: "reopen", hostToken }),
+      });
+      const payload = await response.json().catch(() => ({})) as { result?: string; deadline?: string | null };
+      if (payload.result === "reopened") {
+        setPlan((current) => current && { ...current, status: "open", stage: "final", winner_spot_id: null, deadline: payload.deadline ?? null });
+        setNotice(null);
+        return;
+      }
+      if (response.status === 404 && await planIsGone()) { setDeleted((d) => d ?? "remote"); return; }
+      setNotice(
+        payload.result === "booked" ? "Unmark “booked” before reopening — the booking is still marked as made."
+          : payload.result === "already_happened" ? "Someone has already rated this place or logged the visit, so this plan can’t be reopened."
+            : payload.result === "no_rounds" ? "This plan has no final shortlist to go back to, so it can’t be reopened."
+              : payload.result === "not_decided" ? "This plan is already open."
+                : response.status === 403 ? "Only the person who started this plan can reopen it."
+                  : response.status === 429 ? "Too many plan changes. Try again in a minute."
+                    : "That plan couldn’t be reopened. Try again.",
+      );
+    } catch {
+      setNotice("That plan couldn’t be reopened. Check your connection and try again.");
+    } finally {
+      setReopening(false);
+      setConfirmReopen(false);
+    }
+  }
+
   // C6 (migration 056). Members only -- the host deletes instead.
   async function leavePlan() {
     if (!plan) return;
@@ -669,9 +708,12 @@ export default function VotePage() {
     return () => clearTimeout(t);
   }, [plan, stage, hostToken, deleted, decide, advanceToFinal]);
 
-  // Record the winner once when the decision arrives.
+  // Record the winner once when the decision arrives. A reopened plan (057)
+  // goes back to open, so the latch resets -- otherwise the re-decide would
+  // never record its winner.
   useEffect(() => {
-    if (!decided || !winnerId || revealFired.current) return;
+    if (!decided) { revealFired.current = false; return; }
+    if (!winnerId || revealFired.current) return;
     revealFired.current = true;
     addBeen(winnerId);
   }, [decided, winnerId]);
@@ -1067,6 +1109,13 @@ export default function VotePage() {
                 {plan!.radius_km != null ? ` · within ${plan!.radius_km} km of ${plan!.origin_label ?? "the starting point"}` : ""}
               </p>
             )}
+            {/* C7: RSVPs, a booking owner and an event time only exist after a
+                decision, and reopening (057) keeps them -- so an OPEN plan that
+                has any of them was reopened, and those answers point at a place
+                that's no longer decided. */}
+            {!decided && (rsvps.length > 0 || plan!.booking_owner || plan!.event_time) && (
+              <p className="vote-reopened" role="status">This plan was reopened. Check your RSVP once a new place is picked.</p>
+            )}
             {!decided && (
               <p className="vote-round-label">
                 <span className="sr-only">
@@ -1323,9 +1372,30 @@ export default function VotePage() {
               onSetCarpool={setCarpool}
               onClaimBooking={() => patchPlan({ booking_owner: voterName })}
               onMarkBooked={() => patchPlan({ booked: true })}
+              onUnmarkBooked={() => patchPlan({ booked: false })}
               onRate={rateWinner}
             />
           )
+        )}
+
+        {/* C7: host only, decided plans. */}
+        {isHost && decided && (
+          <div className="vote-delete vote-reopen">
+            {confirmReopen ? (
+              <div className="vote-delete__confirm" role="group" aria-label="Confirm reopen">
+                <p>
+                  Reopen voting on “{plan!.title}”? Everyone goes back to the final shortlist.
+                  RSVPs, carpool and the plan time stay; people should check them once a new place is picked.
+                </p>
+                <button type="button" disabled={reopening} onClick={() => void reopenPlan()}>
+                  {reopening ? "Reopening…" : "Reopen voting"}
+                </button>
+                <button type="button" disabled={reopening} onClick={() => setConfirmReopen(false)}>Keep the decision</button>
+              </div>
+            ) : (
+              <button type="button" onClick={() => setConfirmReopen(true)}>Reopen voting</button>
+            )}
+          </div>
         )}
 
         {/* C6. Never the host: they delete instead (leave_plan refuses them). */}
