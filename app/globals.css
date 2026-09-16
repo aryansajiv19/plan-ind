@@ -3020,19 +3020,36 @@ h3 {
   }
 }
 
-/* ── Who is on the plan right now ──────────────────────────────────
-   Presence carries the typed name only — the same thing the vote list
-   already shows publicly. Never a token, never account data. */
-.vote-presence {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.6rem;
+/* ── The group, as seats (§26.1) ───────────────────────────────────
+   Every person the plan can see, whether or not they have acted. A filled
+   seat is someone who picked this round; an open seat is someone who hasn't
+   — drawn, countable, not an absence. Names only, never a token.
+   The dashed edge is a UI boundary (SC 1.4.11): --color-line is 3.63:1 on
+   the canvas, so it must not be softened toward a hint. */
+.vote-seats { margin-top: 0.7rem; }
+.vote-seats__row { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.vote-seat > span[aria-hidden],
+.vote-seat--more {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  font-size: 0.56rem;
+  font-weight: 500;
+}
+.vote-seat[data-open] > span[aria-hidden] {
+  border: 1.5px dashed var(--color-line);
+  color: var(--color-muted);
+}
+.vote-seat--more { color: var(--color-muted); }
+.vote-seats__summary {
+  margin-top: 0.45rem;
   color: var(--color-muted);
   font-size: 0.68rem;
   font-weight: 500;
 }
-.vote-presence .vote-face-stack > span { width: 1.35rem; height: 1.35rem; font-size: 0.5rem; }
 
 /* ── Arrival ───────────────────────────────────────────────────────
    Lists arrive one item after another rather than as a block. It is a

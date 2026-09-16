@@ -39,6 +39,9 @@ function closesLabel(deadline: string | null): string {
 const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
 const roman = (n: number) => ROMAN[n - 1] ?? String(n);
 
+// Past this many seats the row stops reading as faces; the rest collapse to +N.
+const SEAT_LIMIT = 10;
+
 export default function VotePage() {
   const { id } = useParams<{ id: string }>();
 
@@ -644,29 +647,44 @@ export default function VotePage() {
   // arrives, which is exactly what happens to a guest who switches apps
   // mid-vote and comes back. Web Animations gives a destination that is
   // correct whether or not the animation ever runs.
-  const facePositions = useRef(new Map<string, DOMRect>());
+  //
+  // A name can be on screen in two places at once — its seat and the card it
+  // picked — so positions are keyed by slot + name, never by name alone. Keyed
+  // by name, the seat and the card overwrite each other and every re-render
+  // flies one of them in from the other. A face already in its slot only
+  // animates if layout moved it; a face NEW to a slot flies in from wherever
+  // that name just left (the card it un-picked), else from its seat.
+  const facePositions = useRef(new Map<string, { name: string; box: DOMRect }>());
   useLayoutEffect(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const seen = new Map<string, DOMRect>();
-    for (const node of document.querySelectorAll<HTMLElement>("[data-face-name]")) {
+    const previous = facePositions.current;
+    const seen = new Map<string, { name: string; box: DOMRect }>();
+    const nodes = [...document.querySelectorAll<HTMLElement>("[data-face-name]")];
+    for (const node of nodes) {
+      const name = node.dataset.faceName;
+      if (name) seen.set(`${node.dataset.faceSlot ?? ""}:${name}`, { name, box: node.getBoundingClientRect() });
+    }
+    facePositions.current = seen;
+    if (reduced) return;
+    for (const node of nodes) {
       const name = node.dataset.faceName;
       if (!name) continue;
-      const box = node.getBoundingClientRect();
-      const previous = facePositions.current.get(name);
-      // Only the LAST position of a given name is kept, so a face that
-      // appears in both the tray and a card animates from wherever it was
-      // most recently measured. Same-position renders are skipped outright.
-      seen.set(name, box);
-      if (reduced || !previous) continue;
-      const dx = previous.left - box.left;
-      const dy = previous.top - box.top;
+      const key = `${node.dataset.faceSlot ?? ""}:${name}`;
+      const box = seen.get(key)!.box;
+      let from = previous.get(key)?.box;
+      if (!from) {
+        const others = [...previous.entries()].filter(([k, v]) => v.name === name && k !== key);
+        from = (others.find(([k]) => !seen.has(k)) ?? others.find(([k]) => k.startsWith("seat:")))?.[1].box;
+      }
+      if (!from) continue;
+      const dx = from.left - box.left;
+      const dy = from.top - box.top;
       if (Math.abs(dx) < 1 && Math.abs(dy) < 1) continue;
       node.animate(
         [{ transform: `translate(${dx}px, ${dy}px)` }, { transform: "none" }],
         { duration: 420, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
       );
     }
-    facePositions.current = seen;
   });
 
   if (access === "captcha-required") {
@@ -714,6 +732,16 @@ export default function VotePage() {
   }
 
   const voters = new Set(votes.map((v) => v.voter_name)).size;
+  // Everyone the client can see on this plan, you first. See the seats row.
+  const roster = [...new Set([
+    ...votes.map((v) => v.voter_name),
+    ...rsvps.map((r) => r.voter_name),
+    ...ratings.map((r) => r.voter_name),
+    ...presentNames,
+  ])].filter((name) => name !== voterName).sort((a, b) => a.localeCompare(b));
+  roster.unshift(voterName);
+  const pickedThisRound = new Set(votes.filter((v) => v.value && voteIsInCurrentRound(v)).map((v) => v.voter_name));
+  const othersHere = presentNames.filter((name) => name !== voterName);
   const winnerSpot = spots.find((s) => s.id === winnerId) ?? null;
   const advancedIds = planSpots.filter((link) => link.advanced).map((link) => link.spot_id);
   const visibleSpots = stage === "pool"
@@ -795,22 +823,36 @@ export default function VotePage() {
                 </span>
               </p>
             )}
-            {/* Only worth showing when someone else is here — "you are here"
-                is not news, and a solo row would just be permanent chrome. */}
-            {presentNames.length > 1 && (
-              <p className="vote-presence">
-                <span className="vote-face-stack" aria-hidden="true">
-                  {presentNames.slice(0, 5).map((name) => (
-                    <span key={name} data-face-name={name} style={avatarStyle(name)}>
-                      {initialsOf(name)}
-                    </span>
-                  ))}
-                </span>
-                <span>
-                  {presentNames.filter((name) => name !== voterName).join(", ")}
-                  {presentNames.length > 5 ? " and others" : ""} here now
-                </span>
-              </p>
+            {/* §26.1: draw the group, not just the people who acted. A seat
+                fills when that person has picked this round. The roster is a
+                LOWER BOUND — plan_access carries no names, so someone who
+                opened the link and never acted is invisible — which is why the
+                copy counts picks and never claims "N of M". */}
+            {!decided && roster.length > 1 && (
+              <div className="vote-seats">
+                <ul className="vote-seats__row" aria-label="People on this plan">
+                  {roster.slice(0, SEAT_LIMIT).map((name) => {
+                    const picked = pickedThisRound.has(name);
+                    return (
+                      <li key={name} className="vote-seat" data-open={picked ? undefined : "1"}>
+                        <span aria-hidden="true" data-face-name={name} data-face-slot="seat" style={picked ? avatarStyle(name) : undefined}>
+                          {initialsOf(name)}
+                        </span>
+                        <span className="sr-only">
+                          {name === voterName ? `${name} (you)` : name}, {picked ? "picked" : "not picked yet"}
+                        </span>
+                      </li>
+                    );
+                  })}
+                  {roster.length > SEAT_LIMIT && (
+                    <li className="vote-seat vote-seat--more">+{roster.length - SEAT_LIMIT}</li>
+                  )}
+                </ul>
+                <p className="vote-seats__summary">
+                  {pickedThisRound.size} picked this round
+                  {othersHere.length > 0 && ` · ${othersHere.slice(0, 3).join(", ")}${othersHere.length > 3 ? " and others" : ""} here now`}
+                </p>
+              </div>
             )}
           </div>
           <span className="vote-deadline shrink-0 whitespace-nowrap px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-grape">

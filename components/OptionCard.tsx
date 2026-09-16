@@ -119,6 +119,7 @@ export default function OptionCard({
                 <span
                   key={name}
                   data-face-name={name}
+                  data-face-slot={spot.id}
                   style={avatarStyle(name)}
                   className={arriving.includes(name) ? "vote-face--arriving" : ""}
                 >
