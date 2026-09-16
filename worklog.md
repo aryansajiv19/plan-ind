@@ -1489,3 +1489,36 @@ in zsh and bash:**
   not landed, so 051 is correctly still blocked.**
 - A throwaway detached commit with those two edits applied (never on a branch,
   worktree removed) → all `ok`.
+
+---
+
+## 2026-09-16 — T1: runbook executable end to end; Realtime column stripping proven
+
+**Gate:** added T2's `7f58c30` (saved places / Wrapped via 050's RPCs). **Zero
+BLOCKs on `7f58c30` and current `ai-engineering`** in zsh and bash (10/10
+ok). It still blocks on `b8b19c7` and every earlier commit. T2's exact
+custom-spot insert, which is the one client path still naming
+`created_by_user_id`, returns 201 under 051. Clients hold INSERT but not
+SELECT on that column, and the spot comes back via `my_custom_spots`.
+
+**Realtime, proven rather than read:** a real realtime v2.129.3 container on the
+rehearsal DB, with a plan member subscribed to `plans` and `votes`. After
+049+051, no `created_by_user_id`/`user_id` in `record` or `old_record` for
+UPDATE/INSERT/DELETE, while the change itself still arrives. **The negative
+control makes the check falsifiable:** with the stopgap undo applied, both
+columns appear. A `created_by_user_id` filter is refused while an `id` filter
+subscribes. 21/21.
+
+**Two harness traps on the way, recorded because each would have produced a
+wrong answer:**
+- My DB builder stubs a minimal `realtime` schema for `schema.sql`'s presence
+  policies. Under real Realtime that stub broke its migrations, so EVERY
+  subscription failed. A "filter refused" check that accepted any error then
+  PASSED for the wrong reason. Fixed by letting Realtime build its own schema
+  first, and by a positive control (normal subscriptions must confirm and
+  deliver events) that any refusal check now sits behind.
+- Deleting a vote immediately after inserting it made Realtime drop the INSERT
+  event (it checks access against the live row). That's pre-existing Realtime
+  behaviour, not ours; worth knowing for anything measuring rapid toggles.
+
+Lane critical path done. Holding; R2/R3/R7/R8 not started.
