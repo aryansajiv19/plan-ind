@@ -29,6 +29,8 @@ interface DecidedPlanProps {
   onSetCarpool: (transport: Rsvp["transport"], seats: number | null) => void;
   onClaimBooking: () => void;
   onMarkBooked: () => void;
+  /** Host only: take "booked" back off (a wrong tick, or before reopening). */
+  onUnmarkBooked: () => void;
   onRate: (partial: { stars?: number; again?: boolean }) => void;
 }
 
@@ -62,6 +64,7 @@ export default function DecidedPlan({
   onSetCarpool,
   onClaimBooking,
   onMarkBooked,
+  onUnmarkBooked,
   onRate,
 }: DecidedPlanProps) {
   const [editingTime, setEditingTime] = useState(false);
@@ -333,9 +336,18 @@ export default function DecidedPlan({
         </p>
         <div className="mt-2 flex flex-wrap items-center gap-2">
           {plan.booked ? (
-            <span className="vote-result__booked rounded-full bg-mint/15 px-3 py-1.5 text-sm font-bold text-mint">
-              Booked{plan.booking_owner ? ` by ${plan.booking_owner}` : ""}
-            </span>
+            <>
+              <span className="vote-result__booked rounded-full bg-mint/15 px-3 py-1.5 text-sm font-bold text-mint">
+                Booked{plan.booking_owner ? ` by ${plan.booking_owner}` : ""}
+              </span>
+              {/* "Mark as booked" had no way back: a mis-tap was permanent, and
+                  reopening a plan requires it untaken. */}
+              {isHost && (
+                <button type="button" onClick={onUnmarkBooked} className="vote-result__button px-4 py-2 text-sm font-display">
+                  Unmark booked
+                </button>
+              )}
+            </>
           ) : plan.booking_owner ? (
             <>
               <span className="text-sm font-medium">
