@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { deleteVisit, deleteVisitPhoto, untagCompanion, type VisitPhotoView } from "@/lib/social";
-import type { ProfileVisit } from "@/lib/types";
+import { deleteVisit, deleteVisitPhoto, retagCompanion, untagCompanion, type VisitPhotoView } from "@/lib/social";
+import UndoBar from "@/components/UndoBar";
+import type { CompanionView, ProfileVisit } from "@/lib/types";
 
 const DATE_FORMAT = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short" });
 
@@ -28,6 +29,26 @@ export default function ManageVisit({
   const [armed, setArmed] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Untagging is quick and reversible, so it happens in one tap with Undo
+  // rather than a confirm. Deletes keep their confirm: they can't be undone.
+  const [undo, setUndo] = useState<{ message: string; restore: () => Promise<boolean> } | null>(null);
+
+  async function untag(visitId: string, companion: CompanionView) {
+    setPending(true);
+    setError(null);
+    const ok = await untagCompanion(companion.id);
+    setPending(false);
+    if (!ok) { setError(`Couldn’t remove ${companion.name}. Try again.`); return; }
+    onChanged();
+    setUndo({
+      message: `Removed ${companion.name}.`,
+      restore: async () => {
+        const restored = await retagCompanion(visitId, companion);
+        if (restored) onChanged();
+        return restored;
+      },
+    });
+  }
 
   const visit = visits.find((v) => v.id === visitId) ?? null;
   const visitPhotos = visit ? photos.filter((photo) => photo.visit_id === visit.id) : [];
@@ -91,16 +112,7 @@ export default function ManageVisit({
               {visit.companions.map((c) => (
                 <li key={c.id}>
                   <span>{c.name}</span>
-                  {armed === c.id ? (
-                    <span className="manage-visit__confirm">
-                      <button type="button" disabled={pending} onClick={() => void run(() => untagCompanion(c.id), `Couldn’t remove ${c.name}. Try again.`)}>
-                        Remove {c.name}
-                      </button>
-                      <button type="button" disabled={pending} onClick={() => setArmed(null)}>Cancel</button>
-                    </span>
-                  ) : (
-                    <button type="button" disabled={pending} onClick={() => setArmed(c.id)}>Untag</button>
-                  )}
+                  <button type="button" disabled={pending} onClick={() => void untag(visit.id, c)}>Untag</button>
                 </li>
               ))}
             </ul>
@@ -123,6 +135,7 @@ export default function ManageVisit({
       )}
 
       {error && <p role="alert" className="manage-visit__error">{error}</p>}
+      {undo && <UndoBar key={undo.message} message={undo.message} onUndo={undo.restore} onDone={() => setUndo(null)} />}
     </div>
   );
 }

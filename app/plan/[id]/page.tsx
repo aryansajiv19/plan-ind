@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
+import UndoBar from "@/components/UndoBar";
 import { useParams } from "next/navigation";
 import { getSupabase, bootstrapPlanAccess, type PlanAccessDenial } from "@/lib/supabase";
 import { addBeen } from "@/lib/device";
@@ -70,6 +71,7 @@ export default function VotePage() {
   const [left, setLeft] = useState<"open" | "decided" | null>(null);
   const [confirmLeave, setConfirmLeave] = useState(false);
   const [confirmReopen, setConfirmReopen] = useState(false);
+  const [voteUndo, setVoteUndo] = useState<{ message: string; restore: () => Promise<boolean> } | null>(null);
   const [reopening, setReopening] = useState(false);
   const [leaving, setLeaving] = useState(false);
   // The live channels, so leaving can close them BEFORE the page moves on:
@@ -489,6 +491,34 @@ export default function VotePage() {
       setNotice("That vote didn't save. Check your connection and tap again.");
     } else {
       setNotice(null);
+      // Clearing your pick is quick and reversible: offer Undo, which re-casts
+      // the same pick in the same round (captured here -- toggleVote itself
+      // would read a stale tally by the time Undo is tapped).
+      if (!next) {
+        const phase = currentPhase;
+        const pool = currentPoolNumber;
+        const hash = participantHash;
+        const name = voterName;
+        const place = spots.find((spot) => spot.id === spotId)?.name ?? "that place";
+        setVoteUndo({
+          message: `Cleared your pick of ${place}.`,
+          restore: async () => {
+            const { error: undoError } = await getSupabase().rpc("cast_plan_vote", {
+              p_plan_id: id,
+              p_spot_id: spotId,
+              p_voter_name: name,
+              p_value: true,
+              p_phase: phase,
+              p_pool_number: pool,
+              p_participant_token_hash: hash,
+            });
+            await refetchVotes();
+            return !undoError;
+          },
+        });
+      } else {
+        setVoteUndo(null);
+      }
     }
   }
 
@@ -1414,6 +1444,10 @@ export default function VotePage() {
               <button type="button" onClick={() => setConfirmLeave(true)}>Leave this plan</button>
             )}
           </div>
+        )}
+
+        {voteUndo && !decided && (
+          <UndoBar key={voteUndo.message} message={voteUndo.message} onUndo={voteUndo.restore} onDone={() => setVoteUndo(null)} />
         )}
 
         {notice && (
