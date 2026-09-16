@@ -1,5 +1,6 @@
 -- Migration 055 — edit_plan (C5): the host can rename a plan or move its
--- deadline before anyone has voted. Apply after 054. Additive (new function
+-- deadline before anyone has voted. Apply after 054 (needs 052's
+-- clean_display_name). Additive (new function
 -- only), re-run safe. STAGED, not applied. (053 is reserved for the legacy
 -- null-user_id participant rows.)
 --
@@ -15,7 +16,10 @@
 -- exists. Direct plans (decided at creation) are therefore never editable.
 --
 -- Validation matches plan creation: title = clean_app_text(title, 60),
--- non-empty; deadline in the future and at most a year out. A null argument
+-- non-empty; deadline in the future and at most a year out. Additionally a
+-- title that is only invisible characters (e.g. a zero-width space, which
+-- clean_app_text keeps) is refused: it must not be empty under 052's
+-- clean_display_name either (T2 found "\u200B" saving as an invisible title). A null argument
 -- leaves that field unchanged. Nothing to change returns nothing_to_change,
 -- which the route treats as success.
 --
@@ -62,7 +66,7 @@ begin
 
   if p_title is not null then
     new_title := clean_app_text(p_title, 60);
-    if new_title = '' then
+    if new_title = '' or clean_display_name(new_title) = '' then
       return jsonb_build_object('result', 'invalid_title');
     end if;
   end if;
