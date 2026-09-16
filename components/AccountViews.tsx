@@ -15,6 +15,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import PlaceLinkImporter from "@/components/PlaceLinkImporter";
 import PhotoWall, { type WallItem } from "@/components/PhotoWall";
 import PhotoCredit from "@/components/PhotoCredit";
+import ManageVisit from "@/components/ManageVisit";
 import { categoryLabel, categoryMeta } from "@/lib/categories";
 import { minimumAgeForCategory } from "@/lib/age-policy";
 import { getSupabase } from "@/lib/supabase";
@@ -545,7 +546,7 @@ export default function AccountViews({
         <header className="demo-view__header demo-view__header--split">
           <div>
             <p className="home-section-kicker">Your city log</p>
-            <h1 id="been-title">{stats.places ? `${stats.places} places, properly remembered.` : "Your city log starts here."}</h1>
+            <h1 id="been-title">{stats.places ? `${stats.places} ${stats.places === 1 ? "place" : "places"}, properly remembered.` : "Your city log starts here."}</h1>
           </div>
           {stats.total > 0 && (
             <div className="demo-account-stats">
@@ -601,6 +602,8 @@ export default function AccountViews({
               items={wallItems}
               emptyMessage={`${activeFolder?.name ?? "This collection"} is ready. Open All places and add visits to build it.`}
             />
+
+            {personId && <ManageVisit visits={visits} onChanged={() => router.refresh()} />}
 
             {activeFolder && personId && visibleVisits.length > 0 && (
               <div className="demo-visit__collection-action">
