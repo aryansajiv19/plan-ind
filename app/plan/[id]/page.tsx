@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { getSupabase, bootstrapPlanAccess, type PlanAccessDenial } from "@/lib/supabase";
 import { addBeen } from "@/lib/device";
@@ -65,6 +66,15 @@ export default function VotePage() {
   // Set once the plan is gone: "self" when this host deleted it here,
   // "remote" when the deletion arrived from somewhere else.
   const [deleted, setDeleted] = useState<"self" | "remote" | null>(null);
+  // C6: this member left. Holds which confirm they saw, for the after-copy.
+  const [left, setLeft] = useState<"open" | "decided" | null>(null);
+  const [confirmLeave, setConfirmLeave] = useState(false);
+  const [leaving, setLeaving] = useState(false);
+  // The live channels, so leaving can close them BEFORE the page moves on:
+  // left open, the leaver lingers as "here now" for everyone until their
+  // socket reconnects.
+  const dataChannelRef = useRef<ReturnType<ReturnType<typeof getSupabase>["channel"]> | null>(null);
+  const presenceChannelRef = useRef<ReturnType<ReturnType<typeof getSupabase>["channel"]> | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   // C5: host edits the title/closing time before anyone has voted.
   const [editing, setEditing] = useState<{ title: string; deadline: string } | null>(null);
@@ -326,7 +336,7 @@ export default function VotePage() {
   // unrate, and other members' tallies went stale. Refetch on every event.
   // The plans DELETE handler below can check `old.id`, because id IS the key.
   useEffect(() => {
-    if (access !== "ready" || deleted) return;
+    if (access !== "ready" || deleted || left) return;
     const channel = getSupabase()
       .channel(`plan:${id}`)
       .on(
@@ -363,10 +373,12 @@ export default function VotePage() {
         () => refetchPlanSpots(),
       )
       .subscribe();
+    dataChannelRef.current = channel;
     return () => {
+      dataChannelRef.current = null;
       getSupabase().removeChannel(channel);
     };
-  }, [access, deleted, id, refetchVotes, refetchRsvps, refetchRatings, refetchPlanSpots]);
+  }, [access, deleted, left, id, refetchVotes, refetchRsvps, refetchRatings, refetchPlanSpots]);
 
   // ── Who else has this plan open right now ────────────────────────
   // A separate channel from the data subscriptions above: presence depends on
@@ -379,7 +391,7 @@ export default function VotePage() {
   // credential the write RPCs authorise against. The payload carries the
   // typed name only — exactly what the vote list already shows publicly.
   useEffect(() => {
-    if (access !== "ready" || !voterName) return;
+    if (access !== "ready" || !voterName || left) return;
     const sessionKey = crypto.randomUUID();
     const channel = getSupabase().channel(`plan:${id}:presence`, {
       config: { private: true, presence: { key: sessionKey } },
@@ -396,10 +408,12 @@ export default function VotePage() {
       .subscribe((status) => {
         if (status === "SUBSCRIBED") void channel.track({ name: voterName });
       });
+    presenceChannelRef.current = channel;
     return () => {
+      presenceChannelRef.current = null;
       getSupabase().removeChannel(channel);
     };
-  }, [access, id, voterName]);
+  }, [access, id, voterName, left]);
 
   // ── Tallies + this voter's picks ─────────────────────────────────
   const currentPhase = stage === "pool" ? "pool" : "final";
@@ -538,6 +552,40 @@ export default function VotePage() {
     } finally {
       setEditPending(false);
     }
+  }
+
+  // C6 (migration 056). Members only -- the host deletes instead.
+  async function leavePlan() {
+    if (!plan) return;
+    const wasDecided = plan.status === "decided";
+    setLeaving(true);
+    const { data, error } = await getSupabase().rpc("leave_plan", { p_plan_id: id });
+    const result = (data as { result?: string } | null)?.result;
+    if (error || !result) {
+      setLeaving(false);
+      setConfirmLeave(false);
+      setNotice("Couldn’t leave the plan. Try again.");
+      return;
+    }
+    if (result === "host_cannot_leave") {
+      setLeaving(false);
+      setConfirmLeave(false);
+      setNotice("You started this plan, so you can’t leave it. Delete it instead.");
+      return;
+    }
+    if (result === "not_found") { setDeleted((d) => d ?? "remote"); return; }
+    // left, or not_member (already out): close the live channels FIRST --
+    // untrack, then remove -- so nobody keeps seeing this person "here now",
+    // and no refetch runs against reads that now return nothing.
+    const presence = presenceChannelRef.current;
+    if (presence) {
+      await presence.untrack().catch(() => undefined);
+      await getSupabase().removeChannel(presence);
+    }
+    if (dataChannelRef.current) await getSupabase().removeChannel(dataChannelRef.current);
+    // Forget this device's name for the plan, so rejoining starts fresh.
+    try { localStorage.removeItem(`voter:${id}`); } catch { /* storage blocked */ }
+    setLeft(wasDecided ? "decided" : "open");
   }
 
   async function deletePlan() {
@@ -869,6 +917,27 @@ export default function VotePage() {
 
   if (deleted) {
     return <VoteState kind={deleted === "self" ? "deleted-by-you" : "deleted"} planTitle={plan?.title} />;
+  }
+  // After leaving, the plan's reads return nothing (RLS) -- which must not be
+  // shown as "not found". Say what happened, and how to come back.
+  if (left) {
+    return (
+      <main className="vote-experience vote-state">
+        <div className="vote-state__inner">
+          <h1 className="vote-state__title">You left {plan?.title ? `“${plan.title}”` : "this plan"}</h1>
+          <p className="vote-state__body">
+            {left === "decided"
+              ? "Your RSVP and rating were removed; your votes stay as part of how the group decided."
+              : "Your votes and RSVP were removed."}{" "}
+            Open the link again any time to rejoin.
+          </p>
+          <div className="vote-state__actions">
+            <button type="button" className="vote-primary-action" onClick={() => window.location.reload()}>Rejoin</button>
+            <Link href="/home" className="vote-secondary-action">Go home</Link>
+          </div>
+        </div>
+      </main>
+    );
   }
   if (access === "captcha-required") {
     return (
@@ -1257,6 +1326,28 @@ export default function VotePage() {
               onRate={rateWinner}
             />
           )
+        )}
+
+        {/* C6. Never the host: they delete instead (leave_plan refuses them). */}
+        {!isHost && (
+          <div className="vote-delete vote-leave">
+            {confirmLeave ? (
+              <div className="vote-delete__confirm" role="group" aria-label="Confirm leave">
+                <p>
+                  Leave “{plan!.title}”?{" "}
+                  {decided
+                    ? "Your RSVP and rating will be removed; your votes stay as part of how the group decided."
+                    : "Your votes and RSVP will be removed. You can rejoin with the link."}
+                </p>
+                <button type="button" className="vote-delete__go" disabled={leaving} onClick={() => void leavePlan()}>
+                  {leaving ? "Leaving…" : "Leave plan"}
+                </button>
+                <button type="button" disabled={leaving} onClick={() => setConfirmLeave(false)}>Stay</button>
+              </div>
+            ) : (
+              <button type="button" onClick={() => setConfirmLeave(true)}>Leave this plan</button>
+            )}
+          </div>
         )}
 
         {notice && (
