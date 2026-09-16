@@ -1,5 +1,5 @@
 import { timingSafeEqual } from "node:crypto";
-import { resolveAppOrigin } from "@/lib/app-origin";
+import { previewOrigins, resolveAppOrigin } from "@/lib/app-origin";
 
 export class RequestValidationError extends Error {
   readonly status: number;
@@ -23,15 +23,13 @@ export function validateMutationRequest(request: Request): void {
   // Its dev-only fallback trusts the Host header, which is fine here: a
   // browser cannot choose the Host it sends to this server, so a cross-site
   // page still arrives with a foreign Origin.
-  const allowed = [resolveAppOrigin({
+  // On a preview, any of this deployment's own hosts (previewOrigins is the
+  // single list); elsewhere, exactly the resolved origin.
+  const preview = previewOrigins();
+  const allowed = preview.length > 0 ? preview : [resolveAppOrigin({
     host: request.headers.get("x-forwarded-host") ?? request.headers.get("host"),
     forwardedProto: request.headers.get("x-forwarded-proto"),
   })];
-  // A preview is served at its deployment URL AND its branch alias, the link
-  // Vercel usually shares. Both are this deployment; nothing wider is accepted.
-  if (process.env.VERCEL_ENV === "preview" && process.env.VERCEL_BRANCH_URL) {
-    allowed.push(`https://${process.env.VERCEL_BRANCH_URL}`);
-  }
   if (!origin || !allowed.includes(origin)) {
     throw new RequestValidationError(403, "Request origin was not accepted.");
   }
