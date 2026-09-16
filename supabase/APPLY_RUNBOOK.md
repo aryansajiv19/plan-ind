@@ -7,6 +7,19 @@ order, not the approval.
 Two of these steps (049, 051) take the app down if applied before the client deploy, and 048 must follow 028. Each one says so
 at the top of its own migration file too.
 
+## Applied to live
+
+| Migration | Applied (UTC, verify `t` at) | Approved by | Verified |
+|---|---|---|---|
+| 028 | 2026-09-16 19:23:38Z | owner (confirmed directly in T1's session) | step 0 verify `t`; both friendship write policies in 028 form |
+| 047 | 2026-09-16 19:24:05Z | owner | step 1 verify `t`; anon cannot execute, authenticated can; 6 plans untouched |
+| 048 | 2026-09-16 19:24:48Z | owner | step 2 verify `t`; live PostgREST direct insert → `42501 permission denied`; anon invite RPC refused; `friend_invites` RLS on, 0 policies; delete policy still 028 form; 0 friendship rows |
+| 050 | 2026-09-16 19:25:37Z | owner | step 3 verify `t`; anon cannot execute new RPCs; `execute_plan_command` return drops uid; signed-out curated spots + categories reads 200 with data; all 11 read policies on plans/plan_spots/votes/rsvps/ratings/spots byte-identical to pre-apply |
+| 049, 051 | **NOT applied** | not approved | wait for the Vercel deploy + step 4 gate |
+
+Preflight immediately before the first apply matched the rehearsal exactly
+(same rows, same 7 checksums).
+
 ## 0. Preflight: read the catalog, not the ledger
 
 The worklog ledger has been confidently wrong before (026 was recorded as

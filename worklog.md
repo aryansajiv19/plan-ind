@@ -45,6 +45,13 @@ Apply in order. Every migration is additive and re-run safe unless noted.
 | 032 | `migration-032-fix-votes-legacy-index-drop.sql` | **yes — applied live 2026-09-04 via Supabase MCP (T0), owner-approved.** Verified: `votes_round_choice_unique` confirmed gone from `pg_indexes`; `votes_participant_round_key` confirmed present. Live correctness bug closed. |
 | 033 | `migration-033-fix-create-secure-plan-category-check.sql` | **yes — applied live 2026-09-04 via Supabase MCP (T0), owner-approved. CRITICAL.** Fixes `create_secure_plan`'s exact-category-match check, which blocked every real plan creation since migration 020 (2026-08-24) — confirmed live: 0 successful creations through the app in 11 days. Verified via full function definition (not a text-match guess, see the 2026-09-04 note above about a false-positive `LIKE` check against the migration's own comment): the category-equality clause is gone, the per-spot age gate (keyed on each spot's own category) and the ownership/sourcing clause are unchanged, grants correct. |
 | 034 | `migration-034-create-direct-plan.sql` | **yes — applied live 2026-09-04 via Supabase MCP (T0), owner-approved.** New `create_direct_plan(jsonb, uuid)` RPC for the "skip the vote" flow — one spot, immediately `decided`, category derived from the spot itself (not client input, same lesson as 033). Verified: function exists, returns `jsonb`, `anon` blocked, `authenticated` allowed. |
+| 027 | `migration-027-spots-name-index.sql` | **NO — corrected 2026-09-16.** Earlier ledger/prose said applied; live catalog probe: `spots_name_idx` absent. Deferred (not superseded by 040's trigram index; see runbook). |
+| 028 | `migration-028-friendships-rls-recursion.sql` | **Was NOT live (ledger said yes); applied live 2026-09-16 19:23:38Z via Supabase MCP (T1), owner-approved.** Before it, every friendship write failed with 42P17. Verified: both write policies in 028 form. |
+| 039 | `migration-039-first-curated-photos.sql` | **YES — corrected 2026-09-16.** Recorded as held; live has all 6 `photo_url`s and all 6 files in `spot-photos` (sample served 200 image/jpeg). |
+| 047 | `migration-047-delete-plan.sql` | **yes — applied live 2026-09-16 19:24:05Z via Supabase MCP (T1), owner-approved.** Verified: exists, anon cannot execute, authenticated can. |
+| 048 | `migration-048-friendship-consent.sql` | **yes — applied live 2026-09-16 19:24:48Z via Supabase MCP (T1), owner-approved, after 028.** Verified: insert policy gone, authenticated table INSERT revoked, live PostgREST insert → 42501, 3 invite RPCs anon-refused, `friend_invites` RLS on with 0 policies. |
+| 050 | `migration-050-owner-reads-without-uid.sql` | **yes — applied live 2026-09-16 19:25:37Z via Supabase MCP (T1), owner-approved.** Verified: both RPCs exist (anon refused), `execute_plan_command` return drops uid, old client's signed-out reads 200 with data, plans/spots/votes/rsvps/ratings read policies unchanged. |
+| 049 / 051 | column-grant migrations | **NOT applied — not approved.** Wait for the Vercel deploy + runbook step 4 gate. |
 
 `npm run test:smoke` asserts the 019 guards against the live project. All ten
 database guards pass as of 2026-08-10: the plans projection carries no host
@@ -1564,3 +1571,30 @@ the insert policy, but inserts stay refused because 048 revoked the table grant.
 
 Runbook updated: preflight rows for 027/028, 039 expects its 6 photos, step 0 =
 028, 046 off tonight's path and additive to the live 6.
+
+
+---
+
+## 2026-09-16 — T1: 028, 047, 048, 050 APPLIED LIVE (owner-approved); 049/051 held
+
+Owner approval relayed by T0 and confirmed directly in T1's session before the
+first write. The preflight immediately before step 0 matched the rehearsal
+exactly: same rows, and the same 7 schema checksums, so live had not moved
+since the 94/94 rig was proven equal to it.
+
+One migration at a time, each verified `t` on live before the next, no
+hand-edits, sent verbatim from the committed files:
+- **028** 19:23:38Z: friendship write policies no longer recurse.
+- **047** 19:24:05Z: `delete_plan` live; anon cannot execute.
+- **048** 19:24:48Z: live PostgREST direct friendship insert → `42501
+  permission denied`; invite RPCs refuse anon; `friend_invites` RLS on, no
+  policies. No real accounts or friendships were created on live (the invite
+  path was proven on the rig).
+- **050** 19:25:37Z: old client (the only one deployed) still reads curated
+  spots and categories with data. The 11 read policies on
+  plans/plan_spots/votes/rsvps/ratings/spots are byte-identical to pre-apply.
+  `execute_plan_command` no longer returns the host uid.
+
+No PGRST202 surprises. **049 and 051 NOT applied**: they wait for the Vercel
+deploy and the step 4 gate. The `advance plan_spots` stray was left alone as
+instructed. Ledger table corrected: 027 not live, 028 now live, 039 live.
