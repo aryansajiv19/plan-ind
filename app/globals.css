@@ -337,14 +337,11 @@
      .home-experience .demo-discover-tools input
      .home-experience .home-app-tab[aria-current="page"]
      .home-experience .home-avatar
-     .home-experience .home-eyebrow
      .home-experience .home-grid-field
      .home-experience .home-logo
      .home-experience .home-plan-card
      .home-experience .home-plan-card__tape
      .home-experience .home-primary-cta
-     .home-experience .home-system
-     .home-experience .home-system-row--active
      .home-experience .place-link-importer__field input
      .home-experience .plan-category-option
      .home-experience .plan-custom-place__editor input
@@ -482,13 +479,6 @@
   border-color: var(--color-ink);
   background: transparent;
 }
-.wall-tile--fill-blue { background: var(--color-accent-cool); }
-/* §21.6: EVERY fill carries FULL-STRENGTH ink. Not the muted cut, and not
-   ink at reduced opacity — a softened mid-tone lands ~4.0:1 and fails,
-   which is the mistake the first energetic mock made. So everything on a
-   fill inherits ink outright, and nothing re-softens it. */
-.wall-tile.wall-tile--fill-tan *,
-.wall-tile.wall-tile--fill-blue * { color: var(--color-ink); }
 
 /* ── Button padding scale (SPECS.md §13.2) ──────────────────────────
    The .demo-* button family had 12+ selectors each choosing padding and
@@ -555,9 +545,9 @@ h3 {
   }
 }
 
-/* ── The signature moment: shuffle tension + rosette stamp ─────────
-   Loud lives here and nowhere else. The winner's token flips to Punch
-   and a rosette springs on. Reduced-motion strips both (below).     */
+/* ── The signature moment: shuffle tension ─────────────────────────
+   Loud lives here and nowhere else. The winner's token flips to Punch.
+   Reduced-motion strips it (below).                                  */
 @layer components {
   .deck-shuffling .opt {
     animation: jit 0.16s ease infinite;
@@ -572,28 +562,6 @@ h3 {
     }
     75% {
       transform: translate(2px, -1px);
-    }
-  }
-
-  .rosette {
-    transform: scale(0) rotate(-24deg);
-    opacity: 0;
-  }
-  .rosette-show {
-    animation: stamp 0.5s cubic-bezier(0.18, 1.5, 0.5, 1) forwards;
-  }
-  @keyframes stamp {
-    0% {
-      transform: scale(0) rotate(-24deg);
-      opacity: 0;
-    }
-    60% {
-      transform: scale(1.18) rotate(6deg);
-      opacity: 1;
-    }
-    100% {
-      transform: scale(1) rotate(-8deg);
-      opacity: 1;
     }
   }
 }
@@ -660,253 +628,6 @@ h3 {
   box-shadow:
     inset 0 0 0 2px var(--ring-outer),
     inset 0 0 0 4px var(--ring-inner);
-}
-
-/* ── The Dubai backdrop: a skyline that keeps Dubai time ───────────
-   Registered so the phase change *interpolates* instead of snapping —
-   a plain custom property can't be transitioned.
-
-   Every colour below was solved against --color-muted (#6b6478), the
-   palette's lowest-contrast body text, and clears 4.5:1 in all seven
-   phases (worst case 4.55:1). That's the ceiling on how deep this can
-   go: a literal indigo night behind 13px muted copy is unreadable, so
-   night reads through hue + lit windows rather than darkness.       */
-@property --sky-1 {
-  syntax: "<color>";
-  inherits: true;
-  initial-value: #e3f4ff;
-}
-@property --sky-2 {
-  syntax: "<color>";
-  inherits: true;
-  initial-value: #eff8ff;
-}
-@property --sky-3 {
-  syntax: "<color>";
-  inherits: true;
-  initial-value: #f7fafe;
-}
-@property --twr-far {
-  syntax: "<color>";
-  inherits: true;
-  initial-value: #e3f0fd;
-}
-@property --twr-near {
-  syntax: "<color>";
-  inherits: true;
-  initial-value: #dce8f9;
-}
-@property --glow-c {
-  syntax: "<color>";
-  inherits: true;
-  initial-value: rgba(255, 255, 255, 0.7);
-}
-@property --glow-x {
-  syntax: "<percentage>";
-  inherits: true;
-  initial-value: 62%;
-}
-@property --glow-y {
-  syntax: "<percentage>";
-  inherits: true;
-  initial-value: 20%;
-}
-@property --haze-c {
-  syntax: "<color>";
-  inherits: true;
-  initial-value: rgba(255, 255, 255, 0.5);
-}
-@property --win-a {
-  syntax: "<number>";
-  inherits: true;
-  initial-value: 0;
-}
-
-.sky-root {
-  position: fixed;
-  inset: 0;
-  height: 100lvh; /* don't uncover when a mobile URL bar collapses */
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 0;
-  transition:
-    --sky-1 1.8s linear,
-    --sky-2 1.8s linear,
-    --sky-3 1.8s linear,
-    --twr-far 1.8s linear,
-    --twr-near 1.8s linear,
-    --glow-c 1.8s linear,
-    --glow-x 1.8s linear,
-    --glow-y 1.8s linear,
-    --haze-c 1.8s linear,
-    --win-a 1.8s linear;
-}
-
-.sky-wash {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to bottom,
-    var(--sky-1) 0%,
-    var(--sky-2) 46%,
-    var(--sky-3) 100%
-  );
-}
-
-/* Wider than the viewport so the parallax drift never exposes an edge.
-   The height floor makes narrow phones crop inwards (`slice`) onto the
-   Burj cluster instead of shrinking the whole skyline to a hairline;
-   from ~tablet up the two terms meet and the full panorama shows. */
-.sky-svg {
-  position: absolute;
-  bottom: 0;
-  /* 3% of overhang each side covers the widest drift (8px) even at 360px. */
-  left: -3%;
-  width: 106%;
-  height: max(32vh, 38vw);
-  max-height: 82vh;
-  display: block;
-}
-
-.sky-far {
-  fill: var(--twr-far);
-  animation: sky-drift-far 96s ease-in-out infinite alternate;
-  will-change: transform;
-}
-
-.sky-near {
-  fill: var(--twr-near);
-  animation: sky-drift-near 64s ease-in-out infinite alternate;
-  will-change: transform;
-}
-
-.sky-win {
-  fill: #fff6dd;
-  opacity: var(--win-a);
-}
-
-.sky-haze {
-  position: absolute;
-  inset: auto -22% 0 -22%;
-  height: 38%;
-  background: radial-gradient(
-    72% 100% at 50% 100%,
-    var(--haze-c),
-    transparent 72%
-  );
-  animation: sky-haze-drift 150s ease-in-out infinite alternate;
-  will-change: transform;
-}
-
-@keyframes sky-drift-far {
-  from {
-    transform: translate3d(-4px, 0, 0);
-  }
-  to {
-    transform: translate3d(5px, 0, 0);
-  }
-}
-@keyframes sky-drift-near {
-  from {
-    transform: translate3d(7px, 0, 0);
-  }
-  to {
-    transform: translate3d(-8px, 0, 0);
-  }
-}
-@keyframes sky-haze-drift {
-  from {
-    transform: translate3d(-4%, 0, 0);
-  }
-  to {
-    transform: translate3d(4%, 0, 0);
-  }
-}
-
-/* Phase palettes. Dubai time, resolved in the browser. */
-[data-phase="night"] {
-  --sky-1: #e8e9ff;
-  --sky-2: #edecff;
-  --sky-3: #fcebfa;
-  --twr-far: #ececff;
-  --twr-near: #e3e5ff;
-  --glow-c: rgba(255, 255, 255, 0.5);
-  --glow-x: 76%;
-  --glow-y: 13%;
-  --haze-c: rgba(255, 244, 224, 0.42);
-  --win-a: 1;
-}
-[data-phase="predawn"] {
-  --sky-1: #e7ebff;
-  --sky-2: #efecff;
-  --sky-3: #f9eefc;
-  --twr-far: #eaedff;
-  --twr-near: #e1e6fe;
-  --glow-c: rgba(255, 255, 255, 0.42);
-  --glow-x: 18%;
-  --glow-y: 74%;
-  --haze-c: rgba(245, 240, 255, 0.5);
-  --win-a: 0.85;
-}
-[data-phase="dawn"] {
-  --sky-1: #e8ecfd;
-  --sky-2: #ffe9f4;
-  --sky-3: #ffeedc;
-  --twr-far: #f1ecfe;
-  --twr-near: #eae4f9;
-  --glow-c: rgba(255, 234, 200, 0.75);
-  --glow-x: 20%;
-  --glow-y: 76%;
-  --haze-c: rgba(255, 240, 226, 0.55);
-  --win-a: 0.3;
-}
-[data-phase="morning"] {
-  --sky-1: #e5f2ff;
-  --sky-2: #eff5fe;
-  --sky-3: #fdf6ef;
-  --twr-far: #e5effc;
-  --twr-near: #dee7f7;
-  --glow-c: rgba(255, 255, 255, 0.6);
-  --glow-x: 32%;
-  --glow-y: 40%;
-  --haze-c: rgba(255, 255, 255, 0.6);
-  --win-a: 0;
-}
-[data-phase="day"] {
-  --sky-1: #e3f4ff;
-  --sky-2: #eff8ff;
-  --sky-3: #f7fafe;
-  --twr-far: #e3f0fd;
-  --twr-near: #dce8f9;
-  --glow-c: rgba(255, 255, 255, 0.75);
-  --glow-x: 62%;
-  --glow-y: 18%;
-  --haze-c: rgba(255, 255, 255, 0.55);
-  --win-a: 0;
-}
-[data-phase="golden"] {
-  --sky-1: #e5efff;
-  --sky-2: #fff0de;
-  --sky-3: #fff0d8;
-  --twr-far: #f1ecfd;
-  --twr-near: #f1e2f5;
-  --glow-c: rgba(255, 228, 176, 0.8);
-  --glow-x: 80%;
-  --glow-y: 52%;
-  --haze-c: rgba(255, 238, 214, 0.55);
-  --win-a: 0.18;
-}
-[data-phase="dusk"] {
-  --sky-1: #eae8ff;
-  --sky-2: #ffe7f6;
-  --sky-3: #ffe9e3;
-  --twr-far: #f2ebff;
-  --twr-near: #ebe3fe;
-  --glow-c: rgba(255, 226, 216, 0.7);
-  --glow-x: 88%;
-  --glow-y: 68%;
-  --haze-c: rgba(255, 232, 236, 0.5);
-  --win-a: 0.6;
 }
 
 /* ── Authenticated home: editorial decision workspace ──────────── */
@@ -1010,7 +731,6 @@ h3 {
 }
 
 .home-app-tab,
-.home-theme-toggle,
 .home-nav__link {
   border: 0;
   background: transparent;
@@ -1044,7 +764,6 @@ h3 {
 
 .home-app-tab[aria-current="page"]::after { transform: scaleX(1); }
 .home-app-tab:active,
-.home-theme-toggle:active,
 .home-nav__link:active,
 .home-avatar:active,
 .demo-reaction-row button:active,
@@ -1054,15 +773,6 @@ h3 {
   font-size: 0.72rem;
   font-weight: 600;
   text-decoration: none;
-}
-
-.home-theme-toggle {
-  min-width: 3.6rem;
-  padding: 0.55rem 0.65rem;
-  border: 0;
-  color: var(--color-ink);
-  font-size: 0.7rem;
-  font-weight: 600;
 }
 
 /* Signed out, this replaces the avatar: the one thing a visitor with no
@@ -1091,7 +801,6 @@ h3 {
 .home-nav__signin:focus-visible { outline: 2px solid var(--color-ink); outline-offset: 2px; }
 
 .home-app-tab:focus-visible,
-.home-theme-toggle:focus-visible,
 .home-nav__link:focus-visible,
 .home-avatar:focus-visible {
   outline: 2px solid var(--color-ink);
@@ -1184,23 +893,6 @@ h3 {
   /* Foreground layer, moves the least so it separates from .home-stage's
      background layer rather than travelling with it (§14.3). */
   transform: translateY(calc(var(--hero-scroll, 0px) * -0.04));
-}
-
-.home-eyebrow {
-  width: fit-content;
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  border: 0;
-  border-radius: 0;
-  padding: 0;
-  background: transparent;
-  backdrop-filter: none;
-  color: var(--color-punch-text);
-  font-size: 0.65rem;
-  font-weight: 500;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
 }
 
 .home-hello {
@@ -1362,158 +1054,6 @@ h3 {
      on this same element; `translate` composes with `transform` instead
      of fighting it for the same property. */
   translate: 0 calc(var(--hero-scroll, 0px) * -0.12);
-}
-
-.home-system-shadow {
-  position: absolute;
-  left: calc(50% + 1.1rem);
-  top: calc(50% + 1.1rem);
-  width: min(100%, 31rem);
-  height: 32rem;
-  background: rgba(23, 24, 27, 0.06);
-  transform: translate(-50%, -50%);
-}
-
-.home-system {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: min(100%, 31rem);
-  height: 32rem;
-  overflow: hidden;
-  border: 1px solid rgba(104, 184, 192, 0.45);
-  background: #111318;
-  color: white;
-  box-shadow: 0 2rem 5rem rgba(23, 24, 27, 0.13);
-  transform: translate(-50%, -50%);
-}
-
-.home-system::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.08;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
-  background-size: 1.65rem 1.65rem;
-}
-
-.home-system__header,
-.home-system__footer {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.9rem 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.26);
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.6rem;
-  letter-spacing: 0.11em;
-}
-
-.home-system__status { color: rgba(255, 255, 255, 0.62); }
-
-.home-system__measure {
-  position: relative;
-  z-index: 2;
-  min-height: 9.2rem;
-  padding: 1.2rem 1rem 0.9rem;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.26);
-}
-
-.home-system__label {
-  display: block;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.56rem;
-  letter-spacing: 0.14em;
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.home-system__measure strong {
-  display: block;
-  margin-top: 0.2rem;
-  font-family: var(--font-display);
-  font-size: 6.3rem;
-  line-height: 0.72;
-  letter-spacing: -0.09em;
-  color: rgba(255, 255, 255, 0.92);
-}
-
-.home-system__coordinates {
-  display: grid;
-  gap: 0.34rem;
-  padding-bottom: 0.1rem;
-  text-align: right;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.58rem;
-  letter-spacing: 0.08em;
-  color: rgba(255, 255, 255, 0.58);
-}
-
-.home-system__rows {
-  position: relative;
-  z-index: 2;
-}
-
-.home-system-row {
-  min-height: 4rem;
-  display: grid;
-  grid-template-columns: 2.5rem minmax(0, 1fr) 3.2rem 2.8rem;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.55rem 0.9rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  transition: color 220ms ease, background 220ms ease;
-}
-
-.home-system-row--active {
-  background: var(--color-punch);
-  color: #15161a;
-}
-
-.home-system-row--active::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  width: 0.18rem;
-  height: 4rem;
-  background: #f2eee6;
-}
-
-.home-system-row__number,
-.home-system-row__time,
-.home-system-row__votes {
-  font-size: 0.62rem;
-  letter-spacing: 0.06em;
-}
-
-.home-system-row__number { color: var(--color-punch-text); font-weight: 700; }
-.home-system-row--active .home-system-row__number { color: #15161a; }
-.home-system-row__name { min-width: 0; }
-.home-system-row__name strong { display: block; overflow: hidden; font-family: var(--font-body); font-size: 0.8rem; text-overflow: ellipsis; white-space: nowrap; }
-.home-system-row__name small { display: block; margin-top: 0.18rem; overflow: hidden; color: currentColor; opacity: 0.55; font-size: 0.56rem; text-overflow: ellipsis; white-space: nowrap; }
-.home-system-row__votes { text-align: right; }
-
-.home-system__footer {
-  position: absolute;
-  inset: auto 0 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.26);
-  border-bottom: 0;
-}
-
-.home-system__footer b {
-  padding: 0.25rem 0.4rem;
-  background: rgba(255, 255, 255, 0.12);
-  color: white;
-  font-weight: 500;
 }
 
 .home-plan-section {
@@ -2328,47 +1868,6 @@ h3 {
 .demo-privacy-options button:focus-visible,
 .demo-photo-upload:focus-within { outline: 2px solid var(--color-ink); outline-offset: -2px; }
 
-.home-library {
-  width: min(100% - 2rem, 76rem);
-  min-height: calc(100dvh - 8rem);
-  margin-inline: auto;
-  padding: clamp(3rem, 7vw, 6rem) 0 6rem;
-}
-
-.home-library__header { max-width: 46rem; }
-.home-library__header h1 { margin-top: 0.8rem; font-size: clamp(3rem, 7vw, 6.4rem); line-height: 0.9; }
-.home-library__header > p:last-child { max-width: 40rem; margin-top: 1.4rem; color: var(--color-muted); font-size: 1.05rem; line-height: 1.6; }
-
-.home-library__sections {
-  margin-top: clamp(3rem, 7vw, 5rem);
-  border-top: 1px solid var(--color-line);
-}
-
-.home-library-row {
-  display: grid;
-  grid-template-columns: 3rem minmax(10rem, 0.65fr) minmax(0, 1fr);
-  gap: 1.5rem;
-  align-items: start;
-  padding: 1.6rem 0;
-  border-bottom: 1px solid var(--color-line);
-}
-
-.home-library-row > span { color: var(--color-muted); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.65rem; }
-.home-library-row h2 { font-size: 1.2rem; }
-.home-library-row p { max-width: 38rem; color: var(--color-muted); line-height: 1.55; }
-
-.home-library__note {
-  margin-top: 2rem;
-  display: grid;
-  grid-template-columns: minmax(8rem, 0.35fr) minmax(0, 1fr);
-  gap: 1.5rem;
-  padding-left: 1rem;
-  border-left: 2px solid var(--color-punch);
-}
-
-.home-library__note span { font-size: 0.7rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; }
-.home-library__note p { max-width: 36rem; color: var(--color-muted); font-size: 0.86rem; }
-
 .home-profile-actions {
   width: min(100% - 2rem, 76rem);
   margin-top: 2rem;
@@ -2444,9 +1943,7 @@ h3 {
 .auth-panel__heading { margin-bottom: 1.75rem; }
 .auth-panel__heading h2 { margin: .45rem 0 0; font-size: clamp(2rem, 4vw, 3.2rem); line-height: .95; letter-spacing: -.06em; }
 .auth-form { width: 100%; }
-.auth-field { margin-bottom: 1.15rem; }
-.auth-field label, .auth-fields label { display: block; margin-bottom: .5rem; color: var(--auth-ink); font-size: .74rem; font-weight: 500; }
-.auth-field p { margin: .55rem 0 0; color: var(--auth-muted); font-size: .7rem; line-height: 1.5; }
+.auth-fields label { display: block; margin-bottom: .5rem; color: var(--auth-ink); font-size: .74rem; font-weight: 500; }
 .auth-input { width: 100%; min-height: 3rem; border: 1px solid var(--auth-line); border-radius: 0; padding: .75rem .85rem; background: var(--auth-paper); color: var(--auth-ink); font: inherit; font-size: .9rem; }
 /* `outline: none` plus a champagne glow used to sit here, which opted the
    only two auth fields out of the global :focus-visible ring and replaced
@@ -3163,12 +2660,6 @@ h3 {
      floor is what yields. Selected via the stage rather than by adding a
      class, because the shell is the stage's only element child. */
   .home-stage > button { min-height: 24rem; }
-  .home-system,
-  .home-system-shadow { height: 28rem; }
-  .home-system__measure { min-height: 7.2rem; }
-  .home-system__measure strong { font-size: 4.8rem; }
-  .home-system-row { min-height: 3.5rem; }
-  .home-system-row--active::before { height: 3.5rem; }
   .home-plan-section { grid-template-columns: 1fr; }
   .home-plan-section__intro { position: static; }
   .home-nav { padding-bottom: 0.75rem; }
@@ -3204,7 +2695,6 @@ h3 {
   }
   .home-app-tab { min-width: 0; padding: 0.7rem 0.18rem; font-size: 0.62rem; }
   .home-hero { width: min(100% - 1.5rem, 76rem); padding-top: 1.15rem; }
-  .home-eyebrow { font-size: 0.61rem; }
   .home-title { letter-spacing: -0.08em; }
   .home-title__line { white-space: normal; }
   .home-deck { margin-top: 1.5rem; font-size: 0.97rem; }
@@ -3213,21 +2703,6 @@ h3 {
   .home-secondary-cta { text-align: center; }
   .home-stage { height: 27rem; transform: none; }
   .home-stage > button { min-height: 22.5rem; }
-  .home-system,
-  .home-system-shadow { width: calc(100% - 0.65rem); height: 26rem; }
-  .home-system-shadow { left: calc(50% + 0.55rem); top: calc(50% + 0.65rem); }
-  .home-system__header { padding: 0.72rem; font-size: 0.52rem; }
-  .home-system__measure { min-height: 6.5rem; padding: 0.9rem 0.7rem 0.7rem; }
-  .home-system__measure strong { font-size: 4.2rem; }
-  .home-system__coordinates { font-size: 0.48rem; }
-  .home-system-row { min-height: 3.35rem; grid-template-columns: 1.8rem minmax(0, 1fr) 2.7rem 2.4rem; padding: 0.45rem 0.65rem; }
-  .home-system-row--active::before { height: 3.35rem; }
-  .home-system-row__name strong { font-size: 0.67rem; }
-  .home-system-row__name small { font-size: 0.49rem; }
-  .home-system-row__number,
-  .home-system-row__time,
-  .home-system-row__votes { font-size: 0.52rem; }
-  .home-system__footer { padding: 0.68rem; font-size: 0.46rem; }
   .home-plan-section { width: min(100% - 1.5rem, 68rem); padding-block: 5.5rem; }
   .home-plan-card { padding: 1.25rem; box-shadow: var(--elevation-card); transform: none; } /* §19.3: same soft lift as desktop; the old rgba(36,27,46) drop was heavier and cool-tinted, off the warm ramp */
   .plan-category-group { padding-inline: 0.68rem; } /* height: touch-target block */
@@ -3246,10 +2721,6 @@ h3 {
   .plan-location-fields { grid-template-columns: 1fr; }
   .plan-deadlines { grid-template-columns: 1fr; }
   .home-footer { width: min(100% - 1.5rem, 76rem); flex-direction: column; }
-  .home-library { width: min(100% - 1.5rem, 68rem); padding-top: 3rem; }
-  .home-library-row { grid-template-columns: 2rem minmax(0, 1fr); gap: 0.8rem; }
-  .home-library-row p { grid-column: 2; }
-  .home-library__note { grid-template-columns: 1fr; gap: 0.4rem; }
   .home-profile-actions { align-items: flex-start; flex-direction: column; }
   .demo-view { width: min(100% - 1.5rem, 76rem); padding-top: 2rem; }
   .place-link-importer { grid-template-columns: 1fr; }
@@ -3353,17 +2824,6 @@ h3 {
     scroll-behavior: auto !important;
   }
 
-  /* The rule above only zeroes durations, which would leave these
-     infinite alternating drifts flickering between keyframes. Kill
-     them outright — the skyline still re-tints, it just holds still. */
-  .sky-far,
-  .sky-near,
-  .sky-haze {
-    animation: none !important;
-    transform: none !important;
-    will-change: auto;
-  }
-
   .home-stage { transform: none !important; }
 }
 
@@ -3462,7 +2922,6 @@ h3 {
    alone; 2.5.8 exempts them and padding them would break the text. */
 @media (max-width: 640px) {
   .home-app-tab { min-height: 2.85rem; }
-  .home-theme-toggle,
   .home-avatar { min-height: 2.75rem; min-width: 2.75rem; }
   .plan-custom-place__header button,
   .demo-collection-create button,
