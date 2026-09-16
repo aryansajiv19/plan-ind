@@ -49,6 +49,14 @@ refuse writes to `user_id is null` rows, with its own rehearsal. Alternative
 (owner's call, live data write): delete the legacy rows if the 6 plans are
 confirmed test data.
 
+**Must fix before public launch — `claim_plan_access` requires only a plan id
+(found in the audit; sharpened 2026-09-17):** any signed-in caller who knows a
+plan id joins that plan. That's weaker than the share-link model assumes, and it
+weakens 054's `shared_plans` impersonation signal, since an impersonator holding
+a share link to a plan the victim is in can push the count to 1. The fix needs a
+share token in the link, which changes every share link and the guest flow, so
+it's its own rehearsed item, sequenced after C3.
+
 **T3 owns the round trips** for C1–C9, plus the tests already queued: the
 delete-plan dbtest, the allowed/limited/unavailable regression, the 13
 `resolveAppOrigin` asserts, and the friendship-consent regression.
