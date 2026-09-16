@@ -186,8 +186,7 @@ export default function HomeExperience({
   }
 
   // SPECS.md §14.3: scroll-based depth drift on the front-door hero.
-  // Distinct from TiltCard's pointer parallax (unchanged) — this is for
-  // anyone not hovering with a mouse, i.e. most real usage. A single
+  // For anyone not hovering with a mouse, i.e. most real usage. A single
   // scroll-position custom property, not a JS animation loop: this effect
   // only computes the number and writes it via setProperty; the actual
   // motion is plain CSS (.home-hero__copy / .home-stage in globals.css).

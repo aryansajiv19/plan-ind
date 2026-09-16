@@ -36,7 +36,3 @@ export async function dealSpotsForCategory(
     ? payload.ids as string[]
     : null;
 }
-
-export function dealThreeForCategory(category: string): Promise<string[] | null> {
-  return dealSpotsForCategory(category, 3);
-}

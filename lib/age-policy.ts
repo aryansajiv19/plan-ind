@@ -42,10 +42,6 @@ export function prohibitedVenueReason(...values: Array<string | null | undefined
   return PROHIBITED_VENUE_TERMS.find((term) => text.includes(term)) ?? null;
 }
 
-export function venueAllowedForAge(age: number, minimumAge: number | null | undefined): boolean {
-  return age >= (minimumAge ?? 0);
-}
-
 /**
  * The account's age, read from the server-owned `member_ages` table.
  *
