@@ -362,11 +362,10 @@ export async function deleteVisit(visitId: string): Promise<boolean> {
  * Takes `visit_companions.id` — which is exactly what `CompanionView.id`
  * carries, so a UI can pass it straight through.
  *
- * Deletes only the tag, never the visit. Note the "untag companions" policy
- * is row-unrestricted like every other delete in v1: anyone with the anon
- * key can untag anyone, not just themselves. That is the documented posture,
- * not something this function widens — until now there was simply no
- * implemented way to exercise it.
+ * Deletes only the tag, never the visit. The delete policy is owner-scoped
+ * ("untag own visit companions"): only the person whose visit it is can
+ * remove a tag. RLS hides other rows, so a refused untag deletes nothing and
+ * still returns no error — callers must re-read rather than trust `true`.
  */
 export async function untagCompanion(companionId: string): Promise<boolean> {
   if (!companionId) return false;

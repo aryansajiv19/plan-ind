@@ -1783,6 +1783,18 @@ h3 {
 .demo-visit__collection-action select { height: 2rem; max-width: 11rem; padding: 0.45rem 0.55rem; border: 1px solid var(--color-line); background: var(--color-card); color: var(--color-ink); font-size: 0.65rem; }
 .demo-visit__collection-action button,
 .demo-collection-empty button { padding: 0; border: 0; border-bottom: 1px solid var(--home-metal); background: transparent; color: var(--color-ink); font-size: 0.65rem; font-weight: 500; cursor: pointer; }
+/* Been: the return path (delete a visit, untag a person). Reuses the
+   collection-action row; the armed state spells out what goes. */
+.manage-visit__panel { display: grid; gap: 0.6rem; margin-top: 0.7rem; }
+.manage-visit__people { display: grid; gap: 0.35rem; }
+.manage-visit__people li { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; font-size: 0.75rem; }
+.manage-visit__confirm { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.8rem; font-size: 0.72rem; }
+.manage-visit .manage-visit__delete,
+.manage-visit__confirm button:first-of-type { color: var(--color-error); }
+.manage-visit__delete { justify-self: start; }
+.manage-visit button { min-height: 2.75rem; border-bottom: 0; text-decoration: underline; text-underline-offset: 0.25em; }
+.manage-visit button:disabled { opacity: 0.6; cursor: default; }
+.manage-visit__error { margin-top: 0.5rem; color: var(--color-error); font-size: 0.72rem; }
 .demo-collection-empty { grid-column: 1 / -1; min-height: 16rem; display: grid; place-content: center; justify-items: start; padding: 2rem; border-radius: var(--radius-panel); background: var(--color-card); box-shadow: var(--elevation-card); } /* §19.3 */
 .demo-collection-empty p { margin: 0.45rem 0 1rem; color: var(--color-muted); }
 
