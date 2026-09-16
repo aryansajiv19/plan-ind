@@ -2211,6 +2211,10 @@ h3 {
 }
 .vote-state__slot { margin-top: 1.5rem; }
 /* Same job as .auth-note: explains a check that is slow or never arriving. */
+/* M1: plans joined together, shown with the inviter's name before Accept.
+   Ink, not an alarm colour: zero is information, not a threat. */
+.invite-trust { margin: 0.9rem 0 0; color: var(--color-ink); font-size: 1rem; font-weight: 600; }
+.invite-trust + .vote-state__note { margin-top: 0.3rem; }
 .vote-state__note { margin: 0.75rem 0 0; color: var(--color-muted); font-size: 0.85rem; }
 
 .vote-round-label {
@@ -2643,7 +2647,18 @@ h3 {
 .vote-rsvp-choices .vote-result__button { padding: 0.55rem 0.65rem; font-size: max(0.68rem, var(--type-floor)); }
 /* R1: host-only delete. Quiet until armed; the armed state names the plan
    and its voters. Red is paired with the words, never the only signal. */
-.vote-delete { margin-top: 1rem; font-size: 0.75rem; }
+.vote-delete { display: flex; flex-wrap: wrap; column-gap: 1.25rem; align-items: center; margin-top: 1rem; font-size: 0.75rem; }
+/* C5: edit before voting starts. Two fields and a save, on the round's own
+   rail; the danger-free actions stay quiet like Delete's trigger. */
+.vote-edit { display: grid; gap: 0.75rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--color-line); }
+.vote-edit label { display: grid; gap: 0.35rem; font-size: max(0.75rem, var(--type-floor)); font-weight: 600; }
+.vote-edit input { min-height: 2.75rem; padding: 0 0.75rem; border: 1px solid var(--color-line); background: var(--color-card); color: var(--color-ink); font: inherit; font-weight: 400; }
+.vote-edit__actions { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; }
+.vote-edit__actions button { min-height: 2.75rem; font: inherit; cursor: pointer; }
+.vote-edit__save { padding: 0 1.1rem; border: 1px solid var(--color-ink); background: var(--color-ink); color: var(--color-card); font-weight: 600; }
+.vote-edit__actions button[type="button"] { padding: 0; border: 0; background: transparent; color: var(--color-muted); text-decoration: underline; text-underline-offset: 0.25em; }
+.vote-edit button:disabled { opacity: 0.5; cursor: default; }
+.vote-edit__error { flex-basis: 100%; color: var(--color-error); font-size: max(0.75rem, var(--type-floor)); }
 .vote-delete button { min-height: 2.75rem; padding: 0; border: 0; background: transparent; color: var(--color-muted); font: inherit; text-decoration: underline; text-underline-offset: 0.25em; cursor: pointer; }
 .vote-delete__confirm { display: flex; flex-wrap: wrap; align-items: center; gap: 0.2rem 1rem; }
 .vote-delete__confirm p { flex-basis: 100%; color: var(--color-ink); line-height: 1.45; }

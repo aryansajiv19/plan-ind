@@ -25,11 +25,14 @@ export default function ProfileNameForm({ personId, name }: { personId: string; 
     if (!trimmed || unchanged) return;
     setStatus("saving");
     setMessage(null);
-    const { error } = await getSupabase()
+    // select the name back: the server normalises on write (invisible
+    // characters removed, spaces collapsed, capped at 40), so what was typed
+    // may not be what was saved -- show the saved one.
+    const { data, error } = await getSupabase()
       .from("people")
       .update({ display_name: trimmed })
       .eq("id", personId)
-      .select("id")
+      .select("display_name")
       .single();
     if (error) {
       setStatus("error");
@@ -40,7 +43,7 @@ export default function ProfileNameForm({ personId, name }: { personId: string; 
         : "Couldn’t save your name. Try again.");
       return;
     }
-    setDraft(trimmed);
+    setDraft((data as { display_name: string }).display_name);
     setStatus("saved");
     setMessage("Saved.");
     // Re-read the server's copy so the greeting and header show what was

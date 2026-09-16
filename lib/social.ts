@@ -189,16 +189,24 @@ export async function createFriendInvite(): Promise<CreateInviteResult> {
 }
 
 export type InvitePreview =
-  | { result: "valid"; displayName: string; emoji: string | null }
+  | { result: "valid"; displayName: string; emoji: string | null; sharedPlans: number | null }
   | { result: "self" | "invalid" | "unavailable" };
 
 /** Who sent this invite. Reads only — never creates a friendship. */
 export async function previewFriendInvite(token: string): Promise<InvitePreview> {
   const { data, error } = await getSupabase().rpc("preview_friend_invite", { p_token: token });
-  const row = data as { result?: unknown; display_name?: unknown; emoji?: unknown } | null;
+  const row = data as { result?: unknown; display_name?: unknown; emoji?: unknown; shared_plans?: unknown } | null;
   if (error || !row) return { result: "unavailable" };
   if (row.result === "valid" && typeof row.display_name === "string") {
-    return { result: "valid", displayName: row.display_name, emoji: typeof row.emoji === "string" ? chosenEmoji(row.emoji) : null };
+    return {
+      result: "valid",
+      displayName: row.display_name,
+      emoji: typeof row.emoji === "string" ? chosenEmoji(row.emoji) : null,
+      // 054: how many plans the inviter and this viewer have BOTH joined. The
+      // only thing on this screen an impersonator can't choose. Null when an
+      // older server doesn't send it -- then no claim is made either way.
+      sharedPlans: typeof row.shared_plans === "number" ? row.shared_plans : null,
+    };
   }
   if (row.result === "self" || row.result === "invalid") return { result: row.result };
   return { result: "unavailable" };

@@ -38,6 +38,13 @@ function closesLabel(deadline: string | null): string {
 const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
 const roman = (n: number) => ROMAN[n - 1] ?? String(n);
 
+// ISO instant -> the value a datetime-local input expects (local wall time).
+function toLocalInput(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return new Date(d.getTime() - d.getTimezoneOffset() * 60_000).toISOString().slice(0, 16);
+}
+
 // Past this many seats the row stops reading as faces; the rest collapse to +N.
 const SEAT_LIMIT = 10;
 
@@ -59,6 +66,10 @@ export default function VotePage() {
   // "remote" when the deletion arrived from somewhere else.
   const [deleted, setDeleted] = useState<"self" | "remote" | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  // C5: host edits the title/closing time before anyone has voted.
+  const [editing, setEditing] = useState<{ title: string; deadline: string } | null>(null);
+  const [editPending, setEditPending] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
   const [visitSaved, setVisitSaved] = useState<"saved" | "failed" | null>(null);
   const [presentNames, setPresentNames] = useState<string[]>([]);
   const [copied, setCopied] = useState(false);
@@ -479,6 +490,56 @@ export default function VotePage() {
     setNotice(error instanceof Error ? error.message : fallback);
   }, [planIsGone]);
 
+  // edit_plan (055) answers with a `result`, not a `plan`, so this does NOT go
+  // through runHostCommand -- which throws when `plan` is missing and would
+  // report a successful edit as a failure. `nothing_to_change` is a success.
+  async function saveEdit() {
+    if (!hostToken || !plan || !editing) return;
+    const body: { command: "edit"; hostToken: string; title?: string; deadline?: string } = { command: "edit", hostToken };
+    const title = editing.title.trim();
+    if (title !== plan.title) body.title = title;
+    if (editing.deadline && editing.deadline !== toLocalInput(plan.deadline)) {
+      const at = new Date(editing.deadline);
+      if (Number.isNaN(at.getTime())) { setEditError("Pick a valid closing time."); return; }
+      body.deadline = at.toISOString(); // a full instant with offset, as the route requires
+    }
+    if (body.title === undefined && body.deadline === undefined) { setEditing(null); return; }
+    setEditPending(true);
+    setEditError(null);
+    try {
+      const response = await secureJsonFetch(`/api/plans/${id}/command`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const payload = await response.json().catch(() => ({})) as { result?: string; title?: string; deadline?: string | null };
+      if (payload.result === "edited" || payload.result === "nothing_to_change") {
+        if (payload.result === "edited") {
+          setPlan((current) => current && {
+            ...current,
+            title: payload.title ?? current.title,
+            deadline: payload.deadline === undefined ? current.deadline : payload.deadline,
+          });
+        }
+        setEditing(null);
+        return;
+      }
+      if (response.status === 404) { if (await planIsGone()) { setDeleted((d) => d ?? "remote"); return; } }
+      setEditError(
+        payload.result === "voting_started" ? "Voting has started, so this plan can’t be edited."
+          : payload.result === "invalid_title" ? "Give the plan a title."
+            : payload.result === "invalid_deadline" ? "Pick a closing time in the future, within a year."
+              : response.status === 403 ? "Only the person who started this plan can edit it."
+                : response.status === 429 ? "Too many plan changes. Try again in a minute."
+                  : "That didn’t save. Try again.",
+      );
+    } catch {
+      setEditError("That didn’t save. Check your connection and try again.");
+    } finally {
+      setEditPending(false);
+    }
+  }
+
   async function deletePlan() {
     if (!hostToken) return;
     setDeciding(true);
@@ -858,6 +919,8 @@ export default function VotePage() {
   }
 
   const voterCount = new Set(votes.map((v) => v.voter_name)).size;
+  // Editable only before voting starts; the server enforces the same rule.
+  const canEdit = plan!.status === "open" && stage === "pool" && votes.length === 0;
   // Everyone the client can see on this plan, you first. See the seats row.
   const roster = [...new Set([
     ...votes.map((v) => v.voter_name),
@@ -1126,8 +1189,36 @@ export default function VotePage() {
               accident. The confirm names the plan and who it takes with it;
               the count is read from votes already on screen, because the
               server only reports participants after the delete. */}
+          {/* An open form stays open even if a vote lands meanwhile: hiding it
+              would silently throw away what the host typed. The save then
+              comes back voting_started and says why. */}
+          {isHost && editing && (
+            <form className="vote-edit" onSubmit={(event) => { event.preventDefault(); void saveEdit(); }}>
+              <label>
+                <span>Title</span>
+                <input value={editing.title} maxLength={60} onChange={(event) => setEditing({ ...editing, title: event.target.value })} />
+              </label>
+              <label>
+                <span>Voting closes</span>
+                <input type="datetime-local" value={editing.deadline} onChange={(event) => setEditing({ ...editing, deadline: event.target.value })} />
+              </label>
+              <div className="vote-edit__actions">
+                <button type="submit" className="vote-edit__save" disabled={editPending || !editing.title.trim()}>
+                  {editPending ? "Saving…" : "Save changes"}
+                </button>
+                <button type="button" disabled={editPending} onClick={() => { setEditing(null); setEditError(null); }}>Cancel</button>
+              </div>
+              {editError && <p role="alert" className="vote-edit__error">{editError}</p>}
+            </form>
+          )}
           {isHost && (
             <div className="vote-delete">
+              {isHost && canEdit && !editing && !confirmDelete && (
+                <button type="button" onClick={() => { setEditError(null); setEditing({ title: plan!.title, deadline: toLocalInput(plan!.deadline) }); }}>
+                  Edit this plan
+                </button>
+              )}
+              {editError && !editing && <p role="alert" className="vote-edit__error">{editError}</p>}
               {confirmDelete ? (
                 <div className="vote-delete__confirm" role="group" aria-label="Confirm delete">
                   <p>

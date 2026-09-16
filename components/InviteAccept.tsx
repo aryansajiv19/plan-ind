@@ -102,6 +102,10 @@ export default function InviteAccept({
 
   let title: string;
   let body: string;
+  // M1 (054): the one fact an impersonator can't set -- plans joined together.
+  // Shown with the name, before Accept. Deliberately not "verified" or
+  // "trusted": it only counts plans, and anyone with a link can join one.
+  let trust: React.ReactNode = null;
   let action: React.ReactNode = null;
   const toFriends = <Link href="/home?view=friends" className="vote-secondary-action">Go to Friends</Link>;
 
@@ -130,6 +134,16 @@ export default function InviteAccept({
       const p = state.preview;
       if (p.result === "valid") {
         title = `${p.emoji ? `${p.emoji} ` : ""}${p.displayName} wants to be friends`;
+        if (p.sharedPlans === 0) {
+          trust = <p className="invite-trust invite-trust--none">You haven’t joined any plans with this person.</p>;
+        } else if (p.sharedPlans != null) {
+          trust = (
+            <>
+              <p className="invite-trust">You’ve both joined {p.sharedPlans} {p.sharedPlans === 1 ? "plan" : "plans"}.</p>
+              <p className="vote-state__note">Anyone with a plan link can join a plan, so check it’s someone you know.</p>
+            </>
+          );
+        }
         // Naming the accepting account matters on a shared browser, where the
         // session may not be the person who opened the link.
         body = `Friends can see each other’s visit log — where you’ve been, when, and who with. Only accept if you know them.${accountName ? ` You’re accepting as ${accountName}.` : ""}`;
@@ -179,6 +193,7 @@ export default function InviteAccept({
     <main className="vote-experience vote-state">
       <div className="vote-state__inner">
         <h1 className="vote-state__title">{title}</h1>
+        {trust}
         {body && <p className="vote-state__body" role={state.step === "loading" ? "status" : undefined}>{body}</p>}
         {action && <div className="vote-state__actions">{action}</div>}
       </div>
