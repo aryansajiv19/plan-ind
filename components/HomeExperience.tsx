@@ -6,7 +6,7 @@ import { signOut } from "@/app/auth/actions";
 import { clearMe } from "@/lib/device";
 import DemoAccountViews from "@/components/DemoAccountViews";
 import AccountViews from "@/components/AccountViews";
-import type { ProfileVisit, Spot, WrappedSummary, WrappedSummaryError } from "@/lib/types";
+import type { PersonCard, ProfileVisit, Spot, WrappedSummary, WrappedSummaryError } from "@/lib/types";
 import type { PlannedWith, VisitCollectionView, VisitPhotoView } from "@/lib/social";
 import StartPlanForm from "@/components/StartPlanForm";
 import { haptic } from "@/lib/interaction";
@@ -52,6 +52,8 @@ export default function HomeExperience({
   visitsUnavailable = false,
   plannedWith = [],
   plannedWithUnavailable = false,
+  friends = [],
+  friendsUnavailable = false,
   wrappedSummary = null,
   wrappedUnavailable = null,
   collections = [],
@@ -76,6 +78,8 @@ export default function HomeExperience({
   visitsUnavailable?: boolean;
   plannedWith?: PlannedWith[];
   plannedWithUnavailable?: boolean;
+  friends?: PersonCard[];
+  friendsUnavailable?: boolean;
   wrappedSummary?: WrappedSummary | null;
   wrappedUnavailable?: WrappedSummaryError | null;
   collections?: VisitCollectionView[];
@@ -400,6 +404,8 @@ export default function HomeExperience({
               collections={collections}
               visitsUnavailable={visitsUnavailable}
               plannedWithUnavailable={plannedWithUnavailable}
+              friends={friends}
+              friendsUnavailable={friendsUnavailable}
               photos={photos}
               onStartPlan={() => showView("plan")}
             />

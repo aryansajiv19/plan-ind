@@ -6,6 +6,7 @@ import { memberAge } from "@/lib/age-policy";
 import { createClient } from "@/lib/supabase/server";
 import {
   emptyRead,
+  getFriends,
   getPlannedWith,
   getProfileVisits,
   getVisitCollections,
@@ -13,7 +14,7 @@ import {
   getWrappedSummary,
 } from "@/lib/social";
 import type { PlannedWith, VisitCollectionView } from "@/lib/social";
-import type { ProfileVisit, Spot } from "@/lib/types";
+import type { PersonCard, ProfileVisit, Spot } from "@/lib/types";
 
 const APP_VIEWS = ["plan", "discover", "been", "friends", "profile"] as const;
 type AppView = (typeof APP_VIEWS)[number];
@@ -52,7 +53,7 @@ export default async function HomePage({
     ? (requestedView as AppView)
     : "plan";
 
-  const [spots, visits, friends, wrapped, collections, photos] = await Promise.all([
+  const [spots, visits, friends, wrapped, collections, photos, realFriends] = await Promise.all([
     // Narrowed from select("*"): traced every field AccountViews's Discover
     // tab (PlaceCard, search/filter) actually reads (2026-09-04, production-
     // readiness pass). minimum_age/booking_url/source/visibility/
@@ -70,6 +71,7 @@ export default async function HomePage({
       : Promise.resolve({ data: null, error: "visits" as const }),
     person ? getVisitCollections(person, supabase) : Promise.resolve(emptyRead<VisitCollectionView>()),
     person ? getVisitPhotos(person, supabase) : Promise.resolve([]),
+    person ? getFriends(person, supabase) : Promise.resolve(emptyRead<PersonCard>()),
   ]);
 
   return (
@@ -85,6 +87,8 @@ export default async function HomePage({
         visitsUnavailable={visits.failed}
         plannedWith={friends.rows}
         plannedWithUnavailable={friends.failed}
+        friends={realFriends.rows}
+        friendsUnavailable={realFriends.failed}
         wrappedSummary={wrapped.data}
         wrappedUnavailable={wrapped.error}
         collections={collections.rows}

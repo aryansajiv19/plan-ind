@@ -47,6 +47,12 @@ export type {
 
 const PERSON_FIELDS = "id, display_name, emoji, color";
 
+/** A chosen avatar emoji, or null. `ensure_authenticated_profile` stores "?"
+ *  for "not chosen yet", which must never render as someone's avatar. */
+export function chosenEmoji(emoji: string | null | undefined): string | null {
+  return emoji && emoji !== "?" ? emoji : null;
+}
+
 const VISIT_SELECT = `
   id, person_id, spot_id, plan_id, visited_at, group_label, note, created_at,
   spot:spots(id,name,category,area,cuisine,price_band,min_spend,open_till,vibe,photo_url,photo_attribution,description,minimum_age,address,latitude,longitude),
@@ -139,49 +145,91 @@ export async function getPeople(ids: string[]): Promise<PersonCard[]> {
 /**
  * Someone's friends. Friendship is symmetric and stored as two directed
  * rows, so this is a single index scan on the friendships primary key —
- * no OR across two columns.
+ * no OR across two columns. A failed read says so: `[]` friends is exactly
+ * what a new account looks like, so it must never stand in for a refusal.
  */
-export async function getFriends(personId: string, db: Db = getSupabase()): Promise<PersonCard[]> {
+export async function getFriends(personId: string, db: Db = getSupabase()): Promise<ListRead<PersonCard>> {
   const { data, error } = await db
     .from("friendships")
     .select(`friend:people!friendships_friend_id_fkey(${PERSON_FIELDS})`)
     .eq("person_id", personId)
     .order("created_at", { ascending: true });
-  if (error || !data) return [];
-  return (data as unknown as { friend: PersonCard | null }[])
-    .map((r) => r.friend)
-    .filter((p): p is PersonCard => p !== null);
+  if (error) return { rows: [], failed: true };
+  return {
+    rows: ((data ?? []) as unknown as { friend: PersonCard | null }[])
+      .map((r) => r.friend)
+      .filter((p): p is PersonCard => p !== null),
+    failed: false,
+  };
 }
 
-/**
- * Become friends. Writes ONE row; a database trigger mirrors the reverse
- * edge, so never write both yourself. Idempotent.
- */
-export async function addFriend(
-  meId: string,
-  friendId: string,
-): Promise<boolean> {
-  if (!meId || !friendId || meId === friendId) return false;
-  const { error } = await getSupabase()
-    .from("friendships")
-    .upsert(
-      { person_id: meId, friend_id: friendId },
-      { onConflict: "person_id,friend_id", ignoreDuplicates: true },
-    );
-  return !error;
+// ─── Friend invites (migration 048) ────────────────────────────────
+//
+// A friendship grants each side the other's visit log, so it only exists
+// when BOTH people act: one creates an invite, the other previews who sent
+// it and then explicitly accepts. There is deliberately no direct write —
+// `addFriend` used to insert any friend_id you liked, and is gone.
+//
+// Every refusal is its own result. "unavailable" (the call failed) must
+// never read as "invalid" (the link is dead) or the user blames the link.
+
+export type CreateInviteResult =
+  | { result: "created"; token: string; expiresAt: string }
+  | { result: "too_many" }
+  | { result: "unavailable" };
+
+export async function createFriendInvite(): Promise<CreateInviteResult> {
+  const { data, error } = await getSupabase().rpc("create_friend_invite");
+  if (error?.code === "54000") return { result: "too_many" };
+  const row = data as { token?: unknown; expires_at?: unknown } | null;
+  if (error || typeof row?.token !== "string" || typeof row.expires_at !== "string") {
+    return { result: "unavailable" };
+  }
+  return { result: "created", token: row.token, expiresAt: row.expires_at };
 }
 
-/** Unfriend. Also symmetric: the trigger removes the reverse edge. */
+export type InvitePreview =
+  | { result: "valid"; displayName: string; emoji: string | null }
+  | { result: "self" | "invalid" | "unavailable" };
+
+/** Who sent this invite. Reads only — never creates a friendship. */
+export async function previewFriendInvite(token: string): Promise<InvitePreview> {
+  const { data, error } = await getSupabase().rpc("preview_friend_invite", { p_token: token });
+  const row = data as { result?: unknown; display_name?: unknown; emoji?: unknown } | null;
+  if (error || !row) return { result: "unavailable" };
+  if (row.result === "valid" && typeof row.display_name === "string") {
+    return { result: "valid", displayName: row.display_name, emoji: typeof row.emoji === "string" ? chosenEmoji(row.emoji) : null };
+  }
+  if (row.result === "self" || row.result === "invalid") return { result: row.result };
+  return { result: "unavailable" };
+}
+
+export type RedeemResult = { result: "friends" | "already_friends" | "self" | "invalid" | "unavailable" };
+
+/** Accept an invite. Only ever call this from an explicit user action. */
+export async function redeemFriendInvite(token: string): Promise<RedeemResult> {
+  const { data, error } = await getSupabase().rpc("redeem_friend_invite", { p_token: token });
+  const result = (data as { result?: unknown } | null)?.result;
+  if (error) return { result: "unavailable" };
+  return result === "friends" || result === "already_friends" || result === "self" || result === "invalid"
+    ? { result }
+    : { result: "unavailable" };
+}
+
+/** Unfriend. Symmetric: the trigger removes the reverse edge. */
 export async function removeFriend(
   meId: string,
   friendId: string,
 ): Promise<boolean> {
-  const { error } = await getSupabase()
+  // .select(): a delete RLS refuses, or that matches nothing, returns no
+  // error -- only the rows that came back prove the friendship went.
+  const { data, error } = await getSupabase()
     .from("friendships")
     .delete()
     .eq("person_id", meId)
-    .eq("friend_id", friendId);
-  return !error;
+    .eq("friend_id", friendId)
+    .select("friend_id");
+  return !error && (data?.length ?? 0) > 0;
 }
 
 /** Are these two already friends? Cheap check for the invite-link screen. */

@@ -1823,6 +1823,29 @@ h3 {
 .demo-visit__collection-action select { height: 2rem; max-width: 11rem; padding: 0.45rem 0.55rem; border: 1px solid var(--color-line); background: var(--color-card); color: var(--color-ink); font-size: max(0.65rem, var(--type-floor)); }
 .demo-visit__collection-action button,
 .demo-collection-empty button { padding: 0; border: 0; border-bottom: 1px solid var(--home-metal); background: transparent; color: var(--color-ink); font-size: max(0.65rem, var(--type-floor)); font-weight: 500; cursor: pointer; }
+/* Friends: real friendships (invite + remove), above the visit-derived
+   "people you've been out with" list. */
+.friends-panel { display: grid; gap: 0.8rem; margin-top: 2.5rem; padding: 1.1rem; border-radius: var(--radius-panel); background: var(--color-card); box-shadow: var(--elevation-card); }
+.friends-panel__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.8rem; }
+.friends-panel__head h2 { font-size: 1.2rem; }
+.friends-panel__head p, .friends-panel__empty, .friends-panel__note { color: var(--color-muted); font-size: 0.78rem; }
+.friends-panel__invite { display: grid; gap: 0.4rem; font-size: 0.75rem; }
+.friends-panel__invite > div { display: flex; gap: 0.5rem; }
+.friends-panel__invite input { flex: 1; min-width: 0; min-height: 2.75rem; padding: 0 0.6rem; border: 1px solid var(--color-line); background: var(--color-paper); color: var(--color-ink); font-size: 0.75rem; }
+.friends-panel__list { display: grid; gap: 0.5rem; }
+.friends-panel__list li { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.7rem; }
+.friends-panel__name { flex: 1; font-size: 0.9rem; font-weight: 500; }
+.friends-panel__confirm { display: flex; flex-basis: 100%; flex-wrap: wrap; align-items: center; gap: 0.2rem 0.9rem; font-size: 0.75rem; }
+.friends-panel button:not(.demo-primary-action) { min-height: 2.75rem; padding: 0 0.2rem; border: 0; background: transparent; color: var(--color-ink); font: inherit; font-size: 0.75rem; text-decoration: underline; text-underline-offset: 0.25em; cursor: pointer; }
+.friends-panel .friends-panel__danger { color: var(--color-error); }
+.friends-panel button:disabled { opacity: 0.6; cursor: default; }
+.friends-panel__subhead { margin-top: 2.5rem; font-size: 1rem; }
+.friends-panel__subhead + .demo-friend-layout,
+.friends-panel__subhead + .demo-collection-empty { margin-top: 0.9rem; }
+/* The 18rem column is the demo page's sidebar. The real Friends tab has no
+   sidebar, so it left a dead gutter and the list stopped short of the rail
+   the panel above it reaches. One child, one column. */
+.demo-friend-layout:not(:has(> :nth-child(2))) { grid-template-columns: minmax(0, 1fr); }
 /* Been: the return path (delete a visit, untag a person). Reuses the
    collection-action row; the armed state spells out what goes. */
 .manage-visit__panel { display: grid; gap: 0.6rem; margin-top: 0.7rem; }

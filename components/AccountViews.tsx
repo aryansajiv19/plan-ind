@@ -16,6 +16,7 @@ import PlaceLinkImporter from "@/components/PlaceLinkImporter";
 import PhotoWall, { type WallItem } from "@/components/PhotoWall";
 import PhotoCredit from "@/components/PhotoCredit";
 import ManageVisit from "@/components/ManageVisit";
+import FriendsPanel from "@/components/FriendsPanel";
 import { categoryLabel, categoryMeta } from "@/lib/categories";
 import { minimumAgeForCategory } from "@/lib/age-policy";
 import { getSupabase } from "@/lib/supabase";
@@ -32,6 +33,7 @@ import {
   type VisitPhotoView,
 } from "@/lib/social";
 import type {
+  PersonCard,
   ProfileVisit,
   Spot,
   WrappedSummary,
@@ -265,6 +267,8 @@ export default function AccountViews({
   collections: initialCollections,
   visitsUnavailable,
   plannedWithUnavailable,
+  friends,
+  friendsUnavailable,
   photos,
   onStartPlan,
 }: {
@@ -291,6 +295,8 @@ export default function AccountViews({
    *  through to nowhere. */
   visitsUnavailable: boolean;
   plannedWithUnavailable: boolean;
+  friends: PersonCard[];
+  friendsUnavailable: boolean;
   photos: VisitPhotoView[];
   onStartPlan: () => void;
 }) {
@@ -701,6 +707,11 @@ export default function AccountViews({
           <button type="button" className="demo-primary-action" onClick={onStartPlan}>Start a group plan</button>
         </header>
 
+        {personId && (
+          <FriendsPanel personId={personId} friends={friends} unavailable={friendsUnavailable} onChanged={() => router.refresh()} />
+        )}
+
+        <h2 className="friends-panel__subhead">People you’ve been out with</h2>
         {plannedWithUnavailable ? (
           <UnavailableState what="people" />
         ) : plannedWith.length === 0 ? (
