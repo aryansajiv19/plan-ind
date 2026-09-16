@@ -8,6 +8,42 @@ whatever is technically loudest.
 
 ---
 
+## Wave — full control, dispatched 2026-09-17
+
+Owner, 2026-09-16: users must *"find and navigate everything so easily"*, with
+**configuring, managing and deleting** all on the table. Scoped as **full
+control over your own stuff**: anything you can create, you can change and
+delete. It's finite, and nothing in the app should be a dead end. Easy and
+fun come *after* this (usability pass, then a few delight moments), not
+interleaved. **Not** "more features": the owner also asked for no clutter.
+
+**Rules for the wave:** T1 sends the *shape* of every RPC before writing SQL.
+Migrations stay staged; any live apply is an owner go. Every item ships with a
+T3 round-trip test that **does the action, undoes it, and asserts the world is
+back**. A test that only checks a button was clickable doesn't count.
+
+**First, before new work: T2 re-walks the full two-person flow on current
+HEAD.** The last walk predates the dealing fix, the host name skip and the
+auth-origin changes.
+
+| # | Item | T1 backend | T2 frontend | Size |
+|---|---|---|---|---|
+| **C1** | **Friends: invite / accept / remove** | Live (048) | `wip/friend-invites` → two-account test + `security` review → merge | S |
+| **C2** | **Settings page:** edit name and emoji, sign out, entry point to C3/C4 | Confirm the profile update path exists; add one if not | Build | S |
+| **C3** | **Delete my account** | Shape first. Cascade across people, visits, companions, visit photos **and their storage objects**, votes/rsvps/ratings, friendships, invites, collections, moodboards. **Open question for the owner:** what happens to plans *they host* that other people have voted on. There's no service-role key, so deleting the `auth.users` row needs a definer design | Confirm dialog naming exactly what goes | L |
+| **C4** | **Fix a wrong birthday** | Shape first. The write-once rule stays for age integrity; propose a bounded correction path | Build | M |
+| **C5** | **Edit a plan before voting starts:** rename, change the deadline | Extend `execute_plan_command` or a new RPC; host only; refused once voting begins | Build | M |
+| **C6** | **Leave a plan** (non-host) | Remove own access + own picks; host can't leave their own plan (they delete it instead) | Build | M |
+| **C7** | **Reopen a decided plan** (host) | New command; decide what happens to RSVPs, carpool and booking | Build | M |
+| **C8** | **Been: edit a visit, remove a rating, delete photos and collections** | Unrate RPC (`p_stars` is 1–5 only); photo delete **must remove the storage object**, not just the row; collection delete | Build | M |
+| **C9** | **Undo** on quick reversible actions (untag, remove from a collection, unvote) in place of confirm dialogs | n/a | Build; destructive/irreversible actions keep confirms | S |
+
+**T3 owns the round trips** for C1–C9, plus the tests already queued: the
+delete-plan dbtest, the allowed/limited/unavailable regression, the 13
+`resolveAppOrigin` asserts, and the friendship-consent regression.
+
+---
+
 ## Wave — dispatched 2026-09-16
 
 Ranked by `DESIGN_DIAGNOSIS.md`'s corrected finding: the app doesn't feel like
