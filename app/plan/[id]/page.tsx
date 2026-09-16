@@ -130,7 +130,7 @@ export default function VotePage() {
   // wrong, and nothing would make anyone retry.
   const refetchVotes = useCallback(async () => {
     const seq = ++fetchSeq.current.votes;
-    const { data, error } = await getSupabase().from("votes").select("*").eq("plan_id", id);
+    const { data, error } = await getSupabase().from("votes").select("id,plan_id,spot_id,voter_name,value,phase,pool_number,participant_token_hash,created_at").eq("plan_id", id);
     if (error) return false;
     if (data && seq === fetchSeq.current.votes) setVotes(data as Vote[]);
     return true;
@@ -163,14 +163,18 @@ export default function VotePage() {
 
   const refetchRsvps = useCallback(async () => {
     const seq = ++fetchSeq.current.rsvps;
-    const { data } = await getSupabase().from("rsvps").select("*").eq("plan_id", id);
+    const { data, error } = await getSupabase().from("rsvps").select("id,plan_id,voter_name,coming,choice,participant_token_hash,transport,seats_available,created_at").eq("plan_id", id);
+    if (error) return false;
     if (data && seq === fetchSeq.current.rsvps) setRsvps(data as Rsvp[]);
+    return true;
   }, [id]);
 
   const refetchRatings = useCallback(async () => {
     const seq = ++fetchSeq.current.ratings;
-    const { data } = await getSupabase().from("ratings").select("*").eq("plan_id", id);
+    const { data, error } = await getSupabase().from("ratings").select("id,plan_id,spot_id,voter_name,stars,again,participant_token_hash,created_at").eq("plan_id", id);
+    if (error) return false;
     if (data && seq === fetchSeq.current.ratings) setRatings(data as Rating[]);
+    return true;
   }, [id]);
 
   const refetchPlanSpots = useCallback(async () => {
@@ -244,11 +248,16 @@ export default function VotePage() {
         setLoad("error");
         return;
       }
-      // Deliberately NOT load-critical: these feed the decided screen's RSVP
-      // and rating rows, so a failure there costs a section rather than the
-      // screen's whole meaning. They keep their last-good behaviour.
-      await refetchRsvps();
-      await refetchRatings();
+      // Load-critical too, for the same reason as votes: a refused read here
+      // renders "No one's committed yet" and an empty carpool list — a
+      // plausible, confidently wrong decided screen. Only the FIRST read is
+      // gated; later realtime refetches keep their last-good rows.
+      const [rsvpsOk, ratingsOk] = await Promise.all([refetchRsvps(), refetchRatings()]);
+      if (!active) return;
+      if (!rsvpsOk || !ratingsOk) {
+        setLoad("error");
+        return;
+      }
       setLoad("ready");
     })();
     return () => {
