@@ -1652,3 +1652,42 @@ hash and overwrite or claim it.
   rehearsal and a round-trip proving new rows still vote/RSVP/rate; or (2)
   **owner's call, a live data write:** if the 6 old plans are confirmed test
   data, delete their 45 legacy rows, which closes it with no function changes.
+
+---
+
+## 2026-09-17 — T1: migration 052 REVISED (supersedes the reviewed 90c04dc/4a345f3 text), still STAGED
+
+Changes since the first review, each re-reviewed by `security` (no C/H/M on any pass):
+- **Emoji "not chosen" = NULL.** `ensure_authenticated_profile` (020) ignored its
+  `p_emoji`/`p_color` and hardcoded `'?'`, while the column defaulted to `'🙂'`.
+  Now: column nullable (default NULL), colour default `'#34363b'`, existing
+  `'?'` rows set to NULL (live: 0 people), and the RPC honours a passed
+  emoji/colour. Emoji sanitising and `''`/`'?'`→NULL live in `people_before_write`
+  (one path for every write). `lib/types.ts`: `emoji: string | null`. No current
+  UI reads `people.emoji`/`color` (avatars derive from the name), so no literal
+  `null` can render.
+- **Display names: one sanitiser, `clean_display_name()`, used by the trigger AND
+  the CHECK** (`display_name = clean_display_name(display_name)`), so they can't
+  drift. Reproduced on the rig first: 10 invisible characters (ZWSP, ZWNJ, ZWJ,
+  WJ, BOM, ALM, Hangul filler, soft hyphen, CGJ, NBSP) survived and made "Alice"
+  look-alikes. Now: Unicode spaces → space, runs collapse; control (explicit
+  code-point ranges, not locale-dependent `[[:cntrl:]]`), bidi, format, filler,
+  tag, variation (except VS16) and braille-blank characters stripped;
+  **ZWJ/ZWNJ kept where scripts and emoji need them** (Persian ZWNJ, family
+  emoji) and removed only at the ends, next to ASCII, or repeated; re-trimmed
+  after the 40-char cut. Existing names are normalised before the CHECK is added.
+  Known limits, recorded in the header: homoglyphs, and a ZWJ between Arabic
+  letters that already join (054's shared-plans signal is the answer).
+  ⚠ `clean_display_name` must stay executable by `authenticated`: the CHECK calls
+  it on every people write.
+- `people_before_write` has a pinned `search_path`.
+
+**Verified:** 70/70 through real PostgREST on a rig proven equal to live after
+the 028/047/048/050 applies, plus a 30,000-case fuzz (29,449 distinct inputs):
+0 non-idempotent, 0 over 40 chars, 0 edge spaces, 0 C1 controls left.
+
+**Harness trap (recorded because it gave a false pass):** the first fuzz reported
+0 failures across "20,000 cases", but its random-string subquery was
+uncorrelated. Postgres evaluated it ONCE, so all 20,000 inputs were the same
+string. Caught by counting distinct inputs (1). Always assert the generator's
+diversity before trusting a fuzz result.
