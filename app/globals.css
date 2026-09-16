@@ -2519,6 +2519,9 @@ h3 {
 .vote-action-hint { margin-top: 0.65rem; color: var(--color-muted); font-size: 0.72rem; line-height: 1.45; }
 .vote-rsvp-choices { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.35rem; }
 .vote-rsvp-choices .vote-result__button { padding: 0.55rem 0.65rem; font-size: 0.68rem; }
+.vote-carpool { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem 0.75rem; margin-top: 0.9rem; }
+.vote-carpool__seats { display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; font-weight: 500; }
+.vote-carpool__seats select { min-height: 2.75rem; padding: 0 0.6rem; font-size: 0.8rem; }
 
 @media (max-width: 640px) {
   .vote-experience { padding-inline: 0.75rem !important; padding-top: 1rem !important; }

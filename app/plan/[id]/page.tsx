@@ -11,7 +11,6 @@ import { secureJsonFetch } from "@/lib/security/csrf-client";
 import { coordinatesForArea, distanceKm } from "@/lib/dubai-areas";
 import type { Plan, PlanSpot, Rating, Rsvp, Spot, Vote } from "@/lib/types";
 import { haptic } from "@/lib/interaction";
-import CountUp from "@/components/CountUp";
 import OptionCard from "@/components/OptionCard";
 import NameGate from "@/components/NameGate";
 import DecidedPlan from "@/components/DecidedPlan";
@@ -521,6 +520,31 @@ export default function VotePage() {
     }
   }
 
+  // Carpool (035). Rides on your existing RSVP: the RPC rewrites the whole
+  // row, so the current choice is resent and a cleared option writes null.
+  async function setCarpool(transport: Rsvp["transport"], seats: number | null) {
+    if (!voterName || !participantHash) return;
+    const mine = rsvps.find((r) => r.voter_name === voterName);
+    if (!mine) return;
+    const choice = mine.choice ?? (mine.coming ? "coming" : "no");
+    const nextSeats = transport === "driving" ? seats : null;
+    haptic(8);
+    setRsvps((cur) => cur.map((r) => (r.voter_name === voterName ? { ...r, transport, seats_available: nextSeats } : r)));
+    const { error } = await getSupabase().rpc("set_plan_rsvp", {
+      p_plan_id: id,
+      p_voter_name: voterName,
+      p_coming: mine.coming,
+      p_choice: choice,
+      p_participant_token_hash: participantHash,
+      p_transport: transport ?? null,
+      p_seats_available: nextSeats,
+    });
+    if (error) {
+      await refetchRsvps();
+      setNotice("Couldn't update how you're getting there. Try again.");
+    }
+  }
+
   // Rate the winner after the visit. First tap fills in a sensible "again"
   // so one interaction writes a valid row; each control merges with the rest.
   async function rateWinner(partial: { stars?: number; again?: boolean }) {
@@ -731,7 +755,6 @@ export default function VotePage() {
     );
   }
 
-  const voters = new Set(votes.map((v) => v.voter_name)).size;
   // Everyone the client can see on this plan, you first. See the seats row.
   const roster = [...new Set([
     ...votes.map((v) => v.voter_name),
@@ -801,7 +824,7 @@ export default function VotePage() {
           <div>
             <h1 className="text-2xl font-extrabold sm:text-3xl">{plan!.title}</h1>
             <p className="mt-1 text-sm text-muted">
-              Hey {voterName} · <CountUp value={voters} /> {voters === 1 ? "person" : "people"} voting
+              Hey {voterName}
             </p>
             {(plan!.budget_per_person != null || plan!.radius_km != null) && (
               <p className="vote-plan-constraints">
@@ -1002,7 +1025,9 @@ export default function VotePage() {
               rsvps={rsvps}
               ratings={ratings}
               onSetTime={(iso) => patchPlan({ event_time: iso })}
+              roster={roster}
               onSetRsvp={setRsvp}
+              onSetCarpool={setCarpool}
               onClaimBooking={() => patchPlan({ booking_owner: voterName })}
               onMarkBooked={() => patchPlan({ booked: true })}
               onRate={rateWinner}
