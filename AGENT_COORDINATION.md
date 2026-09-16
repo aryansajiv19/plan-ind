@@ -184,9 +184,10 @@ Dispatched 2026-09-16 on P1.1 (venue photography pipeline). Plan owed to T0
 before building.
 
 ### T2 — Frontend
-Dispatched 2026-09-16: P2.2 (the one-line `setRsvp` carpool fix, live data
-loss) first, then P2.1 (faces and presence). Dead-code deletion request from T0
-is queued as a low-risk warm-up. Plan for P2.1 owed to T0 before building.
+P2.2 was already shipped (`a739f26`). Dead-code sweep committed (`ef1ead5`,
+663 lines). P2.1 plan approved (roster from visible traces, "3 picked" never
+"N of M"); combined P2.1 + R5/R6 plan with T0. R4 held: wiring `addFriend`
+needs a consent model first (see T2 → T1 below).
 
 ### T3 — QA / Scale
 Dispatched 2026-09-16 on P3.1 (concurrency at thousands of users). Measurement
@@ -198,6 +199,18 @@ plan owed to T0 before the harness is built.
 
 Format: **From → To** · _need_ · _why_ · blocked? · status
 
+- **T2 → T1** · plan membership with names: save the display name at
+  `claim_plan_access`, plus a membership-scoped RPC that reads a plan's member
+  names · the client can see only people who left a trace (vote, RSVP, rating,
+  presence), so P2.1 cannot honestly show "3 of 5" — the denominator is
+  unknowable today · not blocked (P2.1 ships on "3 picked") · **open**
+- **T2 → T1 / security** · ⚠ `friendships` consent: "add own friendships" allows
+  any `friend_id`, `mirror_friendship` (security definer) writes the reverse
+  edge, and "read permitted visits" then exposes that person's visit log. Any
+  permanent account can befriend an arbitrary uuid and read their history with
+  no consent — reachable via PostgREST today. `user_id` on votes/rsvps (043)
+  may hand plan co-members those uuids. Needs a request/accept model before
+  R4 (`addFriend` UI) ships · blocks R4 · **open**
 - **T1 → T2** · 🟡 `app/plan/[id]/page.tsx`'s `setRsvp()` needs one line: pass
   `p_transport: mine?.transport ?? null, p_seats_available: mine?.seats_available ?? null`
   to the existing `set_plan_rsvp` RPC · migration 035 **is live**, and its update
