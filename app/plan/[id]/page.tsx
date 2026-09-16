@@ -1109,13 +1109,6 @@ export default function VotePage() {
                 {plan!.radius_km != null ? ` · within ${plan!.radius_km} km of ${plan!.origin_label ?? "the starting point"}` : ""}
               </p>
             )}
-            {/* C7: RSVPs, a booking owner and an event time only exist after a
-                decision, and reopening (057) keeps them -- so an OPEN plan that
-                has any of them was reopened, and those answers point at a place
-                that's no longer decided. */}
-            {!decided && (rsvps.length > 0 || plan!.booking_owner || plan!.event_time) && (
-              <p className="vote-reopened" role="status">This plan was reopened. Check your RSVP once a new place is picked.</p>
-            )}
             {!decided && (
               <p className="vote-round-label">
                 <span className="sr-only">
@@ -1379,7 +1372,10 @@ export default function VotePage() {
         )}
 
         {/* C7: host only, decided plans. */}
-        {isHost && decided && (
+        {/* Hidden once anyone has rated: 057 refuses (already_happened). A
+            logged visit also refuses but isn't readable here, so the server's
+            message still covers that case. */}
+        {isHost && decided && ratings.length === 0 && (
           <div className="vote-delete vote-reopen">
             {confirmReopen ? (
               <div className="vote-delete__confirm" role="group" aria-label="Confirm reopen">

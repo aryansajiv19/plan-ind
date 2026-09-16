@@ -2647,8 +2647,6 @@ h3 {
 .vote-rsvp-choices .vote-result__button { padding: 0.55rem 0.65rem; font-size: max(0.68rem, var(--type-floor)); }
 /* R1: host-only delete. Quiet until armed; the armed state names the plan
    and its voters. Red is paired with the words, never the only signal. */
-/* C7: a reopened plan's RSVPs describe a place that's no longer decided. */
-.vote-reopened { margin-top: 0.6rem; padding: 0.55rem 0.75rem; border-left: 2px solid var(--color-line); color: var(--color-ink); font-size: max(0.8rem, var(--type-floor)); line-height: 1.4; }
 .vote-delete { display: flex; flex-wrap: wrap; column-gap: 1.25rem; align-items: center; margin-top: 1rem; font-size: 0.75rem; }
 /* C5: edit before voting starts. Two fields and a save, on the round's own
    rail; the danger-free actions stay quiet like Delete's trigger. */
