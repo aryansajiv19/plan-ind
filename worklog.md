@@ -1187,3 +1187,59 @@ to it.
 
 Same class as the day's other findings — an operation that looked correct,
 succeeded, and quietly did more than its description claimed.
+
+---
+
+## 2026-09-16 — T1: P1.1 free photo route measured, and it is ~20/82, not 40–55
+
+**The spot list came from the repo seed files, not the live table.** The live
+project (`zyojaoyatunjwgbivaqu`) is INACTIVE (paused); restoring it is the
+owner's call. The 82 / 76-without-photo counts are seed-derived and have NOT
+been verified against live `spots`.
+
+**Two numbers that look contradictory, and are not:**
+- **~10/82** (2026-09-06) was the ceiling *with no venue URLs known*: only 2
+  spots had a URL, so the og:image extractor had nothing to aim at.
+- **40–55/82** was my estimate once web search supplied the URLs.
+- **Measured: 13 kept, of 76** (Brix and The Hundred excluded: Brix is an
+  address conflict for the catalogue batch, The Hundred a generic shot). Plus
+  the 6 held under 039, that's **~19/82**. The estimate was wrong. Quote the measured number.
+
+Funnel: 76 venues → 57 official URLs found (4 web-search agents, then hand
+review; Cocoa Room dropped as a branch mismatch) → 22 images fetched → 13
+kept after visual pre-screen. Where it fell off:
+- **34 of 57 sites fetched but had no usable og:image.** Most have no og:image
+  tag at all (VOX, Reel, Roxy, Aquaventure, Wild Wadi, padel clubs, ...), and
+  the page's `<img>` tags are logos and icons, so a fallback scraper would
+  only produce more logos. Not built.
+- **7 of 22 fetched images rejected on sight** (logos ×4, an ad graphic, a
+  fashion ad for Dubai Mall, a rehearsal room for a live venue). 32%, same as
+  the 33% last round. **The human review gate is load-bearing; do not
+  optimise it away.**
+- **A search agent returned a confident wrong URL:** 3fils.com is a different
+  company. The page title caught it; og:image would have scraped it silently.
+
+**Catalogue staleness, reported by the search agents and NOT independently
+verified, UNVERIFIED until Places `businessStatus` or a human confirms:** Cove Beach (Caesars Palace rebranded), Hub Zero City Walk (closed
+2020), Iris (moved from The Oberoi to Meydan), Q's Bar (at Palazzo Versace,
+not Al Habtoor City), Black Tap (no Jumeirah branch), Cocoa Room (no JLT
+branch), and Kickers, Hummingbird, The Nine not found at their listed
+locations. A decided plan pointing at a closed venue is the worst failure in
+`PLACES_INGESTION_SCOPE.md` §4. The Places pass should request
+`businessStatus` to settle these.
+
+**Places route (owner approved billing):** websiteUri + location + place_id
+(+ businessStatus) only. Worst case 82 Text Search requests, ≤164 with one
+retry each, inside the 1,000/month Enterprise free cap. Guard is a Cloud
+Console daily quota of 200, not the in-code cap. **Google's own photos are
+not used:** their terms forbid storing them, so serving them bills per page
+view and scales with traffic. That's an owner decision with a number, not a
+fallback.
+
+**Places does not buy "all 82".** It fixes URL discovery (76→57 above). It
+does not fix the 34 sites with no og:image. The bottleneck moves, it doesn't
+disappear. Near-full coverage needs Google's own photos (per-view cost) or
+owner-supplied images. Neither is built. No live call until the owner confirms the quota is set.
+
+Nothing committed to the DB, the bucket or git besides this entry. Review
+artefacts are in T1's scratchpad (`contact.html`, `results.json`).
