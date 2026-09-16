@@ -35,7 +35,9 @@ export interface Spot {
   booking_url: string | null;
   source: SpotSource;
   visibility: SpotVisibility;
-  created_by_user_id: string | null;
+  /** 051: withheld from client SELECT, so always undefined in the browser.
+   *  Owner checks go through my_custom_spots(), never a compare on this. */
+  created_by_user_id?: string | null;
   address: string | null;
   latitude: number | null;
   longitude: number | null;
@@ -43,7 +45,9 @@ export interface Spot {
 
 export interface Plan {
   id: string; // uuid — this is the share-link slug
-  created_by_user_id: string | null;
+  /** 051: withheld from client SELECT, so always undefined in the browser.
+   *  Owner checks go through count_my_hosted_plans() / the host token. */
+  created_by_user_id?: string | null;
   title: string;
   category: string; // the hangout type chosen for this plan
   area: string | null;
