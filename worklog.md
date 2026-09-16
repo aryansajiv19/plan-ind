@@ -1652,3 +1652,89 @@ hash and overwrite or claim it.
   rehearsal and a round-trip proving new rows still vote/RSVP/rate; or (2)
   **owner's call, a live data write:** if the 6 old plans are confirmed test
   data, delete their 45 legacy rows, which closes it with no function changes.
+
+---
+
+## 2026-09-17 — T1: migration 052 REVISED (supersedes the reviewed 90c04dc/4a345f3 text), still STAGED
+
+Changes since the first review, each re-reviewed by `security` (no C/H/M on any pass):
+- **Emoji "not chosen" = NULL.** `ensure_authenticated_profile` (020) ignored its
+  `p_emoji`/`p_color` and hardcoded `'?'`, while the column defaulted to `'🙂'`.
+  Now: column nullable (default NULL), colour default `'#34363b'`, existing
+  `'?'` rows set to NULL (live: 0 people), and the RPC honours a passed
+  emoji/colour. Emoji sanitising and `''`/`'?'`→NULL live in `people_before_write`
+  (one path for every write). `lib/types.ts`: `emoji: string | null`. No current
+  UI reads `people.emoji`/`color` (avatars derive from the name), so no literal
+  `null` can render.
+- **Display names: one sanitiser, `clean_display_name()`, used by the trigger AND
+  the CHECK** (`display_name = clean_display_name(display_name)`), so they can't
+  drift. Reproduced on the rig first: 10 invisible characters (ZWSP, ZWNJ, ZWJ,
+  WJ, BOM, ALM, Hangul filler, soft hyphen, CGJ, NBSP) survived and made "Alice"
+  look-alikes. Now: Unicode spaces → space, runs collapse; control (explicit
+  code-point ranges, not locale-dependent `[[:cntrl:]]`), bidi, format, filler,
+  tag, variation (except VS16) and braille-blank characters stripped;
+  **ZWJ/ZWNJ kept where scripts and emoji need them** (Persian ZWNJ, family
+  emoji) and removed only at the ends, next to ASCII, or repeated; re-trimmed
+  after the 40-char cut. Existing names are normalised before the CHECK is added.
+  Known limits, recorded in the header: homoglyphs, and a ZWJ between Arabic
+  letters that already join (054's shared-plans signal is the answer).
+  ⚠ `clean_display_name` must stay executable by `authenticated`: the CHECK calls
+  it on every people write.
+- `people_before_write` has a pinned `search_path`.
+
+**Verified:** 70/70 through real PostgREST on a rig proven equal to live after
+the 028/047/048/050 applies, plus a 30,000-case fuzz (29,449 distinct inputs):
+0 non-idempotent, 0 over 40 chars, 0 edge spaces, 0 C1 controls left.
+
+**Harness trap (recorded because it gave a false pass):** the first fuzz reported
+0 failures across "20,000 cases", but its random-string subquery was
+uncorrelated. Postgres evaluated it ONCE, so all 20,000 inputs were the same
+string. Caught by counting distinct inputs (1). Always assert the generator's
+diversity before trusting a fuzz result.
+
+---
+
+## 2026-09-17 — T1: migration 054 STAGED (friend invite trust signal M1 + cap race I1)
+
+- **M1:** `preview_friend_invite` also returns `shared_plans` on a valid result:
+  the count of plans the inviter and the redeemer have both joined
+  (`plan_access`; creators have a row). Count only: no plan names, nothing about
+  third parties, nothing on invalid/self. Deliberately simple. **Known limit:**
+  `claim_plan_access` admits anyone with a plan id, so a leaked share link can
+  inflate the count, and (review Low) a leaked invite token can probe whether
+  the inviter joined a plan the prober also knows. Both close with the
+  `claim_plan_access` must-fix-before-launch item.
+- **I1: a real race, proven.** On 048's function, **25 parallel creates all
+  succeeded (cap of 20 bypassed)**. With a per-inviter
+  `pg_advisory_xact_lock`, exactly 20 succeed and 5 are refused (54000). The same
+  call deletes the caller's own used/expired invites older than 7 days (never a
+  live one). `create_friend_invite` must stay VOLATILE (fresh snapshot per
+  statement after the lock).
+- Verified 15/15 on the live-identical rig + 052 via PostgREST, with a
+  negative control. `security` review: no C/H/M.
+
+---
+
+## 2026-09-17 — T1: C5 edit a plan before voting, migration 055 STAGED + route `edit` command
+
+`edit_plan(p_plan_id, p_host_token, p_title?, p_deadline?)` → result codes
+`edited | nothing_to_change | not_found | not_host | voting_started |
+invalid_title | invalid_deadline`. Auth = delete_plan's (creator AND host token,
+not anonymous, `for update`). Voting started = status not open OR stage not pool
+OR any vote. Title/deadline validated exactly like creation. A new RPC, not an
+`execute_plan_command` branch (that one raises instead of returning codes, and it
+is the core voting function). Accepted race (a first vote landing after the
+no-votes check) is documented in the header.
+
+Route: `POST /api/plans/[id]/command {command:"edit", hostToken, title?, deadline?}`.
+delete and edit share one result-code branch; `nothing_to_change` → 200,
+404/403/409/422 for refusals, 500 on error or unknown. Deadline must be a strict
+ISO-8601 instant with `Z` or `±HH:MM` (review L1: `Date.parse` accepted "2026"
+and "UTC+4", which Postgres rejects or reads 8h apart).
+
+Verified 23/23 on the live-identical rig + 052 + 054 via PostgREST (negative
+control, every refusal including a member holding the host token, the
+voting-started states, validation, grants, re-run). `security` review: no C/H/M,
+delete's behaviour unchanged by the refactor. Not exercised through a running
+Next server. Frontend note (review L2): the edit response has no `plan` key, so
+it must not go through `runHostCommand`, which treats a missing plan as failure.

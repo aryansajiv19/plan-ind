@@ -151,7 +151,7 @@ export interface Person {
   // row-level and `update people using (true)` would otherwise expose them.
   id: string; // uuid — minted on the device, and the profile-link slug
   display_name: string; // 1–40 chars, TRIMMED on write by the DB
-  emoji: string; // 1–8 chars, trimmed; no controls or bidi overrides
+  emoji: string | null; // null = not chosen (052); else 1–8 chars, no controls or bidi overrides
   color: string; // "#rrggbb" — validated by the DB, LOWERCASED on write
   auth_user_id: string | null; // auth.users.id for signed-in profiles; null on legacy rows
   created_at: string; // ISO timestamp
