@@ -2246,6 +2246,17 @@ h3 {
   .vote-option-shell { will-change: auto; }
 }
 
+/* Desktop: one level row. The scatter reads as charm in a phone deck and as
+   broken on a wide screen — and because it is a transform it reserves no
+   layout, so the lowest card sat on top of "Continue" and "Copy link".
+   Leadership still shows through the solid border and the word "leading";
+   only the offset, the lead scale and the tightening gap go. */
+@media (min-width: 641px) {
+  .vote-options-grid { gap: 1.25rem; }
+  .vote-option-shell,
+  .vote-options-grid .vote-option[aria-pressed="true"]:not(:disabled) { transform: none; }
+}
+
 /* Phone: the round becomes a swipeable deck. scroll-snap is the native
    platform feature for this — the browser supplies momentum, rubber-banding
    and the touch physics, so there is no gesture library and no drag maths.
