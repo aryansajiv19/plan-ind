@@ -8,7 +8,10 @@ import { consumeQuota, recordSecurityEvent } from "@/lib/security/controls";
 
 export const runtime = "nodejs";
 
-const COMMANDS = new Set(["advance", "decide", "patch"]);
+const COMMANDS = new Set(["advance", "decide", "patch", "delete"]);
+// delete_plan (047) returns its refusals instead of raising them, so a no-op
+// can never read as a delete.
+const DELETE_STATUS: Record<string, number> = { deleted: 200, not_found: 404, not_host: 403, already_decided: 409 };
 const PATCH_FIELDS = new Set(["event_time", "booking_owner", "booked"]);
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -50,6 +53,19 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (!quotaOk) {
     await recordSecurityEvent(supabase, { type: "rate_limit", outcome: "blocked", subject: user.id, requestId: request.headers.get("x-vercel-id"), metadata: { scope: "plan-command" } });
     return Response.json({ error: "Too many plan changes. Try again in a minute." }, { status: 429 });
+  }
+  if (command === "delete") {
+    const { data, error } = await supabase.rpc("delete_plan", { p_plan_id: id, p_host_token: hostToken });
+    const result: unknown = data?.result;
+    const status = typeof result === "string" ? DELETE_STATUS[result] : undefined;
+    if (error || !status) {
+      console.error("Plan delete failed", JSON.stringify({ planId: id, code: error?.code, result }));
+      return Response.json({ error: "That plan could not be deleted." }, { status: 500 });
+    }
+    if (status !== 200) {
+      await recordSecurityEvent(supabase, { type: "plan_command", outcome: "blocked", subject: user.id, requestId: request.headers.get("x-vercel-id"), metadata: { command, result: result as string } });
+    }
+    return Response.json(data, { status, headers: { "Cache-Control": "no-store" } });
   }
   const { data, error } = await supabase.rpc("execute_plan_command", {
     p_plan_id: id,

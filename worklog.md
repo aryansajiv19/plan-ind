@@ -1243,3 +1243,33 @@ owner-supplied images. Neither is built. No live call until the owner confirms t
 
 Nothing committed to the DB, the bucket or git besides this entry. Review
 artefacts are in T1's scratchpad (`contact.html`, `results.json`).
+
+---
+
+## 2026-09-16 — T1: R1 plan delete, migration 047 STAGED (not applied)
+
+`delete_plan(p_plan_id, p_host_token)` via `POST /api/plans/[id]/command`
+`{command:"delete"}`. Hard delete, **open plans only**, caller must be the
+plan's **creator AND** hold the host token (security review: a leaked
+localStorage token must not be able to erase a plan). `status` unchanged.
+Refusals are returned: `deleted` 200 / `not_found` 404 / `not_host` 403 /
+`already_decided` 409; anything else 500. One audit row in `security_events`
+per delete (plan id, participant count, actor), in the same transaction.
+
+**Verified on a throwaway Postgres built from current schema.sql, not live
+(project paused):** 16/16, including every refusal leaving the plan
+untouched, cascade to votes/rsvps/plan_spots/tokens, the audit row, two
+concurrent deletes resolving to exactly one, anon without execute. Not
+exercised: delete racing `decide` (review traced it: same row lock, the
+loser gets `already_decided` or a 403). `security` review: no C/H/M. Kept
+Low: `not_found` before the token check reveals plan-id existence
+(122-bit ids, id is the share link).
+
+**Open risk, recorded not acted on:** the ~9 possibly-closed/moved venues
+in the P1.1 entry above come from web-search agents only (one of which
+returned a confidently wrong URL the same day). The catalogue is untouched.
+Settle them with Places `businessStatus` when a key exists, not by search.
+
+**Instrument trap:** an audit is only as current as the checkout it reads.
+Today's schema.sql "drift" finding cited a stale `main` checkout, with no
+signal in its output. Verify against a database built from the current file.
