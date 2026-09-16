@@ -26,5 +26,6 @@ export async function requireUser() {
  * check rather than one per call site.
  */
 export function safeNextPath(value: string | null | undefined): string {
-  return value?.startsWith("/") && !value.startsWith("//") ? value : "/home";
+  // "/\\evil.com" is normalised to "//evil.com" by some browsers.
+  return value?.startsWith("/") && !value.startsWith("//") && !value.startsWith("/\\") ? value : "/home";
 }
