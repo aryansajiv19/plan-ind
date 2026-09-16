@@ -123,7 +123,13 @@ These exist because four sessions in one tree raced and nearly lost work once.
    `node_modules` are real directories, not symlinks, so they drift.
 7. **Never kill processes by name pattern** (`pkill -f "next dev"`) — every
    worktree runs the same process names. Kill only a PID you've confirmed is
-   yours.
+   yours. **This covers docker containers and images too** — it bit exactly
+   there on 2026-09-16: a cleanup filtered on the Realtime *image* deleted
+   another lane's running container mid-load-run, because `docker ps` was not
+   printing names and the filter silently matched more than its author could
+   see. Remove by exact name or by ids you have just listed and read. A filter
+   that matches nothing and a filter that matches too much look identical at
+   the call site.
 8. **Never `git add -A` while a subagent is working in your worktree.** Stage
    explicit paths. Worktrees isolate lanes from each other; they do **not**
    isolate a subagent from its parent. This already corrupted two commits.
