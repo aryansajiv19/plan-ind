@@ -1316,3 +1316,35 @@ after 048 reopens the hole.
 silently with 42501). Invite page: preview first, redeem only from an explicit
 button that shows the previewed name, never on load. Token in the URL fragment
 or `Referrer-Policy: no-referrer` on that route.
+
+---
+
+## 2026-09-16 — T1: voter user_id hidden from co-members, migration 049 STAGED (not applied)
+
+**⚠ Apply order:** 049 must NOT be applied until T2's explicit column lists
+for votes/rsvps/ratings (`app/plan/[id]/page.tsx`) are deployed. `select("*")`
+gets 42501 once any column is withheld. Also `scripts/load/realtime-fanout.mjs:137`
+(T3) selects `*` on votes with a user token. Added to the unpause checklist.
+
+**Reproduced:** plan member B read member A's auth uid from votes, rsvps and
+ratings. **Fix:** revoke table SELECT, grant every column except `user_id`.
+RPCs/RLS use it as owner, unchanged. Realtime strips it too: v2.129.3
+`apply_rls.sql` filters record and old_record via `has_column_privilege`, and
+`subscription_check_filters.sql` refuses a `user_id=eq.` filter. **15/15 on a
+fresh throwaway build** (the vote RPC still records user_id, members get
+denied on user_id and on `*`, anon denied), and 047/048 suites still pass.
+
+**Security review: correct, but PARTIAL. Not the whole uid exposure:**
+- `plans.created_by_user_id`: every co-member still gets the HOST's uid
+  (page.tsx select `*`, the full-row Realtime UPDATE, and
+  `execute_plan_command` returning `to_jsonb(target)`). Medium.
+- `spots.created_by_user_id`: any signed-in session (anonymous too) gets the
+  uid of everyone who published a community custom spot, next to its address.
+  Medium, and global. The app's narrow selects are cosmetic against direct
+  PostgREST.
+Both need client changes first (`lib/social.ts:611` and
+`components/StartPlanForm.tsx:105` filter on the column), so they're a
+separately sequenced follow-up (050), not folded in here.
+
+After applying: compare `information_schema.column_privileges` with
+`columns` for the three tables (live drift is unverifiable while paused).

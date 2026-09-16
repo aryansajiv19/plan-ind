@@ -192,6 +192,8 @@ create index plan_spots_pool_idx on plan_spots (plan_id, pool_number);
 -- round is enforced by the partial unique index votes_participant_round_key
 -- (below) — keyed on the participant token hash, not the typed name, so two
 -- people who type the same display name don't collide.
+-- ⚠ Column-level SELECT grants (049): adding a column here requires a matching
+-- grant in a new migration, or clients SILENTLY won't see it.
 create table votes (
   id         uuid primary key default gen_random_uuid(),
   plan_id    uuid not null references plans(id) on delete cascade,
@@ -212,6 +214,8 @@ create index votes_round_idx on votes (plan_id, phase, pool_number);
 
 -- One row per (voter, plan). coming = true means "I'm actually coming".
 -- Headcount (not vote count) is what the booking uses.
+-- ⚠ Column-level SELECT grants (049): adding a column here requires a matching
+-- grant in a new migration, or clients SILENTLY won't see it.
 create table rsvps (
   id         uuid primary key default gen_random_uuid(),
   plan_id    uuid not null references plans(id) on delete cascade,
@@ -233,6 +237,8 @@ create table rsvps (
 create index rsvps_plan_idx on rsvps (plan_id);
 
 -- One rating per (plan, voter) after the visit: stars + "would go again?".
+-- ⚠ Column-level SELECT grants (049): adding a column here requires a matching
+-- grant in a new migration, or clients SILENTLY won't see it.
 create table ratings (
   id         uuid primary key default gen_random_uuid(),
   plan_id    uuid not null references plans(id) on delete cascade,
@@ -2439,3 +2445,15 @@ revoke all on function redeem_friend_invite(text) from public, anon, authenticat
 grant execute on function redeem_friend_invite(text) to authenticated;
 revoke all on function preview_friend_invite(text) from public, anon, authenticated;
 grant execute on function preview_friend_invite(text) to authenticated;
+
+-- 049: co-members cannot read each other's user_id. Do not apply the
+-- migration before the plan page's explicit column lists are deployed; see
+-- supabase/migration-049-hide-voter-user-id.sql.
+revoke select on votes, rsvps, ratings from anon, authenticated;
+
+grant select (id, plan_id, spot_id, voter_name, value, phase, pool_number,
+  participant_token_hash, created_at) on votes to authenticated;
+grant select (id, plan_id, voter_name, coming, choice, participant_token_hash,
+  transport, seats_available, created_at) on rsvps to authenticated;
+grant select (id, plan_id, spot_id, voter_name, stars, again,
+  participant_token_hash, created_at) on ratings to authenticated;
