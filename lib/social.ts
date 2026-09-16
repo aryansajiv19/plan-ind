@@ -339,8 +339,10 @@ export async function logVisit(input: LogVisitInput): Promise<string | null> {
   //
   // postgrest-js sends `Prefer: resolution=merge-duplicates`, which becomes
   // INSERT ... ON CONFLICT DO UPDATE. PostgreSQL applies UPDATE policies to
-  // the conflict path, and `visits` deliberately has no UPDATE policy, so
-  // the conflicting write was DENIED rather than merged:
+  // the conflict path. `visits` had no UPDATE policy, so the conflicting
+  // write was DENIED rather than merged. Migration 052 adds an owner-only
+  // UPDATE policy for note/group_label/visited_at ONLY -- an upsert would
+  // still fail, because person_id/spot_id/plan_id aren't updatable:
   //   ERROR: new row violates row-level security policy (USING expression)
   //          for table "visits"
   // (reproduced on PostgreSQL 16 — see supabase/migration-006-social-
@@ -356,6 +358,26 @@ export async function logVisit(input: LogVisitInput): Promise<string | null> {
   // anyone could pre-insert (your person_id, some plan_id) with junk. Under
   // the old upsert that blocked your real log forever, with no path out.
   // Here the delete clears it and your log lands.
+  //
+  // Photos change the trade-off: deleting the old visit cascades its photo
+  // ROWS but never the storage FILES, so re-rating a plan silently orphaned
+  // private images -- and dropped photos the user had added. A plan visit
+  // that already has photos is therefore kept as it is: re-rating still
+  // saves the rating (rate_plan), the visit just isn't rebuilt.
+  const existingWithPhotos = async (): Promise<string | null> => {
+    if (!row.plan_id) return null;
+    const { data: old } = await getSupabase()
+      .from("visits")
+      .select("id, photos:visit_photos(id)")
+      .eq("person_id", row.person_id)
+      .eq("plan_id", row.plan_id)
+      .maybeSingle();
+    const visit = old as unknown as { id: string; photos: { id: string }[] | null } | null;
+    return visit && (visit.photos?.length ?? 0) > 0 ? visit.id : null;
+  };
+  const kept = await existingWithPhotos();
+  if (kept) return kept;
+
   const clearPlanConflict = async () => {
     if (!row.plan_id) return;
     await getSupabase()
@@ -398,9 +420,65 @@ export async function logVisit(input: LogVisitInput): Promise<string | null> {
   return visitId;
 }
 
-export async function deleteVisit(visitId: string): Promise<boolean> {
-  const { error } = await getSupabase().from("visits").delete().eq("id", visitId);
-  return !error;
+const PHOTO_BUCKET = "visit-photos";
+
+/**
+ * Remove photo files from storage, and prove they are gone. True only when
+ * every path is confirmed absent.
+ *
+ * `storage.remove` reports what it removed. A path it doesn't report is
+ * either already gone (a retry after a half-finished delete -- fine) or was
+ * refused by the storage policy, which returns an empty result with NO
+ * error. Only a listing tells those apart, so each unreported path is
+ * looked up. Must run while the photo row still exists: reading a file is
+ * gated on its visit_photos row.
+ */
+async function removePhotoFiles(paths: string[], db: Db): Promise<boolean> {
+  if (paths.length === 0) return true;
+  const { data, error } = await db.storage.from(PHOTO_BUCKET).remove(paths);
+  if (error) return false;
+  const reported = new Set((data ?? []).map((object) => object.name));
+  for (const path of paths.filter((p) => !reported.has(p))) {
+    const slash = path.lastIndexOf("/");
+    const folder = path.slice(0, slash);
+    const file = path.slice(slash + 1);
+    const { data: listed, error: listError } = await db.storage.from(PHOTO_BUCKET).list(folder, { search: file });
+    if (listError || (listed ?? []).some((entry) => entry.name === file)) return false;
+  }
+  return true;
+}
+
+/**
+ * Delete one photo: the FILE first, then the row. If the file can't be
+ * removed, stop and keep the row, so nothing is orphaned and a retry
+ * converges (removing an already-removed file is fine). `.select()` on the
+ * row delete because a refused delete touches 0 rows with no error.
+ */
+export async function deleteVisitPhoto(
+  photo: { id: string; storage_path: string },
+  db: Db = getSupabase(),
+): Promise<boolean> {
+  if (!(await removePhotoFiles([photo.storage_path], db))) return false;
+  const { data, error } = await db.from("visit_photos").delete().eq("id", photo.id).select("id");
+  return !error && (data?.length ?? 0) > 0;
+}
+
+/**
+ * Delete a visit and everything it owns. The visit delete cascades its photo
+ * ROWS but never their storage FILES, so every file goes first; if any file
+ * removal fails, stop and keep the visit and all its rows. Only then the
+ * visit, with `.select()` so a refused delete isn't read as success.
+ */
+export async function deleteVisit(visitId: string, db: Db = getSupabase()): Promise<boolean> {
+  const { data: photos, error: listError } = await db
+    .from("visit_photos")
+    .select("storage_path")
+    .eq("visit_id", visitId);
+  if (listError) return false;
+  const paths = (photos ?? []).map((photo) => (photo as { storage_path: string }).storage_path);
+  if (!(await removePhotoFiles(paths, db))) return false;
+  const { data, error } = await db.from("visits").delete().eq("id", visitId).select("id");
+  return !error && (data?.length ?? 0) > 0;
 }
 
 /**
@@ -763,9 +841,17 @@ export async function removeVisitFromCollection(
   return !error;
 }
 
+/** Delete a whole collection (its items cascade; the visits are untouched). */
+export async function deleteVisitCollection(collectionId: string, db: Db = getSupabase()): Promise<boolean> {
+  const { data, error } = await db.from("visit_collections").delete().eq("id", collectionId).select("id");
+  return !error && (data?.length ?? 0) > 0;
+}
+
 export interface VisitPhotoView {
   id: string;
   visit_id: string;
+  /** Needed to delete the file; the bucket is private, so it never renders. */
+  storage_path: string;
   url: string | null;
   caption: string | null;
   visibility: SpotVisibility;
@@ -808,6 +894,7 @@ export async function getVisitPhotos(
   return rows.map((r) => ({
     id: r.id,
     visit_id: r.visit_id,
+    storage_path: r.storage_path,
     url: urlByPath.get(r.storage_path) ?? null,
     caption: r.caption,
     visibility: r.visibility,

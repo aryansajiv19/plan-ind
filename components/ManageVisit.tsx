@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { deleteVisit, untagCompanion } from "@/lib/social";
+import { deleteVisit, deleteVisitPhoto, untagCompanion, type VisitPhotoView } from "@/lib/social";
 import type { ProfileVisit } from "@/lib/types";
 
 const DATE_FORMAT = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short" });
@@ -16,9 +16,11 @@ const DATE_FORMAT = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "s
  */
 export default function ManageVisit({
   visits,
+  photos,
   onChanged,
 }: {
   visits: ProfileVisit[];
+  photos: VisitPhotoView[];
   onChanged: () => void;
 }) {
   const [visitId, setVisitId] = useState("");
@@ -28,6 +30,7 @@ export default function ManageVisit({
   const [error, setError] = useState<string | null>(null);
 
   const visit = visits.find((v) => v.id === visitId) ?? null;
+  const visitPhotos = visit ? photos.filter((photo) => photo.visit_id === visit.id) : [];
   const armedIsVisit = armed === "visit";
   const label = (v: ProfileVisit) =>
     `${v.spot?.name ?? "Removed place"} · ${DATE_FORMAT.format(new Date(v.visited_at))}`;
@@ -61,6 +64,28 @@ export default function ManageVisit({
 
       {visit && (
         <div className="manage-visit__panel">
+          {visitPhotos.length > 0 && (
+            <ul className="manage-visit__photos" aria-label={`Photos on ${label(visit)}`}>
+              {visitPhotos.map((photo, index) => (
+                <li key={photo.id}>
+                  {photo.url
+                    ? /* eslint-disable-next-line @next/next/no-img-element -- short-lived signed URL from a private bucket; the optimiser must never fetch it */
+                      <img src={photo.url} alt={photo.caption ?? `Photo ${index + 1}`} />
+                    : <span className="manage-visit__photo-missing">Photo {index + 1}</span>}
+                  {armed === `photo:${photo.id}` ? (
+                    <span className="manage-visit__confirm">
+                      <button type="button" disabled={pending} onClick={() => void run(() => deleteVisitPhoto(photo), "Couldn’t delete that photo. Nothing was removed — try again.")}>
+                        Delete photo
+                      </button>
+                      <button type="button" disabled={pending} onClick={() => setArmed(null)}>Cancel</button>
+                    </span>
+                  ) : (
+                    <button type="button" disabled={pending} onClick={() => setArmed(`photo:${photo.id}`)}>Delete</button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
           {visit.companions.length > 0 && (
             <ul className="manage-visit__people" aria-label={`People tagged on ${label(visit)}`}>
               {visit.companions.map((c) => (
@@ -84,7 +109,7 @@ export default function ManageVisit({
           {armedIsVisit ? (
             <p className="manage-visit__confirm" role="group" aria-label="Confirm delete">
               <span>Delete {label(visit)}? Its tags and photos go with it. This can’t be undone.</span>
-              <button type="button" disabled={pending} onClick={() => void run(() => deleteVisit(visit.id), "Couldn’t delete that visit. Try again.")}>
+              <button type="button" disabled={pending} onClick={() => void run(() => deleteVisit(visit.id), "Couldn’t finish deleting that visit. Try again — it picks up where it stopped.")}>
                 {pending ? "Deleting…" : "Delete visit"}
               </button>
               <button type="button" disabled={pending} onClick={() => setArmed(null)}>Cancel</button>
