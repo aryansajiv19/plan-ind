@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { consumeQuota, recordSecurityEvent } from "@/lib/security/controls";
+import { CONTROL_UNAVAILABLE_MESSAGE, consumeQuota, recordSecurityEvent, reportControlUnavailable } from "@/lib/security/controls";
 import {
   plainText,
   readJsonBody,
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
   const supabase = await createClient();
   // Independent I/O, run together -- see app/api/spots/deal/route.ts's
   // identical comment for why this is safe.
-  const [{ data: { user } }, quotaOk] = await Promise.all([
+  const [{ data: { user } }, quota] = await Promise.all([
     supabase.auth.getUser(),
     consumeQuota(supabase, "plan-create"),
   ]);
@@ -42,7 +42,11 @@ export async function POST(request: Request) {
   // Same cost/risk shape as the deal-and-vote path -- one bucket, not a new
   // scope, matches spot-deal-vs-plan-create's precedent for "own bucket
   // only when the usage pattern genuinely differs" (it doesn't here).
-  if (!quotaOk) {
+  if (quota === "unavailable") {
+    reportControlUnavailable("plan-create");
+    return Response.json({ error: CONTROL_UNAVAILABLE_MESSAGE }, { status: 503 });
+  }
+  if (quota === "limited") {
     await recordSecurityEvent(supabase, { type: "rate_limit", outcome: "blocked", subject: user.id, requestId: request.headers.get("x-vercel-id"), metadata: { scope: "plan-create" } });
     return Response.json({ error: "Too many plans started. Try again later." }, { status: 429 });
   }

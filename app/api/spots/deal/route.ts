@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { consumeQuota, recordSecurityEvent } from "@/lib/security/controls";
+import { CONTROL_UNAVAILABLE_MESSAGE, consumeQuota, recordSecurityEvent, reportControlUnavailable } from "@/lib/security/controls";
 import { MIN_ACCOUNT_AGE, memberAge } from "@/lib/age-policy";
 import {
   plainText,
@@ -65,7 +65,7 @@ export async function POST(request: Request) {
   // (scripts/load/README.md, ~n=100 -- five to six sequential round trips
   // per request). Still checked in the original order below, so an
   // unauthenticated caller sees 401, never a stray 429.
-  const [{ data: { user } }, quotaOk] = await Promise.all([
+  const [{ data: { user } }, quota] = await Promise.all([
     supabase.auth.getUser(),
     consumeQuota(supabase, "spot-deal"),
   ]);
@@ -75,8 +75,12 @@ export async function POST(request: Request) {
   // Its own bucket, not plan-create's: dealing happens before a plan exists
   // and is re-rolled repeatedly, so sharing that bucket would lock a user out
   // of creating the plan they were dealing for. Requires migration 022 —
-  // before that is applied the RPC raises and this returns 429 to everyone.
-  if (!quotaOk) {
+  // before that is applied the RPC raises and this returns 503 to everyone.
+  if (quota === "unavailable") {
+    reportControlUnavailable("spot-deal");
+    return Response.json({ error: CONTROL_UNAVAILABLE_MESSAGE }, { status: 503 });
+  }
+  if (quota === "limited") {
     await recordSecurityEvent(supabase, { type: "rate_limit", outcome: "blocked", subject: user.id, requestId: request.headers.get("x-vercel-id"), metadata: { scope: "spot-deal" } });
     return Response.json({ error: "Too many deals. Try again in a minute." }, { status: 429 });
   }

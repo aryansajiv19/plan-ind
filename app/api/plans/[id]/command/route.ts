@@ -4,7 +4,7 @@ import {
   requestError,
   validateMutationRequest,
 } from "@/lib/security/request";
-import { consumeQuota, recordSecurityEvent } from "@/lib/security/controls";
+import { CONTROL_UNAVAILABLE_MESSAGE, consumeQuota, recordSecurityEvent, reportControlUnavailable } from "@/lib/security/controls";
 
 export const runtime = "nodejs";
 
@@ -36,7 +36,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const supabase = await createClient();
   // Independent I/O, run together -- see app/api/spots/deal/route.ts's
   // identical comment for why this is safe.
-  const [{ data: { user } }, quotaOk] = await Promise.all([
+  const [{ data: { user } }, quota] = await Promise.all([
     supabase.auth.getUser(),
     consumeQuota(supabase, "plan-command"),
   ]);
@@ -50,7 +50,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   // all. The RPC's own row lock serializes concurrent commands per plan but
   // doesn't cap volume; a valid (or leaked) host token could otherwise
   // hammer this unbounded.
-  if (!quotaOk) {
+  if (quota === "unavailable") {
+    reportControlUnavailable("plan-command");
+    return Response.json({ error: CONTROL_UNAVAILABLE_MESSAGE }, { status: 503 });
+  }
+  if (quota === "limited") {
     await recordSecurityEvent(supabase, { type: "rate_limit", outcome: "blocked", subject: user.id, requestId: request.headers.get("x-vercel-id"), metadata: { scope: "plan-command" } });
     return Response.json({ error: "Too many plan changes. Try again in a minute." }, { status: 429 });
   }

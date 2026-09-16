@@ -6,7 +6,7 @@ import {
   requestError,
   validateMutationRequest,
 } from "@/lib/security/request";
-import { consumeQuota, recordSecurityEvent } from "@/lib/security/controls";
+import { CONTROL_UNAVAILABLE_MESSAGE, consumeQuota, recordSecurityEvent, reportControlUnavailable } from "@/lib/security/controls";
 
 const MAPS_URL = (lat: number, lng: number) => `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
 
@@ -31,7 +31,12 @@ export async function POST(request: Request) {
   if (!user) {
     return Response.json({ error: "Sign in to save a place." }, { status: 401 });
   }
-  if (!(await consumeQuota(supabase, "place-import"))) {
+  const quota = await consumeQuota(supabase, "place-import");
+  if (quota === "unavailable") {
+    reportControlUnavailable("place-import");
+    return Response.json({ error: CONTROL_UNAVAILABLE_MESSAGE }, { status: 503 });
+  }
+  if (quota === "limited") {
     await recordSecurityEvent(supabase, { type: "rate_limit", outcome: "blocked", subject: user.id, requestId: request.headers.get("x-vercel-id"), metadata: { scope: "place-import" } });
     return Response.json({ error: "Too many saved links. Try again later." }, { status: 429 });
   }
