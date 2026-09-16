@@ -1823,6 +1823,20 @@ h3 {
 .demo-visit__collection-action select { height: 2rem; max-width: 11rem; padding: 0.45rem 0.55rem; border: 1px solid var(--color-line); background: var(--color-card); color: var(--color-ink); font-size: max(0.65rem, var(--type-floor)); }
 .demo-visit__collection-action button,
 .demo-collection-empty button { padding: 0; border: 0; border-bottom: 1px solid var(--home-metal); background: transparent; color: var(--color-ink); font-size: max(0.65rem, var(--type-floor)); font-weight: 500; cursor: pointer; }
+/* Profile: change your name. Same field + action pattern as the Friends
+   invite link; the status line is always present so a save never shifts
+   the layout. */
+.profile-name-form { display: grid; gap: 0.4rem; max-width: 32rem; margin-top: 2.5rem; }
+.profile-name-form label { font-size: 0.9rem; font-weight: 600; }
+.profile-name-form > p:not([id="profile-name-status"]) { color: var(--color-muted); font-size: max(0.78rem, var(--type-floor)); }
+.profile-name-form > div { display: flex; gap: 0.5rem; margin-top: 0.3rem; }
+.profile-name-form input { flex: 1; min-width: 0; min-height: 2.75rem; padding: 0 0.75rem; border: 1px solid var(--color-line); background: var(--color-card); color: var(--color-ink); font: inherit; }
+.profile-name-form button { min-height: 2.75rem; padding: 0 1.1rem; border: 1px solid var(--color-ink); background: var(--color-ink); color: var(--color-card); font: inherit; font-weight: 600; cursor: pointer; }
+.profile-name-form button:disabled { opacity: 0.45; cursor: default; }
+.profile-name-form__status, .profile-name-form__error { min-height: 1.2em; font-size: max(0.78rem, var(--type-floor)); }
+.profile-name-form__status { color: var(--color-muted); }
+.profile-name-form__error { color: var(--color-error); }
+
 /* Friends: real friendships (invite + remove), above the visit-derived
    "people you've been out with" list. */
 .friends-panel { display: grid; gap: 0.8rem; margin-top: 2.5rem; padding: 1.1rem; border-radius: var(--radius-panel); background: var(--color-card); box-shadow: var(--elevation-card); }

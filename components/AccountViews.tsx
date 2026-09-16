@@ -17,6 +17,7 @@ import PhotoWall, { type WallItem } from "@/components/PhotoWall";
 import PhotoCredit from "@/components/PhotoCredit";
 import ManageVisit from "@/components/ManageVisit";
 import FriendsPanel from "@/components/FriendsPanel";
+import ProfileNameForm from "@/components/ProfileNameForm";
 import { categoryLabel, categoryMeta } from "@/lib/categories";
 import { minimumAgeForCategory } from "@/lib/age-policy";
 import { getSupabase } from "@/lib/supabase";
@@ -752,6 +753,8 @@ export default function AccountViews({
         <span className="demo-profile-avatar" aria-hidden="true">{initialsOf(name)}</span>
         <div><p className="home-section-kicker">Your account</p><h1 id="profile-title">{name}</h1><p>Dubai</p></div>
       </header>
+
+      {personId && <ProfileNameForm personId={personId} name={name} />}
 
       <div className="demo-profile-stats">
         <span><strong>{stats.places}</strong> places</span>
