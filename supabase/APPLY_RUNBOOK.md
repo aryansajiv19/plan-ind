@@ -4,7 +4,7 @@ For the moment the live project (`zyojaoyatunjwgbivaqu`) unpauses. Written
 2026-09-16 by T1. **Every live apply is an owner decision.** This file is the
 order, not the approval.
 
-Two of these steps (049, 051) take the app down if applied before the client deploy. Each one says so
+Two of these steps (049, 051) take the app down if applied before the client deploy, and 048 must follow 028. Each one says so
 at the top of its own migration file too.
 
 ## 0. Preflight: read the catalog, not the ledger
@@ -15,10 +15,12 @@ applied and did not exist, and sign-up was impossible for days). Run this
 
 ```sql
 select m, ok from (values
+  ('027 name index (deferred, expect false tonight)', to_regclass('public.spots_name_idx') is not null),
+  ('028 friendship policies w/o recursion', exists(select 1 from pg_policy where polname='remove own friendships' and pg_get_expr(polqual, polrelid) like '%is_permanent_user%')),
   ('035 rsvp carpool',        exists(select 1 from information_schema.columns where table_schema='public' and table_name='rsvps' and column_name='transport')),
   ('036 moodboards',          to_regclass('public.moodboards') is not null),
   ('038 photo columns',       exists(select 1 from information_schema.columns where table_schema='public' and table_name='spots' and column_name='photo_source')),
-  ('039 HELD photos (expect false)', exists(select 1 from public.spots where photo_url is not null)),
+  ('039 six curated photos',  (select count(*) = 6 from public.spots where photo_url is not null)),
   ('040 scale indexes',       to_regclass('public.spots_curated_category_idx') is not null),
   ('041 anon curated read',   exists(select 1 from pg_policies where tablename='spots' and policyname='read curated spots anonymously')),
   ('043 votes.user_id',       exists(select 1 from information_schema.columns where table_schema='public' and table_name='votes' and column_name='user_id')),
@@ -33,19 +35,25 @@ select m, ok from (values
 ) t(m, ok);
 ```
 
-Expected on unpause: everything through 045 `true` (039 `false`), 047 onwards
-`false`. If any row before 047 is `false`, stop: the live state is not what
-this runbook assumes.
+**Live as found on 2026-09-16 (read-only preflight after unpause):** 035–045
+`true`, **039 `true`** (6 photos, all 6 files in the bucket), **027 `false`**,
+**028 `false`**, 047–051 `false`. The ledger claimed 027/028 applied and 039
+held; all three were wrong. Any other result means live has changed since:
+stop and re-probe.
 
-**Before anything else, also check (owed by source-only audits):**
-- `select count(*) from friendships;` — rows here were hand-written (no UI ever
-  wrote them) and grant reads of someone's visit history. **Owner decides**
-  what to keep before or after 048. Do not purge unasked.
-- `select pg_get_expr(polwithcheck, polrelid) from pg_policy where polname = 'add own friendships';`
-  should print exactly `(is_permanent_user() AND (person_id = ( SELECT uid() AS uid)))`,
-  which is 028's policy as Postgres renders it (it drops the `auth.` prefix).
-- `select proowner::regrole from pg_proc where proname = 'mirror_friendship';`
-- `select has_table_privilege('authenticated','public.friendships','insert');`
+**Also checked on live (2026-09-16):** `friendships` 0 rows and `people`
+0 rows, so there are no hand-written edges to decide about. `mirror_friendship`
+is owned by `postgres`. `authenticated` holds table INSERT on `friendships`
+(048 revokes it). **Without 028, every friendship write fails**
+(`42P17 infinite recursion detected in policy for relation "friendships"`,
+reproduced on a live-identical rig). Reads of people/visits/friendships/photos
+do not recurse, and no UI writes friendships today.
+
+**Known stray on live, inert, not on tonight's path:** policy
+`plan_spots."advance plan_spots"` (UPDATE, all roles, `using true`) from
+migration 009 survives although 015 dropped it. Clients have no UPDATE grant
+on `plan_spots`, so it grants nothing today; drop it in a later cleanup
+migration.
 
 ## 1. The order
 
@@ -54,18 +62,19 @@ v16.1 built at the live-through-045 state, with an old client (today's
 `select("*")` and `.eq("created_by_user_id")` reads) and the new client (T2's
 changes) run after every step. See §4.
 
-Apply each file whole, one at a time. Never run `schema.sql` against live: it
+Order: **028 → 047 → 048 → 050 → deploy → 049 → 051.** Apply each file whole, one at a time. Never run `schema.sql` against live: it
 DROPs every table. **One client deploy**, in the middle:
 
 | Step | Do | Precondition | Verify (paste as-is) |
 |---|---|---|---|
+| 0 | apply `migration-028-friendships-rls-recursion.sql` | preflight matches the live state above | `select exists(select 1 from pg_policy where polname='remove own friendships' and pg_get_expr(polqual, polrelid) like '%is_permanent_user%');` → `t` |
 | 1 | apply `migration-047-delete-plan.sql` | preflight ok | `select to_regproc('public.delete_plan') is not null and not has_function_privilege('anon','public.delete_plan(uuid,text)','execute');` → `t` |
-| 2 | apply `migration-048-friendship-consent.sql` | owner has decided about existing `friendships` rows (048 leaves them untouched) | `select not exists(select 1 from pg_policies where tablename='friendships' and policyname='add own friendships') and not has_table_privilege('authenticated','public.friendships','insert') and (select count(*) from pg_proc where proname in ('create_friend_invite','preview_friend_invite','redeem_friend_invite')) = 3;` → `t` |
+| 2 | apply `migration-048-friendship-consent.sql` | ⚠ **step 0 applied**. 048 drops only the insert policy; without 028 the leftover delete policy makes unfriending recurse. | `select not exists(select 1 from pg_policies where tablename='friendships' and policyname='add own friendships') and not has_table_privilege('authenticated','public.friendships','insert') and (select count(*) from pg_proc where proname in ('create_friend_invite','preview_friend_invite','redeem_friend_invite')) = 3;` → `t` |
 | 3 | apply `migration-050-owner-reads-without-uid.sql` | none (additive; old client unaffected, rehearsed) | `select to_regproc('public.my_custom_spots') is not null and to_regproc('public.count_my_hosted_plans') is not null and has_function_privilege('authenticated','public.execute_plan_command(uuid,text,text,jsonb)','execute') and not has_function_privilege('anon','public.execute_plan_command(uuid,text,text,jsonb)','execute');` → `t` |
 | 4 | **deploy the client** with ALL of T2's changes | steps 1–3 applied (the new client calls 050's RPCs) | run the **step 4 gate** below on the deployed sha, then on the live site: a plan page shows votes, RSVPs and ratings; home shows visit history; start-plan shows saved places |
 | 5 | apply `migration-049-hide-voter-user-id.sql` | ⚠ **step 4 deployed and checked**. Otherwise the plan page's votes/RSVPs/ratings reads are refused. | `select not has_column_privilege('authenticated','public.votes','user_id','select') and has_column_privilege('authenticated','public.votes','participant_token_hash','select');` → `t`; then cast a vote on the live site |
 | 6 | apply `migration-051-hide-creator-user-id.sql` | ⚠ **step 4 deployed and checked** | `select not has_column_privilege('authenticated','public.spots','created_by_user_id','select') and not has_column_privilege('authenticated','public.plans','created_by_user_id','select') and has_column_privilege('anon','public.spots','name','select');` → `t`; then `GET /api/health` → 200, and re-check the three pages from step 4 |
-| 7 | photos: `migration-046-*` (supersedes 039) | ⚠ owner approved the contact sheet **and** uploaded the files to `spot-photos`. A `photo_url` pointing at a missing file is worse than null. | every new `photo_url` returns 200 |
+| — | photos: `migration-046-*` — **not on tonight's path** | written only after the owner approves the contact sheet; must be **additive** to the 6 photos 039 already made live, and applied only after its files are in `spot-photos` | every new `photo_url` returns 200 |
 
 **Step 4 gate.** Run in the repo, with `SHA` set to the deployed commit. Every
 line must print `ok`; any `BLOCK` means do not apply 049/051:
@@ -86,8 +95,12 @@ git merge-base --is-ancestor 7f58c30 "$SHA" && echo ok || echo "BLOCK: saved pla
 Keep the braces in `"${SHA}:path"`: in zsh, `"$SHA:app/..."` is read as a
 variable modifier, `git show` fails, and `grep -c` prints `0` — a false pass.
 
-039 stays **held** permanently once 046 exists; do not apply both. Finish with
-the §0 preflight: every row `true` except 039.
+039 is already live; do not re-apply it. 027 (`spots_name_idx`) is **not live
+and not superseded**: 040's trigram index serves `ilike` search but cannot
+serve `/home`'s `order by name limit 120` (planner sorts even with seq scans
+disabled; with 027 it is an index scan). At 82 rows that query runs in 0.13ms,
+so 027 is **deferred**, not needed tonight. Finish with the §0 preflight: every
+row `true` except 027.
 
 **"function not found" (PGRST202) right after an apply is transient.**
 PostgREST reloads its schema cache on DDL; in the rehearsal one call made
@@ -125,46 +138,40 @@ That re-opens the uid exposure it closed, so it is a stopgap, not a fix.
 
 ## 4. What the rehearsal proved, and what it did not
 
-Base: `schema.sql` at `ec1c647` (last changed by 045) + seed, plus fixtures
-shaped like live (a plan with a member's vote/RSVP carrying `user_id`, a
-community custom spot, a visit, a hand-written friendship pair).
+**Corrected sequence, 2026-09-16, on a rig identical to live's public schema**:
+built from `schema.sql@ec1c647` + seeds + migration 039 + live's differences
+(007 friendship policies, no 027 index, the stray `plan_spots` policy), then
+**asserted equal to live** by 7 checksums read from live (columns, table grants,
+function grants, normalized function bodies, indexes, policies, triggers, 175
+columns / 314 grants / 26 functions / 69 indexes / 33 policies / 12 triggers),
+not assumed. Real PostgREST v16.1. **94/94.**
 
-- Preflight reads 035–045 `true`, 039 `false`, 047–051 `false`, then all `true`
-  at the end.
-- Every verify line above returned `t` after its step.
-- **The ordering constraints are real:** after 049 the old client's
-  votes/RSVPs/ratings `select("*")` are refused; after 051 the old client's
-  plans `select("*")`, saved-places and Wrapped `.eq("created_by_user_id")` and
-  visit-history `spots(*)` embed are all refused. The new client works at
-  every step, and before 049/051 as well.
-- Votes and host commands still work after every step. Signed-out curated
-  reads (the `/api/health` path) still work after 051.
-- Both stopgap undos restore the old client. Re-applying afterwards re-hides.
-- Every migration re-runs cleanly a second time.
-- The two-deploy order (client change before each grant) also passes (112/112);
-  the single-deploy order above passes 32/32.
+- The preflight reads exactly live's state (027 f, 028 f, 035–045 t, 039 t,
+  047–051 f), and at the end everything is `t` except the deferred 027.
+- **Negative controls:** before 028, a real unfriend through PostgREST fails
+  with `42P17`. Applying 048 without 028 (in a rolled-back transaction) leaves
+  unfriend recursing, so the 028-before-048 constraint is real. Reads don't
+  recurse.
+- Every verify line in the step table, read from this file, returns `t` after
+  its step.
+- After 048: the direct-insert exploit is refused; invite → preview (shows the
+  inviter) → redeem creates both edges; the friend's visits become readable; **a
+  real unfriend succeeds with no recursion**, removes both edges, and the visits
+  stop being readable.
+- After 050 the old client still works and the new client works (one deploy).
+  After 049+051 the new client works and the old client's reads are refused.
+  Votes, host commands (no uid in the response) and the signed-out
+  `/api/health` read still work.
+- Every migration re-runs cleanly. **Re-running 028 alone after 048 recreates
+  the insert policy**, but inserts stay refused because 048 revoked the table
+  INSERT grant. Still: do not re-run 028 after 048, and re-apply 048 if it
+  happens.
 
-**Realtime, proven with a real subscriber** (realtime v2.129.3 on the same
-rehearsal DB, a plan member subscribed to `plans` and `votes`): after 049+051,
-UPDATE/INSERT/DELETE payloads carry no `created_by_user_id` or `user_id` in
-`record` or `old_record`, while the change itself (`booked`,
-`participant_token_hash`) still arrives. **Negative control:** with the stopgap
-undo applied, both columns DO appear, so the check can fail. A subscription
-filtering on `created_by_user_id` is refused, while the same client and token
-subscribe fine with an `id` filter. 21/21.
+Earlier, on the older end-state base: Realtime strips the withheld columns
+from live payloads with a real subscriber, including a negative control
+(21/21); both stopgap undos restore the old client; the step-4 gate blocks on
+every commit before `7f58c30` and passes on it (zsh and bash).
 
-**Client code, proven against T2's real commits:** the step-4 gate reports
-zero BLOCKs on `7f58c30` (and blocks on every earlier commit). T2's exact
-custom-spot insert (writes `created_by_user_id`, selects
-`id,name,area,category,visibility`) returns 201 under 051, and the new spot comes
-back through `my_custom_spots`.
-
-**Not proven:** the base is an end-state file, not a replay of live's actual
-history, so live grants or objects could differ in ways the preflight does not
-probe; the deployed build itself (the gate proves the commits, not the
-deployment); 046 (not written yet).
-
-Side note: Realtime drops an INSERT event if the row is deleted before
-Realtime processes it (it checks access against the live row). That's
-pre-existing behaviour, not caused by these migrations; relevant to anything
-measuring rapid vote toggles.
+**Not proven:** anything outside the `public` schema's objects and grants
+(`storage`, `auth`, `realtime` config on live); the deployed build itself (the
+gate proves commits, not deployment); 046 (not written).

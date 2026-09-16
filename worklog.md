@@ -1522,3 +1522,45 @@ wrong answer:**
   behaviour, not ours; worth knowing for anything measuring rapid toggles.
 
 Lane critical path done. Holding; R2/R3/R7/R8 not started.
+
+---
+
+## 2026-09-16 — T1: LEDGER CORRECTION from the live preflight, and the corrected apply sequence rehearsed
+
+**The live project was probed read-only after unpause (ACTIVE_HEALTHY confirmed
+first). The ledger was wrong three times:**
+- **027 is NOT live**: `spots_name_idx` is absent.
+- **028 is NOT live**: both friendship write policies are still 007's
+  `exists(select 1 from people p ...)` form. Reproduced on a live-identical rig:
+  **every friendship write fails with `42P17 infinite recursion`**. Reads of
+  people/visits/friendships/photos do not recurse. No UI writes friendships
+  today, so no user has hit it.
+- **039 IS live** (recorded as held): 6 `photo_url`s, all 6 files in
+  `spot-photos`, sample served 200 image/jpeg.
+- Also: `friendships` 0 rows and `people` 0 rows (no hand-written edges to
+  decide about; still zero permanent accounts); 6 plans; 82 curated spots.
+- **Stray on live:** policy `plan_spots."advance plan_spots"` (UPDATE, all
+  roles, `using true`) from 009 survives although 015 dropped it (009 re-run
+  after 015). Inert because clients have no UPDATE grant on `plan_spots`.
+  Needs a cleanup migration later.
+
+**027: not superseded, deferred.** 040's GIN trigram index serves `ilike`
+search but cannot serve `/home`'s `order by name limit 120` (EXPLAIN with seq
+scans disabled still sorts; with 027 it is an index scan). At 82 rows the query
+takes 0.13ms. Not needed tonight.
+
+**Rehearsal rig now IS live, verified rather than assumed:** rebuilt with live's
+differences, then asserted equal to live by 7 checksums read from live (175
+columns, 314 table grants, 52 function grants, 26 normalized function bodies,
+69 indexes, 33 policies, 12 triggers). The first diff also surfaced the stray
+policy and 7 function bodies that differed only in comments/keyword case.
+
+**Corrected sequence 028 → 047 → 048 → 050 → [deploy] → 049 → 051: 94/94.**
+Negative controls prove 028-before-048 is a real constraint: before 028 a real
+unfriend fails with 42P17, and 048 alone leaves it recursing. After 048 a real
+invite → redeem → unfriend works with no recursion and removes both edges.
+Every runbook verify line returns `t`. Re-running 028 alone after 048 recreates
+the insert policy, but inserts stay refused because 048 revoked the table grant.
+
+Runbook updated: preflight rows for 027/028, 039 expects its 6 photos, step 0 =
+028, 046 off tonight's path and additive to the live 6.
