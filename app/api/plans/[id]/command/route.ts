@@ -8,13 +8,14 @@ import { CONTROL_UNAVAILABLE_MESSAGE, consumeQuota, recordSecurityEvent, reportC
 
 export const runtime = "nodejs";
 
-const COMMANDS = new Set(["advance", "decide", "patch", "delete", "edit"]);
-// delete_plan (047) and edit_plan (055) return their refusals instead of
+const COMMANDS = new Set(["advance", "decide", "patch", "delete", "edit", "reopen"]);
+// delete_plan (047), edit_plan (055) and reopen_plan (057) return their refusals instead of
 // raising them, so a no-op can never read as a success. Unchanged edit
 // (nothing_to_change) is a success: saving an untouched form is not an error.
 const RESULT_COMMANDS: Record<string, { rpc: string; status: Record<string, number>; failure: string }> = {
   delete: { rpc: "delete_plan", failure: "That plan could not be deleted.", status: { deleted: 200, not_found: 404, not_host: 403, already_decided: 409 } },
   edit: { rpc: "edit_plan", failure: "That plan could not be edited.", status: { edited: 200, nothing_to_change: 200, not_found: 404, not_host: 403, voting_started: 409, invalid_title: 422, invalid_deadline: 422 } },
+  reopen: { rpc: "reopen_plan", failure: "That plan could not be reopened.", status: { reopened: 200, not_found: 404, not_host: 403, not_decided: 409, no_rounds: 409, booked: 409, already_happened: 409, invalid_deadline: 422 } },
 };
 const PATCH_FIELDS = new Set(["event_time", "booking_owner", "booked"]);
 // A full instant with an explicit offset. Date.parse is looser than Postgres
@@ -37,12 +38,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const hostToken = typeof raw.hostToken === "string" ? raw.hostToken : "";
   const command = typeof raw.command === "string" ? raw.command : "";
   const patch = raw.patch && typeof raw.patch === "object" && !Array.isArray(raw.patch) ? raw.patch as Record<string, unknown> : {};
-  // edit: optional title and ISO deadline; the RPC owns the real rules.
+  // edit/reopen: optional title (edit only) and ISO deadline; the RPC owns the real rules.
   const title = raw.title === undefined ? null : raw.title;
   const deadline = raw.deadline === undefined ? null : raw.deadline;
-  const badEdit = command === "edit" && (
-    (title !== null && (typeof title !== "string" || title.length > 200))
-    || (deadline !== null && (typeof deadline !== "string" || !ISO_INSTANT.test(deadline))));
+  const badDeadline = deadline !== null && (typeof deadline !== "string" || !ISO_INSTANT.test(deadline));
+  const badEdit = (command === "edit" && (badDeadline || (title !== null && (typeof title !== "string" || title.length > 200))))
+    || (command === "reopen" && badDeadline);
   if (!UUID.test(id) || !/^[0-9a-f]{64}$/.test(hostToken) || !COMMANDS.has(command) || badEdit
       || Object.keys(patch).some((key) => !PATCH_FIELDS.has(key))) {
     return Response.json({ error: "Invalid plan command." }, { status: 400 });
@@ -76,7 +77,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (resultCommand) {
     const args = command === "edit"
       ? { p_plan_id: id, p_host_token: hostToken, p_title: title, p_deadline: deadline }
-      : { p_plan_id: id, p_host_token: hostToken };
+      : command === "reopen"
+        ? { p_plan_id: id, p_host_token: hostToken, p_deadline: deadline }
+        : { p_plan_id: id, p_host_token: hostToken };
     const { data, error } = await supabase.rpc(resultCommand.rpc, args);
     const result: unknown = data?.result;
     const status = typeof result === "string" ? resultCommand.status[result] : undefined;

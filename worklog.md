@@ -1772,3 +1772,31 @@ leaver, and a driver's seats vanish from the carpool list.
   Rig 24/24 (unbooked cleared, booked kept, non-owner untouched). Review Low
   accepted: name-match squat can blank an unbooked booker's name (visible, host
   can re-set, never touches a booking).
+
+---
+
+## 2026-09-17 — T1: C7 reopen a decided plan, migration 057 STAGED + route `reopen`
+
+`reopen_plan(p_plan_id, p_host_token, p_deadline?)` → `reopened | not_found |
+not_host | not_decided | no_rounds | booked | already_happened |
+invalid_deadline`. Creator AND host token. Back to the FINAL round (status open,
+stage final, winner null); finalists, final votes, RSVPs/carpool, booking_owner,
+event_time kept. Deadline cleared unless a new valid one is given (a past
+deadline would auto-re-decide). Refused when booked, when any rating or logged
+visit points at the plan, or when fewer than 2 finalists are advanced. Audit row
+on success. Route: `command: "reopen"`.
+
+Security review found a real **Medium**: someone who left a decided plan keeps
+their final vote (056 keeps votes on decided plans), so after a reopen that vote
+would still help pick the new winner. **Fixed:** reopen removes final votes whose
+voter has no plan_access (legacy null-user votes stay). Also adopted: visits
+block reopen like ratings; `no_rounds` counts advanced spots only (a legacy plan
+with 1 advanced of 3 was reopenable into a one-candidate final).
+
+Verified 29/29 on the live-identical rig + 052/054–056 via PostgREST, including
+the full loop: reopen → member switches vote → host decides → the new finalist
+wins. The rating race is the accepted class (closed by 053).
+
+Deadline readers checked for NULL: `closesLabel` → "Open", the host auto-decide
+effect returns early, `edit_plan`'s comparison is null-safe, the create form
+always sets one, no share copy uses it.
