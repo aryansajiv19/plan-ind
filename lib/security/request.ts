@@ -1,4 +1,5 @@
 import { timingSafeEqual } from "node:crypto";
+import { resolveAppOrigin } from "@/lib/app-origin";
 
 export class RequestValidationError extends Error {
   readonly status: number;
@@ -17,9 +18,21 @@ function equalText(left: string, right: string): boolean {
 
 export function validateMutationRequest(request: Request): void {
   const origin = request.headers.get("origin");
-  const expectedOrigin = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "")
-    ?? new URL(request.url).origin;
-  if (!origin || origin !== expectedOrigin) {
+  // The same origin the auth flow uses (lib/app-origin.ts), so the app never
+  // signs someone in on one origin and then refuses their requests from it.
+  // Its dev-only fallback trusts the Host header, which is fine here: a
+  // browser cannot choose the Host it sends to this server, so a cross-site
+  // page still arrives with a foreign Origin.
+  const allowed = [resolveAppOrigin({
+    host: request.headers.get("x-forwarded-host") ?? request.headers.get("host"),
+    forwardedProto: request.headers.get("x-forwarded-proto"),
+  })];
+  // A preview is served at its deployment URL AND its branch alias, the link
+  // Vercel usually shares. Both are this deployment; nothing wider is accepted.
+  if (process.env.VERCEL_ENV === "preview" && process.env.VERCEL_BRANCH_URL) {
+    allowed.push(`https://${process.env.VERCEL_BRANCH_URL}`);
+  }
+  if (!origin || !allowed.includes(origin)) {
     throw new RequestValidationError(403, "Request origin was not accepted.");
   }
 
@@ -94,5 +107,8 @@ export function requestError(error: unknown, fallback: string): Response {
   if (error instanceof RequestValidationError) {
     return Response.json({ error: error.message }, { status: error.status });
   }
+  // Not the caller's fault (e.g. NEXT_PUBLIC_SITE_URL missing in production
+  // makes every mutation fail): say nothing to the client, but never silently.
+  console.error("Request handling failed", error instanceof Error ? error.message : String(error));
   return Response.json({ error: fallback }, { status: 500 });
 }
