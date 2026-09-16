@@ -180,13 +180,17 @@ Re-org done 2026-09-16: board rewritten (780 → ~200 lines), QA lane and
 Next: dead-code sweep, then integration as lanes report in.
 
 ### T1 — Backend / Security
-_Awaiting kickoff._
+Dispatched 2026-09-16 on P1.1 (venue photography pipeline). Plan owed to T0
+before building.
 
 ### T2 — Frontend
-_Awaiting kickoff._
+Dispatched 2026-09-16: P2.2 (the one-line `setRsvp` carpool fix, live data
+loss) first, then P2.1 (faces and presence). Dead-code deletion request from T0
+is queued as a low-risk warm-up. Plan for P2.1 owed to T0 before building.
 
 ### T3 — QA / Scale
-_Awaiting kickoff._
+Dispatched 2026-09-16 on P3.1 (concurrency at thousands of users). Measurement
+plan owed to T0 before the harness is built.
 
 ---
 
