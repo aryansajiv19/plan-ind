@@ -177,7 +177,8 @@ create table plans (
   event_time     timestamptz,           -- when the outing actually is
   booking_owner  text,                  -- voter_name of whoever's booking
   booked         boolean not null default false,
-  created_at     timestamptz not null default now()
+  created_at     timestamptz not null default now(),
+  reopened_at    timestamptz            -- 057: set by reopen_plan
 );
 
 -- 014: schema.sql previously mirrored only plans' columns, not this index --
@@ -2511,7 +2512,7 @@ grant select (id, name, category, minimum_age, area, cuisine, price_band,
 grant select (id, title, category, area, deadline, status, stage, pool_count,
   budget_per_person, origin_label, origin_latitude, origin_longitude, radius_km,
   smart_brief, vibe_preferences, avoid_preferences, intelligence_model,
-  winner_spot_id, event_time, booking_owner, booked, created_at)
+  winner_spot_id, event_time, booking_owner, booked, created_at, reopened_at)
   on plans to authenticated;
 
 -- 052: display names sanitised by clean_display_name (trigger + CHECK), emoji
@@ -2963,7 +2964,8 @@ begin
     status = 'open',
     stage = 'final',
     winner_spot_id = null,
-    deadline = p_deadline
+    deadline = p_deadline,
+    reopened_at = now()
   where id = p_plan_id;
 
   insert into security_events (event_type, outcome, actor_user_id, metadata)
