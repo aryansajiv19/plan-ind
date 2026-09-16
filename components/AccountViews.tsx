@@ -18,6 +18,7 @@ import PhotoCredit from "@/components/PhotoCredit";
 import ManageVisit from "@/components/ManageVisit";
 import FriendsPanel from "@/components/FriendsPanel";
 import ProfileNameForm from "@/components/ProfileNameForm";
+import UndoBar from "@/components/UndoBar";
 import { categoryLabel, categoryMeta } from "@/lib/categories";
 import { minimumAgeForCategory } from "@/lib/age-policy";
 import { getSupabase } from "@/lib/supabase";
@@ -316,6 +317,7 @@ export default function AccountViews({
   const [collectionDeleteArmed, setCollectionDeleteArmed] = useState(false);
   const [collectionPending, setCollectionPending] = useState(false);
   const [collectionError, setCollectionError] = useState<string | null>(null);
+  const [collectionUndo, setCollectionUndo] = useState<{ message: string; restore: () => Promise<boolean> } | null>(null);
   const [activeCollection, setActiveCollection] = useState("all");
   const [newCollectionName, setNewCollectionName] = useState("");
   const [uploadFile, setUploadFile] = useState<File | null>(null);
@@ -380,11 +382,26 @@ export default function AccountViews({
 
   async function removeFromActiveCollection(visitId: string) {
     if (!activeFolder) return;
-    const ok = await removeVisitFromCollection(activeFolder.id, visitId);
-    if (!ok) return;
-    setCollections((current) => current.map((c) => c.id === activeFolder.id
+    const folder = activeFolder;
+    const ok = await removeVisitFromCollection(folder.id, visitId);
+    if (!ok) { setCollectionError(`Couldn’t remove that visit from ${folder.name}. Try again.`); return; }
+    setCollectionError(null);
+    setCollections((current) => current.map((c) => c.id === folder.id
       ? { ...c, visitIds: c.visitIds.filter((id) => id !== visitId) }
       : c));
+    const place = visits.find((v) => v.id === visitId)?.spot?.name ?? "That visit";
+    setCollectionUndo({
+      message: `${place} removed from ${folder.name}.`,
+      restore: async () => {
+        const restored = await addVisitToCollection(folder.id, visitId);
+        if (restored) {
+          setCollections((current) => current.map((c) => c.id === folder.id
+            ? { ...c, visitIds: Array.from(new Set([...c.visitIds, visitId])) }
+            : c));
+        }
+        return restored;
+      },
+    });
   }
 
   async function handleUploadChange(file: File | undefined) {
@@ -627,6 +644,8 @@ export default function AccountViews({
             />
 
             {personId && <ManageVisit visits={visits} photos={photos} onChanged={() => router.refresh()} />}
+
+            {collectionUndo && <UndoBar key={collectionUndo.message} message={collectionUndo.message} onUndo={collectionUndo.restore} onDone={() => setCollectionUndo(null)} />}
 
             {activeFolder && personId && (
               <div className="demo-visit__collection-action manage-visit">

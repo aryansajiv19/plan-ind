@@ -503,11 +503,28 @@ export async function deleteVisit(visitId: string, db: Db = getSupabase()): Prom
  */
 export async function untagCompanion(companionId: string): Promise<boolean> {
   if (!companionId) return false;
-  const { error } = await getSupabase()
+  // .select(): a refused or no-op delete returns no error; only a row back
+  // proves the tag went (and that there's something for Undo to restore).
+  const { data, error } = await getSupabase()
     .from("visit_companions")
     .delete()
-    .eq("id", companionId);
-  return !error;
+    .eq("id", companionId)
+    .select("id");
+  return !error && (data?.length ?? 0) > 0;
+}
+
+/** Put a removed tag back (Undo). By profile when there is one, else by name. */
+export async function retagCompanion(
+  visitId: string,
+  companion: { person: { id: string } | null; name: string },
+): Promise<boolean> {
+  const { data, error } = await getSupabase()
+    .from("visit_companions")
+    .insert(companion.person
+      ? { visit_id: visitId, person_id: companion.person.id, companion_name: null }
+      : { visit_id: visitId, person_id: null, companion_name: companion.name })
+    .select("id");
+  return !error && (data?.length ?? 0) > 0;
 }
 
 /**
@@ -841,12 +858,13 @@ export async function removeVisitFromCollection(
   visitId: string,
   db: Db = getSupabase(),
 ): Promise<boolean> {
-  const { error } = await db
+  const { data, error } = await db
     .from("visit_collection_items")
     .delete()
     .eq("collection_id", collectionId)
-    .eq("visit_id", visitId);
-  return !error;
+    .eq("visit_id", visitId)
+    .select("visit_id");
+  return !error && (data?.length ?? 0) > 0;
 }
 
 /** Delete a whole collection (its items cascade; the visits are untouched). */
