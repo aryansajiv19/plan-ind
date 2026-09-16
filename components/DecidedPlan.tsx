@@ -164,6 +164,12 @@ export default function DecidedPlan({
       <p className="mt-2 text-sm text-muted">
         The group’s headed to {winner.area}. Now let’s make it happen.
       </p>
+      {/* What the winner card used to carry, now that it no longer renders
+          beside the reveal. */}
+      <p className="vote-result__details mt-2 text-sm">
+        {winner.description ?? winner.vibe}
+        <span className="text-muted"> · Open till {winner.open_till} · from AED {winner.min_spend}pp</span>
+      </p>
 
       <button
         type="button"

@@ -346,7 +346,15 @@ export default function HomeExperience({
         <div className="home-plan-section__intro">
           <p className="home-section-kicker">Create a plan</p>
           {demoMode && <h2>What does the group feel like doing?</h2>}
-          <p>Choose the category, budget and travel radius. We’ll deal nine relevant places across three quick rounds.</p>
+          <p className="home-plan-steps__lede">Choose the category, budget and travel radius. We’ll deal nine relevant places across three quick rounds.</p>
+          {/* Desktop: the same sentence as the mechanic it describes, so a
+              first-time visitor sees what the form produces before filling
+              it in — and the column beside a long form isn't empty. */}
+          <ol className="home-plan-steps">
+            <li><strong>9 places</strong><span>Dealt to fit the category, budget and travel radius you choose.</span></li>
+            <li><strong>3 quick rounds</strong><span>Everyone picks one place from each.</span></li>
+            <li><strong>1 decision</strong><span>The group’s pick, with who’s coming and how they’re getting there.</span></li>
+          </ol>
         </div>
 
         <div className="home-plan-card">
