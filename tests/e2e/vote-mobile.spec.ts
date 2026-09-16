@@ -56,7 +56,10 @@ async function openVoteScreen(page: Page): Promise<void> {
     await nameInput.fill(`Layout ${Date.now()}`);
     await page.getByRole("button", { name: "Start voting" }).click();
   }
-  await expect(page.getByText(/\d+ (?:person|people) voting/)).toBeVisible({
+  // The "N people voting" line was removed from the header (82145e0), which
+  // left this waiting on text that no longer renders. "Hey <name>" is the
+  // header's own proof the guest is on the vote screen.
+  await expect(page.getByText(/^Hey /)).toBeVisible({
     timeout: 15_000,
   });
 }
