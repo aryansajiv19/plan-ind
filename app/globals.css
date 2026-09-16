@@ -1086,6 +1086,14 @@ h3 {
 /* Signed in, the section follows the app bar directly: the front door's
    9rem of air above a headline became dead space under one. */
 .home-plan-section--app { padding-top: 2.5rem; }
+/* Front door: the hero already ends in its own air (it fills the first
+   screen), so a further 9rem above "Create a plan" stacked into ~240px of
+   dead space at desktop widths. Desktop only; phones keep their rhythm. */
+@media (min-width: 641px) {
+  .home-plan-section:not(.home-plan-section--app) { padding-top: clamp(2rem, 3vw, 3rem); }
+  /* Same stacking below the form: 9rem here plus the wall's own 3.5rem. */
+  .home-plan-section { padding-bottom: clamp(2rem, 3vw, 3rem); }
+}
 .home-plan-section--app .home-plan-section__intro > .home-plan-steps__lede { margin-top: 0.8rem; }
 .home-section-kicker { color: var(--color-punch-text); font-size: max(0.66rem, var(--type-floor)); font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; }
 /* One clamp across every width. This heading used to be clamp(2.8rem, 5vw,
