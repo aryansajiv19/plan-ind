@@ -1466,3 +1466,26 @@ exact calls T2 was given); 046.
 `~/plan-ind/node_modules` (the board says real directories). That's why
 Turbopack `next dev` failed. Replaced with a real `npm ci`; Turbopack now
 starts. The other worktrees were already real directories.
+
+---
+
+## 2026-09-16 — T1: runbook gate filled with real commits and proven both ways
+
+**The headline finding of the rehearsal, stated plainly:** the step-4 gate
+existed to stop 049/051 being applied before their client changes. In zsh,
+`"$SHA:app/..."` is a variable modifier, so `git show` failed, `grep -c`
+printed `0`, and **the gate reported PASS on a tree that must be blocked**.
+That's the repo's signature bug (a failure presented as a plausible success)
+inside the mechanism built to prevent it. On the owner's live project it
+would have waved through exactly the mistake it guards against.
+
+The gate now prints `ok` or `BLOCK: <reason>` per line (a failed check can
+no longer print nothing), uses `${SHA}:path`, and checks file existence first.
+Placeholder replaced with T2's real `b8b19c7`. **Proven against real commits,
+in zsh and bash:**
+- `ec1c647` → 6 BLOCK; `4d074b3` → 4 BLOCK; `b8b19c7` and current
+  `ai-engineering` → 1 BLOCK: StartPlanForm/Wrapped still `.eq("created_by_user_id")`.
+  **T2's edits 1+2 (the `my_custom_spots` / `count_my_hosted_plans` swaps) have
+  not landed, so 051 is correctly still blocked.**
+- A throwaway detached commit with those two edits applied (never on a branch,
+  worktree removed) → all `ok`.

@@ -68,17 +68,17 @@ DROPs every table. **One client deploy**, in the middle:
 | 7 | photos: `migration-046-*` (supersedes 039) | ⚠ owner approved the contact sheet **and** uploaded the files to `spot-photos`. A `photo_url` pointing at a missing file is worse than null. | every new `photo_url` returns 200 |
 
 **Step 4 gate.** Run in the repo, with `SHA` set to the deployed commit. Every
-line must print `ok` or `0`:
+line must print `ok`; any `BLOCK` means do not apply 049/051:
 
 ```sh
 SHA=<deployed-sha>
-for f in "app/plan/[id]/page.tsx" lib/social.ts components/StartPlanForm.tsx; do git cat-file -e "${SHA}:$f" && echo ok || echo "MISSING $f"; done
-git merge-base --is-ancestor 4d074b3 "$SHA" && echo ok      # votes/rsvps/ratings column lists (T2)
-git merge-base --is-ancestor <T2-051-prep-sha> "$SHA" && echo ok   # fill in when T2 lands it
-git show "${SHA}:app/plan/[id]/page.tsx" | grep -cE 'from\("(votes|rsvps|ratings)"\)\.select\("\*"\)'
-git show "${SHA}:app/plan/[id]/page.tsx" | grep -A2 'from("plans")' | grep -c 'select("\*")'
-git show "${SHA}:lib/social.ts" | grep -c 'spots(\*)'
-{ git show "${SHA}:components/StartPlanForm.tsx"; git show "${SHA}:lib/social.ts"; } | grep -c '\.eq("created_by_user_id"'
+for f in "app/plan/[id]/page.tsx" lib/social.ts components/StartPlanForm.tsx; do git cat-file -e "${SHA}:$f" 2>/dev/null && echo ok || echo "BLOCK: $f missing at $SHA"; done
+git merge-base --is-ancestor 4d074b3 "$SHA" && echo ok || echo "BLOCK: votes/rsvps/ratings column lists (4d074b3) not deployed"
+git merge-base --is-ancestor b8b19c7 "$SHA" && echo ok || echo "BLOCK: plans column list + visit spot embed (b8b19c7) not deployed"
+[ "$(git show "${SHA}:app/plan/[id]/page.tsx" | grep -cE 'from\("(votes|rsvps|ratings)"\)\.select\("\*"\)')" = 0 ] && echo ok || echo "BLOCK: votes/rsvps/ratings select(*)"
+[ "$(git show "${SHA}:app/plan/[id]/page.tsx" | grep -A2 'from("plans")' | grep -c 'select("\*")')" = 0 ] && echo ok || echo "BLOCK: plans select(*)"
+[ "$(git show "${SHA}:lib/social.ts" | grep -c 'spots(\*)')" = 0 ] && echo ok || echo "BLOCK: spots(*) embed"
+[ "$({ git show "${SHA}:components/StartPlanForm.tsx"; git show "${SHA}:lib/social.ts"; } | grep -c '\.eq("created_by_user_id"')" = 0 ] && echo ok || echo "BLOCK: saved places / Wrapped still filter on created_by_user_id (need my_custom_spots / count_my_hosted_plans)"
 ```
 
 `plan_spots` keeps `select("*")` on purpose; 049/051 don't touch it.
