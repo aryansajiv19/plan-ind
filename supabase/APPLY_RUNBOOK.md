@@ -75,6 +75,7 @@ SHA=<deployed-sha>
 for f in "app/plan/[id]/page.tsx" lib/social.ts components/StartPlanForm.tsx; do git cat-file -e "${SHA}:$f" 2>/dev/null && echo ok || echo "BLOCK: $f missing at $SHA"; done
 git merge-base --is-ancestor 4d074b3 "$SHA" && echo ok || echo "BLOCK: votes/rsvps/ratings column lists (4d074b3) not deployed"
 git merge-base --is-ancestor b8b19c7 "$SHA" && echo ok || echo "BLOCK: plans column list + visit spot embed (b8b19c7) not deployed"
+git merge-base --is-ancestor 7f58c30 "$SHA" && echo ok || echo "BLOCK: saved places / Wrapped RPC swaps (7f58c30) not deployed"
 [ "$(git show "${SHA}:app/plan/[id]/page.tsx" | grep -cE 'from\("(votes|rsvps|ratings)"\)\.select\("\*"\)')" = 0 ] && echo ok || echo "BLOCK: votes/rsvps/ratings select(*)"
 [ "$(git show "${SHA}:app/plan/[id]/page.tsx" | grep -A2 'from("plans")' | grep -c 'select("\*")')" = 0 ] && echo ok || echo "BLOCK: plans select(*)"
 [ "$(git show "${SHA}:lib/social.ts" | grep -c 'spots(\*)')" = 0 ] && echo ok || echo "BLOCK: spots(*) embed"
@@ -106,11 +107,7 @@ output.
 - `scripts/verify-journey.mjs:514-516` filters plans on `created_by_user_id`
   with a user session → breaks after 051; move it to `count_my_hosted_plans`.
 
-Realtime on plans after 051 is **source-verified, not run**: realtime
-v2.129.3 `apply_rls.sql` strips columns per subscriber via
-`has_column_privilege` (record and old_record), and
-`subscription_check_filters.sql` refuses a filter on an unselectable column.
-Confirm with one member-subscribes/host-patches check once a stack is up.
+Realtime column stripping after 049/051 is proven with a real subscriber; see §4.
 
 ## 3. If a step goes wrong
 
@@ -147,8 +144,27 @@ community custom spot, a visit, a hand-written friendship pair).
 - The two-deploy order (client change before each grant) also passes (112/112);
   the single-deploy order above passes 32/32.
 
+**Realtime, proven with a real subscriber** (realtime v2.129.3 on the same
+rehearsal DB, a plan member subscribed to `plans` and `votes`): after 049+051,
+UPDATE/INSERT/DELETE payloads carry no `created_by_user_id` or `user_id` in
+`record` or `old_record`, while the change itself (`booked`,
+`participant_token_hash`) still arrives. **Negative control:** with the stopgap
+undo applied, both columns DO appear, so the check can fail. A subscription
+filtering on `created_by_user_id` is refused, while the same client and token
+subscribe fine with an `id` filter. 21/21.
+
+**Client code, proven against T2's real commits:** the step-4 gate reports
+zero BLOCKs on `7f58c30` (and blocks on every earlier commit). T2's exact
+custom-spot insert (writes `created_by_user_id`, selects
+`id,name,area,category,visibility`) returns 201 under 051, and the new spot comes
+back through `my_custom_spots`.
+
 **Not proven:** the base is an end-state file, not a replay of live's actual
 history, so live grants or objects could differ in ways the preflight does not
-probe; Realtime column stripping (source-verified only); the client changes
-themselves (simulated as the exact PostgREST calls T2 was given, not T2's
-committed code); 046 (not written yet).
+probe; the deployed build itself (the gate proves the commits, not the
+deployment); 046 (not written yet).
+
+Side note: Realtime drops an INSERT event if the row is deleted before
+Realtime processes it (it checks access against the live row). That's
+pre-existing behaviour, not caused by these migrations; relevant to anything
+measuring rapid vote toggles.
