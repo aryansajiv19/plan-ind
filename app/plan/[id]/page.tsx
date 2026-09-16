@@ -286,16 +286,22 @@ export default function VotePage() {
   useEffect(() => {
     if (!hostToken || hostNameTried || localStorage.getItem(`voter:${id}`)) return;
     let active = true;
-    void getSupabase().auth.getUser().then(({ data: { user } }) => {
+    void (async () => {
+      const { data: { user } } = await getSupabase().auth.getUser();
+      // The account's own name (people.display_name, what Settings edits);
+      // the sign-in provider's name only if the profile can't be read.
+      const { data: me } = user && !user.is_anonymous
+        ? await getSupabase().from("people").select("display_name").eq("id", user.id).maybeSingle()
+        : { data: null };
       if (!active) return;
       const meta = user?.user_metadata?.full_name ?? user?.user_metadata?.name;
-      const name = ((typeof meta === "string" && meta.trim()) || user?.email?.split("@")[0] || "").slice(0, 24);
+      const name = (me?.display_name?.trim() || (typeof meta === "string" && meta.trim()) || user?.email?.split("@")[0] || "").slice(0, 24);
       if (user && !user.is_anonymous && name) {
         localStorage.setItem(`voter:${id}`, name);
         setVoterName(name);
       }
       setHostNameTried(true);
-    });
+    })();
     return () => { active = false; };
   }, [id, hostToken, hostNameTried]);
 

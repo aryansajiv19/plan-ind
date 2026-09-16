@@ -43,6 +43,15 @@ export default async function HomePage({
   });
   const person = typeof personId === "string" ? personId : null;
 
+  // The name this account shows as is people.display_name -- what Settings
+  // edits and friends see. The sign-in provider's name only seeds a new
+  // profile; greeting from it made a saved rename appear not to stick. A
+  // failed read falls back to it rather than showing nothing.
+  const { data: me } = person
+    ? await supabase.from("people").select("display_name").eq("id", person).maybeSingle()
+    : { data: null };
+  const displayName = me?.display_name?.trim() || fallbackName;
+
   // Fetched here rather than in the client: the account screens then render
   // with their data already present, instead of flashing an empty log that
   // fills in a moment later. All three run under this user's RLS.
@@ -78,7 +87,7 @@ export default async function HomePage({
     <>
       <AuthProfileBridge fallbackName={fallbackName} />
       <HomeExperience
-        name={fallbackName}
+        name={displayName}
         age={age}
         initialView={initialView}
         personId={person}
