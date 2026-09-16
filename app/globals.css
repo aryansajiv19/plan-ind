@@ -2268,6 +2268,7 @@ h3 {
 }
 
 .vote-plan-constraints { margin-top: 0.35rem; color: var(--color-muted); font-size: max(0.68rem, var(--type-floor)); }
+.vote-reopened { margin-top: 0.5rem; color: var(--color-ink); font-size: max(0.85rem, var(--type-floor)); font-weight: 600; }
 
 /* Round progress. Dots rather than a segmented bar: three rounds is a short
    journey and the shape of it should be readable in one glance. They stay

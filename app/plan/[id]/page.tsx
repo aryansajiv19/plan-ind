@@ -221,7 +221,7 @@ export default function VotePage() {
     (async () => {
       const { data: planRow, error: planErr } = await getSupabase()
         .from("plans")
-        .select("id,title,category,area,deadline,status,stage,pool_count,budget_per_person,origin_label,origin_latitude,origin_longitude,radius_km,smart_brief,vibe_preferences,avoid_preferences,intelligence_model,winner_spot_id,event_time,booking_owner,booked,created_at")
+        .select("id,title,category,area,deadline,status,stage,pool_count,budget_per_person,origin_label,origin_latitude,origin_longitude,radius_km,smart_brief,vibe_preferences,avoid_preferences,intelligence_model,winner_spot_id,event_time,booking_owner,booked,created_at,reopened_at")
         .eq("id", id)
         .maybeSingle();
       if (!active) return;
@@ -601,7 +601,7 @@ export default function VotePage() {
       });
       const payload = await response.json().catch(() => ({})) as { result?: string; deadline?: string | null };
       if (payload.result === "reopened") {
-        setPlan((current) => current && { ...current, status: "open", stage: "final", winner_spot_id: null, deadline: payload.deadline ?? null });
+        setPlan((current) => current && { ...current, status: "open", stage: "final", winner_spot_id: null, deadline: payload.deadline ?? null, reopened_at: new Date().toISOString() });
         setNotice(null);
         return;
       }
@@ -1138,6 +1138,11 @@ export default function VotePage() {
                 {plan!.budget_per_person != null ? `Up to AED ${plan!.budget_per_person} per person` : "Any budget"}
                 {plan!.radius_km != null ? ` · within ${plan!.radius_km} km of ${plan!.origin_label ?? "the starting point"}` : ""}
               </p>
+            )}
+            {/* reopened_at is set only by reopen_plan (057); a re-decide flips
+                status, so this stops showing without clearing it. */}
+            {plan!.status === "open" && plan!.reopened_at && (
+              <p className="vote-reopened">This plan was reopened. Check your RSVP once a new place is picked.</p>
             )}
             {!decided && (
               <p className="vote-round-label">
