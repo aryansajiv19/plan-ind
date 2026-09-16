@@ -49,7 +49,9 @@ test("a guest can open a shared plan and cast a vote", async ({ page }) => {
     await page.getByRole("button", { name: "Start voting" }).click();
   }
 
-  const votersLabel = page.getByText(/\d+ (?:person|people) voting/);
+  // The header's "N people voting" was removed in 82145e0; the count now
+  // comes from the voted card's own "N yes" (0 -> 1 on this run's plan).
+  const votersLabel = page.locator(".vote-options-grid button.token").first();
   await expect(votersLabel).toBeVisible({ timeout: 15_000 });
   const votersBefore = await readVoterCount(votersLabel);
 
@@ -94,6 +96,6 @@ test("a guest can open a shared plan and cast a vote", async ({ page }) => {
 });
 
 async function readVoterCount(locator: import("@playwright/test").Locator): Promise<number> {
-  const text = await locator.textContent();
-  return Number(text?.match(/(\d+)\s+(?:person|people)/)?.[1] ?? NaN);
+  const text = await locator.innerText();
+  return Number(text.match(/(\d+)\s*yes/)?.[1] ?? NaN);
 }

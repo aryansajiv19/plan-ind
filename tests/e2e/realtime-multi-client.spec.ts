@@ -27,12 +27,18 @@ async function joinPlanAsGuest(page: Page, name: string): Promise<void> {
     await nameInput.fill(name);
     await page.getByRole("button", { name: "Start voting" }).click();
   }
-  await expect(page.getByText(/\d+ (?:person|people) voting/)).toBeVisible({ timeout: 20_000 });
+  // The "N people voting" line was removed from the header (82145e0), which
+  // left this waiting on text that no longer renders. "Hey <name>" is the
+  // header's own proof the guest is on the vote screen.
+  await expect(page.getByText(/^Hey /)).toBeVisible({ timeout: 20_000 });
 }
 
+// Read from the first card's "N yes" (the card A votes on) since the header
+// count was removed in 82145e0. Same signal on this fixture plan: 0 -> 1 on
+// A's vote, back to 0 on the withdrawal.
 const voterCount = async (page: Page): Promise<number> => {
-  const text = await page.getByText(/\d+ (?:person|people) voting/).textContent();
-  return Number(text?.match(/(\d+)\s+(?:person|people)/)?.[1] ?? NaN);
+  const text = await page.locator(".vote-options-grid button.token").first().innerText();
+  return Number(text.match(/(\d+)\s*yes/)?.[1] ?? NaN);
 };
 
 test("a second client sees the first client's vote without reloading", async ({ browser }) => {
