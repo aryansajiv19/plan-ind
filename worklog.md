@@ -1800,3 +1800,31 @@ wins. The rating race is the accepted class (closed by 053).
 Deadline readers checked for NULL: `closesLabel` → "Open", the host auto-decide
 effect returns early, `edit_plan`'s comparison is null-safe, the create form
 always sets one, no share copy uses it.
+
+---
+
+## 2026-09-17 — T1: runbook "Next" rehearsed once from live state (82/82); plan creation accepts invisible titles (live)
+
+APPLY_RUNBOOK.md now has preflight rows for 052/054–057, a "Next" table
+(N1–N8: 052 → 054 → 055 → 056 → 057 → deploy → 049 → 051) with pasteable verify
+lines, and §4b recording the rehearsal. Proven: all five are additive for the
+current client (its reads still work with them applied) and prerequisites for
+the new one. The old sign-up path (`p_emoji: "?"`) yields JSON `null` and no client
+renders `people.emoji`.
+
+Two harness traps this round, both caught before trusting a result:
+- `check054` counted ALL people ("15") when run after other suites. Scoped to its
+  own ids.
+- My first creation probe "showed nothing" because both calls failed input
+  validation (wrong field; not enough spots) before reaching the title check.
+  A positive control (a normal title must succeed) exposed it; the valid probe
+  then confirmed the gap.
+
+**055 fixed in place (7e618e7):** `edit_plan` refused `''` but saved an
+invisible-only title (T2 found U+200B). It now also requires the title to be
+non-empty under `clean_display_name` (the same invisible set, ZWJ/ZWNJ inside
+words kept). T2 verified end to end.
+
+**OPEN, LIVE, pre-existing:** `create_direct_plan` and `create_secure_plan`
+accept invisible-only titles (stored U+200B and U+200B+ZWJ). Not patched: needs
+its own reviewed migration and an owner go.

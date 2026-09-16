@@ -16,7 +16,7 @@ at the top of its own migration file too.
 | 048 | 2026-09-16 19:24:48Z | owner | step 2 verify `t`; live PostgREST direct insert → `42501 permission denied`; anon invite RPC refused; `friend_invites` RLS on, 0 policies; delete policy still 028 form; 0 friendship rows |
 | 050 | 2026-09-16 19:25:37Z | owner | step 3 verify `t`; anon cannot execute new RPCs; `execute_plan_command` return drops uid; signed-out curated spots + categories reads 200 with data; all 11 read policies on plans/plan_spots/votes/rsvps/ratings/spots byte-identical to pre-apply |
 | 049, 051 | **NOT applied** | not approved | wait for the Vercel deploy + step 4 gate |
-| 052 | **NOT applied** (staged) | not yet asked | pre-apply: `select count(*) from public.people where display_name ~ '[[:cntrl:]]' or display_name ~ ('['||chr(8206)||chr(8207)||chr(8234)||'-'||chr(8238)||chr(8294)||'-'||chr(8297)||']');` must be `0` (the new CHECK scans existing rows); independent of 049/051 |
+| 052, 054, 055, 056, 057 | **NOT applied** (staged) | not yet asked | order and gates in §1 "Next"; 053 is not written yet |
 
 Preflight immediately before the first apply matched the rehearsal exactly
 (same rows, same 7 checksums).
@@ -45,7 +45,12 @@ select m, ok from (values
   ('048 insert policy gone',  not exists(select 1 from pg_policies where tablename='friendships' and policyname='add own friendships')),
   ('049 votes.user_id hidden',not has_column_privilege('authenticated','public.votes','user_id','select')),
   ('050 owner RPCs',          to_regproc('public.my_custom_spots') is not null),
-  ('051 creator uid hidden',  not has_column_privilege('authenticated','public.spots','created_by_user_id','select'))
+  ('051 creator uid hidden',  not has_column_privilege('authenticated','public.spots','created_by_user_id','select')),
+  ('052 names + emoji null',  to_regproc('public.clean_display_name') is not null and exists(select 1 from information_schema.columns where table_schema='public' and table_name='people' and column_name='emoji' and is_nullable='YES')),
+  ('054 invite trust signal', coalesce((select prosrc like '%shared_plans%' from pg_proc where proname='preview_friend_invite'), false)),
+  ('055 edit_plan',           to_regproc('public.edit_plan') is not null),
+  ('056 leave_plan',          to_regproc('public.leave_plan') is not null),
+  ('057 reopen_plan',         to_regproc('public.reopen_plan') is not null)
 ) t(m, ok);
 ```
 
@@ -76,7 +81,10 @@ v16.1 built at the live-through-045 state, with an old client (today's
 `select("*")` and `.eq("created_by_user_id")` reads) and the new client (T2's
 changes) run after every step. See §4.
 
-Order: **028 → 047 → 048 → 050 → deploy → 049 → 051.** Apply each file whole, one at a time. Never run `schema.sql` against live: it
+Steps 0–3 below are **applied to live** (see "Applied to live"). What remains is
+the **Next** table after them.
+
+Original order: **028 → 047 → 048 → 050 → deploy → 049 → 051.** Apply each file whole, one at a time. Never run `schema.sql` against live: it
 DROPs every table. **One client deploy**, in the middle:
 
 | Step | Do | Precondition | Verify (paste as-is) |
@@ -89,6 +97,25 @@ DROPs every table. **One client deploy**, in the middle:
 | 5 | apply `migration-049-hide-voter-user-id.sql` | ⚠ **step 4 deployed and checked**. Otherwise the plan page's votes/RSVPs/ratings reads are refused. | `select not has_column_privilege('authenticated','public.votes','user_id','select') and has_column_privilege('authenticated','public.votes','participant_token_hash','select');` → `t`; then cast a vote on the live site |
 | 6 | apply `migration-051-hide-creator-user-id.sql` | ⚠ **step 4 deployed and checked** | `select not has_column_privilege('authenticated','public.spots','created_by_user_id','select') and not has_column_privilege('authenticated','public.plans','created_by_user_id','select') and has_column_privilege('anon','public.spots','name','select');` → `t`; then `GET /api/health` → 200, and re-check the three pages from step 4 |
 | — | photos: `migration-046-*` — **not on tonight's path** | written only after the owner approves the contact sheet; must be **additive** to the 6 photos 039 already made live, and applied only after its files are in `spot-photos` | every new `photo_url` returns 200 |
+
+### Next: 052 → 054 → 055 → 056 → 057 → deploy → 049 → 051
+
+052 and 054–057 are **additive for the currently deployed client** (rehearsed,
+§4b) and are the **prerequisites of the new client**, which calls their
+functions. So they go BEFORE the deploy; 049/051 stay AFTER it.
+
+| Step | Do | Precondition | Verify (paste as-is) |
+|---|---|---|---|
+| N1 | apply `migration-052-been-edits-and-unrate.sql` | preflight: 028/047/048/050 `t`, 052–057 `f` | `select to_regproc('public.clean_display_name') is not null and to_regproc('public.unrate_plan') is not null and exists(select 1 from pg_policies where tablename='visits' and policyname='edit own visits') and exists(select 1 from pg_constraint where conname='people_display_name_safe') and not has_column_privilege('authenticated','public.visits','spot_id','update');` → `t` |
+| N2 | apply `migration-054-invite-trust-and-cap-lock.sql` | N1 | `select (select prosrc like '%shared_plans%' from pg_proc where proname='preview_friend_invite') and (select prosrc like '%pg_advisory_xact_lock%' from pg_proc where proname='create_friend_invite') and not has_function_privilege('anon','public.create_friend_invite()','execute');` → `t` |
+| N3 | apply `migration-055-edit-plan.sql` | N2 | `select to_regproc('public.edit_plan') is not null and not has_function_privilege('anon','public.edit_plan(uuid,text,text,timestamptz)','execute');` → `t` |
+| N4 | apply `migration-056-leave-plan.sql` | N3 | `select to_regproc('public.leave_plan') is not null and not has_function_privilege('anon','public.leave_plan(uuid)','execute');` → `t` |
+| N5 | apply `migration-057-reopen-plan.sql` | N4 | `select to_regproc('public.reopen_plan') is not null and not has_function_privilege('anon','public.reopen_plan(uuid,text,timestamptz)','execute');` → `t` |
+| N6 | **deploy the client** with all of T2's changes | ⚠ N1–N5 applied: the new client calls `unrate_plan`, `edit_plan`, `leave_plan`, `reopen_plan`, `shared_plans` and the NULL-emoji path; deployed first, those features 404 | run the **step 4 gate** below on the deployed sha |
+| N7 | apply `migration-049-hide-voter-user-id.sql` | ⚠ N6 deployed and checked | step 5's verify line above |
+| N8 | apply `migration-051-hide-creator-user-id.sql` | ⚠ N6 deployed and checked | step 6's verify line above |
+
+Finish with the §0 preflight: every row `t` except 027 (deferred).
 
 **Step 4 gate.** Run in the repo, with `SHA` set to the deployed commit. Every
 line must print `ok`; any `BLOCK` means do not apply 049/051:
@@ -189,3 +216,35 @@ every commit before `7f58c30` and passes on it (zsh and bash).
 **Not proven:** anything outside the `public` schema's objects and grants
 (`storage`, `auth`, `realtime` config on live); the deployed build itself (the
 gate proves commits, not deployment); 046 (not written).
+
+## 4b. Rehearsal of "Next" (052 → 054 → 055 → 056 → 057 → deploy → 049 → 051)
+
+2026-09-17, ONE rehearsal from live's current state (rig rebuilt and asserted
+equal to live after the 028/047/048/050 applies by 7 schema checksums), real
+PostgREST v16.1. **82/82.**
+
+- Preflight read live exactly (027 f, 028–050 t, 049/051 f, 052–057 f); final
+  preflight all t except the deferred 027.
+- Each migration's own proof suite ran back to back on the same database, in
+  order: 052 (70), 054 (15), 055 (27), 056 (24, including the reproduced
+  accepted race), 057 (29). All N1–N5 runbook verify lines returned `t`.
+- **Additive claim proven:** with 052–057 applied and nothing deployed, the
+  current client's reads all still work (votes/plans `select *`, saved places
+  and Wrapped by `created_by_user_id`, visit `spots(*)` embed, profile read).
+  The new client works too.
+- **Old sign-up path after 052** (AuthProfileBridge sends `p_emoji: "?"`): the
+  call succeeds, and the profile read returns `emoji` as JSON `null` (not the
+  string "null", not "?"). No current client code renders `people.emoji`
+  (avatars derive from the name), so nothing displays a literal null.
+- After the simulated deploy, 049 + 051: the new client works; the old client's
+  four affected reads are refused (the constraint is real); the profile read
+  still works.
+- 056's suite installs a throwaway lock-first trigger variant for its race test.
+  The runner restored the real `enforce_plan_membership` straight after it and
+  checked it is not security definer. **Never apply that variant.**
+
+**Finding, NOT on this path (live, pre-existing):** `create_direct_plan` and
+`create_secure_plan` accept an invisible-only plan title. Probed on the
+live-identical rig with a valid positive control: titles of U+200B and U+200B+ZWJ
+were stored (hex `e2808b`, `e2808be2808d`). 055's `edit_plan` refuses them; the
+creation functions need their own reviewed migration and an owner go.
