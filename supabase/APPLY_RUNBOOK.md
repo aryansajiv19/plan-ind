@@ -16,6 +16,7 @@ at the top of its own migration file too.
 | 048 | 2026-09-16 19:24:48Z | owner | step 2 verify `t`; live PostgREST direct insert → `42501 permission denied`; anon invite RPC refused; `friend_invites` RLS on, 0 policies; delete policy still 028 form; 0 friendship rows |
 | 050 | 2026-09-16 19:25:37Z | owner | step 3 verify `t`; anon cannot execute new RPCs; `execute_plan_command` return drops uid; signed-out curated spots + categories reads 200 with data; all 11 read policies on plans/plan_spots/votes/rsvps/ratings/spots byte-identical to pre-apply |
 | 049, 051 | **NOT applied** | not approved | wait for the Vercel deploy + step 4 gate |
+| 052 | **NOT applied** (staged) | not yet asked | pre-apply: `select count(*) from public.people where display_name ~ '[[:cntrl:]]' or display_name ~ ('['||chr(8206)||chr(8207)||chr(8234)||'-'||chr(8238)||chr(8294)||'-'||chr(8297)||']');` must be `0` (the new CHECK scans existing rows); independent of 049/051 |
 
 Preflight immediately before the first apply matched the rehearsal exactly
 (same rows, same 7 checksums).

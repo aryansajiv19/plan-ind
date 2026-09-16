@@ -1598,3 +1598,57 @@ hand-edits, sent verbatim from the committed files:
 No PGRST202 surprises. **049 and 051 NOT applied**: they wait for the Vercel
 deploy and the step 4 gate. The `advance plan_spots` stray was left alone as
 instructed. Ledger table corrected: 027 not live, 028 now live, 039 live.
+
+---
+
+## 2026-09-16 — T1: C2 confirmed, C8 migration 052 STAGED; OPEN HOLE → migration 053
+
+**C2 (settings: name/emoji) needs no backend.** Live: authenticated has UPDATE
+on `people.display_name`/`emoji`; policy "update own permanent profile";
+`people_before_write` pins `id`/`auth_user_id`; constraints bound lengths. The
+client must use `.update(...).eq("id", uid).select("id").single()`: an RLS
+refusal updates 0 rows with NO error.
+
+**052 (staged, not applied):**
+- `people_display_name_safe`: same control/bidi guard as emoji, because names
+  reach strangers through `preview_friend_invite`.
+- **"edit own visits" UPDATE policy + column-scoped UPDATE** (`visited_at`,
+  `group_label`, `note`). **Edit-visit is silently broken on live today**: no
+  UPDATE policy, so an edit returns 200 with 0 rows.
+- `unrate_plan(p_plan_id)`: matches `user_id = auth.uid()` ONLY.
+Security review: no C/H/M; L1 adopted (`people_before_write` now sanitises names
+with `clean_app_text`, so a direct rename strips unsafe chars like sign-up does,
+and the CHECK still refuses them if triggers are bypassed); L2 = runbook
+pre-apply count (live: 0 people); L3 accepted (unrating frees your voter_name).
+Verified 30/30 through real PostgREST on a rig proven equal to live after the
+028/047/048/050 applies (7 checksums), with negative controls for the edit
+no-op and RTL-name acceptance before 052. logVisit's delete-then-insert path
+and its 23505 retry still work.
+
+No SQL for delete-collection (already allowed) or delete-photo/delete-visit
+(owner delete policies exist). Their correctness is the client's file-first
+ordering: Storage API remove BEFORE the row, stop on any file error, retry
+converges. Contract to T2/T3.
+
+**Retention bug for T2:** `logVisit`'s `clearPlanConflict` deletes a previous
+visit to re-log it, which cascades `visit_photos` rows and orphans their
+storage files. It needs the same file-first step.
+
+### ⚠ OPEN, BOUNDED, KNOWN HOLE: legacy participant rows can be claimed by hash (→ migration 053)
+
+`rate_plan`, `cast_plan_vote` and `set_plan_rsvp` guard against touching a row
+owned by someone else only when that row's `user_id` is NOT null. Rows written
+before 043 have `user_id` null, and `participant_token_hash` is readable by
+plan co-members (also after 049). So a co-member can present a legacy row's
+hash and overwrite or claim it.
+- **Counted live 2026-09-16: 3 ratings, 25 votes, 17 RSVPs with `user_id` null**,
+  all on the 6 pre-existing plans. Live has 0 permanent accounts.
+- **Why bounded:** every new row carries `user_id` and the existing guard
+  protects it; the exposure is limited to those 45 legacy rows.
+- **Not fixed in this wave** (T0, 2026-09-16): the fix rewrites the three core
+  voting RPCs while T2 is re-walking that loop.
+- **Must fix before public launch.** Options: (1) migration 053, where the
+  three RPCs refuse to touch a row whose `user_id` is null, with its own rig
+  rehearsal and a round-trip proving new rows still vote/RSVP/rate; or (2)
+  **owner's call, a live data write:** if the 6 old plans are confirmed test
+  data, delete their 45 legacy rows, which closes it with no function changes.
