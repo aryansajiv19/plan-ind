@@ -278,6 +278,27 @@ export default function VotePage() {
     if (saved) setVoterName(saved);
   }, [id]);
 
+  // The host just created this plan while signed in, so asking "who's
+  // voting?" is a form at the exact moment they want to share the link.
+  // Use the account's name instead — the same fallback /home greets them
+  // with. Guests, and hosts without an account session, still see the gate.
+  const [hostNameTried, setHostNameTried] = useState(false);
+  useEffect(() => {
+    if (!hostToken || hostNameTried || localStorage.getItem(`voter:${id}`)) return;
+    let active = true;
+    void getSupabase().auth.getUser().then(({ data: { user } }) => {
+      if (!active) return;
+      const meta = user?.user_metadata?.full_name ?? user?.user_metadata?.name;
+      const name = ((typeof meta === "string" && meta.trim()) || user?.email?.split("@")[0] || "").slice(0, 24);
+      if (user && !user.is_anonymous && name) {
+        localStorage.setItem(`voter:${id}`, name);
+        setVoterName(name);
+      }
+      setHostNameTried(true);
+    });
+    return () => { active = false; };
+  }, [id, hostToken, hostNameTried]);
+
   // ── Realtime: live votes + live "decided" for everyone ───────────
   //
   // ⚠ Realtime does NOT apply the filter to DELETE events: every subscriber
@@ -818,6 +839,10 @@ export default function VotePage() {
     );
   }
 
+  // Hold the gate while a signed-in host's name resolves, so it doesn't flash.
+  if (!voterName && hostToken && !hostNameTried) {
+    return <VoteState kind="loading" planTitle={plan?.title} />;
+  }
   if (!voterName) {
     return (
       <main className={"vote-experience mx-auto grid min-h-dvh max-w-md place-items-center px-5"}>
