@@ -2828,7 +2828,7 @@ begin
 
   if p_title is not null then
     new_title := clean_app_text(p_title, 60);
-    if new_title = '' then
+    if new_title = '' or clean_display_name(new_title) = '' then
       return jsonb_build_object('result', 'invalid_title');
     end if;
   end if;
