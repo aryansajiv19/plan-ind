@@ -120,3 +120,40 @@ dead, do not build on it"), several `lib/social.ts` exports with no UI callers,
 `components/DemoPlanningTools.tsx` + `lib/planning.ts` (localStorage demo
 features with no backing tables). **None of these are cleared for deletion** —
 the social ones are pending features, not corpses. Verify before touching.
+
+### 2026-09-16 — pass 3 (T0)
+
+Ran on re-org day, on the theory that the cheapest context win is the file
+every session is *required* to read.
+
+- **`AGENT_COORDINATION.md` 780 → 268 lines (−66%).** It auto-loads at startup
+  for every lane, so its length was being paid four times per wave. Most of the
+  bulk was nine superseded palette rounds, three closed re-orgs and a
+  cross-lane list where the majority of entries were already `DONE`. Rewritten
+  as current state only; the reasoning it carried lives in `worklog.md`.
+- **`PRIORITIES.md` 259 → 179 lines.** Dropped the 2026-08-28 Wave 0/1/2 tables
+  (all long since done or superseded) and the blocker table whose three entries
+  were each stale: B1 resolved, B2 resolved, B3 *never* what it claimed (free-tier
+  rate limit, not exhausted credits). Backlog sections kept and labelled as
+  backlog, so they stop reading as active queue.
+- **`worklog.md` 2,247 → 1,189 lines (−47%).** Past the 600-line trigger again.
+  Archived 2026-09-05 → 2026-09-06 (the 035-041 apply cycle, the scale and
+  silent-truncation findings, the 69-commit session) into `worklog-archive.md`,
+  now 1,942. 2026-09-07 stays live — it is the day still being chased for "why".
+  Header date corrected; it still said 2026-09-04.
+- **Dead-code audit run, deletions routed not applied.** ~452 verified lines
+  (344 CSS = 8.5% of `globals.css`, 108 component, 6 `lib/`) handed to T2 as a
+  cross-lane request, since every file is its turf. T0 deleting them directly
+  would be exactly the boundary violation this file's rule 3 exists to prevent.
+
+**Two false positives caught inside the audit itself, worth recording** because
+they are the same shape as the repo's dominant bug: a naive class-diff reported
+`.vote-option*`/`.vote-shell` as dead (they are built in multi-class template
+literals), and a broken orphan grep reported 20 components as unimported (all
+20 are imported). **An instrument that returns "no references" cannot tell
+"genuinely unreferenced" from "my query missed".** Same lesson as the Realtime
+probe. Every verdict above was re-confirmed by hand before being written down.
+
+**Stale memory corrected in the same pass:** the project memory claiming the
+Dubai skyline "shipped and the phase machinery is reusable" is 43 days old and
+now wrong — `components/SkylineBackdrop.tsx` is gone. Updated rather than acted on.

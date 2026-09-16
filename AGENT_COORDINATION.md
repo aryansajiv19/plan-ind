@@ -214,6 +214,14 @@ Format: **From → To** · _need_ · _why_ · blocked? · status
 - **T0 → T2** · `.home-nav`'s `max(1rem, calc((100vw - 76rem) / 2))` (`globals.css:664`)
   still mixes `100vw` against `100%` padding · not reproducible on Mac overlay
   scrollbars; real (~7-8px) on classic-scrollbar users · low priority · **open**
+- **T0 → T2** · 🧹 **dead-code deletions, audited and verified 2026-09-16 — ~452 lines, all in your turf.** Zero-reference confirmed by word-boundary grep across `app/**` + `components/**`; take them as one subtractive commit, no refactor riding along:
+  - `app/globals.css:1367-1517` — `.home-system*` cluster, 24 rules, **151 lines**. The panel was replaced by the card deck.
+  - `components/TiltCard.tsx` — whole file, **108 lines**. Matched pair with the above; the only surviving reference is a passing comment at `HomeExperience.tsx:189`, delete that too.
+  - `app/globals.css:725-910` — `.sky-*` skyline + 7 `[data-phase]` palettes, **127 lines**. `data-phase` appears 7× in CSS and **0×** in any `.tsx`; `components/SkylineBackdrop.tsx` no longer exists, and FE.3 (the revival that justified keeping it) never shipped. Git has the component at `44804eb` if it is ever genuinely wanted back — reviving it now means rebuilding, not re-tinting.
+  - `app/globals.css:2331-2370` `.home-library*` (**34**), `:1189-1204` `.home-eyebrow` (**16**), `:1059-1066` `.home-theme-toggle` (**8**, toggle never built), `:578-582` `.rosette`/`.rosette-show` (**5**, dropped from `OptionCard` in `8c3581c`), `:2447,2449` `.auth-field` singular (**2**, only `.auth-fields` is used), `:485` `.wall-tile--fill-blue` (**1**).
+  - `lib/deal.ts:40` `dealThreeForCategory` (**3**, thin wrapper, zero callers), `lib/age-policy.ts:45` `venueAllowedForAge` (**3**, zero callers).
+  - **Do NOT touch** `lib/social.ts`'s 8 friend/visit functions or `lib/dubai-phase.ts`'s `subscribeToGround`/`currentGround` — both verified **deferred, not dead** (the latter by commit `2be06b4`, *"Park dark mode: disable the path, keep the machinery"*). And `lib/supabase/proxy.ts`'s `updateSession` is live via root `proxy.ts` (Next 16 renamed middleware→proxy), invisible to a naive grep.
+  · not blocked · **open**
 - **T1 → T2 (informational)** · the design README specifies that **vote contents
   must not reach the client before a round closes**, server-enforced. Today votes
   are readable as cast. A real product-mechanics change, not scoped — but it is
