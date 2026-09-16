@@ -2866,6 +2866,7 @@ as $$
 declare
   uid uuid := auth.uid();
   target plans%rowtype;
+  leaver_name text;
 begin
   if uid is null then
     raise exception 'Sign in required' using errcode = '42501';
@@ -2880,6 +2881,11 @@ begin
   end if;
   if not exists (select 1 from plan_access where plan_id = p_plan_id and user_id = uid) then
     return jsonb_build_object('result', 'not_member');
+  end if;
+
+  select voter_name into leaver_name from rsvps where plan_id = p_plan_id and user_id = uid;
+  if leaver_name is not null and target.booking_owner = leaver_name and target.booked is not true then
+    update plans set booking_owner = null where id = p_plan_id;
   end if;
 
   if target.status = 'open' then

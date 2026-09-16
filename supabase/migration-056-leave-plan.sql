@@ -17,6 +17,18 @@
 -- Rejoining with the same link is allowed (claim_plan_access) and starts
 -- fresh. Leaving is not a ban.
 --
+-- Booking: if the leaver's RSVP name is the plan's booking_owner and nothing is
+-- booked yet (booked is not true), booking_owner is cleared so the plan doesn't
+-- name someone who left. If booked is true the booking exists in the real
+-- world, so booking_owner is kept rather than making the plan claim nobody
+-- holds it. A driver's seats leave the carpool list with their RSVP: correct,
+-- they're not coming.
+-- Accepted (review Low): the match is by name, so a member who RSVPs under an
+-- unbooked booker's name (only possible while that person has no RSVP) and
+-- then leaves clears the name. Visible as a squatted RSVP, host can re-set it,
+-- and it can never touch a booking that exists. Exact match kept on purpose:
+-- loosening it would widen this.
+--
 -- The plans row is locked `for update`, the same lock advance/decide take, so a
 -- leave and a decide on one plan serialise.
 --
@@ -43,6 +55,7 @@ as $$
 declare
   uid uuid := auth.uid();
   target plans%rowtype;
+  leaver_name text;
 begin
   if uid is null then
     raise exception 'Sign in required' using errcode = '42501';
@@ -57,6 +70,11 @@ begin
   end if;
   if not exists (select 1 from plan_access where plan_id = p_plan_id and user_id = uid) then
     return jsonb_build_object('result', 'not_member');
+  end if;
+
+  select voter_name into leaver_name from rsvps where plan_id = p_plan_id and user_id = uid;
+  if leaver_name is not null and target.booking_owner = leaver_name and target.booked is not true then
+    update plans set booking_owner = null where id = p_plan_id;
   end if;
 
   if target.status = 'open' then

@@ -1767,3 +1767,8 @@ Needs a rig check of a concurrent re-cast vs delete_plan/leave_plan.
 
 Open product call: after a leave, `plans.booking_owner` may still name the
 leaver, and a driver's seats vanish from the carpool list.
+- 056 amended before apply (T0): leaving clears `booking_owner` when it matches the
+  leaver's RSVP name AND `booked` is not true; a real booking keeps its owner.
+  Rig 24/24 (unbooked cleared, booked kept, non-owner untouched). Review Low
+  accepted: name-match squat can blank an unbooked booker's name (visible, host
+  can re-set, never touches a booking).
