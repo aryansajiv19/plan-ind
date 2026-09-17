@@ -576,7 +576,9 @@ export default function AccountViews({
         ) : (
           <p className="demo-empty">
             {spots.length === 0
-              ? "The catalogue is empty. Seed some places in Supabase to start planning."
+              // Not "there are no places": an empty read and a failed one look
+              // identical here, so the copy says what the visitor can do next.
+              ? "No places to show right now. Add one with its link above, or try again in a moment."
               : "No places match that search."}
           </p>
         )}
