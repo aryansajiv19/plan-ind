@@ -110,11 +110,13 @@ create table spots (
   booking_url text,
   source      text not null default 'curated' check (source in ('curated', 'custom')),
   visibility  text not null default 'community' check (visibility in ('private', 'friends', 'community')),
-  created_by_user_id uuid references auth.users(id) on delete cascade,
+  created_by_user_id uuid references auth.users(id) on delete set null, -- 060
   address     text,
   latitude    double precision,
   longitude   double precision,
-  constraint spots_custom_owner_check check (source = 'curated' or created_by_user_id is not null)
+  -- 060: a custom spot needs an owner on INSERT (trigger below), not
+  -- forever: created_by_user_id goes null when the owner deletes their account
+  -- and someone else's plan or visit still points at the spot.
   -- 038: a source that requires crediting must carry its credit, enforced
   -- here so an un-credited CC image cannot be inserted at all rather than
   -- relying on the backfill script to remember. Venue sites are exempt: it
@@ -3077,4 +3079,150 @@ $$;
 
 revoke all on function correct_birth_date(date) from public, anon, authenticated;
 grant execute on function correct_birth_date(date) to authenticated;
+
+-- 060: delete my account (C3) -- ownerless custom spots, own-files storage
+-- policy, and delete_my_account(). See migration-060 for the full rules.
+
+create or replace function spots_require_owner_on_insert()
+returns trigger
+language plpgsql
+set search_path = pg_catalog
+as $$
+begin
+  if new.source <> 'curated' and new.created_by_user_id is null then
+    raise exception 'A custom spot needs an owner' using errcode = '23514';
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists spots_require_owner on spots;
+create trigger spots_require_owner before insert on spots
+  for each row execute function spots_require_owner_on_insert();
+
+-- 2. storage: a user can already delete their own files (policy from 010), but
+-- could only SELECT the ones with a visit_photos row. An upload that failed
+-- half way is invisible to its owner and so undeletable by them, and the
+-- Storage API's delete returns 200 [] for it. Own files are now listable.
+drop policy if exists "read own visit photo files" on storage.objects;
+create policy "read own visit photo files" on storage.objects for select to authenticated
+  using (bucket_id = 'visit-photos' and owner_id = (select auth.uid())::text);
+
+-- 3. the RPC.
+create or replace function delete_my_account()
+returns jsonb
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+as $$
+declare
+  uid uuid := auth.uid();
+  left_over integer;
+  own_names text[];
+  plans_deleted integer := 0;
+  plans_kept integer := 0;
+  votes_kept integer := 0;
+  spots_deleted integer := 0;
+  spots_orphaned integer := 0;
+begin
+  if uid is null then
+    raise exception 'Sign in required' using errcode = '42501';
+  end if;
+
+  -- The route has already emptied the bucket folder and confirmed by listing.
+  -- This is the server-side proof of that, before anything is deleted.
+  select count(*) into left_over from storage.objects
+  where bucket_id = 'visit-photos' and owner_id = uid::text;
+  if left_over > 0 then
+    return jsonb_build_object('result', 'storage_remaining', 'files', left_over);
+  end if;
+
+  select coalesce(array_agg(distinct voter_name), '{}') into own_names
+  from rsvps where user_id = uid;
+
+  -- Hosted plans. Locked in id order: the same order delete_plan and
+  -- advance/decide take one at a time, so this cannot deadlock against them.
+  perform 1 from plans where created_by_user_id = uid order by id for update;
+
+  with doomed as (
+    select p.id from plans p
+    where p.created_by_user_id = uid
+      and (p.status = 'open'
+           or not exists (select 1 from plan_access a
+                          where a.plan_id = p.id and a.user_id <> uid))
+  ), gone as (
+    delete from plans where id in (select id from doomed) returning 1
+  )
+  select count(*) into plans_deleted from gone;
+
+  -- What is left is a decided plan someone else joined: keep it, but make sure
+  -- no host command can ever run on it again.
+  delete from plan_host_tokens t
+  using plans p where p.id = t.plan_id and p.created_by_user_id = uid;
+  select count(*) into plans_kept from plans where created_by_user_id = uid;
+
+  delete from votes v using plans p
+  where p.id = v.plan_id and v.user_id = uid and p.status = 'open';
+
+  with anon_votes as (
+    update votes set voter_name = 'Former member', participant_token_hash = null, user_id = null
+    where user_id = uid returning 1
+  )
+  select count(*) into votes_kept from anon_votes;
+
+  delete from rsvps where user_id = uid;
+  delete from ratings where user_id = uid;
+
+  if array_length(own_names, 1) > 0 then
+    update plans p set booking_owner = 'Former member'
+    where p.booking_owner = any(own_names)
+      and exists (select 1 from plan_access a where a.plan_id = p.id and a.user_id = uid);
+  end if;
+
+  -- The profile carries the personal layer: visits and their photos rows,
+  -- collections, moodboards, place lists and imports, friendships both ways,
+  -- invites sent, and this profile's companion tags on other people's visits.
+  delete from people where auth_user_id = uid;
+
+  -- Custom spots nothing else points at go with the account; the rest are kept
+  -- as ownerless community data by the FK above.
+  with mine as (
+    select s.id from spots s
+    where s.created_by_user_id = uid and s.source <> 'curated'
+      and not exists (select 1 from plan_spots x where x.spot_id = s.id)
+      and not exists (select 1 from votes x where x.spot_id = s.id)
+      and not exists (select 1 from ratings x where x.spot_id = s.id)
+      and not exists (select 1 from visits x where x.spot_id = s.id)
+      and not exists (select 1 from plans x where x.winner_spot_id = s.id)
+      and not exists (select 1 from place_collection_items x where x.spot_id = s.id)
+      and not exists (select 1 from place_imports x where x.resolved_spot_id = s.id)
+  ), gone as (
+    delete from spots where id in (select id from mine) returning 1
+  )
+  select count(*) into spots_deleted from gone;
+  select count(*) into spots_orphaned from spots where created_by_user_id = uid;
+
+  -- Counts only: no name, no email, no dates. actor_user_id is set null by its
+  -- own FK a moment later, so the row survives the account without pointing at
+  -- a person.
+  insert into security_events (event_type, outcome, actor_user_id, metadata)
+  values ('account_deleted', 'success', uid, jsonb_build_object(
+    'plans_deleted', plans_deleted, 'plans_kept', plans_kept,
+    'votes_anonymised', votes_kept, 'spots_deleted', spots_deleted,
+    'spots_orphaned', spots_orphaned));
+
+  -- Last: the login, and with it member_ages, plan_access, the auth sessions
+  -- and identities. Nothing below this line.
+  delete from auth.users where id = uid;
+
+  return jsonb_build_object(
+    'result', 'deleted',
+    'plans_deleted', plans_deleted, 'plans_kept', plans_kept,
+    'votes_anonymised', votes_kept, 'spots_deleted', spots_deleted,
+    'spots_orphaned', spots_orphaned);
+end;
+$$;
+
+revoke all on function delete_my_account() from public, anon, authenticated;
+grant execute on function delete_my_account() to authenticated;
 
