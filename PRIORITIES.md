@@ -8,6 +8,53 @@ whatever is technically loudest.
 
 ---
 
+## Wave — cinematic pass, queued BEHIND the deploy (2026-09-18)
+
+From outside feedback the owner received, filtered against what already exists
+and what the data can support. **Do not start before the link is live.**
+
+**Already built, so not in scope:** avatars flying onto the card on a vote, a
+winner reveal with particles, haptics (7 call sites), the Dubai-clock day/night
+treatment, the plan-locked screen, live presence.
+
+**Deliberately rejected for now — they need usage data the app does not have**
+(0 accounts, 0 visits live): Group Taste profiles, "Your Year Together", a group
+map of visited places, friend-based recommendations, "you went here 11 months
+ago". Right ideas, wrong year: on a demo they render as empty shells, which is
+worse than their absence. Widgets need a native app. Swipe actions are
+mobile-first and this is desktop-first.
+
+| # | Item | Why it earns its place | Size |
+|---|---|---|---|
+| **X1** | **Winner reveal fires without a photo.** Currently gated on `photo_url`, so for 76 of 82 venues the best moment in the product never happens. | Highest value on the list, and it is a condition change | S |
+| **X2** | **Deal reveal sequence** — "Reading the room…" → preference chips → cards one by one, **under 1.5s**. | Turns submitting a form into the most impressive moment, and makes the AI visible | M |
+| **X3** | **"Why this?" chips** — "Everyone likes Asian" · "18 min away" · "Fits AED 150". All three values are already computed and simply not shown. | Makes recommendations look intelligent rather than arbitrary | S |
+| **X4** | **9 → 3 → 1 framing** on the rounds. Mostly copy; the motion exists. | Gives the decision momentum instead of feeling like a form | S |
+| **X5** | **Skeleton cards instead of spinners.** | Cheapest "premium" signal available | S |
+
+**The rule for this wave:** animate only what changed. If the whole screen is
+always moving, no moment feels important — and nine palette rounds already
+proved that polish does not fix sparseness.
+
+## Backlog — "never leave the app" (owner's direction, 2026-09-18)
+
+Owner: planning should be so complete that nobody opens Google or leaves the
+app. Ranked by what is actually missing rather than what sounds good:
+
+1. **Weather for the plan's date and area** — Open-Meteo, free, no key, already
+   verified working. The clearest gap and the cheapest fill.
+2. **"Open right now"** — `spots.open_till` exists but is a static daily closing
+   time. Can be approximated for free against the Dubai clock; a real live-hours
+   source is a paid-API decision.
+3. **In-app directions** — today "Open in Maps" leaves the app, which is exactly
+   what the owner is objecting to. A real in-app map is a genuine build; the RTA
+   transit data behind it is gated to government users, so Maps remains the
+   honest fallback until then.
+4. **Booking inside the app** — currently "who is booking it" is intent only.
+   Real booking means a provider integration; scope before promising it.
+
+---
+
 ## Wave — full control, dispatched 2026-09-17
 
 Owner, 2026-09-16: users must *"find and navigate everything so easily"*, with
