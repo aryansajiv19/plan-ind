@@ -303,13 +303,14 @@ export default function VotePage() {
     if (saved) setVoterName(saved);
   }, [id]);
 
-  // The host just created this plan while signed in, so asking "who's
-  // voting?" is a form at the exact moment they want to share the link.
-  // Use the account's name instead — the same fallback /home greets them
-  // with. Guests, and hosts without an account session, still see the gate.
-  const [hostNameTried, setHostNameTried] = useState(false);
+  // Anyone signed in already told us their name in Settings, so asking "who's
+  // voting?" invites them to answer differently and appear to their friends
+  // under a name their profile doesn't have. Use people.display_name — the
+  // same one /home greets them with. Signed-out guests still see the gate,
+  // which is the whole point of it.
+  const [accountNameTried, setAccountNameTried] = useState(false);
   useEffect(() => {
-    if (!hostToken || hostNameTried || localStorage.getItem(`voter:${id}`)) return;
+    if (accountNameTried || localStorage.getItem(`voter:${id}`)) return;
     let active = true;
     void (async () => {
       const { data: { user } } = await getSupabase().auth.getUser();
@@ -325,10 +326,10 @@ export default function VotePage() {
         localStorage.setItem(`voter:${id}`, name);
         setVoterName(name);
       }
-      setHostNameTried(true);
+      setAccountNameTried(true);
     })();
     return () => { active = false; };
-  }, [id, hostToken, hostNameTried]);
+  }, [id, accountNameTried]);
 
   // ── Realtime: live votes + live "decided" for everyone ───────────
   //
@@ -1047,8 +1048,8 @@ export default function VotePage() {
     );
   }
 
-  // Hold the gate while a signed-in host's name resolves, so it doesn't flash.
-  if (!voterName && hostToken && !hostNameTried) {
+  // Hold the gate while a signed-in account's name resolves, so it doesn't flash.
+  if (!voterName && !accountNameTried) {
     return <VoteState kind="loading" planTitle={plan?.title} />;
   }
   if (!voterName) {

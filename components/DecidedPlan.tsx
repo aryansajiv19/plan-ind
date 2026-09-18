@@ -238,7 +238,7 @@ export default function DecidedPlan({
                     <li key={name} className="vote-seat" data-open={going ? undefined : "1"}>
                       <span aria-hidden="true" style={going ? avatarStyle(name) : undefined}>{initialsOf(name)}</span>
                       <span className="sr-only">
-                        {name}, {r ? (choiceFor(r) === "coming" ? "coming" : choiceFor(r) === "maybe" ? "maybe" : "can’t make it") : "no reply yet"}
+                        {name}, {r ? (choiceFor(r) === "coming" ? "coming" : choiceFor(r) === "maybe" ? "maybe" : "can’t make it") : "no RSVP"}
                       </span>
                     </li>
                   );
