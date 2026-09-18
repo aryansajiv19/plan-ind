@@ -799,6 +799,9 @@ h3 {
 .demo-primary-action:active { transform: translateY(1px) scale(.98); }
 
 .home-nav__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
   font-size: max(0.72rem, var(--type-floor));
   font-weight: 600;
   text-decoration: none;
@@ -1392,6 +1395,7 @@ h3 {
 
 .plan-custom-place__header > button,
 .plan-custom-place__save {
+  position: relative;
   border: 0;
   border-bottom: 1px solid var(--home-metal);
   background: transparent;
@@ -1399,6 +1403,15 @@ h3 {
   font-size: max(0.72rem, var(--type-floor));
   font-weight: 500;
   cursor: pointer;
+}
+/* 19px of text is a small target for a thumb AND for a mouse. The hit area
+   grows through an overlay rather than padding: padding would push the
+   metal underline away from the words it underlines. Nothing moves. */
+.plan-custom-place__header > button::before,
+.plan-custom-place__save::before {
+  content: "";
+  position: absolute;
+  inset: calc((2.75rem - 100%) / -2) 0;
 }
 
 .plan-custom-place__error { margin-top: 0.6rem; color: var(--color-error); font-size: max(0.72rem, var(--type-floor)); }
@@ -2942,7 +2955,7 @@ h3 {
 .demo-reaction-row button, .demo-check { border: 1px solid var(--color-line); background: transparent; color: var(--color-ink); font-size: max(.68rem, var(--type-floor)); font-weight: 650; cursor: pointer; }
 .demo-reaction-row button { padding: .55rem .65rem; }
 .demo-reaction-row button[aria-pressed="true"] { border-color: var(--color-punch-text); background: color-mix(in srgb, var(--home-metal) 12%, transparent); }
-.demo-check { display: flex; align-items: center; gap: .5rem; border: 0; margin: 1rem 0; color: var(--color-muted); }
+.demo-check { display: flex; align-items: center; gap: .5rem; min-height: 2.75rem; border: 0; margin: 1rem 0; color: var(--color-muted); cursor: pointer; }
 .demo-check input { accent-color: var(--home-metal); }
 .demo-moodboard-panel { margin-top: 2.5rem; padding: 1.5rem 0; border-top: 1px solid var(--color-line); border-bottom: 1px solid var(--color-line); }
 .demo-board-tabs { display: flex; gap: .45rem; margin: 1rem 0; overflow-x: auto; }
@@ -3132,9 +3145,6 @@ h3 {
      .plan-location-fields select. */
   .demo-visit__collection-action select,
   .demo-photo-target select { height: 2.75rem; }
-  /* A 13px checkbox inside a 16px label. The label is what a thumb
-     actually hits, so the target belongs on it; the box keeps its size. */
-  .demo-check { display: inline-flex; align-items: center; min-height: 2.75rem; }
   /* Height stated, not computed from padding. The old rule added 0.7rem
      top and bottom to an 18px line, which reached 40.7px and missed the
      floor it was written to hit — and would drift again with the type

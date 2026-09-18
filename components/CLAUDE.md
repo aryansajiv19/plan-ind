@@ -18,9 +18,19 @@ Not hypotheticals — every one of these shipped a bug in this repo.
 - **A CSS comment between selectors does not split a rule group.** A comment
   above the last selector in a comma list silently applied that block to every
   selector above it too.
-- **Focus rings must not project outward.** Controls sit 0–9px apart. Use
-  `outline: 2px solid var(--color-ink); outline-offset: -2px`. Inline prose
-  links are the only exception (`outline-offset: 1px`).
+- **Deleting inside a grouped selector can orphan its head.** Removing the
+  declaration block of a multi-line selector list leaves the selectors above
+  it attached to whatever rule comes next — eight `:focus-visible` selectors
+  silently inherited a layout rule this way. **Lint, typecheck and build all
+  stay green.** After any deletion inside a group: diff every rule head
+  (`grep -o "^[^{]*{"`) against the previous file and check brace balance.
+- **Focus rings must not project outward, and must not be hard-coded.**
+  Controls sit 0–9px apart, so an outward ring paints over the neighbour. The
+  global rule is `outline: 2px solid currentColor; outline-offset: -2px` —
+  `currentColor`, because an ink ring inset into an ink-FILLED button is
+  invisible, which is what every primary button had. Don't add a
+  per-component ring: the global one already wins in night and is identical
+  in day. Inline prose links are the only exception (`outline-offset: 1px`).
 - **Define colours in `@theme` in `app/globals.css`, not per-component.** The
   old palette survived for weeks because `.home-experience` and
   `.vote-experience` each redefined every token locally, so any screen outside
