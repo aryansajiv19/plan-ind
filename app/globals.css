@@ -581,14 +581,28 @@ h3 {
   }
 }
 
+/* Tab must never park a control under the sticky header (74px, z-index 20):
+   the browser scrolls a focused element flush to the viewport top, which put
+   it 25px behind the nav and hid the top of its ring. Measured on the photo
+   wall. This is the fix for that -- an inset ring cannot help, because the
+   CONTROL is under the bar, not just its outline. */
+:where(a, button, input, select, textarea, summary, [tabindex]) { scroll-margin-top: 5.5rem; }
+
 /* Visible keyboard focus everywhere (quality floor).
    The ring is drawn INSIDE the control's own box. Segmented controls here
    sit between 0px and 9px apart — the category group tabs are flush — so any
    outward offset paints over the neighbouring button instead of marking the
-   focused one. Graphite rather than a tinted alpha: it clears WCAG's 3:1
-   non-text contrast comfortably and inverts by itself in night mode. */
+   focused one.
+
+   currentColor, not --color-ink: a graphite ring inset into an INK-FILLED
+   button is ink on ink and invisible, which is how every primary button
+   ("Save memory", "Create", the nav's "Sign in") had no visible focus at all
+   in day — measured, then photographed. Following the control's own text
+   colour flips the ring to paper exactly where the fill is ink, and changes
+   nothing on paper-filled controls. Worst case in the app is a muted link's
+   ring at 12.02:1 day / 5.41:1 night, both well past SC 1.4.11's 3:1. */
 :focus-visible {
-  outline: 2px solid var(--color-ink);
+  outline: 2px solid currentColor;
   outline-offset: -2px;
 }
 
@@ -809,19 +823,6 @@ h3 {
   font-weight: 700;
   text-decoration: none;
 }
-/* The one place an outward ring is right: the control is filled with
-   --color-ink, so the standard inset graphite ring would be ink on ink and
-   invisible. Still graphite, drawn on the paper beside it (15.73:1); the nav
-   has no clipping ancestor and the neighbouring gap is wider than the ring. */
-.home-nav__signin:focus-visible { outline: 2px solid var(--color-ink); outline-offset: 2px; }
-
-.home-app-tab:focus-visible,
-.home-nav__link:focus-visible,
-.home-avatar:focus-visible {
-  outline: 2px solid var(--color-ink);
-  outline-offset: -2px;
-}
-
 /* 2.75rem = 44px, the floor this file already enforces for phones at the
    touch-target block below. It was 2.5rem = 40px everywhere else, and this
    button sits in the persistent nav on all five tabs. Matches the logo's
@@ -1177,7 +1178,6 @@ h3 {
 .direct-plan-form__spot small { display: block; margin-top: 0.15rem; color: var(--color-muted); }
 .direct-plan-form__actions { display: flex; align-items: center; gap: 1rem; margin-top: 1.5rem; }
 .direct-plan-form__cancel { color: var(--color-muted); font-size: 0.78rem; font-weight: 500; text-decoration: underline; text-underline-offset: 0.2rem; background: none; border: 0; cursor: pointer; }
-.direct-plan-form__cancel:focus-visible { outline: 2px solid var(--color-ink); outline-offset: 1px; }
 
 /* SPECS.md §10.1's second entry point: /home's Plan tab toggle. */
 .plan-mode-toggle { display: flex; gap: 0.4rem; margin-bottom: 1.4rem; }
@@ -1193,7 +1193,6 @@ h3 {
   cursor: pointer;
 }
 .plan-mode-toggle button[aria-pressed="true"] { border-color: var(--color-ink); color: var(--color-ink); background: var(--color-card); }
-.plan-mode-toggle button:focus-visible { outline: 2px solid var(--color-ink); outline-offset: -2px; }
 
 .plan-spot-search__field { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
 .plan-spot-search__field input { min-width: 0; flex: 1; min-height: 2.8rem; padding: 0.6rem 0.75rem; border: 1px solid var(--color-line); background: var(--color-card); color: var(--color-ink); }
@@ -1215,9 +1214,6 @@ h3 {
 }
 .plan-spot-search__results button span { color: var(--color-muted); }
 .plan-spot-search__empty { margin-top: 0.75rem; color: var(--color-muted); font-size: max(0.74rem, var(--type-floor)); }
-.plan-spot-search input:focus-visible,
-.plan-spot-search button:focus-visible { outline: 2px solid var(--color-ink); outline-offset: -2px; }
-
 .plan-form__label {
   display: block;
   color: var(--color-muted);
@@ -1359,22 +1355,6 @@ h3 {
   transform: scale(1.025);
 }
 
-.plan-category-group:focus-visible,
-.plan-category-option:focus-visible,
-.plan-deadline:focus-visible,
-.plan-form__input:focus-visible,
-.plan-choice-strip button:focus-visible,
-.plan-location-fields select:focus-visible,
-.plan-smart-search textarea:focus-visible,
-.plan-smart-search > button:focus-visible,
-.plan-custom-place button:focus-visible,
-.plan-custom-place input:focus-visible,
-.plan-custom-place textarea:focus-visible,
-.plan-submit:focus-visible {
-  outline: 2px solid var(--color-ink);
-  outline-offset: -2px;
-}
-
 .plan-form__input {
   width: 100%;
   margin-top: 0.5rem;
@@ -1388,7 +1368,6 @@ h3 {
   color: var(--color-ink);
   font-size: 1rem;
   font-weight: 600;
-  outline: 0;
 }
 
 .plan-custom-place {
@@ -1734,8 +1713,6 @@ h3 {
 .place-link-importer__result-cat { flex: 0 0 auto; font-weight: 500; color: var(--color-punch-text); }
 .place-link-importer__result--candidates a { color: var(--color-punch-text); text-decoration: underline; text-underline-offset: 0.15rem; }
 .place-link-importer__result--failed { color: var(--color-muted); }
-.place-link-importer input:focus-visible,
-.place-link-importer button:focus-visible { outline: 2px solid var(--color-ink); outline-offset: -2px; }
 /* Inline link: rings outward. An inset ring on a text-height inline box
    cuts through the words, and prose links have no neighbouring control
    to overlap. */
@@ -1752,8 +1729,7 @@ h3 {
 }
 
 .demo-discover-tools label span { display: block; margin-bottom: 0.45rem; color: var(--color-muted); font-size: max(0.68rem, var(--type-floor)); font-weight: 500; }
-.demo-discover-tools input { width: 100%; min-height: 2.8rem; padding: 0.65rem 0.8rem; border: 1px solid var(--color-line); background: var(--color-card); color: var(--color-ink); outline: 0; }
-.demo-discover-tools input:focus-visible { outline: 2px solid var(--color-ink); outline-offset: -2px; }
+.demo-discover-tools input { width: 100%; min-height: 2.8rem; padding: 0.65rem 0.8rem; border: 1px solid var(--color-line); background: var(--color-card); color: var(--color-ink); }
 
 .demo-filter-tabs { display: flex; gap: 0.35rem; overflow-x: auto; scrollbar-width: none; }
 .demo-filter-tabs::-webkit-scrollbar { display: none; }
@@ -2018,18 +1994,6 @@ h3 {
 .demo-photo-strip > div { padding-right: 1rem; }
 .demo-photo-strip h2 { margin-top: 0.5rem; font-size: 1.35rem; }
 
-.demo-filter-tabs button:focus-visible,
-.demo-collection-tabs button:focus-visible,
-.demo-collection-create input:focus-visible,
-.demo-collection-create button:focus-visible,
-.demo-visit__collection-action button:focus-visible,
-.demo-visit__collection-action select:focus-visible,
-.demo-place-card button:focus-visible,
-.demo-primary-action:focus-visible,
-.demo-friend-row button:focus-visible,
-.demo-privacy-options button:focus-visible,
-.demo-photo-upload:focus-within { outline: 2px solid var(--color-ink); outline-offset: -2px; }
-
 .home-profile-actions {
   width: min(100% - 2 * var(--page-gutter), 76rem);
   margin-top: 2rem;
@@ -2051,11 +2015,6 @@ h3 {
   color: var(--color-ink);
   font-weight: 500;
   cursor: pointer;
-}
-
-.home-profile-actions button:focus-visible {
-  outline: 2px solid var(--color-ink);
-  outline-offset: -2px;
 }
 
 /* Authentication shares the product palette.
@@ -2561,11 +2520,6 @@ h3 {
   background: var(--color-ink);
   color: var(--color-card);
 }
-.vote-toggle:focus-visible {
-  outline: 2px solid var(--color-ink);
-  outline-offset: -2px;
-}
-
 .vote-primary-action,
 .vote-secondary-action,
 .vote-result__primary,
@@ -2614,7 +2568,6 @@ h3 {
 
 .vote-kicker { color: var(--color-punch-text); font-weight: 500; letter-spacing: 0.16em; }
 .vote-field { border-width: 1px; border-radius: var(--radius-control); border-color: var(--color-line); background: var(--color-card); color: var(--color-ink); }
-.vote-field:focus-visible { outline: 2px solid var(--color-ink); outline-offset: -2px; }
 
 .vote-result {
   border-width: 1px;
@@ -2835,9 +2788,6 @@ h3 {
 }
 
 .vote-primary-action:focus-visible,
-.vote-secondary-action:focus-visible,
-.vote-option:focus-visible,
-.vote-result button:focus-visible { outline: 2px solid var(--color-ink); outline-offset: -2px; }
 /* Inline link: rings outward. An inset ring on a text-height inline box
    cuts through the words, and prose links have no neighbouring control
    to overlap. */
@@ -3425,10 +3375,6 @@ h3 {
   inset: 0;
   z-index: 2;
 }
-.wall-tile__link:focus-visible {
-  outline: 2px solid var(--color-ink);
-  outline-offset: -2px;
-}
 .wall-tile__img { object-fit: cover; }
 
 /* Text over a photograph keeps the night values in BOTH grounds — it sits
@@ -3669,11 +3615,6 @@ h3 {
   text-underline-offset: 0.2rem;
 }
 
-.place-action:focus-visible,
-.place-back:focus-visible {
-  outline: 2px solid var(--color-ink);
-  outline-offset: -2px;
-}
 
 /* ── Cormorant's size floor ─────────────────────────────────────────
    Cormorant is a high-contrast serif and goes fragile small: its thin
