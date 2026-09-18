@@ -9,67 +9,50 @@ here — this file is current state only.
 
 ---
 
-## ⟳ Re-orged 2026-09-16 — content over palette, and a real scale target
+## ⏹ All sessions closed 2026-09-18 — production is live
 
-The four previous sessions dropped their connections and were closed. **Nothing
-was lost** — all worktrees verified clean, every lane branch already merged into
-`ai-engineering`.
+**Every lane branch is merged into `ai-engineering`, every worktree verified
+clean, and `ai-engineering` is pushed.** Nothing is in flight. A session
+restarting here starts from a settled tree, not a handoff.
 
-Two things changed the plan since the last board:
-
-1. **`DESIGN_DIAGNOSIS.md` ended the palette work.** Nine palette revisions in
-   one day did not move the owner's complaint once. The cause is not colour —
-   it is that there is **nothing to show** (6 photos across 82 venues) and the
-   feed is **gated behind auth + DOB**. Read that file before proposing any
-   visual work. A tenth palette round is the one thing explicitly forbidden.
-2. **The owner wants this to hold real traffic.** Verbatim: deployed on the
-   web, "a lot of users," "it has to be able to handle this." Scale is now a
-   first-class lane, not a deprioritised hardening list.
+The app is deployed: **https://plan-ind.vercel.app**. See `DEPLOYMENT.md` —
+including the two owner-only Turnstile steps that still gate sign-in.
 
 | Terminal | Worktree path | Branch | Role |
 |---|---|---|---|
-| **T0** Lead / Orchestrator | `~/plan-ind` | `ai-engineering` | Integration, merges, CI, context hygiene, owner interface. Writes no feature code. |
+| **T0** Lead / Orchestrator | `~/plan-ind` | `ai-engineering` | Integration, merges, CI, deploy, context hygiene, owner interface. Writes no feature code. |
 | **T1** Backend / Security | `~/plan-ind-backend` | `lane/backend` | `supabase/**`, `app/api/**`, `lib/security/**`, `lib/supabase.ts`, `lib/types.ts`, `next.config.ts` |
 | **T2** Frontend | `~/plan-ind-frontend` | `lane/frontend` | `app/**` (not `app/api/**`), `components/**`, `app/globals.css`, `lib/**` (not security/supabase) |
 | **T3** QA / Scale | `~/plan-ind-qa` | `lane/qa` | `tests/**`, load/concurrency harnesses, `package.json` test scripts |
 
-**Design lane is parked**, not deleted. `~/plan-ind-design` / `lane/design` stay
-on disk at `dcabd9e`. Its remaining queue is downstream of photography, and the
-one open aesthetic question is the owner's to answer, not Design's to guess.
+**Design lane is parked**, not deleted — `~/plan-ind-design` / `lane/design`
+stay on disk at `dcabd9e`.
 
-`security` (audit-only, no write tools) and `qa-test` remain **subagents**
-callable from any lane, not lanes themselves.
+`security` (audit-only, no write tools) and `qa-test` are **subagents** callable
+from any lane, not lanes themselves.
 
-### The mission, in priority order
+### Where to pick up
 
-Straight from the corrected diagnosis. Everything below #1 is downstream of it:
+`PRIORITIES.md` holds the queue. The short version, in order:
 
-1. **Photography** — 6 of 82 venues have a photo. The single largest gap, and
-   every app the owner compared us to is photo-led. `PLACES_INGESTION_SCOPE.md`,
-   ~$0 at this volume. **T1 leads.**
-2. **Faces and presence** — the only item needing no new content, and the
-   *social* half of what the owner asked for is about people, not photographs.
-   Actionable immediately. **T2 leads.**
-3. **Scale** — prove the app holds thousands of concurrent users, with numbers.
-   **T3 leads**, T1 fixes what it finds.
-4. **Ungate the feed** — `app/home/page.tsx:26` `requireUser()` + `:29` DOB
-   redirect mean nobody sees a single Dubai venue without an account. Cheap,
-   but only worth arriving at once (1) has landed.
-5. **Deal nine on defaults immediately**, configuration as refinement. Do
-   **not** delete the configuration — it is the product's value.
+1. **Owner's two Turnstile steps** — hostname list, secret into Supabase Auth.
+   Sign-in is dead in production until both are done.
+2. **Migrations 049 + 051** — their gate was the client deploy, which happened.
+3. **End-to-end sign-in proven on the live URL.** Everything verified in
+   production so far is signed-out.
+4. **The cinematic pass (X1–X5)** — queued behind the deploy by the owner.
 
-### Open owner decisions — ask, never assume
+### Standing owner decisions — ask, never assume
 
-- **Metallics / high contrast.** The diagnosis floated "gold on black"; the
-  owner has already rejected that verbatim (*"i dont like the navy blue gold
-  theme"*). It must be **asked**, not proposed as the answer. Round ten wearing
-  a different hat is the exact failure this is guarding against.
-- **Migration 039 is HELD** — it points six `photo_url`s at a bucket containing
-  zero files. The owner uploads `scripts/spot-photos/`'s six images first. A
-  broken image is worse than a null, because it asserts a photo exists.
-- **Vercel is PARKED.** Linked, 8 env vars set, one preview verified, production
-  never deployed. The scale work does not un-park it. Do not resume deploying
-  without an explicit go.
+- **No new palette rounds.** Nine revisions moved the complaint zero times; the
+  cause was sparseness and content, not colour. `DESIGN_DIAGNOSIS.md`. The
+  owner has separately rejected navy-and-gold verbatim.
+- **Every live database write is an owner decision, every time** — migrations
+  and any mutating click during live verification alike. If it is unclear
+  whether a click writes, read the computed state instead.
+- **Migration 046 is blocked on the owner**, not on us: 13 approved photos that
+  cannot be uploaded from here because bucket writes are refused for every
+  client role, by design.
 
 ---
 
@@ -178,84 +161,99 @@ is which file it lives in.
 
 ## Lane status
 
-Each lane maintains its own block. Replace, don't append — this is state, not a log.
+**All four closed 2026-09-18.** Each lane maintains its own block when running;
+replace, don't append — this is state, not a log.
 
 ### T0 — Lead / Orchestrator
-Re-org done 2026-09-16: board rewritten (780 → ~200 lines), QA lane and
-`~/plan-ind-qa` worktree created, stale waves cleared from `PRIORITIES.md`.
-Next: dead-code sweep, then integration as lanes report in.
+Closed. Deployed production, applied eight migrations live with owner approval,
+corrected the migration ledger against the catalog and the ledger's filenames
+against `supabase/` on disk, archived `worklog.md` back under budget. Merged
+every lane and pushed `ai-engineering`.
 
 ### T1 — Backend / Security
-Dispatched 2026-09-16 on P1.1 (venue photography pipeline). Plan owed to T0
-before building.
+Closed, tree clean, fully merged. Delivered the C1–C9 "full control" migrations
+(052, 054–057, 059, 060) and the apply runbook. Left deliberately: **058 and
+059's age-gate consolidation** — both rewrite `create_secure_plan` /
+`create_direct_plan` wholesale for no behaviour change, so they are applied
+**from the file, never retyped**.
 
 ### T2 — Frontend
-P2.2 was already shipped (`a739f26`). Dead-code sweep committed (`ef1ead5`,
-663 lines). P2.1 plan approved (roster from visible traces, "3 picked" never
-"N of M"); combined P2.1 + R5/R6 plan with T0. R4 held: wiring `addFriend`
-needs a consent model first (see T2 → T1 below).
+Closed, tree clean, fully merged. Focus rings unified on `currentColor` (every
+filled primary button had no visible ring in day mode), 44px hit areas,
+`scroll-margin-top` for the sticky header, `/demo` as the real no-signup page,
+demo assets 9.4 MB → 676 KB. Visual baselines deliberately **not** created:
+the cinematic pass will invalidate them, and they must be generated on Linux,
+not macOS.
 
 ### T3 — QA / Scale
-Dispatched 2026-09-16 on P3.1 (concurrency at thousands of users). Measurement
-plan owed to T0 before the harness is built.
-
----
+Closed, tree clean, fully merged (`a8fdee8`). The Realtime fan-out harness now
+separates a refusal from silence — non-ok `system` messages, socket close
+codes, per-channel errors — which is what the unexplained 8% event loss at 50
+clients needs before anyone theorises about it again. **Never run:** the
+automated round-trip tests for C1–C9.
 
 ## Cross-lane requests
 
 Format: **From → To** · _need_ · _why_ · blocked? · status
 
+Pruned 2026-09-18 — each entry below was re-checked against the code, not
+against memory. Six were found already done and deleted rather than annotated:
+friendship consent (closed by migration 048, live), `setRsvp`'s carpool nulling
+(`app/plan/[id]/page.tsx:791`), the venue-link result/candidate-picker UI, the
+`.home-nav` `100vw` mismatch (now `100%`), and the whole ~452-line dead-code
+sweep (`TiltCard.tsx`, `.home-system*`, `.sky-*`, `dealThreeForCategory`,
+`venueAllowedForAge` — all verified gone).
+
 - **T2 → T1** · plan membership with names: save the display name at
   `claim_plan_access`, plus a membership-scoped RPC that reads a plan's member
   names · the client can see only people who left a trace (vote, RSVP, rating,
-  presence), so P2.1 cannot honestly show "3 of 5" — the denominator is
-  unknowable today · not blocked (P2.1 ships on "3 picked") · **open**
-- **T2 → T1 / security** · ⚠ `friendships` consent: "add own friendships" allows
-  any `friend_id`, `mirror_friendship` (security definer) writes the reverse
-  edge, and "read permitted visits" then exposes that person's visit log. Any
-  permanent account can befriend an arbitrary uuid and read their history with
-  no consent — reachable via PostgREST today. `user_id` on votes/rsvps (043)
-  may hand plan co-members those uuids. Needs a request/accept model before
-  R4 (`addFriend` UI) ships · blocks R4 · **open**
-- **T1 → T2** · 🟡 `app/plan/[id]/page.tsx`'s `setRsvp()` needs one line: pass
-  `p_transport: mine?.transport ?? null, p_seats_available: mine?.seats_available ?? null`
-  to the existing `set_plan_rsvp` RPC · migration 035 **is live**, and its update
-  branch fully replaces both fields from whatever it's given — so every ordinary
-  "coming/maybe/no" tap silently nulls out a carpool answer · not blocked ·
-  **open, real now that 035 is applied**
-- **T1 → T2** · venue-link enrichment has a real API contract —
-  `GET /api/place-import` returns `status`, `resolvedSpot`, and `candidates` when
-  `needs_input`. Result/candidate-picker UI is T2's · not blocked · **open**
+  presence), so the roster cannot honestly show "3 of 5" — the denominator is
+  unknowable today · not blocked (it ships as "3 picked") · **open**
+- **T2 → T1** · `verifyEmailCode` (`app/auth/actions.ts:103`) still has no
+  app-level throttle on OTP guesses. `requestEmailCode` got one in migration
+  026, but that is the *request* side; the 6-digit **verify** brute-force
+  surface has only Supabase's built-in cap · re-checked 2026-09-18, still true ·
+  not blocked · **open, and it matters more now the app is public**
 - **T1 → T0** · `images.remotePatterns` in `next.config.ts` · every `next/image`
-  currently sidesteps the missing config with `unoptimized`; **this stops being
-  low-priority the moment photography lands** — it is the app's most
-  bandwidth-heavy asset class · **open, now coupled to priority #1**
-- **T2 → T1** · `verifyEmailCode` (`app/auth/actions.ts`) has no app-level
-  throttle on OTP guesses — `requestEmailCode` got one in migration 026
-  (request-side), but the 6-digit *verify* brute-force surface has only
-  Supabase's built-in cap. Assess or add a counter · not blocked · **open**
-- **T0 → T2** · `.home-nav`'s `max(1rem, calc((100vw - 76rem) / 2))` (`globals.css:664`)
-  still mixes `100vw` against `100%` padding · not reproducible on Mac overlay
-  scrollbars; real (~7-8px) on classic-scrollbar users · low priority · **open**
-- **T0 → T2** · 🧹 **dead-code deletions, audited and verified 2026-09-16 — ~452 lines, all in your turf.** Zero-reference confirmed by word-boundary grep across `app/**` + `components/**`; take them as one subtractive commit, no refactor riding along:
-  - `app/globals.css:1367-1517` — `.home-system*` cluster, 24 rules, **151 lines**. The panel was replaced by the card deck.
-  - `components/TiltCard.tsx` — whole file, **108 lines**. Matched pair with the above; the only surviving reference is a passing comment at `HomeExperience.tsx:189`, delete that too.
-  - `app/globals.css:725-910` — `.sky-*` skyline + 7 `[data-phase]` palettes, **127 lines**. `data-phase` appears 7× in CSS and **0×** in any `.tsx`; `components/SkylineBackdrop.tsx` no longer exists, and FE.3 (the revival that justified keeping it) never shipped. Git has the component at `44804eb` if it is ever genuinely wanted back — reviving it now means rebuilding, not re-tinting.
-  - `app/globals.css:2331-2370` `.home-library*` (**34**), `:1189-1204` `.home-eyebrow` (**16**), `:1059-1066` `.home-theme-toggle` (**8**, toggle never built), `:578-582` `.rosette`/`.rosette-show` (**5**, dropped from `OptionCard` in `8c3581c`), `:2447,2449` `.auth-field` singular (**2**, only `.auth-fields` is used), `:485` `.wall-tile--fill-blue` (**1**).
-  - `lib/deal.ts:40` `dealThreeForCategory` (**3**, thin wrapper, zero callers), `lib/age-policy.ts:45` `venueAllowedForAge` (**3**, zero callers).
-  - **Do NOT touch** `lib/social.ts`'s 8 friend/visit functions or `lib/dubai-phase.ts`'s `subscribeToGround`/`currentGround` — both verified **deferred, not dead** (the latter by commit `2be06b4`, *"Park dark mode: disable the path, keep the machinery"*). And `lib/supabase/proxy.ts`'s `updateSession` is live via root `proxy.ts` (Next 16 renamed middleware→proxy), invisible to a naive grep.
-  · not blocked · **open**
-- **T1 → T2 (informational)** · the design README specifies that **vote contents
-  must not reach the client before a round closes**, server-enforced. Today votes
-  are readable as cast. A real product-mechanics change, not scoped — but it is
+  sidesteps the missing config with `unoptimized` (`PhotoTile.tsx:60` says so in
+  a comment) · re-checked 2026-09-18, still absent. This stops being low
+  priority the moment batch-2 photography lands — images are the app's most
+  bandwidth-heavy asset class, and on Vercel `unoptimized` means paying full
+  size to every visitor · **open, coupled to migration 046**
+- **T1 → T2 (informational)** · the design spec says **vote contents must not
+  reach the client before a round closes**, server-enforced. Today votes are
+  readable as cast. A real product-mechanics change, not scoped — but it is
   written into the intended product.
-
----
 
 ## Decisions log
 
 Binding decisions only. The reasoning lives in `worklog.md`.
 
+- 2026-09-18: **Production is live at https://plan-ind.vercel.app, and the
+  production alias is public on purpose** — the owner puts it on a CV. Only the
+  `plan-*-safebox.vercel.app` deployment URLs stay behind deployment protection.
+- 2026-09-18: **A `NEXT_PUBLIC_*` variable is verified in the built bundle, not
+  in the dashboard.** It is inlined at build time, so "set in Vercel" and
+  "present in the app" are different facts that look identical from the
+  settings page. Grep the chunk.
+- 2026-09-18: **A migration that only refactors is not applied by hand.** 058
+  and 059's age-gate consolidation rewrite `create_secure_plan` /
+  `create_direct_plan` wholesale for zero behaviour change. Retyping the app's
+  two most important functions to buy nothing is a bad trade — apply from the
+  file or not at all.
+- 2026-09-18: **Delete the data before writing code to protect it.** 053 was a
+  rewrite of three core voting RPCs, with its own rehearsal, to guard 45 legacy
+  rows that turned out to be the owner's own fixture data. One `delete` closed
+  it. Ask what the data *is* first.
+- 2026-09-18: **A sentinel must be distinguishable from the failures it
+  detects.** 060's privilege probe raised `P0001`, which any ordinary trigger
+  also raises, so it swallowed real failures. It raises a private `PT060` now.
+  Same shape as the wider rule below: empty, refused and truncated are three
+  different things.
+- 2026-09-18: **Verify a ledger's filenames against the disk, not just its
+  claims against the catalog.** Six of ten rows added to the migration runbook
+  today named files that do not exist. The ledger has been wrong three times;
+  every time it was trusted prose rather than a checked fact.
 - 2026-09-16: **Re-orged to 4 sessions — T0 lead, T1 backend/security, T2
   frontend, T3 QA/scale.** Design parked. Mission reordered behind
   `DESIGN_DIAGNOSIS.md`: photography → faces/presence → scale → ungate →

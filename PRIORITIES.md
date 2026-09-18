@@ -8,10 +8,32 @@ whatever is technically loudest.
 
 ---
 
+## Now — the deploy landed, three things stand between it and "proven"
+
+**https://plan-ind.vercel.app is live (2026-09-18).** Signed-out verification is
+complete: six routes 200, `/api/health` doing a real database read, legal pages
+carrying the owner's real details. **Nothing signed-in has ever been exercised
+in production.**
+
+| # | Item | Owner? | Size |
+|---|---|---|---|
+| **N1** | **Turnstile hostname list** — add `plan-ind.vercel.app`, keep `localhost`. And the **secret** key into Supabase Auth → Attack Protection → CAPTCHA. | **Owner only** | S |
+| **N2** | **Migrations 049 + 051.** Their gate was the client deploy; it has happened. Re-verified pending 2026-09-18: `authenticated` can still SELECT `votes.user_id`. Owner approves like every migration. | Owner approves, T1 applies | S |
+| **N3** | **Sign in end to end on the live URL** — sign up, create, share, guest vote, decide. Phase 4's real acceptance test. **Cannot run until N1.** | T0/T2 | M |
+
+N1 is a hard wall, not hardening: a production build refuses sign-in without a
+captcha, and Turnstile refuses to render on a hostname it does not list. See
+`DEPLOYMENT.md`.
+
+Behind those, in order: the cinematic pass below, then `test:e2e` in CI against
+a throwaway plan, then one real load pass against the deployment (every number
+this project has is loopback-local).
+
+---
 ## Wave — cinematic pass, queued BEHIND the deploy (2026-09-18)
 
 From outside feedback the owner received, filtered against what already exists
-and what the data can support. **Do not start before the link is live.**
+and what the data can support. **Unblocked 2026-09-18 — the link is live.**
 
 **Already built, so not in scope:** avatars flying onto the card on a vote, a
 winner reveal with particles, haptics (7 call sites), the Dubai-clock day/night

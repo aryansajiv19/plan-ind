@@ -78,3 +78,6 @@ next-env.d.ts
 
 # Playwright global-setup writes the disposable local plan id here.
 /tests/e2e/.fixture.local.json
+
+# Playwright MCP run artifacts (screenshots from verification runs)
+.playwright-mcp/
