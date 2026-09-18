@@ -29,6 +29,7 @@ import type {
   ProfileVisit,
   Spot,
   SpotVisibility,
+  Visit,
   WrappedSummaryResult,
 } from "./types";
 import { aggregateWrappedSummary, dubaiMonthWindow } from "./wrapped";
@@ -469,6 +470,30 @@ export async function deleteVisitPhoto(
   if (!(await removePhotoFiles([photo.storage_path], db))) return false;
   const { data, error } = await db.from("visit_photos").delete().eq("id", photo.id).select("id");
   return !error && (data?.length ?? 0) > 0;
+}
+
+/**
+ * Edit your own visit: when it was, who it was with (the free-typed label) and
+ * the note. 052 grants UPDATE on exactly these three columns — changing the
+ * place or the plan is delete-and-relog, by design.
+ *
+ * `.select().single()` is load-bearing: an edit RLS refuses touches 0 rows and
+ * returns NO error, so without it a refused save reads as saved. Returns the
+ * stored row, which the server may have trimmed.
+ */
+export async function updateVisit(
+  visitId: string,
+  fields: { visited_at: string; group_label: string | null; note: string | null },
+  db: Db = getSupabase(),
+): Promise<Pick<Visit, "visited_at" | "group_label" | "note"> | null> {
+  const { data, error } = await db
+    .from("visits")
+    .update(fields)
+    .eq("id", visitId)
+    .select("visited_at, group_label, note")
+    .single();
+  if (error) return null;
+  return data as Pick<Visit, "visited_at" | "group_label" | "note">;
 }
 
 /**

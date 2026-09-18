@@ -1870,6 +1870,24 @@ h3 {
 .profile-emoji__status, .profile-emoji__error { min-height: 1.2em; font-size: max(0.78rem, var(--type-floor)); }
 .profile-emoji__status { color: var(--color-muted); }
 .profile-emoji__error { color: var(--color-error); }
+
+/* C8: edit a visit (when / who with / note -- the three columns 052 grants). */
+.manage-visit__edit { display: grid; gap: 0.5rem; margin-top: 0.6rem; }
+.manage-visit__edit label { display: grid; gap: 0.25rem; font-size: max(0.78rem, var(--type-floor)); font-weight: 600; }
+.manage-visit__edit input, .manage-visit__edit textarea { min-height: 2.75rem; padding: 0.5rem 0.75rem; border: 1px solid var(--color-line); border-radius: var(--radius-control); background: var(--color-card); color: var(--color-ink); font: inherit; }
+.manage-visit__edit textarea { min-height: 4rem; resize: vertical; }
+.manage-visit__edit-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; margin: 0; }
+.manage-visit__edit-actions button[type="submit"] { min-height: 2.75rem; padding: 0 1.1rem; border: 1px solid var(--color-ink); border-radius: var(--radius-control); background: var(--color-ink); color: var(--color-card); font: inherit; font-weight: 600; cursor: pointer; }
+.manage-visit__edit-actions button[type="button"], .manage-visit__edit-open { min-height: 2.75rem; padding: 0; border: 0; background: transparent; color: var(--color-ink); font: inherit; font-size: max(0.85rem, var(--type-floor)); text-decoration: underline; text-underline-offset: 0.25em; cursor: pointer; }
+.manage-visit__edit-open { justify-self: start; }
+.manage-visit__edit-actions span { color: var(--color-muted); font-size: max(0.78rem, var(--type-floor)); font-weight: 600; }
+.manage-visit__edit button:disabled { opacity: 0.45; cursor: default; }
+
+/* C8: take back your own rating. Sits beside the stars, quiet until armed. */
+.vote-unrate { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.8rem; margin-left: 0.6rem; font-size: max(0.78rem, var(--type-floor)); color: var(--color-muted); }
+.vote-unrate button { min-height: 2.75rem; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; text-decoration: underline; text-underline-offset: 0.25em; cursor: pointer; }
+.vote-unrate button:disabled { opacity: 0.45; cursor: default; }
+.vote-unrate__error { color: var(--color-error); }
 .demo-profile-avatar.demo-profile-avatar--emoji { font-family: inherit; font-size: clamp(2.5rem, 5vw, 3.75rem); }
 
 /* Undo for quick reversible actions. Bottom-centre, sized to its message

@@ -5,6 +5,7 @@ import type { Plan, Rating, Rsvp, Spot } from "@/lib/types";
 import { googleCalUrl, icsHref } from "@/lib/calendar";
 import { categoryMeta } from "@/lib/categories";
 import { directionsUrl, haversineKm } from "@/lib/directions";
+import UnrateButton from "@/components/UnrateButton";
 import WinnerReveal from "@/components/WinnerReveal";
 import PhotoCredit from "@/components/PhotoCredit";
 import { avatarStyle, initialsOf } from "@/lib/avatar";
@@ -439,6 +440,7 @@ export default function DecidedPlan({
           {myRating && (
             <span className="ml-1 text-sm text-muted">your rating</span>
           )}
+          {myRating && <UnrateButton planId={plan.id} />}
         </div>
 
         {myRating && (
