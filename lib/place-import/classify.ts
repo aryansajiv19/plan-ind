@@ -1,3 +1,8 @@
+// Client-safe: this module must stay free of "server-only" imports.
+// components/PlaceLinkImporter.tsx imports it directly from the browser
+// bundle, while resolvePlaceImport ("./resolve") pulls in server-only code
+// transitively (safe-fetch.ts / oembed.ts) and is imported by server code
+// only. That split is why there is no barrel re-exporting both.
 import { prohibitedVenueReason } from "../age-policy";
 
 export type PlaceLinkProvider = "instagram" | "tiktok" | "facebook" | "reddit" | "youtube" | "web";

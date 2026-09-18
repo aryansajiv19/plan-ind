@@ -18,7 +18,7 @@ const PLACES = [
     price: "AED 220 pp",
     rating: "4.8",
     friendNote: "Sara and 3 friends would return",
-    image: "/demo/alserkal-dinner.png",
+    image: "/demo/alserkal-dinner.webp",
     note: "Garden seating, shared Middle Eastern plates and enough atmosphere without shouting over dinner.",
   },
   {
@@ -29,7 +29,7 @@ const PLACES = [
     price: "AED 350 pp",
     rating: "4.6",
     friendNote: "Maya saved this for Saturday",
-    image: "/demo/beach-club.png",
+    image: "/demo/beach-club.webp",
     note: "A calmer pool day with a proper lunch and a clean transition into sunset.",
   },
   {
@@ -40,7 +40,7 @@ const PLACES = [
     price: "AED 100 pp",
     rating: "4.7",
     friendNote: "You, Zain and Omar have been",
-    image: "/demo/padel-night.png",
+    image: "/demo/padel-night.webp",
     note: "Reliable evening courts, good lighting and enough space to stay after the match.",
   },
   {
@@ -51,7 +51,7 @@ const PLACES = [
     price: "Free",
     rating: "4.9",
     friendNote: "Your group rated sunrise highest",
-    image: "/demo/al-qudra-morning.png",
+    image: "/demo/al-qudra-morning.webp",
     note: "Best before the city wakes up: bikes, coffee and a quiet loop beside the lakes.",
   },
 ] as const;

@@ -1888,6 +1888,16 @@ h3 {
 .vote-unrate button { min-height: 2.75rem; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; text-decoration: underline; text-underline-offset: 0.25em; cursor: pointer; }
 .vote-unrate button:disabled { opacity: 0.45; cursor: default; }
 .vote-unrate__error { color: var(--color-error); }
+
+/* The public demo: a label that rides every tab, and the quiet way in from
+   the front door. Both say what is actually there rather than promising a
+   sandbox that saves. */
+.home-demo-banner { display: flex; flex-wrap: wrap; gap: 0.35rem 0.6rem; align-items: baseline; margin: 0 auto; padding: 0.7rem var(--page-gutter); border-bottom: 1px solid var(--color-line); background: var(--color-card); color: var(--color-muted); font-size: max(0.8rem, var(--type-floor)); }
+.home-demo-banner strong { color: var(--color-ink); font-weight: 700; }
+.home-demo-banner a { color: var(--color-ink); font-weight: 600; text-decoration: underline; text-underline-offset: 0.2em; }
+.home-demo-link { margin-top: 0.9rem; max-width: 34rem; color: var(--color-muted); font-size: max(0.85rem, var(--type-floor)); line-height: 1.5; }
+.home-demo-link a { color: var(--color-ink); font-weight: 600; text-decoration: underline; text-underline-offset: 0.2em; }
+.demo-tool-saved { margin-top: 0.5rem; color: var(--color-muted); font-size: max(0.78rem, var(--type-floor)); }
 .demo-profile-avatar.demo-profile-avatar--emoji { font-family: inherit; font-size: clamp(2.5rem, 5vw, 3.75rem); }
 
 /* Undo for quick reversible actions. Bottom-centre, sized to its message
