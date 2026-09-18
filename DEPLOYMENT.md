@@ -95,7 +95,8 @@ From `.env.local.example`, all required in production:
 | `NEXT_PUBLIC_SITE_URL` | The real production URL once Vercel assigns/you set a domain — used for OAuth/email redirect construction and CSP `allowedOrigins` |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Cloudflare Turnstile widget for the production hostname — **not created yet**, see below |
 | `SECURITY_CONTROL_SECRET` | Must be the **exact same value** already hashed into `app_control_secrets` in the live Supabase project — copy from local `.env.local`, do not regenerate |
-| `LEGAL_OPERATOR_NAME`, `LEGAL_CONTACT_EMAIL`, `LEGAL_JURISDICTION` | Real values — the production build **deliberately fails** without them rather than publish fake legal pages. Need the owner's actual entity/contact info. |
+| `LEGAL_OPERATOR_NAME`, `LEGAL_CONTACT_EMAIL`, `LEGAL_JURISDICTION` | Real values — the production build **deliberately fails** without them rather than publish fake legal pages. **Supplied by the owner 2026-09-18:** operator `Aryan Sajiv`, contact `aryansajiv2@gmail.com`, jurisdiction `Dubai, United Arab Emirates` (confirmed after a query — the owner's first answer was "United States", corrected to UAE, which matches where the operator, the venues and the users actually are). |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Widget created 2026-09-18. Site key is public by design and set **at build time**; the matching **secret key goes into Supabase Auth → Attack Protection → CAPTCHA**, never into Vercel or this repo. Hostname list starts as `localhost` and gains the real Vercel hostnames after the first deploy. |
 
 ## Other real gaps before this is production-solid, not just building
 
