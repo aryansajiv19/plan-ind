@@ -117,6 +117,8 @@ async function shard() {
   const refetches = []; // [ms, ok]
   const opLog = []; // {key, tSched, tStart, tEnd, ok, err}
   const channelEvents = []; // [idx, channel, status, t, message]
+  const systemEvents = []; // non-ok Realtime system messages, e.g. rate limits
+  const socketEvents = []; // WebSocket close/error, whatever the channel status says
   const insertIds = []; // [insert op key, votes.id]
 
   async function joinGuest(g) {
@@ -128,6 +130,10 @@ async function shard() {
       const { error: sessionError } = await sb.auth.setSession({ access_token: g.access_token, refresh_token: g.refresh_token });
       if (sessionError) return { idx: g.idx, ok: false, err: `session:${classify(sessionError, sessionError.status)}` };
       await sb.realtime.setAuth(g.access_token); // bootstrapPlanAccess does this right after signInAnonymously
+      // Socket-level drops, observation only. Verified to fire on a real
+      // server-side close (Realtime container restart -> close 1012).
+      sb.realtime.stateChangeCallbacks.close.push(["qa", (e) => socketEvents.push(`close:${e?.code ?? "?"}`)]);
+      sb.realtime.stateChangeCallbacks.error.push(["qa", () => socketEvents.push("error")]);
       const { data: claimed, error: claimError, status } = await sb.rpc("claim_plan_access", { p_plan_id: g.plan });
       if (claimError || !claimed) return { idx: g.idx, ok: false, err: `claim:${claimError ? classify(claimError, status) : "false"}` };
 
@@ -177,6 +183,9 @@ async function shard() {
 
       const data = sb
         .channel(`plan:${g.plan}`)
+        // Not something the page listens to -- observation only, so a server-side
+        // refusal is reported instead of looking like silence.
+        .on("system", {}, (p) => { if (p?.status !== "ok") systemEvents.push(`${p?.extension ?? ""}:${p?.status}:${p?.message}`); })
         .on("postgres_changes", { event: "*", schema: "public", table: "votes", filter: `plan_id=eq.${g.plan}` }, onVote)
         .on("postgres_changes", { event: "UPDATE", schema: "public", table: "plans", filter: `id=eq.${g.plan}` }, () => {})
         .on("postgres_changes", { event: "*", schema: "public", table: "rsvps", filter: `plan_id=eq.${g.plan}` }, () => {})
@@ -219,10 +228,10 @@ async function shard() {
   process.on("message", async (msg) => {
     if (msg.type === "join") {
       const results = [];
-      // A real crowd opens the link at once; 50 in flight per shard keeps the
-      // generator itself from being the thing that's measured.
-      for (let i = 0; i < msg.guests.length; i += 50) {
-        results.push(...(await Promise.all(msg.guests.slice(i, i + 50).map(joinGuest))));
+      // Joins are a ramp, not a stampede: local GoTrue drops past ~30
+      // concurrent (worklog 2026-09-04), and a join storm is its own question.
+      for (let i = 0; i < msg.guests.length; i += msg.batch) {
+        results.push(...(await Promise.all(msg.guests.slice(i, i + msg.batch).map(joinGuest))));
       }
       process.send({ type: "joined", results });
     } else if (msg.type === "go") {
@@ -231,7 +240,7 @@ async function shard() {
     } else if (msg.type === "finish") {
       const tallies = [...guests.values()].map((g) => ({ idx: g.idx, plan: g.plan, count: g.count }));
       for (const g of guests.values()) g.leaving = true;
-      process.send({ type: "report", receipts, insertIds, refetches, opLog, channelEvents, tallies, lag: lag() });
+      process.send({ type: "report", receipts, insertIds, systemEvents, socketEvents, refetches, opLog, channelEvents, tallies, lag: lag() });
       await Promise.all([...guests.values()].map((g) => g.sb.removeAllChannels().catch(() => {})));
       process.exit(0);
     }
@@ -260,7 +269,11 @@ async function run() {
   const rate = Number(arg("rate", 1));
   const rounds = Number(arg("rounds", 1));
   const n = plans * perPlan;
-  const shardCount = Number(arg("shards", Math.max(1, Math.ceil(n / 250))));
+  // Each simulated guest does a browser's worth of JSON work per event, so the
+  // generator saturates long before the app would; shard wide and let the
+  // lag check say whether it was wide enough.
+  const shardCount = Number(arg("shards", Math.min(8, Math.max(1, Math.ceil(n / 25)))));
+  const joinConcurrency = Number(arg("join-concurrency", 16));
   const label = arg("label", "");
   const orchestratorLag = lagMonitor();
 
@@ -314,14 +327,17 @@ async function run() {
 
   // Join phase
   const tJoin = now();
-  const joined = (await Promise.all(shards.map((c, s) => ask(c, { type: "join", guests: sliceFor(s) }, "joined")))).flatMap((m) => m.results);
+  const joined = (await Promise.all(shards.map((c, s) => ask(c, { type: "join", guests: sliceFor(s), batch: Math.max(1, Math.floor(joinConcurrency / shardCount)) }, "joined")))).flatMap((m) => m.results);
   const joinWall = now() - tJoin;
   const okIdx = new Set(joined.filter((j) => j.ok).map((j) => j.idx));
 
   // Op phase -- schedule is absolute wall time, shared by every shard.
   const walBefore = psql("select pg_current_wal_lsn()");
   const start = now() + 2_000;
-  const ops = Array.from({ length: totalOps }, (_, i) => ({ idx: i % n, tSched: start + (i * 1000) / rate }));
+  // Only guests that actually joined vote; the ones that didn't are already
+  // counted under join.failed and must not reappear as op errors.
+  const voters = [...okIdx].sort((a, b) => a - b);
+  const ops = Array.from({ length: 2 * voters.length * rounds }, (_, i) => ({ idx: voters[i % voters.length], tSched: start + (i * 1000) / rate }));
   await Promise.all(shards.map((c, s) => ask(c, { type: "go", ops: ops.filter((o) => o.idx % shardCount === s) }, "opsDone")));
   await sleep(QUIESCE_MS);
   const walBytes = Number(psql(`select pg_wal_lsn_diff(pg_current_wal_lsn(), '${walBefore}')`));
@@ -369,6 +385,10 @@ async function run() {
   for (const j of joined.filter((j) => !j.ok)) joinErrors[j.err] = (joinErrors[j.err] ?? 0) + 1;
   const presenceFailed = joined.filter((j) => j.ok && !j.presenceOk).length;
   const channelEvents = reports.flatMap((r) => r.channelEvents);
+  const countBy = (list) => list.reduce((acc, k) => ((acc[k] = (acc[k] ?? 0) + 1), acc), {});
+  const channelErrors = countBy(channelEvents.filter(([, , s]) => s !== "SUBSCRIBED").map(([, name, s, , m]) => `${name}:${s}:${m}`));
+  const systemErrors = countBy(reports.flatMap((r) => r.systemEvents));
+  const socketDrops = countBy(reports.flatMap((r) => r.socketEvents));
   const dropsAfterSubscribe = channelEvents.filter(([, , status]) => status === "CHANNEL_ERROR" || status === "TIMED_OUT").length;
   const staleTallies = reports.flatMap((r) => r.tallies).filter((t) => okIdx.has(t.idx) && t.count !== truth.get(t.plan));
   const okOps = opLog.filter((o) => o.ok);
@@ -378,7 +398,7 @@ async function run() {
 
   const summary = {
     at: new Date().toISOString(), env: "local-docker", label, replicaIdentity,
-    shape: { plans, perPlan, clients: n, shards: shardCount, rate, totalOps },
+    shape: { plans, perPlan, clients: n, shards: shardCount, rate, totalOps: ops.length, offeredMsgsPerSec: rate * perPlan },
     valid: worstLag <= MAX_LOOP_LAG_P99_MS, generatorLagP99Ms: worstLag,
     join: { ok: okIdx.size, failed: n - okIdx.size, errors: joinErrors, presenceFailed, wallMs: Math.round(joinWall), latency: dist(joined.filter((j) => j.ok).map((j) => j.joinMs)) },
     ops: {
@@ -387,7 +407,7 @@ async function run() {
       sendLagP99: pct(opLog.map((o) => o.tStart - o.tSched), 99),
       throughputPerSec: okOps.length ? +(okOps.length / ((Math.max(...okOps.map((o) => o.tEnd)) - start) / 1000)).toFixed(1) : 0,
     },
-    delivery: { insertRatio: ratio(delivery.INSERT), deleteRatio: ratio(delivery.DELETE), ...delivery, unmatchedReceipts, dropsAfterSubscribe },
+    delivery: { insertRatio: ratio(delivery.INSERT), deleteRatio: ratio(delivery.DELETE), ...delivery, unmatchedReceipts, dropsAfterSubscribe, channelErrors, systemErrors, socketDrops },
     tapToEventMs: dist(recvLat), tapToOthersScreenMs: dist(visibleLat), refetchFailedAfterEvent,
     refetch: { ...dist(reports.flatMap((r) => r.refetches.map(([ms]) => ms))), failed: reports.flatMap((r) => r.refetches).filter(([, ok]) => !ok).length },
     endState: { truth: Object.fromEntries(truth), staleClients: staleTallies.length },
