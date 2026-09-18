@@ -10,22 +10,30 @@ import { CONTROL_UNAVAILABLE_MESSAGE, consumeQuota, recordSecurityEvent, reportC
 export const runtime = "nodejs";
 
 const BUCKET = "visit-photos";
-// Photos live at `<uid>/<visit id>/<file>`, so one level of recursion covers
-// the folder. A failed upload can leave a file directly under `<uid>/`, which
-// migration 060's own-files select policy is what makes listable at all.
-const DEPTH = 2;
+// Photos live at `<uid>/<visit id>/<file>`. A failed upload can leave a file
+// directly under `<uid>/`, which migration 060's own-files select policy is
+// what makes listable at all.
+const PAGE = 100;
+// Nothing stops a deeper path: the upload policy only constrains the first
+// segment. A depth cap or an unpaged list would silently miss files, and the
+// user could then never delete their account (the RPC counts what is left by
+// owner_id OR path prefix, so it would refuse for ever).
+const MAX_DEPTH = 8;
 
-async function listOwnPhotos(supabase: SupabaseClient, prefix: string, depth: number): Promise<string[]> {
-  const { data, error } = await supabase.storage.from(BUCKET).list(prefix, { limit: 1000 });
-  if (error) throw error;
+async function listOwnPhotos(supabase: SupabaseClient, prefix: string, depth = 0): Promise<string[]> {
+  if (depth >= MAX_DEPTH) throw new Error(`visit-photos nested deeper than ${MAX_DEPTH}`);
   const paths: string[] = [];
-  for (const entry of data ?? []) {
-    const path = `${prefix}/${entry.name}`;
-    // A folder comes back with no id; only real objects can be removed.
-    if (entry.id) paths.push(path);
-    else if (depth > 1) paths.push(...await listOwnPhotos(supabase, path, depth - 1));
+  for (let offset = 0; ; offset += PAGE) {
+    const { data, error } = await supabase.storage.from(BUCKET).list(prefix, { limit: PAGE, offset });
+    if (error) throw error;
+    for (const entry of data ?? []) {
+      const path = `${prefix}/${entry.name}`;
+      // A folder comes back with no id; only real objects can be removed.
+      if (entry.id) paths.push(path);
+      else paths.push(...await listOwnPhotos(supabase, path, depth + 1));
+    }
+    if (!data || data.length < PAGE) return paths;
   }
-  return paths;
 }
 
 export async function POST(request: Request) {
@@ -59,23 +67,33 @@ export async function POST(request: Request) {
     return Response.json({ error: "Too many attempts. Try again in a minute." }, { status: 429 });
   }
 
+  // Ask the database whether it can actually remove the login BEFORE deleting
+  // any photo. The photo delete is the only irreversible step, and everything
+  // after it rolls back, so this is the ordering that cannot lose a user's
+  // photos for nothing.
+  const probe = await supabase.rpc("delete_my_account", { p_probe: true });
+  if (probe.error || probe.data?.result !== "ready") {
+    console.error("Account delete: probe refused", JSON.stringify({ userId: user.id, code: probe.error?.code, result: probe.data?.result }));
+    return Response.json({ error: "Your account could not be deleted. Nothing was deleted." }, { status: 500 });
+  }
+
   // Storage first, with the user's own session, and CONFIRMED BY LISTING: a
   // refused storage delete returns 200 [], so the delete's own result proves
   // nothing. If anything is left the RPC refuses too and no data is deleted.
   try {
-    const photos = await listOwnPhotos(supabase, user.id, DEPTH);
+    const photos = await listOwnPhotos(supabase, user.id);
     for (let i = 0; i < photos.length; i += 100) {
       const { error } = await supabase.storage.from(BUCKET).remove(photos.slice(i, i + 100));
       if (error) throw error;
     }
-    const left = await listOwnPhotos(supabase, user.id, DEPTH);
+    const left = await listOwnPhotos(supabase, user.id);
     if (left.length > 0) {
       console.error("Account delete: photos remain", JSON.stringify({ userId: user.id, remaining: left.length }));
-      return Response.json({ error: "Your photos could not be removed. Nothing was deleted." }, { status: 503 });
+      return Response.json({ error: "Your photos could not all be removed, so your account was not deleted. Try again." }, { status: 503 });
     }
   } catch (error) {
     console.error("Account delete: storage failed", JSON.stringify({ userId: user.id, message: error instanceof Error ? error.message : "unknown" }));
-    return Response.json({ error: "Your photos could not be removed. Nothing was deleted." }, { status: 503 });
+    return Response.json({ error: "Your photos could not all be removed, so your account was not deleted. Try again." }, { status: 503 });
   }
 
   const { data, error } = await supabase.rpc("delete_my_account");
@@ -85,12 +103,16 @@ export async function POST(request: Request) {
     return Response.json({ error: "Your account could not be deleted." }, { status: 500 });
   }
   if (result === "storage_remaining") {
-    return Response.json({ error: "Your photos could not be removed. Nothing was deleted." }, { status: 503 });
+    return Response.json({ error: "Your photos could not all be removed, so your account was not deleted. Try again." }, { status: 503 });
   }
 
   // The account is gone; the cookies for it are not. Clearing them locally is
   // all that is left to do -- signOut's server call would 401 against a user
-  // that no longer exists.
-  await supabase.auth.signOut({ scope: "local" });
+  // that no longer exists, and a failure here must not read as one.
+  try {
+    await supabase.auth.signOut({ scope: "local" });
+  } catch (signOutError) {
+    console.error("Account delete: local sign-out failed", JSON.stringify({ message: signOutError instanceof Error ? signOutError.message : "unknown" }));
+  }
   return Response.json({ result: "deleted" }, { status: 200 });
 }

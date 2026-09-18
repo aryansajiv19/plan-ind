@@ -4,15 +4,19 @@
 -- additive storage policy so a user can list their own files, and the
 -- delete_my_account() RPC.
 --
--- Result codes: deleted | storage_remaining.
+-- Result codes: deleted | storage_remaining | ready | cannot_delete_login.
+-- (ready/cannot_delete_login only from the p_probe call the route makes first.)
 -- Not signed in raises 42501, as everywhere else.
 --
 -- ── Order of operations (the part that matters) ───────────────────────────
--- The route deletes the user's storage objects FIRST, with the user's own
--- session, and confirms by listing (a refused storage delete returns 200 [],
--- so "no error" proves nothing). Only then does it call this RPC, which
--- refuses with storage_remaining if any object is left — nothing is deleted in
--- that case.
+-- The route calls this function with p_probe first, BEFORE touching any photo:
+-- deleting a photo cannot be undone, so the one thing that must not happen is
+-- destroying them and then finding the login cannot be removed. Then it deletes
+-- the user's storage objects with the user's own session and confirms by
+-- listing (a refused storage delete returns 200 [], so "no error" proves
+-- nothing). Only then does it call this RPC for real, and that call refuses
+-- with storage_remaining if any object is left — nothing is deleted in that
+-- case.
 -- Everything this RPC does is ONE transaction ending in
 -- `delete from auth.users`, so the login and the data can never be separated:
 -- if the auth delete fails, the whole thing rolls back and the user keeps both
@@ -57,10 +61,14 @@
 -- is being rewritten here.
 --
 -- ── booking_owner ────────────────────────────────────────────────────────
--- It is a typed name, not a reference. If it matches the leaving user's own
--- RSVP name on a plan they were a member of, it becomes 'Former member' so a
--- kept plan doesn't name a deleted account. Same accepted limit as 056: the
--- match is by name.
+-- It is a typed name, not a reference. On a plan where this user's OWN RSVP
+-- name on THAT plan is the booking_owner, and nothing is booked yet, it becomes
+-- 'Former member' so the plan doesn't name a deleted account. Correlating name
+-- to plan is the point (review, Medium): matching every name the user ever
+-- used anywhere would rename a different member who shares it, and would let
+-- someone copy another plan's booking_owner into a throwaway plan of their own
+-- and wipe it by deleting their account. `booked is true` is left alone, as in
+-- leave_plan: the reservation exists in the real world.
 
 begin;
 
@@ -90,7 +98,7 @@ declare
 begin
   select conname into fk from pg_constraint
   where conrelid = 'public.spots'::regclass and contype = 'f'
-    and conkey = array[(select attnum from pg_attribute
+    and conkey::smallint[] = array[(select attnum from pg_attribute
                         where attrelid = 'public.spots'::regclass
                           and attname = 'created_by_user_id')];
   if fk is not null then
@@ -110,7 +118,7 @@ create policy "read own visit photo files" on storage.objects for select to auth
   using (bucket_id = 'visit-photos' and owner_id = (select auth.uid())::text);
 
 -- 3. the RPC.
-create or replace function delete_my_account()
+create or replace function delete_my_account(p_probe boolean default false)
 returns jsonb
 language plpgsql
 security definer
@@ -119,7 +127,7 @@ as $$
 declare
   uid uuid := auth.uid();
   left_over integer;
-  own_names text[];
+  deleted_logins integer;
   plans_deleted integer := 0;
   plans_kept integer := 0;
   votes_kept integer := 0;
@@ -130,20 +138,55 @@ begin
     raise exception 'Sign in required' using errcode = '42501';
   end if;
 
+  -- p_probe: can this function actually remove the login? The route asks
+  -- BEFORE it deletes any photo, because photo deletion cannot be undone and
+  -- the rest of this function rolls back. auth.users is owned by
+  -- supabase_auth_admin and has RLS with no policies, so a definer that lacks
+  -- the privilege would either raise (caught here) or -- the dangerous one --
+  -- delete 0 rows and look like success. The probe deletes for real inside a
+  -- block, checks the row count, then raises to roll that delete back.
+  if p_probe then
+    begin
+      delete from auth.users where id = uid;
+      get diagnostics deleted_logins = row_count;
+      if deleted_logins <> 1 then
+        return jsonb_build_object('result', 'cannot_delete_login', 'rows', deleted_logins);
+      end if;
+      -- A private SQLSTATE, not the default P0001: a trigger or a constraint on
+      -- auth.users raising P0001 of its own would otherwise be caught here and
+      -- read as success. Anything but this code propagates and fails the call.
+      raise exception 'probe' using errcode = 'PT060';
+    exception
+      when sqlstate 'PT060' then return jsonb_build_object('result', 'ready');
+      when insufficient_privilege then return jsonb_build_object('result', 'cannot_delete_login');
+    end;
+  end if;
+
   -- The route has already emptied the bucket folder and confirmed by listing.
-  -- This is the server-side proof of that, before anything is deleted.
+  -- This is the server-side proof of that, before anything is deleted. Both
+  -- halves matter: owner_id is what the delete policy keys on, and the path
+  -- prefix is what the UPLOAD policy keys on, so an object with a null or
+  -- mismatched owner_id under this user's folder is still counted here rather
+  -- than left behind for ever.
   select count(*) into left_over from storage.objects
-  where bucket_id = 'visit-photos' and owner_id = uid::text;
+  where bucket_id = 'visit-photos'
+    and (owner_id = uid::text or name like uid::text || '/%');
   if left_over > 0 then
     return jsonb_build_object('result', 'storage_remaining', 'files', left_over);
   end if;
 
-  select coalesce(array_agg(distinct voter_name), '{}') into own_names
-  from rsvps where user_id = uid;
-
-  -- Hosted plans. Locked in id order: the same order delete_plan and
-  -- advance/decide take one at a time, so this cannot deadlock against them.
-  perform 1 from plans where created_by_user_id = uid order by id for update;
+  -- Every plans row this function touches, locked in id order, before any
+  -- write: the plans it hosts AND the plans it only belongs to, whose votes and
+  -- booking_owner are edited below. Locking only the hosted ones left a
+  -- votes-then-plans order on the others, which is the opposite of
+  -- delete_plan/leave_plan/advance/decide (plans, then child rows) and could
+  -- deadlock against them.
+  perform 1 from plans p
+  where p.created_by_user_id = uid
+     or exists (select 1 from plan_access a where a.plan_id = p.id and a.user_id = uid)
+     or exists (select 1 from votes v where v.plan_id = p.id and v.user_id = uid)
+     or exists (select 1 from rsvps r where r.plan_id = p.id and r.user_id = uid)
+  order by p.id for update;
 
   with doomed as (
     select p.id from plans p
@@ -171,14 +214,26 @@ begin
   )
   select count(*) into votes_kept from anon_votes;
 
+  -- Only where the name on THIS plan is this user's RSVP name on THIS plan.
+  -- Matching on every name the user ever used, anywhere, would rename a
+  -- different member who happens to share it (two people called Sara), and
+  -- would let someone RSVP under another plan's booking_owner name in a
+  -- throwaway plan and wipe it by deleting their account.
+  -- booked is true means the reservation exists in the real world: leave the
+  -- name alone, exactly as leave_plan does.
+  update plans p set booking_owner = 'Former member'
+  where p.booked is not true
+    and exists (select 1 from rsvps r
+                where r.plan_id = p.id and r.user_id = uid
+                  and r.voter_name = p.booking_owner);
+
   delete from rsvps where user_id = uid;
   delete from ratings where user_id = uid;
 
-  if array_length(own_names, 1) > 0 then
-    update plans p set booking_owner = 'Former member'
-    where p.booking_owner = any(own_names)
-      and exists (select 1 from plan_access a where a.plan_id = p.id and a.user_id = uid);
-  end if;
+
+  -- app_rate_limits.subject is the raw uid as text with no FK, so these rows
+  -- would outlive the account.
+  delete from app_rate_limits where subject = uid::text;
 
   -- The profile carries the personal layer: visits and their photos rows,
   -- collections, moodboards, place lists and imports, friendships both ways,
@@ -214,7 +269,16 @@ begin
 
   -- Last: the login, and with it member_ages, plan_access, the auth sessions
   -- and identities. Nothing below this line.
+  -- RLS on auth.users with no policies removes 0 rows instead of raising, so a
+  -- missing privilege would read as success and leave a login with no data --
+  -- this repo's own commonest bug shape. Assert the row count and let the
+  -- whole transaction roll back if it is not exactly one.
   delete from auth.users where id = uid;
+  get diagnostics deleted_logins = row_count;
+  if deleted_logins <> 1 then
+    raise exception 'delete_my_account removed % auth.users rows', deleted_logins
+      using errcode = '42501';
+  end if;
 
   return jsonb_build_object(
     'result', 'deleted',
@@ -224,7 +288,7 @@ begin
 end;
 $$;
 
-revoke all on function delete_my_account() from public, anon, authenticated;
-grant execute on function delete_my_account() to authenticated;
+revoke all on function delete_my_account(boolean) from public, anon, authenticated;
+grant execute on function delete_my_account(boolean) to authenticated;
 
 commit;

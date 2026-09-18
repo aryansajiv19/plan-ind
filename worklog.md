@@ -1889,3 +1889,68 @@ findings. Runbook: preflight row + N5b (pre-deploy, additive for the current cli
   → member reads reopened_at, created_by_user_id still refused).
 - 059: runbook N5c now requires `max(minimum_age)` of curated spots = 21 on live
   before apply (not re-read today: a live read was not permitted from this session).
+
+---
+
+## 2026-09-18 — T1: C3 migration 060 STAGED and PROVEN — delete my account
+
+- **Shape (owner's calls):** storage first, confirmed by listing; one RPC
+  transaction ending in `delete from auth.users`; hosted OPEN plans deleted,
+  hosted DECIDED plans with another member kept read-only (creator null, host
+  token row deleted); custom spots kept ownerless (FK → `set null`, the CHECK
+  replaced by an INSERT-only trigger) so a shared spot no longer cascades away
+  other people's votes and visits, which also removes the `winner_spot_id`
+  blocker; audit row with counts only.
+- **Votes/RSVPs/ratings are handled BEFORE the auth delete.** Their FK is
+  `on delete set null`, so a bare auth delete would mint rows with a name and a
+  participant_token_hash and no user_id — 053's claimable class. Open-plan votes
+  deleted, decided-plan votes kept as 'Former member' with hash and user_id
+  null, RSVPs and ratings deleted. Asserted: no new claimable rows.
+- **Security review, HIGH (fixed): the old order could destroy photos for
+  nothing.** Photos were deleted first; if the definer cannot remove the
+  `auth.users` row the RPC rolls back, but the photos are already gone. And
+  `auth.users` has RLS with no policies, so a missing privilege **removes 0 rows
+  without raising** — `deleted` would have been reported for a login that still
+  worked. Fixes: a probe (`p_probe`) that does the real delete inside a block,
+  checks the row count and raises to roll it back, called by the route BEFORE
+  any photo is touched; plus `row_count = 1` asserted on the real path.
+- **Review MEDIUM (fixed):** `booking_owner` matched every name the user had
+  ever used anywhere — one Sara deleting her account would wipe another Sara's
+  name from shared plans, and a throwaway plan could be used to wipe someone
+  else's deliberately. Now correlated per plan, and `booked is true` is left
+  alone as in leave_plan. MEDIUM-LOW (fixed): the leftover-photo count keyed on
+  `owner_id` while the upload policy keys on the path, so a null-owner object
+  under the user's folder was invisible to the proof; now counted by either.
+  The route's listing was capped at one level and 1000 entries; it paginates and
+  recurses with a depth guard that throws rather than missing files. LOW: my
+  "cannot deadlock" claim was wrong (hosted plans locked, then votes written in
+  plans I do not host — the opposite order to delete_plan); every plans row the
+  function touches is now locked in id order. `app_rate_limits` rows keyed on the
+  raw uid are deleted.
+- **Proof:** rig == live (7/7) then 052..059; check060 **37/37**, check060-storage
+  **11/11** against a real storage-api container. Controls, not just assertions:
+  auth delete raising → nothing deleted; auth delete removing 0 rows silently →
+  `cannot_delete_login`; before 060 an orphaned upload is invisible to its owner
+  and its delete returns `200 []`. Suites: `~/plan-ind-rehearsal-backup/rehearsal/`.
+
+## 2026-09-18 — T1: a sentinel must be distinguishable from the failures it detects
+
+`delete_my_account`'s probe deletes the login for real, then raises to roll that
+back. It signalled with a plain `raise exception`, which is **SQLSTATE P0001 —
+the same code any ordinary trigger raise produces**. The rig's rollback control
+(a BEFORE DELETE trigger on auth.users that raises) was therefore caught by the
+probe's own handler and reported as `ready`: the mechanism built to detect a
+failed login delete was swallowing exactly that failure. Fixed with a private
+SQLSTATE (`PT060`); anything else propagates.
+Found by the control, not by reading the code — same lesson as the Realtime
+"any refusal passes" check and the zsh gate that false-passed.
+
+## 2026-09-18 — T1: storage.protect_delete() blocks SQL deletes on storage.objects
+
+Reproduced on the rig against a real storage-api (v1.70.3), not claimed: a plain
+`delete from storage.objects` raises *"Direct deletion from storage tables is not
+allowed. Use the Storage API instead."* **No migration can ever clean up storage
+objects in SQL.** Deleting a file means the Storage API with a session that
+passes the bucket's delete policy. 060 is unaffected — the route deletes through
+the API and the RPC only counts — and the rig's fixture cleanup only works
+because `session_replication_role = replica` disables the trigger.
