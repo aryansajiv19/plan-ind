@@ -16,9 +16,39 @@ Tailwind v4 + Supabase. Full intended flow: `PRODUCT_FLOW.md`.
    `worklog.md` wins over this file and this file gets fixed.
 4. Query `graphify-out/` for structure. **Do not scan the repo.**
 
-Domain rules load automatically when you work in a directory —
-`supabase/CLAUDE.md`, `app/CLAUDE.md`, `components/CLAUDE.md`. History, only
-when chasing *why*: `worklog-archive.md`, `CHECKPOINT.md`.
+Domain rules load automatically when you work in a directory — `app/`,
+`components/`, `lib/`, `lib/ai/`, `supabase/`, `tests/`, `scripts/` each have a
+`CLAUDE.md`. History, only when chasing *why*: `worklog-archive.md`,
+`CHECKPOINT.md`.
+
+## Size budgets — context is the scarcest resource
+
+Every line here is read by every session, so size is a correctness property,
+not tidiness.
+
+| What | Budget | On breach |
+|---|---|---|
+| A `CLAUDE.md` | **200 lines**, root **80** | Split into the directory it describes, or delete what is no longer true |
+| A `.ts` / `.tsx` file | **300 soft, 500 hard** | Split by responsibility before adding to it |
+| `app/globals.css` | frozen at today's size | **Delete as much as you add.** No net growth |
+| `worklog.md` | 600 lines | Archive the oldest day into `worklog-archive.md` |
+
+**Known breaches, listed so nobody treats them as the standard:**
+`app/globals.css` 3.7k, `app/plan/[id]/page.tsx` 1.5k, `lib/social.ts` 977,
+`components/AccountViews.tsx` 856. Touching one of these? Leave it smaller than
+you found it. Do not add a feature to a file already over the hard limit
+without splitting it first.
+
+## Keeping these files true
+
+A `CLAUDE.md` is a **rule set, not a diary**. It holds what is binding now.
+
+- Change a rule → edit the file **in the same commit**. A stale rule is worse
+  than no rule: it gets obeyed.
+- A rule that has become false → **delete it**, don't annotate it.
+- Never record status, progress or history here — that is `worklog.md`.
+- Every file states its own read-trigger at the top, so nobody loads it for
+  nothing.
 
 ## Parallel work
 
