@@ -273,3 +273,38 @@ set_birth_date still write-once. Time zone: the three gate functions pin
 `Asia/Dubai`; a caller-set `Prefer: timezone=Etc/GMT+12` moved the age check a
 day before 059 (negative control) and no longer does after it. schema.sql
 also builds from scratch with 059's objects.
+
+## 6. Deploy environment (backend side)
+
+Names only; values are the owner's. **Build time** (Next inlines `NEXT_PUBLIC_*`,
+so adding one later needs a redeploy): `NEXT_PUBLIC_SUPABASE_URL`,
+`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (legacy `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+still accepted), `NEXT_PUBLIC_SITE_URL` (**a production build fails without
+it**), `NEXT_PUBLIC_TURNSTILE_SITE_KEY` (**required now the deployment is
+public** — without it the widget silently doesn't render and sign-up has no bot
+check; the matching secret lives in Supabase Auth).
+**Runtime, server-only:** `SECURITY_CONTROL_SECRET` (**throws in production if
+absent**; a value that doesn't match the bcrypt hash in
+`public.app_control_secrets` name `server-control` doesn't error — every quota
+call returns unavailable and the routes answer 503, log line
+`SECURITY CONTROL MISCONFIGURED`), `LEGAL_OPERATOR_NAME`,
+`LEGAL_CONTACT_EMAIL`, `LEGAL_JURISDICTION` (**all three fail a production
+build** by design, rather than publishing placeholder legal pages), and
+`OPENAI_API_KEY` (optional; without it smart search returns 503).
+`VERCEL*` are set by the platform. `LOAD_*` and `BASE_URL` are load-harness
+only and must not be set on Vercel. **There is no service-role key and none may
+be added** — one appearing in the Vercel project is a defect.
+
+**Anonymous sign-ins must stay enabled** (the guest-vote path depends on them),
+so quotas keyed on `auth.uid()` can be reset by minting a fresh anonymous user.
+That is a spend risk, not a data risk, and today the OpenAI account's free-tier
+caps (10/min, 50/day) bound it to a 503. **If billing is ever added to that
+account, set a budget cap first** — the per-uid quota will not hold it.
+
+**Rotating `SECURITY_CONTROL_SECRET`:** the upsert in `SECURITY_SETUP.md` is the
+whole path (no migration, no RPC). Verify with
+`select public.valid_control_secret('THE_NEW_SECRET');` → `t` in the SQL editor
+(owner only; execute is revoked from every client role), then create one plan in
+the app. Only one secret is valid at a time, so quota'd writes 503 between the
+hash update and the new Vercel value going live — do the two back to back, and
+clear the statement from the dashboard's SQL history afterwards.
