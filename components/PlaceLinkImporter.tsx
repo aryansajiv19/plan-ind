@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { classifyPlaceLink, type PlaceCollectionKind, type PlaceLinkCandidate } from "@/lib/place-import";
+import { classifyPlaceLink, type PlaceCollectionKind, type PlaceLinkCandidate } from "@/lib/place-import/classify";
 import { secureJsonFetch } from "@/lib/security/csrf-client";
 import { categoryMeta } from "@/lib/categories";
 

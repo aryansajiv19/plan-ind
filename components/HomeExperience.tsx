@@ -281,6 +281,16 @@ export default function HomeExperience({
         </div>
       </header>
 
+      {/* Every screen in the demo is invented people and history, so the label
+          rides above the tabs on all of them and cannot be dismissed. House
+          rule 1: never show invented data as a signed-in user's own. */}
+      {fixtures && (
+        <p className="home-demo-banner" role="note">
+          <strong>Sample data.</strong> This is a demo account — the people, visits and photos are made up, and nothing here saves.{" "}
+          <Link href="/login">Start your own plan →</Link>
+        </p>
+      )}
+
       {activeView === "plan" ? (
       <div id="workspace">
       {/* The hero is the signed-out pitch. A signed-in account opens straight
@@ -330,6 +340,15 @@ export default function HomeExperience({
               </Link>
             )}
           </div>
+          {/* The demo is the only way to see the product without an email.
+              A quiet line, not a second big button: it must not compete with
+              the primary action, and the copy promises what is actually
+              there -- a finished sample, not a sandbox that saves. */}
+          {!fixtures && (
+            <p className="home-demo-link home-reveal" style={{ "--delay": "860ms" } as React.CSSProperties}>
+              <Link href="/demo">See a finished plan</Link> — a sample group, mid-decision. Nothing you do there is saved.
+            </p>
+          )}
         </div>
 
         <div className="home-stage home-reveal" style={{ "--delay": "420ms" } as React.CSSProperties} aria-hidden="true">

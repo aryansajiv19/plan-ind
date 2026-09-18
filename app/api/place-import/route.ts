@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { classifyPlaceLink, type PlaceCollectionKind } from "@/lib/place-import";
+import { classifyPlaceLink, type PlaceCollectionKind } from "@/lib/place-import/classify";
 import { resolvePlaceImport } from "@/lib/place-import/resolve";
 import {
   readJsonBody,
