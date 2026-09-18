@@ -38,16 +38,19 @@ auth-origin changes.
 | **C8** | **Been: edit a visit, remove a rating, delete photos and collections** | Unrate RPC (`p_stars` is 1–5 only); photo delete **must remove the storage object**, not just the row; collection delete | Build | M |
 | **C9** | **Undo** on quick reversible actions (untag, remove from a collection, unvote) in place of confirm dialogs | n/a | Build; destructive/irreversible actions keep confirms | S |
 
-**Must fix before public launch — migration 053 (found 2026-09-17):**
-`cast_plan_vote`, `set_plan_rsvp` and `rate_plan` let a caller who presents a
-legacy row's `participant_token_hash` claim or overwrite that row, because the
-guard only fires when `user_id` is not null, and the hash is readable by
-co-members. Bounded: 45 legacy rows (25 votes, 17 RSVPs, 3 ratings), all
-`user_id is null`, on the 6 pre-043 plans, and live has 0 accounts. Held out of
-the full-control wave so the core voting loop isn't rewritten mid-wave. Fix:
-refuse writes to `user_id is null` rows, with its own rehearsal. Alternative
-(owner's call, live data write): delete the legacy rows if the 6 plans are
-confirmed test data.
+**CLOSED 2026-09-18 — the migration-053 hijack path (found 2026-09-17):**
+`cast_plan_vote`, `set_plan_rsvp` and `rate_plan` only refuse to overwrite a row
+whose `user_id` is not null, so a caller presenting a legacy row's
+`participant_token_hash` could claim one. **Closed by deleting the data, not by
+guarding it** (owner-approved live write, run by T0): all 45 legacy rows — 25
+votes, 17 RSVPs, 3 ratings, every one `user_id is null` on the 6 fixture plans —
+are gone, verified 0/0/0 afterwards, with the 6 plans and 82 spots untouched.
+Those tables were legacy-only, so nothing owned was lost. Every row written since
+043 carries a `user_id`, so the path has nothing left to claim.
+What remains of 053 is **only the `for key share` fix** on those three RPCs: it
+closes the accepted race where a vote, RSVP or rating lands just after
+advance/decide or just after the writer leaves (documented in 056 and 057).
+That is **correctness, not an exposure** — queued, not a launch blocker.
 
 **Must fix before public launch — `claim_plan_access` requires only a plan id
 (found in the audit; sharpened 2026-09-17):** any signed-in caller who knows a
@@ -56,6 +59,11 @@ weakens 054's `shared_plans` impersonation signal, since an impersonator holding
 a share link to a plan the victim is in can push the count to 1. The fix needs a
 share token in the link, which changes every share link and the guest flow, so
 it's its own rehearsed item, sequenced after C3.
+**Re-scoped 2026-09-18 (public CV link):** a plan id is a v4 UUID, so it is not
+guessable, and "whoever holds the link joins" is the share model working as
+intended. The real gap is that access is **permanent** — someone who leaves can
+rejoin with the old link. That matters for real groups, not for a demo audience,
+so it is **not a blocker for this deployment**; do it before real users.
 
 **T3 owns the round trips** for C1–C9, plus the tests already queued: the
 delete-plan dbtest, the allowed/limited/unavailable regression, the 13

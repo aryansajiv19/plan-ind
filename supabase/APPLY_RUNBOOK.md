@@ -308,3 +308,13 @@ whole path (no migration, no RPC). Verify with
 the app. Only one secret is valid at a time, so quota'd writes 503 between the
 hash update and the new Vercel value going live — do the two back to back, and
 clear the statement from the dashboard's SQL history afterwards.
+
+## 7. The 6 fixture plans have zero votes — that is not a bug
+
+2026-09-18, owner-approved: the 45 legacy `user_id is null` rows (25 votes, 17
+RSVPs, 3 ratings) on the six pre-043 fixture plans were deleted live, which is
+what closed the 053 hijack path. `votes`, `rsvps` and `ratings` are therefore
+**empty on live**, while `plans` (6) and `spots` (82) are untouched. A fixture
+plan rendering with no votes is that deletion, not a regression. Anything voted
+from now on carries a `user_id` and is safe; re-vote on a fixture plan if one is
+wanted as a demo.

@@ -1954,3 +1954,34 @@ objects in SQL.** Deleting a file means the Storage API with a session that
 passes the bucket's delete policy. 060 is unaffected — the route deletes through
 the API and the RPC only counts — and the rig's fixture cleanup only works
 because `session_replication_role = replica` disables the trigger.
+
+---
+
+## 2026-09-18 — T1: the 053 hijack path is CLOSED by deleting the data, not by guarding it
+
+Owner-approved live write, run by T0. All 45 legacy rows (25 votes, 17 RSVPs,
+3 ratings — every one `user_id is null`, on the 6 fixture plans) deleted;
+verified 0/0/0 after, `plans` 6 and `spots` 82 untouched. Those three tables
+were legacy-only, so nothing owned was lost, and live had 0 permanent accounts.
+Every row written since 043 carries a `user_id`, so there is nothing left to
+claim by `participant_token_hash`.
+**The judgement worth keeping: deleting the data beat guarding it.** The planned
+fix was migration 053 — rewriting the three core voting RPCs, with its own
+rehearsal, while T2 was re-walking that loop. One statement over the owner's own
+test data removed the exposure completely instead of adding a guard around it.
+Ask what the data is before writing code to protect it.
+What remains of 053 is only the `for key share` race fix (the accepted races
+documented in 056 and 057): correctness, queued, not a launch blocker.
+Side effect recorded in the runbook §7 so nobody reads it as a regression: the
+six fixture plans now render with no votes.
+
+## 2026-09-18 — T1: photo pre-apply gate (1c1ced3), proven both ways
+
+`scripts/check-spot-photo-urls.sh <migration.sql>` curls every `spot-photos` URL
+in a migration and prints ok/BLOCK. **It asserts the content type, not just the
+status:** a missing object in a public Supabase bucket answers 400 with a JSON
+body, and "it responded" is not the question. Proven against live both ways —
+039's six return `image/jpeg` (ok), a fabricated key returns 400 (BLOCK, exit 1).
+No key needed; the bucket is public. This is the check 039 was originally held
+for. It also confirms live's object keys are hyphen-stripped, which is why 046
+must be written against the keys that actually land, never the filenames sent.
