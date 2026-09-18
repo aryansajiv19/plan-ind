@@ -33,8 +33,9 @@ export default function AgeForm() {
         <Submit />
       </div>
       <p className="auth-footnote">
-        Kept private and never shown on your profile. You can&rsquo;t change it later, so
-        please enter it correctly.
+        Kept private and never shown on your profile. Enter it carefully: you can
+        correct it once from Settings, and a correction that makes you older needs
+        a quick check by a person.
       </p>
       {state?.error && <p role="alert" className="auth-error">{state.error}</p>}
     </form>

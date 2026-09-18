@@ -1,16 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { deleteVisit, deleteVisitPhoto, retagCompanion, untagCompanion, type VisitPhotoView } from "@/lib/social";
+import { deleteVisit, deleteVisitPhoto, retagCompanion, untagCompanion, updateVisit, type VisitPhotoView } from "@/lib/social";
 import UndoBar from "@/components/UndoBar";
 import type { CompanionView, ProfileVisit } from "@/lib/types";
 
 const DATE_FORMAT = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short" });
 
 /**
- * The return path for the Been log: delete a visit, or remove a person
- * tagged on it. Both are hard deletes with no undo, so each takes a second
- * tap that names exactly what goes. Nothing leaves the screen until the
+ * The return path for the Been log: edit a visit, delete it, or remove a
+ * person tagged on it. The deletes are hard and have no undo, so each takes a
+ * second tap that names exactly what goes. Nothing leaves the screen until the
  * server confirms it — the item is re-read via `onChanged`, never removed
  * optimistically, because a visit that vanishes here and survives in the
  * database is the silent failure this repo keeps shipping.
@@ -32,6 +32,31 @@ export default function ManageVisit({
   // Untagging is quick and reversible, so it happens in one tap with Undo
   // rather than a confirm. Deletes keep their confirm: they can't be undone.
   const [undo, setUndo] = useState<{ message: string; restore: () => Promise<boolean> } | null>(null);
+  // The edit draft, or null when the form is closed. Only the three columns
+  // 052 grants: the place and the plan are delete-and-relog.
+  const [draft, setDraft] = useState<{ visited_at: string; group_label: string; note: string } | null>(null);
+  const [saved, setSaved] = useState(false);
+
+  async function saveEdit(visitId: string) {
+    if (!draft) return;
+    setPending(true);
+    setError(null);
+    const stored = await updateVisit(visitId, {
+      visited_at: new Date(draft.visited_at).toISOString(),
+      group_label: draft.group_label.trim() || null,
+      note: draft.note.trim() || null,
+    });
+    setPending(false);
+    if (!stored) { setError("Couldn’t save that change. Nothing was edited — try again."); return; }
+    // Show what the server stored, not what was typed: it trims on write.
+    setDraft({
+      visited_at: stored.visited_at.slice(0, 10),
+      group_label: stored.group_label ?? "",
+      note: stored.note ?? "",
+    });
+    setSaved(true);
+    onChanged();
+  }
 
   async function untag(visitId: string, companion: CompanionView) {
     setPending(true);
@@ -76,7 +101,7 @@ export default function ManageVisit({
         <span>Edit or delete a visit</span>
         <select
           value={visitId}
-          onChange={(event) => { setVisitId(event.target.value); setArmed(null); setError(null); }}
+          onChange={(event) => { setVisitId(event.target.value); setArmed(null); setError(null); setDraft(null); setSaved(false); }}
         >
           <option value="">Choose…</option>
           {visits.map((v) => <option key={v.id} value={v.id}>{label(v)}</option>)}
@@ -116,6 +141,42 @@ export default function ManageVisit({
                 </li>
               ))}
             </ul>
+          )}
+
+          {draft ? (
+            <form
+              className="manage-visit__edit"
+              onSubmit={(event) => { event.preventDefault(); void saveEdit(visit.id); }}
+            >
+              <label>
+                <span>When</span>
+                <input type="date" max={new Date().toISOString().slice(0, 10)} value={draft.visited_at}
+                  onChange={(event) => { setDraft({ ...draft, visited_at: event.target.value }); setSaved(false); }} />
+              </label>
+              <label>
+                <span>Who with</span>
+                <input value={draft.group_label} maxLength={40} placeholder="e.g. the usual five"
+                  onChange={(event) => { setDraft({ ...draft, group_label: event.target.value }); setSaved(false); }} />
+              </label>
+              <label>
+                <span>Note</span>
+                <textarea value={draft.note} maxLength={280} rows={2}
+                  onChange={(event) => { setDraft({ ...draft, note: event.target.value }); setSaved(false); }} />
+              </label>
+              <p className="manage-visit__edit-actions">
+                <button type="submit" disabled={pending || !draft.visited_at}>{pending ? "Saving…" : "Save changes"}</button>
+                <button type="button" disabled={pending} onClick={() => { setDraft(null); setSaved(false); }}>Close</button>
+                <span role="status">{saved ? "Saved." : ""}</span>
+              </p>
+            </form>
+          ) : (
+            <button type="button" className="manage-visit__edit-open" disabled={pending} onClick={() => setDraft({
+              visited_at: visit.visited_at.slice(0, 10),
+              group_label: visit.group_label ?? "",
+              note: visit.note ?? "",
+            })}>
+              Edit this visit
+            </button>
           )}
 
           {armedIsVisit ? (

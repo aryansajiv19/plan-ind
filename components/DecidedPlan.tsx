@@ -5,6 +5,7 @@ import type { Plan, Rating, Rsvp, Spot } from "@/lib/types";
 import { googleCalUrl, icsHref } from "@/lib/calendar";
 import { categoryMeta } from "@/lib/categories";
 import { directionsUrl, haversineKm } from "@/lib/directions";
+import UnrateButton from "@/components/UnrateButton";
 import WinnerReveal from "@/components/WinnerReveal";
 import PhotoCredit from "@/components/PhotoCredit";
 import { avatarStyle, initialsOf } from "@/lib/avatar";
@@ -238,7 +239,7 @@ export default function DecidedPlan({
                     <li key={name} className="vote-seat" data-open={going ? undefined : "1"}>
                       <span aria-hidden="true" style={going ? avatarStyle(name) : undefined}>{initialsOf(name)}</span>
                       <span className="sr-only">
-                        {name}, {r ? (choiceFor(r) === "coming" ? "coming" : choiceFor(r) === "maybe" ? "maybe" : "can’t make it") : "no reply yet"}
+                        {name}, {r ? (choiceFor(r) === "coming" ? "coming" : choiceFor(r) === "maybe" ? "maybe" : "can’t make it") : "no RSVP"}
                       </span>
                     </li>
                   );
@@ -439,6 +440,7 @@ export default function DecidedPlan({
           {myRating && (
             <span className="ml-1 text-sm text-muted">your rating</span>
           )}
+          {myRating && <UnrateButton planId={plan.id} />}
         </div>
 
         {myRating && (
