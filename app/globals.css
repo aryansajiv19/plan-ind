@@ -2734,6 +2734,15 @@ h3 {
 .vote-carpool__seats select { min-height: 2.75rem; padding: 0 0.6rem; font-size: 0.8rem; }
 
 @media (max-width: 640px) {
+  /* Closes the 521–559px dead zone on /demo and /home. Below 520px the app
+     tabs leave the nav for the fixed bottom bar, so the nav fits. At 521px
+     they are still inline and the nav needs 560px (32 padding + 30 brand +
+     358 tabs + 140 right), which pushed the right cluster and the avatar
+     23px off the right edge — measured, not estimated.
+     The link is already treated as expendable when space is tight (it is
+     hidden outright below 520px), so hiding it from 640px down buys back its
+     42px across the whole band and needs no new breakpoint. */
+  .home-nav__link { display: none; }
   .vote-experience { padding-inline: 0.75rem !important; padding-top: 1rem !important; }
   .vote-shell { padding: 0.9rem !important; }
   .vote-header { align-items: flex-start; flex-wrap: wrap; }

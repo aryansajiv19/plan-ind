@@ -21,7 +21,16 @@ const BOUNDARY_WIDTHS = BREAKPOINTS.flatMap((bp) => [bp - 1, bp + 1]);
 const NAMED_WIDTHS = [390, 768, 1280, 1440];
 const WIDTHS = [...new Set([...BOUNDARY_WIDTHS, ...NAMED_WIDTHS])].sort((a, b) => a - b);
 
-const PAGES = ["/", "/login", "/privacy", "/terms"] as const;
+// /demo is the public, no-account tour and is the screen a visitor is most
+// likely to land on from a shared link, yet it was the one public page this
+// suite did not cover. It is safe here for the same reason the others are:
+// HomeExperience renders fixtures in demoMode and writes nothing.
+//
+// /plan/[id] is deliberately NOT in this list. Loading it calls
+// claim_plan_access, which mints an anonymous user and a plan_access row, and
+// neither can be deleted by anything in this project. Covering it belongs
+// behind the local fixture, like the specs that vote.
+const PAGES = ["/", "/demo", "/login", "/privacy", "/terms"] as const;
 
 /** Elements wider than the viewport, or crossing either edge of it. */
 async function horizontalOverflow(page: Page) {
