@@ -33,22 +33,15 @@ not tidiness.
 | `app/globals.css` | frozen at today's size | **Delete as much as you add.** No net growth |
 | `worklog.md` | 600 lines | Archive the oldest day into `worklog-archive.md` |
 
-**Known breaches, listed so nobody treats them as the standard:**
-`app/globals.css` 3.7k, `app/plan/[id]/page.tsx` 1.5k, `lib/social.ts` 977,
-`components/AccountViews.tsx` 856. Touching one of these? Leave it smaller than
-you found it. Do not add a feature to a file already over the hard limit
-without splitting it first.
+Touching a file already over budget? Leave it smaller than you found it, and
+never add a feature to one without splitting it first. The current breach list
+is status, so it lives in `CONTEXT_HYGIENE.md`, not here.
 
 ## Keeping these files true
 
-A `CLAUDE.md` is a **rule set, not a diary**. It holds what is binding now.
-
-- Change a rule → edit the file **in the same commit**. A stale rule is worse
-  than no rule: it gets obeyed.
-- A rule that has become false → **delete it**, don't annotate it.
-- Never record status, progress or history here — that is `worklog.md`.
-- Every file states its own read-trigger at the top, so nobody loads it for
-  nothing.
+A `CLAUDE.md` is a **rule set, not a diary** — what is binding now, never
+status or history. A stale rule is worse than no rule: it gets obeyed. The
+full policy, the ledger and the dead-code method are in `CONTEXT_HYGIENE.md`.
 
 ## Parallel work
 

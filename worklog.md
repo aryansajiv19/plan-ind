@@ -535,3 +535,26 @@ warnings, **both pre-existing and neither from this work**: a `border-top: 4px`
 on a rounded element, and `--ease-spring` flagged as bounce easing. That spring
 is a deliberate token and the Motion standards were reversed to *add*
 ornamental motion, so it is reported, not overridden.
+
+### Closing the day
+
+**Deployed to production and verified there**, not locally: 78/78 Playwright
+layout + theme specs against `https://plan-ind.vercel.app`, and the guest loop
+walked by hand (share link → name → cards → vote). Everything below is live.
+
+A trap worth knowing: `vercel deploy --prod` **builds the working directory,
+not a branch**. The first attempt shipped month-old code because `~/plan-ind`
+was behind. A later attempt looked like it had failed because the check read a
+1.2KB CSS chunk instead of the 173KB main bundle — the deploy was fine. Verify
+against the real bundle, or just run the spec suite at the deployed URL.
+
+**Context: skills went from 344 to 35, saving ~27,000 tokens per session.**
+See `CONTEXT_HYGIENE.md` pass 5 for the numbers and how to restore any package.
+`.agents/` is gitignored now; the ten skills this repo owns stay tracked.
+
+**Where to pick up.** `PRIORITIES.md` is accurate again (three rows were false
+this morning). In order: venue **photos** — 6 of 82, and 0 of 82 have a
+description, which `DESIGN_DIAGNOSIS.md` says is the only thing that moves the
+design; then the **signed-in half of N3**, which needs a real email; then a
+**WebKit** run against the deployed URL, since only chromium has been run and
+WebKit is every iOS browser.

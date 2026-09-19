@@ -8,6 +8,11 @@ This file is both the policy and the running ledger.
 
 ## The rules
 
+0. **A `CLAUDE.md` is a rule set, not a diary.** It holds what is binding now,
+   never status or history. Change a rule → edit it in the same commit; a rule
+   that has become false → delete it, do not annotate it. Every file states its
+   own read-trigger at the top. (Moved out of `CLAUDE.md` 2026-09-20 — the
+   router was carrying the policy that belongs here.)
 1. **`CLAUDE.md` is a router, not an encyclopedia.** It auto-loads into every
    session in this repo, so every line costs tokens four times over. It should
    say *where* to look, not *what* is there. **The budget lives in one place —
@@ -190,3 +195,50 @@ for, but the ledger should show +54, not a claim of compliance.
 **Two files disagreed** on the root `CLAUDE.md` budget (60 here, 80 in
 `CLAUDE.md`). Collapsed to one source: `CLAUDE.md`'s table. Root is at 95 lines
 against that 80, so it is over and someone should split it.
+
+### 2026-09-20 — pass 5 (T0): the biggest context win this repo has had
+
+**Installed agent skills were costing ~31,000 tokens in every session, before
+anyone typed anything.** Skill descriptions load at startup, so 344 installed
+skills were roughly six times the cost of every hot-path doc combined. Measured,
+not estimated: 124,168 description characters.
+
+| | skills | ~tokens/session |
+|---|---|---|
+| Before | 344 | 31,042 |
+| After | 35 | ~3,600 |
+
+Removed six packages with nothing to do with a Next.js/Supabase web app —
+`wshobson/agents` (183: k8s, terraform, python, swift), `coreyhaines31/marketingskills`
+(50), `heygen-com/hyperframes` (21: video), `composiohq/awesome-claude-skills` (28),
+`thedotmack/claude-mem` (21), `apidojo-io/social-media-skills` (3) — plus
+`gstack` (51MB on its own), `write-swift` and `animate-expo`, which are iOS/native
+on a project whose target is desktop web.
+
+**Kept the design set**, which is what this repo actually reaches for:
+`impeccable`, `emil-design-eng`, `apple-design`, `animate`, `design-taste-frontend`,
+`high-end-visual-design`, `ui-ux-pro-max`, `mobile-native` and the rest.
+
+Restore any of them with `npx skills add <owner/repo>`; the six removed packages
+are named above. **Think before reinstalling in bulk** — that is how this cost
+appeared in one afternoon.
+
+**`.agents/` is now gitignored** (19MB of third-party trees, 2815 files). The
+pattern ignores future installs automatically and un-ignores the ten skills this
+repo owns, which stay tracked. Verified both directions.
+
+**Hot-path docs.** `CLAUDE.md` 95 → 88 lines: the known-breaches list was status
+living in a file whose own rule forbids status, and "Keeping these files true"
+restated this file. Both moved here. Still 8 over its 80 budget — the remainder
+is invariants, and padding a number by deleting invariants would be the wrong
+trade.
+
+**File-size breaches, measured today** (this is the list `CLAUDE.md` used to
+carry): `app/globals.css` 3,761 · `app/plan/[id]/page.tsx` 1,466 ·
+`lib/social.ts` 1,002 · `components/AccountViews.tsx` 858. `lib/social.ts` has
+grown past the 977 recorded on 2026-09-04 — it is over the 500 hard limit and
+still growing.
+
+**Not touched, on purpose.** `NEXT_AGENT.md` states its own read-trigger and is
+referenced by rule number from other docs. The `lib/social.ts` and
+`DemoPlanningTools` candidates from pass 2 remain pending features, not corpses.

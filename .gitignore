@@ -81,3 +81,22 @@ next-env.d.ts
 
 # Playwright MCP run artifacts (screenshots from verification runs)
 .playwright-mcp/
+
+# Installed agent skills (npx skills add). 19MB of third-party trees that are
+# not this project's source — restore them with the commands in
+# CONTEXT_HYGIENE.md rather than versioning them here. The pattern ignores any
+# future install automatically; the ten skills this repo actually owns are
+# un-ignored below and stay tracked.
+.agents/
+skills-lock.json
+.claude/skills/*
+!.claude/skills/a11y-responsive/
+!.claude/skills/code-review/
+!.claude/skills/design-standards/
+!.claude/skills/house-rules/
+!.claude/skills/migrations/
+!.claude/skills/openai-responses/
+!.claude/skills/rls-policies/
+!.claude/skills/secrets-audit/
+!.claude/skills/security-review/
+!.claude/skills/ui-implementation/

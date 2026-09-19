@@ -1,0 +1,6 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "plan-ind-dev", "runtimeExecutable": "npm", "runtimeArgs": ["run", "dev", "--", "--port", "3007"], "port": 3007 }
+  ]
+}
