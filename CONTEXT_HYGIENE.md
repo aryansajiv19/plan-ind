@@ -10,7 +10,10 @@ This file is both the policy and the running ledger.
 
 1. **`CLAUDE.md` is a router, not an encyclopedia.** It auto-loads into every
    session in this repo, so every line costs tokens four times over. It should
-   say *where* to look, not *what* is there. Target: under ~60 lines.
+   say *where* to look, not *what* is there. **The budget lives in one place —
+   `CLAUDE.md`'s size-budget table** (root 80 lines, any other 200). This file
+   used to restate it as "~60", so the two disagreed and a rule that disagrees
+   with itself gets obeyed selectively. Corrected 2026-09-20.
 2. **Hierarchical `CLAUDE.md`.** A directory-scoped `CLAUDE.md` only loads when
    a session is working in that directory, so put domain rules next to the
    domain. See "Hierarchy" below.
@@ -157,3 +160,33 @@ probe. Every verdict above was re-confirmed by hand before being written down.
 **Stale memory corrected in the same pass:** the project memory claiming the
 Dubai skyline "shipped and the phase machinery is reusable" is 43 days old and
 now wrong — `components/SkylineBackdrop.tsx` is gone. Updated rather than acted on.
+
+## Pass — 2026-09-20 (T0)
+
+**Stale rows corrected in `PRIORITIES.md`,** all three found by doing the work
+rather than reading the board. Rule 5 in action: each was being read as true.
+
+- **X1** ("winner reveal gated on `photo_url`") — already done. `DecidedPlan`
+  renders `<WinnerReveal>` unconditionally and its comment says why.
+- **P2.5** ("/login has no visible focus indicator") — already fixed. The exact
+  spec named in the row passes against production.
+- **N1 / N2** — both closed (Turnstile hostname by the owner, 049/051 applied).
+
+**The board is drifting the way the migration ledger did.** Three of its rows
+were false on the same day. When an item is finished, strike it in the same
+commit that finishes it.
+
+**Dead CSS swept.** 348 class selectors in `app/globals.css`, 8 with zero
+reference in `app/`, `components/` or `lib/`. Removed the two that carried real
+rules (`.vote-option__price`, the `.demo-place-card--fill-*` pair — checked for
+dynamic construction first; only `--flat` is built at runtime). The rest appear
+only inside comments, which is where they should stay.
+
+**Size budget breached, and named rather than hidden:** `app/globals.css` is
+"frozen at today's size, delete as much as you add". This session added 64 and
+deleted 10. The additions are mostly the why-comments this file's own rules ask
+for, but the ledger should show +54, not a claim of compliance.
+
+**Two files disagreed** on the root `CLAUDE.md` budget (60 here, 80 in
+`CLAUDE.md`). Collapsed to one source: `CLAUDE.md`'s table. Root is at 95 lines
+against that 80, so it is over and someone should split it.

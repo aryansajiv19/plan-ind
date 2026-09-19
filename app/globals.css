@@ -487,14 +487,6 @@
    If a fill is ever added here, its ink is never softened — full white on
    navy/slate/brown, full navy on tan/grey/light. The v6 failure was a
    softened mid-tone landing ~4.0:1. */
-/* The action stays an action: an ink outline reads on both fills, where
-   the neutral line would not (§21.3 — buttons never take a fill). */
-.demo-place-card.demo-place-card--fill-tan .demo-place-card__body button,
-.demo-place-card.demo-place-card--fill-blue .demo-place-card__body button {
-  border-color: var(--color-ink);
-  background: transparent;
-}
-
 /* ── Button padding scale (SPECS.md §13.2) ──────────────────────────
    The .demo-* button family had 12+ selectors each choosing padding and
    min-height per-component with no shared scale. Two tiers, matching the
@@ -2529,12 +2521,11 @@ h3 {
   white-space: nowrap;
 }
 
-.vote-option__price { border: 1px solid var(--color-line); border-radius: 0; }
 
 /* Reason chips. No hue: colour has exactly three jobs here and "why this
    place" is none of them, so these read through border, weight and space —
    the answer the standards prescribe when something needs to stand out and
-   is not state, outcome or category. Sharing .vote-option__price's border
+   is not state, outcome or category. Sharing the price chip's old border
    and zero radius keeps them in the card's existing vocabulary rather than
    introducing a second chip language. */
 .vote-option__reasons { list-style: none; margin: 0; padding: 0; }

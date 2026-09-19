@@ -458,3 +458,80 @@ hard 42501, not a degraded read.
 N1's hostname half is done (owner, 2026-09-19). N3 — the signed-in end-to-end
 run on the live URL — is the next real acceptance test, and nothing in the
 product has been exercised signed-in in production yet.
+
+---
+
+## 2026-09-20 — T0: share links open, cards explain themselves, a 521px bug
+
+### Shipped to production
+
+Deployed twice. The **first deploy shipped the wrong code**: `vercel deploy
+--prod` builds the working directory, and `~/plan-ind` was four commits behind,
+so it rebuilt and re-aliased month-old code. Fast-forwarded `ai-engineering`
+and redeployed. **If you deploy from a checkout that is not current, Vercel
+will happily rebuild the past.**
+
+- **049 + 051 applied live** (see the runbook row). `select=*` on votes, rsvps,
+  ratings, spots or plans is now a hard 42501 — that is the control working,
+  not a fault.
+- **The captcha wall is off the share link.** `/plan/[id]` rendered "Open this
+  plan securely" and then nothing: Turnstile paints no iframe here, so the
+  product's front door never opened. The gate was client-side only — anonymous
+  sign-in against live returns a session with no captcha token at all. Removing
+  it deleted a control that was never enforced on this path. Email sign-in
+  keeps its Turnstile.
+- **Guest loop proven end to end on production**: share link → anonymous
+  session → `claim_plan_access` → `cast_plan_vote` → row written → tally moved.
+- **Option cards now say why a place fits** rather than running three facts
+  together in one grey caption.
+
+### Turnstile: an environment artifact, not a product bug
+
+`runtime-health.spec.ts` caught `/login` failing to reach
+`brunhild.challenges.cloudflare.com`. That host publishes **only AAAA records**
+and this machine has no working IPv6 route, so Chromium cannot resolve it and
+curl cannot reach it. **Do not conclude from a local Turnstile stall that login
+is broken for real users** — an earlier note in this session implied that and
+could not support it. The component fix (report failure after 12s instead of
+hanging silently) stands on its own.
+
+### A 521px layout bug, found by Playwright
+
+`/demo` overflowed horizontally at 521px and nowhere else: the nav's right
+cluster and the avatar sat 23px past the viewport edge. Below 520px the app
+tabs leave the nav for the fixed bottom bar; at 521px they are still inline and
+the nav needs 560px. Hiding `.home-nav__link` from 640px down closes the band.
+
+**It was never caught because the layout suite did not cover `/demo`** — only
+`/`, `/login`, `/privacy`, `/terms`. Adding one route to `PAGES` found it.
+`/plan/[id]` stays out on purpose: loading it calls `claim_plan_access`, which
+mints an anonymous user and a membership row nothing here can delete.
+
+### Option card, rebuilt on measurements
+
+The category chip wrapped to four lines on "Coffee & healthy", dragging that
+card's heading and Select button 16px below its neighbours'. It also carried
+"· leading", so identity and state shared one element, which the standards
+forbid. Fixed: chip is one line, the redundant price band is gone (it restated
+the AED chip below it), "leading" has its own line, and the action row is
+`mt-auto` so uneven content can never stagger the Select buttons again.
+
+### Debt this session created, stated plainly
+
+- **~17 anonymous users and a pile of `plan_access` rows** on the demo plan,
+  from testing `/plan/[id]` by hand. Nothing in this project can delete them.
+  The demo plan now has 52 members, which is cosmetic but untrue.
+- **Local dev writes to the live database.** A test voter called "Sam" reached
+  the production demo plan from `localhost`. There is no separate dev database.
+- `.agents/` holds **344 installed agent skills**, untracked. They are excluded
+  from eslint (they contributed 2627 errors and a parse error that made the
+  lint gate useless). Decide whether they are committed or ignored.
+
+### Verification
+
+ESLint, TypeScript, production build, and 78/78 Playwright layout + theme specs
+against both localhost and production. The impeccable detector reports two
+warnings, **both pre-existing and neither from this work**: a `border-top: 4px`
+on a rounded element, and `--ease-spring` flagged as bounce easing. That spring
+is a deliberate token and the Motion standards were reversed to *add*
+ornamental motion, so it is reported, not overridden.

@@ -17,9 +17,9 @@ in production.**
 
 | # | Item | Owner? | Size |
 |---|---|---|---|
-| **N1** | **Turnstile hostname list** — add `plan-ind.vercel.app`, keep `localhost`. And the **secret** key into Supabase Auth → Attack Protection → CAPTCHA. | **Owner only** | S |
-| **N2** | **Migrations 049 + 051.** Their gate was the client deploy; it has happened. Re-verified pending 2026-09-18: `authenticated` can still SELECT `votes.user_id`. Owner approves like every migration. | Owner approves, T1 applies | S |
-| **N3** | **Sign in end to end on the live URL** — sign up, create, share, guest vote, decide. Phase 4's real acceptance test. **Cannot run until N1.** | T0/T2 | M |
+| ~~**N1**~~ | ~~Turnstile hostname list~~ — **DONE 2026-09-20 (owner).** Note for whoever reads this next: Turnstile is **not enforced server-side** on this project. Anonymous sign-in against live returns a session with **no captcha token at all**, verified directly. So the widget gates the visitor, not a bot. | Owner | S |
+| ~~**N2**~~ | ~~Migrations 049 + 051~~ — **APPLIED LIVE 2026-09-20, owner-approved.** Verified by catalog *and* real PostgREST calls: table-level SELECT on the five tables is 0, every uid column refused, `select=*` now returns 42501 by design. See `worklog.md`. | T0 | S |
+| **N3** | **Sign in end to end on the live URL** — sign up, create, share, decide. **The guest half is now PROVEN** (2026-09-20): share link → anonymous session → claim access → cast vote → row written, run against production. What remains is the *signed-in* half, which needs a real email and is the owner's to run. | Owner, then T0/T2 | M |
 
 N1 is a hard wall, not hardening: a production build refuses sign-in without a
 captcha, and Turnstile refuses to render on a hostname it does not list. See
@@ -48,7 +48,7 @@ mobile-first and this is desktop-first.
 
 | # | Item | Why it earns its place | Size |
 |---|---|---|---|
-| **X1** | **Winner reveal fires without a photo.** Currently gated on `photo_url`, so for 76 of 82 venues the best moment in the product never happens. | Highest value on the list, and it is a condition change | S |
+| ~~**X1**~~ | ~~Winner reveal fires without a photo~~ — **ALREADY DONE, this row was stale.** `DecidedPlan.tsx` renders `<WinnerReveal>` unconditionally and its comment says so: the particles reconstruct the NAME, which every plan has. Verified 2026-09-20. | — | — |
 | **X2** | **Deal reveal sequence** — "Reading the room…" → preference chips → cards one by one, **under 1.5s**. | Turns submitting a form into the most impressive moment, and makes the AI visible | M |
 | **X3** | **"Why this?" chips** — "Everyone likes Asian" · "18 min away" · "Fits AED 150". All three values are already computed and simply not shown. | Makes recommendations look intelligent rather than arbitrary | S |
 | **X4** | **9 → 3 → 1 framing** on the rounds. Mostly copy; the motion exists. | Gives the decision momentum instead of feeling like a form | S |
@@ -163,7 +163,7 @@ the owner's scale requirement — real traffic, on the web, has to hold up.
 | **P2.2** | 🟡 `setRsvp()` carpool-field fix — one line, but migration 035 is live and every ordinary RSVP tap currently nulls out a carpool answer. See cross-lane requests. | Live data loss, tiny fix | S |
 | **P2.3** | **Ungate the feed** — `app/home/page.tsx:26` `requireUser()` + `:29` DOB redirect mean nobody sees a Dubai venue without an account. Discover is *already* feed-shaped (a 120-row grid with search + filters), so this is an ungating, not a rebuild. **Sequence after P1.1 lands** — a browse-first door onto photo-less venues is a thin directory. | Cheap, high leverage, but only once there's something to see | M |
 | **P2.4** | **Deal nine on defaults immediately**, configuration as refinement. **Do not delete the configuration** — the curated nine *is* the product's value. Make the wait for the reward zero, not the effort zero. | Reward before effort | M |
-| **P2.5** | `/login` focus indicator: `layout-consistency.spec.ts` reports control 2 has `outlineStyle: none, boxShadow: none`. A keyboard user cannot see where they are on the sign-in form. | Real a11y defect, pre-existing | S |
+| ~~**P2.5**~~ | ~~`/login` focus indicator~~ — **ALREADY FIXED, this row was stale.** The very spec named here (`keyboard focus is visible on the login form's controls`) **passes against production**, 2026-09-20. | — | — |
 
 ### T3 — QA / Scale
 
