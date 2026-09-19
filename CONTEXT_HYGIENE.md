@@ -161,7 +161,7 @@ probe. Every verdict above was re-confirmed by hand before being written down.
 Dubai skyline "shipped and the phase machinery is reusable" is 43 days old and
 now wrong — `components/SkylineBackdrop.tsx` is gone. Updated rather than acted on.
 
-## Pass — 2026-09-20 (T0)
+### 2026-09-20 — pass 4 (T0)
 
 **Stale rows corrected in `PRIORITIES.md`,** all three found by doing the work
 rather than reading the board. Rule 5 in action: each was being read as true.
