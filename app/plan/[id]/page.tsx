@@ -16,7 +16,6 @@ import { haptic } from "@/lib/interaction";
 import OptionCard from "@/components/OptionCard";
 import NameGate from "@/components/NameGate";
 import DecidedPlan from "@/components/DecidedPlan";
-import Turnstile, { type TurnstileStatus } from "@/components/Turnstile";
 import VoteState from "@/components/VoteState";
 
 type Load = "loading" | "ready" | "notfound" | "error";
@@ -113,18 +112,12 @@ export default function VotePage() {
   // All the "get a session, redeem the share id" logic lives in
   // bootstrapPlanAccess (lib/supabase.ts) so it returns a typed reason rather
   // than throwing — each reason gets its own screen below.
-  const runAccess = useCallback(async (captchaToken?: string) => {
-    const result = await bootstrapPlanAccess(id, captchaToken);
+  // No captcha step: a share link opens straight into the plan. See
+  // bootstrapPlanAccess for why, and for how to put the wall back.
+  const runAccess = useCallback(async () => {
+    const result = await bootstrapPlanAccess(id);
     setAccess(result.ok ? "ready" : result.reason);
   }, [id]);
-  // Stable identity so <Turnstile>'s effect (keyed on `onVerify`) doesn't
-  // tear down and rebuild the live widget on every unrelated re-render of
-  // this page while the captcha screen is showing.
-  // "loading" is what is true before the widget has reported anything.
-  const [captchaStatus, setCaptchaStatus] = useState<TurnstileStatus>("loading");
-  const onCaptchaVerify = useCallback((token: string) => {
-    if (token) void runAccess(token);
-  }, [runAccess]);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => void runAccess());
@@ -1010,13 +1003,6 @@ export default function VotePage() {
           </div>
         </div>
       </main>
-    );
-  }
-  if (access === "captcha-required") {
-    return (
-      <VoteState kind="captcha" captchaStatus={captchaStatus}>
-        <Turnstile action="plan-access" onVerify={onCaptchaVerify} onStatus={setCaptchaStatus} />
-      </VoteState>
     );
   }
   if (access === "anonymous-disabled") {

@@ -53,8 +53,6 @@ export function getSupabase(): ReturnType<typeof createClient> {
 export type PlanAccessDenial =
   /** Supabase Auth has anonymous sign-ins turned off. Owner toggle. Not the visitor's fault. */
   | "anonymous-disabled"
-  /** Production needs a Turnstile token before it will mint a guest session. */
-  | "captcha-required"
   /** Anonymous sign-in was attempted and failed for some other reason. */
   | "sign-in-failed"
   /** Session is fine; there is no plan with that id. */
@@ -82,9 +80,21 @@ export async function bootstrapPlanAccess(
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    if (process.env.NODE_ENV === "production" && !captchaToken) {
-      return { ok: false, reason: "captcha-required" };
-    }
+    // No captcha wall on the share link, deliberately (2026-09-20).
+    //
+    // It was never a server-side control on THIS path: Supabase Auth does not
+    // require a captcha token for anonymous sign-in on this project, verified
+    // by signing in against the live project with no token at all. So the gate
+    // here only ever stopped the visitor, never a bot — and it was stopping
+    // every visitor, because Turnstile renders nothing on the deployed host.
+    //
+    // A share link is the product's front door. It has to open. Abuse is
+    // bounded by the Postgres quotas on the write RPCs, not by a widget the
+    // client asks nicely about.
+    //
+    // To restore it: refuse here when `!captchaToken` in production, and put
+    // the <Turnstile action="plan-access"> screen back in app/plan/[id]/page.tsx.
+    // A token is still forwarded if a caller supplies one.
     const { data, error } = await supabase.auth.signInAnonymously({
       options: captchaToken ? { captchaToken } : undefined,
     });
