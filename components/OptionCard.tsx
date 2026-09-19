@@ -17,6 +17,9 @@ interface OptionCardProps {
   isLeader: boolean;
   decided: boolean; // plan is settled — voting closed
   distanceKm?: number | null;
+  /** The plan's per-person ceiling, when it set one. Lets a chip say the
+   *  place fits the group's budget rather than just naming a price. */
+  budgetPerPerson?: number | null;
   onToggle: () => void;
 }
 
@@ -29,10 +32,24 @@ export default function OptionCard({
   isLeader,
   decided,
   distanceKm,
+  budgetPerPerson,
   onToggle,
 }: OptionCardProps) {
   const dimmed = decided && !isWinner;
   const cat = categoryMeta(spot.category);
+
+  // Derived during render, not in an effect — React 19 lints setState-in-effect,
+  // and there is nothing async here to justify one.
+  const reasons: string[] = [];
+  if (budgetPerPerson != null && spot.min_spend <= budgetPerPerson) {
+    // Only claim "fits" when the number actually clears the group's ceiling.
+    // Saying it otherwise would be the UI asserting something untrue.
+    reasons.push(`Fits AED ${budgetPerPerson}`);
+  } else {
+    reasons.push(`From AED ${spot.min_spend}pp`);
+  }
+  if (distanceKm != null) reasons.push(`${Math.max(1, Math.round(distanceKm))} km away`);
+  if (spot.open_till) reasons.push(`Open till ${spot.open_till}`);
 
   // A vote arriving over realtime is the only "someone else is here" signal
   // this screen has. Acknowledge it once, then clear — a permanent highlight
@@ -104,9 +121,25 @@ export default function OptionCard({
         {spot.description ?? spot.vibe}
       </p>
 
-      <p className="vote-option__meta mt-2 text-xs text-muted">
-        Open till {spot.open_till} · from AED {spot.min_spend}pp{distanceKm != null ? ` · ${Math.max(1, Math.round(distanceKm))} km away` : ""}
-      </p>
+      {/* Why THIS place, not just what it is. Same three values the grey
+          caption used to run together — the change is that each one is now
+          framed as a reason the group can check against, which is the whole
+          claim the product makes ("nine that fit you"). Facts the app has
+          only; nothing inferred, nothing invented. */}
+      <ul className="vote-option__reasons mt-2 flex flex-wrap gap-1.5" aria-label="Why this place">
+        {reasons.map((reason, i) => (
+          <li
+            key={reason}
+            className="vote-option__reason px-2 py-0.5 text-xs font-medium"
+            // Stagger is decorative and short (45ms), per the motion rules.
+            // Index-based delay is safe: the list is at most three items and
+            // is rebuilt whenever the spot changes.
+            style={{ ["--reason-delay" as string]: `${i * 45}ms` }}
+          >
+            {reason}
+          </li>
+        ))}
+      </ul>
 
       <div className="mt-3 flex items-center justify-between">
         <span className="inline-flex items-center gap-2">

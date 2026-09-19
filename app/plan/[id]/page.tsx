@@ -1238,6 +1238,7 @@ export default function VotePage() {
             >
               <OptionCard
                 spot={spot}
+                budgetPerPerson={plan!.budget_per_person}
                 voters={votersFor(spot.id)}
                 yesCount={yesCount(spot.id)}
                 voted={iVotedYes(spot.id)}

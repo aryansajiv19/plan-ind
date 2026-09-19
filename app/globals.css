@@ -2505,6 +2505,32 @@ h3 {
 }
 
 .vote-option__price { border: 1px solid var(--color-line); border-radius: 0; }
+
+/* Reason chips. No hue: colour has exactly three jobs here and "why this
+   place" is none of them, so these read through border, weight and space —
+   the answer the standards prescribe when something needs to stand out and
+   is not state, outcome or category. Sharing .vote-option__price's border
+   and zero radius keeps them in the card's existing vocabulary rather than
+   introducing a second chip language. */
+.vote-option__reasons { list-style: none; margin: 0; padding: 0; }
+.vote-option__reason {
+  border: 1px solid var(--color-line);
+  border-radius: 0;
+  color: var(--color-muted);
+  /* Entering, so ease-out, and short: this is decoration on a card the
+     visitor sees nine of. */
+  animation: reason-in 220ms var(--ease-settle) both;
+  animation-delay: var(--reason-delay, 0ms);
+}
+@keyframes reason-in {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: none; }
+}
+/* Reduced motion keeps the chip, drops the movement — the global override
+   cannot reach an animation-delay, so it is stated here. */
+@media (prefers-reduced-motion: reduce) {
+  .vote-option__reason { animation: none; }
+}
 .vote-option h3 { font-weight: 600; letter-spacing: -0.025em; }
 .vote-option__votes { color: var(--color-punch-text); }
 .vote-option__choice { border: 1px solid var(--color-line); border-radius: 0; color: var(--color-ink); }
@@ -2668,7 +2694,10 @@ h3 {
    floor: at 13px it matched the label it sits under. Scoped to those,
    not the global floor, so the gap to 14-16px body text survives. */
 @media (min-width: 641px) {
-  .vote-option__meta.text-xs,
+  /* Was .vote-option__meta — that grey run-on caption became the reason
+     chips below. Same content, same reading tier, so the 13px bump moves
+     with it rather than being left pointing at a class nothing renders. */
+  .vote-option__reason,
   .vote-action-hint { font-size: 0.8125rem; }
   /* Decided: the reveal spans the panel so it shares both edges with the
      rows below it (the 42rem cap inset it ~46px each side at 1280), and the
