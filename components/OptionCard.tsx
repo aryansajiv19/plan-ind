@@ -99,16 +99,26 @@ export default function OptionCard({
     >
       {isWinner && <span className="vote-option__winner-label">Selected</span>}
 
-      {/* Category strip: compact typographic code + type, in champagne metal. */}
+      {/* Category strip: compact typographic code + type, in champagne metal.
+          One line, always. Real cuisines ("Coffee & healthy") wrapped this to
+          three and four lines, which pushed the heading and the Select button
+          of one card 16px below its neighbours' — measured, not guessed. The
+          chip truncates instead; the name and blurb below carry the meaning.
+
+          "leading" moved OUT of this chip. Category marks IDENTITY and must
+          never carry state (design-standards), and this chip was doing both.
+          It now sits with the price, where the card's other at-a-glance facts
+          are, and stops lengthening the category line. */}
       <div className="flex items-center justify-between gap-2">
-        <span className="vote-option__category inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold">
+        <span className="vote-option__category inline-flex min-w-0 items-center gap-1.5 px-2.5 py-1 text-xs font-bold">
           <span aria-hidden="true">{cat.code}</span>
-          {spot.cuisine}
-          {isLeader && !decided && <span className="vote-option__leading"> · leading</span>}
+          <span className="vote-option__cuisine">{spot.cuisine}</span>
         </span>
-        <span className="vote-option__price px-2 py-0.5 text-xs font-semibold text-muted">
-          {spot.price_band}
-        </span>
+        {/* Nothing else on this row. The price band ($$/$$$) is gone — it said
+            the same thing as the "Fits AED 500" chip below, less precisely.
+            "leading" moved to the votes row, because that is what it is about.
+            Top row is identity; the bottom row is state. Splitting them is
+            what lets the cuisine read in full instead of truncating. */}
       </div>
 
       <h3 className="mt-2.5 font-display text-lg font-extrabold leading-tight tracking-tight">
@@ -141,7 +151,21 @@ export default function OptionCard({
         ))}
       </ul>
 
-      <div className="mt-3 flex items-center justify-between">
+      {/* State, on its own line. It went through the category chip (wrapped it
+          to four lines) and the votes row (pushed Select outside the card at
+          255px) before landing here. The row below is bottom-anchored, so this
+          line costs the leading card nothing in alignment — every Select still
+          sits on the same baseline. The leader border says this in shape; this
+          is its text half, since shape is never allowed to be the only signal. */}
+      {isLeader && !decided && (
+        <p className="mt-2">
+          <span className="vote-option__leading">leading</span>
+        </p>
+      )}
+
+      {/* mt-auto, not mt-3: pins the action row to the card's bottom edge so
+          uneven content above can never stagger the Select buttons again. */}
+      <div className="mt-auto flex items-center justify-between pt-3">
         <span className="inline-flex items-center gap-2">
           {/* Who picked this. Faces rather than a number: a count says how
               many, a face says who — and "who" is the whole reason a group
