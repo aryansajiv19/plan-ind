@@ -1,6 +1,6 @@
 # Deal three worklog
 
-Last updated: 2026-09-18 (Asia/Dubai). Entries from 2026-09-07 and earlier are in `worklog-archive.md`.
+Last updated: 2026-09-19 (Asia/Dubai). Entries from 2026-09-07 and earlier are in `worklog-archive.md`.
 
 ## Migration runbook
 
@@ -61,7 +61,7 @@ Apply in order. Every migration is additive and re-run safe unless noted.
 | 058 | `migration-058-plan-creation-invisible-titles.sql` | **NOT applied — deliberately deferred (LOW).** It rewrites `create_secure_plan` / `create_direct_plan` wholesale for a cosmetic title check. Retyping the app's two most important functions by hand on deploy day was not worth zero behaviour change. **Apply from the file, never retyped**, by a backend session. |
 | 059 | `migration-059-birth-date-correction-and-age-gates.sql` | **feature half applied live 2026-09-18, owner-approved.** `correct_birth_date` present, `member_ages.corrected_at` present. The `category_min_age` / `spot_required_age` consolidation inside the two creation functions was **skipped** — behaviour-identical today, and it carries the same retype risk as 058. |
 | 060 | `migration-060-delete-my-account.sql` | **yes — applied live 2026-09-18, owner-approved.** `delete_my_account` present. Two controls it must never lose: the privilege probe runs **inside a rollback before any photo is touched** (`auth.users` has RLS with no policies, so a privilege failure deletes 0 rows *without raising*, and the original order would have destroyed the photos and reported success), and the probe raises a private `PT060` rather than `P0001`, which an ordinary trigger also raises. |
-| 049 / 051 | `migration-049-hide-voter-user-id.sql`, `migration-051-hide-creator-user-id.sql` | **NOT applied — next in the queue, and now unblocked.** They were gated on the client deploy, which happened 2026-09-18. Verified still pending: `authenticated` can still SELECT `votes.user_id`. Needs the owner's approval like every migration. |
+| 049 / 051 | `migration-049-hide-voter-user-id.sql`, `migration-051-hide-creator-user-id.sql` | **yes — both applied live 2026-09-19 via Supabase MCP, owner-approved.** Preconditions checked in the tree first, not assumed: every `select("*")` on votes/rsvps/ratings/plans/spots is gone from `app/`, `components/` and `lib/` (only `scripts/` still had one), `VISIT_SELECT` embeds an explicit spots list, no `.eq("created_by_user_id")` survives, `reopened_at` is live (057) and 050's two RPCs exist. Post-apply, verified by catalog **and** by real PostgREST calls: table-level SELECT grants on all five tables now 0; `has_column_privilege` false for `votes/rsvps/ratings.user_id`, `plans.created_by_user_id` and `spots.created_by_user_id` (anon **and** authenticated); every column the app actually selects still true. Negative control: anon `select=*` on spots → 42501, anon `select=id,created_by_user_id` → 42501, anon's real landing-page column list → 200 with a row. `created_by_user_id` is the **only** column the change hides — confirmed by diffing the full column list against `has_column_privilege`. |
 
 `npm run test:smoke` asserts the 019 guards against the live project. All ten
 database guards pass as of 2026-08-10: the plans projection carries no host
@@ -403,3 +403,58 @@ All four worktrees verified clean and every lane branch merged into
 `ai-engineering` before shutdown. T3's last uncommitted change (Realtime
 fan-out instrumentation, `a8fdee8`) was committed and merged rather than lost —
 an uncommitted tree was wiped here once, so "clean" is checked, not assumed.
+
+---
+
+## 2026-09-19 — T0: migrations 049 + 051 applied live; N2 closed
+
+Owner-approved, applied via Supabase MCP to `zyojaoyatunjwgbivaqu` in order
+(049, then 051 — 051 names `reopened_at`, so it fails if 057 is not live).
+
+**Preconditions checked in the tree, not inferred from the ledger.** The
+migrations' own headers gate them on a client deploy: `select("*")` on the
+five affected tables must be gone. Verified `app/`, `components/` and `lib/`
+are clean — the plan page uses explicit column lists on votes, rsvps, ratings
+and plans; `VISIT_SELECT` embeds spots with a column list; every
+`.eq("created_by_user_id", …)` is now an RPC call (050). Live: `reopened_at`
+present, `my_custom_spots` and `count_my_hosted_plans` present.
+
+**Pre-state, probed live:** 10 table-level SELECT grants across the five
+tables, and `authenticated` could read `votes.user_id` and
+`plans.created_by_user_id`, `anon` could read `spots.created_by_user_id`.
+The exposure was real, not theoretical.
+
+**Post-state, catalog *and* PostgREST.** Catalog: table-level grants 0;
+`has_column_privilege` false on every uid column for both roles; true on every
+column the app actually selects. Real calls with the publishable key — the
+check the catalog cannot make:
+
+- `spots?select=*` → `42501 permission denied for table spots`
+- `spots?select=id,created_by_user_id` → `42501`
+- the landing page's real column list → `200` with a row
+
+Diffed the full `spots` column list against `has_column_privilege`:
+`created_by_user_id` is the **only** column now hidden. No collateral.
+
+### One real breakage, found before applying and fixed
+
+`scripts/load/seed-local-stack.mjs` read the live catalogue with
+`spots.select("*")` under an anonymous session, so 051 would have broken the
+load rig's seed step with the exact 42501 above. Narrowed to the granted
+column list. The other `select("*")` calls in `scripts/` are safe:
+`verify-journey.mjs` and `realtime-fanout.mjs` both run against the local
+stack with the service key (fan-out actively *refuses* a non-local URL), and
+`service_role` bypasses column grants.
+
+`schema.sql` already mirrored both migrations — no change needed.
+
+**Ceiling, restated because it bites silently:** a column added to any of
+these five tables is now invisible to clients until a migration grants it.
+A `select("*")` reintroduced anywhere in `app/`, `components/` or `lib/` is a
+hard 42501, not a degraded read.
+
+### Next
+
+N1's hostname half is done (owner, 2026-09-19). N3 — the signed-in end-to-end
+run on the live URL — is the next real acceptance test, and nothing in the
+product has been exercised signed-in in production yet.

@@ -40,7 +40,16 @@ const { error: liveAuthError } = await live.auth.signInAnonymously();
 if (liveAuthError) throw new Error(`Live anonymous sign-in failed: ${liveAuthError.message}`);
 
 console.log(`Copying curated spots from the live project (${liveUrl}) into the local stack (${LOCAL_URL})...`);
-const { data: curatedSpots, error: readError } = await live.from("spots").select("*").eq("source", "curated");
+// Explicit column list, not `*`: migration 051 revoked table-level SELECT on
+// spots and granted it back per column, so `select=*` now fails 42501 against
+// the live project. This list IS the granted set; the only column it drops is
+// created_by_user_id, which is null on every curated row anyway.
+const { data: curatedSpots, error: readError } = await live
+  .from("spots")
+  .select(
+    "id, name, category, minimum_age, area, cuisine, price_band, min_spend, open_till, vibe, photo_url, photo_source, photo_attribution, description, booking_url, source, visibility, address, latitude, longitude",
+  )
+  .eq("source", "curated");
 if (readError) throw new Error(`Reading live curated spots failed: ${readError.message}`);
 console.log(`Read ${curatedSpots.length} curated spots.`);
 
