@@ -8,6 +8,7 @@ import {
   validateMutationRequest,
 } from "@/lib/security/request";
 import { dealSpotIds, type DealConstraints } from "@/lib/spots/match";
+import { curatedDealPool } from "@/lib/spots/catalogue";
 
 export const runtime = "nodejs";
 
@@ -102,6 +103,9 @@ export async function POST(request: Request) {
   // attacker-supplied one. Missing means fail closed, not fail open.
   const age = (await memberAge(supabase, user.id)) ?? MIN_ACCOUNT_AGE;
   const radiusOrigin = origin(supplied.origin);
+  // The pool comes from the shared curated-catalogue cache (sessionless, the
+  // same for every caller); age and every other filter still run per request
+  // inside dealSpotIds, and the ratings read stays under this user's session.
   const ids = await dealSpotIds(supabase, {
     category,
     count,
@@ -115,7 +119,7 @@ export async function POST(request: Request) {
       vibeKeywords: keywords(supplied.vibeKeywords, 6),
       avoidKeywords: keywords(supplied.avoidKeywords, 5),
     },
-  });
+  }, curatedDealPool);
 
   return Response.json({ ids }, { headers: { "Cache-Control": "no-store" } });
 }

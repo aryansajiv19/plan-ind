@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import HomeExperience from "@/components/HomeExperience";
 import { getCurrentUser } from "@/lib/auth";
-import { createClient } from "@/lib/supabase/server";
+import { curatedWall } from "@/lib/spots/catalogue";
 import type { Spot } from "@/lib/types";
 
 // The front door. A signed-out visitor used to be redirected straight to
@@ -49,23 +49,14 @@ export default async function IndexPage() {
   // to be here before PhotoTile can show it. (PhotoTile does not render it
   // yet — that is Frontend's, flagged, and it must land before migration 039
   // puts the first CC images on this page.)
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("spots")
-    .select("id, name, area, min_spend, vibe, photo_url, photo_attribution, category, price_band")
-    .eq("source", "curated")
-    .order("photo_url", { nullsFirst: false })
-    .order("name")
-    .limit(WALL_SIZE);
-
-  // Never swallow this. An empty wall with a silent error is precisely the
-  // failure that hid this bug in the first place -- a read returning zero
-  // rows and no complaint, which reads as "no data" rather than "no
-  // permission". If the anon policy is ever missing or revoked, this line is
-  // the difference between a logged cause and another silent empty state.
-  if (error) {
-    console.error("Front-door wall query failed", JSON.stringify({ code: error.code, message: error.message }));
-  }
+  //
+  // Served from the curated-catalogue cache (lib/spots/catalogue.ts): the
+  // wall is identical for every signed-out visitor, so it is read at most
+  // once an hour per deployment rather than once per view. Never swallowed:
+  // a failed read is logged there (catalogue.read_failed, with the code) and
+  // never cached, and the wall renders empty as before -- an empty wall with
+  // a silent error is precisely what hid this bug in the first place.
+  const { data } = await curatedWall(WALL_SIZE);
 
   return <HomeExperience name="Dubai" demoMode spots={(data ?? []) as Spot[]} />;
 }

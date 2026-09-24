@@ -46,7 +46,7 @@ export type SpotAffinity = (spot: DealSpotRow) => number | null;
 
 const noAffinity: SpotAffinity = () => null;
 
-const SPOT_COLUMNS =
+export const DEAL_SPOT_COLUMNS =
   "id,name,category,area,cuisine,min_spend,vibe,description,latitude,longitude,minimum_age";
 
 // Deal curated spot ids for a category. Saved custom places are pinned by the
@@ -210,9 +210,39 @@ export function dealFromPool(input: {
 type Db = SupabaseClient;
 
 /**
- * The I/O shell: two reads under the caller's RLS, then the pure draw. The
- * ratings read is scoped to the spots that survived filtering, exactly as the
- * browser version was.
+ * Loads every curated spot in `category`'s family: complete, or null on any
+ * failure (never a partial pool). The route passes the cached, sessionless
+ * loader from lib/spots/catalogue.ts; tests pass a fixture.
+ */
+export type DealPoolLoader = (category: string) => Promise<readonly DealSpotRow[] | null>;
+
+/**
+ * The live, uncached pool read under `db`'s RLS -- the default loader.
+ *
+ * Paged: PostgREST silently caps a table read at 1000 rows -- no error, and
+ * no limit clause here to hint at it. Measured at 5082 curated spots, a
+ * dinner-family deal matched 1109 rows and received 1000, so every plan was
+ * dealt from the oldest 1000 spots of the family and the rest of the
+ * catalogue was undealable. That is the core product loop quietly ignoring
+ * most of the catalogue, not a slow query.
+ */
+export function livePoolLoader(db: Db): DealPoolLoader {
+  return (category) => fetchAllRows<DealSpotRow>(
+    (from, to) => db.from("spots").select(DEAL_SPOT_COLUMNS)
+      .eq("source", "curated")
+      .in("category", categoryFamily(category))
+      .order("id").range(from, to) as unknown as PromiseLike<{ data: DealSpotRow[] | null; error: unknown }>,
+    "dealSpotIds.pool",
+  );
+}
+
+/**
+ * The I/O shell: the pool (curated, identical for every caller -- cacheable),
+ * then the ratings read under the caller's RLS (per-user -- never cached),
+ * then the pure draw. Every per-caller filter -- age, budget, radius,
+ * exclusions, "been" -- runs here on every request, AFTER the pool is loaded,
+ * so a shared cached pool cannot carry one caller's eligibility to another.
+ * The ratings read is scoped to the spots that survived filtering.
  */
 export async function dealSpotIds(db: Db, input: {
   category: string;
@@ -222,23 +252,11 @@ export async function dealSpotIds(db: Db, input: {
   constraints?: DealConstraints;
   rng?: () => number;
   embed?: SpotAffinity;
-}): Promise<string[] | null> {
-  // Paged: PostgREST silently caps a table read at 1000 rows -- no error, and
-  // no limit clause here to hint at it. Measured at 5082 curated spots, a
-  // dinner-family deal matched 1109 rows and received 1000, so every plan was
-  // dealt from the oldest 1000 spots of the family and the rest of the
-  // catalogue was undealable. That is the core product loop quietly ignoring
-  // most of the catalogue, not a slow query.
-  const data = await fetchAllRows<DealSpotRow>(
-    (from, to) => db.from("spots").select(SPOT_COLUMNS)
-      .eq("source", "curated")
-      .in("category", categoryFamily(input.category))
-      .order("id").range(from, to) as unknown as PromiseLike<{ data: DealSpotRow[] | null; error: unknown }>,
-    "dealSpotIds.pool",
-  );
+}, loadPool: DealPoolLoader = livePoolLoader(db)): Promise<string[] | null> {
+  const data = await loadPool(input.category);
   if (!data) return null;
 
-  const pool = data as unknown as DealSpotRow[];
+  const pool = data;
   const eligible = eligibleDealSpots({ ...input, pool });
   if (!eligible) return null;
 

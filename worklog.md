@@ -164,3 +164,17 @@ guest sessions like `/api/plans`; `safeFetch` checks every resolved address and
 pins the connect to it; `ip-guard` covers NAT64, 6to4, IPv4-compatible,
 hex-mapped, 192.0.0.0/24, 198.18.0.0/15. Apply 061 only with owner approval,
 then verify by catalog probe (`pg_indexes` for the three `*_user*_key` indexes).
+
+## 2026-09-24 — backend: C1 profile once per account, C2 curated-catalogue cache
+
+No schema change. **C1:** `/home` reads `people` by `auth_user_id` first
+(`lib/own-profile.ts`) and calls `ensure_authenticated_profile` only when no
+row exists; `AuthProfileBridge` now caches the server-resolved profile with no
+network (RPC fallback only if the server got none). **C2:** `lib/spots/catalogue.ts`
+wraps curated reads in `unstable_cache` (1h, tag `spots:curated`, key includes
+the deployment id) through a sessionless anon client, so only
+`source='curated'` rows are ever cached; age/budget/been filters still run per
+request in `dealSpotIds`; `/home` Discover merges cached curated with a live
+non-curated read. Invalidation: a deploy or TTL; no revalidate route by
+design. Measured (prod build, stub Supabase counting requests, warm cache):
+landing 1→0, `/home` server 13→12 (+ browser 2→0), deal 6→5 round trips.
