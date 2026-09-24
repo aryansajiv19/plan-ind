@@ -30,7 +30,9 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return Response.json({ error: "Sign in to see photos." }, { status: 401, headers: NO_STORE });
+  // Permanent accounts only: a throwaway guest session is free to mint, so a
+  // guest-reachable route could drain the shared daily photo budget.
+  if (!user || user.is_anonymous) return Response.json({ error: "Sign in to see photos." }, { status: 401, headers: NO_STORE });
 
   // Read the row BEFORE spending quota: a spot with its own photo, or
   // without a place id, costs nothing and should not count. RLS applies --

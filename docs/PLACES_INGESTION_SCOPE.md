@@ -304,7 +304,7 @@ Photo names may not be cached and expire. So:
   `photos` field, which should bill at the Essentials IDs Only SKU (free;
   confirm on Google's data-fields page, which this sandbox cannot reach), plus
   one Place Photo at $7 per 1,000 after 1,000 free per month. This is capped
-  by migration 063's quota at 600/day per user and **300/day globally**, so
+  by migration 063's quota at 60/day per user (permanent accounts only) and **300/day globally**, so
   the worst case is about $56/month. Set the Cloud budget alert below that.
 
 ### Commands, once the key exists

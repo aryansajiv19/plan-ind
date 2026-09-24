@@ -56,7 +56,7 @@ grant select (google_place_id, places_synced_at) on public.spots to anon, authen
 
 -- ── place-photo quota ─────────────────────────────────────────────────────
 -- Every /api/spots/{id}/photo call is a billable Place Photo request
--- ($7/1,000 after 1,000 free per month). Per user: 60/minute, 600/day. And a
+-- ($7/1,000 after 1,000 free per month). Per user: 20/minute, 60/day (well under the global cap, so no single account can drain it). And a
 -- GLOBAL 300/day ceiling (~9,000/month, worst case ~$56/month) because
 -- anonymous guests can mint fresh identities -- a per-user cap alone does
 -- not bound the bill. `create or replace` keeps the ACL; the revoke/grant is
@@ -71,10 +71,10 @@ begin
   end if;
   minute_limit := case p_scope
     when 'smart-search' then 10 when 'plan-create' then 12 when 'spot-deal' then 30
-    when 'plan-command' then 20 when 'place-photo' then 60 else 20 end;
+    when 'plan-command' then 20 when 'place-photo' then 20 else 20 end;
   day_limit := case p_scope
     when 'smart-search' then 30 when 'plan-create' then 50 when 'spot-deal' then 300
-    when 'plan-command' then 100 when 'place-photo' then 600 else 200 end;
+    when 'plan-command' then 100 when 'place-photo' then 60 else 200 end;
   insert into app_rate_limits values(p_scope||'-minute',uid::text,minute_start,1)
     on conflict(scope,subject,window_start) do update set request_count=app_rate_limits.request_count+1
     returning request_count into current_count;
