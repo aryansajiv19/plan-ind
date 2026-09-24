@@ -2,8 +2,9 @@ name: CI
 
 on:
   pull_request:
+  # Every branch: work lands on long-lived non-main branches here, and a
+  # main-only trigger let a schema.sql that could not build go unnoticed.
   push:
-    branches: [main]
 
 permissions:
   contents: read
