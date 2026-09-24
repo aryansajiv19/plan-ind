@@ -69,14 +69,3 @@ export type Category = { key: string; label: string; title: string };
 export const CATEGORIES: readonly Category[] = CATEGORY_GROUPS.flatMap((group) => [
   ...group.categories,
 ]);
-
-const GROUP_OF: Record<string, GroupKey> = Object.fromEntries(
-  CATEGORY_GROUPS.flatMap((group) => group.categories.map((c) => [c.key, group.key])),
-);
-
-/** Which of the five groups a category key belongs to. Unknown or custom
- *  categories fall back to "food": a plan always renders in some hue, and
- *  the group label is never the only thing on screen. */
-export function categoryGroup(category: string | null | undefined): GroupKey {
-  return (category && GROUP_OF[category]) || "food";
-}

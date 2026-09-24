@@ -12,7 +12,7 @@ import type { Spot } from "@/lib/types";
 //
 // `demoMode` without `fixtures` is deliberate — the hero's "Tonight in Dubai"
 // panel is aria-hidden product illustration, but the account tabs are invented
-// people and history and stay behind the dev-only /home-preview.
+// people and history and stay behind the labelled /demo.
 // The "Dubai, right now" wall rendered its empty state to every visitor,
 // because no spots were ever passed — the busiest page in the app permanently
 // showing "no places in the catalog yet" against a catalogue of 82.

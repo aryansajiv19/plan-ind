@@ -12,9 +12,7 @@ import { test, expect, type Page } from "@playwright/test";
 // horizontal overflow, controls below the touch floor, invisible focus.
 //
 // Deliberately public pages only: this suite runs unauthenticated so it needs
-// no session and writes nothing. /home and /home-preview are excluded -- the
-// first needs auth, the second calls notFound() in a production build, which is
-// what the webServer config builds.
+// no session and writes nothing. /home is excluded -- it needs auth.
 
 const BREAKPOINTS = [520, 640, 760, 850, 1100];
 const BOUNDARY_WIDTHS = BREAKPOINTS.flatMap((bp) => [bp - 1, bp + 1]);

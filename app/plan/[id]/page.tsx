@@ -13,6 +13,8 @@ import { secureJsonFetch } from "@/lib/security/csrf-client";
 import { coordinatesForArea, distanceKm } from "@/lib/dubai-areas";
 import type { Plan, PlanSpot, Rating, Rsvp, Spot, Vote } from "@/lib/types";
 import { haptic } from "@/lib/interaction";
+import { agreementOf, isInRound, leaderOf, roundFor, visibleSpotsFor, votersFor, yesCount } from "@/lib/tally";
+import { coalesce } from "@/lib/coalesce";
 import OptionCard from "@/components/OptionCard";
 import NameGate from "@/components/NameGate";
 import DecidedPlan from "@/components/DecidedPlan";
@@ -79,6 +81,7 @@ export default function VotePage() {
   // socket reconnects.
   const dataChannelRef = useRef<ReturnType<ReturnType<typeof getSupabase>["channel"]> | null>(null);
   const presenceChannelRef = useRef<ReturnType<ReturnType<typeof getSupabase>["channel"]> | null>(null);
+  const cancelRefetchesRef = useRef(() => {}); // drops coalesced refetches still waiting on a timer
   const [confirmDelete, setConfirmDelete] = useState(false);
   // C5: host edits the title/closing time before anyone has voted.
   const [editing, setEditing] = useState<{ title: string; deadline: string } | null>(null);
@@ -338,16 +341,20 @@ export default function VotePage() {
   // this plan. But the payload's `old` is cut down to the PRIMARY KEY for RLS
   // tables, so `old.plan_id` is never there: a client-side "is this ours?"
   // check on it (f537134) silently dropped every un-vote, RSVP delete and
-  // unrate, and other members' tallies went stale. Refetch on every event.
-  // The plans DELETE handler below can check `old.id`, because id IS the key.
+  // unrate, and other members' tallies went stale. Refetch on every event —
+  // coalesced per kind (lib/coalesce.ts) so a burst of N votes costs each
+  // subscriber one read, not N. The plans DELETE handler below can check
+  // `old.id`, because id IS the key.
   useEffect(() => {
     if (access !== "ready" || deleted || left) return;
+    const later = [refetchVotes, refetchRsvps, refetchRatings, refetchPlanSpots].map((run) => coalesce(run));
+    const [votesLater, rsvpsLater, ratingsLater, planSpotsLater] = later;
     const channel = getSupabase()
       .channel(`plan:${id}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "votes", filter: `plan_id=eq.${id}` },
-        () => void refetchVotes(),
+        votesLater,
       )
       .on(
         "postgres_changes",
@@ -365,22 +372,24 @@ export default function VotePage() {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "rsvps", filter: `plan_id=eq.${id}` },
-        () => void refetchRsvps(),
+        rsvpsLater,
       )
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "ratings", filter: `plan_id=eq.${id}` },
-        () => void refetchRatings(),
+        ratingsLater,
       )
       .on(
         "postgres_changes",
         { event: "UPDATE", schema: "public", table: "plan_spots", filter: `plan_id=eq.${id}` },
-        () => refetchPlanSpots(),
+        planSpotsLater,
       )
       .subscribe();
     dataChannelRef.current = channel;
+    cancelRefetchesRef.current = () => later.forEach((refetch) => refetch.cancel());
     return () => {
       dataChannelRef.current = null;
+      later.forEach((refetch) => refetch.cancel());
       getSupabase().removeChannel(channel);
     };
   }, [access, deleted, left, id, refetchVotes, refetchRsvps, refetchRatings, refetchPlanSpots]);
@@ -420,24 +429,12 @@ export default function VotePage() {
     };
   }, [access, id, voterName, left]);
 
-  // ── Tallies + this voter's picks ─────────────────────────────────
-  const currentPhase = stage === "pool" ? "pool" : "final";
-  const currentPoolNumber = stage === "pool" ? activePool : 0;
-  const voteIsInCurrentRound = (vote: Vote) =>
-    (vote.phase ?? "final") === currentPhase &&
-    (vote.pool_number ?? 0) === currentPoolNumber;
-  const yesCount = (spotId: string) =>
-    votes.filter((v) => v.spot_id === spotId && v.value && voteIsInCurrentRound(v)).length;
-  // Sorted so a re-render never reshuffles the faces; only genuinely new
-  // names should move, and OptionCard decides that by diffing this list.
-  const votersFor = (spotId: string) =>
-    votes
-      .filter((v) => v.spot_id === spotId && v.value && voteIsInCurrentRound(v))
-      .map((v) => v.voter_name)
-      .sort((a, b) => a.localeCompare(b));
+  // ── Tallies + this voter's picks (pure helpers in lib/tally.ts) ──
+  const round = roundFor(stage, activePool);
+  const { phase: currentPhase, poolNumber: currentPoolNumber } = round;
   const iVotedYes = (spotId: string) =>
     votes.some(
-      (v) => v.spot_id === spotId && v.voter_name === voterName && (!v.participant_token_hash || v.participant_token_hash === participantHash) && v.value && voteIsInCurrentRound(v),
+      (v) => v.spot_id === spotId && v.voter_name === voterName && (!v.participant_token_hash || v.participant_token_hash === participantHash) && v.value && isInRound(v, round),
     );
 
   // One choice per voter per pool/final. Picking another card replaces it.
@@ -652,6 +649,7 @@ export default function VotePage() {
       await presence.untrack().catch(() => undefined);
       await getSupabase().removeChannel(presence);
     }
+    cancelRefetchesRef.current();
     if (dataChannelRef.current) await getSupabase().removeChannel(dataChannelRef.current);
     // Forget this device's name for the plan, so rejoining starts fresh.
     try { localStorage.removeItem(`voter:${id}`); } catch { /* storage blocked */ }
@@ -1071,44 +1069,16 @@ export default function VotePage() {
     ...presentNames,
   ])].filter((name) => name !== voterName).sort((a, b) => a.localeCompare(b));
   roster.unshift(voterName);
-  const pickedThisRound = new Set(votes.filter((v) => v.value && voteIsInCurrentRound(v)).map((v) => v.voter_name));
+  const pickedThisRound = new Set(votes.filter((v) => v.value && isInRound(v, round)).map((v) => v.voter_name));
   const othersHere = presentNames.filter((name) => name !== voterName);
   const winnerSpot = spots.find((s) => s.id === winnerId) ?? null;
-  const advancedIds = planSpots.filter((link) => link.advanced).map((link) => link.spot_id);
-  const visibleSpots = stage === "pool"
-    ? spots.filter((spot) => planSpots.some(
-        (link) => link.spot_id === spot.id && (link.pool_number ?? 1) === activePool,
-      ))
-    : advancedIds.length > 0
-      ? spots.filter((spot) => advancedIds.includes(spot.id))
-      : spots;
+  const visibleSpots = visibleSpotsFor(spots, planSpots, stage, activePool);
   const hasCurrentSelection = visibleSpots.some((spot) => iVotedYes(spot.id));
-
-  // The card the room is converging on, for the After Dark sheen. A tie has
-  // no leader on purpose: sheening two cards would read as "both winning",
-  // which is the opposite of what a reveal is for. Zero votes has none either.
-  const leaderId = (() => {
-    const top = Math.max(0, ...visibleSpots.map((spot) => yesCount(spot.id)));
-    if (top === 0) return null;
-    const leaders = visibleSpots.filter((spot) => yesCount(spot.id) === top);
-    return leaders.length === 1 ? leaders[0].id : null;
-  })();
-  // SPECS.md §25.2 — plan gravity. The scalar everything reads from: an even
-  // split reads 0, unanimity reads 1. One pass over the visible counts,
-  // recomputed when a vote arrives rather than on a frame loop — that is the
-  // whole reason this is affordable. Votes are discrete Realtime events, so
-  // a round costs a handful of transitions, not sixty a second.
-  const agreement = (() => {
-    const counts = visibleSpots.map((spot) => yesCount(spot.id));
-    const total = counts.reduce((sum, n) => sum + n, 0);
-    const n = counts.length;
-    // No votes yet, or a single option: nothing has converged, so scatter is
-    // at full width. Guarding n <= 1 also keeps the 1/n term from dividing by
-    // zero when a round somehow renders one card.
-    if (total === 0 || n <= 1) return 0;
-    const share = Math.max(...counts) / total;
-    return Math.min(1, Math.max(0, (share - 1 / n) / (1 - 1 / n)));
-  })();
+  const countFor = (spotId: string) => yesCount(votes, spotId, round);
+  // Leader drives the After Dark sheen; agreement is §25.2 plan gravity,
+  // recomputed per Realtime vote event rather than on a frame loop.
+  const leaderId = leaderOf(visibleSpots.map((spot) => spot.id), countFor);
+  const agreement = agreementOf(visibleSpots.map((spot) => countFor(spot.id)));
 
   const poolsChosenByMe = new Set(
     votes
@@ -1252,8 +1222,8 @@ export default function VotePage() {
             >
               <OptionCard
                 spot={spot}
-                voters={votersFor(spot.id)}
-                yesCount={yesCount(spot.id)}
+                voters={votersFor(votes, spot.id, round)}
+                yesCount={countFor(spot.id)}
                 voted={iVotedYes(spot.id)}
                 isWinner={winnerId === spot.id}
                 isLeader={spot.id === leaderId}

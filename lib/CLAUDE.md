@@ -37,11 +37,5 @@ must not render as "nothing there".
 | `spots/`, `deal.ts` | dealing the nine | category "nearness" ordering lives in `spots/match.ts` |
 | `place-import/` | link intake, SSRF guards | allowlisted adapters only; never a generic fetch of an arbitrary URL |
 | `observability/` | structured logging | redaction matches by substring marker, not exact name |
-| `social.ts` | visits, friends, collections | **977 lines, over the hard limit** — split before adding |
+| `social.ts` | visits, friends, collections | **918 lines, over the hard limit** — split before adding |
 | `types.ts` | mirrors `supabase/schema.sql` | hand-synced, both change in one pass, CI enforces |
-
-## Deferred, not dead
-
-`getPeople`, `areFriends`, `getTaggedVisits`, `getSpotVisitors` have no callers
-and are waiting on unbuilt features. Confirm against git history before
-deleting anything here that merely looks unused.

@@ -15,7 +15,7 @@ async function check(path, expected, init) {
 
 if (!only020) {
   const login = await check("/login", 200);
-  await check("/home-preview", 200);
+  await check("/demo", 200);
   for (const name of ["content-security-policy", "x-content-type-options", "referrer-policy"]) {
     if (!login.headers.get(name)) throw new Error(`/login: missing ${name}`);
     console.log(`ok /login includes ${name}`);
