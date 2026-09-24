@@ -30,7 +30,7 @@ standards, place import, production checklists). History, only when chasing
 
 Known breaches — leave each smaller than you found it, never add a feature to
 one without splitting first: `app/globals.css`, `app/plan/[id]/page.tsx`,
-`lib/social.ts`, `components/AccountViews.tsx`.
+`components/AccountViews.tsx`.
 
 ## Keeping docs true
 
