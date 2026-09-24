@@ -8,6 +8,7 @@ import { directionsUrl, haversineKm } from "@/lib/directions";
 import UnrateButton from "@/components/UnrateButton";
 import WinnerReveal from "@/components/WinnerReveal";
 import PhotoCredit from "@/components/PhotoCredit";
+import PlanWeather from "@/components/PlanWeather";
 import { avatarStyle, initialsOf } from "@/lib/avatar";
 
 interface DecidedPlanProps {
@@ -187,6 +188,7 @@ export default function DecidedPlan({
       <div className="mt-4 border-t border-line pt-4">
         <p className="text-xs font-bold uppercase tracking-wide text-muted">When</p>
         {plan.event_time && !editingTime ? (
+          <>
           <div className="mt-1 flex items-center justify-between gap-3">
             <p className="font-display text-lg font-extrabold">
               {prettyTime(plan.event_time)}
@@ -201,6 +203,12 @@ export default function DecidedPlan({
               </button>
             )}
           </div>
+          {/* The forecast at the venue for that hour. Renders nothing while
+              loading, on failure, or with no venue coordinates. */}
+          {winner.latitude != null && winner.longitude != null && (
+            <PlanWeather latitude={winner.latitude} longitude={winner.longitude} at={plan.event_time} />
+          )}
+          </>
         ) : isHost ? (
           <div className="mt-2 flex flex-col gap-2 sm:flex-row">
             <input
