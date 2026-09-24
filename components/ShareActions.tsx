@@ -4,9 +4,9 @@ import { useSyncExternalStore, useState } from "react";
 import { haptic } from "@/lib/interaction";
 import { shareMessage, whatsappShareUrl } from "@/lib/share-preview";
 
-// In Dubai the plan link travels through WhatsApp, so that is the primary
-// share; the native sheet (where the browser has one) and copy-link sit
-// beside it. The link itself is the plan id, which is the capability: the
+// In Dubai the plan link travels through WhatsApp, so it leads the share row;
+// the native sheet (where the browser has one) and copy-link sit beside it.
+// Secondary weight: the round action above is the screen's one primary. The link itself is the plan id, which is the capability: the
 // preview a recipient sees before opening it is app/plan/[id]/layout.tsx.
 
 const noSubscribe = () => () => {};
@@ -66,7 +66,7 @@ export default function ShareActions({ title }: { title: string | null }) {
         target="_blank"
         rel="noopener noreferrer"
         onClick={() => haptic(10)}
-        className="vote-primary-action flex-1 rounded-2xl border-2 border-ink font-display text-lg font-extrabold"
+        className="vote-secondary-action flex-1 rounded-2xl border-2 border-ink bg-card font-display text-lg font-extrabold"
       >
         Share on WhatsApp
       </a>
