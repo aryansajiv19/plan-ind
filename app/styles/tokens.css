@@ -76,7 +76,6 @@
 
   /* The browns lead, so body text is brown, not black. */
   --color-ink: #051822; /* ink-navy — 16.65 canvas / 18.10 card */
-  --color-ink-2: #2d383e; /* secondary ink — 11.06 canvas / 12.02 card */
 
   /* Muted text takes the SECONDARY INK, not v7's grey. §19.1 lists
      #969A9E as decorative only at 2.83:1 — it cannot carry text, and this
@@ -142,12 +141,11 @@
   /* Error/urgent — validation errors, closing-soon warnings. */
   --color-error: #a3301f; /* carried: v7's six carry no error colour */
 
-  /* Legacy aliases. `text-grape` / `bg-zest` / `text-mint` are still
+  /* Legacy aliases. `text-grape` / `bg-mint` / `text-mint` are still
      scattered through the components; they resolve to the workhorse
      accent, which is safe for both the text and the background uses
      among them now that it needs no split. Do not add new uses. */
   --color-grape: #7c5841;
-  --color-zest: #7c5841;
   --color-mint: #7c5841;
 
   --font-display: var(--font-display-family), system-ui, sans-serif;
@@ -187,15 +185,10 @@
 :root {
   --background: var(--color-paper);
   --foreground: var(--color-ink);
-  --card: var(--color-card);
-  --card-foreground: var(--color-ink);
-  --popover: var(--color-card);
-  --popover-foreground: var(--color-ink);
   --primary: var(--color-punch);
   --primary-foreground: var(--primary-ink);
   --secondary: var(--color-card);
   --secondary-foreground: var(--color-ink);
-  --muted: var(--color-card);
   --muted-foreground: var(--color-muted);
   --accent: var(--color-accent-tint);
   --accent-foreground: var(--color-punch);
@@ -225,8 +218,6 @@
   --color-ring: var(--ring);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
 }
 
 /* ── Tokens that live in :root, not @theme, on purpose ─────────────
@@ -247,9 +238,6 @@
   /* Durations, named so they stop being pasted as magic numbers. */
   --dur-press: 200ms;
   --dur-state: 300ms;
-  --dur-entrance: 700ms;
-  --dur-follow: 180ms; /* parallax follow — linear, not eased */
-  --dur-return: 800ms; /* parallax return to rest — settle */
 }
 
 /* ── Night: a separate palette, not the day one dimmed ─────────────
@@ -292,7 +280,6 @@
      behind solving a problem that no longer exists. Keep treating surface
      dependence as the default assumption to CHECK for, though — it was
      real, and it was invisible by eye. */
-  --color-ink-2: #969a9e;
   --color-muted: #969a9e;
 
   /* §23.3. Brown #7C5841 does not survive dark — 2.87 canvas / 1.91 card —
@@ -333,7 +320,6 @@
      navy ink, not white — red-fill-white-text is a light-mode habit. */
 
   --color-grape: #bf977d;
-  --color-zest: #bf977d;
   --color-mint: #bf977d;
 
   /* Native controls, scrollbars and date pickers read this. */
