@@ -36,6 +36,7 @@ must not render as "nothing there".
 | `supabase/` | browser + server clients, config | |
 | `spots/`, `deal.ts` | dealing the nine | category "nearness" ordering lives in `spots/match.ts` |
 | `place-import/` | link intake, SSRF guards | allowlisted adapters only; never a generic fetch of an arbitrary URL |
+| `places/` | Google Places client, matcher, SQL gen, photo fallback | field masks are reviewed constants (billing tier); only `place_id` may be stored |
 | `observability/` | structured logging | redaction matches by substring marker, not exact name |
 | `social.ts` | visits, friends, collections | **918 lines, over the hard limit** — split before adding |
 | `types.ts` | mirrors `supabase/schema.sql` | hand-synced, both change in one pass, CI enforces |

@@ -27,6 +27,7 @@ to users; it exists to measure, verify or back-fill.
 | `check-spot-photo-urls.sh` | every `photo_url` resolves to a real image | run before applying any photo migration |
 | `smoke-test.mjs`, `verify-journey.mjs` | deployment verification | needs live infrastructure |
 | `backfill-*.mjs` | one-off data fills | keep, they document how the data got there |
+| `places-backfill.ts` | Google Places: place ids + venue photos → review file → staged migrations | `npm run places:backfill`; runbook in `docs/PLACES_INGESTION_SCOPE.md` |
 | `eval-smart-search.ts` | AI eval, opt-in | never in CI; one full run per day is the whole budget |
 | `load/` | concurrency + fan-out harness | mirrors the app's real queries — if the app changes its query, change this too, or you are measuring a query nobody runs |
 

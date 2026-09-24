@@ -41,6 +41,13 @@ export interface Spot {
   address: string | null;
   latitude: number | null;
   longitude: number | null;
+  /** 063: Google Places id, curated spots only. The ONLY Places field we
+   *  store (terms). Build a Maps link with lib/places/maps-url.ts; a
+   *  Google photo fallback comes from GET /api/spots/{id}/photo. Optional
+   *  because most reads select explicit columns and omit it. */
+  google_place_id?: string | null;
+  /** 063: when google_place_id was last confirmed against Google. */
+  places_synced_at?: string | null;
 }
 
 export interface Plan {

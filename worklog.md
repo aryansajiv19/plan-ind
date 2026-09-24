@@ -63,6 +63,7 @@ Apply in order. Every migration is additive and re-run safe unless noted.
 | 060 | `migration-060-delete-my-account.sql` | **yes — applied live 2026-09-18, owner-approved.** `delete_my_account` present. Two controls it must never lose: the privilege probe runs **inside a rollback before any photo is touched** (`auth.users` has RLS with no policies, so a privilege failure deletes 0 rows *without raising*, and the original order would have destroyed the photos and reported success), and the probe raises a private `PT060` rather than `P0001`, which an ordinary trigger also raises. |
 | 061 | `migration-061-vote-integrity-and-guest-limits.sql` | **NOT applied — staged 2026-09-24, needs owner approval and a `security` review.** Deletes duplicate votes/RSVPs/ratings per user first (keeps latest); back up or count the three tables before applying. Verify: three `*_user*_key` indexes in `pg_indexes`, new policies in `pg_policies`. |
 | 062 | `migration-062-plan-share-preview.sql` | **NOT applied — staged 2026-09-24.** `plan_share_preview(uuid)` for link previews: title, status, stage, deadline, host first name, spot count; callable by `anon`. Needs a `security` review, then owner approval. Link previews fall back to a generic card until it is live. |
+| 063 | `migration-063-google-place-ids.sql` | **NOT applied — staged 2026-09-24.** `spots.google_place_id` (format CHECK, curated-only CHECK, partial unique index) + `places_synced_at`, column SELECT grant; `consume_app_quota` gains `place-photo` (60/min, 600/day, 300/day global). Proven on local PG16 (shim + schema + seed, applied twice, negative controls). Needs `security` review, then owner approval. Generated `places-backfill-*` migrations follow it. |
 | 049 / 051 | `migration-049-hide-voter-user-id.sql`, `migration-051-hide-creator-user-id.sql` | **NOT applied — next in the queue, and now unblocked.** They were gated on the client deploy, which happened 2026-09-18. Verified still pending: `authenticated` can still SELECT `votes.user_id`. Needs the owner's approval like every migration. |
 
 `npm run test:smoke` asserts the 019 guards against the live project. All ten
@@ -178,3 +179,18 @@ request in `dealSpotIds`; `/home` Discover merges cached curated with a live
 non-curated read. Invalidation: a deploy or TTL; no revalidate route by
 design. Measured (prod build, stub Supabase counting requests, warm cache):
 landing 1→0, `/home` server 13→12 (+ browser 2→0), deal 6→5 round trips.
+
+## 2026-09-24 — backend: Google Places pipeline built, fixture-proven (no key yet)
+
+`npm run places:backfill` (dry-run by default, never writes a DB): Text Search
+(New) per curated spot with a pinned Enterprise field mask, name-F1 +
+distance matcher (`high` only when name and the spot's own pin agree within
+300 m, and no rival branch), venue `og:image` via new `safeFetchImage`
+(SSRF-pinned, 5 MB refuse-not-truncate, magic-byte sniff) → review file →
+`--write-sql` (offline) emits staged ids/photos migrations. Terms decision:
+only `place_id` stored; Google photos via `GET /api/spots/{id}/photo`
+(short-lived `photoUri` + attributions, `no-store`, quota-capped). Cost: 82
+requests, $0 in free tier / $2.87 worst case. Proven with fixtures + loopback
+mock server and PG16; the live `og:image` fetch was not exercisable from this
+sandbox (egress 403). Owner runbook: end of `docs/PLACES_INGESTION_SCOPE.md`.
+UI still has to call the photo route and render attributions (frontend lane).

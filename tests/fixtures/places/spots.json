@@ -1,0 +1,47 @@
+[
+  {
+    "id": "a0000000-0000-0000-0000-000000000004",
+    "name": "Bu Qtair",
+    "area": "Umm Suqeim",
+    "category": "dinner",
+    "latitude": 25.1515093,
+    "longitude": 55.1971669,
+    "photo_url": null
+  },
+  {
+    "id": "a0000000-0000-0000-0000-000000000005",
+    "name": "Tresind Studio",
+    "area": "DIFC",
+    "category": "dinner",
+    "latitude": null,
+    "longitude": null,
+    "photo_url": null
+  },
+  {
+    "id": "20000000-0000-0000-0000-000000000003",
+    "name": "Black Tap",
+    "area": "Jumeirah",
+    "category": "dessert",
+    "latitude": 25.0802779,
+    "longitude": 55.1360939,
+    "photo_url": null
+  },
+  {
+    "id": "10000000-0000-0000-0000-000000000004",
+    "name": "Saffron",
+    "area": "Atlantis",
+    "category": "brunch",
+    "latitude": null,
+    "longitude": null,
+    "photo_url": null
+  },
+  {
+    "id": "70000000-0000-0000-0000-000000000003",
+    "name": "Hummingbird",
+    "area": "JW Marriott Marquis",
+    "category": "karaoke",
+    "latitude": null,
+    "longitude": null,
+    "photo_url": null
+  }
+]

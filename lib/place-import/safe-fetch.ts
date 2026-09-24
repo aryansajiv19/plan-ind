@@ -73,7 +73,12 @@ async function resolvePublicHost(hostname: string): Promise<LookupAddress> {
 // the rest of this module reads it exactly as it read fetch()'s. Redirects
 // are never followed here; safeFetch re-resolves and re-checks every hop.
 // Exported only for tests/place-import-safe-fetch.test.ts.
-export function pinnedGet(target: URL, pinned: LookupAddress, signal: AbortSignal): Promise<Response> {
+export function pinnedGet(
+  target: URL,
+  pinned: LookupAddress,
+  signal: AbortSignal,
+  accept: readonly string[] = ALLOWED_CONTENT_TYPES,
+): Promise<Response> {
   const request = target.protocol === "https:" ? httpsRequest : httpRequest;
   return new Promise((resolve, reject) => {
     const req = request(target, {
@@ -81,7 +86,7 @@ export function pinnedGet(target: URL, pinned: LookupAddress, signal: AbortSigna
       agent: false,
       signal,
       // user-agent: what fetch() sent, so no site sees a behaviour change.
-      headers: { accept: ALLOWED_CONTENT_TYPES.join(", "), "user-agent": "node" },
+      headers: { accept: accept.join(", "), "user-agent": "node" },
       lookup: (_hostname, options, callback) => {
         if (options.all) callback(null, [pinned]);
         else callback(null, pinned.address, pinned.family);
@@ -166,6 +171,64 @@ export async function readCapped(response: Response): Promise<string> {
 // text. Throws SafeFetchError for anything that should surface as "couldn't
 // fetch" to the resolution pipeline (never a raw network error).
 export async function safeFetch(url: string): Promise<string> {
+  return safeGet(url, ALLOWED_CONTENT_TYPES, readCapped);
+}
+
+// Raster photos only. SVG is refused on purpose: it carries script, and a
+// logo is not a photo of the venue (scripts/backfill-spot-photos.mjs hit
+// exactly that with Dubai Safari Park).
+export const IMAGE_CONTENT_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+
+export interface SafeImage {
+  bytes: Uint8Array;
+  contentType: (typeof IMAGE_CONTENT_TYPES)[number];
+}
+
+// Same SSRF guarantees as safeFetch (every hop DNS-checked and pinned, one
+// deadline for the whole call), for a binary image. Unlike HTML, a truncated
+// image is garbage, so an oversized one is REFUSED rather than truncated.
+// Used by the Places photo backfill (lib/places/backfill.ts) to download a
+// venue's own og:image; never reachable from a request handler.
+export async function safeFetchImage(url: string): Promise<SafeImage> {
+  return safeGet(url, IMAGE_CONTENT_TYPES, async (response, contentType) => {
+    const bytes = await readBytes(response, MAX_IMAGE_BYTES);
+    if (!bytes) throw new SafeFetchError("That image is too large.");
+    return { bytes, contentType: contentType as SafeImage["contentType"] };
+  });
+}
+
+// Reads at most `limit` bytes; returns null (and cancels the stream) if the
+// body is longer. Exported for tests only.
+export async function readBytes(response: Response, limit: number): Promise<Uint8Array | null> {
+  if (!response.body) return new Uint8Array();
+  const reader = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.byteLength;
+    if (size > limit) {
+      await reader.cancel();
+      return null;
+    }
+    chunks.push(value);
+  }
+  const bytes = new Uint8Array(size);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return bytes;
+}
+
+async function safeGet<T>(
+  url: string,
+  accept: readonly string[],
+  readBody: (response: Response, contentType: string) => Promise<T>,
+): Promise<T> {
   let target = new URL(url);
   const deadline = Date.now() + TOTAL_TIMEOUT_MS;
   for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
@@ -200,7 +263,7 @@ export async function safeFetch(url: string): Promise<string> {
     try {
       let response: Response;
       try {
-        response = await pinnedGet(target, pinned, controller.signal);
+        response = await pinnedGet(target, pinned, controller.signal, accept);
       } catch {
         throw new SafeFetchError("That link could not be reached.");
       }
@@ -215,15 +278,15 @@ export async function safeFetch(url: string): Promise<string> {
       if (!response.ok) throw new SafeFetchError(`That link's server returned ${response.status}.`);
 
       const contentType = response.headers.get("content-type")?.split(";", 1)[0]?.trim() ?? "";
-      if (!ALLOWED_CONTENT_TYPES.includes(contentType)) {
+      if (!accept.includes(contentType)) {
         throw new SafeFetchError("That link did not return a supported content type.");
       }
 
-      // `return await`, deliberately: a bare `return readCapped(...)` would
+      // `return await`, deliberately: a bare `return readBody(...)` would
       // run the finally -- clearing the timeout -- before the body finished
       // streaming, which is the exact bug this block exists to close.
       try {
-        return await readCapped(response);
+        return await readBody(response, contentType);
       } catch (error) {
         if (error instanceof SafeFetchError) throw error;
         // An abort mid-stream surfaces as a raw AbortError; this module's

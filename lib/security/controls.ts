@@ -55,7 +55,7 @@ export function reportControlUnavailable(scope: string): void {
 
 export async function consumeQuota(
   supabase: SupabaseClient,
-  scope: "smart-search" | "plan-create" | "place-import" | "spot-deal" | "plan-command",
+  scope: "smart-search" | "plan-create" | "place-import" | "spot-deal" | "plan-command" | "place-photo",
 ): Promise<ControlResult> {
   const { data, error } = await supabase.rpc("consume_app_quota", {
     p_secret: controlSecret(),

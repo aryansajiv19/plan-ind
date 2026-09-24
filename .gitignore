@@ -72,6 +72,13 @@ next-env.d.ts
 # scripts/backfill-spot-photos.mjs writes its review output here.
 /scripts/spot-photos.local.json
 
+# scripts/places-backfill.ts: the review file holds Google Places content
+# (names, ratings, hours) that the Maps terms do not let us keep -- local,
+# temporary, delete once the migration is generated. Downloaded venue photos
+# wait here for the owner's dashboard upload.
+/scripts/places-review.local.json
+/scripts/places-photos.local/
+
 # Playwright global-setup writes the disposable local plan id here.
 /tests/e2e/.fixture.local.json
 
