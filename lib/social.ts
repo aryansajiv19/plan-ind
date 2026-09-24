@@ -11,8 +11,8 @@
 //
 // One setup rule: `visits.person_id` and `friendships.*` are foreign keys to
 // `people`, so the authenticated profile must exist before logging a visit
-// or adding a friend. AuthProfileBridge calls ensure_authenticated_profile()
-// when the protected app boots and caches the returned profile locally.
+// or adding a friend. /home creates it on first view (lib/own-profile.ts) and
+// AuthProfileBridge caches the result locally.
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getSupabase } from "./supabase";
