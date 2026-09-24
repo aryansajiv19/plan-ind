@@ -35,7 +35,9 @@ export async function POST(request: Request) {
   }
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user && process.env.NODE_ENV === "production") {
+  // Same refusal as /api/plans: a guest (anonymous) session costs nothing to
+  // mint, so it must not be able to spend model calls.
+  if (!user || user.is_anonymous) {
     return Response.json({ error: "Sign in to use smart search." }, { status: 401 });
   }
 
@@ -52,17 +54,16 @@ export async function POST(request: Request) {
   // Fail closed, same as /api/spots/deal: a missing age must not default to
   // an adult, or an age-restricted category becomes reachable for a caller
   // who never provided one.
-  const age = (user ? await memberAge(supabase, user.id) : null) ?? MIN_ACCOUNT_AGE;
+  const age = (await memberAge(supabase, user.id)) ?? MIN_ACCOUNT_AGE;
 
-  const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
-  const safetyIdentifier = privateIdentifier(user?.id ?? forwarded);
-  const quota = user ? await consumeQuota(supabase, "smart-search") : "allowed";
+  const safetyIdentifier = privateIdentifier(user.id);
+  const quota = await consumeQuota(supabase, "smart-search");
   if (quota === "unavailable") {
     reportControlUnavailable("smart-search");
     return Response.json({ error: CONTROL_UNAVAILABLE_MESSAGE }, { status: 503 });
   }
   if (quota === "limited") {
-    await recordSecurityEvent(supabase, { type: "ai_quota", outcome: "blocked", subject: user?.id ?? forwarded, requestId: request.headers.get("x-vercel-id") });
+    await recordSecurityEvent(supabase, { type: "ai_quota", outcome: "blocked", subject: user.id, requestId: request.headers.get("x-vercel-id") });
     return Response.json({ error: "Too many searches. Try again in a minute." }, { status: 429 });
   }
 

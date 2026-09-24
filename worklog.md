@@ -61,6 +61,7 @@ Apply in order. Every migration is additive and re-run safe unless noted.
 | 058 | `migration-058-plan-creation-invisible-titles.sql` | **NOT applied — deliberately deferred (LOW).** It rewrites `create_secure_plan` / `create_direct_plan` wholesale for a cosmetic title check. Retyping the app's two most important functions by hand on deploy day was not worth zero behaviour change. **Apply from the file, never retyped**, by a backend session. |
 | 059 | `migration-059-birth-date-correction-and-age-gates.sql` | **feature half applied live 2026-09-18, owner-approved.** `correct_birth_date` present, `member_ages.corrected_at` present. The `category_min_age` / `spot_required_age` consolidation inside the two creation functions was **skipped** — behaviour-identical today, and it carries the same retype risk as 058. |
 | 060 | `migration-060-delete-my-account.sql` | **yes — applied live 2026-09-18, owner-approved.** `delete_my_account` present. Two controls it must never lose: the privilege probe runs **inside a rollback before any photo is touched** (`auth.users` has RLS with no policies, so a privilege failure deletes 0 rows *without raising*, and the original order would have destroyed the photos and reported success), and the probe raises a private `PT060` rather than `P0001`, which an ordinary trigger also raises. |
+| 061 | `migration-061-vote-integrity-and-guest-limits.sql` | **NOT applied — staged 2026-09-24, needs owner approval and a `security` review.** Deletes duplicate votes/RSVPs/ratings per user first (keeps latest); back up or count the three tables before applying. Verify: three `*_user*_key` indexes in `pg_indexes`, new policies in `pg_policies`. |
 | 049 / 051 | `migration-049-hide-voter-user-id.sql`, `migration-051-hide-creator-user-id.sql` | **NOT applied — next in the queue, and now unblocked.** They were gated on the client deploy, which happened 2026-09-18. Verified still pending: `authenticated` can still SELECT `votes.user_id`. Needs the owner's approval like every migration. |
 
 `npm run test:smoke` asserts the 019 guards against the live project. All ten
@@ -146,3 +147,19 @@ Docs consolidated: 16 root docs → 5 (`CLAUDE.md`, `AGENTS.md`, `README.md`,
 `CLAUDE.md` told every session to navigate by it) deleted and ignored; README
 rewritten from create-next-app boilerplate; stale v1 claims removed from agent
 briefs. Sandbox cannot reach Supabase or the live URL (network policy).
+
+## 2026-09-24 — backend: migration 061 STAGED (unapplied) + two route/SSRF fixes
+
+`supabase/migration-061-vote-integrity-and-guest-limits.sql` is **written, NOT
+applied anywhere** (live DB unreachable from this session). It makes the auth
+user the ballot key (unique `votes(plan_id,user_id,phase,pool_number)`,
+`rsvps(plan_id,user_id)`, `ratings(plan_id,user_id)`, partial on user_id not
+null) so one session can no longer mint hashes/names for extra votes; it
+**first deletes duplicates, keeping the latest row per key**. `cast_plan_vote`
+now refuses after `plans.deadline`; names go through `clean_display_name`;
+guests cannot upload to `visit-photos`; `visit_photos` rows/files need a
+session. Mirrored at the end of `schema.sql`. App: `/api/smart-search` refuses
+guest sessions like `/api/plans`; `safeFetch` checks every resolved address and
+pins the connect to it; `ip-guard` covers NAT64, 6to4, IPv4-compatible,
+hex-mapped, 192.0.0.0/24, 198.18.0.0/15. Apply 061 only with owner approval,
+then verify by catalog probe (`pg_indexes` for the three `*_user*_key` indexes).
