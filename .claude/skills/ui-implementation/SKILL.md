@@ -6,7 +6,7 @@ description: "How to build UI in plan-ind without re-triggering bugs this repo h
 # UI implementation
 
 Training data will steer you wrong twice here: this is **Next.js 16**, whose App
-Router APIs differ from what you know, and `app/globals.css` is **Tailwind v4** —
+Router APIs differ from what you know, and `app/globals.css` (+ `app/styles/`) is **Tailwind v4** —
 CSS-native `@theme`, no `tailwind.config.ts`. Read `node_modules/next/dist/docs/`
 before using an App Router API you have not verified in this tree.
 

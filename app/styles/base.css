@@ -1,0 +1,155 @@
+/* app/styles/base.css — Element defaults, the press signature, shuffle tension, focus rings. */
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Display type is a SERIF now (Newsreader), and that changes two numbers the
+   old geometric sans wanted:
+
+   TRACKING. A geometric sans reads as confident when it is tracked tight, so
+   the headings here had crept to -.06em and -.08em. A high-contrast serif at
+   display size crushes at those values — its own sidebearings are already
+   doing the work. The handoff's -.03em turns out to be right for a serif and
+   too loose for the sans it was written for.
+
+   WEIGHT. The handoff says hero at 800. That was Manrope, where weight is
+   what buys presence. Newsreader at 800 goes blobby at 100px; the contrast
+   between thick and thin strokes is what carries a serif, so display sits at
+   400-600 and lets size and air do the rest. */
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+/* ── The signature element: press, and one hairline ────────────────
+   `.token` used to live here — a hard 5px/6px offset shadow that made
+   things look tappable. It is GONE, deliberately. The design handoff
+   rejected turn 8 for precisely that language ("thick ink-brass
+   outlines, hard offset shadows... nothing thinner than a 2px border"),
+   and turn 13 replaced it with restraint: depth comes from perspective
+   (see .tilt-card) and from one brass hairline, never from a drop.
+
+   What survives is the PRESS, which is the half that was always about
+   feel rather than decoration: down is a scale, not a translate, and the
+   status line afterwards says what actually happened. */
+@layer components {
+  .token {
+    transition:
+      transform var(--dur-press) var(--ease-settle),
+      background var(--dur-state) ease,
+      border-color var(--dur-state) ease;
+  }
+  .token:active:not(:disabled) {
+    transform: scale(0.97);
+    transition-duration: var(--dur-press);
+  }
+}
+
+/* ── The signature moment: shuffle tension ─────────────────────────
+   Loud lives here and nowhere else. The winner's token flips to Punch.
+   Reduced-motion strips it (below).                                  */
+@layer components {
+  .deck-shuffling .opt {
+    animation: jit 0.16s ease infinite;
+  }
+  @keyframes jit {
+    0%,
+    100% {
+      transform: translate(0, 0);
+    }
+    25% {
+      transform: translate(-2px, 1px);
+    }
+    75% {
+      transform: translate(2px, -1px);
+    }
+  }
+}
+
+/* Tab must never park a control under the sticky header (74px, z-index 20):
+   the browser scrolls a focused element flush to the viewport top, which put
+   it 25px behind the nav and hid the top of its ring. Measured on the photo
+   wall. This is the fix for that -- an inset ring cannot help, because the
+   CONTROL is under the bar, not just its outline. */
+:where(a, button, input, select, textarea, summary, [tabindex]) {
+  scroll-margin-top: 5.5rem;
+}
+
+/* Visible keyboard focus everywhere (quality floor).
+   The ring is drawn INSIDE the control's own box. Segmented controls here
+   sit between 0px and 9px apart — the category group tabs are flush — so any
+   outward offset paints over the neighbouring button instead of marking the
+   focused one.
+
+   currentColor, not --color-ink: a graphite ring inset into an INK-FILLED
+   button is ink on ink and invisible, which is how every primary button
+   ("Save memory", "Create", the nav's "Sign in") had no visible focus at all
+   in day — measured, then photographed. Following the control's own text
+   colour flips the ring to paper exactly where the fill is ink, and changes
+   nothing on paper-filled controls. Worst case in the app is a muted link's
+   ring at 12.02:1 day / 5.41:1 night, both well past SC 1.4.11's 3:1. */
+:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -2px;
+}
+
+/* SPECS.md §23.7 — the dark ring, and it was a shipping blocker rather
+   than polish: the graphite inset above is invisible on a near-black card,
+   which is keyboard access failing on the app's primary surface.
+
+   TWO bands, because no single colour can do the job. A focusable control
+   in dark sits on four grounds — card #051822, canvas #2D383E, and §21.3's
+   tan and light fills — spanning L* 7.2 to 81.8, and every single-value
+   candidate fails 3:1 on at least one of them (white is 1.62 on the light
+   fill; light is 1.00 on itself). Worst case for the pair is 4.59 on the
+   tan fill, and the bands separate from each other at 11.19 so the ring
+   reads as a ring rather than a smudge.
+
+   Swept the whole luminance range rather than only those four grounds: the
+   worst possible ground for this pair is mid-grey #6a6a6a at 3.35, still a
+   pass. No colour defeats it, so a new surface never needs it re-measured. */
+[data-theme="night"] {
+  --ring-outer: #d4c9c7;
+  --ring-inner: #051822;
+}
+/* `:root[...]` rather than `[data-theme="night"]` on purpose, and it is
+   load-bearing. A bare attribute selector plus :focus-visible scores
+   (0,2,0), which TIES with the ~20 per-component rules further down this
+   file (`.plan-category-group:focus-visible` and friends) — and a tie
+   loses to source order. Verified by Tab press before the fix: those rules
+   still painted their solid graphite outline over this ring, so dark
+   showed the two inset bands AND an ink outline, three visible bands on
+   one control, with an outward offset on the nav link that an ancestor's
+   overflow can clip. Adding :root takes this to (0,3,0) and it supersedes
+   them, which is the intent — §23.7 exists because the graphite ring is
+   invisible on a near-black card, so in dark it must replace rather than
+   accompany. */
+:root[data-theme="night"] :focus-visible {
+  /* Transparent, not removed. In forced-colors / Windows High Contrast the
+     box-shadow below is dropped entirely, and a transparent outline is
+     re-coloured by the OS — so this line is the ring for exactly the users
+     most likely to need it. */
+  outline: 2px solid transparent;
+  outline-offset: -2px;
+  /* Inset so an ancestor's overflow cannot clip it, and so it follows
+     border-radius for free.
+
+     ⚠ This REPLACES box-shadow, which is safe only because dark uses no
+     elevation shadows — a shadow must be darker than its ground and
+     #051822 is already at the floor, so soft elevation is structurally
+     invisible here and separation comes from value plus the --color-line
+     hairline. If any dark surface later gains an outer box-shadow, this
+     rule must APPEND to it, or focusing that surface silently deletes its
+     elevation. */
+  box-shadow:
+    inset 0 0 0 2px var(--ring-outer),
+    inset 0 0 0 4px var(--ring-inner);
+}

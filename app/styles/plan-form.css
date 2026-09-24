@@ -1,0 +1,673 @@
+/* app/styles/plan-form.css — The plan composer: form, smart search, category picker, custom place, submit. */
+
+.plan-form {
+  width: 100%;
+  text-align: left;
+}
+
+/* SPECS.md §10.1: the "skip the vote" form — shares .plan-form's own
+   fields (budget/origin/radius/title/submit) but has no category picker,
+   so it needs its own spot-identity header up top. */
+.direct-plan-form__spot {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 1.4rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-panel);
+  background: var(--color-card);
+}
+.direct-plan-form__spot-cat {
+  flex: 0 0 auto;
+  font-weight: 700;
+  color: var(--color-punch-text);
+}
+.direct-plan-form__spot small {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--color-muted);
+}
+.direct-plan-form__actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.direct-plan-form__cancel {
+  color: var(--color-muted);
+  font-size: 0.78rem;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 0.2rem;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+/* SPECS.md §10.1's second entry point: /home's Plan tab toggle. */
+.plan-mode-toggle {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 1.4rem;
+}
+.plan-mode-toggle button {
+  flex: 1;
+  min-height: 2.8rem;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--color-line);
+  background: transparent;
+  color: var(--color-muted);
+  font-size: max(0.74rem, var(--type-floor));
+  font-weight: 500;
+  cursor: pointer;
+}
+.plan-mode-toggle button[aria-pressed="true"] {
+  border-color: var(--color-ink);
+  color: var(--color-ink);
+  background: var(--color-card);
+}
+
+.plan-spot-search__field {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+.plan-spot-search__field input {
+  min-width: 0;
+  flex: 1;
+  min-height: 2.8rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--color-line);
+  background: var(--color-card);
+  color: var(--color-ink);
+}
+.plan-spot-search__field button {
+  min-height: 2.8rem;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--color-ink);
+  background: var(--color-ink);
+  color: var(--color-card);
+  font-size: max(0.68rem, var(--type-floor));
+  font-weight: 500;
+  cursor: pointer;
+}
+.plan-spot-search__field button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.plan-spot-search__results {
+  display: flex;
+  flex-direction: column;
+  margin-top: 0.75rem;
+}
+.plan-spot-search__results button {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.7rem;
+  padding: 0.65rem 0.2rem;
+  border: 0;
+  border-bottom: 1px solid var(--color-line);
+  background: transparent;
+  color: var(--color-ink);
+  font-size: 0.78rem;
+  text-align: left;
+  cursor: pointer;
+}
+.plan-spot-search__results button span {
+  color: var(--color-muted);
+}
+.plan-spot-search__empty {
+  margin-top: 0.75rem;
+  color: var(--color-muted);
+  font-size: max(0.74rem, var(--type-floor));
+}
+.plan-form__label {
+  display: block;
+  color: var(--color-muted);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.plan-form__label--spaced {
+  margin-top: 1.5rem;
+}
+
+.plan-smart-search {
+  margin-bottom: 1.4rem;
+  padding: 1rem;
+  border: 1px solid color-mix(in srgb, var(--home-metal) 58%, var(--color-line));
+  background: color-mix(in srgb, var(--home-metal) 4%, var(--color-card));
+}
+.plan-smart-search__heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.plan-smart-search__heading small {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--color-muted);
+  font-size: max(0.68rem, var(--type-floor));
+}
+.plan-smart-search textarea {
+  width: 100%;
+  min-height: 6.5rem;
+  margin-top: 0.9rem;
+  padding: 0.8rem;
+  border: 1px solid var(--color-line);
+  border-radius: 0;
+  background: var(--color-card);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  resize: vertical;
+}
+.plan-smart-search__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.4rem;
+  color: var(--color-muted);
+  font-size: max(0.66rem, var(--type-floor));
+  line-height: 1.4;
+}
+/* <small> is the UA's "smaller" (0.8em); restated so the floor reaches it. */
+.plan-smart-search__meta small {
+  font-size: max(0.8em, var(--type-floor));
+}
+.plan-smart-search__meta small:first-child {
+  max-width: 34rem;
+}
+.plan-smart-search__meta small:last-child {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+.plan-smart-search > button {
+  min-height: 2.65rem;
+  margin-top: 0.65rem;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--color-ink);
+  background: var(--color-ink);
+  color: var(--color-card);
+  font-size: max(0.7rem, var(--type-floor));
+  font-weight: 500;
+  cursor: pointer;
+}
+.plan-smart-search > button:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+.plan-smart-search__error {
+  margin-top: 0.65rem;
+  color: var(--color-punch-text);
+  font-size: max(0.7rem, var(--type-floor));
+}
+.plan-smart-result {
+  margin-top: 0.85rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--color-line);
+}
+.plan-smart-result > div:first-child {
+  display: block;
+}
+.plan-smart-result strong {
+  max-width: 28rem;
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+.plan-smart-result > div:last-child {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.7rem;
+}
+.plan-smart-result span {
+  padding: 0.35rem 0.45rem;
+  border: 1px solid var(--color-line);
+  color: var(--color-muted);
+  font-size: max(0.6rem, var(--type-floor));
+  text-transform: capitalize;
+}
+
+.plan-category-groups {
+  margin-top: 0.7rem;
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--color-line);
+  scrollbar-width: none;
+}
+
+.plan-category-groups::-webkit-scrollbar {
+  display: none;
+}
+
+.plan-category-group {
+  position: relative;
+  flex: 0 0 auto;
+  padding: 0.72rem 0.8rem;
+  border: 0;
+  background: transparent;
+  color: var(--color-muted);
+  font-size: max(0.72rem, var(--type-floor));
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* The underline is the group's own hue, so the five tabs read as five
+   different things rather than five words. It is never the only signal:
+   aria-pressed carries it, and the label darkens to full ink as well. */
+.plan-category-group::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 -1px;
+  height: 3px;
+  background: var(--home-metal);
+  transform: scaleX(0);
+  transition: transform 160ms ease;
+}
+
+.plan-category-group[aria-pressed="true"] {
+  color: var(--color-ink);
+}
+.plan-category-group[aria-pressed="true"]::after {
+  transform: scaleX(1);
+}
+
+.plan-category-options {
+  min-height: 7rem;
+  padding-top: 0.9rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.plan-category-option,
+.plan-deadline {
+  min-height: 2.75rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-control);
+  background: var(--color-card);
+  color: var(--color-ink);
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 150ms ease, background 150ms ease, color 150ms ease,
+    transform 300ms var(--ease-settle);
+}
+
+.plan-category-option:hover,
+.plan-deadline:hover {
+  border-color: var(--color-ink);
+}
+/* was a hardcoded cool rgba(36,27,46,.42) off the warm ramp */
+
+/* The chosen category fills with the open group's hue. A 3px inset bar on
+   the leading edge means the selection is still legible as a shape when the
+   colour is not — this is the one control where colour does real work. */
+.plan-category-option[aria-pressed="true"] {
+  border-color: var(--color-punch-text);
+  background: color-mix(in srgb, var(--home-metal) 12%, transparent);
+  box-shadow: inset 3px 0 0 var(--home-metal);
+  color: var(--color-ink);
+  /* Same spring as the vote card. These tiles sit in a fixed 2-column
+     grid with no scroll container, so the scale can be larger than
+     the card's without moving anything else. */
+  transform: scale(1.025);
+}
+
+.plan-deadline[aria-pressed="true"] {
+  border-color: var(--color-punch-text);
+  background: color-mix(in srgb, var(--home-metal) 9%, transparent);
+  color: var(--color-ink);
+  transform: scale(1.025);
+}
+
+.plan-form__input {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.85rem 0.95rem;
+  /* Was a hardcoded rgba(36, 27, 46, 0.34) — a cool violet-tinted line
+     that bypassed the token, sat off the warm ramp, and measured 2.09:1
+     against the card, below SC 1.4.11's 3:1 for a control boundary. */
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-control);
+  background: var(--color-card);
+  color: var(--color-ink);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.plan-custom-place {
+  margin-top: 1.25rem;
+  padding-block: 1rem;
+  border-block: 1px solid var(--color-line);
+}
+
+.plan-custom-place__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.plan-custom-place__header small {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--color-muted);
+  font-size: max(0.7rem, var(--type-floor));
+}
+
+.plan-custom-place__header > button,
+.plan-custom-place__save {
+  position: relative;
+  border: 0;
+  border-bottom: 1px solid var(--home-metal);
+  background: transparent;
+  color: var(--color-ink);
+  font-size: max(0.72rem, var(--type-floor));
+  font-weight: 500;
+  cursor: pointer;
+}
+/* 19px of text is a small target for a thumb AND for a mouse. The hit area
+   grows through an overlay rather than padding: padding would push the
+   metal underline away from the words it underlines. Nothing moves. */
+.plan-custom-place__header > button::before,
+.plan-custom-place__save::before {
+  content: "";
+  position: absolute;
+  inset: calc((2.75rem - 100%) / -2) 0;
+}
+
+.plan-custom-place__error {
+  margin-top: 0.6rem;
+  color: var(--color-error);
+  font-size: max(0.72rem, var(--type-floor));
+}
+.plan-custom-place__saved {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+}
+
+.plan-custom-place__saved > button {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.7rem 0.75rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--color-ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.plan-custom-place__saved > button[aria-pressed="true"] {
+  border-color: var(--color-punch-text);
+  box-shadow: inset 2px 0 0 var(--home-metal);
+}
+
+.plan-custom-place__saved strong {
+  font-size: 0.75rem;
+  font-weight: 650;
+}
+.plan-custom-place__saved span {
+  color: var(--color-muted);
+  font-size: max(0.62rem, var(--type-floor));
+  text-transform: capitalize;
+}
+
+.plan-custom-place__editor {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-line);
+}
+
+.plan-custom-place__editor label,
+.plan-custom-place__editor fieldset {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+  border: 0;
+}
+
+.plan-custom-place__editor label > span,
+.plan-custom-place__editor legend {
+  color: var(--color-muted);
+  font-size: max(0.65rem, var(--type-floor));
+  font-weight: 500;
+}
+
+.plan-custom-place__editor input,
+.plan-custom-place__editor textarea {
+  width: 100%;
+  padding: 0.7rem 0.75rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-control);
+  background: var(--color-card);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 0.78rem;
+}
+
+.plan-custom-place__editor textarea {
+  min-height: 5rem;
+  resize: vertical;
+}
+.plan-custom-place__wide {
+  grid-column: 1 / -1;
+}
+
+.plan-custom-place__editor fieldset > div {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.plan-custom-place__editor fieldset button {
+  min-height: 2.4rem;
+  border: 1px solid var(--color-line);
+  border-right-width: 0;
+  background: transparent;
+  color: var(--color-muted);
+  font-size: max(0.68rem, var(--type-floor));
+  text-transform: capitalize;
+  cursor: pointer;
+}
+
+.plan-custom-place__editor fieldset button:last-child {
+  border-right-width: 1px;
+}
+.plan-custom-place__editor fieldset button[aria-pressed="true"] {
+  border-color: var(--color-punch-text);
+  background: var(--home-metal);
+  color: var(--color-ink);
+}
+/* dark ink on the tan fill = 5.74:1; --primary-ink is white in v6 and would be 2.51:1 here */
+.plan-custom-place__save {
+  justify-self: start;
+  padding: 0.45rem 0;
+}
+.plan-custom-place__save:disabled {
+  cursor: wait;
+  opacity: 0.45;
+}
+
+.plan-round-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  margin-top: 1.15rem;
+  border-block: 1px solid var(--color-line);
+}
+
+.plan-round-summary span {
+  display: grid;
+  gap: 0.12rem;
+  padding: 0.65rem 0.4rem;
+  border-left: 1px solid var(--color-line);
+  color: var(--color-muted);
+  font-size: max(0.58rem, var(--type-floor));
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.plan-round-summary span:first-child {
+  border-left: 0;
+}
+.plan-round-summary strong {
+  color: var(--color-ink);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.plan-constraints {
+  margin-top: 1.2rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.plan-constraints__heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: baseline;
+}
+
+.plan-constraints__heading small {
+  color: var(--color-muted);
+  font-size: max(0.65rem, var(--type-floor));
+}
+.plan-constraints fieldset {
+  min-width: 0;
+  border: 0;
+}
+.plan-constraints legend,
+.plan-location-fields label > span {
+  display: block;
+  margin-bottom: 0.45rem;
+  color: var(--color-muted);
+  font-size: max(0.65rem, var(--type-floor));
+  font-weight: 500;
+}
+
+.plan-choice-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.plan-choice-strip--budget {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+.plan-choice-strip button {
+  min-height: 2.55rem;
+  padding: 0.45rem;
+  border: 1px solid var(--color-line);
+  border-right-width: 0;
+  background: transparent;
+  color: var(--color-muted);
+  font-size: max(0.63rem, var(--type-floor));
+  font-weight: 650;
+  cursor: pointer;
+}
+.plan-choice-strip button:last-child {
+  border-right-width: 1px;
+}
+.plan-choice-strip button[aria-pressed="true"] {
+  border-color: var(--color-punch-text);
+  background: color-mix(in srgb, var(--home-metal) 10%, transparent);
+  color: var(--color-ink);
+}
+.plan-location-fields {
+  display: grid;
+  grid-template-columns: minmax(10rem, 0.7fr) minmax(0, 1.3fr);
+  gap: 0.8rem;
+  align-items: end;
+}
+.plan-location-fields select {
+  width: 100%;
+  /* `height` as well as `min-height`, and the height is the one that does
+     the work in Safari. WebKit discards an author min-height on a <select>
+     that still has its native `appearance` — computed min-height came back
+     as the UA's own 18px, so this control rendered 19px tall on Safari at
+     EVERY width while Chromium showed the intended 40.8px. Proven by
+     probe: adding `appearance: none` makes WebKit honour the min-height
+     again, but that also removes the native chevron, which would be a
+     redesign of the control rather than a fix. min-height stays for
+     Chromium and Firefox and for whenever WebKit changes its mind. */
+  height: 2.55rem;
+  min-height: 2.55rem;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--color-line);
+  border-radius: 0;
+  background: var(--color-card);
+  color: var(--color-ink);
+  font-size: max(0.7rem, var(--type-floor));
+}
+.plan-location-fields fieldset:disabled {
+  opacity: 0.38;
+}
+
+.plan-deadlines {
+  margin-top: 0.55rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.plan-submit {
+  width: 100%;
+  min-height: 3.5rem;
+  margin-top: 1.5rem;
+  padding: 0.8rem 1.2rem;
+  border: 1px solid var(--color-ink);
+  border-radius: var(--radius-control);
+  /* The filled-primary pair, not `var(--color-ink)` + `color: white`.
+     Those two mechanisms agreed only by coincidence in light, where the
+     ink IS dark and white sits on it at 18.10 — so the hardcoded white
+     never looked wrong and the --primary-* pair went unused on the app's
+     own primary controls while /login quietly used it. In dark the ink is
+     #D4C9C7 and white on it is 1.62: the button's own label, unreadable.
+     Reading the pair makes both grounds correct from one declaration. */
+  background: var(--primary-fill);
+  color: var(--primary-ink);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 260ms var(--ease-settle), box-shadow 150ms ease, opacity 150ms ease;
+}
+
+.plan-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+.plan-submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+.plan-form__error {
+  margin-top: 0.8rem;
+  color: var(--color-punch-text);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+.plan-form__demo-note {
+  margin-top: 0.75rem;
+  color: var(--color-muted);
+  font-size: max(0.72rem, var(--type-floor));
+  line-height: 1.45;
+}
+.plan-form__demo-note a {
+  color: var(--color-punch-text);
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

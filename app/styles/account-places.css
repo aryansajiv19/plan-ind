@@ -1,0 +1,546 @@
+/* app/styles/account-places.css — Account views, places side: Discover, the link importer, collections, the Been grid. */
+
+/* Populated account preview views. Every `next/image` fill parent is
+   explicitly positioned and sized so media cannot escape into the page. */
+.demo-place-card__image,
+.demo-visit__image,
+.demo-photo-upload__preview,
+.demo-photo-strip > span {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.demo-place-card__image,
+.demo-visit__image {
+  aspect-ratio: 16 / 10;
+}
+.demo-photo-upload__preview {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+.demo-photo-strip > span {
+  min-height: 10rem;
+}
+
+.demo-place-card__image img,
+.demo-visit__image img,
+.demo-photo-upload__preview img,
+.demo-photo-strip img {
+  object-fit: cover;
+}
+
+.demo-place-card__image,
+.demo-visit__image,
+.demo-photo-strip > span {
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--color-ink) 12%, var(--color-card));
+}
+/* was a hardcoded #dedbd4 */
+
+.demo-view {
+  width: min(100% - 2 * var(--page-gutter), 76rem);
+  min-height: calc(100dvh - 7rem);
+  margin-inline: auto;
+  padding: clamp(2.5rem, 6vw, 5rem) 0 6rem;
+}
+
+.demo-view__header {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(18rem, 0.55fr);
+  gap: 2rem;
+  align-items: end;
+}
+
+/* SPECS.md §18: these were larger and bolder than the real front-door hero
+   (.home-title, ceiling 4.75rem / weight 500) that they sit under in the
+   hierarchy. Section headers now match the hero's weight and stay well
+   below its size. .demo-profile-head h1 diverges below — a signed-in
+   username is a data label, not copy. */
+.demo-view__header h1,
+.demo-profile-head h1 {
+  max-width: 48rem;
+  margin-top: 0.7rem;
+  font-size: clamp(2.2rem, 4vw, 3.4rem);
+  line-height: 0.96;
+  letter-spacing: -0.055em;
+  font-weight: 500;
+}
+
+.demo-view__header > p {
+  max-width: 30rem;
+  color: var(--color-muted);
+  line-height: 1.55;
+}
+
+.place-link-importer {
+  margin-top: 2.5rem;
+  display: grid;
+  grid-template-columns: minmax(15rem, 0.55fr) minmax(20rem, 1fr) minmax(11rem, 0.45fr);
+  gap: 1.5rem;
+  align-items: start;
+  padding-block: 1.5rem;
+  border-block: 1px solid var(--color-line);
+}
+.place-link-importer__intro h2 {
+  margin-top: 0.5rem;
+  font-size: 1.55rem;
+  letter-spacing: -0.025em;
+}
+.place-link-importer__intro > p:last-child {
+  max-width: 24rem;
+  margin-top: 0.6rem;
+  color: var(--color-muted);
+  font-size: max(0.74rem, var(--type-floor));
+  line-height: 1.5;
+}
+.place-link-importer form > label,
+.place-link-importer legend {
+  display: block;
+  margin-bottom: 0.4rem;
+  color: var(--color-muted);
+  font-size: max(0.63rem, var(--type-floor));
+  font-weight: 500;
+}
+.place-link-importer__field {
+  display: flex;
+}
+.place-link-importer__field input {
+  min-width: 0;
+  flex: 1;
+  min-height: 2.8rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--color-line);
+  background: var(--color-card);
+  color: var(--color-ink);
+}
+.place-link-importer__field button {
+  min-height: 2.8rem;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--color-ink);
+  background: var(--color-ink);
+  color: var(--color-card);
+  font-size: max(0.68rem, var(--type-floor));
+  font-weight: 500;
+  cursor: pointer;
+}
+.place-link-importer__field button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.place-link-importer fieldset {
+  margin-top: 0.7rem;
+  border: 0;
+}
+.place-link-importer fieldset > div {
+  display: flex;
+}
+.place-link-importer fieldset button {
+  min-height: 2.35rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--color-line);
+  background: transparent;
+  color: var(--color-muted);
+  font-size: max(0.64rem, var(--type-floor));
+  cursor: pointer;
+}
+.place-link-importer fieldset button + button {
+  border-left: 0;
+}
+.place-link-importer fieldset button[aria-pressed="true"] {
+  border-color: var(--color-punch-text);
+  color: var(--color-ink);
+}
+.place-link-importer__message,
+.place-link-importer__error {
+  margin-top: 0.65rem;
+  font-size: max(0.68rem, var(--type-floor));
+}
+.place-link-importer__message {
+  color: var(--color-punch-text);
+}
+.place-link-importer__error {
+  color: var(--color-error);
+}
+.place-link-importer__saved > p {
+  margin-bottom: 0.35rem;
+  color: var(--color-muted);
+  font-size: max(0.62rem, var(--type-floor));
+  font-weight: 500;
+}
+.place-link-importer__saved-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .6rem;
+}
+.place-link-importer__saved-head p {
+  margin-bottom: .35rem;
+  color: var(--color-muted);
+  font-size: max(.62rem, var(--type-floor));
+  font-weight: 500;
+}
+.place-link-importer__saved-head span {
+  color: var(--color-muted);
+  font-size: max(.58rem, var(--type-floor));
+}
+.place-link-importer__filters {
+  display: flex;
+  gap: .3rem;
+  margin-bottom: .35rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.place-link-importer__filters::-webkit-scrollbar {
+  display: none;
+}
+.place-link-importer__filters button {
+  flex: 0 0 auto;
+  padding: .35rem .5rem;
+  border: 1px solid var(--color-line);
+  background: transparent;
+  color: var(--color-muted);
+  font-size: max(.58rem, var(--type-floor));
+  font-weight: 500;
+  cursor: pointer;
+}
+.place-link-importer__filters button[aria-pressed="true"] {
+  border-color: var(--color-ink);
+  background: var(--color-ink);
+  color: var(--color-card);
+}
+.place-link-importer__result {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--color-line);
+  color: var(--color-ink);
+  font-size: max(0.67rem, var(--type-floor));
+  text-decoration: none;
+}
+.place-link-importer__result small {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--color-muted);
+}
+.place-link-importer__result-label {
+  color: var(--color-muted);
+}
+.place-link-importer__result-cat {
+  flex: 0 0 auto;
+  font-weight: 500;
+  color: var(--color-punch-text);
+}
+.place-link-importer__result--candidates a {
+  color: var(--color-punch-text);
+  text-decoration: underline;
+  text-underline-offset: 0.15rem;
+}
+.place-link-importer__result--failed {
+  color: var(--color-muted);
+}
+/* Inline link: rings outward. An inset ring on a text-height inline box
+   cuts through the words, and prose links have no neighbouring control
+   to overlap. */
+.place-link-importer a:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 1px;
+}
+
+.demo-discover-tools {
+  margin-top: 2.5rem;
+  display: grid;
+  grid-template-columns: minmax(16rem, 0.65fr) minmax(0, 1fr);
+  gap: 1.2rem;
+  align-items: end;
+  padding-block: 1rem;
+  border-block: 1px solid var(--color-line);
+}
+
+.demo-discover-tools label span {
+  display: block;
+  margin-bottom: 0.45rem;
+  color: var(--color-muted);
+  font-size: max(0.68rem, var(--type-floor));
+  font-weight: 500;
+}
+.demo-discover-tools input {
+  width: 100%;
+  min-height: 2.8rem;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--color-line);
+  background: var(--color-card);
+  color: var(--color-ink);
+}
+
+.demo-filter-tabs {
+  display: flex;
+  gap: 0.35rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.demo-filter-tabs::-webkit-scrollbar {
+  display: none;
+}
+.demo-filter-tabs button {
+  flex: 0 0 auto;
+  min-height: var(--btn-h-sm);
+  padding: var(--btn-pad-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-muted);
+  font-size: max(0.72rem, var(--type-floor));
+  font-weight: 500;
+  cursor: pointer;
+}
+.demo-filter-tabs button[aria-pressed="true"] {
+  border-color: var(--color-punch-text);
+  color: var(--color-ink);
+}
+
+.demo-place-grid {
+  margin-top: 2.5rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3rem 2rem;
+}
+/* Most Discover cards do have a photograph, so the group hue needs somewhere
+   to live above it. A 3px masthead rule — same device as .vote-shell, so a
+   place and the plan you make from it read as the same kind of night. */
+.demo-place-card {
+  min-width: 0;
+  border-top: 3px solid var(--color-line);
+}
+.demo-place-card__body {
+  padding: 1rem 0 1.5rem;
+}
+.demo-place-card__meta,
+.demo-visit__top {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--color-muted);
+  font-size: max(0.68rem, var(--type-floor));
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+/* The category label on a place card is the one word that says what kind of
+   outing this is, so it carries the group hue. Falls back to champagne on
+   any card without a data-group ancestor. */
+.demo-place-card__meta span:first-child {
+  color: var(--color-punch-text);
+}
+.demo-visit__top strong {
+  color: var(--color-punch-text);
+}
+.demo-place-card h2,
+.demo-visit h2 {
+  margin-top: 0.65rem;
+  font-size: 1.45rem;
+}
+.demo-place-card__area {
+  margin-top: 0.2rem;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+}
+.demo-place-card__body > p:not(.demo-place-card__area, .demo-place-card__context) {
+  margin-top: 0.8rem;
+  line-height: 1.5;
+}
+.demo-place-card__context {
+  margin-top: 0.8rem;
+  padding-top: 0.75rem;
+  border-top: 2px solid var(--color-line);
+  color: var(--color-ink);
+  font-size: max(0.74rem, var(--type-floor));
+  font-weight: 600;
+}
+.demo-place-card button,
+.demo-primary-action {
+  margin-top: 1rem;
+  min-height: var(--btn-h-md);
+  padding: var(--btn-pad-md);
+  border: 1px solid var(--color-ink);
+  background: var(--color-ink);
+  color: var(--color-card);
+  font-size: max(0.72rem, var(--type-floor));
+  font-weight: 700;
+  cursor: pointer;
+}
+.demo-empty {
+  margin-top: 2rem;
+  padding: 3rem 0;
+  border-block: 1px solid var(--color-line);
+  color: var(--color-muted);
+}
+
+.demo-account-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+.demo-account-stats span {
+  display: grid;
+  gap: 0.2rem;
+  color: var(--color-muted);
+  font-size: max(0.68rem, var(--type-floor));
+}
+.demo-account-stats strong {
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: 1.65rem;
+  font-weight: 600;
+}
+
+.demo-collection-bar {
+  margin-top: 2.5rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(16rem, 0.42fr);
+  gap: 1.5rem;
+  align-items: end;
+  padding-block: 1rem;
+  border-block: 1px solid var(--color-line);
+}
+.demo-collection-tabs {
+  display: flex;
+  gap: 0.35rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.demo-collection-tabs::-webkit-scrollbar {
+  display: none;
+}
+.demo-collection-tabs button {
+  flex: 0 0 auto;
+  min-height: var(--btn-h-sm);
+  padding: var(--btn-pad-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-muted);
+  font-size: max(0.68rem, var(--type-floor));
+  font-weight: 650;
+  cursor: pointer;
+}
+.demo-collection-tabs button[aria-selected="true"] {
+  border-color: var(--color-punch-text);
+  color: var(--color-ink);
+}
+.demo-collection-tabs span {
+  margin-left: 0.3rem;
+  color: var(--color-punch-text);
+  font-size: max(0.58rem, var(--type-floor));
+}
+.demo-collection-create > label {
+  display: block;
+  margin-bottom: 0.4rem;
+  color: var(--color-muted);
+  font-size: max(0.62rem, var(--type-floor));
+  font-weight: 500;
+}
+.demo-collection-create > div {
+  display: flex;
+}
+.demo-collection-create input {
+  min-width: 0;
+  flex: 1;
+  min-height: 2.65rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--color-line);
+  background: var(--color-card);
+  color: var(--color-ink);
+}
+.demo-collection-create button {
+  min-height: var(--btn-h-md);
+  padding: var(--btn-pad-md);
+  border: 1px solid var(--color-ink);
+  background: var(--color-ink);
+  color: var(--color-card);
+  font-size: max(0.66rem, var(--type-floor));
+  font-weight: 500;
+  cursor: pointer;
+}
+.demo-collection-create button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.demo-visit-grid {
+  margin-top: 2.5rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+.demo-visit {
+  min-width: 0;
+  border-top: 0;
+}
+.demo-visit--featured {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1.12fr 0.88fr;
+}
+.demo-visit--featured .demo-visit__image {
+  aspect-ratio: auto;
+  min-height: 24rem;
+}
+.demo-visit__content {
+  padding: 1rem 0 1.4rem;
+}
+.demo-visit--featured .demo-visit__content {
+  padding: 1.5rem;
+  border: 1px solid var(--color-line);
+  border-left: 0;
+}
+.demo-visit__content > p:not(.demo-place-card__area) {
+  margin-top: 0.8rem;
+  color: var(--color-muted);
+  line-height: 1.5;
+}
+.demo-visit__people {
+  margin-top: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  color: var(--color-muted);
+  font-size: max(0.72rem, var(--type-floor));
+}
+.demo-visit__collection-action {
+  margin-top: 1rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--color-line);
+}
+.demo-visit__collection-action label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  color: var(--color-muted);
+  font-size: max(0.65rem, var(--type-floor));
+}
+/* height stated for the same WebKit reason as .plan-location-fields select:
+   a native <select> sized only by padding renders ~18px on Safari against
+   the ~31px Chromium gives it. The value is what Chromium already
+   produced, so this changes nothing on Chromium and fixes Safari. */
+.demo-visit__collection-action select {
+  height: 2rem;
+  max-width: 11rem;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid var(--color-line);
+  background: var(--color-card);
+  color: var(--color-ink);
+  font-size: max(0.65rem, var(--type-floor));
+}
+.demo-visit__collection-action button,
+.demo-collection-empty button {
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid var(--home-metal);
+  background: transparent;
+  color: var(--color-ink);
+  font-size: max(0.65rem, var(--type-floor));
+  font-weight: 500;
+  cursor: pointer;
+}

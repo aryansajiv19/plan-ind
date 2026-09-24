@@ -1,0 +1,408 @@
+/* app/styles/vote-result.css — The winner reveal, the decided plan, RSVP and rating, press feedback. */
+
+/* SPECS.md §14.2 / §25: the winner reveal. The canvas is the transition;
+   this heading is the destination, and it is always in the DOM. */
+.winner-reveal {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 400 / 220;
+  /* Cap the PANEL, not the font. The settled size is derived from the panel
+     width, so capping the font alone would reintroduce exactly the
+     assemble-then-snap mismatch this sizing exists to remove. A no-op at
+     today's widths (the panel measures ~640px at 1440) — this is the guard
+     for a wider container later. */
+  max-width: 42rem;
+  margin-inline: auto;
+  margin-bottom: 1rem;
+  padding: 0 7%;
+  border-radius: var(--radius-panel);
+  overflow: hidden;
+  background: var(--color-card);
+}
+.winner-reveal__img {
+  object-fit: cover;
+}
+.winner-reveal__scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--photo-scrim);
+}
+.winner-reveal__canvas {
+  /* Sits on top of the heading it was sampled from, so the swap has nothing
+     to move. Absolutely positioned rather than replacing the heading, which
+     is what lets the heading stay measurable while the particles run. */
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.winner-reveal__name {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-family: var(--font-display);
+  /* PRE-JS FALLBACK ONLY. The real size is set inline once the particles
+     have been fitted, because it depends on both the name's length and the
+     panel's width and no CSS unit can see either — see WinnerReveal. This
+     value is what shows before that measurement lands, and what a
+     no-JavaScript render keeps. Real text either way: sharp at any device
+     pixel ratio, where the canvas above it is a fixed 400x220 buffer
+     stretched to the panel, roughly 5x on a retina phone. */
+  font-size: clamp(2.4rem, 7vw, 4rem);
+  font-weight: 800;
+  line-height: 1;
+  text-align: center;
+  text-wrap: balance;
+  color: var(--color-ink);
+}
+/* Hidden from view, NOT from layout: the sampling reads its computed font
+   size and the particles land on it, so it has to keep occupying its box. */
+.winner-reveal__name[data-hidden] {
+  visibility: hidden;
+}
+/* Over a photograph the ink pair flips to the photo tokens, exactly as
+   .place-hero does — those keep their night values on both grounds because
+   a headline that inherits the surface theme disappears on an image. */
+.winner-reveal[data-photo] .winner-reveal__name {
+  color: var(--photo-ink);
+}
+
+.vote-result__category {
+  border: 1px solid var(--color-punch-text);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-punch-text);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.vote-result a {
+  color: var(--color-punch-text);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.vote-result__booked {
+  border: 1px solid var(--color-punch-text);
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-punch-text);
+}
+.vote-result button[aria-pressed="true"]:not(.vote-rating-button) {
+  border-color: var(--color-punch-text);
+  background: var(--vote-metal);
+  color: var(--color-ink);
+}
+/* dark ink on the tan fill = 5.74:1 */
+.vote-action-hint {
+  margin-top: 0.65rem;
+  color: var(--color-muted);
+  font-size: max(0.72rem, var(--type-floor));
+  line-height: 1.45;
+}
+
+/* Desktop reading tier (owner, 2026-09-16). Labels hold the 12px floor; the
+   lines a person actually reads to decide — a card's hours and price, the
+   hint under the round — get 13px. The plan form's helper text stays on the
+   floor: at 13px it matched the label it sits under. Scoped to those,
+   not the global floor, so the gap to 14-16px body text survives. */
+@media (min-width: 641px) {
+  .vote-option__meta.text-xs,
+  .vote-action-hint {
+    font-size: 0.8125rem;
+  }
+  /* Decided: the reveal spans the panel so it shares both edges with the
+     rows below it (the 42rem cap inset it ~46px each side at 1280), and the
+     copy action sizes to its label instead of a 764px bar. */
+  .vote-result .winner-reveal {
+    max-width: none;
+  }
+  .vote-result__primary.w-full {
+    width: auto;
+    min-width: 18rem;
+  }
+  /* The "New plan" tag sat across the card's top border. In flow, it
+     shares the form's left edge and overlaps nothing. */
+  .home-plan-card__tape {
+    position: static;
+    display: inline-block;
+    margin-bottom: 1.25rem;
+  }
+}
+.vote-rsvp-choices {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.35rem;
+}
+.vote-rsvp-choices .vote-result__button {
+  padding: 0.55rem 0.65rem;
+  font-size: max(0.68rem, var(--type-floor));
+}
+/* R1: host-only delete. Quiet until armed; the armed state names the plan
+   and its voters. Red is paired with the words, never the only signal. */
+.vote-delete {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 1.25rem;
+  align-items: center;
+  margin-top: 1rem;
+  font-size: 0.75rem;
+}
+/* C5: edit before voting starts. Two fields and a save, on the round's own
+   rail; the danger-free actions stay quiet like Delete's trigger. */
+.vote-edit {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-line);
+}
+.vote-edit label {
+  display: grid;
+  gap: 0.35rem;
+  font-size: max(0.75rem, var(--type-floor));
+  font-weight: 600;
+}
+.vote-edit input {
+  min-height: 2.75rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--color-line);
+  background: var(--color-card);
+  color: var(--color-ink);
+  font: inherit;
+  font-weight: 400;
+}
+.vote-edit__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: center;
+}
+.vote-edit__actions button {
+  min-height: 2.75rem;
+  font: inherit;
+  cursor: pointer;
+}
+.vote-edit__save {
+  padding: 0 1.1rem;
+  border: 1px solid var(--color-ink);
+  background: var(--color-ink);
+  color: var(--color-card);
+  font-weight: 600;
+}
+.vote-edit__actions button[type="button"] {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-muted);
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+.vote-edit button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.vote-edit__error {
+  flex-basis: 100%;
+  color: var(--color-error);
+  font-size: max(0.75rem, var(--type-floor));
+}
+.vote-delete button {
+  min-height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-muted);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+  cursor: pointer;
+}
+.vote-delete__confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.2rem 1rem;
+}
+.vote-delete__confirm p {
+  flex-basis: 100%;
+  color: var(--color-ink);
+  line-height: 1.45;
+}
+.vote-delete .vote-delete__go {
+  color: var(--color-error);
+}
+.vote-delete button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.vote-carpool {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 0.75rem;
+  margin-top: 0.9rem;
+}
+.vote-carpool__seats {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+.vote-carpool__seats select {
+  min-height: 2.75rem;
+  padding: 0 0.6rem;
+  font-size: 0.8rem;
+}
+
+@media (max-width: 640px) {
+  .vote-experience {
+    padding-inline: 0.75rem !important;
+    padding-top: 1rem !important;
+  }
+  .vote-shell {
+    padding: 0.9rem !important;
+  }
+  .vote-header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .vote-header h1 {
+    max-width: 100%;
+    font-size: 1.65rem;
+  }
+  .vote-deadline {
+    margin-left: auto;
+  }
+  .vote-pool-progress {
+    margin-top: 1.1rem;
+  }
+  .vote-pool-progress button {
+    min-height: 2.5rem;
+    font-size: max(0.61rem, var(--type-floor));
+  }
+  .vote-pool-progress button[data-complete="true"]::before {
+    content: "Set · ";
+    color: var(--color-punch-text);
+  }
+  .vote-options-grid {
+    margin-top: 1.1rem !important;
+    gap: 0.65rem;
+  }
+  .vote-option {
+    padding: 0.85rem !important;
+  }
+  .vote-option p {
+    max-width: 42ch;
+  }
+  .vote-action-hint {
+    margin-top: 0.55rem;
+  }
+  .vote-rsvp-choices {
+    justify-content: flex-start;
+  }
+}
+
+.vote-rating-button {
+  display: grid;
+  place-items: center;
+  width: 2.15rem;
+  height: 2.15rem;
+  border: 1px solid var(--color-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-muted);
+  font-size: max(0.72rem, var(--type-floor));
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.vote-rating-button[aria-pressed="true"] {
+  border-color: var(--color-punch-text);
+  background: var(--vote-metal);
+  color: var(--color-ink);
+}
+/* dark ink on the tan fill = 5.74:1 */
+
+/* ── Press feedback ────────────────────────────────────────────────
+   Audited the primary actions end to end — deal, vote, continue,
+   decide, share, RSVP, claim/mark booked, rate — and these were the
+   ones that changed colour on press but never moved. A phone has no
+   hover, so on the target device they had no acknowledgement at all.
+
+   Two halves, and the asymmetry is the point:
+     down — 90ms ease-out, blunt, tracks the thumb
+     up   — 300ms --ease-settle, no overshoot (SPECS.md §7)
+
+   Transform only. Guarded by no-preference so reduced motion gets
+   the colour change and nothing else. */
+.vote-toggle,
+.vote-rating-button,
+.vote-pool-progress button,
+.plan-choice-strip button {
+  transition-property: transform, border-color, background-color, color;
+  transition-duration: 300ms, 160ms, 160ms, 160ms;
+  transition-timing-function: var(--ease-settle), ease, ease, ease;
+}
+
+/* The round you are on lifts slightly, so moving between rounds is a
+   visible handoff rather than two borders swapping colour. */
+.vote-pool-progress button[aria-current="step"] {
+  transform: scale(1.06);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .vote-primary-action:active:not(:disabled),
+  .vote-secondary-action:active:not(:disabled),
+  .vote-result__primary:active:not(:disabled),
+  .vote-result__button:active:not(:disabled),
+  .plan-submit:active:not(:disabled),
+  .home-primary-cta:active,
+  .auth-submit:active:not(:disabled),
+  .auth-google:active:not(:disabled) {
+    transform: translateY(1px) scale(0.98);
+  }
+
+  /* Small square-ish controls: no travel to give, so they just sink. */
+  .vote-toggle:active,
+  .vote-rating-button:active,
+  .vote-pool-progress button:active,
+  .plan-deadline:active,
+  .plan-choice-strip button:active,
+  .plan-category-option:active,
+  .plan-custom-place__save:active:not(:disabled) {
+    transform: scale(0.94);
+  }
+
+  .vote-primary-action:active,
+  .vote-secondary-action:active,
+  .vote-result__primary:active,
+  .vote-result__button:active,
+  .vote-toggle:active,
+  .vote-rating-button:active,
+  .vote-pool-progress button:active,
+  .plan-deadline:active,
+  .plan-choice-strip button:active,
+  .plan-category-option:active,
+  .plan-submit:active,
+  .home-primary-cta:active,
+  .auth-submit:active,
+  .auth-google:active,
+  .plan-custom-place__save:active {
+    transition-duration: 90ms;
+    transition-timing-function: ease-out;
+  }
+}
+
+.vote-primary-action:focus-visible,
+/* Inline link: rings outward. An inset ring on a text-height inline box
+   cuts through the words, and prose links have no neighbouring control
+   to overlap. */
+.vote-result a:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 1px;
+}

@@ -1,0 +1,979 @@
+/* app/styles/account-profile.css — Account views, people side: Profile edits, visit management, Friends, undo bar. */
+
+/* Profile: change your name. Same field + action pattern as the Friends
+   invite link; the status line is always present so a save never shifts
+   the layout. */
+.profile-name-form {
+  display: grid;
+  gap: 0.4rem;
+  max-width: 32rem;
+  margin-top: 2.5rem;
+}
+.profile-name-form label {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.profile-name-form > p:not([id="profile-name-status"]) {
+  color: var(--color-muted);
+  font-size: max(0.78rem, var(--type-floor));
+}
+.profile-name-form > div {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.3rem;
+}
+.profile-name-form input {
+  flex: 1;
+  min-width: 0;
+  min-height: 2.75rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--color-line);
+  background: var(--color-card);
+  color: var(--color-ink);
+  font: inherit;
+}
+.profile-name-form button {
+  min-height: 2.75rem;
+  padding: 0 1.1rem;
+  border: 1px solid var(--color-ink);
+  background: var(--color-ink);
+  color: var(--color-card);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.profile-name-form button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.profile-name-form__status, .profile-name-form__error {
+  min-height: 1.2em;
+  font-size: max(0.78rem, var(--type-floor));
+}
+.profile-name-form__status {
+  color: var(--color-muted);
+}
+.profile-name-form__error {
+  color: var(--color-error);
+}
+
+/* C4: fix a wrong birthday. Same rail and field style as "Your name"; the
+   one-time limit reads before the save button, not after. */
+.birthday-fix {
+  display: grid;
+  gap: 0.45rem;
+  max-width: 32rem;
+  margin-top: 2.5rem;
+}
+.birthday-fix h2 {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.birthday-fix p {
+  color: var(--color-muted);
+  font-size: max(0.78rem, var(--type-floor));
+  line-height: 1.5;
+}
+.birthday-fix p a {
+  color: var(--color-ink);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.birthday-fix > button, .birthday-fix__cancel {
+  justify-self: start;
+  min-height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-ink);
+  font: inherit;
+  font-size: max(0.85rem, var(--type-floor));
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+  cursor: pointer;
+}
+.birthday-fix form {
+  display: grid;
+  gap: 0.45rem;
+}
+.birthday-fix__limit strong {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+.birthday-fix label {
+  margin-top: 0.3rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.birthday-fix form > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+}
+.birthday-fix input {
+  min-height: 2.75rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--color-line);
+  background: var(--color-card);
+  color: var(--color-ink);
+  font: inherit;
+}
+.birthday-fix button[type="submit"] {
+  min-height: 2.75rem;
+  padding: 0 1.1rem;
+  border: 1px solid var(--color-ink);
+  background: var(--color-ink);
+  color: var(--color-card);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.birthday-fix button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.birthday-fix .birthday-fix__error {
+  color: var(--color-error);
+}
+
+/* C2: your emoji. Same rail as "Your name"; choices save on tap. */
+.profile-emoji {
+  display: grid;
+  gap: 0.45rem;
+  max-width: 32rem;
+  margin-top: 2.5rem;
+}
+.profile-emoji h2 {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.profile-emoji > p {
+  color: var(--color-muted);
+  font-size: max(0.78rem, var(--type-floor));
+}
+.profile-emoji__choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.3rem;
+}
+.profile-emoji__choices button {
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-control);
+  background: var(--color-card);
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+.profile-emoji__choices button[aria-pressed="true"] {
+  border-color: var(--color-ink);
+  box-shadow: inset 0 0 0 1px var(--color-ink);
+}
+.profile-emoji__custom {
+  display: grid;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+}
+.profile-emoji__custom label {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.profile-emoji__custom > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+}
+.profile-emoji__custom input {
+  width: 7rem;
+  min-height: 2.75rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--color-line);
+  background: var(--color-card);
+  color: var(--color-ink);
+  font: inherit;
+}
+.profile-emoji__custom button[type="submit"] {
+  min-height: 2.75rem;
+  padding: 0 1.1rem;
+  border: 1px solid var(--color-ink);
+  background: var(--color-ink);
+  color: var(--color-card);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.profile-emoji__remove {
+  min-height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-ink);
+  font: inherit;
+  font-size: max(0.85rem, var(--type-floor));
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+  cursor: pointer;
+}
+.profile-emoji button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.profile-emoji__status, .profile-emoji__error {
+  min-height: 1.2em;
+  font-size: max(0.78rem, var(--type-floor));
+}
+.profile-emoji__status {
+  color: var(--color-muted);
+}
+.profile-emoji__error {
+  color: var(--color-error);
+}
+
+/* C8: edit a visit (when / who with / note -- the three columns 052 grants). */
+.manage-visit__edit {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+.manage-visit__edit label {
+  display: grid;
+  gap: 0.25rem;
+  font-size: max(0.78rem, var(--type-floor));
+  font-weight: 600;
+}
+.manage-visit__edit input, .manage-visit__edit textarea {
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-control);
+  background: var(--color-card);
+  color: var(--color-ink);
+  font: inherit;
+}
+.manage-visit__edit textarea {
+  min-height: 4rem;
+  resize: vertical;
+}
+.manage-visit__edit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin: 0;
+}
+.manage-visit__edit-actions button[type="submit"] {
+  min-height: 2.75rem;
+  padding: 0 1.1rem;
+  border: 1px solid var(--color-ink);
+  border-radius: var(--radius-control);
+  background: var(--color-ink);
+  color: var(--color-card);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.manage-visit__edit-actions button[type="button"], .manage-visit__edit-open {
+  min-height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-ink);
+  font: inherit;
+  font-size: max(0.85rem, var(--type-floor));
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+  cursor: pointer;
+}
+.manage-visit__edit-open {
+  justify-self: start;
+}
+.manage-visit__edit-actions span {
+  color: var(--color-muted);
+  font-size: max(0.78rem, var(--type-floor));
+  font-weight: 600;
+}
+.manage-visit__edit button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* C8: take back your own rating. Sits beside the stars, quiet until armed. */
+.vote-unrate {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.8rem;
+  margin-left: 0.6rem;
+  font-size: max(0.78rem, var(--type-floor));
+  color: var(--color-muted);
+}
+.vote-unrate button {
+  min-height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+  cursor: pointer;
+}
+.vote-unrate button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.vote-unrate__error {
+  color: var(--color-error);
+}
+
+/* The public demo: a label that rides every tab, and the quiet way in from
+   the front door. Both say what is actually there rather than promising a
+   sandbox that saves. */
+.home-demo-banner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.6rem;
+  align-items: baseline;
+  margin: 0 auto;
+  padding: 0.7rem var(--page-gutter);
+  border-bottom: 1px solid var(--color-line);
+  background: var(--color-card);
+  color: var(--color-muted);
+  font-size: max(0.8rem, var(--type-floor));
+}
+.home-demo-banner strong {
+  color: var(--color-ink);
+  font-weight: 700;
+}
+.home-demo-banner a {
+  color: var(--color-ink);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.home-demo-link {
+  margin-top: 0.9rem;
+  max-width: 34rem;
+  color: var(--color-muted);
+  font-size: max(0.85rem, var(--type-floor));
+  line-height: 1.5;
+}
+.home-demo-link a {
+  color: var(--color-ink);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.demo-tool-saved {
+  margin-top: 0.5rem;
+  color: var(--color-muted);
+  font-size: max(0.78rem, var(--type-floor));
+}
+.demo-profile-avatar.demo-profile-avatar--emoji {
+  font-family: inherit;
+  font-size: clamp(2.5rem, 5vw, 3.75rem);
+}
+
+/* Undo for quick reversible actions. Bottom-centre, sized to its message
+   (a fixed element at left:50% otherwise wraps at half the viewport). */
+.undo-bar {
+  position: fixed;
+  left: 50%;
+  bottom: calc(1.25rem + env(safe-area-inset-bottom));
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: max-content;
+  max-width: calc(100vw - 2rem);
+  padding: 0.5rem 0.6rem 0.5rem 1rem;
+  transform: translateX(-50%);
+  border-radius: var(--radius-control);
+  background: var(--color-ink);
+  color: var(--color-card);
+  box-shadow: var(--elevation-card);
+  font-size: max(0.85rem, var(--type-floor));
+}
+.undo-bar button {
+  min-height: 2.75rem;
+  padding: 0 0.9rem;
+  border: 0;
+  background: transparent;
+  color: var(--color-card);
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+  cursor: pointer;
+}
+.undo-bar button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Friends: real friendships (invite + remove), above the visit-derived
+   "people you've been out with" list. */
+.friends-panel {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 2.5rem;
+  padding: 1.1rem;
+  border-radius: var(--radius-panel);
+  background: var(--color-card);
+  box-shadow: var(--elevation-card);
+}
+.friends-panel__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+.friends-panel__head h2 {
+  font-size: 1.2rem;
+}
+.friends-panel__head p, .friends-panel__empty, .friends-panel__note {
+  color: var(--color-muted);
+  font-size: 0.78rem;
+}
+.friends-panel__invite {
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+}
+.friends-panel__invite > div {
+  display: flex;
+  gap: 0.5rem;
+}
+.friends-panel__invite input {
+  flex: 1;
+  min-width: 0;
+  min-height: 2.75rem;
+  padding: 0 0.6rem;
+  border: 1px solid var(--color-line);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-size: 0.75rem;
+}
+.friends-panel__list {
+  display: grid;
+  gap: 0.5rem;
+}
+.friends-panel__list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.7rem;
+}
+.friends-panel__name {
+  flex: 1;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+.friends-panel__confirm {
+  display: flex;
+  flex-basis: 100%;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.2rem 0.9rem;
+  font-size: 0.75rem;
+}
+.friends-panel button:not(.demo-primary-action) {
+  min-height: 2.75rem;
+  padding: 0 0.2rem;
+  border: 0;
+  background: transparent;
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 0.75rem;
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+  cursor: pointer;
+}
+.friends-panel .friends-panel__danger {
+  color: var(--color-error);
+}
+.friends-panel button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.friends-panel__subhead {
+  margin-top: 2.5rem;
+  font-size: 1rem;
+}
+.friends-panel__subhead + .demo-friend-layout,
+.friends-panel__subhead + .demo-collection-empty {
+  margin-top: 0.9rem;
+}
+/* The 18rem column is the demo page's sidebar. The real Friends tab has no
+   sidebar, so it left a dead gutter and the list stopped short of the rail
+   the panel above it reaches. One child, one column. */
+.demo-friend-layout:not(:has(> :nth-child(2))) {
+  grid-template-columns: minmax(0, 1fr);
+}
+/* Been: the return path (delete a visit, untag a person). Reuses the
+   collection-action row; the armed state spells out what goes. */
+.manage-visit__panel {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 0.7rem;
+}
+.manage-visit__people {
+  display: grid;
+  gap: 0.35rem;
+}
+.manage-visit__photos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.manage-visit__photos li {
+  display: grid;
+  justify-items: start;
+  gap: 0.2rem;
+}
+.manage-visit__photos img, .manage-visit__photo-missing {
+  width: 6rem;
+  height: 6rem;
+  object-fit: cover;
+  border-radius: var(--radius-control);
+  background: var(--color-card);
+}
+.manage-visit__photo-missing {
+  display: grid;
+  place-items: center;
+  color: var(--color-muted);
+  font-size: max(0.72rem, var(--type-floor));
+}
+.manage-visit__people li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  font-size: 0.75rem;
+}
+.manage-visit__confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.8rem;
+  font-size: max(0.72rem, var(--type-floor));
+}
+.manage-visit .manage-visit__delete,
+.manage-visit__confirm button:first-of-type {
+  color: var(--color-error);
+}
+.manage-visit__delete {
+  justify-self: start;
+}
+.manage-visit button {
+  min-height: 2.75rem;
+  border-bottom: 0;
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+.manage-visit button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.manage-visit__error {
+  margin-top: 0.5rem;
+  color: var(--color-error);
+  font-size: max(0.72rem, var(--type-floor));
+}
+.demo-collection-empty {
+  grid-column: 1 / -1;
+  min-height: 16rem;
+  display: grid;
+  place-content: center;
+  justify-items: start;
+  padding: 2rem;
+  border-radius: var(--radius-panel);
+  background: var(--color-card);
+  box-shadow: var(--elevation-card);
+}
+/* §19.3 */
+.demo-collection-empty p {
+  margin: 0.45rem 0 1rem;
+  color: var(--color-muted);
+}
+
+.demo-face-stack {
+  display: inline-flex;
+}
+.demo-face-stack > span {
+  display: grid;
+  place-items: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  margin-left: -0.35rem;
+  border: 2px solid var(--color-paper);
+  border-radius: 50%;
+  background: #34363b;
+  color: #f4f1ea;
+  font-size: max(0.58rem, var(--type-floor));
+  font-weight: 500;
+}
+.demo-face-stack > span:first-child {
+  margin-left: 0;
+}
+
+.demo-photo-composer {
+  min-width: 0;
+}
+.demo-photo-upload {
+  min-height: 15rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 1rem;
+  border: 1px dashed color-mix(in srgb, var(--color-ink) 35%, transparent);
+  color: var(--color-ink);
+  cursor: pointer;
+}
+.demo-photo-upload input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+.demo-photo-upload strong {
+  font-family: var(--font-display);
+}
+.demo-photo-upload small {
+  color: var(--color-muted);
+}
+.demo-photo-target {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+  padding: 0.7rem 0;
+  color: var(--color-muted);
+  font-size: max(0.64rem, var(--type-floor));
+}
+.demo-photo-target select {
+  height: 2.15rem;
+  padding: 0.5rem;
+  border: 1px solid var(--color-line);
+  background: var(--color-card);
+  color: var(--color-ink);
+  font-size: max(0.66rem, var(--type-floor));
+}
+
+.demo-friend-layout {
+  margin-top: 2.5rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 18rem;
+  gap: 2rem;
+  align-items: start;
+}
+.demo-friend-list {
+  border-top: 1px solid var(--color-line);
+}
+.demo-friend-row {
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr) 7rem auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 1.1rem 0;
+  border-bottom: 1px solid var(--color-line);
+}
+.demo-friend-avatar,
+.demo-profile-avatar {
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-ink);
+  color: var(--color-card);
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+.demo-friend-avatar {
+  width: 2.7rem;
+  height: 2.7rem;
+  font-size: max(0.72rem, var(--type-floor));
+}
+.demo-friend-row h2 {
+  font-size: 1rem;
+}
+.demo-friend-row p,
+.demo-friend-row small {
+  display: block;
+  margin-top: 0.18rem;
+  color: var(--color-muted);
+  font-size: max(0.68rem, var(--type-floor));
+}
+.demo-friend-row__numbers {
+  display: grid;
+  text-align: right;
+}
+.demo-friend-row__numbers strong {
+  font-size: 1.05rem;
+}
+.demo-friend-row__numbers span {
+  color: var(--color-muted);
+  font-size: max(0.58rem, var(--type-floor));
+  text-transform: uppercase;
+}
+.demo-friend-row button {
+  padding: var(--btn-pad-md);
+  border: 1px solid var(--color-line);
+  background: transparent;
+  color: var(--color-ink);
+  font-size: max(0.68rem, var(--type-floor));
+  font-weight: 500;
+  cursor: pointer;
+}
+.demo-shared-card {
+  padding: 1.5rem;
+  border-radius: var(--radius-panel);
+  background: var(--color-card);
+  box-shadow: var(--elevation-card);
+}
+/* §19.3 */
+.demo-shared-card .demo-face-stack {
+  margin-top: 1.2rem;
+}
+.demo-shared-card h2 {
+  margin-top: 1rem;
+  font-size: 1.4rem;
+}
+.demo-shared-card > p:not(.home-section-kicker) {
+  margin-top: 0.5rem;
+  color: var(--color-muted);
+  line-height: 1.5;
+}
+.demo-shared-card > div:last-child {
+  margin-top: 1.2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-line);
+}
+.demo-shared-card > div:last-child span {
+  display: block;
+  color: var(--color-muted);
+  font-size: max(0.64rem, var(--type-floor));
+  text-transform: uppercase;
+}
+.demo-shared-card > div:last-child strong {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+}
+
+.demo-profile-head {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+.demo-profile-avatar {
+  width: clamp(5rem, 10vw, 7.5rem);
+  height: clamp(5rem, 10vw, 7.5rem);
+  flex: 0 0 auto;
+  font-size: 1.7rem;
+}
+.demo-profile-head h1 {
+  font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+  font-weight: 600;
+}
+.demo-profile-head > div > p:last-child {
+  margin-top: 0.5rem;
+  color: var(--color-muted);
+}
+.demo-profile-stats {
+  margin-top: 2.5rem;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-block: 1px solid var(--color-line);
+}
+.demo-profile-stats span {
+  display: grid;
+  gap: 0.2rem;
+  padding: 1.2rem;
+  color: var(--color-muted);
+  font-size: max(0.68rem, var(--type-floor));
+}
+.demo-profile-stats span + span {
+  border-left: 1px solid var(--color-line);
+}
+.demo-profile-stats strong {
+  color: var(--color-ink);
+  font-size: 1.6rem;
+}
+.demo-city-pattern {
+  margin-top: 2.5rem;
+  display: grid;
+  grid-template-columns: minmax(16rem, 0.72fr) minmax(0, 1.28fr);
+  gap: clamp(2rem, 5vw, 4rem);
+  padding-block: 2rem;
+  border-block: 1px solid var(--color-line);
+}
+.demo-city-pattern__lead h2 {
+  max-width: 25rem;
+  margin-top: 0.6rem;
+  font-size: clamp(2rem, 4vw, 3.6rem);
+  line-height: 1;
+  letter-spacing: -0.045em;
+}
+.demo-city-pattern__lead > p:not(.home-section-kicker) {
+  max-width: 27rem;
+  margin-top: 1rem;
+  color: var(--color-muted);
+  line-height: 1.55;
+}
+.demo-city-pattern__lead > div {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1.4rem;
+}
+.demo-city-pattern__lead > div span {
+  display: grid;
+  color: var(--color-muted);
+  font-size: max(0.62rem, var(--type-floor));
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.demo-city-pattern__lead > div strong {
+  color: var(--color-ink);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+.demo-area-list {
+  display: grid;
+  align-content: start;
+}
+.demo-area-list > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.35rem 1rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--color-line);
+}
+.demo-area-list > div:first-child {
+  padding-top: 0;
+}
+.demo-area-list > div > div {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: max(0.72rem, var(--type-floor));
+}
+.demo-area-list progress {
+  width: 100%;
+  height: 0.28rem;
+  border: 0;
+  border-radius: 0;
+  background: color-mix(in srgb, var(--color-ink) 10%, transparent);
+  color: var(--home-metal);
+}
+.demo-area-list progress::-webkit-progress-bar {
+  background: color-mix(in srgb, var(--color-ink) 10%, transparent);
+}
+.demo-area-list progress::-webkit-progress-value {
+  background: var(--home-metal);
+}
+.demo-area-list progress::-moz-progress-bar {
+  background: var(--home-metal);
+}
+.demo-area-list small {
+  color: var(--color-muted);
+  font-size: max(0.58rem, var(--type-floor));
+}
+.demo-profile-grid {
+  margin-top: 2.5rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2rem;
+}
+.demo-profile-grid > section {
+  padding-top: 1rem;
+  border-top: 1px solid var(--home-metal);
+}
+.demo-profile-grid h2 {
+  margin-top: 0.6rem;
+  font-size: 1.5rem;
+}
+.demo-profile-grid > section > p:last-child {
+  margin-top: 1rem;
+  color: var(--color-muted);
+  line-height: 1.5;
+}
+.demo-taste-list {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+.demo-taste-list span {
+  padding: 0.48rem 0.65rem;
+  border: 1px solid var(--color-line);
+  font-size: max(0.68rem, var(--type-floor));
+  font-weight: 600;
+}
+.demo-privacy-options {
+  margin-top: 1rem;
+  display: grid;
+}
+.demo-privacy-options button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.8rem 0;
+  border: 0;
+  border-bottom: 1px solid var(--color-line);
+  background: transparent;
+  color: var(--color-muted);
+  text-align: left;
+  cursor: pointer;
+}
+.demo-privacy-options button[aria-pressed="true"] {
+  color: var(--color-punch-text);
+  font-weight: 500;
+}
+.demo-privacy-options small {
+  font-weight: 500;
+}
+.demo-photo-strip {
+  margin-top: 3rem;
+  display: grid;
+  grid-template-columns: 1.1fr repeat(4, 1fr);
+  gap: 0.65rem;
+  align-items: stretch;
+}
+.demo-photo-strip > div {
+  padding-right: 1rem;
+}
+.demo-photo-strip h2 {
+  margin-top: 0.5rem;
+  font-size: 1.35rem;
+}
+
+.home-profile-actions {
+  width: min(100% - 2 * var(--page-gutter), 76rem);
+  margin-top: 2rem;
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-line);
+  color: var(--color-muted);
+  font-size: 0.82rem;
+}
+
+.home-profile-actions button {
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--color-line);
+  background: transparent;
+  color: var(--color-ink);
+  font-weight: 500;
+  cursor: pointer;
+}

@@ -31,7 +31,7 @@ treatment or on anything meaning "you" or "now".
 
 ## Non-negotiables
 
-1. **Tokens live in `@theme` in `globals.css`, never in a component block.**
+1. **Tokens live in `@theme` in `app/styles/tokens.css`, never in a component block.**
    `.home-experience` and `.vote-experience` each redefined the whole palette
    locally once, so those two screens looked right for weeks while every other
    screen rendered a dead palette. The only permitted local redefinition is a

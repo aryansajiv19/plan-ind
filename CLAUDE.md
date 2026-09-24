@@ -25,11 +25,11 @@ standards, place import, production checklists). History, only when chasing
 |---|---|---|
 | A `CLAUDE.md` | 200 lines, root 80 | Move rules next to the code they describe, or delete what is no longer true |
 | A `.ts` / `.tsx` file | 300 soft, 500 hard | Split by responsibility before adding to it |
-| `app/globals.css` | no net growth | Delete as much as you add |
+| `app/styles/*.css` | no net growth | Delete as much as you add; `app/globals.css` only orders the imports |
 | `worklog.md` | 300 lines | Move the oldest entries to `docs/archive/worklog-archive.md` |
 
-Known breaches — leave each smaller than you found it, never add a feature to
-one without splitting first: `app/globals.css`, `lib/social.ts`.
+No `.ts`/`.tsx` file is over the hard limit. Keep it that way: split before a file crosses it,
+not after.
 
 ## Keeping docs true
 

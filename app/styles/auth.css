@@ -1,0 +1,340 @@
+/* app/styles/auth.css — Sign-in, onboarding, and the not-found / error shells. */
+
+/* Authentication shares the product palette.
+
+   The `--auth-*` set used to be six hardcoded day values with no night
+   variant, which is why /login and /onboarding stayed white after sunset
+   (FE.4). They are now aliases onto the themed tokens, so auth flips with
+   everything else and there is one palette to maintain, not two. */
+.auth-shell {
+  --auth-paper: var(--color-paper);
+  --auth-card: var(--color-card);
+  --auth-ink: var(--color-ink);
+  --auth-muted: var(--color-muted);
+  --auth-line: var(--color-line);
+  --auth-metal: var(--color-punch);
+  --auth-metal-text: var(--color-punch-text);
+  min-height: 100dvh;
+  padding: clamp(1.25rem, 4vw, 4rem);
+  /* .auth-frame already asks to be centred — it carries `margin: auto`.
+     On a block container a vertical auto margin computes to zero, so
+     only the horizontal half of that intent ever applied and the frame
+     sat at the top with 81px of slack below it at 1440, 52px at 390.
+     Grid makes the existing declaration mean what it says in both axes
+     rather than adding a second, competing centring rule. `safe` so a
+     frame taller than the viewport overflows downward and stays
+     scrollable instead of being clipped past the top edge. */
+  display: grid;
+  align-content: safe center;
+  color: var(--auth-ink);
+  background: color-mix(in srgb, var(--auth-paper) 88%, transparent);
+}
+.auth-frame {
+  width: min(70rem, 100%);
+  min-height: min(44rem, calc(100dvh - 8rem));
+  margin: auto;
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  border: 1px solid var(--auth-line);
+  background: color-mix(in srgb, var(--auth-paper) 86%, transparent);
+}
+.auth-intro {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(1.5rem, 5vw, 4rem);
+  border-right: 1px solid var(--auth-line);
+}
+.auth-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border: 1px solid var(--auth-ink);
+  background: var(--auth-ink);
+  color: var(--auth-paper);
+  font-family: var(--font-display);
+  font-size: .95rem;
+  font-weight: 800;
+  letter-spacing: -.06em;
+  text-decoration: none;
+}
+/* The /login + /onboarding twin of the .home-logo__three bug: an accent
+   ink on the ink-filled badge, 1.58:1. Fixed the same way — the accent
+   and the badge sit on the same ramp in every palette, so no accent can
+   clear AA here; the two-tone is carried by an off-white instead. */
+.auth-mark b {
+  margin-left: .12rem;
+  color: var(--auth-paper);
+  font-size: .76rem;
+}
+.auth-kicker, .auth-panel__heading p {
+  margin: 0;
+  color: var(--auth-metal-text);
+  font-size: max(.68rem, var(--type-floor));
+  font-weight: 500;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+.auth-intro h1 {
+  max-width: 30rem;
+  margin: auto 0 1.25rem;
+  font-size: clamp(3.5rem, 7vw, 6.8rem);
+  line-height: .96;
+  letter-spacing: -.03em;
+  font-weight: 500;
+}
+/* §20's second and third italic sites — /login and /onboarding — the same
+   single-phrase-in-a-headline shape as the front door, one per screen. */
+.auth-intro h1 em {
+  color: var(--auth-metal);
+  font-style: italic;
+}
+.auth-copy {
+  max-width: 27rem;
+  margin: 0;
+  color: var(--auth-muted);
+  font-size: .95rem;
+  line-height: 1.65;
+}
+.auth-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(1.25rem, 5vw, 4rem);
+  background: var(--auth-card);
+}
+.auth-panel__heading {
+  margin-bottom: 1.75rem;
+}
+.auth-panel__heading h2 {
+  margin: .45rem 0 0;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  line-height: .95;
+  letter-spacing: -.06em;
+}
+.auth-form {
+  width: 100%;
+}
+.auth-fields label {
+  display: block;
+  margin-bottom: .5rem;
+  color: var(--auth-ink);
+  font-size: max(.74rem, var(--type-floor));
+  font-weight: 500;
+}
+.auth-input {
+  width: 100%;
+  min-height: 3rem;
+  border: 1px solid var(--auth-line);
+  border-radius: 0;
+  padding: .75rem .85rem;
+  background: var(--auth-paper);
+  color: var(--auth-ink);
+  font: inherit;
+  font-size: .9rem;
+}
+/* `outline: none` plus a champagne glow used to sit here, which opted the
+   only two auth fields out of the global :focus-visible ring and replaced
+   it with an 18% tint — the tinted focus indicator the standards file
+   rules out, and too faint to carry 1.4.11 on its own. Deleted rather
+   than restated locally: the global rule above already draws the graphite
+   inset ring, so the fix is to stop overriding it. The border tint stays
+   as a soft cue for pointer focus, where no ring is drawn. */
+.auth-input:focus {
+  border-color: var(--auth-metal);
+}
+.auth-input--code {
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: .28em;
+}
+.auth-google, .auth-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 3rem;
+  border: 1px solid var(--auth-ink);
+  border-radius: 0;
+  padding: .75rem 1rem;
+  font-size: .78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+}
+.auth-google {
+  gap: .7rem;
+  background: transparent;
+  color: var(--auth-ink);
+}
+.auth-google:hover {
+  background: var(--primary-fill);
+  color: var(--primary-ink);
+  border-color: transparent;
+}
+.auth-google__icon {
+  display: grid;
+  place-items: center;
+  width: 1.45rem;
+  height: 1.45rem;
+  border: 1px solid currentColor;
+  font-size: max(.72rem, var(--type-floor));
+  font-weight: 500;
+}
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin: 1.4rem 0;
+  color: var(--auth-muted);
+  font-size: max(.62rem, var(--type-floor));
+  font-weight: 500;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.auth-divider span {
+  height: 1px;
+  flex: 1;
+  background: var(--auth-line);
+}
+.auth-fields {
+  display: grid;
+  gap: 1rem;
+}
+/* The themed primary pair, not raw ink-on-white: at night --auth-ink is
+   cream, so `color: #fff` was white on cream — invisible. */
+.auth-submit {
+  border-color: transparent;
+  background: var(--primary-fill);
+  color: var(--primary-ink);
+}
+.auth-submit:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+.auth-submit:disabled {
+  cursor: wait;
+  opacity: .55;
+}
+.auth-message, .auth-footnote {
+  color: var(--auth-muted);
+  font-size: .76rem;
+  line-height: 1.5;
+}
+.auth-link {
+  display: block;
+  color: var(--auth-metal-text);
+  font-size: .76rem;
+  font-weight: 500;
+  text-align: center;
+  text-decoration: underline;
+  text-underline-offset: .2rem;
+}
+.auth-error {
+  margin: 1rem 0 0;
+  border-left: 2px solid var(--color-error);
+  padding: .7rem .8rem;
+  background: color-mix(in srgb, var(--color-error) 8%, transparent);
+  color: var(--color-error);
+  font-size: .76rem;
+  font-weight: 500;
+  line-height: 1.45;
+}
+.auth-footnote {
+  margin: 1.5rem 0 0;
+  text-align: center;
+}
+/* Explains a disabled submit button. Muted rather than error-red while the
+   check is still running — a slow load is progress, not a fault — and the
+   failed case reads at the same weight because it is information, not an
+   alarm the visitor caused. */
+.auth-note {
+  margin: 0.75rem 0 0;
+  color: var(--auth-muted);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  text-align: center;
+}
+/* The Terms and Privacy links inside this sentence had NO affordance at
+   all: same colour as the prose around them (both resolved to #969A9E,
+   parent and link identical) and text-decoration: none. Not "colour is the
+   only signal" — there was no signal. On the one sentence where being able
+   to reach the terms actually matters.
+
+   Underlined rather than recoloured, which is the treatment .legal-page
+   already uses for inline prose links, so this is the house pattern
+   applied rather than a new one invented. The graphite focus ring's inset
+   exception for inline links (§19.7) already anticipates links living in
+   sentences here. */
+.auth-footnote a {
+  color: var(--auth-ink);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+@media (max-width: 760px) {
+  .auth-shell {
+    padding: 0;
+  }
+  .auth-frame {
+    display: block;
+    min-height: 100dvh;
+    border: 0;
+  }
+  .auth-intro {
+    min-height: 43vh;
+    padding: 1.25rem;
+    border-right: 0;
+    border-bottom: 1px solid var(--auth-line);
+  }
+  .auth-intro h1 {
+    margin-top: auto;
+    font-size: clamp(3.4rem, 16vw, 5.8rem);
+  }
+  .auth-copy {
+    font-size: .84rem;
+  }
+  .auth-panel {
+    padding: 2rem 1.25rem 2.5rem;
+  }
+}
+
+/* not-found.tsx / error.tsx (SPECS.md §16.1) — the same auth-shell
+   restraint, one hairline-bordered panel instead of the two-column split
+   since there is no intro copy to pair it with. */
+.error-shell {
+  display: grid;
+  place-items: center;
+}
+.error-panel {
+  width: min(26rem, 100%);
+  border: 1px solid var(--auth-line);
+  background: var(--auth-card);
+  padding: clamp(2rem, 6vw, 3rem);
+  text-align: center;
+}
+.error-panel .auth-mark {
+  margin: 0 auto 1.5rem;
+}
+.error-panel .auth-kicker {
+  text-align: center;
+}
+.error-panel h1 {
+  margin: .6rem 0 .5rem;
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  letter-spacing: -.03em;
+}
+.error-panel .auth-copy {
+  margin: 0 auto 1.5rem;
+}
+.error-panel .auth-submit {
+  width: auto;
+  margin: 0 auto 1rem;
+  padding: .75rem 1.5rem;
+}
+.error-panel .auth-link {
+  margin: 0 auto;
+}

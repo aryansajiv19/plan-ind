@@ -21,9 +21,9 @@ layout down.
 
 ## Non-negotiables
 
-1. **44px minimum touch target.** `globals.css` already enforces this in a media
+1. **44px minimum touch target.** `app/styles/shell.css` already enforces this in a media
    block for most controls. `.home-avatar` is `2.75rem` = 44×44px
-   (`globals.css:797`) — meets the floor, re-checked 2026-09-04.
+   (`app/styles/home.css`) — meets the floor, re-checked 2026-09-04.
 
 2. **No hover-only controls.** Anything reachable only by hover is unreachable on
    touch, which is most of this product's traffic. The restraint block cancels
@@ -52,9 +52,9 @@ layout down.
 All three items previously listed here were re-checked 2026-09-04 and are
 fixed — recorded so a future pass doesn't inherit a stale gap:
 
-- `.home-avatar` is `2.75rem` = 44×44px (`globals.css:797`), meets the floor.
-- `--auth-*` tokens are now defined from `var(--color-*)` (`globals.css:2034-
-  2041`), so `/login`, `/onboarding`, and the new `/error`/`/not-found` pages
+- `.home-avatar` is `2.75rem` = 44×44px (`app/styles/home.css`), meets the floor.
+- `--auth-*` tokens are now defined from `var(--color-*)` (`app/styles/auth.css`,
+  `.auth-shell`), so `/login`, `/onboarding`, and the new `/error`/`/not-found` pages
   follow day/night correctly. `/privacy`/`/terms` were not re-verified in this
   pass — check before assuming.
 - The vote page's states are unified in one `<VoteState kind>` component

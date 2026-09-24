@@ -135,8 +135,8 @@ git merge-base --is-ancestor b8b19c7 "$SHA" && echo ok || echo "BLOCK: plans col
 git merge-base --is-ancestor 7f58c30 "$SHA" && echo ok || echo "BLOCK: saved places / Wrapped RPC swaps (7f58c30) not deployed"
 [ "$(git show "${SHA}:app/plan/[id]/page.tsx" | grep -cE 'from\("(votes|rsvps|ratings)"\)\.select\("\*"\)')" = 0 ] && echo ok || echo "BLOCK: votes/rsvps/ratings select(*)"
 [ "$(git show "${SHA}:app/plan/[id]/page.tsx" | grep -A2 'from("plans")' | grep -c 'select("\*")')" = 0 ] && echo ok || echo "BLOCK: plans select(*)"
-[ "$(git show "${SHA}:lib/social.ts" | grep -c 'spots(\*)')" = 0 ] && echo ok || echo "BLOCK: spots(*) embed"
-[ "$({ git show "${SHA}:components/StartPlanForm.tsx"; git show "${SHA}:lib/social.ts"; } | grep -c '\.eq("created_by_user_id"')" = 0 ] && echo ok || echo "BLOCK: saved places / Wrapped still filter on created_by_user_id (need my_custom_spots / count_my_hosted_plans)"
+[ "$(git grep -h -F 'spots(*)' "$SHA" -- lib/social.ts lib/social | wc -l)" = 0 ] && echo ok || echo "BLOCK: spots(*) embed"
+[ "$(git grep -h -F '.eq("created_by_user_id"' "$SHA" -- components/StartPlanForm.tsx lib/social.ts lib/social | wc -l)" = 0 ] && echo ok || echo "BLOCK: saved places / Wrapped still filter on created_by_user_id (need my_custom_spots / count_my_hosted_plans)"
 ```
 
 `plan_spots` keeps `select("*")` on purpose; 049/051 don't touch it.

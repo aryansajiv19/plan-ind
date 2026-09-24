@@ -36,7 +36,7 @@ Two rules make this work:
 
 ```
 app/**/*.tsx             → frontend
-app/globals.css          → frontend       (Tailwind v4 @theme lives here)
+app/globals.css, styles/ → frontend       (Tailwind v4 @theme: styles/tokens.css)
 components/**            → frontend
 supabase/*.sql           → backend-data   (migrations are additive + numbered)
 lib/types.ts             → backend-data   (must mirror schema.sql exactly)

@@ -31,7 +31,7 @@ Not hypotheticals — every one of these shipped a bug in this repo.
   invisible, which is what every primary button had. Don't add a
   per-component ring: the global one already wins in night and is identical
   in day. Inline prose links are the only exception (`outline-offset: 1px`).
-- **Define colours in `@theme` in `app/globals.css`, not per-component.** The
+- **Define colours in `@theme` in `app/styles/tokens.css`, not per-component.** The
   old palette survived for weeks because `.home-experience` and
   `.vote-experience` each redefined every token locally, so any screen outside
   those two classes rendered wrong. This recurred in 2026-09: local `--night`
@@ -54,7 +54,7 @@ Not hypotheticals — every one of these shipped a bug in this repo.
   `AccountViews` is the real one. No data → write an honest empty state.
 - **Never read date of birth from `auth.user_metadata`** — the browser can
   rewrite it. Use `memberAge()` / `current_member_age()`.
-- **Tap targets ≥ 44px.** Enforced in `globals.css`; don't regress it.
+- **Tap targets ≥ 44px.** Enforced in `app/styles/shell.css`; don't regress it.
 - **Respect `prefers-reduced-motion`.** Existing CSS is authoritative and
   disables animation/transition effects — new motion must degrade through it.
 - **No green glowing dots or pulsing status lights.** Recorded permanently in
