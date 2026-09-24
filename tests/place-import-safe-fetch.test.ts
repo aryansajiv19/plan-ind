@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { readCapped } from "../lib/place-import/safe-fetch.ts";
+import { createServer } from "node:http";
+import type { AddressInfo } from "node:net";
+import { SafeFetchError, pickPublicAddress, pinnedGet, readCapped, safeFetch } from "../lib/place-import/safe-fetch.ts";
 import { metaContent } from "../lib/place-import/web-adapter.ts";
 
 const MAX_BYTES = 512 * 1024;
@@ -102,4 +104,50 @@ test("a normal document still resolves its tags", () => {
     + `<meta content="A place" property="og:description"></head><body>x</body></html>`;
   assert.equal(metaContent(page, "og:title"), "Museum of the Future");
   assert.equal(metaContent(page, "og:description"), "A place", "reversed attribute order still works");
+});
+
+// ── DNS rebinding ────────────────────────────────────────────────────────
+// Every resolved address is checked, and the connection goes to the one that
+// was checked -- never to a second resolution fetch() would have made.
+
+test("a host is refused if ANY of its addresses is private, not only the first", () => {
+  assert.throws(
+    () => pickPublicAddress([{ address: "93.184.216.34", family: 4 }, { address: "127.0.0.1", family: 4 }]),
+    SafeFetchError,
+  );
+  assert.throws(() => pickPublicAddress([{ address: "::ffff:7f00:1", family: 6 }]), SafeFetchError);
+  assert.throws(() => pickPublicAddress([]), SafeFetchError);
+  // Positive control: an all-public answer is accepted, pinned to the first.
+  assert.deepEqual(
+    pickPublicAddress([{ address: "93.184.216.34", family: 4 }, { address: "2606:2800::1", family: 6 }]),
+    { address: "93.184.216.34", family: 4 },
+  );
+});
+
+test("pinnedGet connects to the pinned address, not to what the hostname resolves to", async () => {
+  const server = createServer((request, response) => {
+    response.writeHead(200, { "content-type": "text/plain", "x-host": request.headers.host ?? "" });
+    response.end("pinned");
+  });
+  await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+  const { port } = server.address() as AddressInfo;
+  try {
+    // `.invalid` can never resolve (RFC 6761), so any response proves the
+    // connect used the pinned address and did no lookup of its own.
+    const response = await pinnedGet(
+      new URL(`http://rebind.invalid:${port}/`),
+      { address: "127.0.0.1", family: 4 },
+      AbortSignal.timeout(2_000),
+    );
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get("x-host"), `rebind.invalid:${port}`, "Host keeps the real hostname");
+    assert.equal(await readCapped(response), "pinned");
+  } finally {
+    server.close();
+  }
+});
+
+test("safeFetch refuses loopback literals, including the hex-mapped IPv6 form, before connecting", async () => {
+  await assert.rejects(safeFetch("http://127.0.0.1:9/"), /won't fetch/);
+  await assert.rejects(safeFetch("http://[::ffff:7f00:1]:9/"), /won't fetch/);
 });

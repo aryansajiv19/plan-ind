@@ -403,3 +403,19 @@ All four worktrees verified clean and every lane branch merged into
 `ai-engineering` before shutdown. T3's last uncommitted change (Realtime
 fan-out instrumentation, `a8fdee8`) was committed and merged rather than lost —
 an uncommitted tree was wiped here once, so "clean" is checked, not assumed.
+
+## 2026-09-24 — backend: migration 061 STAGED (unapplied) + two route/SSRF fixes
+
+`supabase/migration-061-vote-integrity-and-guest-limits.sql` is **written, NOT
+applied anywhere** (live DB unreachable from this session). It makes the auth
+user the ballot key (unique `votes(plan_id,user_id,phase,pool_number)`,
+`rsvps(plan_id,user_id)`, `ratings(plan_id,user_id)`, partial on user_id not
+null) so one session can no longer mint hashes/names for extra votes; it
+**first deletes duplicates, keeping the latest row per key**. `cast_plan_vote`
+now refuses after `plans.deadline`; names go through `clean_display_name`;
+guests cannot upload to `visit-photos`; `visit_photos` rows/files need a
+session. Mirrored at the end of `schema.sql`. App: `/api/smart-search` refuses
+guest sessions like `/api/plans`; `safeFetch` checks every resolved address and
+pins the connect to it; `ip-guard` covers NAT64, 6to4, IPv4-compatible,
+hex-mapped, 192.0.0.0/24, 198.18.0.0/15. Apply 061 only with owner approval,
+then verify by catalog probe (`pg_indexes` for the three `*_user*_key` indexes).

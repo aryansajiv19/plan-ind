@@ -1,6 +1,10 @@
 import "server-only";
 
+import type { LookupAddress } from "node:dns";
 import { lookup } from "node:dns/promises";
+import { request as httpRequest } from "node:http";
+import { request as httpsRequest } from "node:https";
+import { Readable } from "node:stream";
 import { isPrivateAddress } from "./ip-guard";
 
 // The SSRF-hardened fetch primitive for anything under lib/place-import/**.
@@ -10,14 +14,12 @@ import { isPrivateAddress } from "./ip-guard";
 // user-supplied). Same primitive either way for one code path to reason
 // about, not two.
 //
-// Residual risk, stated plainly rather than glossed over: this resolves DNS
-// once up front and checks the resolved address, but does not pin that
-// address at the TCP layer -- a DNS-rebinding attacker who controls the
-// answer and wins a race between this check and the actual connect could
-// theoretically slip a private-IP fetch through. Accepted for this app's
-// threat tier (a going-out group-planning app, not a bank); revisit with a
-// pinned-connect (a custom `dns.lookup` passed to an http(s).Agent) if this
-// ever handles something more sensitive.
+// DNS rebinding: every address the host resolves to is checked, and the
+// connection is then pinned to the checked address through the request's
+// `lookup` hook. global fetch() re-resolved on its own, so a host answering
+// public-then-private (or public+private, with only the first checked) could
+// land the connect on an internal address. There is no second resolution
+// now for an attacker's DNS to answer differently.
 
 const MAX_BYTES = 512 * 1024;
 // Per-hop budget. TOTAL_TIMEOUT_MS is the bound that actually matters: the
@@ -32,27 +34,76 @@ const ALLOWED_CONTENT_TYPES = ["application/json", "text/html", "text/plain"];
 
 export class SafeFetchError extends Error {}
 
-async function assertPublicHost(hostname: string): Promise<void> {
-  let address: string;
+// Refuses the host if ANY of its addresses is private, not just the first:
+// which one a connect would use is not ours to choose. Exported only for
+// tests/place-import-safe-fetch.test.ts.
+export function pickPublicAddress(addresses: LookupAddress[]): LookupAddress {
+  if (addresses.length === 0) throw new SafeFetchError("That link's host could not be resolved.");
+  if (addresses.some(({ address }) => isPrivateAddress(address))) {
+    throw new SafeFetchError("That link points somewhere this app won't fetch.");
+  }
+  return addresses[0];
+}
+
+async function resolvePublicHost(hostname: string): Promise<LookupAddress> {
+  let addresses: LookupAddress[];
   try {
     // Raced against a deadline: dns.lookup takes no AbortSignal, and it ran
     // BEFORE the fetch's AbortController existed, so it was covered by no
     // timeout at all. A slow resolver pinned the request handler
     // indefinitely -- the same slot-holding failure the body-read deadline
     // closed, one function earlier.
-    ({ address } = await Promise.race([
-      lookup(hostname),
+    addresses = await Promise.race([
+      lookup(hostname, { all: true }),
       new Promise<never>((_, reject) =>
         setTimeout(() => reject(new SafeFetchError("That link's host took too long to resolve.")), DNS_TIMEOUT_MS),
       ),
-    ]));
+    ]);
   } catch (error) {
     if (error instanceof SafeFetchError) throw error;
     throw new SafeFetchError("That link's host could not be resolved.");
   }
-  if (isPrivateAddress(address)) {
-    throw new SafeFetchError("That link points somewhere this app won't fetch.");
-  }
+  return pickPublicAddress(addresses);
+}
+
+// One GET to `target`, connected to `pinned` whatever the hostname resolves
+// to by now. TLS still verifies the certificate against the URL's hostname
+// (SNI comes from the URL, not the address). `agent: false`, so no pooled
+// socket to some earlier address is ever reused. Returns a WHATWG Response so
+// the rest of this module reads it exactly as it read fetch()'s. Redirects
+// are never followed here; safeFetch re-resolves and re-checks every hop.
+// Exported only for tests/place-import-safe-fetch.test.ts.
+export function pinnedGet(target: URL, pinned: LookupAddress, signal: AbortSignal): Promise<Response> {
+  const request = target.protocol === "https:" ? httpsRequest : httpRequest;
+  return new Promise((resolve, reject) => {
+    const req = request(target, {
+      method: "GET",
+      agent: false,
+      signal,
+      // user-agent: what fetch() sent, so no site sees a behaviour change.
+      headers: { accept: ALLOWED_CONTENT_TYPES.join(", "), "user-agent": "node" },
+      lookup: (_hostname, options, callback) => {
+        if (options.all) callback(null, [pinned]);
+        else callback(null, pinned.address, pinned.family);
+      },
+    }, (res) => {
+      try {
+        const headers = new Headers();
+        for (const [name, value] of Object.entries(res.headers)) {
+          for (const item of [value ?? []].flat()) headers.append(name, item);
+        }
+        const status = res.statusCode ?? 0;
+        const noBody = status === 204 || status === 205 || status === 304;
+        if (noBody) res.resume();
+        resolve(new Response(noBody ? null : (Readable.toWeb(res) as ReadableStream<Uint8Array>), { status, headers }));
+      } catch (error) {
+        res.destroy();
+        reject(error);
+      }
+    });
+    req.on("error", reject);
+    req.end();
+  });
 }
 
 // Truncates at MAX_BYTES rather than throwing. The guarantee this cap exists
@@ -124,7 +175,8 @@ export async function safeFetch(url: string): Promise<string> {
     if (target.protocol !== "https:" && target.protocol !== "http:") {
       throw new SafeFetchError("Only http/https links can be fetched.");
     }
-    await assertPublicHost(target.hostname);
+    // URL keeps the brackets on an IPv6 literal; the resolver does not take them.
+    const pinned = await resolvePublicHost(target.hostname.replace(/^\[(.*)\]$/, "$1"));
     // `remaining` is computed AFTER the DNS lookup, not before it. Computing
     // it first left the lookup uncharged against the budget, so the real
     // worst case was TOTAL_TIMEOUT_MS + DNS_TIMEOUT_MS per hop -- ~25% over
@@ -148,11 +200,7 @@ export async function safeFetch(url: string): Promise<string> {
     try {
       let response: Response;
       try {
-        response = await fetch(target, {
-          redirect: "manual",
-          signal: controller.signal,
-          headers: { accept: ALLOWED_CONTENT_TYPES.join(", ") },
-        });
+        response = await pinnedGet(target, pinned, controller.signal);
       } catch {
         throw new SafeFetchError("That link could not be reached.");
       }
@@ -184,6 +232,9 @@ export async function safeFetch(url: string): Promise<string> {
       }
     } finally {
       clearTimeout(timeout);
+      // Releases the socket on every early exit (redirect, bad status, bad
+      // content type); harmless once the body has been read.
+      controller.abort();
     }
   }
   throw new SafeFetchError("That link redirected too many times.");
