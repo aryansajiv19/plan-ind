@@ -46,6 +46,12 @@ export default async function Image({ params }: { params: Promise<{ id: string }
         </div>
       </OgFrame>
     ),
-    { ...size, fonts: await ogFonts() },
+    {
+      ...size,
+      fonts: await ogFonts(),
+      // Not next/og's year-long immutable default: a plan is renamed, decided
+      // or deleted, and a cached card would outlive it.
+      headers: { "cache-control": "public, max-age=300", "x-robots-tag": "noindex" },
+    },
   );
 }

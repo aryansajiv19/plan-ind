@@ -17,7 +17,9 @@ export async function proxy(request: NextRequest) {
   // crawlers with no cookies. They are PNGs: no script to nonce, no session
   // to refresh, and their only data read is keyless (plan_share_preview). Skip
   // the session work so an auth hiccup can never cost a WhatsApp unfurl.
-  if (/\/(?:opengraph|twitter)-image(?:-[\w-]+)?$/.test(request.nextUrl.pathname)) {
+  // Anchored: only the two routes that exist, never a page whose last segment
+  // happens to be the same word (which would ship without a CSP).
+  if (/^\/(?:plan\/[0-9a-f-]{36}\/)?(?:opengraph|twitter)-image(?:-[\w-]+)?$/.test(request.nextUrl.pathname)) {
     return NextResponse.next();
   }
 
