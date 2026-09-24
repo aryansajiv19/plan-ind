@@ -1,8 +1,10 @@
 # Places-backed ingestion — scope, cost, and an honest timeline
 
-**Status: proposal. Nothing built, no API key exists, no billing account
-exists, and nothing here has been run against Google.** This is the document
-to read before spending money.
+**Status: the curated-spot backfill is built and proven against recorded
+fixtures only (2026-09-24); no API key exists yet and nothing has been run
+against Google.** Discovery at 1000-venue scale (§1 grid) is still a
+proposal. The owner runbook is [at the end](#runbook-the-curated-backfill).
+This is the document to read before spending money.
 
 Written 2026-09-06 by the Security/Backend lane, in answer to: *"I'm aiming
 for 500–1000s of venues, Dubai is a huge city, there are so many places —
@@ -261,3 +263,78 @@ a genuine unlock rather than a detour, but it is not more urgent than
 shipping what already works. The strongest argument for doing it soon is that
 every day it waits, the hand-curated catalogue grows the very manual debt
 this replaces.
+
+## Runbook: the curated backfill
+
+Built 2026-09-24: `scripts/places-backfill.ts`, `lib/places/*`,
+`GET /api/spots/{id}/photo`, staged `supabase/migration-063-google-place-ids.sql`.
+
+### What the terms let us keep (decides the design)
+
+Maps Platform Service Specific Terms §14.3: only lat/lng may be cached, for
+30 days. General terms 3.2.3: no caching or storing any other Maps content
+("business names, addresses, or user reviews"). Place IDs are exempt (§3).
+Photo names may not be cached and expire. So:
+
+- **Stored:** `spots.google_place_id` and `places_synced_at` (our own
+  timestamp). Refresh ids older than 12 months with an id-only Place Details
+  call (free).
+- **Not stored:** rating, hours, price level, Google's Maps URI, website URI,
+  Google's coordinates. A Maps link is built from the id
+  (`lib/places/maps-url.ts`). Rating and hours stay out of the product for
+  now: fetching them per view would be an Enterprise Place Details call on
+  every card.
+- **Photos:** first choice is the venue's own `og:image`, fetched through
+  `safeFetchImage` (SSRF-hardened) and uploaded to our bucket, then stored
+  like migration 039. Fallback is `GET /api/spots/{id}/photo`, which takes a
+  spot id only (never a ref), reads the place id from our row, and returns a
+  short-lived Google `photoUri` plus the author attributions the UI must
+  show. The image bytes are never proxied, cached or stored, and the
+  response is `no-store`. Leave `next.config.ts` `images.remotePatterns`
+  unset for these: the optimizer would cache Google's images on our server.
+  The cards already render with `unoptimized`.
+
+### Cost
+
+- **Backfill:** one Text Search Enterprise request per spot (`websiteUri` in
+  the mask sets the tier). 82 requests, which is **$0** inside the 1,000/month
+  free tier and **$2.87** if that allowance is already spent. The run stops
+  after 3 errors in a row.
+- **Photo fallback, per view:** one Place Details call with only the
+  `photos` field, which should bill at the Essentials IDs Only SKU (free;
+  confirm on Google's data-fields page, which this sandbox cannot reach), plus
+  one Place Photo at $7 per 1,000 after 1,000 free per month. This is capped
+  by migration 063's quota at 600/day per user and **300/day globally**, so
+  the worst case is about $56/month. Set the Cloud budget alert below that.
+
+### Commands, once the key exists
+
+1. Put `GOOGLE_PLACES_API_KEY=` in `.env.local`, with the key restricted to
+   Places API (New) and never `NEXT_PUBLIC_`. Try one spot first:
+   `npm run places:backfill -- --only a0000000-0000-0000-0000-000000000004`.
+   Then run everything: `npm run places:backfill`. It reads the live catalogue
+   through an anonymous session and writes no database.
+2. **Review** `scripts/places-review.local.json`. `high` (name and own pin
+   agree within 300 m) comes pre-approved. Open every `review` entry's
+   `place` and set `approve: true` only when it is this venue and this
+   branch. Open every file in `scripts/places-photos.local/` and set
+   `photo.approve: true` only for real photos of the venue (not a logo, not
+   another branch).
+3. `npm run places:backfill -- --write-sql --storage-url https://zyojaoyatunjwgbivaqu.supabase.co`
+   makes no network call. It writes the next numbered
+   `migration-0NN-places-backfill-ids.sql` and, if any photos were approved,
+   `…-photos.sql` plus `scripts/places-photos.local/UPLOAD.json`.
+4. **Upload** exactly the files listed in `UPLOAD.json` to the `spot-photos`
+   bucket in the dashboard, keeping the names. Then run
+   `scripts/check-spot-photo-urls.sh`.
+5. **Approve, in order:** 063 (columns, index, quota), then the generated ids
+   migration, then the photos migration only after the upload checks out.
+   Probe the catalog after each one (the queries are at the foot of 063) and
+   record it in `worklog.md` the same day. Add `GOOGLE_PLACES_API_KEY` to
+   Vercel (server env) to switch on the photo route. Then delete
+   `places-review.local.json`, because it holds Google content we may not
+   keep.
+
+Fixture proof without a key: `node tests/fixtures/places/mock-server.mjs 8787`
+and then the search command with `--base-url http://127.0.0.1:8787 --spots
+tests/fixtures/places/spots.json`.

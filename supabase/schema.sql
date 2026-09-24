@@ -113,7 +113,14 @@ create table spots (
   created_by_user_id uuid references auth.users(id) on delete set null, -- 060
   address     text,
   latitude    double precision,
-  longitude   double precision
+  longitude   double precision,
+  -- 063: the only Places field Google lets us store indefinitely. Nothing
+  -- else from Places is a column (terms: no caching beyond lat/lng 30 days).
+  -- Curated-only, so a user cannot squat a place id on a custom spot.
+  google_place_id text
+    constraint spots_google_place_id_format check (google_place_id is null or google_place_id ~ '^[A-Za-z0-9_-]{10,255}$')
+    constraint spots_google_place_id_curated_only check (google_place_id is null or source = 'curated'),
+  places_synced_at timestamptz          -- 063: when the id was last confirmed; refresh after 12 months
   -- 060: a custom spot needs an owner on INSERT (trigger below), not
   -- forever: created_by_user_id goes null when the owner deletes their account
   -- and someone else's plan or visit still points at the spot.
@@ -1845,7 +1852,7 @@ returns boolean language plpgsql security definer set search_path = public, exte
 declare uid uuid := auth.uid(); minute_start timestamptz := date_trunc('minute',now()); day_start timestamptz := date_trunc('day',now()); current_count integer; minute_limit integer; day_limit integer;
 begin
   if not valid_control_secret(p_secret) or uid is null
-     or p_scope not in ('smart-search','plan-create','place-import','spot-deal','plan-command') then
+     or p_scope not in ('smart-search','plan-create','place-import','spot-deal','plan-command','place-photo') then
     raise exception 'Server authorization required' using errcode='42501';
   end if;
   -- 022: 'spot-deal' gets its own bucket. Dealing happens before a plan
@@ -1855,10 +1862,10 @@ begin
   -- route with zero rate limiting.
   minute_limit := case p_scope
     when 'smart-search' then 10 when 'plan-create' then 12 when 'spot-deal' then 30
-    when 'plan-command' then 20 else 20 end;
+    when 'plan-command' then 20 when 'place-photo' then 60 else 20 end;
   day_limit := case p_scope
     when 'smart-search' then 30 when 'plan-create' then 50 when 'spot-deal' then 300
-    when 'plan-command' then 100 else 200 end;
+    when 'plan-command' then 100 when 'place-photo' then 600 else 200 end;
   insert into app_rate_limits values(p_scope||'-minute',uid::text,minute_start,1)
     on conflict(scope,subject,window_start) do update set request_count=app_rate_limits.request_count+1
     returning request_count into current_count;
@@ -1869,6 +1876,14 @@ begin
   if current_count > day_limit then return false; end if;
   if p_scope = 'smart-search' then
     insert into app_rate_limits values('smart-search-global','global',day_start,1)
+      on conflict(scope,subject,window_start) do update set request_count=app_rate_limits.request_count+1
+      returning request_count into current_count;
+    return current_count <= 300;
+  end if;
+  -- 063: every place-photo call is billable; guests can mint identities, so
+  -- a global daily ceiling bounds the bill, not just the per-user cap.
+  if p_scope = 'place-photo' then
+    insert into app_rate_limits values('place-photo-global','global',day_start,1)
       on conflict(scope,subject,window_start) do update set request_count=app_rate_limits.request_count+1
       returning request_count into current_count;
     return current_count <= 300;
@@ -3562,3 +3577,10 @@ as $$
 $$;
 revoke all on function public.plan_share_preview(uuid) from public, anon, authenticated;
 grant execute on function public.plan_share_preview(uuid) to anon, authenticated;
+
+-- 063: Google place ids. One spot per place (partial, nulls never collide),
+-- and readable like every other public spot column (051's column grants).
+-- See supabase/migration-063-google-place-ids.sql for the terms reasoning.
+create unique index if not exists spots_google_place_id_key
+  on public.spots (google_place_id) where google_place_id is not null;
+grant select (google_place_id, places_synced_at) on public.spots to anon, authenticated;

@@ -1,0 +1,47 @@
+{
+  "places": [
+    {
+      "id": "ChIJtresindStudioFixture01",
+      "displayName": {
+        "text": "Tresind Studio",
+        "languageCode": "en"
+      },
+      "formattedAddress": "Gate Village 7, DIFC - Dubai - United Arab Emirates",
+      "location": {
+        "latitude": 25.2128,
+        "longitude": 55.2811
+      },
+      "googleMapsUri": "https://maps.google.com/?cid=1000000000000000002",
+      "rating": 4.8,
+      "userRatingCount": 900,
+      "priceLevel": "PRICE_LEVEL_VERY_EXPENSIVE",
+      "regularOpeningHours": {
+        "openNow": true,
+        "weekdayDescriptions": [
+          "Monday: 12:00 – 11:00 PM",
+          "Tuesday: 12:00 – 11:00 PM",
+          "Wednesday: 12:00 – 11:00 PM",
+          "Thursday: 12:00 – 11:00 PM",
+          "Friday: 12:00 – 11:30 PM",
+          "Saturday: 12:00 – 11:30 PM",
+          "Sunday: 12:00 – 11:00 PM"
+        ]
+      },
+      "photos": [
+        {
+          "name": "places/ChIJtresindStudioFixture01/photos/AWn5SU0xYz_Q-fixture0",
+          "widthPx": 4032,
+          "heightPx": 3024,
+          "authorAttributions": [
+            {
+              "displayName": "Fixture Author",
+              "uri": "https://maps.google.com/maps/contrib/100000000000000000001",
+              "photoUri": "https://lh3.googleusercontent.com/a/fixture=s100-p-k-no-mo"
+            }
+          ]
+        }
+      ],
+      "websiteUri": "https://www.tresindstudio.com/"
+    }
+  ]
+}

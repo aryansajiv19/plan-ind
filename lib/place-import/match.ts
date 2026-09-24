@@ -20,7 +20,9 @@ export interface MatchCandidate {
 
 const STOPWORDS = new Set(["the", "a", "an", "and", "at", "in", "of", "to", "for", "with", "dubai"]);
 
-function tokenize(text: string): Set<string> {
+// Exported so lib/places/match.ts scores Google results with the SAME
+// tokenizer and F1 as link import -- one definition of "names agree".
+export function tokenize(text: string): Set<string> {
   return new Set(
     text
       .toLowerCase()
@@ -48,7 +50,7 @@ function tokenize(text: string): Set<string> {
 // exact-name self-resolve 77/82 -> 82/82, and confident false positives on
 // unrelated titles 6/6 -> 0/6. RESOLVE_FLOOR/RESOLVE_MARGIN were re-derived
 // against this distribution rather than carried over -- see resolve.ts.
-function overlapScore(a: Set<string>, b: Set<string>): number {
+export function overlapScore(a: Set<string>, b: Set<string>): number {
   if (a.size === 0 || b.size === 0) return 0;
   let shared = 0;
   for (const word of a) if (b.has(word)) shared++;

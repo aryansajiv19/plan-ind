@@ -1,0 +1,90 @@
+{
+  "places": [
+    {
+      "id": "ChIJblackTapJBRFixture001",
+      "displayName": {
+        "text": "Black Tap",
+        "languageCode": "en"
+      },
+      "formattedAddress": "The Beach, JBR - Dubai - United Arab Emirates",
+      "location": {
+        "latitude": 25.0805,
+        "longitude": 55.1362
+      },
+      "googleMapsUri": "https://maps.google.com/?cid=1000000000000000003",
+      "rating": 4.5,
+      "userRatingCount": 500,
+      "priceLevel": "PRICE_LEVEL_MODERATE",
+      "regularOpeningHours": {
+        "openNow": true,
+        "weekdayDescriptions": [
+          "Monday: 12:00 – 11:00 PM",
+          "Tuesday: 12:00 – 11:00 PM",
+          "Wednesday: 12:00 – 11:00 PM",
+          "Thursday: 12:00 – 11:00 PM",
+          "Friday: 12:00 – 11:30 PM",
+          "Saturday: 12:00 – 11:30 PM",
+          "Sunday: 12:00 – 11:00 PM"
+        ]
+      },
+      "photos": [
+        {
+          "name": "places/ChIJblackTapJBRFixture001/photos/AWn5SU0xYz_Q-fixture0",
+          "widthPx": 4032,
+          "heightPx": 3024,
+          "authorAttributions": [
+            {
+              "displayName": "Fixture Author",
+              "uri": "https://maps.google.com/maps/contrib/100000000000000000001",
+              "photoUri": "https://lh3.googleusercontent.com/a/fixture=s100-p-k-no-mo"
+            }
+          ]
+        }
+      ],
+      "websiteUri": "https://www.blacktap.com/location/dubai-jbr/"
+    },
+    {
+      "id": "ChIJblackTapWalkFixture01",
+      "displayName": {
+        "text": "Black Tap",
+        "languageCode": "en"
+      },
+      "formattedAddress": "The Walk, JBR - Dubai - United Arab Emirates",
+      "location": {
+        "latitude": 25.085,
+        "longitude": 55.142
+      },
+      "googleMapsUri": "https://maps.google.com/?cid=1000000000000000004",
+      "rating": 4.5,
+      "userRatingCount": 500,
+      "priceLevel": "PRICE_LEVEL_MODERATE",
+      "regularOpeningHours": {
+        "openNow": true,
+        "weekdayDescriptions": [
+          "Monday: 12:00 – 11:00 PM",
+          "Tuesday: 12:00 – 11:00 PM",
+          "Wednesday: 12:00 – 11:00 PM",
+          "Thursday: 12:00 – 11:00 PM",
+          "Friday: 12:00 – 11:30 PM",
+          "Saturday: 12:00 – 11:30 PM",
+          "Sunday: 12:00 – 11:00 PM"
+        ]
+      },
+      "photos": [
+        {
+          "name": "places/ChIJblackTapWalkFixture01/photos/AWn5SU0xYz_Q-fixture0",
+          "widthPx": 4032,
+          "heightPx": 3024,
+          "authorAttributions": [
+            {
+              "displayName": "Fixture Author",
+              "uri": "https://maps.google.com/maps/contrib/100000000000000000001",
+              "photoUri": "https://lh3.googleusercontent.com/a/fixture=s100-p-k-no-mo"
+            }
+          ]
+        }
+      ],
+      "websiteUri": "https://www.blacktap.com/location/dubai-the-walk/"
+    }
+  ]
+}
