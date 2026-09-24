@@ -29,8 +29,7 @@ standards, place import, production checklists). History, only when chasing
 | `worklog.md` | 300 lines | Move the oldest entries to `docs/archive/worklog-archive.md` |
 
 Known breaches — leave each smaller than you found it, never add a feature to
-one without splitting first: `app/globals.css`, `app/plan/[id]/page.tsx`,
-`lib/social.ts`, `components/AccountViews.tsx`.
+one without splitting first: `app/globals.css`, `lib/social.ts`.
 
 ## Keeping docs true
 

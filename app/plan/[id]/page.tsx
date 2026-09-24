@@ -1,35 +1,31 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import UndoBar from "@/components/UndoBar";
 import { useParams } from "next/navigation";
-import { getSupabase, bootstrapPlanAccess, type PlanAccessDenial } from "@/lib/supabase";
 import { addBeen, getBeen } from "@/lib/device";
-import { logVisit } from "@/lib/social";
-import { participantTokenHash } from "@/lib/participant";
-import { secureJsonFetch } from "@/lib/security/csrf-client";
 import { dealReasons, spotDistanceKm } from "@/lib/deal-reasons";
-import type { Plan, PlanSpot, Rating, Rsvp, Spot, Vote } from "@/lib/types";
 import { haptic } from "@/lib/interaction";
 import { agreementOf, isInRound, leaderOf, roundFor, visibleSpotsFor, votersFor, yesCount } from "@/lib/tally";
-import { coalesce } from "@/lib/coalesce";
+import { usePlanData } from "@/hooks/use-plan-data";
+import { useVoterName } from "@/hooks/use-voter-name";
+import { usePlanPresence, usePlanRealtime } from "@/hooks/use-plan-realtime";
+import { useHostCommands } from "@/hooks/use-host-commands";
+import { useLastMile } from "@/hooks/use-last-mile";
+import { useVoteActions } from "@/hooks/use-vote-actions";
+import { useLeavePlan } from "@/hooks/use-leave-plan";
 import OptionCard from "@/components/OptionCard";
 import NameGate from "@/components/NameGate";
 import DecidedPlan from "@/components/DecidedPlan";
-import Turnstile, { type TurnstileStatus } from "@/components/Turnstile";
 import VoteState from "@/components/VoteState";
 import ShareActions from "@/components/ShareActions";
 import VoteSeats from "@/components/vote/VoteSeats";
 import VoteOptionsGrid from "@/components/vote/VoteOptionsGrid";
 import { RoundDots, RoundLabel } from "@/components/vote/RoundProgress";
 import { useFaceFlight } from "@/components/vote/useFaceFlight";
+import { planStateScreen } from "@/components/vote/PlanStates";
+import { HostPlanControls, LeaveControl, ReopenControl } from "@/components/vote/PlanControls";
 import { participantFailure } from "@/lib/participant-errors";
-
-type Load = "loading" | "ready" | "notfound" | "error";
-// "checking" = access not resolved yet; "ready" = membership claimed; any
-// PlanAccessDenial = a specific reason bootstrapPlanAccess handed back.
-type Access = "checking" | "ready" | PlanAccessDenial;
 
 function closesLabel(deadline: string | null): string {
   if (!deadline) return "Open";
@@ -40,53 +36,22 @@ function closesLabel(deadline: string | null): string {
   return h >= 1 ? `Closes in ${h}h` : `Closes in ${m}m`;
 }
 
-
-
-// ISO instant -> the value a datetime-local input expects (local wall time).
-function toLocalInput(iso: string | null): string {
-  if (!iso) return "";
-  const d = new Date(iso);
-  return new Date(d.getTime() - d.getTimezoneOffset() * 60_000).toISOString().slice(0, 16);
-}
-
 export default function VotePage() {
   const { id } = useParams<{ id: string }>();
 
-  const [load, setLoad] = useState<Load>("loading");
-  const [access, setAccess] = useState<Access>("checking");
-  const [plan, setPlan] = useState<Plan | null>(null);
-  const [spots, setSpots] = useState<Spot[]>([]);
-  const [planSpots, setPlanSpots] = useState<PlanSpot[]>([]);
-  const [votes, setVotes] = useState<Vote[]>([]);
-  const [rsvps, setRsvps] = useState<Rsvp[]>([]);
-  const [ratings, setRatings] = useState<Rating[]>([]);
-  const [voterName, setVoterName] = useState<string | null>(null);
-  const [deciding, setDeciding] = useState(false);
+  const {
+    load, setLoad, setReloadKey,
+    access, setAccess, runAccess, captchaStatus, setCaptchaStatus, onCaptchaVerify,
+    plan, setPlan, spots, planSpots, setPlanSpots, votes, setVotes, rsvps, setRsvps, ratings, setRatings,
+    participantHash, refetchVotes, refetchRsvps, refetchRatings, refetchPlanSpots,
+  } = usePlanData(id);
+  const { voterName, setVoterName, accountNameTried } = useVoterName(id);
   const [notice, setNotice] = useState<string | null>(null);
   // Set once the plan is gone: "self" when this host deleted it here,
   // "remote" when the deletion arrived from somewhere else.
   const [deleted, setDeleted] = useState<"self" | "remote" | null>(null);
   // C6: this member left. Holds which confirm they saw, for the after-copy.
   const [left, setLeft] = useState<"open" | "decided" | null>(null);
-  const [confirmLeave, setConfirmLeave] = useState(false);
-  const [confirmReopen, setConfirmReopen] = useState(false);
-  const [voteUndo, setVoteUndo] = useState<{ message: string; restore: () => Promise<boolean> } | null>(null);
-  const [reopening, setReopening] = useState(false);
-  const [leaving, setLeaving] = useState(false);
-  // The live channels, so leaving can close them BEFORE the page moves on:
-  // left open, the leaver lingers as "here now" for everyone until their
-  // socket reconnects.
-  const dataChannelRef = useRef<ReturnType<ReturnType<typeof getSupabase>["channel"]> | null>(null);
-  const presenceChannelRef = useRef<ReturnType<ReturnType<typeof getSupabase>["channel"]> | null>(null);
-  const cancelRefetchesRef = useRef(() => {}); // drops coalesced refetches still waiting on a timer
-  const [confirmDelete, setConfirmDelete] = useState(false);
-  // C5: host edits the title/closing time before anyone has voted.
-  const [editing, setEditing] = useState<{ title: string; deadline: string } | null>(null);
-  const [editPending, setEditPending] = useState(false);
-  const [editError, setEditError] = useState<string | null>(null);
-  const [visitSaved, setVisitSaved] = useState<"saved" | "failed" | null>(null);
-  const [presentNames, setPresentNames] = useState<string[]>([]);
-  const [reloadKey, setReloadKey] = useState(0); // bump to retry the load
   const [nightMode, setNightMode] = useState(false);
   const [activePool, setActivePool] = useState(1);
   // Which way the next round should enter from. Set at the two places that
@@ -94,8 +59,6 @@ export default function VotePage() {
   // slides in from the left instead of pretending it is progress.
   const [roundDir, setRoundDir] = useState(1);
   const [been] = useState(getBeen); // past winners on this device, for "New to you"
-  const [hostToken, setHostToken] = useState<string | null>(null);
-  const [participantHash, setParticipantHash] = useState<string | null>(null);
 
   const stageRef = useRef<HTMLDivElement>(null);
   const revealFired = useRef(false);
@@ -104,31 +67,19 @@ export default function VotePage() {
   const winnerId = plan?.winner_spot_id ?? null;
   const stage = plan?.stage ?? (decided ? "decided" : "final");
   const poolCount = plan?.pool_count ?? 1;
-  // Whoever created the plan, and only them — execute_plan_command enforces
-  // this server-side for every command (advance/decide/patch), so this flag
-  // is UI truthfulness, not the actual gate. See advanceToFinal/decide/patchPlan.
-  const isHost = Boolean(hostToken);
 
-  // All the "get a session, redeem the share id" logic lives in
-  // bootstrapPlanAccess (lib/supabase.ts) so it returns a typed reason rather
-  // than throwing — each reason gets its own screen below.
-  const runAccess = useCallback(async (captchaToken?: string) => {
-    const result = await bootstrapPlanAccess(id, captchaToken);
-    setAccess(result.ok ? "ready" : result.reason);
-  }, [id]);
-  // Stable identity so <Turnstile>'s effect (keyed on `onVerify`) doesn't
-  // tear down and rebuild the live widget on every unrelated re-render of
-  // this page while the captcha screen is showing.
-  // "loading" is what is true before the widget has reported anything.
-  const [captchaStatus, setCaptchaStatus] = useState<TurnstileStatus>("loading");
-  const onCaptchaVerify = useCallback((token: string) => {
-    if (token) void runAccess(token);
-  }, [runAccess]);
-
-  useEffect(() => {
-    const frame = window.requestAnimationFrame(() => void runAccess());
-    return () => window.cancelAnimationFrame(frame);
-  }, [runAccess]);
+  const host = useHostCommands({ id, plan, setPlan, setPlanSpots, stage, spots, deleted, setDeleted, setNotice });
+  const { isHost, deciding, advanceToFinal, decide } = host;
+  // The live channels are held so leavePlan can close them BEFORE the page
+  // moves on (use-plan-realtime.ts).
+  const { dataChannelRef, cancelRefetchesRef } = usePlanRealtime({
+    id, access, deleted, left, refetchVotes, refetchRsvps, refetchRatings, refetchPlanSpots, setPlan, setDeleted,
+  });
+  const { presentNames, presenceChannelRef } = usePlanPresence({ id, access, voterName, left });
+  const { visitSaved, patchPlan, setRsvp, setCarpool, rateWinner } = useLastMile({
+    id, plan, setPlan, hostToken: host.hostToken, runHostCommand: host.runHostCommand, voterName, participantHash, winnerId,
+    rsvps, setRsvps, ratings, setRatings, refetchRsvps, refetchRatings, setNotice, reportParticipantFailure,
+  });
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -137,601 +88,15 @@ export default function VotePage() {
     return () => window.cancelAnimationFrame(frame);
   }, []);
 
-  // ── Load plan + its three spots + existing votes ─────────────────
-  // Realtime fires refetchVotes/Rsvps/Ratings/PlanSpots directly off
-  // postgres_changes with no request sequencing. Two writes in quick
-  // succession — normal in a live group session — can have their refetches
-  // resolve out of order; without a guard the stale response wins and a
-  // just-rendered row silently disappears until the next unrelated change
-  // happens to trigger another refetch. One counter per fetch kind, bumped
-  // before the await and checked after, discards a response once a newer
-  // request for the same kind has already started.
-  const fetchSeq = useRef({ votes: 0, rsvps: 0, ratings: 0, planSpots: 0 });
-
-  // Reports whether the read actually succeeded. A refetch that fails keeps
-  // the last good tally, which is right — a dropped poll should not wipe a
-  // working screen. But the FIRST read is different: votes starts as [], so a
-  // failure there is indistinguishable from a plan nobody has voted on, and
-  // the screen renders as a perfectly healthy live vote at zero. Measured: with
-  // this read blocked, a plan with nine voters showed "0 people voting", every
-  // option at 0 yes, no leader, and no error anywhere — fully usable, entirely
-  // wrong, and nothing would make anyone retry.
-  const refetchVotes = useCallback(async () => {
-    const seq = ++fetchSeq.current.votes;
-    const { data, error } = await getSupabase().from("votes").select("id,plan_id,spot_id,voter_name,value,phase,pool_number,participant_token_hash,created_at").eq("plan_id", id);
-    if (error) return false;
-    if (data && seq === fetchSeq.current.votes) setVotes(data as Vote[]);
-    return true;
-  }, [id]);
-
-  useEffect(() => {
-    if (access !== "ready") return;
-    let active = true;
-    void participantTokenHash(id).then((hash) => { if (active) setParticipantHash(hash); });
-    return () => { active = false; };
-  }, [access, id]);
-
-  useEffect(() => {
-    const saved = localStorage.getItem(`plan-host:${id}`);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (saved) setHostToken(saved);
-  }, [id]);
-
-  const runHostCommand = useCallback(async (command: "advance" | "decide" | "patch", patch: Partial<Plan> = {}) => {
-    if (!hostToken) return null;
-    const response = await secureJsonFetch(`/api/plans/${id}/command`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ hostToken, command, patch }),
-    });
-    const result = await response.json() as { plan?: Plan; finalists?: string[]; error?: string };
-    if (!response.ok || !result.plan) throw new Error(result.error ?? "That plan command could not be saved.");
-    return result;
-  }, [hostToken, id]);
-
-  const refetchRsvps = useCallback(async () => {
-    const seq = ++fetchSeq.current.rsvps;
-    const { data, error } = await getSupabase().from("rsvps").select("id,plan_id,voter_name,coming,choice,participant_token_hash,transport,seats_available,created_at").eq("plan_id", id);
-    if (error) return false;
-    if (data && seq === fetchSeq.current.rsvps) setRsvps(data as Rsvp[]);
-    return true;
-  }, [id]);
-
-  const refetchRatings = useCallback(async () => {
-    const seq = ++fetchSeq.current.ratings;
-    const { data, error } = await getSupabase().from("ratings").select("id,plan_id,spot_id,voter_name,stars,again,participant_token_hash,created_at").eq("plan_id", id);
-    if (error) return false;
-    if (data && seq === fetchSeq.current.ratings) setRatings(data as Rating[]);
-    return true;
-  }, [id]);
-
-  const refetchPlanSpots = useCallback(async () => {
-    const seq = ++fetchSeq.current.planSpots;
-    const { data } = await getSupabase().from("plan_spots").select("*").eq("plan_id", id);
-    if (data && seq === fetchSeq.current.planSpots) setPlanSpots(data as PlanSpot[]);
-  }, [id]);
-
-  useEffect(() => {
-    // Post-020 `plans` is membership-scoped: reading before claim_plan_access
-    // has redeemed the share id returns an empty set, which is indistinguishable
-    // from a deleted plan. Wait for access, like every other effect here.
-    if (access !== "ready") return;
-    let active = true;
-    (async () => {
-      const { data: planRow, error: planErr } = await getSupabase()
-        .from("plans")
-        .select("id,title,category,area,deadline,status,stage,pool_count,budget_per_person,origin_label,origin_latitude,origin_longitude,radius_km,smart_brief,vibe_preferences,avoid_preferences,intelligence_model,winner_spot_id,event_time,booking_owner,booked,created_at,reopened_at")
-        .eq("id", id)
-        .maybeSingle();
-      if (!active) return;
-      if (planErr) {
-        setLoad("error");
-        return;
-      }
-      if (!planRow) {
-        setLoad("notfound");
-        return;
-      }
-
-      const { data: links, error: linksErr } = await getSupabase()
-        .from("plan_spots")
-        .select("*")
-        .eq("plan_id", id);
-      const spotIds = (links ?? []).map((l) => l.spot_id);
-
-      // Narrowed from select("*"): OptionCard/DecidedPlan only ever read
-      // these fields from a vote-page spot (traced 2026-09-04, production-
-      // readiness pass). minimum_age/visibility/created_by_user_id/source/
-      // address are dropped -- created_by_user_id in particular has no
-      // reason reaching every shared-link voter. Note this narrows what the
-      // row actually HAS at runtime; the `Spot` type below still claims the
-      // full shape, so don't start reading a dropped field here without
-      // adding it back to this list.
-      const { data: spotRows, error: spotsErr } = spotIds.length
-        ? await getSupabase().from("spots").select("id, name, category, cuisine, price_band, area, description, vibe, open_till, min_spend, latitude, longitude, photo_url, photo_attribution, booking_url, source").in("id", spotIds)
-        : { data: [], error: null };
-      // Preserve the dealt order.
-      const ordered = spotIds
-        .map((sid) => (spotRows ?? []).find((s) => s.id === sid))
-        .filter(Boolean) as Spot[];
-
-      if (!active) return;
-      // A plan should always have its dealt spots. If any query failed or the
-      // spots came back short, treat it as a transient error and let the user
-      // retry — never render a broken, cardless stage.
-      if (linksErr || spotsErr || ordered.length === 0) {
-        setLoad("error");
-        return;
-      }
-      setPlan(planRow as Plan);
-      setSpots(ordered);
-      setPlanSpots((links ?? []) as PlanSpot[]);
-      // The tally is load-critical, on the same reasoning as the spots above:
-      // a vote screen that cannot read the votes is not a working vote screen,
-      // and showing it at zero invites someone to vote blind on what they
-      // think is an empty plan. Retry is the honest offer.
-      const votesOk = await refetchVotes();
-      if (!active) return;
-      if (!votesOk) {
-        setLoad("error");
-        return;
-      }
-      // Load-critical too, for the same reason as votes: a refused read here
-      // renders "No one's committed yet" and an empty carpool list — a
-      // plausible, confidently wrong decided screen. Only the FIRST read is
-      // gated; later realtime refetches keep their last-good rows.
-      const [rsvpsOk, ratingsOk] = await Promise.all([refetchRsvps(), refetchRatings()]);
-      if (!active) return;
-      if (!rsvpsOk || !ratingsOk) {
-        setLoad("error");
-        return;
-      }
-      setLoad("ready");
-    })();
-    return () => {
-      active = false;
-    };
-  }, [access, id, refetchVotes, refetchRsvps, refetchRatings, reloadKey]);
-
-  // ── Restore this voter's name (once, per plan) ───────────────────
-  useEffect(() => {
-    // Sync from localStorage on mount — can't use a useState initializer
-    // because localStorage doesn't exist during SSR.
-    const saved = localStorage.getItem(`voter:${id}`);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (saved) setVoterName(saved);
-  }, [id]);
-
-  // Anyone signed in already told us their name in Settings, so asking "who's
-  // voting?" invites them to answer differently and appear to their friends
-  // under a name their profile doesn't have. Use people.display_name — the
-  // same one /home greets them with. Signed-out guests still see the gate,
-  // which is the whole point of it.
-  const [accountNameTried, setAccountNameTried] = useState(false);
-  useEffect(() => {
-    if (accountNameTried || localStorage.getItem(`voter:${id}`)) return;
-    let active = true;
-    void (async () => {
-      const { data: { user } } = await getSupabase().auth.getUser();
-      // The account's own name (people.display_name, what Settings edits);
-      // the sign-in provider's name only if the profile can't be read.
-      const { data: me } = user && !user.is_anonymous
-        ? await getSupabase().from("people").select("display_name").eq("id", user.id).maybeSingle()
-        : { data: null };
-      if (!active) return;
-      const meta = user?.user_metadata?.full_name ?? user?.user_metadata?.name;
-      const name = (me?.display_name?.trim() || (typeof meta === "string" && meta.trim()) || user?.email?.split("@")[0] || "").slice(0, 24);
-      if (user && !user.is_anonymous && name) {
-        localStorage.setItem(`voter:${id}`, name);
-        setVoterName(name);
-      }
-      setAccountNameTried(true);
-    })();
-    return () => { active = false; };
-  }, [id, accountNameTried]);
-
-  // ── Realtime: live votes + live "decided" for everyone ───────────
-  //
-  // Realtime checks the `plan_id=eq.<id>` filter against the FULL old row for
-  // DELETEs (045 made it available), so these events already arrive only for
-  // this plan. But the payload's `old` is cut down to the PRIMARY KEY for RLS
-  // tables, so `old.plan_id` is never there: a client-side "is this ours?"
-  // check on it (f537134) silently dropped every un-vote, RSVP delete and
-  // unrate, and other members' tallies went stale. Refetch on every event —
-  // coalesced per kind (lib/coalesce.ts) so a burst of N votes costs each
-  // subscriber one read, not N. The plans DELETE handler below can check
-  // `old.id`, because id IS the key.
-  useEffect(() => {
-    if (access !== "ready" || deleted || left) return;
-    const later = [refetchVotes, refetchRsvps, refetchRatings, refetchPlanSpots].map((run) => coalesce(run));
-    const [votesLater, rsvpsLater, ratingsLater, planSpotsLater] = later;
-    const channel = getSupabase()
-      .channel(`plan:${id}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "votes", filter: `plan_id=eq.${id}` },
-        votesLater,
-      )
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "plans", filter: `id=eq.${id}` },
-        (payload) => setPlan(payload.new as Plan),
-      )
-      // The cascade then fires one DELETE per vote/rsvp/rating. Ending here
-      // tears the channel down (the effect depends on `deleted`), so that
-      // burst never becomes a burst of refetches.
-      .on(
-        "postgres_changes",
-        { event: "DELETE", schema: "public", table: "plans", filter: `id=eq.${id}` },
-        (payload) => { if (payload.old?.id === id) setDeleted((d) => d ?? "remote"); },
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "rsvps", filter: `plan_id=eq.${id}` },
-        rsvpsLater,
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "ratings", filter: `plan_id=eq.${id}` },
-        ratingsLater,
-      )
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "plan_spots", filter: `plan_id=eq.${id}` },
-        planSpotsLater,
-      )
-      .subscribe();
-    dataChannelRef.current = channel;
-    cancelRefetchesRef.current = () => later.forEach((refetch) => refetch.cancel());
-    return () => {
-      dataChannelRef.current = null;
-      later.forEach((refetch) => refetch.cancel());
-      getSupabase().removeChannel(channel);
-    };
-  }, [access, deleted, left, id, refetchVotes, refetchRsvps, refetchRatings, refetchPlanSpots]);
-
-  // ── Who else has this plan open right now ────────────────────────
-  // A separate channel from the data subscriptions above: presence depends on
-  // the typed name, and folding it in would tear down every postgres_changes
-  // listener each time the name resolves.
-  //
-  // The presence key is a throwaway per-tab id, NOT the participant token
-  // hash. Presence keys and payloads are broadcast to every subscriber on the
-  // channel, so keying by the token would hand every link visitor the
-  // credential the write RPCs authorise against. The payload carries the
-  // typed name only — exactly what the vote list already shows publicly.
-  useEffect(() => {
-    if (access !== "ready" || !voterName || left) return;
-    const sessionKey = crypto.randomUUID();
-    const channel = getSupabase().channel(`plan:${id}:presence`, {
-      config: { private: true, presence: { key: sessionKey } },
-    });
-    channel
-      .on("presence", { event: "sync" }, () => {
-        const state = channel.presenceState<{ name?: string }>();
-        const names = Object.values(state)
-          .flat()
-          .map((entry) => entry.name)
-          .filter((name): name is string => Boolean(name));
-        setPresentNames([...new Set(names)].sort((a, b) => a.localeCompare(b)));
-      })
-      .subscribe((status) => {
-        if (status === "SUBSCRIBED") void channel.track({ name: voterName });
-      });
-    presenceChannelRef.current = channel;
-    return () => {
-      presenceChannelRef.current = null;
-      getSupabase().removeChannel(channel);
-    };
-  }, [access, id, voterName, left]);
-
   // ── Tallies + this voter's picks (pure helpers in lib/tally.ts) ──
   const round = roundFor(stage, activePool);
-  const { phase: currentPhase, poolNumber: currentPoolNumber } = round;
-  const iVotedYes = (spotId: string) =>
-    votes.some(
-      (v) => v.spot_id === spotId && v.voter_name === voterName && (!v.participant_token_hash || v.participant_token_hash === participantHash) && v.value && isInRound(v, round),
-    );
-
-  // One choice per voter per pool/final. Picking another card replaces it.
-  async function toggleVote(spotId: string) {
-    if (!voterName || decided) return;
-    if (!participantHash) { setNotice("Preparing your private voting session…"); return; }
-    const next = !iVotedYes(spotId);
-    // Never the only feedback: navigator.vibrate is unsupported on iOS
-    // Safari, which is most of this audience. The card's own spring is what
-    // actually confirms the pick; this is a bonus where it exists.
-    haptic(next ? 10 : 6);
-
-    setVotes((cur) => {
-      const rest = cur.filter(
-        (v) => !(
-          v.voter_name === voterName &&
-          (!v.participant_token_hash || v.participant_token_hash === participantHash) &&
-          (v.phase ?? "final") === currentPhase &&
-          (v.pool_number ?? 0) === currentPoolNumber
-        ),
-      );
-      return next ? [
-        ...rest,
-        {
-          id: `local-${currentPhase}-${currentPoolNumber}-${spotId}-${voterName}`,
-          plan_id: id,
-          spot_id: spotId,
-          voter_name: voterName,
-          value: true,
-          phase: currentPhase,
-          pool_number: currentPoolNumber,
-          participant_token_hash: participantHash,
-        },
-      ] : rest;
-    });
-
-    const { error } = await getSupabase().rpc("cast_plan_vote", {
-      p_plan_id: id,
-      p_spot_id: spotId,
-      p_voter_name: voterName,
-      p_value: next,
-      p_phase: currentPhase,
-      p_pool_number: currentPoolNumber,
-      p_participant_token_hash: participantHash,
-    });
-    if (error) {
-      // Reconcile with the server rather than restoring the pre-optimistic
-      // snapshot: a realtime event for someone else's vote can land while
-      // this RPC is in flight, and setVotes(prev) would silently discard it
-      // along with the failed attempt. Same pattern as setRsvp/rateWinner.
-      await refetchVotes();
-      reportParticipantFailure(error, "That vote didn't save. Check your connection and tap again.");
-    } else {
-      setNotice(null);
-      // Clearing your pick is quick and reversible: offer Undo, which re-casts
-      // the same pick in the same round (captured here -- toggleVote itself
-      // would read a stale tally by the time Undo is tapped).
-      if (!next) {
-        const phase = currentPhase;
-        const pool = currentPoolNumber;
-        const hash = participantHash;
-        const name = voterName;
-        const place = spots.find((spot) => spot.id === spotId)?.name ?? "that place";
-        setVoteUndo({
-          message: `Cleared your pick of ${place}.`,
-          restore: async () => {
-            const { error: undoError } = await getSupabase().rpc("cast_plan_vote", {
-              p_plan_id: id,
-              p_spot_id: spotId,
-              p_voter_name: name,
-              p_value: true,
-              p_phase: phase,
-              p_pool_number: pool,
-              p_participant_token_hash: hash,
-            });
-            await refetchVotes();
-            return !undoError;
-          },
-        });
-      } else {
-        setVoteUndo(null);
-      }
-    }
-  }
-
-  // A host command refused with 403 can mean the plan was deleted mid-flight
-  // (a decide racing a delete). Telling the person who just deleted it "you
-  // are not authorised" would be a lie, so look before saying anything.
-  // An empty read is ambiguous (RLS-hidden vs gone), but either way this
-  // plan is no longer reachable from here.
-  const planIsGone = useCallback(async () => {
-    const { data, error } = await getSupabase().from("plans").select("id").eq("id", id).maybeSingle();
-    return !error && !data;
-  }, [id]);
-  const failHostCommand = useCallback(async (error: unknown, fallback: string) => {
-    if (await planIsGone()) { setDeleted((d) => d ?? "remote"); return; }
-    setNotice(error instanceof Error ? error.message : fallback);
-  }, [planIsGone]);
-
-  // edit_plan (055) answers with a `result`, not a `plan`, so this does NOT go
-  // through runHostCommand -- which throws when `plan` is missing and would
-  // report a successful edit as a failure. `nothing_to_change` is a success.
-  async function saveEdit() {
-    if (!hostToken || !plan || !editing) return;
-    const body: { command: "edit"; hostToken: string; title?: string; deadline?: string } = { command: "edit", hostToken };
-    const title = editing.title.trim();
-    if (title !== plan.title) body.title = title;
-    if (editing.deadline && editing.deadline !== toLocalInput(plan.deadline)) {
-      const at = new Date(editing.deadline);
-      if (Number.isNaN(at.getTime())) { setEditError("Pick a valid closing time."); return; }
-      body.deadline = at.toISOString(); // a full instant with offset, as the route requires
-    }
-    if (body.title === undefined && body.deadline === undefined) { setEditing(null); return; }
-    setEditPending(true);
-    setEditError(null);
-    try {
-      const response = await secureJsonFetch(`/api/plans/${id}/command`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      const payload = await response.json().catch(() => ({})) as { result?: string; title?: string; deadline?: string | null };
-      if (payload.result === "edited" || payload.result === "nothing_to_change") {
-        if (payload.result === "edited") {
-          setPlan((current) => current && {
-            ...current,
-            title: payload.title ?? current.title,
-            deadline: payload.deadline === undefined ? current.deadline : payload.deadline,
-          });
-        }
-        setEditing(null);
-        return;
-      }
-      if (response.status === 404) { if (await planIsGone()) { setDeleted((d) => d ?? "remote"); return; } }
-      setEditError(
-        payload.result === "voting_started" ? "Voting has started, so this plan can’t be edited."
-          : payload.result === "invalid_title" ? "Give the plan a title."
-            : payload.result === "invalid_deadline" ? "Pick a closing time in the future, within a year."
-              : response.status === 403 ? "Only the person who started this plan can edit it."
-                : response.status === 429 ? "Too many plan changes. Try again in a minute."
-                  : "That didn’t save. Try again.",
-      );
-    } catch {
-      setEditError("That didn’t save. Check your connection and try again.");
-    } finally {
-      setEditPending(false);
-    }
-  }
-
-  // C7 (migration 057): the host takes a decided plan back to its final round.
-  // Like edit, reopen answers { result } with no `plan`, so it doesn't go
-  // through runHostCommand. The deadline is omitted: it clears, and the host
-  // decides by hand.
-  async function reopenPlan() {
-    if (!hostToken) return;
-    setReopening(true);
-    try {
-      const response = await secureJsonFetch(`/api/plans/${id}/command`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ command: "reopen", hostToken }),
-      });
-      const payload = await response.json().catch(() => ({})) as { result?: string; deadline?: string | null };
-      if (payload.result === "reopened") {
-        setPlan((current) => current && { ...current, status: "open", stage: "final", winner_spot_id: null, deadline: payload.deadline ?? null, reopened_at: new Date().toISOString() });
-        setNotice(null);
-        return;
-      }
-      if (response.status === 404 && await planIsGone()) { setDeleted((d) => d ?? "remote"); return; }
-      setNotice(
-        payload.result === "booked" ? "Unmark “booked” before reopening — the booking is still marked as made."
-          : payload.result === "already_happened" ? "Someone has already rated this place or logged the visit, so this plan can’t be reopened."
-            : payload.result === "no_rounds" ? "This plan has no final shortlist to go back to, so it can’t be reopened."
-              : payload.result === "not_decided" ? "This plan is already open."
-                : response.status === 403 ? "Only the person who started this plan can reopen it."
-                  : response.status === 429 ? "Too many plan changes. Try again in a minute."
-                    : "That plan couldn’t be reopened. Try again.",
-      );
-    } catch {
-      setNotice("That plan couldn’t be reopened. Check your connection and try again.");
-    } finally {
-      setReopening(false);
-      setConfirmReopen(false);
-    }
-  }
-
-  // C6 (migration 056). Members only -- the host deletes instead.
-  async function leavePlan() {
-    if (!plan) return;
-    const wasDecided = plan.status === "decided";
-    setLeaving(true);
-    const { data, error } = await getSupabase().rpc("leave_plan", { p_plan_id: id });
-    const result = (data as { result?: string } | null)?.result;
-    if (error || !result) {
-      setLeaving(false);
-      setConfirmLeave(false);
-      setNotice("Couldn’t leave the plan. Try again.");
-      return;
-    }
-    if (result === "host_cannot_leave") {
-      setLeaving(false);
-      setConfirmLeave(false);
-      setNotice("You started this plan, so you can’t leave it. Delete it instead.");
-      return;
-    }
-    if (result === "not_found") { setDeleted((d) => d ?? "remote"); return; }
-    // left, or not_member (already out): close the live channels FIRST --
-    // untrack, then remove -- so nobody keeps seeing this person "here now",
-    // and no refetch runs against reads that now return nothing.
-    const presence = presenceChannelRef.current;
-    if (presence) {
-      await presence.untrack().catch(() => undefined);
-      await getSupabase().removeChannel(presence);
-    }
-    cancelRefetchesRef.current();
-    if (dataChannelRef.current) await getSupabase().removeChannel(dataChannelRef.current);
-    // Forget this device's name for the plan, so rejoining starts fresh.
-    try { localStorage.removeItem(`voter:${id}`); } catch { /* storage blocked */ }
-    setLeft(wasDecided ? "decided" : "open");
-  }
-
-  async function deletePlan() {
-    if (!hostToken) return;
-    setDeciding(true);
-    try {
-      const response = await secureJsonFetch(`/api/plans/${id}/command`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ hostToken, command: "delete" }),
-      });
-      // 404: already gone, which is the outcome asked for.
-      if (response.ok || response.status === 404) { setDeleted("self"); return; }
-      setConfirmDelete(false);
-      setNotice(
-        response.status === 409 ? "This plan is already decided, so it can’t be deleted."
-          : response.status === 403 ? "Only the person who started this plan can delete it."
-            : response.status === 429 ? "Too many plan changes. Try again in a minute."
-              : "That plan couldn’t be deleted. Try again.",
-      );
-    } catch {
-      setNotice("That plan couldn’t be deleted. Check your connection and try again.");
-    } finally {
-      setDeciding(false);
-    }
-  }
-
-  // Both transitions run entirely inside execute_plan_command: it holds the
-  // row lock, does the tally and applies the same stable spot-id tie-break.
-  // The client used to recompute all of that to feed a direct-write fallback,
-  // which migration 015 revoked — one tally, server-side, is the whole point.
-  const advanceToFinal = useCallback(async () => {
-    if (!plan || plan.status !== "open" || stage !== "pool") return;
-    if (!hostToken) {
-      setNotice("Only the person who started this plan can close the rounds.");
-      return;
-    }
-    setDeciding(true);
-    try {
-      const result = await runHostCommand("advance");
-      if (result?.finalists) setPlanSpots((current) => current.map((link) => ({ ...link, advanced: result.finalists!.includes(link.spot_id) })));
-      if (result?.plan) setPlan(result.plan);
-      setNotice(null);
-    } catch (error) {
-      await failHostCommand(error, "The shortlist didn’t save. Try again.");
-    } finally {
-      setDeciding(false);
-    }
-  }, [plan, stage, hostToken, runHostCommand, failHostCommand]);
-
-  const decide = useCallback(async () => {
-    if (!plan || plan.status !== "open" || spots.length === 0) return;
-    if (!hostToken) {
-      setNotice("Only the person who started this plan can decide it.");
-      return;
-    }
-    setDeciding(true);
-    try {
-      const result = await runHostCommand("decide");
-      if (result?.plan) setPlan(result.plan);
-      setNotice(null);
-    } catch (error) {
-      await failHostCommand(error, "The plan couldn’t be decided. Try again.");
-    } finally {
-      setDeciding(false);
-    }
-  }, [plan, spots.length, hostToken, runHostCommand, failHostCommand]);
-
-  // ── Deadline auto-pick ───────────────────────────────────────────
-  // Host only. Everyone else receives the transition over realtime, so a
-  // participant's browser never fires a command it isn't allowed to run.
-  useEffect(() => {
-    if (!plan || plan.status !== "open" || !plan.deadline || !hostToken || deleted) return;
-    const ms = new Date(plan.deadline).getTime() - Date.now();
-    // setTimeout(…, 0) defers even a past deadline, so we never call
-    // setState synchronously in the effect body.
-    const t = setTimeout(() => {
-      if (stage === "pool") void advanceToFinal();
-      else void decide();
-    }, Math.max(0, ms));
-    return () => clearTimeout(t);
-  }, [plan, stage, hostToken, deleted, decide, advanceToFinal]);
+  const { poolNumber: currentPoolNumber } = round;
+  const { iVotedYes, toggleVote, voteUndo, setVoteUndo } = useVoteActions({
+    id, votes, setVotes, voterName, participantHash, decided, round, spots, refetchVotes, setNotice, reportParticipantFailure,
+  });
+  const { confirmLeave, setConfirmLeave, leaving, leavePlan } = useLeavePlan({
+    id, plan, setLeft, setDeleted, setNotice, presenceChannelRef, dataChannelRef, cancelRefetchesRef,
+  });
 
   // Record the winner once when the decision arrives. A reopened plan (057)
   // goes back to open, so the latch resets -- otherwise the re-decide would
@@ -759,136 +124,6 @@ export default function VotePage() {
     }
   }
 
-  // ── The last mile: set time, RSVP, claim/mark booking ────────────
-  async function patchPlan(fields: Partial<Plan>) {
-    if (!plan) return;
-    const previous = plan;
-    setPlan({ ...plan, ...fields }); // optimistic
-    if (!hostToken) {
-      setPlan(previous);
-      setNotice("Only the person who started this plan can change these details.");
-      return;
-    }
-    try {
-      const result = await runHostCommand("patch", fields);
-      if (result?.plan) setPlan(result.plan);
-    } catch (error) {
-      setPlan(previous); // roll the optimistic update back
-      setNotice(error instanceof Error ? error.message : "That didn't save. Check your connection and try again.");
-    }
-  }
-
-  async function setRsvp(choice: "coming" | "maybe" | "no") {
-    if (!voterName || !participantHash) return;
-    const mine = rsvps.find((r) => r.voter_name === voterName);
-    const nextComing = choice === "coming";
-    haptic(8);
-    setRsvps((cur) => [
-      ...cur.filter((r) => r.voter_name !== voterName),
-      { id: mine?.id ?? `local-${voterName}`, plan_id: id, voter_name: voterName, coming: nextComing, choice, participant_token_hash: participantHash },
-    ]);
-    const { error } = await getSupabase().rpc("set_plan_rsvp", {
-      p_plan_id: id,
-      p_voter_name: voterName,
-      p_coming: nextComing,
-      p_choice: choice,
-      p_participant_token_hash: participantHash,
-      p_transport: mine?.transport ?? null,
-      p_seats_available: mine?.seats_available ?? null,
-    });
-    if (error) {
-      await refetchRsvps(); // reconcile on failure
-      reportParticipantFailure(error, "Couldn't update your RSVP. Try again.");
-    }
-  }
-
-  // Carpool (035). Rides on your existing RSVP: the RPC rewrites the whole
-  // row, so the current choice is resent and a cleared option writes null.
-  async function setCarpool(transport: Rsvp["transport"], seats: number | null) {
-    if (!voterName || !participantHash) return;
-    const mine = rsvps.find((r) => r.voter_name === voterName);
-    if (!mine) return;
-    const choice = mine.choice ?? (mine.coming ? "coming" : "no");
-    const nextSeats = transport === "driving" ? seats : null;
-    haptic(8);
-    setRsvps((cur) => cur.map((r) => (r.voter_name === voterName ? { ...r, transport, seats_available: nextSeats } : r)));
-    const { error } = await getSupabase().rpc("set_plan_rsvp", {
-      p_plan_id: id,
-      p_voter_name: voterName,
-      p_coming: mine.coming,
-      p_choice: choice,
-      p_participant_token_hash: participantHash,
-      p_transport: transport ?? null,
-      p_seats_available: nextSeats,
-    });
-    if (error) {
-      await refetchRsvps();
-      setNotice("Couldn't update how you're getting there. Try again.");
-    }
-  }
-
-  // Rate the winner after the visit. First tap fills in a sensible "again"
-  // so one interaction writes a valid row; each control merges with the rest.
-  async function rateWinner(partial: { stars?: number; again?: boolean }) {
-    if (!voterName || !winnerId || !participantHash) return;
-    const mine = ratings.find((r) => r.voter_name === voterName);
-    haptic(8);
-    const stars = partial.stars ?? mine?.stars ?? 5;
-    const again = partial.again ?? mine?.again ?? stars >= 4;
-    setRatings((cur) => [
-      ...cur.filter((r) => r.voter_name !== voterName),
-      { id: mine?.id ?? `local-${voterName}`, plan_id: id, spot_id: winnerId, voter_name: voterName, stars, again, participant_token_hash: participantHash },
-    ]);
-    const { error } = await getSupabase().rpc("rate_plan", {
-      p_plan_id: id,
-      p_spot_id: winnerId,
-      p_voter_name: voterName,
-      p_stars: stars,
-      p_again: again,
-      p_participant_token_hash: participantHash,
-    });
-    if (error) {
-      await refetchRatings();
-      reportParticipantFailure(error, "Couldn't save your rating. Try again.");
-      return;
-    }
-    void rememberVisit();
-  }
-
-  // Rating the winner is the only moment the app knows for certain that
-  // someone actually went. That is what turns a decided plan into history,
-  // so it is where the visit gets written — logVisit is unique per
-  // (person, plan), so re-rating updates the same visit instead of stacking.
-  //
-  // Signed-in visitors only: `visits` is owner-scoped to a people row, and a
-  // shared link carries no account. Everyone else still rates normally; they
-  // just have nowhere personal to file it.
-  async function rememberVisit() {
-    if (!winnerId || !plan) return;
-    const { data: { user } } = await getSupabase().auth.getUser();
-    if (!user) return;
-    // A guest arriving straight from a share link may have no profile row yet.
-    const { data: personId } = await getSupabase().rpc("ensure_authenticated_profile", {
-      p_display_name: voterName,
-    });
-    if (typeof personId !== "string") return;
-    const saved = await logVisit({
-      person_id: personId,
-      spot_id: winnerId,
-      plan_id: id,
-      visited_at: plan.event_time ?? undefined,
-      group_label: plan.title,
-      companions: rsvps
-        .filter((r) => (r.choice ?? (r.coming ? "coming" : "no")) === "coming" && r.voter_name !== voterName)
-        .map((r) => ({ name: r.voter_name })),
-    });
-    setVisitSaved(saved ? "saved" : "failed");
-  }
-
-  // ── States ───────────────────────────────────────────────────────
-  // All six full-screen non-content states render through <VoteState>. The
-  // access reasons come straight from bootstrapPlanAccess; the load ones from
-  // the plan/spots fetch below.
   const retryAccess = () => { setAccess("checking"); void runAccess(); };
 
   // SPECS.md §25.3 beat 3 — the round closes. Losers FOLD rather than
@@ -934,65 +169,10 @@ export default function VotePage() {
   // chose. See components/vote/useFaceFlight.ts.
   useFaceFlight();
 
-  if (deleted) {
-    return <VoteState kind={deleted === "self" ? "deleted-by-you" : "deleted"} planTitle={plan?.title} />;
-  }
-  // After leaving, the plan's reads return nothing (RLS) -- which must not be
-  // shown as "not found". Say what happened, and how to come back.
-  if (left) {
-    return (
-      <main className="vote-experience vote-state">
-        <div className="vote-state__inner">
-          <h1 className="vote-state__title">You left {plan?.title ? `“${plan.title}”` : "this plan"}</h1>
-          <p className="vote-state__body">
-            {left === "decided"
-              ? "Your RSVP and rating were removed; your votes stay as part of how the group decided."
-              : "Your votes and RSVP were removed."}{" "}
-            Open the link again any time to rejoin.
-          </p>
-          <div className="vote-state__actions">
-            <button type="button" className="vote-primary-action" onClick={() => window.location.reload()}>Rejoin</button>
-            <Link href="/home" className="vote-secondary-action">Go home</Link>
-          </div>
-        </div>
-      </main>
-    );
-  }
-  if (access === "captcha-required") {
-    return (
-      <VoteState kind="captcha" captchaStatus={captchaStatus}>
-        <Turnstile action="plan-access" onVerify={onCaptchaVerify} onStatus={setCaptchaStatus} />
-      </VoteState>
-    );
-  }
-  if (access === "anonymous-disabled") {
-    return <VoteState kind="guest-paused" />;
-  }
-  if (access === "sign-in-failed" || access === "claim-failed") {
-    return <VoteState kind="retry" onRetry={retryAccess} />;
-  }
-  if (access === "not-found") {
-    return <VoteState kind="cold-link" />;
-  }
-
-  // "checking" means we haven't been allowed to look yet — not that the plan is
-  // absent. Only a load that actually ran can report notfound/error below.
-  if (access === "checking" || load === "loading") {
-    return <VoteState kind="loading" planTitle={plan?.title} />;
-  }
-
-  if (load === "notfound") {
-    return <VoteState kind="cold-link" />;
-  }
-
-  if (load === "error") {
-    return (
-      <VoteState
-        kind="retry"
-        onRetry={() => { setLoad("loading"); setReloadKey((k) => k + 1); }}
-      />
-    );
-  }
+  const stateScreen = planStateScreen({
+    deleted, left, plan, access, load, captchaStatus, setCaptchaStatus, onCaptchaVerify, retryAccess, setLoad, setReloadKey,
+  });
+  if (stateScreen) return stateScreen;
 
   // Hold the gate while a signed-in account's name resolves, so it doesn't flash.
   if (!voterName && !accountNameTried) {
@@ -1183,60 +363,7 @@ export default function VotePage() {
                     : "The final shortlist is ready. Choose the place the group should visit."}
           </p>
           <ShareActions title={plan?.title ?? null} />
-          {/* R1. A hard delete for everyone on the link, with no undo by
-              construction — acceptable only because it is hard to do by
-              accident. The confirm names the plan and who it takes with it;
-              the count is read from votes already on screen, because the
-              server only reports participants after the delete. */}
-          {/* An open form stays open even if a vote lands meanwhile: hiding it
-              would silently throw away what the host typed. The save then
-              comes back voting_started and says why. */}
-          {isHost && editing && (
-            <form className="vote-edit" onSubmit={(event) => { event.preventDefault(); void saveEdit(); }}>
-              <label>
-                <span>Title</span>
-                <input value={editing.title} maxLength={60} onChange={(event) => setEditing({ ...editing, title: event.target.value })} />
-              </label>
-              <label>
-                <span>Voting closes</span>
-                <input type="datetime-local" value={editing.deadline} onChange={(event) => setEditing({ ...editing, deadline: event.target.value })} />
-              </label>
-              <div className="vote-edit__actions">
-                <button type="submit" className="vote-edit__save" disabled={editPending || !editing.title.trim()}>
-                  {editPending ? "Saving…" : "Save changes"}
-                </button>
-                <button type="button" disabled={editPending} onClick={() => { setEditing(null); setEditError(null); }}>Cancel</button>
-              </div>
-              {editError && <p role="alert" className="vote-edit__error">{editError}</p>}
-            </form>
-          )}
-          {isHost && (
-            <div className="vote-delete">
-              {isHost && canEdit && !editing && !confirmDelete && (
-                <button type="button" onClick={() => { setEditError(null); setEditing({ title: plan!.title, deadline: toLocalInput(plan!.deadline) }); }}>
-                  Edit this plan
-                </button>
-              )}
-              {editError && !editing && <p role="alert" className="vote-edit__error">{editError}</p>}
-              {confirmDelete ? (
-                <div className="vote-delete__confirm" role="group" aria-label="Confirm delete">
-                  <p>
-                    Delete “{plan!.title}”?{" "}
-                    {voterCount === 0
-                      ? "Nobody has voted yet."
-                      : `${voterCount} ${voterCount === 1 ? "person has" : "people have"} voted, and it disappears for all of them.`}{" "}
-                    This can’t be undone.
-                  </p>
-                  <button type="button" className="vote-delete__go" disabled={deciding} onClick={() => void deletePlan()}>
-                    {deciding ? "Deleting…" : "Delete plan"}
-                  </button>
-                  <button type="button" disabled={deciding} onClick={() => setConfirmDelete(false)}>Keep it</button>
-                </div>
-              ) : (
-                <button type="button" onClick={() => setConfirmDelete(true)}>Delete this plan</button>
-              )}
-            </div>
-          )}
+          <HostPlanControls host={host} plan={plan} voterCount={voterCount} canEdit={canEdit} />
           </>
         ) : (
           winnerSpot && (
@@ -1259,50 +386,17 @@ export default function VotePage() {
           )
         )}
 
-        {/* C7: host only, decided plans. */}
-        {/* Hidden once anyone has rated: 057 refuses (already_happened). A
-            logged visit also refuses but isn't readable here, so the server's
-            message still covers that case. */}
-        {isHost && decided && ratings.length === 0 && (
-          <div className="vote-delete vote-reopen">
-            {confirmReopen ? (
-              <div className="vote-delete__confirm" role="group" aria-label="Confirm reopen">
-                <p>
-                  Reopen voting on “{plan!.title}”? Everyone goes back to the final shortlist.
-                  RSVPs, carpool and the plan time stay; people should check them once a new place is picked.
-                </p>
-                <button type="button" disabled={reopening} onClick={() => void reopenPlan()}>
-                  {reopening ? "Reopening…" : "Reopen voting"}
-                </button>
-                <button type="button" disabled={reopening} onClick={() => setConfirmReopen(false)}>Keep the decision</button>
-              </div>
-            ) : (
-              <button type="button" onClick={() => setConfirmReopen(true)}>Reopen voting</button>
-            )}
-          </div>
-        )}
+        <ReopenControl host={host} plan={plan} decided={decided} ratingCount={ratings.length} />
 
-        {/* C6. Never the host: they delete instead (leave_plan refuses them). */}
-        {!isHost && (
-          <div className="vote-delete vote-leave">
-            {confirmLeave ? (
-              <div className="vote-delete__confirm" role="group" aria-label="Confirm leave">
-                <p>
-                  Leave “{plan!.title}”?{" "}
-                  {decided
-                    ? "Your RSVP and rating will be removed; your votes stay as part of how the group decided."
-                    : "Your votes and RSVP will be removed. You can rejoin with the link."}
-                </p>
-                <button type="button" className="vote-delete__go" disabled={leaving} onClick={() => void leavePlan()}>
-                  {leaving ? "Leaving…" : "Leave plan"}
-                </button>
-                <button type="button" disabled={leaving} onClick={() => setConfirmLeave(false)}>Stay</button>
-              </div>
-            ) : (
-              <button type="button" onClick={() => setConfirmLeave(true)}>Leave this plan</button>
-            )}
-          </div>
-        )}
+        <LeaveControl
+          isHost={isHost}
+          plan={plan}
+          decided={decided}
+          confirmLeave={confirmLeave}
+          setConfirmLeave={setConfirmLeave}
+          leaving={leaving}
+          leavePlan={leavePlan}
+        />
 
         {voteUndo && !decided && (
           <UndoBar key={voteUndo.message} message={voteUndo.message} onUndo={voteUndo.restore} onDone={() => setVoteUndo(null)} />
