@@ -15,8 +15,6 @@ import PhotoWall, { type WallItem } from "@/components/PhotoWall";
 import CardStackExample from "@/components/kokonutui/card-stack";
 import ActionSearchBar from "@/components/kokonutui/action-search-bar";
 
-const DEMO_PLAN_ID = "11111111-1111-1111-1111-111111111111";
-
 const APP_VIEWS = ["plan", "discover", "been", "friends", "profile"] as const;
 type AppView = (typeof APP_VIEWS)[number];
 
@@ -326,12 +324,11 @@ export default function HomeExperience({
             <a href="#plan-lab" className="home-primary-cta">
               Open a decision
             </a>
-            {/* The sample plan is a seeded row that only a signed-in reader can
-                fetch under the post-020 policies, so a signed-out visitor sent
-                there meets "plan not found". Dev preview keeps the link;
-                the public door offers the thing that does work. */}
+            {/* /demo/vote plays a whole sample decision from fixtures. The
+                seeded /plan/1111… row it replaces is membership scoped, so a
+                signed-out visitor sent there met "This plan wouldn't open". */}
             {fixtures ? (
-              <Link href={`/plan/${DEMO_PLAN_ID}`} className="home-secondary-cta">
+              <Link href="/demo/vote" className="home-secondary-cta">
                 See a sample vote
               </Link>
             ) : (

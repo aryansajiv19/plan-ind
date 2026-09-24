@@ -1,13 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import UndoBar from "@/components/UndoBar";
 import { useParams } from "next/navigation";
 import { getSupabase, bootstrapPlanAccess, type PlanAccessDenial } from "@/lib/supabase";
 import { addBeen } from "@/lib/device";
 import { logVisit } from "@/lib/social";
-import { avatarStyle, initialsOf } from "@/lib/avatar";
 import { participantTokenHash } from "@/lib/participant";
 import { secureJsonFetch } from "@/lib/security/csrf-client";
 import { coordinatesForArea, distanceKm } from "@/lib/dubai-areas";
@@ -21,6 +20,10 @@ import DecidedPlan from "@/components/DecidedPlan";
 import Turnstile, { type TurnstileStatus } from "@/components/Turnstile";
 import VoteState from "@/components/VoteState";
 import ShareActions from "@/components/ShareActions";
+import VoteSeats from "@/components/vote/VoteSeats";
+import VoteOptionsGrid from "@/components/vote/VoteOptionsGrid";
+import { RoundDots, RoundLabel } from "@/components/vote/RoundProgress";
+import { useFaceFlight } from "@/components/vote/useFaceFlight";
 
 type Load = "loading" | "ready" | "notfound" | "error";
 // "checking" = access not resolved yet; "ready" = membership claimed; any
@@ -37,11 +40,6 @@ function closesLabel(deadline: string | null): string {
 }
 
 
-// Roman round markers are After Dark's, and night-only — "III" does not fit
-// the 2.1rem day dot. Always paired with the arabic original for assistive
-// tech, which reads "Round 3" properly and "Round III" as "Round eye-eye-eye".
-const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
-const roman = (n: number) => ROMAN[n - 1] ?? String(n);
 
 // ISO instant -> the value a datetime-local input expects (local wall time).
 function toLocalInput(iso: string | null): string {
@@ -49,9 +47,6 @@ function toLocalInput(iso: string | null): string {
   const d = new Date(iso);
   return new Date(d.getTime() - d.getTimezoneOffset() * 60_000).toISOString().slice(0, 16);
 }
-
-// Past this many seats the row stops reading as faces; the rest collapse to +N.
-const SEAT_LIMIT = 10;
 
 export default function VotePage() {
   const { id } = useParams<{ id: string }>();
@@ -101,7 +96,6 @@ export default function VotePage() {
   const [participantHash, setParticipantHash] = useState<string | null>(null);
 
   const stageRef = useRef<HTMLDivElement>(null);
-  const cardRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const revealFired = useRef(false);
 
   const decided = plan?.status === "decided";
@@ -923,57 +917,9 @@ export default function VotePage() {
   }, [decided, sawOpenRound]);
   const foldDone = decided && (!sawOpenRound || foldTimerDone);
 
-  // SPECS.md §25.3 beat 1 — the vote lands. A voter's face travels from the
-  // presence row onto the card they chose. This replaces a counter ticking
-  // up: a number says how many, a face says who, and who is the reason a
-  // group is on this screen together.
-  //
-  // FLIP, done the way §25.7 requires: the element is ALWAYS rendered at its
-  // real layout position, and the animation only plays the journey. It is
-  // never primed with an inline transform that a later frame has to clear —
-  // that pattern strands the avatar mid-flight forever if the frame never
-  // arrives, which is exactly what happens to a guest who switches apps
-  // mid-vote and comes back. Web Animations gives a destination that is
-  // correct whether or not the animation ever runs.
-  //
-  // A name can be on screen in two places at once — its seat and the card it
-  // picked — so positions are keyed by slot + name, never by name alone. Keyed
-  // by name, the seat and the card overwrite each other and every re-render
-  // flies one of them in from the other. A face already in its slot only
-  // animates if layout moved it; a face NEW to a slot flies in from wherever
-  // that name just left (the card it un-picked), else from its seat.
-  const facePositions = useRef(new Map<string, { name: string; box: DOMRect }>());
-  useLayoutEffect(() => {
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const previous = facePositions.current;
-    const seen = new Map<string, { name: string; box: DOMRect }>();
-    const nodes = [...document.querySelectorAll<HTMLElement>("[data-face-name]")];
-    for (const node of nodes) {
-      const name = node.dataset.faceName;
-      if (name) seen.set(`${node.dataset.faceSlot ?? ""}:${name}`, { name, box: node.getBoundingClientRect() });
-    }
-    facePositions.current = seen;
-    if (reduced) return;
-    for (const node of nodes) {
-      const name = node.dataset.faceName;
-      if (!name) continue;
-      const key = `${node.dataset.faceSlot ?? ""}:${name}`;
-      const box = seen.get(key)!.box;
-      let from = previous.get(key)?.box;
-      if (!from) {
-        const others = [...previous.entries()].filter(([k, v]) => v.name === name && k !== key);
-        from = (others.find(([k]) => !seen.has(k)) ?? others.find(([k]) => k.startsWith("seat:")))?.[1].box;
-      }
-      if (!from) continue;
-      const dx = from.left - box.left;
-      const dy = from.top - box.top;
-      if (Math.abs(dx) < 1 && Math.abs(dy) < 1) continue;
-      node.animate(
-        [{ transform: `translate(${dx}px, ${dy}px)` }, { transform: "none" }],
-        { duration: 420, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
-      );
-    }
-  });
+  // §25.3 beat 1: a voter's face flies from their seat onto the card they
+  // chose. See components/vote/useFaceFlight.ts.
+  useFaceFlight();
 
   if (deleted) {
     return <VoteState kind={deleted === "self" ? "deleted-by-you" : "deleted"} planTitle={plan?.title} />;
@@ -1105,49 +1051,11 @@ export default function VotePage() {
               <p className="vote-reopened">This plan was reopened. Check your RSVP once a new place is picked.</p>
             )}
             {!decided && (
-              <p className="vote-round-label">
-                <span className="sr-only">
-                  {stage === "pool" ? `Round ${activePool} of ${poolCount} · choose one` : "Final shortlist · choose one"}
-                </span>
-                <span aria-hidden="true">
-                  {stage === "pool"
-                    ? nightMode
-                      ? `Round ${roman(activePool)} of ${roman(poolCount)} · choose one`
-                      : `Round ${activePool} of ${poolCount} · choose one`
-                    : "Final shortlist · choose one"}
-                </span>
-              </p>
+              <RoundLabel stage={stage === "pool" ? "pool" : "final"} activePool={activePool} poolCount={poolCount} nightMode={nightMode} />
             )}
-            {/* §26.1: draw the group, not just the people who acted. A seat
-                fills when that person has picked this round. The roster is a
-                LOWER BOUND — plan_access carries no names, so someone who
-                opened the link and never acted is invisible — which is why the
-                copy counts picks and never claims "N of M". */}
+            {/* §26.1: the group, not just the people who acted. */}
             {!decided && roster.length > 1 && (
-              <div className="vote-seats">
-                <ul className="vote-seats__row" aria-label="People on this plan">
-                  {roster.slice(0, SEAT_LIMIT).map((name) => {
-                    const picked = pickedThisRound.has(name);
-                    return (
-                      <li key={name} className="vote-seat" data-open={picked ? undefined : "1"}>
-                        <span aria-hidden="true" data-face-name={name} data-face-slot="seat" style={picked ? avatarStyle(name) : undefined}>
-                          {initialsOf(name)}
-                        </span>
-                        <span className="sr-only">
-                          {name === voterName ? `${name} (you)` : name}, {picked ? "picked" : "not picked yet"}
-                        </span>
-                      </li>
-                    );
-                  })}
-                  {roster.length > SEAT_LIMIT && (
-                    <li className="vote-seat vote-seat--more">+{roster.length - SEAT_LIMIT}</li>
-                  )}
-                </ul>
-                <p className="vote-seats__summary">
-                  {pickedThisRound.size} picked this round
-                  {othersHere.length > 0 && ` · ${othersHere.slice(0, 3).join(", ")}${othersHere.length > 3 ? " and others" : ""} here now`}
-                </p>
-              </div>
+              <VoteSeats roster={roster} voterName={voterName} picked={pickedThisRound} othersHere={othersHere} />
             )}
           </div>
           <span className="vote-deadline shrink-0 whitespace-nowrap px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-grape">
@@ -1156,24 +1064,17 @@ export default function VotePage() {
         </div>
 
         {stage === "pool" && !decided && (
-          <nav className="vote-pool-progress" aria-label="Voting pools">
-            {Array.from({ length: poolCount }, (_, index) => index + 1).map((poolNumber) => (
-              <button
-                key={poolNumber}
-                type="button"
-                onClick={() => {
-                  setRoundDir(poolNumber >= activePool ? 1 : -1);
-                  setActivePool(poolNumber);
-                  haptic(6);
-                }}
-                aria-current={activePool === poolNumber ? "step" : undefined}
-                data-complete={poolsChosenByMe.has(poolNumber) || undefined}
-                aria-label={`Round ${poolNumber} of ${poolCount}${poolsChosenByMe.has(poolNumber) ? ", chosen" : ""}`}
-              >
-                <span aria-hidden="true">{nightMode ? roman(poolNumber) : poolNumber}</span>
-              </button>
-            ))}
-          </nav>
+          <RoundDots
+            poolCount={poolCount}
+            activePool={activePool}
+            chosen={poolsChosenByMe}
+            nightMode={nightMode}
+            onSelect={(poolNumber) => {
+              setRoundDir(poolNumber >= activePool ? 1 : -1);
+              setActivePool(poolNumber);
+              haptic(6);
+            }}
+          />
         )}
 
         {/* Three places in the current round, or the three finalists. On a
@@ -1184,31 +1085,18 @@ export default function VotePage() {
             Once decided and folded, the grid goes: the winner card beside
             DecidedPlan's reveal showed the same place twice. Its details
             (description, hours, price) move under the reveal. */}
-        {!foldDone && <div
-          key={`round-${currentPoolNumber}`}
-          data-folded={decided && foldDone ? "1" : undefined}
-          style={{ "--round-dir": roundDir, "--c": agreement } as React.CSSProperties}
-          // gap-3.5 removed: the gap is gravity's one layout channel now, and a
-          // Tailwind utility ties with the stylesheet rule on specificity, so
-          // whichever comes later in the cascade silently wins. Owning it in
-          // one place is the fix; adding !important would only move the tie.
-          className="vote-options-grid vote-round mt-6 grid sm:grid-cols-3"
-        >
-          {visibleSpots
-            .filter((spot) => !(decided && foldDone) || winnerId === spot.id)
-            .map((spot, index) => (
-            <div
-              key={spot.id}
-              ref={(el) => { cardRefs.current[spot.id] = el; }}
-              className="vote-option-shell"
-              data-lead={spot.id === leaderId && !decided ? "1" : undefined}
-              data-fold={decided && sawOpenRound && winnerId !== spot.id ? "1" : undefined}
-              // --off is a FIXED per-card offset, derived from position rather
-              // than from the vote data. It has to be stable: a scatter that
-              // re-randomises on every vote would read as jitter instead of
-              // convergence, and cards would swap places under a thumb.
-              style={{ "--off": `${(index % 3) * 23}px` } as React.CSSProperties}
-            >
+        {!foldDone && (
+          <VoteOptionsGrid
+            key={`round-${currentPoolNumber}`}
+            spots={visibleSpots}
+            leaderId={leaderId}
+            winnerId={winnerId}
+            decided={decided}
+            folded={decided && foldDone}
+            sawOpenRound={sawOpenRound}
+            roundDir={roundDir}
+            agreement={agreement}
+            renderCard={(spot) => (
               <OptionCard
                 spot={spot}
                 voters={votersFor(votes, spot.id, round)}
@@ -1227,9 +1115,9 @@ export default function VotePage() {
                   : null}
                 onToggle={() => toggleVote(spot.id)}
               />
-            </div>
-          ))}
-        </div>}
+            )}
+          />
+        )}
 
         {/* Controls / result */}
         {!decided ? (
