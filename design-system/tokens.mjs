@@ -1,4 +1,4 @@
-// Read the live design tokens out of app/globals.css.
+// Read the live design tokens out of app/globals.css and its app/styles/ partials.
 //
 // The previews used to hand-copy these, with a README claiming they were
 // "lifted verbatim". They were not, and they rotted: the bundle still showed
@@ -41,8 +41,18 @@ function declarations(text) {
   return vars;
 }
 
+/** globals.css with its `./styles/*.css` partials inlined, in import order. */
+async function readStylesheet() {
+  const entry = await readFile(CSS, "utf8");
+  const parts = [...entry.matchAll(/^@import "(\.\/styles\/[\w-]+\.css)";$/gm)];
+  const bodies = await Promise.all(
+    parts.map(([, rel]) => readFile(join(dirname(CSS), rel), "utf8")),
+  );
+  return [entry, ...bodies].join("\n");
+}
+
 export async function readTokens() {
-  const css = await readFile(CSS, "utf8");
+  const css = await readStylesheet();
 
   // Day: @theme plus the plain :root blocks (durations, radii, the over-photo
   // set, the shadcn bridge). @theme inline is skipped — it only re-exports.

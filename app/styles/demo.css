@@ -1,0 +1,394 @@
+/* app/styles/demo.css — The demo's planning tools (boards, wrapped, inline forms). */
+
+/* Local-first social planning tools. They share the existing account grid and
+   stay deliberately quiet so the product remains useful before auth is wired. */
+.demo-tool-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  margin-top: 3rem;
+  border-top: 1px solid var(--color-line);
+  border-bottom: 1px solid var(--color-line);
+}
+.demo-tool-panel {
+  min-width: 0;
+  padding: 1.5rem 0;
+}
+.demo-tool-grid .demo-tool-panel + .demo-tool-panel {
+  border-left: 1px solid var(--color-line);
+  padding-left: 2rem;
+}
+.demo-tool-panel h2 {
+  max-width: 28rem;
+  margin: .5rem 0 1.25rem;
+  font-size: clamp(1.5rem, 3vw, 2.4rem);
+  line-height: .98;
+}
+.demo-tool-panel > p:not(.home-section-kicker) {
+  max-width: 34rem;
+  color: var(--color-muted);
+  line-height: 1.5;
+}
+.demo-tool-panel__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.demo-tool-panel__head > button, .demo-tool-panel > button {
+  min-height: var(--btn-h-md);
+  padding: var(--btn-pad-md);
+  border: 1px solid var(--color-ink);
+  background: var(--color-ink);
+  color: var(--color-card);
+  font-size: max(.68rem, var(--type-floor));
+  font-weight: 500;
+  cursor: pointer;
+}
+.demo-circle-list {
+  display: grid;
+  gap: .5rem;
+}
+.demo-circle-list button, .demo-board-tabs button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: .2rem;
+  padding: .8rem;
+  border: 1px solid var(--color-line);
+  background: transparent;
+  color: var(--color-ink);
+  text-align: left;
+  cursor: pointer;
+}
+.demo-circle-list button.is-selected, .demo-board-tabs button[aria-pressed="true"] {
+  border-color: var(--color-punch-text);
+  background: color-mix(in srgb, var(--home-metal) 9%, transparent);
+}
+.demo-circle-list strong {
+  font-size: .78rem;
+}
+.demo-circle-list span, .demo-board-tabs small {
+  color: var(--color-muted);
+  font-size: max(.68rem, var(--type-floor));
+}
+.demo-inline-form {
+  display: flex;
+  gap: .45rem;
+  margin-top: .8rem;
+}
+.demo-inline-form input, .demo-inline-form select, .demo-tool-field input, .demo-tool-field textarea {
+  min-width: 0;
+  flex: 1;
+  min-height: 2.5rem;
+  border: 1px solid var(--color-line);
+  border-radius: 0;
+  padding: .55rem .7rem;
+  background: var(--color-card);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: max(.72rem, var(--type-floor));
+}
+.demo-inline-form button {
+  min-height: var(--btn-h-md);
+  padding: var(--btn-pad-md);
+  border: 1px solid var(--color-ink);
+  background: transparent;
+  color: var(--color-ink);
+  font-size: max(.68rem, var(--type-floor));
+  font-weight: 500;
+  cursor: pointer;
+}
+.demo-inline-form button:disabled, .demo-tool-panel button:disabled {
+  cursor: not-allowed;
+  opacity: .4;
+}
+.demo-inline-form > span {
+  align-self: center;
+  color: var(--color-muted);
+  font-size: max(.68rem, var(--type-floor));
+  white-space: nowrap;
+}
+.demo-stage-line {
+  display: flex;
+  gap: .4rem;
+  margin-bottom: 1.25rem;
+}
+.demo-stage-line span {
+  flex: 1;
+  padding-top: .5rem;
+  border-top: 1px solid var(--color-line);
+  color: var(--color-muted);
+  font-size: max(.62rem, var(--type-floor));
+}
+.demo-stage-line span.is-current {
+  border-color: var(--color-punch-text);
+  color: var(--color-ink);
+  font-weight: 500;
+}
+.demo-tool-field {
+  display: grid;
+  gap: .45rem;
+  margin: .9rem 0;
+}
+.demo-tool-field > span {
+  color: var(--color-muted);
+  font-size: max(.67rem, var(--type-floor));
+  font-weight: 500;
+}
+.demo-tool-field textarea {
+  min-height: 6rem;
+  resize: vertical;
+}
+.demo-reaction-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  margin: 1rem 0;
+}
+.demo-reaction-row button, .demo-check {
+  border: 1px solid var(--color-line);
+  background: transparent;
+  color: var(--color-ink);
+  font-size: max(.68rem, var(--type-floor));
+  font-weight: 650;
+  cursor: pointer;
+}
+.demo-reaction-row button {
+  padding: .55rem .65rem;
+}
+.demo-reaction-row button[aria-pressed="true"] {
+  border-color: var(--color-punch-text);
+  background: color-mix(in srgb, var(--home-metal) 12%, transparent);
+}
+.demo-check {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  min-height: 2.75rem;
+  border: 0;
+  margin: 1rem 0;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+.demo-check input {
+  accent-color: var(--home-metal);
+}
+.demo-moodboard-panel {
+  margin-top: 2.5rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--color-line);
+  border-bottom: 1px solid var(--color-line);
+}
+.demo-board-tabs {
+  display: flex;
+  gap: .45rem;
+  margin: 1rem 0;
+  overflow-x: auto;
+}
+.demo-board-tabs button {
+  min-width: 8rem;
+}
+.demo-board-items {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .75rem;
+  margin-bottom: 1rem;
+}
+.demo-board-items > div {
+  display: grid;
+  gap: .3rem;
+  padding: .85rem;
+  border: 1px solid var(--color-line);
+}
+.demo-board-items span {
+  color: var(--home-metal);
+  font-size: max(.58rem, var(--type-floor));
+  font-weight: 500;
+  text-transform: uppercase;
+}
+.demo-board-items strong {
+  font-size: .8rem;
+}
+.demo-board-items small {
+  color: var(--color-muted);
+  font-size: max(.68rem, var(--type-floor));
+  line-height: 1.4;
+}
+.demo-memory-panel, .demo-reminder-panel {
+  margin-top: 2.5rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--color-line);
+  border-bottom: 1px solid var(--color-line);
+}
+.demo-memory-upload {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 9rem;
+  margin: 1rem 0;
+  border: 1px dashed var(--color-line);
+  color: var(--color-muted);
+  font-size: max(.7rem, var(--type-floor));
+  cursor: pointer;
+  overflow: hidden;
+}
+.demo-memory-upload input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+.demo-memory-upload img {
+  object-fit: cover;
+}
+.demo-reminder-panel .demo-primary-action, .demo-memory-panel .demo-primary-action, .demo-moodboard-panel .demo-primary-action {
+  margin-top: 1rem;
+}
+.demo-wrapped {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2rem;
+  align-items: start;
+  margin-top: 2.5rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--color-line);
+  border-bottom: 1px solid var(--color-line);
+}
+.demo-wrapped h2 {
+  margin: .45rem 0 .7rem;
+  font-size: clamp(1.3rem, 2vw, 1.6rem);
+  line-height: .92;
+}
+.demo-wrapped p:not(.home-section-kicker) {
+  max-width: 30rem;
+  color: var(--color-muted);
+  line-height: 1.5;
+}
+.demo-wrapped > .demo-primary-action {
+  align-self: center;
+}
+.demo-wrapped > .demo-collection-empty {
+  min-height: 0;
+  align-self: stretch;
+  padding: 1.25rem;
+}
+.demo-wrapped__card {
+  grid-column: 1 / -1;
+  padding: clamp(1.25rem, 4vw, 2.5rem);
+  background: var(--color-ink);
+  color: var(--color-card);
+}
+.demo-wrapped__eyebrow {
+  color: var(--home-metal);
+  font-size: max(.65rem, var(--type-floor));
+  font-weight: 500;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+}
+.demo-wrapped__card > strong {
+  display: block;
+  margin-top: 1.5rem;
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 12vw, 8rem);
+  line-height: .75;
+  letter-spacing: -.1em;
+}
+.demo-wrapped__card > span {
+  display: block;
+  max-width: 20rem;
+  margin-top: 1rem;
+  color: color-mix(in srgb, var(--color-card) 72%, transparent);
+  font-size: .82rem;
+  line-height: 1.45;
+}
+.demo-wrapped__stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  margin-top: 2rem;
+  border-top: 1px solid color-mix(in srgb, var(--color-card) 22%, transparent);
+}
+.demo-wrapped__stats div {
+  display: grid;
+  gap: .35rem;
+  padding: 1rem .8rem 0 0;
+}
+.demo-wrapped__stats b {
+  color: var(--home-metal);
+  font-size: .8rem;
+}
+.demo-wrapped__stats small {
+  color: color-mix(in srgb, var(--color-card) 65%, transparent);
+  font-size: max(.65rem, var(--type-floor));
+  line-height: 1.35;
+}
+.demo-wrapped__actions {
+  display: flex;
+  gap: .5rem;
+  margin-top: 2rem;
+}
+.demo-wrapped__actions button {
+  min-height: var(--btn-h-md);
+  padding: var(--btn-pad-md);
+  border: 1px solid color-mix(in srgb, var(--color-card) 38%, transparent);
+  background: transparent;
+  color: var(--color-card);
+  font-size: max(.68rem, var(--type-floor));
+  font-weight: 500;
+  cursor: pointer;
+}
+/* On the dark ink card this action inverts to a light fill. A brown fill
+   here is only 1.58:1 against the ink behind it — the button's own edge
+   does not read, which is exactly the "elements blend into the
+   background" the owner named. Light-on-dark clears it at 12.89:1 both
+   for the boundary and for the label, and suits the white-dominant
+   brief. The brown fill stays correct everywhere it sits on a LIGHT
+   ground; it is this dark surface that needs the inversion. */
+.demo-wrapped__actions button:first-child {
+  border-color: var(--color-card);
+  background: var(--color-card);
+  color: var(--color-ink);
+}
+.demo-wrapped .demo-wrapped__status {
+  min-height: 1.4em;
+  margin-top: .65rem;
+  color: color-mix(in srgb, var(--color-card) 72%, transparent);
+  font-size: max(.65rem, var(--type-floor));
+}
+@media (max-width: 760px) {
+  .demo-tool-grid {
+    grid-template-columns: 1fr;
+  }
+  .demo-tool-grid .demo-tool-panel + .demo-tool-panel {
+    border-left: 0;
+    border-top: 1px solid var(--color-line);
+    padding-left: 0;
+  }
+  .demo-board-items {
+    grid-template-columns: 1fr;
+  }
+  .demo-inline-form {
+    flex-wrap: wrap;
+  }
+  .demo-wrapped {
+    grid-template-columns: 1fr;
+  }
+  .demo-wrapped__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .home-stage {
+    transform: none !important;
+  }
+}

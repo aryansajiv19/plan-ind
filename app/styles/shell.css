@@ -1,0 +1,476 @@
+/* app/styles/shell.css — App shell, photoless cards, touch targets, faces, seats, arrival, legal, keyframes. */
+
+/* ── App shell (signed in) ─────────────────────────────────────────
+   The signed-out landing keeps its hero. Signed in, the product opens
+   on its first screen instead, so the top of the viewport is the tool
+   rather than a headline about the tool. */
+.home-appbar {
+  width: min(100% - 2 * var(--page-gutter), 76rem);
+  margin: 0 auto;
+  padding: 1.6rem 0 0.4rem;
+}
+.home-appbar__hello {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+.home-appbar__title {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 5vw, 2.9rem);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+}
+
+/* Curated spots frequently have no photograph. A typographic category
+   block is honest about that; a stock image would not be. */
+/* Photoless cards are most of Discover, so this block is the largest colour
+   surface in the product. A 14% wash of the group hue with the category code
+   set in it: worst measured pair is 4.93:1 (food, day) and 5.32:1 (night).
+   The code itself carries the meaning — the wash only speeds it up. */
+.demo-place-card__code {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 9;
+  border-bottom: 2px solid var(--color-line);
+  background: color-mix(in srgb, var(--color-punch) 14%, var(--color-card));
+  color: var(--color-muted);
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+}
+
+@media (max-width: 520px) {
+  .home-appbar {
+    width: 100%;
+    padding: 1.1rem 0.95rem 0.2rem;
+  }
+  /* Phone: the app fills the screen rather than sitting in a page. */
+  .home-plan-section,
+  .demo-view {
+    width: 100%;
+    padding-inline: 0.95rem;
+  }
+  .demo-place-card__code {
+    aspect-ratio: 21 / 9;
+    font-size: 1.15rem;
+  }
+}
+
+/* Round change: the incoming set slides in once, on mount. Guarded by
+   no-preference — with reduced motion the round simply appears.
+
+   --round-dir is set by the vote screen: +1 moving forward through the
+   rounds, -1 going back to one you already answered. Without it every
+   round entered from the same side and advancing felt like a repaint
+   rather than travel. The set also arrives slightly under size and
+   grows into place, which is the momentum: it is still moving when it
+   becomes readable.
+
+   Deliberately NOT a spring — this is arrival, not something the
+   person is holding, and an overshoot on a full column of cards reads
+   as a bounce. --ease-settle decelerates hard and stops. */
+@media (prefers-reduced-motion: no-preference) {
+  .vote-round {
+    animation: vote-round-in 420ms var(--ease-settle) both;
+  }
+  @keyframes vote-round-in {
+    from {
+      opacity: 0;
+      transform: translateX(calc(var(--round-dir, 1) * 1.75rem)) scale(0.965);
+    }
+    60% {
+      opacity: 1;
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+  }
+
+  /* A tally that just changed. Applied briefly by the vote screen, then
+     removed — a one-shot acknowledgement, never a loop. */
+  .vote-count--changed {
+    animation: vote-count-bump 420ms ease both;
+    color: var(--color-live);
+  }
+  @keyframes vote-count-bump {
+    0% {
+      transform: scale(1);
+    }
+    40% {
+      transform: scale(1.18);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+}
+
+/* ── Touch targets ─────────────────────────────────────────────────
+   Found by auditing at 390px, which had never been done: the bottom tab
+   bar was 37px tall, the day/night toggle 34px, the 1–5 rating control
+   34x34, and several action buttons 18px. Apple HIG and the Android
+   guidance both put the comfortable minimum at 44px; WCAG 2.2 (2.5.8)
+   sets the floor at 24px, which these cleared while still being fiddly
+   under a thumb.
+
+   Phone-scoped so desktop keeps its density — a cursor is precise, a
+   thumb is not. Inline links inside a sentence are deliberately left
+   alone; 2.5.8 exempts them and padding them would break the text. */
+@media (max-width: 640px) {
+  .home-app-tab {
+    min-height: 2.85rem;
+  }
+  .home-avatar {
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+  }
+  .plan-custom-place__header button,
+  .demo-collection-create button,
+  .vote-result__button {
+    min-height: 2.75rem;
+    padding-inline: 0.9rem;
+  }
+  .vote-rating-button {
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+  }
+  /* The plan form is the longest control run in the app and every one of
+     these sat just under the floor — the strips and the region select at
+     40.8px, the smart-search submit at 42.4px. Close enough to look right
+     and still wrong under a thumb. Listed here rather than raised on each
+     base rule so desktop keeps its density, which is what this block is
+     for. .plan-category-group used to be raised in the 520px block; it is
+     the same concern as these, so it lives with them and there is one
+     place to look when the floor changes. */
+  .plan-choice-strip button,
+  .plan-location-fields select,
+  .plan-category-group,
+  .plan-smart-search > button {
+    min-height: 2.75rem;
+  }
+  /* Paired with the height above, for the same WebKit reason. */
+  .plan-location-fields select {
+    height: 2.75rem;
+  }
+  /* The app's global search, and the back link on a venue page — both are
+     standalone controls that were never in this block: the search input
+     carried a 36px utility height, the venue back link measured 20px. */
+  .action-search__input,
+  .place-back {
+    min-height: 2.75rem;
+  }
+  .place-back {
+    display: inline-flex;
+    align-items: center;
+  }
+  /* Swept the vote screen and all five account tabs at 390 on Chromium and
+     WebKit. Everything below was under the floor on both. The round dots
+     are the notable one: they are real enabled buttons carrying the only
+     round navigation on the product's most-used screen, and they were
+     40x33.6 — under in BOTH dimensions, hence min-width as well. */
+  .vote-pool-progress button {
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+  }
+  .place-link-importer fieldset button,
+  .demo-filter-tabs button,
+  .demo-collection-tabs button,
+  .demo-friend-row button,
+  .demo-reaction-row button {
+    min-height: 2.75rem;
+  }
+  .demo-inline-form input,
+  .demo-tool-field input {
+    min-height: 2.75rem;
+  }
+  /* Selects need the height, not the min-height — see the note on
+     .plan-location-fields select. */
+  .demo-visit__collection-action select,
+  .demo-photo-target select {
+    height: 2.75rem;
+  }
+  /* Height stated, not computed from padding. The old rule added 0.7rem
+     top and bottom to an 18px line, which reached 40.7px and missed the
+     floor it was written to hit — and would drift again with the type
+     scale. inline-flex so the min-height applies and the label centres. */
+  .home-footer a,
+  /* The two standalone links on /privacy and /terms — the way back out
+     and the cross-link to the other document. Selected as direct
+     children of the page, which is precisely what makes them standalone:
+     a link inside prose is inside a <p>, so this cannot reach one and
+     the 2.5.8 inline exemption is preserved by the selector itself.
+     Both measured 21px. */
+  .legal-page > a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+  }
+}
+
+/* ── Faces ─────────────────────────────────────────────────────────
+   Participants on a share link have no account and no photo, so an
+   avatar is initials on a hue derived from the name (lib/avatar.ts).
+   Deliberately not the live accent or champagne: those two carry
+   meaning, and identity must not read as state. */
+.vote-face-stack {
+  display: inline-flex;
+}
+.vote-face-stack > span {
+  display: grid;
+  place-items: center;
+  width: 1.55rem;
+  height: 1.55rem;
+  margin-left: -0.4rem;
+  border: 1px solid var(--color-card);
+  border-radius: 50%;
+  font-size: max(0.56rem, var(--type-floor));
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+.vote-face-stack > span:first-child {
+  margin-left: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Only names that were not on the card a moment ago. One shot. */
+  /* Pops on `scale` and `translate`, NOT `transform`. These run with `both`,
+     so whichever property the last keyframe names is held for the life of
+     the element — and §25.3's flight animates `transform` on this same
+     avatar. Third instance of that collision in this file: it produces no
+     error, the flight simply computes to an identity matrix. Independent
+     properties compose, so the face can pop in and fly at the same time. */
+  .vote-face--arriving {
+    animation: vote-face-in 460ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  @keyframes vote-face-in {
+    from {
+      opacity: 0;
+      scale: 0.4;
+      translate: 0 0.35rem;
+    }
+    to {
+      opacity: 1;
+      scale: 1;
+      translate: 0 0;
+    }
+  }
+}
+
+/* ── The group, as seats (§26.1) ───────────────────────────────────
+   Every person the plan can see, whether or not they have acted. A filled
+   seat is someone who picked this round; an open seat is someone who hasn't
+   — drawn, countable, not an absence. Names only, never a token.
+   The dashed edge is a UI boundary (SC 1.4.11): --color-line is 3.63:1 on
+   the canvas, so it must not be softened toward a hint. */
+.vote-seats {
+  margin-top: 0.7rem;
+}
+.vote-seats__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+.vote-seat > span[aria-hidden],
+.vote-seat--more {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  font-size: max(0.56rem, var(--type-floor));
+  font-weight: 500;
+}
+.vote-seat[data-open] > span[aria-hidden] {
+  border: 1.5px dashed var(--color-line);
+  color: var(--color-muted);
+}
+.vote-seat--more {
+  color: var(--color-muted);
+}
+.vote-seats__summary {
+  margin-top: 0.45rem;
+  color: var(--color-muted);
+  font-size: max(0.68rem, var(--type-floor));
+  font-weight: 500;
+}
+
+/* ── Arrival ───────────────────────────────────────────────────────
+   Lists arrive one item after another rather than as a block. It is a
+   single short stagger on mount, capped so a long grid never turns into
+   a slow cascade — the last card must not feel like waiting.
+
+   The brief warned against animating for its own sake, so this is
+   limited to the three places in a voting round and the card grids in
+   the account views, which is where new content actually appears. */
+@media (prefers-reduced-motion: no-preference) {
+  .vote-options-grid > *,
+  .demo-place-grid > *,
+  .demo-visit-grid > article,
+  .demo-friend-list > * {
+    animation: list-item-in 380ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    /* Cap the index so item 12 does not wait 1.2s. */
+    animation-delay: calc(min(var(--i, 0), 6) * 45ms);
+  }
+  /* Lifts on `translate`, NOT `transform`. These run with `both`, so the
+     final keyframe holds whichever property it animates for the life of the
+     element — and while that property was `transform`, this entrance
+     silently owned it forever. §25.2's gravity sets a transform on the same
+     elements and computed to an identity matrix with no error anywhere:
+     the declaration was valid, applied, and outranked by a finished
+     animation. `translate` is an independent property, so the two compose
+     and neither has to know about the other. */
+  @keyframes list-item-in {
+    from {
+      opacity: 0;
+      translate: 0 0.6rem;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
+
+  /* The active tab's rule grows from the left rather than cutting in. */
+  .home-app-tab::after {
+    transform-origin: left center;
+    transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+
+/* nth-child feeds the stagger; capped at 7 so the rule set stays small. */
+.vote-options-grid > *:nth-child(1), .demo-place-grid > *:nth-child(1), .demo-visit-grid > article:nth-child(1), .demo-friend-list > *:nth-child(1) {
+  --i: 0;
+}
+.vote-options-grid > *:nth-child(2), .demo-place-grid > *:nth-child(2), .demo-visit-grid > article:nth-child(2), .demo-friend-list > *:nth-child(2) {
+  --i: 1;
+}
+.vote-options-grid > *:nth-child(3), .demo-place-grid > *:nth-child(3), .demo-visit-grid > article:nth-child(3), .demo-friend-list > *:nth-child(3) {
+  --i: 2;
+}
+.vote-options-grid > *:nth-child(4), .demo-place-grid > *:nth-child(4), .demo-visit-grid > article:nth-child(4), .demo-friend-list > *:nth-child(4) {
+  --i: 3;
+}
+.vote-options-grid > *:nth-child(5), .demo-place-grid > *:nth-child(5), .demo-visit-grid > article:nth-child(5), .demo-friend-list > *:nth-child(5) {
+  --i: 4;
+}
+.vote-options-grid > *:nth-child(6), .demo-place-grid > *:nth-child(6), .demo-visit-grid > article:nth-child(6), .demo-friend-list > *:nth-child(6) {
+  --i: 5;
+}
+.vote-options-grid > *:nth-child(7), .demo-place-grid > *:nth-child(7), .demo-visit-grid > article:nth-child(7), .demo-friend-list > *:nth-child(7) {
+  --i: 6;
+}
+
+/* The restraint block used to live here: three `display: none !important`
+   rules, a `box-shadow: none !important` list that included the signature
+   .token, and a blanket `a/button/[role=button]:hover { transform: none }`
+   for every pointer device. It is gone, and this note is the record of why.
+
+   Its display and box-shadow targets were dead classes (.sky-root,
+   .home-backdrop-grid, .home-decision-orbit) or the signature itself. The
+   blanket hover rule cancelled a whole press-and-lift layer that is still
+   written above under `prefers-reduced-motion: no-preference` — the tab lift,
+   the category-tile tilt, the friend-row tilt, the CTA nudge — so the app
+   spent that code and rendered none of it. That is most of what "flat" was.
+
+   What was genuinely restrained is now restrained at its source instead of
+   being cancelled by !important further down: the outline buttons answer
+   hover with their border rather than a soft drop. Nothing here needs an
+   override to stay quiet.
+
+   One line of this note is now out of date and is corrected rather than
+   left to mislead: it used to read that .home-plan-card "declares no
+   shadow (it is a surface, not a control)". SPECS.md §19.3 reverses that
+   — under "smooth", surfaces separate from the canvas by value plus a
+   soft diffuse elevation, and that card now carries --elevation-card. The
+   banned thing was always the hard opaque OFFSET shadow, which is still
+   banned; a soft diffuse lift is the opposite treatment. */
+
+/* One rule per boundary. These blocks each draw border-block, so any two
+   stacked with a margin between them showed a doubled divider 40px apart
+   (profile had three in a row). When one directly follows another, the
+   follower drops its top edge and the previous block's bottom edge is the
+   single divider. */
+:is(.demo-profile-stats, .demo-city-pattern, .demo-wrapped, .place-link-importer, .demo-discover-tools, .plan-custom-place)
+  + :is(.demo-city-pattern, .demo-wrapped, .legal-links, .demo-discover-tools, .plan-round-summary) {
+  border-top: 0;
+}
+
+.legal-links {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2.5rem;
+  border-top: 1px solid var(--color-line);
+  padding-top: 1rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.legal-page {
+  width: min(100% - 2 * var(--page-gutter), 46rem);
+  margin: 0 auto;
+  padding: 2rem 0 4rem;
+}
+.legal-page__back {
+  font-weight: 500;
+}
+.legal-page article {
+  margin: 3rem 0;
+}
+.legal-page h1 {
+  margin-top: 0.4rem;
+  font-size: clamp(2rem, 7vw, 3.5rem);
+}
+.legal-page h2 {
+  margin-top: 2rem;
+  font-size: 1.15rem;
+}
+.legal-page p {
+  margin-top: 0.7rem;
+  line-height: 1.7;
+  color: var(--color-muted);
+}
+.legal-page a {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.legal-page__date {
+  font-size: 0.85rem;
+}
+.legal-page__notice {
+  border: 1px solid var(--color-ink);
+  padding: 0.75rem;
+  color: var(--color-ink) !important;
+}
+
+@keyframes ad-halo {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes ad-sheen {
+  0% {
+    background-position: -160% 0;
+  }
+  55%, 100% {
+    background-position: 260% 0;
+  }
+}
+
+/* .wall-skeleton's loading shimmer — SPECS.md §7. A skeleton needs to read
+   as active loading, not atmosphere, hence the much shorter loop than
+   ad-sheen's 6s ambient minimum. */
+@keyframes wall-shimmer {
+  0% {
+    background-position: 0% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}

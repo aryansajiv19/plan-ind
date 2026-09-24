@@ -1,0 +1,550 @@
+/* app/styles/vote.css — Shared-plan voting: states, rounds, gravity, option cards, actions. */
+
+/* Shared-plan voting uses the same language as home.
+
+   This block used to redefine the ENTIRE day palette locally. That is now
+   deleted, and deleting it is load-bearing: with the theme applied at the
+   document root, a local day palette here would win over [data-theme="night"]
+   and the vote page would be the one screen that never went dark. `--vote-metal`
+   stays only as an alias so the many rules below that read it keep working. */
+.vote-experience {
+  --vote-metal: var(--color-punch);
+  position: relative;
+  isolation: isolate;
+  color: var(--color-ink);
+}
+
+.vote-experience::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(90deg, transparent 0 49.95%, rgba(23, 24, 27, 0.035) 50%, transparent 50.05%),
+    var(--color-paper);
+  background-size: 4rem 100%, auto;
+}
+
+/* A brass masthead rule. This used to be the plan's category-group hue —
+   "food plan vs beach plan before reading a word". The group hues are
+   retired, so the rule is brass and the photograph carries what kind of
+   night it is. */
+.vote-shell {
+  border-radius: var(--radius-panel);
+  border-top: 4px solid var(--vote-metal);
+  background: color-mix(in srgb, var(--color-card) 96%, transparent);
+}
+
+.vote-shell h1,
+.vote-name-gate h1 {
+  font-weight: 600;
+  letter-spacing: -0.045em;
+}
+.vote-name-help {
+  margin-top: 0.55rem;
+  color: var(--color-muted);
+  font-size: max(0.72rem, var(--type-floor));
+  line-height: 1.45;
+}
+
+.vote-deadline {
+  border-bottom: 1px solid var(--vote-metal);
+  background: transparent;
+  color: var(--color-punch-text);
+  font-weight: 600;
+}
+
+/* ── The full-screen non-content states ────────────────────────────
+   loading / captcha / guest-paused / retry / cold-link, all rendered
+   through <VoteState> on a <main> that also carries .vote-experience
+   (and --night). A state screen is not "you", not the outcome, not a
+   category — per the colour system it earns no hue: graphite ink on the
+   inherited ground, full stop. The only fill on screen is inside
+   .vote-primary-action ("Try again" is a commit action). See FE.7 in
+   design-system/SPECS.md. */
+.vote-state {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 2rem 1.25rem;
+  text-align: center;
+}
+.vote-state__inner {
+  --round-dir: 0; /* straight fade + scale — a centered panel shouldn't slide sideways */
+  /* 26rem, not the spec's 22rem: the short display headlines ("Open this plan
+     securely", "This plan wouldn't open") wrap to two ragged lines at 22rem. */
+  max-width: 26rem;
+  animation: vote-round-in 400ms var(--ease-settle) both;
+}
+.vote-state__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+  text-wrap: balance;
+}
+.vote-state__body {
+  margin: 0.75rem auto 0;
+  max-width: 34ch;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+.vote-state__body strong {
+  color: var(--color-ink);
+  font-weight: 500;
+}
+.vote-state__actions {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: center;
+}
+/* SPECS.md §13.2: un-scoped from .vote-state__actions so all four
+   .vote-primary-action/.vote-secondary-action call sites share one size,
+   not two independent sizing systems (this rule vs. NameGate.tsx/
+   app/plan/[id]/page.tsx's own px-6 py-3.5 Tailwind utilities, now
+   removed). */
+.vote-primary-action,
+.vote-secondary-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.7rem 1.5rem;
+  font-family: var(--font-display);
+}
+.vote-state__slot {
+  margin-top: 1.5rem;
+}
+/* Same job as .auth-note: explains a check that is slow or never arriving. */
+/* M1: plans joined together, shown with the inviter's name before Accept.
+   Ink, not an alarm colour: zero is information, not a threat. */
+.invite-trust {
+  margin: 0.9rem 0 0;
+  color: var(--color-ink);
+  font-size: 1rem;
+  font-weight: 600;
+}
+.invite-trust + .vote-state__note {
+  margin-top: 0.3rem;
+}
+.vote-state__note {
+  margin: 0.75rem 0 0;
+  color: var(--color-muted);
+  font-size: 0.85rem;
+}
+
+.vote-round-label {
+  margin-top: 0.75rem;
+  color: var(--color-punch-text);
+  font-size: max(0.68rem, var(--type-floor));
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.vote-plan-constraints {
+  margin-top: 0.35rem;
+  color: var(--color-muted);
+  font-size: max(0.68rem, var(--type-floor));
+}
+.vote-reopened {
+  margin-top: 0.5rem;
+  color: var(--color-ink);
+  font-size: max(0.85rem, var(--type-floor));
+  font-weight: 600;
+}
+
+/* Round progress. Dots rather than a segmented bar: three rounds is a short
+   journey and the shape of it should be readable in one glance. They stay
+   real buttons so a round can still be revisited by keyboard. */
+.vote-pool-progress {
+  display: flex;
+  justify-content: center;
+  gap: 0.55rem;
+  margin-top: 1.5rem;
+}
+
+.vote-pool-progress button {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border: 1px solid var(--color-line);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-muted);
+  font-size: max(0.7rem, var(--type-floor));
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
+}
+
+/* A round you have already chosen in — your state, so the live accent. */
+.vote-pool-progress button[data-complete="true"] {
+  border-color: var(--color-live);
+  background: color-mix(in srgb, var(--color-live) 12%, transparent);
+  color: var(--color-live);
+}
+
+/* The round you are looking at now. */
+.vote-pool-progress button[aria-current="step"] {
+  border-color: var(--color-ink);
+  color: var(--color-ink);
+}
+.vote-pool-progress button[aria-current="step"][data-complete="true"] {
+  border-color: var(--color-live);
+}
+
+/* ── SPECS.md §25.2: plan gravity ──────────────────────────────────
+   Nine scattered options resolving into one decision is what this app
+   does; gravity renders that. Cards start scattered and pull into
+   alignment as agreement emerges.
+
+   THERE IS NO PHYSICS LOOP, and that is the reason this is affordable.
+   No per-frame integration, no rAF running for the length of a round.
+   Votes arrive as discrete Realtime events, so --c changes a handful of
+   times across a whole round and each change is exactly one transition.
+   Nothing runs while nobody is voting — which matters because a round
+   sits open for hours and people read menus on this screen.
+
+   Two channels, and only one of them costs layout. */
+.vote-options-grid {
+  /* THE one layout property in the whole effect, and it changes at most
+     once per vote. Everything else below is transform. */
+  gap: calc(20px - 11px * var(--c, 0));
+  transition: gap 420ms var(--ease-settle);
+}
+.vote-option-shell {
+  /* Compositor only: translate on a fixed per-card offset, scaled down to
+     nothing as agreement approaches 1. At --c 0 the cards sit scattered;
+     at 1 they are in line. */
+  transform: translate3d(0, calc(var(--off, 0px) * (1 - var(--c, 0))), 0)
+             scale(calc(1 + 0.045 * var(--lead, 0)));
+  transition: transform 420ms var(--ease-settle);
+  will-change: transform;
+}
+/* The leader's weight costs no colour. §23.4b holds: size is never the only
+   signal, and the word "leading" stays in the markup next to it
+   (OptionCard's .vote-option__leading). */
+.vote-option-shell[data-lead="1"] {
+  --lead: 1;
+}
+.vote-option-shell[data-lead="1"] > .token {
+  border-color: #969a9e; /* solid — 6.39 on canvas, 5.41 on card (§24) */
+}
+/* §25.3 beat 3. `scale` and `opacity` only — `scale` is an independent
+   property, so this composes with gravity's `transform` on the same element
+   instead of replacing it. Folding rather than fading to nothing at speed
+   is the point: the eye should be able to follow where a card went. */
+.vote-option-shell[data-fold] {
+  opacity: 0;
+  scale: 0.94;
+  pointer-events: none;
+  transition: opacity 340ms var(--ease-settle), scale 340ms var(--ease-settle);
+}
+/* The winner then takes the row. Driven by a timer rather than by the fold's
+   own transitionend, so the layout still arrives here when the transition
+   never plays (§25.7). */
+.vote-options-grid[data-folded] {
+  grid-template-columns: 1fr;
+}
+
+/* §25.5: gravity becomes a STATE rather than a journey. The cards still sit
+   exactly where agreement says they sit, so nothing informational is lost —
+   they simply do not travel to get there. Stated here rather than left to
+   the global duration override, because `will-change` on a transform that
+   never animates is pure cost. */
+@media (prefers-reduced-motion: reduce) {
+  .vote-options-grid,
+  .vote-option-shell {
+    transition: none;
+  }
+  .vote-option-shell {
+    will-change: auto;
+  }
+}
+
+/* Desktop: one level row. The scatter reads as charm in a phone deck and as
+   broken on a wide screen — and because it is a transform it reserves no
+   layout, so the lowest card sat on top of "Continue" and "Copy link".
+   Leadership still shows through the solid border and the word "leading";
+   only the offset, the lead scale and the tightening gap go. */
+@media (min-width: 641px) {
+  .vote-options-grid {
+    gap: 1.25rem;
+  }
+  .vote-option-shell,
+  .vote-options-grid .vote-option[aria-pressed="true"]:not(:disabled) {
+    transform: none;
+  }
+}
+
+/* Phone: the round becomes a swipeable deck. scroll-snap is the native
+   platform feature for this — the browser supplies momentum, rubber-banding
+   and the touch physics, so there is no gesture library and no drag maths.
+   The next card peeks so it is obvious there are three, and choosing stays a
+   comparison rather than a blind swipe. The cards remain real buttons in a
+   scroll container, so keyboard and screen-reader behaviour is unchanged. */
+@media (max-width: 640px) {
+  .vote-options-grid {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 85%;
+    gap: 0.7rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 0.75rem;
+    padding-inline: 0.75rem;
+    margin-inline: -0.75rem;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+  }
+  .vote-options-grid::-webkit-scrollbar {
+    display: none;
+  }
+  .vote-options-grid > * {
+    scroll-snap-align: center;
+  }
+}
+
+/* The card carries `token` in the markup, so the offset shadow comes from
+   the @layer components block near the top of this file. Every box-shadow
+   below has to restate it: these rules are unlayered and would otherwise
+   drop the signature the moment the card is chosen or wins. */
+.vote-option {
+  min-height: 100%;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-control);
+  /* Transform gets the spring and a longer run than the colour props:
+     the border recolouring instantly while the card is still settling
+     is what makes the pick feel like it landed. */
+  transition: border-color 150ms ease, background 150ms ease, transform 320ms var(--ease-settle), opacity 150ms ease;
+}
+
+.vote-option:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--vote-metal) 70%, var(--color-line));
+  transform: translateY(-1px);
+}
+
+/* Your pick and the group's winner used to be the same champagne, so the
+   card you chose was indistinguishable from the card that won. Your vote is
+   now the live accent; champagne is reserved for the outcome. */
+.vote-option[aria-pressed="true"] {
+  border-color: var(--color-live);
+  background: color-mix(in srgb, var(--color-live) 8%, var(--color-card));
+  box-shadow: inset 3px 0 0 var(--color-live);
+}
+
+/* The pick, with weight. A transition (not an animation) on purpose:
+   transitions do not fire on first paint, so a returning voter whose
+   choice is already saved sees the card in its chosen state rather
+   than watching it re-choose itself on load.
+
+   Specificity 0-3-0, ties :hover above and wins on order, so a chosen
+   card does not lose its lift to the cursor. Scale is deliberately
+   tiny — on a phone this card is 85% of the viewport inside a
+   scroll-snap track, and anything past ~1% adds real scrollable
+   width. SPECS.md §7's no-bounce sweep moved this off --ease-spring, so
+   the settle is doing the work now, not an overshoot. */
+.vote-option[aria-pressed="true"]:not(:disabled) {
+  transform: translateY(-2px) scale(1.008);
+}
+
+/* Later in the file than the press layer near the top, so this wins: a chosen
+   card must still sink when you press it again to unpick.
+
+   Deliberately NOT inside a no-preference guard. A press response is direct
+   manipulation, not decoration — removing it leaves a reduced-motion user
+   tapping a card that gives nothing back. The global reduce block below
+   zeroes the duration, so they get the same state instantly instead. */
+.vote-option:active:not(:disabled) {
+  transform: scale(0.975);
+  transition-duration: 90ms;
+  transition-timing-function: ease-out;
+}
+
+/* Pressing a card you already chose has to sink too — without this the
+   aria-pressed rule above keeps the full 5px shadow under your thumb and
+   the card reads as unpressable exactly when you go to change your mind. */
+.vote-option[aria-pressed="true"]:active:not(:disabled) {
+  box-shadow: inset 3px 0 0 var(--color-live);
+}
+
+/* Decided cards are disabled, so they never sink — a hairline top accent is
+   what is left of the tactility, and the winner keeps it in champagne.
+   No offset term: that is the exact .token signature FRONTEND_DESIGN_
+   STANDARDS.md's Components section retired (SPECS.md §16.2). */
+.vote-option--winner {
+  border-color: var(--color-punch-text);
+  box-shadow: inset 0 2px 0 var(--color-punch-text);
+}
+/* Decided: the outcome wins the card even if it is also the one you picked. */
+.vote-option--winner[aria-pressed="true"] {
+  border-color: var(--color-punch-text);
+  background: color-mix(in srgb, var(--vote-metal) 8%, var(--color-card));
+  box-shadow: inset 0 2px 0 var(--color-punch-text);
+}
+
+.vote-option__winner-label {
+  position: absolute;
+  right: 0.7rem;
+  top: -0.65rem;
+  padding: 0.28rem 0.45rem;
+  border: 1px solid var(--color-punch-text);
+  background: var(--color-card);
+  color: var(--color-punch-text);
+  font-size: max(0.58rem, var(--type-floor));
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* All three options in a round share the plan's category, so this strip is
+   not distinguishing cards — it tells you at a glance what kind of night
+   this is. Hence the group hue rather than champagne, which stays reserved
+   for the outcome. The category code sits inside it, so the chip still
+   reads with colour ignored. */
+.vote-option__category {
+  padding-left: 0.55rem;
+  border-left: 2px solid var(--vote-metal);
+  color: var(--color-punch-text);
+  font-weight: 600;
+}
+
+.vote-option__price {
+  border: 1px solid var(--color-line);
+  border-radius: 0;
+}
+.vote-option h3 {
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+.vote-option__votes {
+  color: var(--color-punch-text);
+}
+.vote-option__choice {
+  border: 1px solid var(--color-line);
+  border-radius: 0;
+  color: var(--color-ink);
+}
+/* "Selected" is your state, so it takes the live accent, not the outcome
+   colour. White on cobalt is 6.0:1; on the night tint the ink reads. */
+.vote-option__choice--selected {
+  border-color: var(--color-live);
+  background: var(--color-live);
+  color: var(--color-card);
+}
+
+/* Small two-state toggle ("would you go again?"). The selected state fills
+   with ink rather than champagne: at 12px bold, white on champagne is 3.4:1
+   and fails AA. Only one of a pair is ever pressed, so the fill is
+   unambiguous without a second colour. */
+.vote-toggle {
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-control);
+  padding: 0.3rem 0.7rem;
+  background: transparent;
+  color: var(--color-ink);
+  font-size: max(0.72rem, var(--type-floor));
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+.vote-toggle:hover {
+  border-color: var(--color-ink);
+}
+.vote-toggle--on {
+  border-color: var(--color-ink);
+  background: var(--color-ink);
+  color: var(--color-card);
+}
+.vote-primary-action,
+.vote-secondary-action,
+.vote-result__primary,
+.vote-result__button {
+  border-width: 1px;
+  border-radius: var(--radius-control);
+  box-shadow: none;
+  transition: transform 260ms var(--ease-settle), box-shadow 150ms ease, opacity 150ms ease;
+}
+
+/* Weight tiers (SPECS.md §11): only the actual primary action stays bold. */
+.vote-primary-action,
+.vote-result__primary {
+  font-weight: 700;
+}
+.vote-secondary-action,
+.vote-result__button {
+  font-weight: 500;
+}
+
+.vote-primary-action,
+.vote-result__primary {
+  border-color: var(--color-ink);
+  background: var(--color-ink);
+  color: var(--color-card);
+}
+.vote-secondary-action,
+.vote-result__button {
+  border-color: var(--color-line);
+  background: transparent;
+  color: var(--color-ink);
+}
+
+/* The signature, on the two commit buttons. Only the primaries take it:
+   a hard shadow on the outline buttons beside them would flatten the
+   hierarchy the fill already establishes. The soft 0 0.8rem 2rem drop these
+   used to grow on hover is gone — it was a glow on hover-only devices, and
+   the restraint block cancelled half of it anyway. */
+.vote-primary-action:not(:disabled),
+.vote-result__primary:not(:disabled),
+.plan-submit:not(:disabled),
+.home-primary-cta {
+  box-shadow: none;
+}
+
+@media (hover: hover) {
+  .vote-primary-action:hover:not(:disabled),
+  .vote-result__primary:hover:not(:disabled),
+  .plan-submit:hover:not(:disabled),
+  .home-primary-cta:hover {
+    transform: translateY(-1px);
+  }
+}
+
+.vote-primary-action:active:not(:disabled),
+.vote-result__primary:active:not(:disabled),
+.plan-submit:active:not(:disabled),
+.home-primary-cta:active {
+  transform: scale(0.97);
+}
+
+.vote-secondary-action:hover:not(:disabled),
+.vote-result__button:hover:not(:disabled) {
+  border-color: var(--color-ink);
+}
+
+.vote-kicker {
+  color: var(--color-punch-text);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+}
+.vote-field {
+  border-width: 1px;
+  border-radius: var(--radius-control);
+  border-color: var(--color-line);
+  background: var(--color-card);
+  color: var(--color-ink);
+}
+
+.vote-result {
+  border-width: 1px;
+  border-radius: var(--radius-control);
+  border-color: var(--color-punch-text);
+  background: color-mix(in srgb, var(--vote-metal) 5%, var(--color-card));
+}

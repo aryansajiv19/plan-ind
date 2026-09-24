@@ -1,0 +1,142 @@
+/* app/styles/place.css — The place page. */
+
+/* ── Place page (SPECS.md §6, 12a) ───────────────────────────────── */
+.place-page {
+  min-height: 100dvh;
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+.place-hero {
+  position: relative;
+  height: 460px;
+  overflow: hidden;
+  background: var(--color-card);
+}
+.place-hero__img {
+  object-fit: cover;
+}
+.place-hero__scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--photo-scrim);
+}
+.place-hero--typographic .place-hero__scrim {
+  display: none;
+}
+.place-hero--typographic {
+  border-bottom: 1px solid var(--color-line);
+}
+
+.place-hero__body {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 2rem clamp(1.25rem, 4vw, 3rem);
+  color: var(--photo-ink);
+}
+/* §22. With a photo, .place-hero__body is absolutely positioned against
+   the bottom of the 460px hero, so the slack is spoken for. Without one it
+   goes back into flow and sat at the top of a box still reserving 460px
+   for an image that is not there — 255px of dead space above the divider
+   at 1440 and 278px at 390, which is most of a phone screen. The 460px
+   stays so a venue with a photo and a venue without one have the same
+   hero and navigating between them does not jump; the container now says
+   where its free space goes instead of leaving it at the bottom. */
+.place-hero--typographic {
+  display: grid;
+  align-content: center;
+}
+.place-hero--typographic .place-hero__body {
+  position: static;
+  padding: 3rem clamp(1.25rem, 4vw, 3rem);
+  color: var(--color-ink);
+}
+
+.place-hero__category {
+  margin: 0 0 0.4rem;
+  font-size: max(0.72rem, var(--type-floor));
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--photo-eyebrow);
+}
+.place-hero--typographic .place-hero__category {
+  color: var(--color-punch-text);
+}
+
+.place-hero__name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 1.4rem + 2.4vw, 3.4rem);
+  font-weight: 800;
+  line-height: 1;
+}
+
+.place-hero__area {
+  margin: 0.5rem 0 0;
+  font-size: 0.95rem;
+  color: var(--photo-body);
+}
+.place-hero--typographic .place-hero__area {
+  color: var(--color-muted);
+}
+
+.place-content {
+  width: min(100% - 2 * var(--page-gutter), 48rem);
+  margin: 0 auto;
+  padding: 2.5rem 0 5rem;
+}
+
+.place-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-muted);
+}
+
+.place-description {
+  margin: 1.25rem 0 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--color-line);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.place-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+.place-action {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.7rem 1.4rem;
+  border: 2px solid var(--color-ink);
+  border-radius: var(--radius-pill);
+  background: var(--color-ink);
+  color: var(--color-card);
+  font-weight: 700;
+  text-decoration: none;
+}
+.place-action--secondary {
+  background: transparent;
+  color: var(--color-ink);
+  font-weight: 500;
+}
+
+.place-back {
+  display: inline-block;
+  margin-top: 2.5rem;
+  color: var(--color-muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 0.2rem;
+}

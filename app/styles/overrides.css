@@ -1,0 +1,83 @@
+/* app/styles/overrides.css — Must load last: the Cormorant size floor overrides, and the photo credit. */
+
+/* ── Cormorant's size floor ─────────────────────────────────────────
+   Cormorant is a high-contrast serif and goes fragile small: its thin
+   strokes thin out further and small caps lose their shape. Design saw
+   the wordmark's "03" nearly disappear in it, and specced "display and
+   hero only, nothing small", with the wordmark either going up in size
+   or staying in the sans.
+
+   The floor implemented here is 20px. Design gave the constraint without
+   a number, so this is my call and flagged as such: measured on the
+   rendered pages, the type that actually breaks down is the 11-16px band
+   (wordmark, avatar initial, card tape, submit label), while headings at
+   23-25px hold up fine. Setting it higher would have pushed most card
+   headings into the sans, which is a much larger design change than the
+   fragility warrants.
+
+   Everything below the floor takes the body sans. These are also all
+   UI furniture rather than display type — a wordmark, an initial, a
+   button label, a tape — so the sans is the right voice for them
+   regardless of the fragility.
+
+   PLACED AT THE END OF THE FILE ON PURPOSE. These are overrides of rules
+   that set --font-display on the same selectors, at equal specificity —
+   so source order decides, and anywhere earlier they silently lose. That
+   is the same trap the §21 fills hit twice; here it is avoided by
+   position rather than by stacking class names. */
+.home-logo,
+.home-logo__three,
+.home-nav__signin,
+.home-primary-cta,
+.home-avatar,
+.home-plan-card__tape,
+.plan-submit,
+.auth-mark,
+.demo-photo-upload strong,
+.demo-profile-avatar,
+/* This one is a section heading that inherits body size (16px) because no
+   rule ever gave it one — the global h1,h2,h3 display rule is all that
+   applies. Cormorant makes the gap visible rather than causing it. Held to
+   the floor here; @Design may prefer to give it a real heading size
+   instead, which would put it back in the serif. */
+.home-plan-section__intro h2 {
+  font-family: var(--font-body);
+}
+/* The six-digit sign-in code is DATA, and at 24px in a high-contrast
+   serif the digits read as decorative. Clarity wins here. */
+.auth-input--code {
+  font-family: var(--font-body);
+}
+
+/* ── Photo credit (licence obligation, not a caption) ───────────────
+   Rendered by components/PhotoCredit.tsx wherever a spot photo appears.
+   Several curated photos are CC-BY, where attribution is a condition of
+   use, so this has to be legible rather than hidden: it sits on the
+   photo's own scrim treatment, small but never below the readable floor,
+   and it must not be clipped away by a parent's overflow.
+
+   Positioned bottom-left because every photo surface in this app already
+   reserves the bottom-right for its own furniture (the wall tile's note
+   chip, the place hero's body block). */
+.photo-credit {
+  position: absolute;
+  left: 10px;
+  bottom: 8px;
+  z-index: 3;
+  max-width: calc(100% - 20px);
+  padding: 3px 7px;
+  border-radius: var(--radius-control);
+  /* Measured at 3.86:1 with the lighter photo-body ink on a 0.62 scrim —
+     under the floor, which for a licence credit is not acceptable. The
+     brighter photo ink on a denser scrim clears it. */
+  background: rgba(10, 9, 10, 0.82);
+  color: var(--photo-ink);
+  /* A licence credit has to be readable to count as attribution, so this
+     does not go to the smallest size the layout would tolerate. */
+  font-size: max(0.7rem, var(--type-floor));
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

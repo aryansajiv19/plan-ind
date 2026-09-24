@@ -1,0 +1,300 @@
+/* app/styles/breakpoints.css — The home footer, then the 850px and 520px breakpoints for home and account. */
+
+.home-footer {
+  width: min(100% - 2 * var(--page-gutter), 76rem);
+  margin-inline: auto;
+  padding: 2rem 0 2.5rem;
+  border-top: 1px solid var(--color-line);
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.home-footer a {
+  color: var(--color-grape);
+}
+
+@media (max-width: 850px) {
+  .home-hero {
+    min-height: auto;
+    padding-top: 1.75rem;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  .home-stage {
+    width: min(100%, 31rem);
+    height: 29rem;
+    margin: 0 auto;
+  }
+  /* §22: the stage height and the deck's own floor have to agree, and
+     below this breakpoint they did not. The shell carries a fixed
+     min-h-[440px] at every width while the stage drops to 29rem (464px)
+     here and 27rem (432px) below — and the fan's rotation adds ~47px on
+     top of the shell, so the deck ran past the stage at every width under
+     768: worst case 20px above and 36px below at 520.
+
+     Neither number was wrong on its own; nobody had decided which one
+     gives. The stage owns the page rhythm at these breakpoints, so the
+     floor is what yields. Selected via the stage rather than by adding a
+     class, because the shell is the stage's only element child. */
+  .home-stage > button {
+    min-height: 24rem;
+  }
+  .home-plan-section {
+    grid-template-columns: 1fr;
+  }
+  .home-plan-section__intro {
+    position: static;
+  }
+  .home-nav {
+    padding-bottom: 0.75rem;
+  }
+  .home-nav__right {
+    gap: 0.55rem;
+  }
+  .home-app-tab {
+    min-width: 2.75rem;
+  }
+  /* 44px tap floor; 4.2rem pushed the avatar off-screen at 521-560px */
+  .demo-view__header {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+  .place-link-importer {
+    grid-template-columns: 1fr 1fr;
+  }
+  .place-link-importer__intro {
+    grid-column: 1 / -1;
+  }
+  .demo-discover-tools {
+    grid-template-columns: 1fr;
+  }
+  .demo-collection-bar {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+  .demo-friend-layout {
+    grid-template-columns: 1fr;
+  }
+  .demo-city-pattern {
+    grid-template-columns: 1fr;
+  }
+  .demo-shared-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.7rem 1.5rem;
+  }
+  .demo-shared-card > div:last-child {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    margin-top: 0;
+    padding: 0 0 0 1.5rem;
+    border: 0;
+    border-left: 1px solid var(--color-line);
+  }
+  .demo-photo-strip {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .demo-photo-strip > div {
+    grid-column: 1 / -1;
+    padding: 0 0 0.5rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .home-experience {
+    padding-bottom: 4.8rem;
+  }
+  .home-nav {
+    width: 100%;
+    padding-inline: 0.75rem;
+    backdrop-filter: none;
+  }
+  /* a filter makes the nav the containing block for the fixed tab bar below, pinning it inside the header */
+  .home-nav__link {
+    display: none;
+  }
+  .home-app-tabs {
+    position: fixed;
+    z-index: 50;
+    inset: auto 0 0;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    padding: 0.45rem max(0.45rem, env(safe-area-inset-right)) calc(0.45rem + env(safe-area-inset-bottom)) max(0.45rem, env(safe-area-inset-left));
+    border-width: 1px 0 0;
+    background: color-mix(in srgb, var(--color-card) 94%, transparent);
+    backdrop-filter: blur(18px);
+  }
+  .home-app-tab {
+    min-width: 0;
+    padding: 0.7rem 0.18rem;
+    font-size: max(0.62rem, var(--type-floor));
+  }
+  .home-hero {
+    width: min(100% - 1.5rem, 76rem);
+    padding-top: 1.15rem;
+  }
+  .home-title {
+    letter-spacing: -0.08em;
+  }
+  .home-title__line {
+    white-space: normal;
+  }
+  .home-deck {
+    margin-top: 1.5rem;
+    font-size: 0.97rem;
+  }
+  .home-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .home-primary-cta {
+    width: 100%;
+  }
+  .home-secondary-cta {
+    text-align: center;
+  }
+  .home-stage {
+    height: 27rem;
+    transform: none;
+  }
+  .home-stage > button {
+    min-height: 22.5rem;
+  }
+  .home-plan-section {
+    width: min(100% - 1.5rem, 68rem);
+    padding-block: 5.5rem;
+  }
+  .home-plan-card {
+    padding: 1.25rem;
+    box-shadow: var(--elevation-card);
+    transform: none;
+  }
+  /* §19.3: same soft lift as desktop; the old rgba(36,27,46) drop was heavier and cool-tinted, off the warm ramp */
+  .plan-category-group {
+    padding-inline: 0.68rem;
+  }
+  /* height: touch-target block */
+  .plan-smart-search {
+    padding: 0.85rem;
+  }
+  .plan-smart-search__heading,
+  .plan-smart-result > div:first-child {
+    display: block;
+  }
+  .plan-category-options {
+    min-height: 9rem;
+  }
+  .plan-custom-place__saved,
+  .plan-custom-place__editor {
+    grid-template-columns: 1fr;
+  }
+  .plan-custom-place__wide {
+    grid-column: auto;
+  }
+  .plan-round-summary span {
+    padding-inline: 0.2rem;
+    font-size: max(0.5rem, var(--type-floor));
+  }
+  .plan-constraints__heading {
+    display: block;
+  }
+  .plan-constraints__heading small {
+    display: block;
+    margin-top: 0.3rem;
+  }
+  .plan-choice-strip--budget {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.35rem;
+  }
+  .plan-choice-strip--budget button {
+    border-right-width: 1px;
+  }
+  .plan-location-fields {
+    grid-template-columns: 1fr;
+  }
+  .plan-deadlines {
+    grid-template-columns: 1fr;
+  }
+  .home-footer {
+    width: min(100% - 1.5rem, 76rem);
+    flex-direction: column;
+  }
+  .home-profile-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .demo-view {
+    width: min(100% - 1.5rem, 76rem);
+    padding-top: 2rem;
+  }
+  .place-link-importer {
+    grid-template-columns: 1fr;
+  }
+  .place-link-importer__intro {
+    grid-column: auto;
+  }
+  .demo-place-grid,
+  .demo-visit-grid,
+  .demo-profile-grid {
+    grid-template-columns: 1fr;
+  }
+  .demo-visit--featured {
+    grid-column: auto;
+    display: block;
+  }
+  .demo-visit--featured .demo-visit__image {
+    min-height: 0;
+    aspect-ratio: 4 / 3;
+  }
+  .demo-visit--featured .demo-visit__content {
+    padding: 1rem 0 1.4rem;
+    border: 0;
+  }
+  .demo-account-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .demo-friend-row {
+    grid-template-columns: 2.8rem minmax(0, 1fr) auto;
+    gap: 0.7rem;
+  }
+  .demo-friend-row__numbers {
+    grid-column: 2;
+    text-align: left;
+  }
+  .demo-friend-row button {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+  }
+  .demo-shared-card {
+    display: block;
+  }
+  .demo-shared-card > div:last-child {
+    margin-top: 1.2rem;
+    padding: 1rem 0 0;
+    border-left: 0;
+    border-top: 1px solid var(--color-line);
+  }
+  .demo-profile-head {
+    align-items: flex-start;
+  }
+  .demo-profile-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .demo-profile-stats span:nth-child(3) {
+    border-left: 0;
+    border-top: 1px solid var(--color-line);
+  }
+  .demo-profile-stats span:nth-child(4) {
+    border-top: 1px solid var(--color-line);
+  }
+  .demo-photo-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+.demo-photo-strip > span {
+  min-height: 9rem;
+}
+}

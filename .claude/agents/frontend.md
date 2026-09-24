@@ -27,8 +27,8 @@ signatures.
 
 - `app/**` — routes, layouts, `loading.tsx`, `error.tsx`, `not-found.tsx`
 - `components/**` — all React components
-- `app/globals.css` — theme and tokens. **Tailwind v4**: there is no
-  `tailwind.config.ts`. Declare theme values with `@theme` in this file.
+- `app/globals.css` + `app/styles/*.css` — theme, tokens and styles. **Tailwind v4**: there is no
+  `tailwind.config.ts`. Declare theme values with `@theme` in `app/styles/tokens.css`.
 - Client-side form state and optimistic UI
 - **Supabase Realtime subscriptions in the browser** — `votes` and `plans` are
   in the `supabase_realtime` publication so the vote screen updates live as
