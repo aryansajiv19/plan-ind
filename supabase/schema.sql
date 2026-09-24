@@ -3529,3 +3529,33 @@ create policy "read permitted visit photo files" on storage.objects for select t
     select 1 from public.visit_photos photo where photo.storage_path = name
   ));
 
+-- 062: plan share preview for link crawlers (WhatsApp unfurls). A keyless
+-- caller holding a plan id gets title, status, stage, deadline, the host's
+-- first name and the spot count -- nothing else. The v4 id is the capability;
+-- see supabase/migration-062-plan-share-preview.sql for the full reasoning.
+create or replace function public.plan_share_preview(p_plan_id uuid)
+returns jsonb
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select jsonb_build_object(
+    'title', p.title,
+    'status', p.status,
+    'stage', p.stage,
+    'deadline', p.deadline,
+    'host_first_name', (
+      select nullif(left(split_part(btrim(h.display_name), ' ', 1), 24), '')
+      from public.people h
+      where p.created_by_user_id is not null
+        and h.auth_user_id = p.created_by_user_id
+      limit 1
+    ),
+    'spot_count', (select count(*) from public.plan_spots s where s.plan_id = p.id)
+  )
+  from public.plans p
+  where p_plan_id is not null and p.id = p_plan_id
+$$;
+revoke all on function public.plan_share_preview(uuid) from public, anon, authenticated;
+grant execute on function public.plan_share_preview(uuid) to anon, authenticated;

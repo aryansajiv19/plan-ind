@@ -66,9 +66,29 @@ const hanken = localFont({
   display: "swap",
 });
 
+const DESCRIPTION = "Stop deciding, start doing. Pick a vibe, deal three spots, vote, let the app call it.";
+
 export const metadata: Metadata = {
+  // Absolute og:image URLs need a base. Unset, Next falls back to the Vercel
+  // deployment URL (or localhost in dev), so a missing env costs nothing here.
+  metadataBase: process.env.NEXT_PUBLIC_SITE_URL ? new URL(process.env.NEXT_PUBLIC_SITE_URL) : undefined,
   title: "Deal three | Dubai hangout decider",
-  description: "Stop deciding, start doing. Pick a vibe, deal three spots, vote, let the app call it.",
+  description: DESCRIPTION,
+  // The unfurl a pasted link gets in WhatsApp/iMessage/Slack. The image is
+  // app/opengraph-image.tsx; app/plan/[id]/layout.tsx replaces all of this
+  // per plan (openGraph merges shallowly, so it restates siteName/type).
+  openGraph: {
+    type: "website",
+    siteName: "Deal three",
+    locale: "en_AE",
+    title: "Dubai plans, without the group chat.",
+    description: DESCRIPTION,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Dubai plans, without the group chat.",
+    description: DESCRIPTION,
+  },
   manifest: "/manifest.webmanifest",
   applicationName: "Deal three",
   appleWebApp: {

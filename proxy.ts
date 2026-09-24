@@ -13,6 +13,14 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(secureUrl, 308);
   }
 
+  // Generated share images (app/**/opengraph-image.tsx) are fetched by link
+  // crawlers with no cookies. They are PNGs: no script to nonce, no session
+  // to refresh, and their only data read is keyless (plan_share_preview). Skip
+  // the session work so an auth hiccup can never cost a WhatsApp unfurl.
+  if (/\/(?:opengraph|twitter)-image(?:-[\w-]+)?$/.test(request.nextUrl.pathname)) {
+    return NextResponse.next();
+  }
+
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
   const isDev = process.env.NODE_ENV === "development";
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

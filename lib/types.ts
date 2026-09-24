@@ -109,6 +109,17 @@ export interface CastVoteResult {
   spot_id: string | null;
 }
 
+// What plan_share_preview returns (migration 062), or null for an unknown or
+// deleted plan. The only plan data a sessionless link crawler can read.
+export interface PlanSharePreview {
+  title: string;
+  status: PlanStatus;
+  stage: PlanStage;
+  deadline: string | null;
+  host_first_name: string | null;
+  spot_count: number;
+}
+
 // After the decision: who's actually coming. A vote is an opinion; an RSVP
 // is a commitment. Headcount (not vote count) drives the booking.
 export interface Rsvp {
