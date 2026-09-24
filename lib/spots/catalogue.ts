@@ -34,7 +34,7 @@ import { categoryFamily, DEAL_SPOT_COLUMNS, type DealSpotRow } from "./match";
 // that today (there is no admin surface, and an unauthenticated one would be
 // a free cache-busting DoS).
 //
-// FAILURES ARE NEVER CACHED: a failed read throws inside the cached function
+// FAILURES ARE NEVER CACHED: a failed or empty wall/Discover read throws inside the cached function
 // (unstable_cache stores only resolved values), and the exported wrappers
 // turn that into the same "error" result each caller already handled.
 //
@@ -82,7 +82,9 @@ const readWall = cached("curated-wall", async (size: number): Promise<WallSpotRo
     .order("name")
     .order("id")
     .limit(size);
-  if (error || !data) throw new CatalogueReadError("wall", error);
+  // Empty is never a real catalogue (see /api/health) -- throw so a paused
+  // or misconfigured project cannot pin a blank wall for the full TTL.
+  if (error || !data?.length) throw new CatalogueReadError("wall", error);
   return data as WallSpotRow[];
 });
 
@@ -106,7 +108,7 @@ const readDiscover = cached("curated-discover", async (limit: number): Promise<D
     .order("name")
     .order("id")
     .limit(limit);
-  if (error || !data) throw new CatalogueReadError("discover", error);
+  if (error || !data?.length) throw new CatalogueReadError("discover", error);
   return data as unknown as DiscoverSpotRow[];
 });
 
