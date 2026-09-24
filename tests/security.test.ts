@@ -13,7 +13,14 @@ test("plainText normalizes and removes controls and bidi overrides", () => {
   assert.equal(plainText("long value", 4), "long");
 });
 
-test("mutation requests require same-origin double-submit CSRF", () => {
+test("mutation requests require same-origin double-submit CSRF", (t) => {
+  // Hermetic: a configured canonical origin (CI sets one) must not decide
+  // which origin this test's requests come from.
+  const configured = process.env.NEXT_PUBLIC_SITE_URL;
+  delete process.env.NEXT_PUBLIC_SITE_URL;
+  t.after(() => {
+    if (configured !== undefined) process.env.NEXT_PUBLIC_SITE_URL = configured;
+  });
   const valid = new Request("http://localhost:3000/api/plans", {
     method: "POST",
     headers: {
