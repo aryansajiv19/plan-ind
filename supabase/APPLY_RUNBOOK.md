@@ -301,7 +301,7 @@ That is a spend risk, not a data risk, and today the OpenAI account's free-tier
 caps (10/min, 50/day) bound it to a 503. **If billing is ever added to that
 account, set a budget cap first** — the per-uid quota will not hold it.
 
-**Rotating `SECURITY_CONTROL_SECRET`:** the upsert in `SECURITY_SETUP.md` is the
+**Rotating `SECURITY_CONTROL_SECRET`:** the upsert in `docs/SECURITY_SETUP.md` is the
 whole path (no migration, no RPC). Verify with
 `select public.valid_control_secret('THE_NEW_SECRET');` → `t` in the SQL editor
 (owner only; execute is revoked from every client role), then create one plan in

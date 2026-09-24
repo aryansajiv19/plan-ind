@@ -14,7 +14,7 @@ export const runtime = "nodejs";
 // real curated catalog's ids are deterministic, not gen_random_uuid()).
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-// design-system/SPECS.md §10 / PRIORITIES.md "Direct plan": a second
+// design-system/SPECS.md §10 / docs/archive/PRIORITIES-2026-09-18.md "Direct plan": a second
 // creation path for someone who already knows the place and wants to lock
 // it in immediately -- create_secure_plan's sibling, not a mode flag on it
 // (see migration-034's header for why they don't share a body). Same

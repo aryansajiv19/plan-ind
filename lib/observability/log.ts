@@ -61,7 +61,7 @@ const SENSITIVE_MARKERS = [
  * This is the whole reason this module has a test. Next's `onRequestError`
  * hands over the full request headers, and this app authenticates with a
  * JS-readable `sb-*` auth cookie (HttpOnly is deliberately absent -- see
- * PRODUCTION_CHECKLISTS.md), so logging headers wholesale would write live
+ * docs/PRODUCTION_CHECKLISTS.md), so logging headers wholesale would write live
  * session tokens into the platform's log store, where they are readable by
  * anyone with log access and outlive the session itself.
  *

@@ -50,26 +50,13 @@ signatures.
 
 ## The real flow
 
-The schema is four tables: `spots` (curated, pre-loaded), `plans` (the share
-link — **the plan's uuid IS the URL slug**), `plan_spots` (the three options),
-`votes` (one row per `voter_name` × `spot_id`, `value` boolean).
-
-1. **Create a plan** — title, area, optional deadline. Ends by handing over a
-   copyable share link. That copy step is the whole growth loop; make it one tap
-   and confirm it visibly.
-2. **Open a shared link** (`/plan/[id]`) — a friend arrives cold with zero
-   context. Show what's being decided and the three spots immediately. Ask for
-   their name *once*, as late as possible, and persist it locally so a returning
-   voter is never asked twice.
-3. **Vote** — yes/no on three spots. One thumb, no scrolling between options if
-   you can manage it. Votes are upserted on
-   `(plan_id, spot_id, voter_name)`, so **changing your mind is supported** —
-   the UI should make that obvious rather than locking a ballot.
-4. **Live tally** — votes are public in this app by design. Show who's voted and
-   how the three spots are doing, updating in realtime.
-5. **Decided** — surface the winning spot with the details that make it
-   actionable: area, cuisine, price band, min spend in AED, open-till, and the
-   `booking_url` as a real call-to-action.
+`docs/PRODUCT_FLOW.md` is the source of truth. In short: a signed-in host deals
+nine spots across three rounds (`StartPlanForm`); guests open `/plan/[id]`, get
+an anonymous Supabase session, give a name once (`NameGate`), and vote through
+the `cast_plan_vote` RPC; live counts arrive over one Realtime channel per plan;
+the host (or the deadline) advances rounds and decides via
+`/api/plans/[id]/command`; `DecidedPlan` then carries RSVPs, carpool, booking
+owner, calendar export and ratings. The server tally is the only tally.
 
 ## Things to check in every change
 

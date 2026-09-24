@@ -387,7 +387,7 @@ rule above — not bespoke CSS keyframes, except where noted.
   never a celebratory overlay, particle burst, or modal congratulating the
   user. This is consistent with, not a new addition to, the existing "no
   green glowing dots," "no gamified pop-ups" and anti-vibecoded rules
-  already in this file and `PRODUCTION_CHECKLISTS.md`.
+  already in this file and `docs/PRODUCTION_CHECKLISTS.md`.
 
 ## Implementation quality
 

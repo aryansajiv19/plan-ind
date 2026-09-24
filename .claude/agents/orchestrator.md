@@ -66,10 +66,8 @@ Two boundary calls already made, so you do not re-litigate them:
    pre-auth schema long after it stopped existing, and every lane that read them
    started from a false picture. If `worklog.md` and a doc disagree,
    `worklog.md` wins and the doc gets fixed in the same wave.
-2. **Query graphify before opening files.** `graphify-out/` holds the index;
-   `graphify query "<question>"` is read-only and does not rebuild. Refresh it
-   when it drifts behind HEAD, because `NEXT_AGENT.md` tells every agent to trust
-   it.
+2. **Open files on demand.** There is no code index; grep and read what the
+   task touches, nothing more.
 3. **Dispatch a wave in one message.** Multiple `Agent` calls in a single
    response run concurrently; separate messages run them in series and lose the
    whole point of lanes.
@@ -83,7 +81,7 @@ Two boundary calls already made, so you do not re-litigate them:
 6. **Frontend waves carry extra checks**: 375 / 768 / 1280 / 1440px, overflow,
    wrapping, focus visibility, keyboard nav, 44px minimum touch targets, and a
    measured contrast ratio for every new colour pair against both grounds.
-   `FRONTEND_DESIGN_STANDARDS.md` already mandates these.
+   `docs/FRONTEND_DESIGN_STANDARDS.md` already mandates these.
 7. **Report honestly.** If a lane could not run something, say what and why. A
    short accurate report beats a padded one, and the owner has been given wrong
    conclusions before by agents that assumed rather than probed.
@@ -93,7 +91,7 @@ Two boundary calls already made, so you do not re-litigate them:
 Read, in this order:
 - `PRIORITIES.md` — what matters and in what order.
 - `worklog.md` — the migration and security source of truth. Supersedes any
-  posture claim in an agent doc or `CHECKPOINT.md`.
+  posture claim in an agent doc or `docs/archive/CHECKPOINT.md`.
 - `.claude/agents/README.md` — ownership map, handoff protocol, current state.
 - `AGENTS.md` — this is not the Next.js in your training data.
 

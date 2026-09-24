@@ -68,7 +68,7 @@ for (const path of PAGES) {
           JSON.stringify(result.offenders, null, 1),
       ).toEqual([]);
       // The body itself must never scroll sideways -- wide content scrolls in
-      // its own container (FRONTEND_DESIGN_STANDARDS.md).
+      // its own container (docs/FRONTEND_DESIGN_STANDARDS.md).
       expect(result.scrollWidth, `document scrolls horizontally at ${width}px on ${path}`)
         .toBeLessThanOrEqual(result.vw + 1);
     });

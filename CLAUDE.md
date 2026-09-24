@@ -5,91 +5,75 @@
 A Dubai hangout decider. One person hosts a plan; the app deals nine curated
 spots across three rounds of three; the group votes each round down to a
 finalist, then a final round picks the winner. Next.js 16 + React 19 +
-Tailwind v4 + Supabase. Full intended flow: `PRODUCT_FLOW.md`.
+Tailwind v4 + Supabase, deployed on Vercel. Intended flow: `docs/PRODUCT_FLOW.md`.
 
 ## Start here every session
 
-1. `AGENT_COORDINATION.md` — who is doing what right now, file ownership, and
-   which terminal you are.
-2. `PRIORITIES.md` — the queue.
-3. The **last** entry of `worklog.md` — current state. On any disagreement,
-   `worklog.md` wins over this file and this file gets fixed.
-4. Query `graphify-out/` for structure. **Do not scan the repo.**
+1. `PRIORITIES.md` — the queue, and what is waiting on the owner.
+2. The **last** entry of `worklog.md` — current state. On disagreement,
+   `worklog.md` wins and this file gets fixed.
+3. Open code on demand. Directory rules auto-load: `app/`, `components/`,
+   `lib/`, `lib/ai/`, `supabase/`, `tests/`, `scripts/` each have a `CLAUDE.md`.
 
-Domain rules load automatically when you work in a directory — `app/`,
-`components/`, `lib/`, `lib/ai/`, `supabase/`, `tests/`, `scripts/` each have a
-`CLAUDE.md`. History, only when chasing *why*: `worklog-archive.md`,
-`CHECKPOINT.md`.
+Reference, opened only when the task needs it: `docs/` (deployment, design
+standards, place import, production checklists). History, only when chasing
+*why*: `docs/archive/`.
 
 ## Size budgets — context is the scarcest resource
 
-Every line here is read by every session, so size is a correctness property,
-not tidiness.
-
 | What | Budget | On breach |
 |---|---|---|
-| A `CLAUDE.md` | **200 lines**, root **80** | Split into the directory it describes, or delete what is no longer true |
-| A `.ts` / `.tsx` file | **300 soft, 500 hard** | Split by responsibility before adding to it |
-| `app/globals.css` | frozen at today's size | **Delete as much as you add.** No net growth |
-| `worklog.md` | 600 lines | Archive the oldest day into `worklog-archive.md` |
+| A `CLAUDE.md` | 200 lines, root 80 | Move rules next to the code they describe, or delete what is no longer true |
+| A `.ts` / `.tsx` file | 300 soft, 500 hard | Split by responsibility before adding to it |
+| `app/globals.css` | no net growth | Delete as much as you add |
+| `worklog.md` | 300 lines | Move the oldest entries to `docs/archive/worklog-archive.md` |
 
-**Known breaches, listed so nobody treats them as the standard:**
-`app/globals.css` 3.7k, `app/plan/[id]/page.tsx` 1.5k, `lib/social.ts` 977,
-`components/AccountViews.tsx` 856. Touching one of these? Leave it smaller than
-you found it. Do not add a feature to a file already over the hard limit
-without splitting it first.
+Known breaches — leave each smaller than you found it, never add a feature to
+one without splitting first: `app/globals.css`, `app/plan/[id]/page.tsx`,
+`lib/social.ts`, `components/AccountViews.tsx`.
 
-## Keeping these files true
+## Keeping docs true
 
-A `CLAUDE.md` is a **rule set, not a diary**. It holds what is binding now.
+- A `CLAUDE.md` or skill is a **rule set, not a diary**. Change a rule → edit
+  the file in the same commit. A false rule → delete it, don't annotate it.
+- Status and history go in `worklog.md` only. No new root-level docs.
+- Dead code is context debt: confirm zero callers (including tests, scripts,
+  string references), then delete it in its own commit.
 
-- Change a rule → edit the file **in the same commit**. A stale rule is worse
-  than no rule: it gets obeyed.
-- A rule that has become false → **delete it**, don't annotate it.
-- Never record status, progress or history here — that is `worklog.md`.
-- Every file states its own read-trigger at the top, so nobody loads it for
-  nothing.
+## Git and deploys
 
-## Parallel work
-
-Four Claude sessions run in separate git worktrees off `ai-engineering`. They
-share **nothing but the repo** — commit or it didn't happen.
-
-- **Stay in your lane's files** (`AGENT_COORDINATION.md` has the map). Off your
-  turf → post a cross-lane request first.
-- **Commit promptly.** An uncommitted tree was wiped here once.
-- **Subagents/agent-teams for genuine fan-out only** — a broad search, an
-  independent audit, several unrelated files. Never for a single linear task;
-  each starts cold and costs tokens.
-- `security` (audit-only, no write tools) and `qa-test` (tests only) are
-  subagents callable from any terminal, not lanes.
+- Production (`https://plan-ind.vercel.app`) is promoted from the Vercel CLI;
+  every pushed branch gets a protected preview. Never push to `main` or
+  `ai-engineering` without checking which commit production is running.
+- Commit promptly and push. Stage explicit paths while a subagent is working in
+  the same tree — never `git add -A`.
+- Subagents for genuine fan-out only (independent audits, unrelated files).
+  `security` is audit-only; `qa-test` writes tests only.
 
 ## Invariants
 
-- **`lib/types.ts` mirrors `supabase/schema.sql`.** Hand-synced, no codegen;
-  they change together in one pass. CI enforces it.
+- **`lib/types.ts` mirrors `supabase/schema.sql`.** Hand-synced; they change
+  together. `npm run check:schema` enforces column names in CI.
 - **`supabase/schema.sql` DROPs every table on re-run.** Scratch projects only.
-- **RLS is membership-scoped, not permissive.** Reads go through `plan_access`
-  granted `to authenticated`; `votes`/`rsvps`/`ratings` have no direct write
-  policy — writes go through security-definer RPCs. Never add one.
-- **Identity is a Supabase Auth session, not a self-typed name.** Age comes
-  from server-owned `member_ages`, never a request body or `user_metadata`.
-- **`status` is exactly `'open' | 'decided'`.** No `closed`.
-- **The anon key is public by design.** There is no service-role key; if one is
-  ever added it must be server-only.
+  Live change ships as a numbered `supabase/migration-0NN-*.sql`, staged until
+  the owner approves the apply, recorded in `worklog.md` the same day.
+- **RLS is membership-scoped.** Reads go through `plan_access`;
+  `votes`/`rsvps`/`ratings` have no direct write policy — writes go through
+  security-definer RPCs. Never add one.
+- **Identity is a Supabase Auth session**, anonymous for share-link guests. Age
+  comes from server-owned `member_ages`, never a request body or `user_metadata`.
+- **`status` is exactly `'open' | 'decided'`.**
+- **The publishable/anon key is public by design.** No service-role key exists;
+  if one is ever added it is server-only. Nothing secret in `NEXT_PUBLIC_*`.
 - Anything touching RLS, voting writes, the Realtime publication, or where
   model output reaches a query/filter/screen → run the `security` subagent.
-- Before any change under `lib/ai/**` or smart-search, read the
-  `openai-responses` skill — this repo uses the Responses API, not Chat
-  Completions, and training data will steer you wrong.
+- Before touching `lib/ai/**` or smart-search, read the `openai-responses`
+  skill — Responses API, not Chat Completions.
+- **Every live database write is an owner decision**, migrations included.
 
 ## Engineering bar
 
-This is a portfolio-grade project. When a change genuinely calls for
-concurrency-safety, idempotency, caching with invalidation, background jobs,
-observability, load measurement or query tuning — build the real version and
-**benchmark before/after** so the outcome is a number. Never add technology for
-its own sake: every addition must solve a problem the app actually has and be
-explainable end to end.
-
-Context discipline is part of the bar: `CONTEXT_HYGIENE.md`.
+Portfolio-grade: when a change genuinely needs concurrency-safety, idempotency,
+caching, background jobs or load work, build the real version and benchmark
+before/after. Never add technology for its own sake — clean, concise code that
+solves a problem the app actually has.

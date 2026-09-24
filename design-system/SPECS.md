@@ -277,7 +277,7 @@ lands exactly on `.home-stage`'s centre point (where un-translated
 `left: 50%` alone puts it), and its right edge sits ~110px past a 1440px
 viewport.
 
-**Fix**: per Frontend's own proposed patch (in their `AGENT_COORDINATION.md`
+**Fix**: per Frontend's own proposed patch (in their `docs/archive/AGENT_COORDINATION.md`
 block) — `TiltCard` gains an opt-in `centered` prop that folds the
 `translate(-50%, -50%)` into Motion's `transformTemplate` so it composes
 with the rotation instead of being overwritten. Since §5/§6 rebuild this
@@ -466,7 +466,7 @@ shipped without it.
 
 ## 7 — Component library: shadcn + Motion, and the animation direction (owner, 2026-09-04)
 
-Full rationale and reversal history in `FRONTEND_DESIGN_STANDARDS.md`'s
+Full rationale and reversal history in `docs/FRONTEND_DESIGN_STANDARDS.md`'s
 Components/Motion sections — this is the build checklist.
 
 - **lucide-react resolution** (closes the §5 forward-reference above): drop
@@ -499,7 +499,7 @@ Components/Motion sections — this is the build checklist.
   (not, e.g., a hover state) before changing it.
 - **Shimmer skeleton.** `.wall-skeleton` (`app/globals.css:3518`) is a
   static flat block today — no animation. Add the diagonal shimmer sweep
-  spec'd in `FRONTEND_DESIGN_STANDARDS.md`'s Motion section (~1.6s loop,
+  spec'd in `docs/FRONTEND_DESIGN_STANDARDS.md`'s Motion section (~1.6s loop,
   ground-aware highlight colour, contrast-checked per ground like every
   other value in this doc). Audit for any other static skeleton/spinner in
   `app/globals.css` and apply the same treatment.
@@ -508,7 +508,7 @@ Components/Motion sections — this is the build checklist.
   existing colour/type system only.
 
 **Density note, ties to the Visual direction reconciliation in
-`FRONTEND_DESIGN_STANDARDS.md`**: "minimalistic aesthetic luxury" reads as
+`docs/FRONTEND_DESIGN_STANDARDS.md`**: "minimalistic aesthetic luxury" reads as
 restrained and considered, not sparse — none of the above should be used to
 justify emptier layouts. Adding a shadcn primitive or a shared-element
 transition is about polish and restraint in *how* something is built, not
@@ -668,7 +668,7 @@ a booking system).
 
 ## 11 — Bold-text sweep (owner, 2026-09-04)
 
-Rule is in `FRONTEND_DESIGN_STANDARDS.md`'s Typography section (weight
+Rule is in `docs/FRONTEND_DESIGN_STANDARDS.md`'s Typography section (weight
 tiers: 700 for one primary action + genuinely load-bearing numbers/names,
 500 for everything else, 400 body). This is the mechanical sweep, not a
 selector-by-selector redesign — `app/globals.css` has 76
@@ -715,7 +715,7 @@ Motion usage, and — real constraint already hit once — **verify any new
 rAF-driven effect in a genuinely foregrounded browser tab**, since a
 backgrounded/hidden tab never fires `requestAnimationFrame` at all and
 will read as "broken" in automated screenshot capture when it isn't;
-`AGENT_COORDINATION.md:345` has the prior incident). Four proposals, kept
+`docs/archive/AGENT_COORDINATION.md:345` has the prior incident). Four proposals, kept
 to what's restrained and purposeful rather than a long wishlist:
 
 1. **The home hero's weight-rise headline is already specced (turn 13,
@@ -1082,7 +1082,7 @@ Do not wire the real account view to the `localStorage` demo state as a
 stopgap; that would be fake data presented as a real feature, exactly what
 the honest-empty-state rule exists to prevent.
 
-## 16 — Anti-vibecoded audit findings (owner, `PRODUCTION_CHECKLISTS.md`, 2026-09-04)
+## 16 — Anti-vibecoded audit findings (owner, `docs/PRODUCTION_CHECKLISTS.md`, 2026-09-04)
 
 Full page-by-page audit against the anti-pattern list (grep sweep +
 live-browser check of `/`, `/home-preview` both tabs, `/login`, `/privacy`,
@@ -1113,7 +1113,7 @@ broken.
 `app/globals.css:2371,2376`:
 `box-shadow: inset 0 2px 0 var(--vote-metal), 5px 6px 0 var(--vote-metal)`
 — the `5px 6px 0` term is a literal hard offset shadow, the exact
-`.token` signature `FRONTEND_DESIGN_STANDARDS.md`'s Components section
+`.token` signature `docs/FRONTEND_DESIGN_STANDARDS.md`'s Components section
 retired with an explicit reversal note ("turn 8's offset-shadow language
 was explicitly rejected as loud... do not reintroduce an offset shadow as
 the app's signature depth cue"). This survived because the retirement
@@ -1494,7 +1494,7 @@ above is warmer and darker than the earlier `#F7F6F3` proposal.
   Airbnb model the owner keeps pointing at, and it is what "smooth"
   means structurally.
 - **Soft diffuse elevation is not the retired `.token` offset shadow.**
-  That rule stands (`FRONTEND_DESIGN_STANDARDS.md`, and §16.2 removed the
+  That rule stands (`docs/FRONTEND_DESIGN_STANDARDS.md`, and §16.2 removed the
   last surviving offset). A hard, opaque, offset shadow is still banned;
   a soft low-opacity diffuse one is the opposite treatment and is what
   this direction requires. Worth stating plainly so this doesn't read as
@@ -1540,7 +1540,7 @@ brown-lightness judgement in one go. No inference remains in the palette.
 The values in §19.1's table are final and implementable.
 
 When it does land: §1's v3 tables are superseded, and
-`FRONTEND_DESIGN_STANDARDS.md`'s Colour section needs a fifth reversal
+`docs/FRONTEND_DESIGN_STANDARDS.md`'s Colour section needs a fifth reversal
 entry recording that **navy-primary, gold-as-the-accent, and the
 night-first identity are all retired here**, and that dark mode is parked
 per §19.2 rather than removed — with the same "do not restore by
@@ -3296,7 +3296,7 @@ Authoritative handoff for the Frontend lane. Owner-approved 2026-09-01. Covers
 FE.1 (front door), FE.2 (signature `.token`), FE.5 (After Dark on the payoff),
 FE.6 (dead CSS verdict).
 
-Binding rules live in `FRONTEND_DESIGN_STANDARDS.md` and the `design-standards`
+Binding rules live in `docs/FRONTEND_DESIGN_STANDARDS.md` and the `design-standards`
 skill. This file is the concrete build sheet; where they disagree, the standards
 win and this file gets fixed.
 
@@ -3441,7 +3441,7 @@ reworking this.
 
 ### Motion budget
 
-`FRONTEND_DESIGN_STANDARDS.md` Motion §: max two ambient loops per screen.
+`docs/FRONTEND_DESIGN_STANDARDS.md` Motion §: max two ambient loops per screen.
 Front-door night after this change = **1** (the halo). The lattice is static; the
 `.home-title strong::after` underline and `.home-title__line` slides are one-shot
 entrances. FE.3's skyline drift is the second loop — leave room for it.

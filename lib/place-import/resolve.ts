@@ -12,7 +12,7 @@ import { log, serializeError } from "@/lib/observability/log";
 // A score this far above the runner-up, with the top score also over
 // RESOLVE_FLOOR, is confident enough to resolve automatically. Below that,
 // real candidates go to the user as a pick-one list rather than a guess --
-// the one hard rule from PLACE_IMPORT_ARCHITECTURE.md: never invent a match.
+// the one hard rule from docs/PLACE_IMPORT_ARCHITECTURE.md: never invent a match.
 //
 // These two survived the switch from min() to F1 scoring (match.ts), but
 // they were re-derived against F1's distribution rather than assumed to
@@ -44,7 +44,7 @@ type ResolveOutcome =
 // text scraped from the source (real risk for the `web` adapter, whose
 // target host is user-chosen). Fine to persist raw, since jsonb is just
 // data here, not executed. NOT fine to render raw: whoever builds the "show
-// why it matched" UI (PLACE_IMPORT_ARCHITECTURE.md step 7) must run this
+// why it matched" UI (docs/PLACE_IMPORT_ARCHITECTURE.md step 7) must run this
 // through the same plainText()-style treatment as any other attacker-
 // supplied display text before it reaches a screen -- it has none applied
 // at write time.

@@ -29,7 +29,7 @@ rate limit password resets — **passwordless** (OTP + Google OAuth only, no
 password exists). Verify payment webhooks / set prices server-side — **no
 payment feature exists yet**; the rule (server-derived prices, verified
 provider signature against the raw webhook body) is already recorded in
-`SECURITY_SETUP.md` for whenever one is added. Remove default admin
+`docs/SECURITY_SETUP.md` for whenever one is added. Remove default admin
 routes / disable directory listing — no admin panel, Next.js doesn't serve
 directory listings.
 
@@ -103,7 +103,7 @@ directory listings.
   2026-09-04 (Security/Backend), with the actual math, not waved through.**
   There's no password to lock — OTP-verify's rate limit
   (`consume_otp_limit`, migration 026: 8/min, 20/day, keyed on the HMAC'd
-  target email) is the real equivalent. `SECURITY_SETUP.md`'s own dashboard
+  target email) is the real equivalent. `docs/SECURITY_SETUP.md`'s own dashboard
   instruction sets OTP expiry to 10 minutes or less. The day-cap is the
   binding constraint regardless of the exact TTL: at 8 guesses/minute, an
   attacker reaches the 20/day cap in well under 3 minutes — far inside any
@@ -151,7 +151,7 @@ here):
   profile-link feature, for instance, would make id-guessability load-bearing
   in a way it isn't today).
 - **The venue-link enrichment feature (in progress) is the single highest
-  SSRF-risk surface about to be built** — `PLACE_IMPORT_ARCHITECTURE.md`'s
+  SSRF-risk surface about to be built** — `docs/PLACE_IMPORT_ARCHITECTURE.md`'s
   rules (allowlisted provider adapters only, never a generic arbitrary-URL
   fetch, block private IPs/redirects/oversized responses) aren't optional
   hardening, they're load-bearing for that feature specifically.

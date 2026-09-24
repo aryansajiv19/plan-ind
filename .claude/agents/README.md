@@ -1,6 +1,6 @@
 # plan-ind agent team
 
-Five specialized subagents, each owning a distinct slice of the work. The main
+Six specialized subagents, each owning a distinct slice of the work. The main
 Claude Code session acts as **orchestrator**: it reads a task, routes it, and
 sequences the handoffs. You can also invoke any agent directly by name.
 
@@ -9,12 +9,7 @@ three pools and gets a share link; the group votes each pool down to one, and a
 final vote picks the outing. Next.js 16 (App Router) + React 19 + Tailwind v4 +
 Supabase, plus a natural-language layer ("Luna") over the OpenAI Responses API.
 
-> **This file described the original v1 in places and is being corrected as
-> areas are touched.** The app now has Supabase Auth (Google + email OTP),
-> 20 migrations, pooled voting, and a security model far past `using (true)`.
-> The public share-link vote is still name-based and link-trusted — that part
-> of the v1 posture is real. Treat `worklog.md` as the source of truth for what
-> is applied live, and `CHECKPOINT.md` for what was built.
+`worklog.md` is the source of truth for what is applied live.
 
 ---
 

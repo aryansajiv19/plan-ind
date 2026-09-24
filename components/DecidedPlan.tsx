@@ -105,7 +105,7 @@ export default function DecidedPlan({
   const gcal = googleCalUrl(plan, winner);
   const ics = icsHref(plan, winner);
 
-  // "Getting there" — PRIORITIES.md's Venue-link enrichment section, free
+  // "Getting there" — docs/archive/PRIORITIES-2026-09-18.md's Venue-link enrichment section, free
   // tier: straight-line distance + a transit-mode Maps deep link. Only
   // when both endpoints exist; a plan created before origin was picked
   // (or a spot with no coordinates) has nothing honest to show here.

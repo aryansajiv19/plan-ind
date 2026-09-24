@@ -89,7 +89,7 @@ TEST_DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres \
 `TEST_DATABASE_URL` defaults to the standard `supabase start` port (54322).
 
 **NEVER point `TEST_DATABASE_URL` at the live project.** `supabase/schema.sql`
-DROPs all four tables when re-run and these tests write throwaway rows. Use a
+DROPs every table when re-run and these tests write throwaway rows. Use a
 local `supabase start` database seeded from `schema.sql`, or an equivalent
 throwaway.
 
@@ -159,12 +159,12 @@ this repo installs on its own (see "Setup" below).
   `NODE_ENV=production` (which `playwright.config.ts`'s `webServer` runs
   under, via `next build && next start`), so neither form can actually be
   submitted here. The full round trip was verified by hand — see the Review
-  entry for 2026-09-02 in `AGENT_COORDINATION.md`.
+  entry for 2026-09-02 in `docs/archive/AGENT_COORDINATION.md`.
 
 ### Setup (not done by default — affects the shared `node_modules`)
 
 Lane worktrees share one `node_modules` via symlink (see the top of
-`AGENT_COORDINATION.md`), so installing browser binaries from inside a
+`docs/archive/AGENT_COORDINATION.md`), so installing browser binaries from inside a
 worktree affects every other session on this machine. `@playwright/test` is
 declared in `package.json` and `package-lock.json` (added with
 `--package-lock-only`, so this alone did **not** touch `node_modules`), but

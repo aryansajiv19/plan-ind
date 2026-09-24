@@ -12,7 +12,7 @@ import { test, expect } from "@playwright/test";
 // captured from the query string, validated, and carried as a hidden field
 // into every sign-in form (see components/AuthForm.tsx, lib/auth.ts's
 // safeNextPath). The full authenticated round trip was verified by hand
-// (see the AGENT_COORDINATION.md Review entry for 2026-09-02).
+// (see the docs/archive/AGENT_COORDINATION.md Review entry for 2026-09-02).
 
 const PLAN_PATH = "/plan/22222222-2222-2222-2222-222222222222";
 

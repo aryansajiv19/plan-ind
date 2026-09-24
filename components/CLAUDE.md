@@ -58,14 +58,14 @@ Not hypotheticals — every one of these shipped a bug in this repo.
 - **Respect `prefers-reduced-motion`.** Existing CSS is authoritative and
   disables animation/transition effects — new motion must degrade through it.
 - **No green glowing dots or pulsing status lights.** Recorded permanently in
-  `FRONTEND_DESIGN_STANDARDS.md`.
+  `docs/FRONTEND_DESIGN_STANDARDS.md`.
 - **This is Next.js 16 / React 19** — APIs differ from training data. Check
   `node_modules/next/dist/docs/` before using an App Router API you have not
   verified in this version.
 
 ## Deeper reference
 
-`FRONTEND_DESIGN_STANDARDS.md` (binding visual rules),
+`docs/FRONTEND_DESIGN_STANDARDS.md` (binding visual rules),
 `design-system/SPECS.md` (current specs from Design),
 `.claude/skills/ui-implementation`, `.claude/skills/design-standards`,
 `.claude/skills/a11y-responsive`.

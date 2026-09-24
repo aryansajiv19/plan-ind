@@ -10,4 +10,4 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Frontend work
 
-Before frontend implementation, read and follow `FRONTEND_DESIGN_STANDARDS.md`. The exclusions recorded in that file are intentional.
+Before frontend implementation, read and follow `docs/FRONTEND_DESIGN_STANDARDS.md`. The exclusions recorded in that file are intentional.

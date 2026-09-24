@@ -135,7 +135,7 @@ self-serve way to get one against the live project).
 ```
 npx supabase init && npx supabase start          # once
 psql <local db url> -f supabase/schema.sql       # once, fresh DB only
-# seed app_control_secrets (see SECURITY_SETUP.md), then:
+# seed app_control_secrets (see docs/SECURITY_SETUP.md), then:
 node --env-file=.env.local scripts/load/seed-local-stack.mjs [planCount]   # copies the real curated catalog + seeds plans
 node --env-file=.env.local scripts/load/mint-local-users.mjs [count]      # bulk permanent accounts, real @supabase/ssr sessions
 # build + start the app pointed at the local stack (see below), then:
@@ -146,7 +146,7 @@ node scripts/load/scale.mjs <scenario> [n]
 
 **The `app_control_secrets` step is not optional and fails confusingly.** The
 local database needs the bcrypt hash of *this machine's*
-`SECURITY_CONTROL_SECRET` (`SECURITY_SETUP.md` has the insert). Skip it and
+`SECURITY_CONTROL_SECRET` (`docs/SECURITY_SETUP.md` has the insert). Skip it and
 every quota-gated route returns **429 "Too many deals"** on a freshly minted
 user's very first request — which reads like a rate limit and is actually
 `consume_app_quota` raising `42501` and `consumeQuota()` failing closed.

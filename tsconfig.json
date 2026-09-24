@@ -33,6 +33,7 @@
   ],
   "exclude": [
     "node_modules",
+    ".claude",
     "tests/e2e/**",
     "playwright.config.ts"
   ]

@@ -1,4 +1,4 @@
-// "Getting there" — PRIORITIES.md's Venue-link enrichment section,
+// "Getting there" — docs/archive/PRIORITIES-2026-09-18.md's Venue-link enrichment section,
 // 2026-09-04 owner decision: straight-line distance + an "Open in Maps"
 // deep link is the free-tier version, and it's the actual ask, not a
 // placeholder for a real transit integration. Google Maps in Dubai already

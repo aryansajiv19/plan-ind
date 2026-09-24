@@ -1,6 +1,6 @@
 # Deal three worklog
 
-Last updated: 2026-09-18 (Asia/Dubai). Entries from 2026-09-07 and earlier are in `worklog-archive.md`.
+Last updated: 2026-09-18 (Asia/Dubai). Entries from 2026-09-07 and earlier are in `docs/archive/worklog-archive.md`.
 
 ## Migration runbook
 
@@ -71,286 +71,8 @@ ratings.
 
 ## Archived history
 
-`worklog-archive.md` holds everything through **2026-09-16**: the v1 build-out,
-production hardening, the migration-020 security pass, the palette reset, the
-2026-09-04 load-testing and venue-link work, and T1's whole 2026-09-16 staging
-run (047–051, the apply runbook, the live-preflight ledger correction). It is
-history, not live state — read it only when chasing *why* something was built
-the way it was.
-
-Live state starts below at 2026-09-17. Split again past ~600 lines
-(`CONTEXT_HYGIENE.md` rule 3).
-
-## 2026-09-17 — T1: C5 edit a plan before voting, migration 055 STAGED + route `edit` command
-
-`edit_plan(p_plan_id, p_host_token, p_title?, p_deadline?)` → result codes
-`edited | nothing_to_change | not_found | not_host | voting_started |
-invalid_title | invalid_deadline`. Auth = delete_plan's (creator AND host token,
-not anonymous, `for update`). Voting started = status not open OR stage not pool
-OR any vote. Title/deadline validated exactly like creation. A new RPC, not an
-`execute_plan_command` branch (that one raises instead of returning codes, and it
-is the core voting function). Accepted race (a first vote landing after the
-no-votes check) is documented in the header.
-
-Route: `POST /api/plans/[id]/command {command:"edit", hostToken, title?, deadline?}`.
-delete and edit share one result-code branch; `nothing_to_change` → 200,
-404/403/409/422 for refusals, 500 on error or unknown. Deadline must be a strict
-ISO-8601 instant with `Z` or `±HH:MM` (review L1: `Date.parse` accepted "2026"
-and "UTC+4", which Postgres rejects or reads 8h apart).
-
-Verified 23/23 on the live-identical rig + 052 + 054 via PostgREST (negative
-control, every refusal including a member holding the host token, the
-voting-started states, validation, grants, re-run). `security` review: no C/H/M,
-delete's behaviour unchanged by the refactor. Not exercised through a running
-Next server. Frontend note (review L2): the edit response has no `plan` key, so
-it must not go through `runHostCommand`, which treats a missing plan as failure.
-
----
-
-## 2026-09-17 — T1: C6 leave a plan, migration 056 STAGED; lock proposal corrected
-
-`leave_plan(p_plan_id)` → `left | not_member | host_cannot_leave | not_found`.
-Host refused (deletes instead). Open plan: the leaver's votes, RSVP, access go
-(tally drop intended). Decided plan: votes kept (the tally never contradicts the
-winner); RSVP, rating, access go. Rejoin via the same link starts fresh. Guests
-can leave. `for update` on the plans row serialises with advance/decide.
-
-Verified 21/21 on the live-identical rig + 052/054/055 via PostgREST, including a
-deterministic reproduction of the leaver's-own-vote race: with leave holding the
-plans lock, the vote passes the membership trigger, waits at its FK, and commits
-after the leave → **1 counted vote from a non-member**. Accepted and documented
-(self-inflicted, bounded). `security` review: no C/H.
-
-**Correction to my own proposal:** I proposed closing the race with the
-membership trigger taking the plans key-share lock (it worked on the rig for the
-INSERT race). The review showed it **deadlocks on the upsert/update path** (child
-row locked first, then plans) against `delete_plan`/`leave_plan` (plans first,
-then child rows). The right fix is `for key share` on the plans read that
-`cast_plan_vote`/`set_plan_rsvp`/`rate_plan` already do (plans always locked
-first). It also closes a pre-existing race where a vote passes the stage check
-just before advance/decide. **Folded into the 053 scope** (same three functions).
-Needs a rig check of a concurrent re-cast vs delete_plan/leave_plan.
-
-Open product call: after a leave, `plans.booking_owner` may still name the
-leaver, and a driver's seats vanish from the carpool list.
-- 056 amended before apply (T0): leaving clears `booking_owner` when it matches the
-  leaver's RSVP name AND `booked` is not true; a real booking keeps its owner.
-  Rig 24/24 (unbooked cleared, booked kept, non-owner untouched). Review Low
-  accepted: name-match squat can blank an unbooked booker's name (visible, host
-  can re-set, never touches a booking).
-
----
-
-## 2026-09-17 — T1: C7 reopen a decided plan, migration 057 STAGED + route `reopen`
-
-`reopen_plan(p_plan_id, p_host_token, p_deadline?)` → `reopened | not_found |
-not_host | not_decided | no_rounds | booked | already_happened |
-invalid_deadline`. Creator AND host token. Back to the FINAL round (status open,
-stage final, winner null); finalists, final votes, RSVPs/carpool, booking_owner,
-event_time kept. Deadline cleared unless a new valid one is given (a past
-deadline would auto-re-decide). Refused when booked, when any rating or logged
-visit points at the plan, or when fewer than 2 finalists are advanced. Audit row
-on success. Route: `command: "reopen"`.
-
-Security review found a real **Medium**: someone who left a decided plan keeps
-their final vote (056 keeps votes on decided plans), so after a reopen that vote
-would still help pick the new winner. **Fixed:** reopen removes final votes whose
-voter has no plan_access (legacy null-user votes stay). Also adopted: visits
-block reopen like ratings; `no_rounds` counts advanced spots only (a legacy plan
-with 1 advanced of 3 was reopenable into a one-candidate final).
-
-Verified 29/29 on the live-identical rig + 052/054–056 via PostgREST, including
-the full loop: reopen → member switches vote → host decides → the new finalist
-wins. The rating race is the accepted class (closed by 053).
-
-Deadline readers checked for NULL: `closesLabel` → "Open", the host auto-decide
-effect returns early, `edit_plan`'s comparison is null-safe, the create form
-always sets one, no share copy uses it.
-
----
-
-## 2026-09-17 — T1: runbook "Next" rehearsed once from live state (82/82); plan creation accepts invisible titles (live)
-
-APPLY_RUNBOOK.md now has preflight rows for 052/054–057, a "Next" table
-(N1–N8: 052 → 054 → 055 → 056 → 057 → deploy → 049 → 051) with pasteable verify
-lines, and §4b recording the rehearsal. Proven: all five are additive for the
-current client (its reads still work with them applied) and prerequisites for
-the new one. The old sign-up path (`p_emoji: "?"`) yields JSON `null` and no client
-renders `people.emoji`.
-
-Two harness traps this round, both caught before trusting a result:
-- `check054` counted ALL people ("15") when run after other suites. Scoped to its
-  own ids.
-- My first creation probe "showed nothing" because both calls failed input
-  validation (wrong field; not enough spots) before reaching the title check.
-  A positive control (a normal title must succeed) exposed it; the valid probe
-  then confirmed the gap.
-
-**055 fixed in place (7e618e7):** `edit_plan` refused `''` but saved an
-invisible-only title (T2 found U+200B). It now also requires the title to be
-non-empty under `clean_display_name` (the same invisible set, ZWJ/ZWNJ inside
-words kept). T2 verified end to end.
-
-**OPEN, LIVE, pre-existing:** `create_direct_plan` and `create_secure_plan`
-accept invisible-only titles (stored U+200B and U+200B+ZWJ). Not patched: needs
-its own reviewed migration and an owner go.
-
----
-
-## 2026-09-17 — T1: migration 058 STAGED — plan creation refuses invisible-only titles (Low)
-
-`create_secure_plan` / `create_direct_plan` (live) stored a title of only U+200B
-(or U+200B+ZWJ). 058 re-creates both verbatim from the checksum-proven live
-bodies, changing ONLY the title condition to also require a non-empty title
-under `clean_display_name`. Same 22023 error the client already handles; grants
-kept; stored title unchanged (`clean_app_text`, 60). Needs 052 first.
-Rehearsed incrementally on the 052–057 rig, 16/16: negative control first; then
-ZWSP / ZWSP+ZWJ / BOM+NBSP refused on both functions; positive controls: normal
-and Persian-with-ZWNJ titles still create; grants unchanged. `security` review:
-bodies byte-identical apart from the condition, emoji-only titles unaffected, no
-findings. Runbook: preflight row + N5b (pre-deploy, additive for the current client).
-
----
-
-## 2026-09-17 — T1: C4 migration 059 STAGED — birthday correction (direction rule) + one age-gate source
-
-- **One source for gates:** `category_age_gates()` (immutable VALUES list),
-  `category_min_age()`, `spot_required_age()`; the two creation functions'
-  three hardcoded CASE copies are replaced (re-created from 058's bodies). Full
-  age matrix at creation (ages 16/18/20/21 × dinner/shisha/nightlife × both
-  functions) identical before/after. A function, not a table (T0): values change
-  only by migration.
-- **`correct_birth_date`:** one correction (`member_ages.corrected_at`).
-  DIRECTION rule (T0's correction to my band rule, which let 17.0→17.99 unlock
-  18 the next day): younger always allowed (≥13); older only if already past the
-  highest gate = greatest(max category gate, max `minimum_age` of CURATED spots;
-  live max 21, values 0/18/21; custom spots excluded so a junk 99 can't block
-  everyone). Otherwise `crosses_age_gate` → contact support (manual, outside the app).
-- Security review adopted: **time zone.** `current_date` followed the session
-  zone, which a PostgREST caller sets per request (`Prefer: timezone=`).
-  **Verified on the rig before acting:** the header moved the date. The three
-  gate functions now pin `Asia/Dubai`; the rig negative control (a user turning
-  21 today in Dubai was refused under GMT+12) passes after. **Refused crossings
-  are audited** (outcome blocked, no dates). Helpers revoked from anon/authenticated.
-- **Pre-existing, not widened:** `set_birth_date` and `current_member_age` still
-  use the session zone (same up-to-a-day skew; the plan-creation gate itself is
-  now pinned).
-- Verified 47/47 on the 052–058 rig; schema.sql builds from scratch with 059.
-
----
-
-## 2026-09-17 — T1: 057 adds `plans.reopened_at` (STAGED); 049/051 now single-transaction
-
-- `reopen_plan` sets `reopened_at = now()`. Notice rule for clients: status
-  `'open'` AND `reopened_at` set. `execute_plan_command` untouched: a re-decide
-  flips status to decided (notice hides), value kept as history. T0 accepted.
-- 051's plans grant lists `reopened_at`, so **051 must apply after 057** (runbook
-  N8 dependency + verify line; N5 verify checks the column).
-- `security` review (lane/backend @ 0d50238 + diff): no Critical/High/Medium.
-  Low adopted: 049/051 revoke-then-grant was only atomic in the SQL editor; both
-  now `begin; … commit;`. Proven on the rig: 051 run via plain `psql -f` without
-  057 errors and leaves `plans` SELECT intact; in order, grants correct.
-- Rig: 057 suite 34/34 (reopen sets it; re-decide → decided/kept/notice false;
-  never-decided plan patched with event_time/booking_owner → null; 051 after 057
-  → member reads reopened_at, created_by_user_id still refused).
-- 059: runbook N5c now requires `max(minimum_age)` of curated spots = 21 on live
-  before apply (not re-read today: a live read was not permitted from this session).
-
----
-
-## 2026-09-18 — T1: C3 migration 060 STAGED and PROVEN — delete my account
-
-- **Shape (owner's calls):** storage first, confirmed by listing; one RPC
-  transaction ending in `delete from auth.users`; hosted OPEN plans deleted,
-  hosted DECIDED plans with another member kept read-only (creator null, host
-  token row deleted); custom spots kept ownerless (FK → `set null`, the CHECK
-  replaced by an INSERT-only trigger) so a shared spot no longer cascades away
-  other people's votes and visits, which also removes the `winner_spot_id`
-  blocker; audit row with counts only.
-- **Votes/RSVPs/ratings are handled BEFORE the auth delete.** Their FK is
-  `on delete set null`, so a bare auth delete would mint rows with a name and a
-  participant_token_hash and no user_id — 053's claimable class. Open-plan votes
-  deleted, decided-plan votes kept as 'Former member' with hash and user_id
-  null, RSVPs and ratings deleted. Asserted: no new claimable rows.
-- **Security review, HIGH (fixed): the old order could destroy photos for
-  nothing.** Photos were deleted first; if the definer cannot remove the
-  `auth.users` row the RPC rolls back, but the photos are already gone. And
-  `auth.users` has RLS with no policies, so a missing privilege **removes 0 rows
-  without raising** — `deleted` would have been reported for a login that still
-  worked. Fixes: a probe (`p_probe`) that does the real delete inside a block,
-  checks the row count and raises to roll it back, called by the route BEFORE
-  any photo is touched; plus `row_count = 1` asserted on the real path.
-- **Review MEDIUM (fixed):** `booking_owner` matched every name the user had
-  ever used anywhere — one Sara deleting her account would wipe another Sara's
-  name from shared plans, and a throwaway plan could be used to wipe someone
-  else's deliberately. Now correlated per plan, and `booked is true` is left
-  alone as in leave_plan. MEDIUM-LOW (fixed): the leftover-photo count keyed on
-  `owner_id` while the upload policy keys on the path, so a null-owner object
-  under the user's folder was invisible to the proof; now counted by either.
-  The route's listing was capped at one level and 1000 entries; it paginates and
-  recurses with a depth guard that throws rather than missing files. LOW: my
-  "cannot deadlock" claim was wrong (hosted plans locked, then votes written in
-  plans I do not host — the opposite order to delete_plan); every plans row the
-  function touches is now locked in id order. `app_rate_limits` rows keyed on the
-  raw uid are deleted.
-- **Proof:** rig == live (7/7) then 052..059; check060 **37/37**, check060-storage
-  **11/11** against a real storage-api container. Controls, not just assertions:
-  auth delete raising → nothing deleted; auth delete removing 0 rows silently →
-  `cannot_delete_login`; before 060 an orphaned upload is invisible to its owner
-  and its delete returns `200 []`. Suites: `~/plan-ind-rehearsal-backup/rehearsal/`.
-
-## 2026-09-18 — T1: a sentinel must be distinguishable from the failures it detects
-
-`delete_my_account`'s probe deletes the login for real, then raises to roll that
-back. It signalled with a plain `raise exception`, which is **SQLSTATE P0001 —
-the same code any ordinary trigger raise produces**. The rig's rollback control
-(a BEFORE DELETE trigger on auth.users that raises) was therefore caught by the
-probe's own handler and reported as `ready`: the mechanism built to detect a
-failed login delete was swallowing exactly that failure. Fixed with a private
-SQLSTATE (`PT060`); anything else propagates.
-Found by the control, not by reading the code — same lesson as the Realtime
-"any refusal passes" check and the zsh gate that false-passed.
-
-## 2026-09-18 — T1: storage.protect_delete() blocks SQL deletes on storage.objects
-
-Reproduced on the rig against a real storage-api (v1.70.3), not claimed: a plain
-`delete from storage.objects` raises *"Direct deletion from storage tables is not
-allowed. Use the Storage API instead."* **No migration can ever clean up storage
-objects in SQL.** Deleting a file means the Storage API with a session that
-passes the bucket's delete policy. 060 is unaffected — the route deletes through
-the API and the RPC only counts — and the rig's fixture cleanup only works
-because `session_replication_role = replica` disables the trigger.
-
----
-
-## 2026-09-18 — T1: the 053 hijack path is CLOSED by deleting the data, not by guarding it
-
-Owner-approved live write, run by T0. All 45 legacy rows (25 votes, 17 RSVPs,
-3 ratings — every one `user_id is null`, on the 6 fixture plans) deleted;
-verified 0/0/0 after, `plans` 6 and `spots` 82 untouched. Those three tables
-were legacy-only, so nothing owned was lost, and live had 0 permanent accounts.
-Every row written since 043 carries a `user_id`, so there is nothing left to
-claim by `participant_token_hash`.
-**The judgement worth keeping: deleting the data beat guarding it.** The planned
-fix was migration 053 — rewriting the three core voting RPCs, with its own
-rehearsal, while T2 was re-walking that loop. One statement over the owner's own
-test data removed the exposure completely instead of adding a guard around it.
-Ask what the data is before writing code to protect it.
-What remains of 053 is only the `for key share` race fix (the accepted races
-documented in 056 and 057): correctness, queued, not a launch blocker.
-Side effect recorded in the runbook §7 so nobody reads it as a regression: the
-six fixture plans now render with no votes.
-
-## 2026-09-18 — T1: photo pre-apply gate (1c1ced3), proven both ways
-
-`scripts/check-spot-photo-urls.sh <migration.sql>` curls every `spot-photos` URL
-in a migration and prints ok/BLOCK. **It asserts the content type, not just the
-status:** a missing object in a public Supabase bucket answers 400 with a JSON
-body, and "it responded" is not the question. Proven against live both ways —
-039's six return `image/jpeg` (ok), a fabricated key returns 400 (BLOCK, exit 1).
-No key needed; the bucket is public. This is the check 039 was originally held
-for. It also confirms live's object keys are hyphen-stripped, which is why 046
-must be written against the keys that actually land, never the filenames sent.
+`docs/archive/worklog-archive.md` holds everything before the 2026-09-18
+deploy entry below. Read it only when chasing *why*.
 
 ## 2026-09-18 — T0: PRODUCTION IS LIVE — https://plan-ind.vercel.app
 
@@ -403,3 +125,24 @@ All four worktrees verified clean and every lane branch merged into
 `ai-engineering` before shutdown. T3's last uncommitted change (Realtime
 fan-out instrumentation, `a8fdee8`) was committed and merged rather than lost —
 an uncommitted tree was wiped here once, so "clean" is checked, not assumed.
+
+## 2026-09-24 — Lead session: audit, docs consolidation
+
+Fresh cloud session. **`main` is 504 commits behind `ai-engineering`**, and
+production runs `d536b6f`, which is not on GitHub (two unpushed local commits,
+including "Cards say why this place, not just what it is"). Work continues on
+`claude/jolly-hypatia-hj9vhp` (branched from `ai-engineering` 5044920);
+nothing is pushed to `main`/`ai-engineering` until the owner pushes, because a
+push there may deploy over production.
+
+Three independent audits (code health, security, product/UX) ran against
+5044920. Findings are queued in `PRIORITIES.md`. The one HIGH, verified by hand:
+`cast_plan_vote` keys a vote on a caller-chosen participant hash, so one
+session can cast unlimited votes.
+
+Docs consolidated: 16 root docs → 5 (`CLAUDE.md`, `AGENTS.md`, `README.md`,
+`PRIORITIES.md`, `worklog.md`); reference docs moved to `docs/`, history to
+`docs/archive/`; `graphify-out/` (2.2 MB, two weeks stale, and the root
+`CLAUDE.md` told every session to navigate by it) deleted and ignored; README
+rewritten from create-next-app boilerplate; stale v1 claims removed from agent
+briefs. Sandbox cannot reach Supabase or the live URL (network policy).

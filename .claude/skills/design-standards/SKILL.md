@@ -5,7 +5,7 @@ description: "plan-ind's binding visual rules — the five-group colour system, 
 
 # Design standards
 
-`FRONTEND_DESIGN_STANDARDS.md` is the authority. This is the part that gets got
+`docs/FRONTEND_DESIGN_STANDARDS.md` is the authority. This is the part that gets got
 wrong, with the failure each rule prevents.
 
 **Two sections carry reversal notes. Read them before changing either.** The
@@ -71,7 +71,7 @@ treatment or on anything meaning "you" or "now".
    links are the only exception to the inset.
 
 9. **No green glowing dots, no pulsing status lights** — anywhere, day or night.
-   Cross-enforced by `NEXT_AGENT.md` rule 9. Ambient motion is permitted in the
+   Cross-enforced by `docs/archive/NEXT_AGENT.md` rule 9. Ambient motion is permitted in the
    night theme (see the Motion section) but a pulse that *means* "live" is state,
    not atmosphere, and stays banned.
 

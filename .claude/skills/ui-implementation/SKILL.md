@@ -33,7 +33,7 @@ JSX rendering them. Removing a dead target is safe; removing a live one
 ## Non-negotiables
 
 1. **Never render a dead control.** No empty `booking_url` link, no button that
-   does nothing. `NEXT_AGENT.md` rule 1: never show invented data as a signed-in
+   does nothing. `docs/archive/NEXT_AGENT.md` rule 1: never show invented data as a signed-in
    user's own. `DemoAccountViews` is fixtures and renders only when `demoMode` is
    true; `AccountViews` is the real one. A screen with no data gets an honest
    empty state, not filler.

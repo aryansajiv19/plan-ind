@@ -52,7 +52,7 @@ origin lat/long; `spots` carries its own lat/long.
 
 **Not built — genuine gaps, not bugs:**
 - **Weather** — no column, no display. The Open-Meteo integration was already
-  scoped as a *tool* for the future AI agent loop (see `NEXT_AGENT.md` — "the
+  scoped as a *tool* for the future AI agent loop (see `docs/archive/NEXT_AGENT.md` — "the
   weather tool," verified working, no API key needed), not yet wired into the
   payoff screen. Could be added independently of the AI work — it's a plain
   fetch, not model-dependent.
@@ -63,7 +63,7 @@ origin lat/long; `spots` carries its own lat/long.
 
 This is real design + build work, not a Review task. **Specced 2026-09-04**
 in `design-system/SPECS.md` §10, alongside the related "direct plan, skip
-the vote" entry point (`PRIORITIES.md`) — carpool proposed as an `rsvps`
+the vote" entry point (`docs/archive/PRIORITIES-2026-09-18.md`) — carpool proposed as an `rsvps`
 extension (a coordination list, not a matcher), pending owner sign-off
 before Backend schemas it.
 

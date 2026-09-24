@@ -18,7 +18,7 @@ import PlaceDirectPlanCta from "@/components/PlaceDirectPlanCta";
 // with invented content would be fabricated data. Both are out. What ships
 // here is the real, honest version: hero, identity, the fields the schema
 // actually has, and a real "open in Maps" link from lat/long — the free-tier
-// piece of the venue-link-enrichment work PRIORITIES.md already scoped.
+// piece of the venue-link-enrichment work docs/archive/PRIORITIES-2026-09-18.md already scoped.
 //
 // Reachable without a session: curated spots have no auth condition in their
 // RLS read policy (supabase/schema.sql "read spots"), matching how the rest

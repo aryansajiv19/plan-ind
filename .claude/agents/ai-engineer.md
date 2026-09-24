@@ -91,7 +91,7 @@ drive that deal.
 - **Never expose `OPENAI_API_KEY` to the browser**, and never log raw prompts,
   emails, tokens or cookies. `store: false` and the hashed `safety_identifier`
   are deliberate.
-- **New dependency needs a stated reason** (`NEXT_AGENT.md` rule 8). An
+- **New dependency needs a stated reason** (`docs/archive/NEXT_AGENT.md` rule 8). An
   injected function parameter beats a mocking library; a plain `fetch` beats an
   SDK for a keyless API.
 

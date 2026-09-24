@@ -82,7 +82,7 @@ Don't mock these — mocked Postgres constraints prove nothing:
 - **Deterministic.** Freeze or inject the clock; never assert on `Date.now()`.
   Deadlines and `created_at` are flake magnets.
 - **Isolated.** Each test creates its own plan and cleans up. `schema.sql` drops
-  all four tables when re-run — **never point integration tests at a database
+  every table when re-run — **never point integration tests at a database
   holding real plans**, and say so in the test README.
 - **Realtime needs waiting, not sleeping.** Await the actual subscription event
   or a condition; a fixed `setTimeout` will flake in CI.

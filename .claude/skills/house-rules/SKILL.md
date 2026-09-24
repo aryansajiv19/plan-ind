@@ -40,7 +40,7 @@ Nine rules, each one sourced from a bug this repo actually had.
    built-in runner.
 
 9. **No green glowing dots or pulsing status lights.** Recorded permanently in
-   `FRONTEND_DESIGN_STANDARDS.md`.
+   `docs/FRONTEND_DESIGN_STANDARDS.md`.
 
 ## The gate
 

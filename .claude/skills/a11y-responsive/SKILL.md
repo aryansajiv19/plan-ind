@@ -5,7 +5,7 @@ description: "The accessibility and responsive checks plan-ind's own standards m
 
 # Accessibility and responsive
 
-`FRONTEND_DESIGN_STANDARDS.md` mandates these; they are not optional polish. Run
+`docs/FRONTEND_DESIGN_STANDARDS.md` mandates these; they are not optional polish. Run
 them before you call a frontend task finished.
 
 ## The check
