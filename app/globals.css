@@ -487,13 +487,6 @@
    If a fill is ever added here, its ink is never softened — full white on
    navy/slate/brown, full navy on tan/grey/light. The v6 failure was a
    softened mid-tone landing ~4.0:1. */
-/* The action stays an action: an ink outline reads on both fills, where
-   the neutral line would not (§21.3 — buttons never take a fill). */
-.demo-place-card.demo-place-card--fill-tan .demo-place-card__body button,
-.demo-place-card.demo-place-card--fill-blue .demo-place-card__body button {
-  border-color: var(--color-ink);
-  background: transparent;
-}
 
 /* ── Button padding scale (SPECS.md §13.2) ──────────────────────────
    The .demo-* button family had 12+ selectors each choosing padding and
@@ -706,6 +699,7 @@ h3 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   width: 2.75rem;
   height: 2.75rem;
   border: 1px solid var(--color-ink);
@@ -2845,7 +2839,7 @@ h3 {
   .home-plan-section__intro { position: static; }
   .home-nav { padding-bottom: 0.75rem; }
   .home-nav__right { gap: 0.55rem; }
-  .home-app-tab { min-width: 4.2rem; }
+  .home-app-tab { min-width: 2.75rem; } /* 44px tap floor; 4.2rem pushed the avatar off-screen at 521-560px */
   .demo-view__header { grid-template-columns: 1fr; align-items: start; }
   .place-link-importer { grid-template-columns: 1fr 1fr; }
   .place-link-importer__intro { grid-column: 1 / -1; }
@@ -2861,7 +2855,7 @@ h3 {
 
 @media (max-width: 520px) {
   .home-experience { padding-bottom: 4.8rem; }
-  .home-nav { width: 100%; padding-inline: 0.75rem; }
+  .home-nav { width: 100%; padding-inline: 0.75rem; backdrop-filter: none; } /* a filter makes the nav the containing block for the fixed tab bar below, pinning it inside the header */
   .home-nav__link { display: none; }
   .home-app-tabs {
     position: fixed;

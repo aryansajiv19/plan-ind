@@ -8,7 +8,7 @@ description: "The rules every plan-ind lane inherits regardless of what it is bu
 Nine rules, each one sourced from a bug this repo actually had.
 
 1. **Never show invented data as a signed-in user's own.** `DemoAccountViews` is
-   fixtures and renders only when `demoMode` is true (`/home-preview`).
+   fixtures and renders only when `demoMode` is true (`/demo`).
    `AccountViews` is the real one. A screen with no data gets an honest empty
    state — do not fill it in with examples.
 

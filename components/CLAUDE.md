@@ -50,7 +50,7 @@ Not hypotheticals — every one of these shipped a bug in this repo.
 ## Rules
 
 - **Never show invented data as a signed-in user's own.** `DemoAccountViews` is
-  fixtures and renders **only** when `demoMode` is true (`/home-preview`).
+  fixtures and renders **only** when `demoMode` is true (`/demo`).
   `AccountViews` is the real one. No data → write an honest empty state.
 - **Never read date of birth from `auth.user_metadata`** — the browser can
   rewrite it. Use `memberAge()` / `current_member_age()`.

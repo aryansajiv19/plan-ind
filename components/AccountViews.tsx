@@ -2,7 +2,7 @@
 
 // The signed-in account: Discover, Been, Friends and Profile read from
 // Supabase. DemoAccountViews is the same four screens filled with fixtures —
-// it stays for /home-preview, where nobody is signed in and there is nothing
+// it stays for /demo, where nobody is signed in and there is nothing
 // real to show. Keeping the fixtures out of here is the point: a signed-in
 // person's own history is the one thing that must never be invented.
 //

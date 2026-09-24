@@ -6,10 +6,6 @@ import HomeExperience from "@/components/HomeExperience";
 // the banner HomeExperience renders whenever `fixtures` is on (house rule 1:
 // never show invented data as a signed-in user's own).
 //
-// This lives at /demo rather than /home-preview because the URL is part of
-// what a visitor reads. /home-preview now redirects here and stays as the
-// old internal name.
-//
 // force-dynamic: no dynamic API in this tree, so Next would otherwise
 // prerender it once at build time — baking in whatever hour the build ran for
 // autoGround()'s server-side data-theme stamp (app/layout.tsx), corrected

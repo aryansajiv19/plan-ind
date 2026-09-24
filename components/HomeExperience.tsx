@@ -68,7 +68,7 @@ export default function HomeExperience({
   demoMode?: boolean;
   /**
    * Render `DemoAccountViews` — invented friends, visits and photos. Only ever
-   * true on the dev-only `/home-preview`. The public front door sets demoMode
+   * true on the labelled `/demo`. The public front door sets demoMode
    * WITHOUT this: a marketing hero is illustrative, an account tab full of
    * fixtures is a fabricated person. House rule 1.
    */

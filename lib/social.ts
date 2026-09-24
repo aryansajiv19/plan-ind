@@ -130,17 +130,6 @@ export async function getPerson(personId: string): Promise<PersonCard | null> {
   return data as unknown as PersonCard;
 }
 
-/** Several profiles at once, e.g. to resolve a list of tagged ids. */
-export async function getPeople(ids: string[]): Promise<PersonCard[]> {
-  if (ids.length === 0) return [];
-  const { data, error } = await getSupabase()
-    .from("people")
-    .select(PERSON_FIELDS)
-    .in("id", ids);
-  if (error || !data) return [];
-  return data as unknown as PersonCard[];
-}
-
 // ─── Friends ───────────────────────────────────────────────────────
 
 /**
@@ -239,20 +228,6 @@ export async function removeFriend(
     .eq("friend_id", friendId)
     .select("friend_id");
   return !error && (data?.length ?? 0) > 0;
-}
-
-/** Are these two already friends? Cheap check for the invite-link screen. */
-export async function areFriends(
-  meId: string,
-  otherId: string,
-): Promise<boolean> {
-  const { data, error } = await getSupabase()
-    .from("friendships")
-    .select("person_id")
-    .eq("person_id", meId)
-    .eq("friend_id", otherId)
-    .maybeSingle();
-  return !error && !!data;
 }
 
 // ─── Visits ────────────────────────────────────────────────────────
@@ -595,33 +570,6 @@ export async function getProfileVisits(
   return { rows: ((data ?? []) as unknown as RawVisit[]).map(toProfileVisit), failed: false };
 }
 
-/**
- * The other half of a profile: visits somebody else logged and tagged this
- * person into. Two hops, because the tag lives on visit_companions.
- */
-export async function getTaggedVisits(
-  personId: string,
-  limit = 50,
-): Promise<ProfileVisit[]> {
-  const { data: tags, error } = await getSupabase()
-    .from("visit_companions")
-    .select("visit_id")
-    .eq("person_id", personId)
-    .limit(limit);
-  if (error || !tags || tags.length === 0) return [];
-  const ids = (tags as unknown as { visit_id: string }[]).map((t) => t.visit_id);
-
-  const { data, error: e2 } = await getSupabase()
-    .from("visits")
-    .select(VISIT_SELECT)
-    .in("id", ids)
-    .order("visited_at", { ascending: false })
-    .order("id", { ascending: false })
-    .limit(limit);
-  if (e2 || !data) return [];
-  return (data as unknown as RawVisit[]).map(toProfileVisit);
-}
-
 export interface PlannedWith {
   /** Display name. A companion may be a typed name with no account at all. */
   name: string;
@@ -680,38 +628,6 @@ export async function getPlannedWith(
       || Number(Boolean(b.person)) - Number(Boolean(a.person))
       || a.name.localeCompare(b.name),
   ), failed: false };
-}
-
-export interface SpotVisitor {
-  visit_id: string;
-  visited_at: string;
-  person: PersonCard | null;
-}
-
-/** "Who's been here" for a spot card. Newest first, deterministic. */
-export async function getSpotVisitors(
-  spotId: string,
-  limit = 20,
-): Promise<SpotVisitor[]> {
-  const { data, error } = await getSupabase()
-    .from("visits")
-    .select(`id, visited_at, person:people(${PERSON_FIELDS})`)
-    .eq("spot_id", spotId)
-    .order("visited_at", { ascending: false })
-    .order("id", { ascending: false })
-    .limit(limit);
-  if (error || !data) return [];
-  return (
-    data as unknown as {
-      id: string;
-      visited_at: string;
-      person: PersonCard | null;
-    }[]
-  ).map((r) => ({
-    visit_id: r.id,
-    visited_at: r.visited_at,
-    person: r.person ?? null,
-  }));
 }
 
 // ─── Wrapped ──────────────────────────────────────────────────────
