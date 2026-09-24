@@ -6,7 +6,9 @@
 // Dubai is UTC+4 all year (no DST), so "local hour" is a fixed offset. The
 // request asks Open-Meteo for exactly one hour (start_hour = end_hour), which
 // keeps the payload tiny and makes the upstream URL -- and so the server's
-// fetch cache key -- lat/lon at 2dp plus that hour.
+// fetch cache key -- lat/lon at 1dp (~11 km, finer than the forecast grid)
+// plus that hour. Coarse on purpose: it bounds how many distinct upstream
+// calls anyone can force through the public route.
 
 export const OPEN_METEO_FORECAST = "https://api.open-meteo.com/v1/forecast";
 const DUBAI_OFFSET_MS = 4 * 3_600_000;
@@ -80,13 +82,13 @@ export function dubaiHour(at: Date): string {
   return new Date(rounded + DUBAI_OFFSET_MS).toISOString().slice(0, 13) + ":00";
 }
 
-export const round2 = (n: number) => Math.round(n * 100) / 100;
+export const round1 = (n: number) => Math.round(n * 10) / 10;
 
 export function forecastUrl(lat: number, lon: number, at: Date): string {
   const hour = dubaiHour(at);
   const params = new URLSearchParams({
-    latitude: round2(lat).toFixed(2),
-    longitude: round2(lon).toFixed(2),
+    latitude: round1(lat).toFixed(1),
+    longitude: round1(lon).toFixed(1),
     hourly: "temperature_2m,apparent_temperature,precipitation_probability,wind_speed_10m,relative_humidity_2m",
     timezone: "Asia/Dubai",
     start_hour: hour,

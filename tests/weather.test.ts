@@ -20,12 +20,12 @@ const fixture = JSON.parse(
 const NOW = new Date("2026-09-24T12:00:00Z"); // 4pm in Dubai
 const q = (s: string) => new URLSearchParams(s);
 
-test("the forecast URL rounds lat/lon to 2dp and asks for one Dubai hour", () => {
+test("the forecast URL rounds lat/lon to 1dp and asks for one Dubai hour", () => {
   // 16:10Z = 20:10 Dubai, nearest hour 20:00.
   const url = new URL(forecastUrl(25.19734, 55.27441, new Date("2026-09-25T16:10:00Z")));
   assert.equal(url.origin + url.pathname, "https://api.open-meteo.com/v1/forecast");
-  assert.equal(url.searchParams.get("latitude"), "25.20");
-  assert.equal(url.searchParams.get("longitude"), "55.27");
+  assert.equal(url.searchParams.get("latitude"), "25.2");
+  assert.equal(url.searchParams.get("longitude"), "55.3");
   assert.equal(url.searchParams.get("timezone"), "Asia/Dubai");
   assert.equal(url.searchParams.get("start_hour"), "2026-09-25T20:00");
   assert.equal(url.searchParams.get("end_hour"), "2026-09-25T20:00");
