@@ -4,7 +4,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { log, serializeError } from "@/lib/observability/log";
 import { getSupabaseConfig } from "@/lib/supabase/config";
 import { fetchAllRows } from "@/lib/supabase/paginate";
-import { categoryFamily, DEAL_SPOT_COLUMNS, type DealSpotRow } from "./match";
+import { categoryFamily, DEAL_SPOT_COLUMNS, isKnownCategory, type DealSpotRow } from "./match";
 
 // ── The curated catalogue, cached across requests ────────────────────────
 //
@@ -123,7 +123,8 @@ const readFamily = cached("curated-deal-family", async (family: string[]): Promi
     "catalogue.dealFamily",
   );
   // fetchAllRows has already logged the cause; null means "incomplete".
-  if (!rows) throw new CatalogueReadError("deal-family", null);
+  // Empty is a refused read for a known family, not a real pool: don't cache it.
+  if (!rows?.length) throw new CatalogueReadError("deal-family", null);
   return rows;
 });
 
@@ -159,6 +160,9 @@ export function curatedDiscover(limit: number) {
  * contract as fetchAllRows. Plugs into dealSpotIds as its pool loader.
  */
 export async function curatedDealPool(category: string): Promise<DealSpotRow[] | null> {
+  // Only known categories reach the cache: an arbitrary category string would
+  // otherwise mint a fresh hour-long entry per request. Unknown means no pool.
+  if (!isKnownCategory(category)) return [];
   // Sorted so "dinner" and "cafe" (same family) share one cache entry.
   const family = [...categoryFamily(category)].sort();
   return (await settle("deal-family", () => readFamily(family))).data;

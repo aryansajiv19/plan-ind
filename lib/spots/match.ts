@@ -79,6 +79,10 @@ function categoryDistance(asked: string, spotCategory: string): number {
   return index > 0 ? index : 1;
 }
 
+export function isKnownCategory(category: string): boolean {
+  return CATEGORY_FAMILIES.some((categories) => (categories as readonly string[]).includes(category));
+}
+
 export function categoryFamily(category: string): string[] {
   const family = CATEGORY_FAMILIES.find((categories) =>
     (categories as readonly string[]).includes(category),
