@@ -87,6 +87,8 @@ TEST_DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres \
 ```
 
 `TEST_DATABASE_URL` defaults to the standard `supabase start` port (54322).
+No Docker or Supabase CLI? Plain Postgres works: apply `tests/supabase-shim.sql`,
+then `supabase/schema.sql`, and point `TEST_DATABASE_URL` at it.
 
 **NEVER point `TEST_DATABASE_URL` at the live project.** `supabase/schema.sql`
 DROPs every table when re-run and these tests write throwaway rows. Use a

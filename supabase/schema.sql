@@ -113,7 +113,7 @@ create table spots (
   created_by_user_id uuid references auth.users(id) on delete set null, -- 060
   address     text,
   latitude    double precision,
-  longitude   double precision,
+  longitude   double precision
   -- 060: a custom spot needs an owner on INSERT (trigger below), not
   -- forever: created_by_user_id goes null when the owner deletes their account
   -- and someone else's plan or visit still points at the spot.
@@ -3411,7 +3411,8 @@ begin
 
   -- The caller's one row, found by uid. A unique_violation on insert means a
   -- concurrent call won either key; the next pass re-reads and re-checks.
-  loop
+  -- Bounded, so a key collision the re-check cannot see fails instead of spinning.
+  for attempt in 1..3 loop
     select * into existing from rsvps where plan_id = p_plan_id and user_id = caller for update;
     if exists (select 1 from rsvps r where r.plan_id = p_plan_id and r.voter_name = clean_name
                and r.user_id is distinct from caller) then
@@ -3432,6 +3433,7 @@ begin
       return;
     end if;
   end loop;
+  raise exception 'Busy, try again' using errcode = '40001';
 end; $$;
 
 create or replace function rate_plan(
@@ -3467,7 +3469,7 @@ begin
     raise exception 'You can only rate the place the group chose' using errcode = '22023';
   end if;
 
-  loop
+  for attempt in 1..3 loop
     select * into existing from ratings where plan_id = p_plan_id and user_id = caller for update;
     if exists (select 1 from ratings r where r.plan_id = p_plan_id and r.voter_name = clean_name
                and r.user_id is distinct from caller) then
@@ -3487,6 +3489,7 @@ begin
       return;
     end if;
   end loop;
+  raise exception 'Busy, try again' using errcode = '40001';
 end; $$;
 
 -- Who can call these: signed-in sessions (guests included -- guests vote).
