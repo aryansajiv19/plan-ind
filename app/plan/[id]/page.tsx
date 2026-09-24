@@ -5,11 +5,11 @@ import Link from "next/link";
 import UndoBar from "@/components/UndoBar";
 import { useParams } from "next/navigation";
 import { getSupabase, bootstrapPlanAccess, type PlanAccessDenial } from "@/lib/supabase";
-import { addBeen } from "@/lib/device";
+import { addBeen, getBeen } from "@/lib/device";
 import { logVisit } from "@/lib/social";
 import { participantTokenHash } from "@/lib/participant";
 import { secureJsonFetch } from "@/lib/security/csrf-client";
-import { coordinatesForArea, distanceKm } from "@/lib/dubai-areas";
+import { dealReasons, spotDistanceKm } from "@/lib/deal-reasons";
 import type { Plan, PlanSpot, Rating, Rsvp, Spot, Vote } from "@/lib/types";
 import { haptic } from "@/lib/interaction";
 import { agreementOf, isInRound, leaderOf, roundFor, visibleSpotsFor, votersFor, yesCount } from "@/lib/tally";
@@ -93,6 +93,7 @@ export default function VotePage() {
   // change rounds rather than derived, so going back to round 1 from round 3
   // slides in from the left instead of pretending it is progress.
   const [roundDir, setRoundDir] = useState(1);
+  const [been] = useState(getBeen); // past winners on this device, for "New to you"
   const [hostToken, setHostToken] = useState<string | null>(null);
   const [participantHash, setParticipantHash] = useState<string | null>(null);
 
@@ -247,7 +248,7 @@ export default function VotePage() {
       // full shape, so don't start reading a dropped field here without
       // adding it back to this list.
       const { data: spotRows, error: spotsErr } = spotIds.length
-        ? await getSupabase().from("spots").select("id, name, category, cuisine, price_band, area, description, vibe, open_till, min_spend, latitude, longitude, photo_url, photo_attribution, booking_url").in("id", spotIds)
+        ? await getSupabase().from("spots").select("id, name, category, cuisine, price_band, area, description, vibe, open_till, min_spend, latitude, longitude, photo_url, photo_attribution, booking_url, source").in("id", spotIds)
         : { data: [], error: null };
       // Preserve the dealt order.
       const ordered = spotIds
@@ -1108,26 +1109,24 @@ export default function VotePage() {
             sawOpenRound={sawOpenRound}
             roundDir={roundDir}
             agreement={agreement}
-            renderCard={(spot) => (
-              <OptionCard
-                spot={spot}
-                voters={votersFor(votes, spot.id, round)}
-                yesCount={countFor(spot.id)}
-                voted={iVotedYes(spot.id)}
-                isWinner={winnerId === spot.id}
-                isLeader={spot.id === leaderId}
-                decided={decided}
-                distanceKm={plan!.origin_latitude != null && plan!.origin_longitude != null
-                  ? (() => {
-                      const destination = spot.latitude != null && spot.longitude != null
-                        ? { latitude: spot.latitude, longitude: spot.longitude }
-                        : coordinatesForArea(spot.area);
-                      return destination ? distanceKm({ latitude: plan!.origin_latitude!, longitude: plan!.origin_longitude! }, destination) : null;
-                    })()
-                  : null}
-                onToggle={() => toggleVote(spot.id)}
-              />
-            )}
+            renderCard={(spot) => {
+              const km = spotDistanceKm(plan!.origin_latitude != null && plan!.origin_longitude != null
+                ? { latitude: plan!.origin_latitude, longitude: plan!.origin_longitude } : null, spot);
+              return (
+                <OptionCard
+                  spot={spot}
+                  voters={votersFor(votes, spot.id, round)}
+                  yesCount={countFor(spot.id)}
+                  voted={iVotedYes(spot.id)}
+                  isWinner={winnerId === spot.id}
+                  isLeader={spot.id === leaderId}
+                  decided={decided}
+                  distanceKm={km}
+                  reasons={dealReasons({ spot, maxBudget: plan!.budget_per_person, radiusKm: plan!.radius_km, distanceKm: km, vibeKeywords: plan!.vibe_preferences, been })}
+                  onToggle={() => toggleVote(spot.id)}
+                />
+              );
+            }}
           />
         )}
 

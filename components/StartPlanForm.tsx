@@ -1,15 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { getSupabase } from "@/lib/supabase";
 import { dealSpotsForCategory } from "@/lib/deal";
 import { DUBAI_ORIGINS } from "@/lib/dubai-areas";
-import { minimumAgeForCategory, prohibitedVenueReason } from "@/lib/age-policy";
+import { minimumAgeForCategory } from "@/lib/age-policy";
+import { categoryMeta } from "@/lib/categories";
 import { secureJsonFetch } from "@/lib/security/csrf-client";
 import { CATEGORIES, CATEGORY_GROUPS, type Category, type GroupKey } from "@/components/categoryGroups";
-import DirectPlanForm, { type DirectPlanSpot } from "@/components/DirectPlanForm";
+import DirectPlanSearch from "@/components/DirectPlanSearch";
+import CustomPlaceSection, { useCustomPlaces } from "@/components/CustomPlaces";
+import DealReveal from "@/components/DealReveal";
+import { SAMPLE_POOLS } from "@/components/demo/sampleDecision";
 
 const PRESETS = [
   { label: "In 3 hours", hours: 3 },
@@ -34,14 +37,6 @@ const RADII = [
 
 type CategoryKey = Category["key"];
 
-interface SavedCustomPlace {
-  id: string;
-  name: string;
-  area: string;
-  category: string;
-  visibility: "private" | "friends" | "community";
-}
-
 interface SmartIntent {
   category: string;
   title: string;
@@ -64,11 +59,6 @@ export default function StartPlanForm({ age = 21, demoMode = false }: { age?: nu
   // way (create_direct_plan rejects signed-out/anonymous callers), same
   // reasoning as gating PlaceDirectPlanCta on a real user.
   const [mode, setMode] = useState<"deal" | "direct">("deal");
-  const [spotQuery, setSpotQuery] = useState("");
-  const [spotResults, setSpotResults] = useState<DirectPlanSpot[]>([]);
-  const [spotSearching, setSpotSearching] = useState(false);
-  const [hasSearchedSpots, setHasSearchedSpots] = useState(false);
-  const [pickedSpot, setPickedSpot] = useState<DirectPlanSpot | null>(null);
   const [category, setCategory] = useState<CategoryKey>("dinner");
   const [title, setTitle] = useState<string>(CATEGORIES[0].title);
   const [activeGroup, setActiveGroup] = useState<GroupKey>("food");
@@ -79,75 +69,21 @@ export default function StartPlanForm({ age = 21, demoMode = false }: { age?: nu
   const [radiusKm, setRadiusKm] = useState<number | null>(20);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [customOpen, setCustomOpen] = useState(false);
-  const [customName, setCustomName] = useState("");
-  const [customArea, setCustomArea] = useState("");
-  const [customAddress, setCustomAddress] = useState("");
-  const [customNote, setCustomNote] = useState("");
-  const [customVisibility, setCustomVisibility] = useState<SavedCustomPlace["visibility"]>("private");
-  const [savingCustom, setSavingCustom] = useState(false);
-  const [savedCustom, setSavedCustom] = useState<SavedCustomPlace[]>([]);
-  // A refused read must not look like "you have no saved places".
-  const [savedCustomFailed, setSavedCustomFailed] = useState(false);
-  const [selectedCustomIds, setSelectedCustomIds] = useState<string[]>([]);
+  const custom = useCustomPlaces(category, setError);
+  // The deal reveal plays while the request runs; submit resolves this when
+  // the sequence has shown, and navigates once both are done.
+  const [revealing, setRevealing] = useState(false);
+  const revealShown = useRef<(() => void) | null>(null);
   const [smartQuery, setSmartQuery] = useState("");
   const [smartIntent, setSmartIntent] = useState<SmartIntent | null>(null);
   const [smartLoading, setSmartLoading] = useState(false);
   const [smartError, setSmartError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    void (async () => {
-      const { data: auth } = await getSupabase().auth.getUser();
-      if (!auth.user) return;
-      // Via RPC (migration 050): 051 hides spots.created_by_user_id from
-      // clients, so the caller's own places are resolved server-side from
-      // auth.uid(). Already ordered by name.
-      const { data, error } = await getSupabase().rpc("my_custom_spots");
-      if (cancelled) return;
-      if (error) { setSavedCustomFailed(true); return; }
-      setSavedCustom((data ?? []) as SavedCustomPlace[]);
-    })();
-    return () => { cancelled = true; };
-  }, []);
-
-  // Explicit search-on-submit, not live-as-you-type — matches the smart-
-  // search box's own pattern above, and one deliberate query beats a
-  // request per keystroke against a table with no dedicated search index.
-  async function searchSpots(event: React.FormEvent) {
-    event.preventDefault();
-    const query = spotQuery.trim();
-    if (query.length < 2) return;
-    setSpotSearching(true);
-    const { data } = await getSupabase()
-      .from("spots")
-      .select("id,name,area,category,minimum_age")
-      .eq("source", "curated")
-      .ilike("name", `%${query}%`)
-      .order("name")
-      .limit(8);
-    setSpotSearching(false);
-    setHasSearchedSpots(true);
-    // Same age gate every other path here already enforces — a match the
-    // account can't actually use shouldn't be offered as if it could.
-    setSpotResults(
-      (data ?? []).filter((spot) => age >= Math.max(minimumAgeForCategory(spot.category), spot.minimum_age ?? 0)),
-    );
-  }
 
   // Picking a type swaps in its default prompt — unless you've written your own.
   function pickCategory(cat: Category) {
     if (age < minimumAgeForCategory(cat.key)) return;
     setCategory(cat.key);
     if (!titleEdited) setTitle(cat.title);
-  }
-
-  function toggleCustomPlace(id: string) {
-    setSelectedCustomIds((current) => {
-      if (current.includes(id)) return current.filter((item) => item !== id);
-      if (current.length >= 3) return current;
-      return [...current, id];
-    });
   }
 
   async function interpretSmartSearch() {
@@ -194,89 +130,15 @@ export default function StartPlanForm({ age = 21, demoMode = false }: { age?: nu
     }
   }
 
-  async function saveCustomPlace() {
-    const cleanName = customName.trim();
-    const cleanArea = customArea.trim();
-    if (!cleanName || !cleanArea) {
-      setError("Add a name and area for your custom place.");
-      return;
-    }
-    if (prohibitedVenueReason(cleanName, customNote, customAddress)) {
-      setError("That place is outside Deal three's mainstream social venue policy.");
-      return;
-    }
-    setSavingCustom(true);
-    setError(null);
-    const { data: auth } = await getSupabase().auth.getUser();
-    if (!auth.user) {
-      setError("Sign in again before saving a private place.");
-      setSavingCustom(false);
-      return;
-    }
-    const { data, error: saveError } = await getSupabase()
-      .from("spots")
-      .insert({
-        name: cleanName,
-        category,
-        area: cleanArea,
-        cuisine: "Custom place",
-        price_band: "$$",
-        min_spend: 0,
-        open_till: "Flexible",
-        vibe: customNote.trim() || `Saved by ${auth.user.email?.split("@")[0] ?? "a friend"}`,
-        description: customNote.trim() || null,
-        booking_url: null,
-        photo_url: null,
-        source: "custom",
-        visibility: customVisibility,
-        created_by_user_id: auth.user.id,
-        address: customAddress.trim() || null,
-        minimum_age: minimumAgeForCategory(category),
-      })
-      .select("id,name,area,category,visibility")
-      .single();
-    if (saveError || !data) {
-      setError("That place couldn’t be saved. Check the database migration and try again.");
-      setSavingCustom(false);
-      return;
-    }
-    const saved = data as SavedCustomPlace;
-    setSavedCustom((current) => [...current, saved].sort((a, b) => a.name.localeCompare(b.name)));
-    setSelectedCustomIds((current) => [...current, saved.id].slice(0, 3));
-    setCustomName("");
-    setCustomArea("");
-    setCustomAddress("");
-    setCustomNote("");
-    setCustomOpen(false);
-    setSavingCustom(false);
-  }
+  const selectedOrigin = DUBAI_ORIGINS.find((origin) => origin.value === originValue) ?? DUBAI_ORIGINS[0];
+  const categoryLabel = CATEGORIES.find((c) => c.key === category)?.label ?? category;
 
-  async function start(e: React.FormEvent) {
-    e.preventDefault();
-    const clean = title.trim();
-    if (!clean) return;
-    if (demoMode) {
-      setError("This is the preview. Sign in to create and share a real plan.");
-      return;
-    }
-    setCreating(true);
-    setError(null);
-
-    const restrictedCustom = savedCustom.find((place) =>
-      selectedCustomIds.includes(place.id)
-      && age < Math.max(minimumAgeForCategory(place.category), Number((place as SavedCustomPlace & { minimum_age?: number }).minimum_age ?? 0)),
-    );
-    if (restrictedCustom) {
-      setError(`${restrictedCustom.name} has an age requirement that does not match this account.`);
-      setCreating(false);
-      return;
-    }
-
-    // Deal nine into three pools. Up to three saved places can be pinned,
-    // one into each pool; the remainder come from the ranked catalog.
-    const needed = 9 - selectedCustomIds.length;
-    const selectedOrigin = DUBAI_ORIGINS.find((origin) => origin.value === originValue) ?? DUBAI_ORIGINS[0];
-    const dealt = await dealSpotsForCategory(category, needed, selectedCustomIds, {
+  /** Deal nine, create the plan. Returns the plan id or a message to show. */
+  async function dealAndCreate(clean: string): Promise<{ id: string } | { error: string }> {
+    // Up to three saved places are pinned, one into each pool; the
+    // remainder come from the ranked catalog.
+    const pinned = custom.selectedIds;
+    const dealt = await dealSpotsForCategory(category, 9 - pinned.length, pinned, {
       maxBudget,
       origin: selectedOrigin.coordinates,
       radiusKm: selectedOrigin.coordinates ? radiusKm : null,
@@ -285,16 +147,8 @@ export default function StartPlanForm({ age = 21, demoMode = false }: { age?: nu
       age,
     });
     if (!dealt) {
-      const label = CATEGORIES.find((c) => c.key === category)?.label ?? category;
-      setError(`Not enough related ${label.toLowerCase()} places match that budget and distance. Raise either limit, add a custom place, or try another type.`);
-      setCreating(false);
-      return;
+      return { error: `Not enough related ${categoryLabel.toLowerCase()} places match that budget and distance. Raise either limit, add a custom place, or try another type.` };
     }
-    const nine = [...selectedCustomIds, ...dealt];
-
-    const deadline = new Date(
-      Date.now() + PRESETS[presetIdx].hours * 3_600_000,
-    ).toISOString();
     const response = await secureJsonFetch("/api/plans", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -302,7 +156,7 @@ export default function StartPlanForm({ age = 21, demoMode = false }: { age?: nu
         title: clean,
         category,
         area: selectedOrigin.label,
-        deadline,
+        deadline: new Date(Date.now() + PRESETS[presetIdx].hours * 3_600_000).toISOString(),
         budgetPerPerson: maxBudget,
         originLabel: selectedOrigin.label,
         originLatitude: selectedOrigin.coordinates?.latitude ?? null,
@@ -311,17 +165,75 @@ export default function StartPlanForm({ age = 21, demoMode = false }: { age?: nu
         smartBrief: smartIntent ? smartQuery.trim() : null,
         vibePreferences: smartIntent?.vibeKeywords ?? [],
         avoidPreferences: smartIntent?.avoidKeywords ?? [],
-        spotIds: nine,
+        spotIds: [...pinned, ...dealt],
       }),
     });
-    const result = await response.json() as { id?: string; hostToken?: string; error?: string };
-    if (!response.ok || !result.id) {
-      setError(result.error ?? "Couldn't start the plan. Try again in a moment.");
+    const result = await response.json().catch(() => ({})) as { id?: string; hostToken?: string; error?: string };
+    if (!response.ok || !result.id) return { error: result.error ?? "Couldn't start the plan. Try again in a moment." };
+    if (result.hostToken) localStorage.setItem(`plan-host:${result.id}`, result.hostToken);
+    return { id: result.id };
+  }
+
+  async function start(e: React.FormEvent) {
+    e.preventDefault();
+    const clean = title.trim();
+    if (!clean) return;
+    setError(null);
+    // The preview has no session to deal with: play the reveal on sample
+    // places and hand over to /demo/vote instead of a sign-in dead end.
+    if (demoMode) { setRevealing(true); return; }
+
+    const restricted = custom.restrictedFor(age);
+    if (restricted) {
+      setError(`${restricted.name} has an age requirement that does not match this account.`);
+      return;
+    }
+    setCreating(true);
+    setRevealing(true);
+    const shown = new Promise<void>((resolve) => { revealShown.current = resolve; });
+    const outcome = await dealAndCreate(clean).catch(() => ({ error: "Couldn't start the plan. Check your connection and try again." }));
+    if ("error" in outcome) {
+      setRevealing(false);
+      setError(outcome.error);
       setCreating(false);
       return;
     }
-    if (result.hostToken) localStorage.setItem(`plan-host:${result.id}`, result.hostToken);
-    router.push(`/plan/${result.id}`);
+    await shown;
+    router.push(`/plan/${outcome.id}`);
+  }
+
+  // What the deal is working from, echoed back as the reveal's chips.
+  const constraintChips = [
+    categoryLabel,
+    maxBudget != null ? `Up to AED ${maxBudget}` : "Any budget",
+    selectedOrigin.coordinates
+      ? (radiusKm != null ? `Within ${radiusKm} km of ${selectedOrigin.label}` : `From ${selectedOrigin.label}`)
+      : "Anywhere in Dubai",
+    ...(smartIntent?.vibeKeywords.slice(0, 2) ?? []),
+    ...(custom.selectedIds.length > 0 ? [`${custom.selectedIds.length} of your places`] : []),
+  ];
+
+  if (revealing) {
+    return (
+      <DealReveal
+        constraints={constraintChips}
+        code={categoryMeta(category).code}
+        cards={demoMode ? SAMPLE_POOLS.flat() : undefined}
+        onShown={() => revealShown.current?.()}
+      >
+        {demoMode ? (
+          <>
+            <p className="plan-form__demo-note">Sample places, not a real deal. Sign in to deal nine for your own group.</p>
+            <Link href="/demo/vote" className="plan-submit inline-flex items-center justify-center">See how the group votes</Link>
+            <button type="button" className="mt-2 inline-flex min-h-11 w-full items-center justify-center text-sm text-muted underline underline-offset-4" onClick={() => setRevealing(false)}>
+              Back to the form
+            </button>
+          </>
+        ) : (
+          <p className="plan-form__demo-note" role="status">Setting up the vote…</p>
+        )}
+      </DealReveal>
+    );
   }
 
   const visibleCategories = CATEGORY_GROUPS.find(
@@ -343,40 +255,7 @@ export default function StartPlanForm({ age = 21, demoMode = false }: { age?: nu
     return (
       <div className="plan-form">
         {modeToggle}
-        {pickedSpot ? (
-          <DirectPlanForm spot={pickedSpot} onCancel={() => setPickedSpot(null)} />
-        ) : (
-          <form onSubmit={searchSpots} className="plan-spot-search" aria-labelledby="spot-search-heading">
-            <label htmlFor="spot-search-input" className="plan-form__label" id="spot-search-heading">
-              Search the catalogue
-            </label>
-            <div className="plan-spot-search__field">
-              <input
-                id="spot-search-input"
-                value={spotQuery}
-                onChange={(event) => { setSpotQuery(event.target.value); setHasSearchedSpots(false); }}
-                placeholder="A place you already have in mind"
-                maxLength={80}
-              />
-              <button type="submit" disabled={spotSearching || spotQuery.trim().length < 2}>
-                {spotSearching ? "Searching…" : "Search"}
-              </button>
-            </div>
-            {spotResults.length > 0 && (
-              <div className="plan-spot-search__results">
-                {spotResults.map((spot) => (
-                  <button key={spot.id} type="button" onClick={() => setPickedSpot(spot)}>
-                    <strong>{spot.name}</strong>
-                    <span>{spot.area}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-            {!spotSearching && hasSearchedSpots && spotResults.length === 0 && (
-              <p className="plan-spot-search__empty">No matches yet. Try a different spelling or a shorter name.</p>
-            )}
-          </form>
-        )}
+        <DirectPlanSearch age={age} />
       </div>
     );
   }
@@ -447,36 +326,7 @@ export default function StartPlanForm({ age = 21, demoMode = false }: { age?: nu
         </div>
       </fieldset>
 
-      <section className="plan-custom-place" aria-labelledby="custom-place-heading">
-        <div className="plan-custom-place__header">
-          <div><p id="custom-place-heading" className="plan-form__label">Your own places</p><small>Pin up to three saved locations into this plan.</small></div>
-          <button type="button" onClick={() => setCustomOpen((open) => !open)} aria-expanded={customOpen}>{customOpen ? "Close" : "Add a place"}</button>
-        </div>
-
-        {savedCustomFailed && (
-          <p className="plan-custom-place__error" role="status">Couldn’t load your saved places. Refresh to try again.</p>
-        )}
-        {savedCustom.length > 0 && (
-          <div className="plan-custom-place__saved">
-            {savedCustom.map((place) => (
-              <button key={place.id} type="button" onClick={() => toggleCustomPlace(place.id)} aria-pressed={selectedCustomIds.includes(place.id)}>
-                <strong>{place.name}</strong><span>{place.area} · {place.visibility}</span>
-              </button>
-            ))}
-          </div>
-        )}
-
-        {customOpen && (
-          <div className="plan-custom-place__editor">
-            <label><span>Name</span><input value={customName} onChange={(event) => setCustomName(event.target.value)} placeholder="Desert camp, friend's majlis…" maxLength={80} /></label>
-            <label><span>Area</span><input value={customArea} onChange={(event) => setCustomArea(event.target.value)} placeholder="Al Khawaneej" maxLength={80} /></label>
-            <label className="plan-custom-place__wide"><span>Address or map link</span><input value={customAddress} onChange={(event) => setCustomAddress(event.target.value)} placeholder="Kept private unless you share it" maxLength={300} /></label>
-            <label className="plan-custom-place__wide"><span>Note</span><textarea value={customNote} onChange={(event) => setCustomNote(event.target.value)} placeholder="What should the group know?" maxLength={280} /></label>
-            <fieldset className="plan-custom-place__wide"><legend>Visibility</legend><div>{(["private", "friends", "community"] as const).map((option) => <button key={option} type="button" onClick={() => setCustomVisibility(option)} aria-pressed={customVisibility === option}>{option}</button>)}</div></fieldset>
-            <button type="button" className="plan-custom-place__save" onClick={saveCustomPlace} disabled={savingCustom}>{savingCustom ? "Saving…" : "Save and pin this place"}</button>
-          </div>
-        )}
-      </section>
+      <CustomPlaceSection places={custom} />
 
       <div className="plan-round-summary" aria-label="Plan voting format">
         <span><strong>9</strong> places</span>
@@ -552,7 +402,7 @@ export default function StartPlanForm({ age = 21, demoMode = false }: { age?: nu
         disabled={creating || !title.trim()}
         className="plan-submit"
       >
-        {creating ? "Building three rounds…" : demoMode ? "Sign in to create a plan" : "Deal 9 places in 3 rounds"}
+        {creating ? "Building three rounds…" : demoMode ? "Preview the deal" : "Deal 9 places in 3 rounds"}
       </button>
 
       {demoMode && (

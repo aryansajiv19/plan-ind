@@ -9,7 +9,8 @@ import { RoundDots, RoundLabel } from "@/components/vote/RoundProgress";
 import { useFaceFlight } from "@/components/vote/useFaceFlight";
 import SampleDecided from "@/components/demo/SampleDecided";
 import { haptic } from "@/lib/interaction";
-import { coordinatesForArea, distanceKm } from "@/lib/dubai-areas";
+import { coordinatesForArea } from "@/lib/dubai-areas";
+import { dealReasons, spotDistanceKm } from "@/lib/deal-reasons";
 import { agreementOf, leaderOf, roundFor, votersFor, yesCount, type Round } from "@/lib/tally";
 import type { Spot, Vote } from "@/lib/types";
 import {
@@ -205,7 +206,7 @@ function SampleRun({ onReplay }: { onReplay: () => void }) {
           roundDir={roundDir}
           agreement={agreement}
           renderCard={(spot) => {
-            const destination = coordinatesForArea(spot.area);
+            const km = spotDistanceKm(ORIGIN, spot);
             return (
               <OptionCard
                 spot={spot}
@@ -215,7 +216,8 @@ function SampleRun({ onReplay }: { onReplay: () => void }) {
                 isWinner={winnerId === spot.id}
                 isLeader={spot.id === leaderId}
                 decided={decided}
-                distanceKm={ORIGIN && destination ? distanceKm(ORIGIN, destination) : null}
+                distanceKm={km}
+                reasons={dealReasons({ spot, maxBudget: SAMPLE_PLAN.budgetPerPerson, radiusKm: SAMPLE_PLAN.radiusKm, distanceKm: km })}
                 onToggle={() => pick(spot.id)}
               />
             );

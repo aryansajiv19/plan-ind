@@ -5,6 +5,7 @@ import CountUp from "@/components/CountUp";
 import { avatarStyle, initialsOf } from "@/lib/avatar";
 import type { Spot } from "@/lib/types";
 import { categoryMeta } from "@/lib/categories";
+import type { DealReason } from "@/lib/deal-reasons";
 
 interface OptionCardProps {
   spot: Spot;
@@ -17,6 +18,8 @@ interface OptionCardProps {
   isLeader: boolean;
   decided: boolean; // plan is settled — voting closed
   distanceKm?: number | null;
+  /** "Why this?" chips from `dealReasons()`. Omitted means none render. */
+  reasons?: readonly DealReason[];
   onToggle: () => void;
 }
 
@@ -29,10 +32,13 @@ export default function OptionCard({
   isLeader,
   decided,
   distanceKm,
+  reasons,
   onToggle,
 }: OptionCardProps) {
   const dimmed = decided && !isWinner;
   const cat = categoryMeta(spot.category);
+  // The distance chip carries the km itself; saying it twice is clutter.
+  const shownKm = reasons?.some((reason) => reason.kind === "distance") ? null : distanceKm;
 
   // A vote arriving over realtime is the only "someone else is here" signal
   // this screen has. Acknowledge it once, then clear — a permanent highlight
@@ -105,8 +111,22 @@ export default function OptionCard({
       </p>
 
       <p className="vote-option__meta mt-2 text-xs text-muted">
-        Open till {spot.open_till} · from AED {spot.min_spend}pp{distanceKm != null ? ` · ${Math.max(1, Math.round(distanceKm))} km away` : ""}
+        Open till {spot.open_till} · from AED {spot.min_spend}pp{shownKm != null ? ` · ${Math.max(1, Math.round(shownKm))} km away` : ""}
       </p>
+
+      {/* Why the deal picked it. Spans, not a list: this sits inside a
+          <button>, which only allows phrasing content. Hairline and muted,
+          no hue: it explains, it is not state. */}
+      {reasons && reasons.length > 0 && (
+        <span className="mt-2 flex flex-wrap gap-1.5">
+          <span className="sr-only">Why this: </span>
+          {reasons.map((reason) => (
+            <span key={reason.kind} className="rounded-full border border-line px-2 py-0.5 text-xs font-medium text-muted">
+              {reason.label}
+            </span>
+          ))}
+        </span>
+      )}
 
       <div className="mt-3 flex items-center justify-between">
         <span className="inline-flex items-center gap-2">

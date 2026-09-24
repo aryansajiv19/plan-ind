@@ -68,6 +68,14 @@ export default function VoteState({
           </p>
         )}
 
+        {/* Three card shapes where the round will land: reads as "the
+            places are coming", not an idle wait. Shimmer, never a spinner. */}
+        {kind === "loading" && (
+          <div className="mx-auto mt-6 grid w-[min(26rem,85vw)] grid-cols-3 gap-2" aria-hidden="true">
+            {[0, 1, 2].map((i) => <div key={i} className="wall-skeleton h-36" />)}
+          </div>
+        )}
+
         {kind === "captcha" && captchaStatus === "loading" && (
           <p className="vote-state__note" role="status">Checking your browser…</p>
         )}
