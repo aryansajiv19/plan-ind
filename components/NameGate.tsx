@@ -5,11 +5,13 @@ import { useState } from "react";
 interface NameGateProps {
   planTitle: string;
   onSubmit: (name: string) => void;
+  /** Why the gate is showing again, e.g. the name was already taken. */
+  notice?: string | null;
 }
 
 // Voters type their name once. No account, no email — just a name so the
 // group can see who's in. Persisted per-plan by the parent.
-export default function NameGate({ planTitle, onSubmit }: NameGateProps) {
+export default function NameGate({ planTitle, onSubmit, notice }: NameGateProps) {
   const [name, setName] = useState("");
   const trimmed = name.trim();
 
@@ -38,6 +40,11 @@ export default function NameGate({ planTitle, onSubmit }: NameGateProps) {
         aria-describedby="voter-name-help"
         className="vote-field mt-2 w-full rounded-2xl border-2 border-ink bg-card px-4 py-3 text-lg font-medium outline-none placeholder:text-muted/60"
       />
+      {notice && (
+        <p role="alert" className="vote-name-help">
+          {notice}
+        </p>
+      )}
       <p id="voter-name-help" className="vote-name-help">
         Your choices are remembered on this device for this plan. Use the same browser if you come back later.
       </p>

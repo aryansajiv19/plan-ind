@@ -24,6 +24,7 @@ import VoteSeats from "@/components/vote/VoteSeats";
 import VoteOptionsGrid from "@/components/vote/VoteOptionsGrid";
 import { RoundDots, RoundLabel } from "@/components/vote/RoundProgress";
 import { useFaceFlight } from "@/components/vote/useFaceFlight";
+import { participantFailure } from "@/lib/participant-errors";
 
 type Load = "loading" | "ready" | "notfound" | "error";
 // "checking" = access not resolved yet; "ready" = membership claimed; any
@@ -480,7 +481,7 @@ export default function VotePage() {
       // this RPC is in flight, and setVotes(prev) would silently discard it
       // along with the failed attempt. Same pattern as setRsvp/rateWinner.
       await refetchVotes();
-      setNotice("That vote didn't save. Check your connection and tap again.");
+      reportParticipantFailure(error, "That vote didn't save. Check your connection and tap again.");
     } else {
       setNotice(null);
       // Clearing your pick is quick and reversible: offer Undo, which re-casts
@@ -744,6 +745,17 @@ export default function VotePage() {
   function saveName(name: string) {
     localStorage.setItem(`voter:${id}`, name);
     setVoterName(name);
+    setNotice(null);
+  }
+
+  // A name clash sends the person back to the name gate: the fix is theirs.
+  function reportParticipantFailure(error: { code?: string; message?: string } | null, fallback: string) {
+    const failure = participantFailure(error, fallback);
+    setNotice(failure.notice);
+    if (failure.nameTaken) {
+      localStorage.removeItem(`voter:${id}`);
+      setVoterName(null);
+    }
   }
 
   // ── The last mile: set time, RSVP, claim/mark booking ────────────
@@ -785,7 +797,7 @@ export default function VotePage() {
     });
     if (error) {
       await refetchRsvps(); // reconcile on failure
-      setNotice("Couldn't update your RSVP. Try again.");
+      reportParticipantFailure(error, "Couldn't update your RSVP. Try again.");
     }
   }
 
@@ -836,7 +848,7 @@ export default function VotePage() {
     });
     if (error) {
       await refetchRatings();
-      setNotice("Couldn't save your rating. Try again.");
+      reportParticipantFailure(error, "Couldn't save your rating. Try again.");
       return;
     }
     void rememberVisit();
@@ -988,7 +1000,7 @@ export default function VotePage() {
   if (!voterName) {
     return (
       <main className={"vote-experience mx-auto grid min-h-dvh max-w-md place-items-center px-5"}>
-        <NameGate planTitle={plan!.title} onSubmit={saveName} />
+        <NameGate planTitle={plan!.title} onSubmit={saveName} notice={notice} />
       </main>
     );
   }
