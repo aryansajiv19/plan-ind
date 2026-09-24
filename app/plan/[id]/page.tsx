@@ -20,6 +20,7 @@ import NameGate from "@/components/NameGate";
 import DecidedPlan from "@/components/DecidedPlan";
 import Turnstile, { type TurnstileStatus } from "@/components/Turnstile";
 import VoteState from "@/components/VoteState";
+import ShareActions from "@/components/ShareActions";
 
 type Load = "loading" | "ready" | "notfound" | "error";
 // "checking" = access not resolved yet; "ready" = membership claimed; any
@@ -89,7 +90,6 @@ export default function VotePage() {
   const [editError, setEditError] = useState<string | null>(null);
   const [visitSaved, setVisitSaved] = useState<"saved" | "failed" | null>(null);
   const [presentNames, setPresentNames] = useState<string[]>([]);
-  const [copied, setCopied] = useState(false);
   const [reloadKey, setReloadKey] = useState(0); // bump to retry the load
   const [nightMode, setNightMode] = useState(false);
   const [activePool, setActivePool] = useState(1);
@@ -878,17 +878,6 @@ export default function VotePage() {
     setVisitSaved(saved ? "saved" : "failed");
   }
 
-  async function copyLink() {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      haptic(10);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1800);
-    } catch {
-      return; // clipboard blocked — leave the button unchanged
-    }
-  }
-
   // ── States ───────────────────────────────────────────────────────
   // All six full-screen non-content states render through <VoteState>. The
   // access reasons come straight from bootstrapPlanAccess; the load ones from
@@ -1282,13 +1271,6 @@ export default function VotePage() {
                 {deciding ? "Choosing…" : "Choose the final place"}
               </button>
             )}
-            <button
-              type="button"
-              onClick={copyLink}
-              className="vote-secondary-action rounded-2xl border-2 border-ink bg-card font-display font-extrabold"
-            >
-              {copied ? "Link copied" : "Copy link"}
-            </button>
           </div>
           <p className="vote-action-hint" aria-live="polite">
             {!hasCurrentSelection
@@ -1301,6 +1283,7 @@ export default function VotePage() {
                     ? "All pools are set. Build the final shortlist when everyone has had a chance to vote."
                     : "The final shortlist is ready. Choose the place the group should visit."}
           </p>
+          <ShareActions title={plan?.title ?? null} />
           {/* R1. A hard delete for everyone on the link, with no undo by
               construction — acceptable only because it is hard to do by
               accident. The confirm names the plan and who it takes with it;
