@@ -42,15 +42,14 @@ if (!SUPABASE_URL || !ANON_KEY) {
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function fetchCuratedSpots() {
-  // "read permitted spots" is granted `to authenticated`, not `anon` -- a
-  // bare anon-key read returns zero rows. One throwaway anonymous session
-  // (the real guest path, already live) is enough to read the public
-  // curated catalog; this script writes nothing anywhere with it.
+  // Sessionless: the anon role reads curated spots directly (policy "read
+  // curated spots anonymously", migration 041). Anonymous sign-in is refused
+  // since migration 064 and was never needed for this read. Writes nothing.
   const client = createClient(SUPABASE_URL, ANON_KEY, { auth: { persistSession: false } });
-  const { error: authError } = await client.auth.signInAnonymously();
-  if (authError) throw new Error(`Anonymous sign-in failed: ${authError.message}`);
   const { data, error } = await client.from("spots").select("id, name, area, category").eq("source", "curated").order("category").order("name");
   if (error) throw new Error(`Reading curated spots failed: ${error.message}`);
+  // Zero rows with no error is what a missing anon policy looks like.
+  if (!data?.length) throw new Error("Read 0 curated spots without a session -- is migration 041's anon policy applied?");
   return data;
 }
 

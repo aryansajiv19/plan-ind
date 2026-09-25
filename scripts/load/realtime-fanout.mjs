@@ -2,10 +2,10 @@
 // with Realtime attached -- the real group loop, not the front door.
 //
 // Every simulated guest does what app/plan/[id]/page.tsx + lib/supabase.ts
-// do, in the same order: anonymous session -> realtime.setAuth ->
+// do, in the same order: permanent-account session (see mint) ->
 // claim_plan_access -> `plan:<id>` channel with the page's five
 // postgres_changes listeners + the private presence channel with track() ->
-// on every votes event, the page's full `select * from votes` refetch behind
+// on every votes event, the page's full votes refetch (same columns) behind
 // the same newest-request-wins sequence guard. Each guest is its own client
 // and its own WebSocket, the way each phone is.
 //
@@ -50,6 +50,7 @@ const MAX_LOOP_LAG_P99_MS = 50;
 const QUIESCE_MS = 8_000;
 const JOIN_TIMEOUT_MS = 30_000;
 const OP_TIMEOUT_MS = 15_000;
+const VOTE_COLUMNS = "id,plan_id,spot_id,voter_name,value,phase,pool_number,participant_token_hash,created_at";
 
 if (!/^http:\/\/(127\.0\.0\.1|localhost):\d+$/.test(API_URL)) {
   console.error(`REFUSED: ${API_URL} is not a local stack. Every op here is a real, undeletable write elsewhere.`);
@@ -84,19 +85,30 @@ function classify(error, status) {
 }
 
 // ── mint ────────────────────────────────────────────────────────────────
+// PERMANENT accounts: plans need one since 2026-09-25 (migration 064 refuses
+// anonymous sessions in claim_plan_access, cast_plan_vote and the table and
+// presence policies), so an anonymous guest here would measure refusals.
+// Created with the local admin key, then signed in with a password -- a real
+// GoTrue session, the same shape a browser holds after OTP or Google.
 // Batches of 8: local GoTrue drops sign-ins past ~30 concurrent (worklog,
 // 2026-09-04). A refusal aborts and writes NOTHING -- a run must never
 // proceed quietly with fewer guests than it claims.
+async function mintMember() {
+  const admin = createClient(API_URL, SERVICE_KEY, { auth: { persistSession: false } });
+  const email = `fanout-${Date.now()}-${randomUUID().slice(0, 8)}@example.test`;
+  const password = randomBytes(18).toString("base64url");
+  const { data: created, error: createError } = await admin.auth.admin.createUser({ email, password, email_confirm: true });
+  if (createError || !created.user) return { error: createError ?? { message: "createUser returned no user" } };
+  const { data, error } = await client().auth.signInWithPassword({ email, password });
+  if (error || !data.session) return { error: error ?? { message: "no session returned" } };
+  if (data.user.is_anonymous) return { error: { message: "session came back anonymous" } };
+  return { access_token: data.session.access_token, refresh_token: data.session.refresh_token, expires_at: data.session.expires_at };
+}
+
 async function mint(count) {
   const guests = [];
   while (guests.length < count) {
-    const batch = await Promise.all(
-      Array.from({ length: Math.min(8, count - guests.length) }, async () => {
-        const { data, error } = await client().auth.signInAnonymously();
-        if (error || !data.session) return { error: error ?? { message: "no session returned" } };
-        return { access_token: data.session.access_token, refresh_token: data.session.refresh_token, expires_at: data.session.expires_at };
-      }),
-    );
+    const batch = await Promise.all(Array.from({ length: Math.min(8, count - guests.length) }, mintMember));
     const refused = batch.find((g) => g.error);
     if (refused) {
       const e = refused.error;
@@ -106,7 +118,7 @@ async function mint(count) {
     guests.push(...batch);
   }
   await writeFile(GUESTS_FILE, JSON.stringify(guests));
-  console.log(`minted ${guests.length} anonymous guests -> ${GUESTS_FILE}`);
+  console.log(`minted ${guests.length} permanent member sessions -> ${GUESTS_FILE}`);
 }
 
 // ── shard: owns a slice of guests, one client + socket each ─────────────
@@ -129,7 +141,10 @@ async function shard() {
     try {
       const { error: sessionError } = await sb.auth.setSession({ access_token: g.access_token, refresh_token: g.refresh_token });
       if (sessionError) return { idx: g.idx, ok: false, err: `session:${classify(sessionError, sessionError.status)}` };
-      await sb.realtime.setAuth(g.access_token); // bootstrapPlanAccess does this right after signInAnonymously
+      // Kept from the anonymous-guest era, when bootstrapPlanAccess called it
+      // explicitly. The page no longer does (lib/ has no setAuth call); supabase-js
+      // sets the socket token itself on the SIGNED_IN that setSession fires.
+      await sb.realtime.setAuth(g.access_token);
       // Socket-level drops, observation only. Verified to fire on a real
       // server-side close (Realtime container restart -> close 1012).
       sb.realtime.stateChangeCallbacks.close.push(["qa", (e) => socketEvents.push(`close:${e?.code ?? "?"}`)]);
@@ -140,7 +155,9 @@ async function shard() {
       const refetch = async () => {
         const seq = ++state.seq;
         const t = now();
-        const { data, error } = await sb.from("votes").select("*").eq("plan_id", g.plan);
+        // The page's exact column list (hooks/use-plan-data.ts). `select *` is
+        // refused outright since migration 049 hid votes.user_id.
+        const { data, error } = await sb.from("votes").select(VOTE_COLUMNS).eq("plan_id", g.plan);
         refetches.push([now() - t, !error]);
         if (error) return false;
         if (seq === state.seq) state.count = data.length;

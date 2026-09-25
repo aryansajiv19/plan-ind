@@ -1,8 +1,9 @@
 import { defineConfig, devices } from "@playwright/test";
 
 // Real-browser E2E, separate from the hermetic `npm test` suite — these hit a
-// running Next.js server and (for guest-vote.spec.ts) the live Supabase
-// project via .env.local, the same way scripts/smoke-test.mjs does.
+// running Next.js server. The specs that open a plan sign in a permanent
+// test account (plans need one since 2026-09-25) and only run against a
+// LOCAL Supabase stack; see tests/e2e/local-stack.ts.
 //
 // Not wired into `npm run test`/the lint-tsc-test-build gate on purpose: it
 // needs @playwright/test + browser binaries installed
@@ -10,12 +11,12 @@ import { defineConfig, devices } from "@playwright/test";
 // worktrees deliberately don't do themselves — see tests/README.md.
 export default defineConfig({
   testDir: "./tests/e2e",
-  // guest-vote.spec.ts casts a REAL vote, so it runs against a disposable
-  // plan provisioned on a LOCAL Supabase stack. Setup refuses any
-  // non-loopback NEXT_PUBLIC_SUPABASE_URL: neither `plans` nor `votes` can
-  // be deleted by anything in this project (no delete policy, no
-  // service-role key), so a run against a hosted project would leave rows
-  // behind permanently. That is what kept RUN_E2E switched off.
+  // The plan specs mint accounts with the local admin key and cast REAL
+  // votes, so they run against disposable plans provisioned on a LOCAL
+  // Supabase stack. Setup provisions nothing for a non-loopback
+  // NEXT_PUBLIC_SUPABASE_URL: neither `plans` nor `votes` can be deleted by
+  // anything in this project (no delete policy, no service-role key), so a
+  // run against a hosted project would leave rows behind permanently.
   globalSetup: "./tests/e2e/global-setup.ts",
   globalTeardown: "./tests/e2e/global-teardown.ts",
   //

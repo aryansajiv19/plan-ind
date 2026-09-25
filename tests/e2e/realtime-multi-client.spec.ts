@@ -1,5 +1,6 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Browser, type BrowserContext, type Page } from "@playwright/test";
 import { planIdFor, NO_FIXTURE_REASON } from "./fixture";
+import { signInAsMember } from "./local-stack";
 
 // TWO clients, one plan. This is the test that makes the rest of the E2E
 // suite honest.
@@ -19,18 +20,20 @@ import { planIdFor, NO_FIXTURE_REASON } from "./fixture";
 // guest-vote still passes, which is exactly the gap it exists to close.
 const PLAN_ID = planIdFor("realtime");
 
-async function joinPlanAsGuest(page: Page, name: string): Promise<void> {
+// Each participant is a separate PERMANENT account in its own browser
+// context (no shared storage), the way two friends' phones are. Anonymous
+// guests are gone (owner decision 2026-09-25, migration 064): a context
+// without an account session would be redirected to /login by proxy.ts.
+async function joinPlanAsMember(browser: Browser, baseURL: string, name: string): Promise<{ context: BrowserContext; page: Page }> {
+  const context = await browser.newContext();
+  await signInAsMember(context, baseURL, name);
+  const page = await context.newPage();
   await page.goto(`/plan/${PLAN_ID}`);
-  const nameInput = page.getByPlaceholder("Your name");
-  const gate = await nameInput.waitFor({ state: "visible", timeout: 20_000 }).then(() => true).catch(() => false);
-  if (gate) {
-    await nameInput.fill(name);
-    await page.getByRole("button", { name: "Start voting" }).click();
-  }
-  // The "N people voting" line was removed from the header (82145e0), which
-  // left this waiting on text that no longer renders. "Hey <name>" is the
-  // header's own proof the guest is on the vote screen.
-  await expect(page.getByText(/^Hey /)).toBeVisible({ timeout: 20_000 });
+  // "Hey <name>" is the header's own proof this account is on the vote
+  // screen (the "N people voting" line it used to wait on was removed in
+  // 82145e0). Exact, so a greeting for the wrong account cannot pass.
+  await expect(page.getByText(`Hey ${name}`, { exact: true })).toBeVisible({ timeout: 20_000 });
+  return { context, page };
 }
 
 // Read from the first card's "N yes" (the card A votes on) since the header
@@ -41,17 +44,18 @@ const voterCount = async (page: Page): Promise<number> => {
   return Number(text.match(/(\d+)\s*yes/)?.[1] ?? NaN);
 };
 
-test("a second client sees the first client's vote without reloading", async ({ browser }) => {
+test("a second client sees the first client's vote without reloading", async ({ browser, baseURL }) => {
   test.skip(!PLAN_ID, NO_FIXTURE_REASON);
 
-  // Separate contexts, not just separate pages: each needs its own anonymous
+  // Separate contexts, not just separate pages: each needs its own account
   // session and its own participant identity, the way two phones would.
-  const [contextA, contextB] = await Promise.all([browser.newContext(), browser.newContext()]);
-  const [pageA, pageB] = await Promise.all([contextA.newPage(), contextB.newPage()]);
-
+  const contexts: BrowserContext[] = [];
   try {
-    await joinPlanAsGuest(pageA, `Ana ${Date.now()}`);
-    await joinPlanAsGuest(pageB, `Ben ${Date.now()}`);
+    const a = await joinPlanAsMember(browser, baseURL!, `Ana ${Date.now()}`);
+    contexts.push(a.context);
+    const b = await joinPlanAsMember(browser, baseURL!, `Ben ${Date.now()}`);
+    contexts.push(b.context);
+    const [pageA, pageB] = [a.page, b.page];
 
     const before = await voterCount(pageB);
 
@@ -97,6 +101,6 @@ test("a second client sees the first client's vote without reloading", async ({ 
       })
       .toBe(before);
   } finally {
-    await Promise.all([contextA.close(), contextB.close()]);
+    await Promise.all(contexts.map((c) => c.close()));
   }
 });

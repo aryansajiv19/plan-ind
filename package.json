@@ -23,8 +23,8 @@
     "test:visual:update": "VISUAL_BASELINES=true playwright test tests/e2e/visual.spec.ts --project=chromium --update-snapshots",
     "test:visual": "VISUAL_BASELINES=true playwright test tests/e2e/visual.spec.ts --project=chromium",
     "load": "node scripts/load/run.mjs",
-    "load:mint-voters": "node --env-file=.env.local scripts/load/mint-voters.mjs",
-    "load:concurrency": "node --env-file=.env.local scripts/load/concurrency.mjs"
+    "load:mint-voters": "node scripts/load/mint-voters.mjs",
+    "load:concurrency": "node scripts/load/concurrency.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",

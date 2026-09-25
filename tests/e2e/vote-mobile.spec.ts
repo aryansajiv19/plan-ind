@@ -1,5 +1,6 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type BrowserContext, type Page } from "@playwright/test";
 import { planIdFor, NO_FIXTURE_REASON } from "./fixture";
+import { signInAsMember } from "./local-stack";
 
 // The vote screen, on a phone.
 //
@@ -7,10 +8,10 @@ import { planIdFor, NO_FIXTURE_REASON } from "./fixture";
 // runs unauthenticated and the vote screen needs a plan. That left the
 // product's most important mobile surface untested as one: a plan is made on
 // somebody's laptop and its share link is opened on everyone else's phone, so
-// the guest path is *mostly* a mobile path.
+// the friend-joins path is *mostly* a mobile path.
 //
 // It also left a real bug uncaught. The round buttons — the only round
-// navigation on that screen, and the control that actually moves a guest
+// navigation on that screen, and the control that actually moves a voter
 // through the flow — measured 40x33.6 at 390px, under the floor in BOTH
 // dimensions. Found by hand during the QA pass; these assertions are what stop
 // it coming back.
@@ -35,40 +36,27 @@ const TOUCH_FLOOR = 44;
 const TOUCH_FLOOR_MAX_WIDTH = 640;
 
 /**
- * Open the plan and get past the NameGate.
+ * Sign a fresh permanent account into this context and open the plan.
  *
  * Reads the plan but casts no vote — everything here is layout, and a spec
  * that votes would be duplicating guest-vote.spec.ts while making its exact
  * 0 -> 1 voter assertion flaky.
  *
- * `.waitFor()` rather than `.isVisible()` for the same reason guest-vote
- * documents: the gate appears only after anon sign-in, claim_plan_access and
- * the plan/spots fetch, and a single DOM check races all three.
+ * There is no name step any more: plans need an account (owner decision
+ * 2026-09-25), and the vote screen names the voter from it.
  */
-async function openVoteScreen(page: Page): Promise<void> {
+async function openVoteScreen(page: Page, context: BrowserContext, baseURL: string): Promise<void> {
+  const me = await signInAsMember(context, baseURL, `Layout ${Date.now()}`);
   await page.goto(`/plan/${PLAN_ID}`);
-  const nameInput = page.getByPlaceholder("Your name");
-  const gateShown = await nameInput
-    .waitFor({ state: "visible", timeout: 15_000 })
-    .then(() => true)
-    .catch(() => false);
-  if (gateShown) {
-    await nameInput.fill(`Layout ${Date.now()}`);
-    await page.getByRole("button", { name: "Start voting" }).click();
-  }
-  // The "N people voting" line was removed from the header (82145e0), which
-  // left this waiting on text that no longer renders. "Hey <name>" is the
-  // header's own proof the guest is on the vote screen.
-  await expect(page.getByText(/^Hey /)).toBeVisible({
-    timeout: 15_000,
-  });
+  // "Hey <name>" is the header's own proof the account is on the vote screen.
+  await expect(page.getByText(`Hey ${me.name}`, { exact: true })).toBeVisible({ timeout: 20_000 });
 }
 
 test.describe("the vote screen", () => {
   test.skip(!PLAN_ID, NO_FIXTURE_REASON);
 
-  test("has no horizontal overflow", async ({ page }) => {
-    await openVoteScreen(page);
+  test("has no horizontal overflow", async ({ page, context, baseURL }) => {
+    await openVoteScreen(page, context, baseURL!);
     // The option cards arrive with the plan, and the row is a scroller whose
     // width settles once they do. Waiting for a card before measuring, and
     // polling rather than sampling once, because the first version of this
@@ -125,14 +113,14 @@ test.describe("the vote screen", () => {
     expect(settled.scrollWidth).toBeLessThanOrEqual(settled.vw + 1);
   });
 
-  test("every control on it clears the 44px touch floor", async ({ page }, testInfo) => {
+  test("every control on it clears the 44px touch floor", async ({ page, context, baseURL }, testInfo) => {
     const width = testInfo.project.use.viewport?.width ?? 0;
     test.skip(
       width === 0 || width > TOUCH_FLOOR_MAX_WIDTH,
       `touch floor is scoped to <=${TOUCH_FLOOR_MAX_WIDTH}px; this project is ${width}px`,
     );
 
-    await openVoteScreen(page);
+    await openVoteScreen(page, context, baseURL!);
     await page.locator(".vote-options-grid button.token").first().waitFor({ timeout: 15_000 });
 
     const measure = (floor: number) => page.evaluate((f) => {
@@ -175,8 +163,8 @@ test.describe("the vote screen", () => {
       .toEqual([]);
   });
 
-  test("keyboard focus draws the dark two-band ring", async ({ page }) => {
-    await openVoteScreen(page);
+  test("keyboard focus draws the dark two-band ring", async ({ page, context, baseURL }) => {
+    await openVoteScreen(page, context, baseURL!);
 
     // A REAL key press. SPECS.md §23.7 records that a scripted `.focus()`
     // reports a false negative here — :focus-visible is a modality heuristic,

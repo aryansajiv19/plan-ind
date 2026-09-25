@@ -1,53 +1,44 @@
 import { test, expect } from "@playwright/test";
 import { planIdFor, NO_FIXTURE_REASON } from "./fixture";
+import { signInAsMember } from "./local-stack";
 
-// Guest vote cast, end to end: fresh browser state -> anon session ->
-// claim_plan_access -> NameGate -> cast a vote -> the card flips to
-// aria-pressed="true" and the voter count goes up. This is the product's
-// delivery item #1, and mostly a mobile path, which is why the matrix in
-// playwright.config.ts runs it on WebKit and two phone profiles.
+// A friend's vote, end to end: a signed-in account opens the share link ->
+// claim_plan_access -> the vote screen greets them by their account name ->
+// they cast a vote -> the card flips to aria-pressed="true" and its count
+// goes up. This is the product's delivery item #1, and mostly a mobile path,
+// which is why the matrix in playwright.config.ts runs it on WebKit and two
+// phone profiles.
 //
-// ── Why this no longer touches the live project ──────────────────────────
+// "Guest" in the file name is historical: since the owner decision of
+// 2026-09-25 there are no anonymous guests. Everyone who opens a plan holds a
+// permanent account (proxy.ts redirects anyone else to /login, migration 064
+// refuses anonymous sessions), so the friend here is a real local account
+// with its session injected -- see local-stack.ts for why not the OTP UI.
 //
-// It used to vote on a hardcoded plan in the LIVE project on every run,
-// which is why RUN_E2E was left off and this never ran in CI at all.
+// ── Why this does not touch the live project ─────────────────────────────
 //
-// It could not simply be taught to clean up after itself: `plans` and
-// `votes` have NO delete policy (both are read-only to clients by design;
-// writes go through security-definer RPCs), and this project has no
+// `plans` and `votes` have NO delete policy and this project has no
 // service-role key, so nothing can remove a plan or a vote from a hosted
-// project once created. Per-run fixtures against live would leave rows
-// behind permanently -- worse than the shared fixture they replaced.
+// project once created. The fixture is a disposable plan on the LOCAL stack,
+// created by global-setup.ts and deleted by global-teardown.ts; setup
+// provisions nothing against a non-loopback URL, so this skips there.
 //
-// So the fixture is a disposable plan created on the LOCAL stack by
-// global-setup.ts and deleted by global-teardown.ts. Setup refuses any
-// non-loopback URL, so a misconfigured CI cannot point the browser matrix at
-// production and start casting votes.
-//
-// Because the plan is private to this run, the voter count assertion is now
-// EXACT (0 -> 1) instead of "went up by at least one" — the old wording was
-// hedging against concurrent runs on shared data, and that ambiguity is gone.
+// Because the plan is private to this spec, the count assertion is EXACT
+// (0 -> 1) instead of "went up by at least one".
 const PLAN_ID = planIdFor("guest-vote");
 
-test("a guest can open a shared plan and cast a vote", async ({ page }) => {
+test("a signed-in friend can open a shared plan and cast a vote", async ({ page, context, baseURL }) => {
   test.skip(!PLAN_ID, NO_FIXTURE_REASON);
 
+  const me = await signInAsMember(context, baseURL!, `Friend ${Date.now()}`);
   await page.goto(`/plan/${PLAN_ID}`);
 
-  // A fresh Playwright context has no saved voter name, so the NameGate is
-  // expected — but don't hard-fail if storage state carried one over.
-  // `.isVisible()` checks the DOM once and returns immediately (it does not
-  // poll), which raced the bootstrap (anon sign-in + claim_plan_access + the
-  // plan/spots fetch) and always came back false. `.waitFor()` actually polls.
-  const nameInput = page.getByPlaceholder("Your name");
-  const nameGateShown = await nameInput
-    .waitFor({ state: "visible", timeout: 15_000 })
-    .then(() => true)
-    .catch(() => false);
-  if (nameGateShown) {
-    await nameInput.fill(`Playwright ${Date.now()}`);
-    await page.getByRole("button", { name: "Start voting" }).click();
-  }
+  // Signed in, so no detour through /login, and the account's display name
+  // is the voter name: the screen greets it and never asks for one. The name
+  // gate now appears only on a clash with someone already on the plan.
+  await expect(page).toHaveURL(new RegExp(`/plan/${PLAN_ID}$`));
+  await expect(page.getByText(`Hey ${me.name}`, { exact: true })).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByPlaceholder("Your name")).toHaveCount(0);
 
   // The header's "N people voting" was removed in 82145e0; the count now
   // comes from the voted card's own "N yes" (0 -> 1 on this run's plan).
@@ -63,11 +54,11 @@ test("a guest can open a shared plan and cast a vote", async ({ page }) => {
   // that attribute is what the click changes, so a locator built on its
   // current value re-resolves to a *different* card once it flips.
   const firstCard = page.locator(".vote-options-grid button.token").first();
-  await expect(firstCard).toHaveAttribute("aria-pressed", "false"); // fresh anon guest, nothing voted yet
+  await expect(firstCard).toHaveAttribute("aria-pressed", "false"); // fresh account, nothing voted yet
   await firstCard.click();
   await expect(firstCard).toHaveAttribute("aria-pressed", "true");
 
-  // Exact, not "greater than": this plan belongs to this run alone, so a
+  // Exact, not "greater than": this plan belongs to this spec alone, so a
   // second voter appearing would be a real bug rather than a parallel run.
   await expect
     .poll(async () => readVoterCount(votersLabel), { timeout: 5_000 })
@@ -76,7 +67,7 @@ test("a guest can open a shared plan and cast a vote", async ({ page }) => {
   // §25.3 beat 1 / §25.7: the voter's face flies from the presence row onto
   // the card. What matters here is not that it moved but where it ENDS —
   // the FLIP animates from an offset back to the element's real layout
-  // position and must leave nothing behind, so a guest who backgrounds the
+  // position and must leave nothing behind, so a friend who backgrounds the
   // tab mid-flight comes back to a landed avatar rather than one stranded in
   // transit. An inline transform surviving here is that bug.
   const faces = page.locator("[data-face-name]");
@@ -93,6 +84,13 @@ test("a guest can open a shared plan and cast a vote", async ({ page }) => {
       { timeout: 5_000, message: "faces left with a residual transform after the flight" },
     )
     .toBe(0);
+
+  // Round trip: reload and the vote is still this account's. A signed-in
+  // voter is recognised by account on return, not re-asked for a name.
+  await page.reload();
+  await expect(page.getByText(`Hey ${me.name}`, { exact: true })).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByPlaceholder("Your name")).toHaveCount(0);
+  await expect(page.locator(".vote-options-grid button.token").first()).toHaveAttribute("aria-pressed", "true");
 });
 
 async function readVoterCount(locator: import("@playwright/test").Locator): Promise<number> {

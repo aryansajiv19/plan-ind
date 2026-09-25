@@ -24,10 +24,10 @@ const PAGES = ["/", "/login", "/privacy", "/terms"] as const;
 //
 // This is not an environment quirk to shrug at. Turnstile is deprioritised,
 // not abandoned, and the day it is configured these specs would start
-// failing for a reason that has nothing to do with the page. Worse, the vote
-// specs REQUIRE the key (a production build gates guests behind the captcha),
-// so without this the suite has a state where both halves cannot pass in one
-// invocation -- which is exactly why two people running it disagreed.
+// failing for a reason that has nothing to do with the page. (The vote specs
+// once required the key, for a plan-access captcha that anonymous guests
+// passed; that screen went with the guests on 2026-09-25, and the vote specs
+// now sign in with an injected account session instead.)
 //
 // `domcontentloaded` plus an explicit wait for real content keeps the
 // coverage that matters: requests still fire, failures are still collected,

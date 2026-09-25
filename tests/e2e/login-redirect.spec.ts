@@ -1,8 +1,10 @@
 import { test, expect } from "@playwright/test";
 
-// FE.10: /login threads a `next` param through sign-in so a guest who hits
-// "Sign in" from the vote page's guest-paused screen returns to their plan
-// instead of landing on /home.
+// FE.10: /login threads a `next` param through sign-in so someone sent to
+// sign in from a plan link returns to that plan instead of landing on /home.
+// Since 2026-09-25 that is every signed-out visitor to /plan/<uuid>: proxy.ts
+// redirects them here with next set (sign-in-gate.spec.ts proves the
+// redirect; this file proves what /login does with the value).
 //
 // This does NOT drive a full OTP or Google OAuth round trip — the email step
 // needs a real inbox, and both sign-in paths require a Turnstile token in a
