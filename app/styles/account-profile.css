@@ -32,7 +32,9 @@
   color: var(--color-ink);
   font: inherit;
 }
-.profile-name-form button {
+.profile-name-form button,
+.birthday-fix button[type="submit"],
+.profile-emoji__custom button[type="submit"] {
   min-height: 2.75rem;
   padding: 0 1.1rem;
   border: 1px solid var(--color-ink);
@@ -42,30 +44,27 @@
   font-weight: 600;
   cursor: pointer;
 }
-.profile-name-form button:disabled {
-  opacity: 0.45;
-  cursor: default;
-}
-.profile-name-form__status, .profile-name-form__error {
+.profile-name-form__status, .profile-name-form__error,
+.profile-emoji__status, .profile-emoji__error {
   min-height: 1.2em;
   font-size: max(0.78rem, var(--type-floor));
 }
-.profile-name-form__status {
+.profile-name-form__status, .profile-emoji__status {
   color: var(--color-muted);
 }
-.profile-name-form__error {
+.profile-name-form__error, .profile-emoji__error {
   color: var(--color-error);
 }
 
 /* C4: fix a wrong birthday. Same rail and field style as "Your name"; the
    one-time limit reads before the save button, not after. */
-.birthday-fix {
+.birthday-fix, .profile-emoji {
   display: grid;
   gap: 0.45rem;
   max-width: 32rem;
   margin-top: 2.5rem;
 }
-.birthday-fix h2 {
+.birthday-fix h2, .profile-emoji h2 {
   font-family: var(--font-body);
   font-size: 0.9rem;
   font-weight: 600;
@@ -106,7 +105,7 @@
   font-size: 0.85rem;
   font-weight: 600;
 }
-.birthday-fix form > div {
+.birthday-fix form > div, .profile-emoji__custom > div {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -120,36 +119,11 @@
   color: var(--color-ink);
   font: inherit;
 }
-.birthday-fix button[type="submit"] {
-  min-height: 2.75rem;
-  padding: 0 1.1rem;
-  border: 1px solid var(--color-ink);
-  background: var(--color-ink);
-  color: var(--color-card);
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-}
-.birthday-fix button:disabled {
-  opacity: 0.45;
-  cursor: default;
-}
 .birthday-fix .birthday-fix__error {
   color: var(--color-error);
 }
 
 /* C2: your emoji. Same rail as "Your name"; choices save on tap. */
-.profile-emoji {
-  display: grid;
-  gap: 0.45rem;
-  max-width: 32rem;
-  margin-top: 2.5rem;
-}
-.profile-emoji h2 {
-  font-family: var(--font-body);
-  font-size: 0.9rem;
-  font-weight: 600;
-}
 .profile-emoji > p {
   color: var(--color-muted);
   font-size: max(0.78rem, var(--type-floor));
@@ -182,12 +156,6 @@
   font-size: 0.85rem;
   font-weight: 600;
 }
-.profile-emoji__custom > div {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem 1rem;
-}
 .profile-emoji__custom input {
   width: 7rem;
   min-height: 2.75rem;
@@ -196,42 +164,6 @@
   background: var(--color-card);
   color: var(--color-ink);
   font: inherit;
-}
-.profile-emoji__custom button[type="submit"] {
-  min-height: 2.75rem;
-  padding: 0 1.1rem;
-  border: 1px solid var(--color-ink);
-  background: var(--color-ink);
-  color: var(--color-card);
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-}
-.profile-emoji__remove {
-  min-height: 2.75rem;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--color-ink);
-  font: inherit;
-  font-size: max(0.85rem, var(--type-floor));
-  text-decoration: underline;
-  text-underline-offset: 0.25em;
-  cursor: pointer;
-}
-.profile-emoji button:disabled {
-  opacity: 0.45;
-  cursor: default;
-}
-.profile-emoji__status, .profile-emoji__error {
-  min-height: 1.2em;
-  font-size: max(0.78rem, var(--type-floor));
-}
-.profile-emoji__status {
-  color: var(--color-muted);
-}
-.profile-emoji__error {
-  color: var(--color-error);
 }
 
 /* C8: edit a visit (when / who with / note -- the three columns 052 grants). */
@@ -277,7 +209,7 @@
   font-weight: 600;
   cursor: pointer;
 }
-.manage-visit__edit-actions button[type="button"], .manage-visit__edit-open {
+.manage-visit__edit-actions button[type="button"], .manage-visit__edit-open, .profile-emoji__remove {
   min-height: 2.75rem;
   padding: 0;
   border: 0;
@@ -296,10 +228,6 @@
   color: var(--color-muted);
   font-size: max(0.78rem, var(--type-floor));
   font-weight: 600;
-}
-.manage-visit__edit button:disabled {
-  opacity: 0.45;
-  cursor: default;
 }
 
 /* C8: take back your own rating. Sits beside the stars, quiet until armed. */
@@ -323,6 +251,10 @@
   text-underline-offset: 0.25em;
   cursor: pointer;
 }
+.profile-name-form button:disabled,
+.birthday-fix button:disabled,
+.profile-emoji button:disabled,
+.manage-visit__edit button:disabled,
 .vote-unrate button:disabled {
   opacity: 0.45;
   cursor: default;

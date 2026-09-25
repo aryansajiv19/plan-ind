@@ -13,6 +13,7 @@ import DirectPlanSearch from "@/components/DirectPlanSearch";
 import CustomPlaceSection, { useCustomPlaces } from "@/components/CustomPlaces";
 import DealReveal from "@/components/DealReveal";
 import { SAMPLE_POOLS } from "@/components/demo/sampleDecision";
+import type { PlanPrefill } from "@/lib/board-plan";
 
 const PRESETS = [
   { label: "In 3 hours", hours: 3 },
@@ -49,7 +50,16 @@ interface SmartIntent {
   occasion: string | null;
 }
 
-export default function StartPlanForm({ age = 21, demoMode = false }: { age?: number; demoMode?: boolean }) {
+export default function StartPlanForm({
+  age = 21,
+  demoMode = false,
+  prefill = null,
+}: {
+  age?: number;
+  demoMode?: boolean;
+  /** "Plan from this board": initial values only. The form remounts per board. */
+  prefill?: PlanPrefill | null;
+}) {
   const router = useRouter();
   // SPECS.md §10.1's second entry point: "Deal three rounds" (the existing
   // flow, untouched below) vs "I already know where" (search, pick one
@@ -59,13 +69,15 @@ export default function StartPlanForm({ age = 21, demoMode = false }: { age?: nu
   // way (create_direct_plan rejects signed-out/anonymous callers), same
   // reasoning as gating PlaceDirectPlanCta on a real user.
   const [mode, setMode] = useState<"deal" | "direct">("deal");
-  const [category, setCategory] = useState<CategoryKey>("dinner");
-  const [title, setTitle] = useState<string>(CATEGORIES[0].title);
-  const [activeGroup, setActiveGroup] = useState<GroupKey>("food");
-  const [titleEdited, setTitleEdited] = useState(false);
+  const [category, setCategory] = useState<CategoryKey>(prefill?.category ?? "dinner");
+  const [title, setTitle] = useState<string>(prefill?.title || CATEGORIES[0].title);
+  const [activeGroup, setActiveGroup] = useState<GroupKey>(
+    CATEGORY_GROUPS.find((group) => group.categories.some((c) => c.key === prefill?.category))?.key ?? "food",
+  );
+  const [titleEdited, setTitleEdited] = useState(Boolean(prefill?.title));
   const [presetIdx, setPresetIdx] = useState(0);
   const [maxBudget, setMaxBudget] = useState<number | null>(null);
-  const [originValue, setOriginValue] = useState("anywhere");
+  const [originValue, setOriginValue] = useState(prefill?.origin ?? "anywhere");
   const [radiusKm, setRadiusKm] = useState<number | null>(20);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -265,6 +277,11 @@ export default function StartPlanForm({ age = 21, demoMode = false }: { age?: nu
     // tabs visibly recolours the form. Each tab overrides it with its own.
     <form onSubmit={start} className="plan-form">
       {modeToggle}
+      {prefill && (
+        <p className="plan-form__demo-note" role="status">
+          Set up from your board {prefill.boardName}, leaning the way its places do. Check the type and area, then deal nine from the catalogue.
+        </p>
+      )}
       <section className="plan-smart-search" aria-labelledby="smart-search-heading">
         <div className="plan-smart-search__heading">
           <div><p id="smart-search-heading" className="plan-form__label">Describe the place in your head</p><small>Atmosphere, occasion, budget, area. Write it naturally.</small></div>

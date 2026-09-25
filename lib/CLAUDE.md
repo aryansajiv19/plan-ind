@@ -38,5 +38,5 @@ must not render as "nothing there".
 | `place-import/` | link intake, SSRF guards | allowlisted adapters only; never a generic fetch of an arbitrary URL |
 | `places/` | Google Places client, matcher, SQL gen, photo fallback | field masks are reviewed constants (billing tier); only `place_id` may be stored |
 | `observability/` | structured logging | redaction matches by substring marker, not exact name |
-| `social.ts`, `social/` | profiles, friends, invites, visits, photos, collections, Wrapped reads | `social.ts` is the public barrel — callers import `@/lib/social`; add code to the module that owns it |
+| `social.ts`, `social/` | profiles, friends, invites, visits, photos, collections, moodboards, Wrapped reads | `social.ts` is the public barrel — callers import `@/lib/social`; add code to the module that owns it |
 | `types.ts` | mirrors `supabase/schema.sql` | hand-synced, both change in one pass, CI enforces |

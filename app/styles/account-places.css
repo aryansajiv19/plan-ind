@@ -5,7 +5,8 @@
 .demo-place-card__image,
 .demo-visit__image,
 .demo-photo-upload__preview,
-.demo-photo-strip > span {
+.demo-photo-strip > span,
+.board-tile__photo {
   position: relative;
   display: block;
   overflow: hidden;
@@ -27,7 +28,8 @@
 .demo-place-card__image img,
 .demo-visit__image img,
 .demo-photo-upload__preview img,
-.demo-photo-strip img {
+.demo-photo-strip img,
+.board-tile__photo img {
   object-fit: cover;
 }
 

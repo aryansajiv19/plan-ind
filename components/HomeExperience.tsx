@@ -9,6 +9,7 @@ import AccountViews from "@/components/AccountViews";
 import type { PersonCard, ProfileVisit, Spot, WrappedSummary, WrappedSummaryError } from "@/lib/types";
 import type { PlannedWith, VisitCollectionView, VisitPhotoView } from "@/lib/social";
 import StartPlanForm from "@/components/StartPlanForm";
+import type { PlanPrefill } from "@/lib/board-plan";
 import { haptic } from "@/lib/interaction";
 import WeightRise from "@/components/WeightRise";
 import PhotoWall, { type WallItem } from "@/components/PhotoWall";
@@ -92,6 +93,8 @@ export default function HomeExperience({
   // said "Good evening" regardless of the hour.
   const greeting = ready ? greetingFor(new Date()) : "Hello";
   const [selectedView, setSelectedView] = useState<AppView>(initialView);
+  // Set by "Plan from this board"; keyed so the composer remounts with it.
+  const [planPrefill, setPlanPrefill] = useState<PlanPrefill | null>(null);
 
   // The account tabs need an account behind them. Signed out there is only the
   // pitch and the composer, so the tab bar, the avatar and every account view
@@ -382,7 +385,7 @@ export default function HomeExperience({
 
         <div className="home-plan-card">
           <div className="home-plan-card__tape" aria-hidden="true">New plan</div>
-          <StartPlanForm age={age} demoMode={demoMode} />
+          <StartPlanForm key={planPrefill?.key} age={age} demoMode={demoMode} prefill={planPrefill} />
         </div>
       </section>
 
@@ -428,6 +431,7 @@ export default function HomeExperience({
               friendsUnavailable={friendsUnavailable}
               photos={photos}
               onStartPlan={() => showView("plan")}
+              onPlanFromBoard={(prefill) => { setPlanPrefill(prefill); showView("plan"); }}
             />
           )}
           {activeView === "profile" && !demoMode && (

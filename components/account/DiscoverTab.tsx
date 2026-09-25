@@ -3,6 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import PlaceLinkImporter from "@/components/PlaceLinkImporter";
 import PlaceCard from "@/components/account/PlaceCard";
+import MoodboardsSection from "@/components/account/MoodboardsSection";
+import type { MoodboardsState } from "@/components/account/useMoodboards";
+import type { PlanPrefill } from "@/lib/board-plan";
 import { categoryLabel } from "@/lib/categories";
 import { minimumAgeForCategory } from "@/lib/age-policy";
 import { getSupabase } from "@/lib/supabase";
@@ -105,11 +108,17 @@ export function useDiscoverSearch(spots: Spot[], age: number) {
 export default function DiscoverTab({
   spots,
   search,
+  boards,
+  age,
   onStartPlan,
+  onPlanFromBoard,
 }: {
   spots: Spot[];
   search: ReturnType<typeof useDiscoverSearch>;
+  boards: MoodboardsState;
+  age: number;
   onStartPlan: () => void;
+  onPlanFromBoard: (prefill: PlanPrefill) => void;
 }) {
   const { query, setQuery, placeFilter, setPlaceFilter, categories, visiblePlaces } = search;
   return (
@@ -118,6 +127,8 @@ export default function DiscoverTab({
         <div><p className="home-section-kicker">Discover Dubai</p><h1 id="discover-title">Places worth considering.</h1></div>
         <p>The catalogue a plan deals from. Search it, then start a vote on anything that fits tonight.</p>
       </header>
+
+      <MoodboardsSection boards={boards} age={age} onPlanFromBoard={onPlanFromBoard} />
 
       <PlaceLinkImporter />
 
@@ -132,7 +143,7 @@ export default function DiscoverTab({
 
       {visiblePlaces.length ? (
         <div className="demo-place-grid">
-          {visiblePlaces.map((spot) => <PlaceCard key={spot.id} spot={spot} onStartPlan={onStartPlan} />)}
+          {visiblePlaces.map((spot) => <PlaceCard key={spot.id} spot={spot} onStartPlan={onStartPlan} boards={boards} />)}
         </div>
       ) : (
         <p className="demo-empty">

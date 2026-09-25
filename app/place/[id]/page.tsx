@@ -8,6 +8,7 @@ import PhotoCredit from "@/components/PhotoCredit";
 import { categoryMeta } from "@/lib/categories";
 import { getCurrentUser } from "@/lib/auth";
 import PlaceDirectPlanCta from "@/components/PlaceDirectPlanCta";
+import PlaceSaveToBoard from "@/components/account/PlaceSaveToBoard";
 
 // The venue detail page — SPECS.md §6, previously unbuilt (12a). Scoped down
 // from the full original brief: this design system references a "four-source
@@ -139,6 +140,7 @@ export default async function PlacePage({
             spot={{ id: spot.id, name: spot.name, area: spot.area, category: spot.category }}
           />
         )}
+        {user && <PlaceSaveToBoard spot={spot} />}
 
         <Link href="/home" className="place-back">
           Back to Discover

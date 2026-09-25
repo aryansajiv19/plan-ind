@@ -37,6 +37,21 @@ export {
 } from "./social/collections";
 export type { VisitCollectionView } from "./social/collections";
 export { getWrappedSummary } from "./social/wrapped";
+export {
+  getMoodboards,
+  getBoardSpots,
+  createMoodboard,
+  renameMoodboard,
+  deleteMoodboard,
+  addMoodboardItem,
+  removeMoodboardItem,
+  restoreMoodboardItem,
+  boardItemRow,
+  placeSourcePath,
+  spotIdFromItem,
+  safeExternalUrl,
+} from "./social/moodboards";
+export type { BoardSpot, BoardWrite, MoodboardView, NewBoardItem } from "./social/moodboards";
 
 export { aggregateWrappedSummary, dubaiMonthWindow } from "./wrapped";
 export type {
