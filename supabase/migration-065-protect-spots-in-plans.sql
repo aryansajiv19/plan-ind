@@ -96,3 +96,12 @@ revoke all on function public.protect_spots_in_use() from public, anon, authenti
 drop trigger if exists spots_protect_in_use on spots;
 create trigger spots_protect_in_use before delete on spots
   for each row execute function public.protect_spots_in_use();
+
+-- Reverse-lookup indexes for the trigger above (security review of 065): each
+-- reference check is by spot id, and these columns were only indexed as the
+-- second key of a composite (or not at all), so every check was a seq scan.
+create index if not exists plan_spots_spot_idx on plan_spots (spot_id);
+create index if not exists votes_spot_idx on votes (spot_id);
+create index if not exists plans_winner_spot_idx on plans (winner_spot_id) where winner_spot_id is not null;
+create index if not exists place_imports_resolved_spot_idx on place_imports (resolved_spot_id) where resolved_spot_id is not null;
+create index if not exists place_collection_items_spot_idx on place_collection_items (spot_id);
