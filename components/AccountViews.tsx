@@ -15,6 +15,8 @@ import useBeenCollections from "@/components/account/useBeenCollections";
 import FriendsTab from "@/components/account/FriendsTab";
 import ProfileTab from "@/components/account/ProfileTab";
 import useVisitStats from "@/components/account/useVisitStats";
+import useMoodboards from "@/components/account/useMoodboards";
+import type { PlanPrefill } from "@/lib/board-plan";
 import type { PlannedWith, VisitCollectionView, VisitPhotoView } from "@/lib/social";
 import type {
   PersonCard,
@@ -44,6 +46,7 @@ export default function AccountViews({
   friendsUnavailable,
   photos,
   onStartPlan,
+  onPlanFromBoard,
 }: {
   view: AccountView;
   name: string;
@@ -73,6 +76,7 @@ export default function AccountViews({
   friendsUnavailable: boolean;
   photos: VisitPhotoView[];
   onStartPlan: () => void;
+  onPlanFromBoard: (prefill: PlanPrefill) => void;
 }) {
   // Every tab's state lives up here, not in the tab: this one instance stays
   // mounted across a tab switch, so a search, a new collection or a picked
@@ -80,9 +84,20 @@ export default function AccountViews({
   const search = useDiscoverSearch(spots, age);
   const been = useBeenCollections({ personId, visits, photos, initialCollections });
   const stats = useVisitStats(visits);
+  // Loaded the first time Discover opens, then kept across tab switches.
+  const boards = useMoodboards(personId, view === "discover");
 
   if (view === "discover") {
-    return <DiscoverTab spots={spots} search={search} onStartPlan={onStartPlan} />;
+    return (
+      <DiscoverTab
+        spots={spots}
+        search={search}
+        boards={boards}
+        age={age}
+        onStartPlan={onStartPlan}
+        onPlanFromBoard={onPlanFromBoard}
+      />
+    );
   }
 
   if (view === "been") {

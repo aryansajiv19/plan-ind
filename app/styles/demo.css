@@ -35,16 +35,6 @@
   justify-content: space-between;
   gap: 1rem;
 }
-.demo-tool-panel__head > button, .demo-tool-panel > button {
-  min-height: var(--btn-h-md);
-  padding: var(--btn-pad-md);
-  border: 1px solid var(--color-ink);
-  background: var(--color-ink);
-  color: var(--color-card);
-  font-size: max(.68rem, var(--type-floor));
-  font-weight: 500;
-  cursor: pointer;
-}
 .demo-circle-list {
   display: grid;
   gap: .5rem;
@@ -89,7 +79,7 @@
   font: inherit;
   font-size: max(.72rem, var(--type-floor));
 }
-.demo-inline-form button {
+.demo-inline-form button, .demo-tool-panel__head > button, .demo-tool-panel > button {
   min-height: var(--btn-h-md);
   padding: var(--btn-pad-md);
   border: 1px solid var(--color-ink);
@@ -98,6 +88,11 @@
   font-size: max(.68rem, var(--type-floor));
   font-weight: 500;
   cursor: pointer;
+}
+/* Filled: the panel's own action, and a board's "Plan from this board". */
+.demo-tool-panel__head > button, .demo-tool-panel > button, .demo-inline-form .board-plan {
+  background: var(--color-ink);
+  color: var(--color-card);
 }
 .demo-inline-form button:disabled, .demo-tool-panel button:disabled {
   cursor: not-allowed;
@@ -174,12 +169,6 @@
 .demo-check input {
   accent-color: var(--home-metal);
 }
-.demo-moodboard-panel {
-  margin-top: 2.5rem;
-  padding: 1.5rem 0;
-  border-top: 1px solid var(--color-line);
-  border-bottom: 1px solid var(--color-line);
-}
 .demo-board-tabs {
   display: flex;
   gap: .45rem;
@@ -215,7 +204,79 @@
   font-size: max(.68rem, var(--type-floor));
   line-height: 1.4;
 }
-.demo-memory-panel, .demo-reminder-panel {
+/* Real moodboards (MoodboardsSection): CSS columns of content-height
+   tiles on .wall-tile's surface, so a board reads as a Pinterest board. */
+.board-grid {
+  columns: 4 10rem;
+  column-gap: 14px;
+  margin-top: 1.25rem;
+}
+.board-grid > * {
+  break-inside: avoid;
+  margin-bottom: 14px;
+}
+.board-tile__body {
+  display: grid;
+  gap: .3rem;
+  padding: 14px;
+}
+.board-tile__body h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: -.02em;
+}
+.board-tile__body p, .save-board__note {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: max(.72rem, var(--type-floor));
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.board-tile__body .board-tile__kicker {
+  color: var(--color-punch-text);
+  font-weight: 500;
+  text-transform: uppercase;
+}
+.board-tile__body .board-tile__note {
+  color: var(--color-ink);
+}
+.board-tile__actions {
+  display: flex;
+  border-top: 1px solid var(--color-line);
+}
+.board-tile__actions > *, .save-board button {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  min-height: 2.75rem;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-ink);
+  font-size: max(.68rem, var(--type-floor));
+  font-weight: 500;
+  cursor: pointer;
+}
+.board-tile__actions > * + * {
+  border-left: 1px solid var(--color-line);
+}
+.save-board .save-board__toggle, .save-board .demo-board-tabs button, .save-board .demo-inline-form button {
+  display: flex;
+  flex: none;
+  border: 1px solid var(--color-ink);
+  padding: var(--btn-pad-md);
+}
+.save-board__panel .demo-board-tabs {
+  margin: .6rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.save-board, .save-board__note {
+  margin-top: .6rem;
+}
+.demo-memory-panel, .demo-reminder-panel, .demo-moodboard-panel {
   margin-top: 2.5rem;
   padding: 1.5rem 0;
   border-top: 1px solid var(--color-line);
@@ -370,6 +431,9 @@
   }
   .demo-inline-form {
     flex-wrap: wrap;
+  }
+  .demo-inline-form input[type="url"] {
+    flex-basis: 100%;
   }
   .demo-wrapped {
     grid-template-columns: 1fr;
