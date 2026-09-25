@@ -11,13 +11,13 @@ Legend: `S` under a day · `M` a day or two · `L` more.
 
 | # | Item | Why it matters |
 |---|---|---|
-| O1 | **Push the unpushed local commits** on `ai-engineering` (production runs `d536b6f`, which is not on GitHub) | The live code exists only on one machine |
+| O1 | **Push the unpushed local commits**: `git push origin ai-engineering` from the laptop (production runs `d536b6f`, not on GitHub). Contains a Turnstile fix (challenge that never paints, seen live on `/login` 2026-09-20) that exists nowhere else; the card-reason change is superseded by the "Why this?" chips. Then merge `ai-engineering` into `main` | The live code exists only on one machine |
 | O2 | **Turnstile:** add `plan-ind.vercel.app` to the widget's hostnames; put the secret key in Supabase → Auth → Attack Protection | Production sign-in and guest voting are impossible until both are done (`docs/DEPLOYMENT.md`) |
 | O3 | **Google Places API key** — Places API (New) only, budget alert set, `GOOGLE_PLACES_API_KEY` (server-only, never `NEXT_PUBLIC_`). The pipeline is built; the 5-step runbook is at the end of `docs/PLACES_INGESTION_SCOPE.md` | Venue photos — the biggest visual gap (6 of 82 venues have one) |
-| O4 | **Approve live migrations**: 049 + 051 (hide `user_id` columns), then 061 (one ballot per account; back up votes/rsvps/ratings first), 062 (link previews), 063 (Google place ids). All reviewed by `security` | Every live DB write is an owner decision |
+| O4 | **Migrations 049, 051, 061, 062, 063 (+064 when staged) — APPROVED by the owner 2026-09-25.** Blocked only on access: add `api.supabase.com` + `*.supabase.co` to the environment's network allowlist and `SUPABASE_ACCESS_TOKEN` (personal access token, revoke after) as an env var; a new session then applies them in order via the Management API and verifies each by catalog query. Back up votes/rsvps/ratings before 061 | Approved; needs a way in |
 | O5 | **Keep the database awake**: a daily `/api/health` ping is committed (`.github/workflows/keepalive.yml`) and starts once it reaches `main`; Supabase Pro removes the risk entirely | A paused DB is a dead CV link |
 | O6 | **Cloud-session network access**: allow `*.supabase.co`, `plan-ind.vercel.app`, `api.open-meteo.com` | Lets sessions verify against live instead of guessing |
-| O7 | Make `main` the single source of truth (merge `ai-engineering` → `main`, point Vercel production at `main`, retire `lane/*`) | One branch that is always true; `main` is 500+ commits stale |
+| O7 | `main` is now the source of truth (fast-forwarded 2026-09-25; `vercel.json` keeps it from auto-deploying). Left for the owner: delete the fully merged `lane/backend`, `lane/frontend`, `lane/qa`, `lane/design` (branch deletion needs owner permission), and point Vercel production at `main` when going live | One branch that is always true |
 | O8 | Upload the 13 approved photos to `spot-photos` (blocks migration 046) | Bucket writes are refused for every client role by design |
 
 ## Done on `claude/jolly-hypatia-hj9vhp` (2026-09-24), not yet on production
@@ -32,9 +32,10 @@ ordered partials · Next.js RCE patch (16.3.6) · `schema.sql` builds again ·
 CI on every branch · daily keep-alive · docs consolidation · README.
 Migrations **061–063** are staged and verified on local Postgres (O4).
 
-**Remaining limit (owner decision):** 061 makes it one ballot per *account*,
-not per person — a fresh guest session can still vote again. Options: cap
-members per plan, or require a permanent account for the final round.
+**Owner decision 2026-09-25: sign in from the start.** Joining or voting on a
+plan requires a permanent account (email code or Google); anonymous guests are
+gone. That closes the private-window re-vote that 061 alone could not.
+Migration 064 + the client change are in progress.
 
 ## Next — the portfolio pass
 
