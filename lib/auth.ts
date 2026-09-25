@@ -28,8 +28,14 @@ export async function requireUser() {
  * check rather than one per call site.
  */
 export function safeNextPath(value: string | null | undefined): string {
-  // "/\\evil.com" is normalised to "//evil.com" by some browsers.
-  return value?.startsWith("/") && !value.startsWith("//") && !value.startsWith("/\\") ? value : "/home";
+  if (!value?.startsWith("/")) return "/home";
+  // Backslashes and control characters are refused outright: browsers treat
+  // "\\" as "/", and the URL parser strips tab/CR/LF, so "/\t/evil.com" would
+  // otherwise become "//evil.com". Then the parsed result must stay on our origin.
+  if (/[\\\u0000-\u001f\u007f]/.test(value)) return "/home";
+  const base = "https://internal.invalid";
+  const url = new URL(value, base);
+  return url.origin === base ? `${url.pathname}${url.search}${url.hash}` : "/home";
 }
 
 /**

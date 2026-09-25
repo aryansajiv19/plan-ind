@@ -24,3 +24,15 @@ test("safeNextPath falls back to /home for missing values", () => {
 test("safeNextPath rejects a path without a leading slash", () => {
   assert.equal(safeNextPath("plan/x"), "/home");
 });
+
+test("safeNextPath refuses anything the URL parser could turn into another origin", () => {
+  for (const hostile of [
+    "/\t/evil.com", "/\n/evil.com", "/\r\n/evil.com", "/\\evil.com", "//evil.com",
+    "/\u0000/evil.com", "https://evil.com", "/%09/evil.com/..//evil.com\\x",
+  ]) {
+    assert.equal(safeNextPath(hostile), "/home", JSON.stringify(hostile));
+  }
+  // Encoded separators stay on our origin as path text, so they pass unchanged.
+  assert.equal(safeNextPath("/%2F%2Fevil.com"), "/%2F%2Fevil.com");
+  assert.equal(safeNextPath("/plan/abc?x=1#y"), "/plan/abc?x=1#y");
+});
