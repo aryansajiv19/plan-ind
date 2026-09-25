@@ -202,6 +202,21 @@ local stack (the migration-039 rows are live-only data).
   anonymous session is redirected too and its cookie cleared; a WhatsApp
   crawler UA gets a 200 whose `og:title` is this run's plan title, paired with
   a phone-browser UA getting the 307.
+- `moodboards.spec.ts` — one fresh account's board through create, save a
+  place from a Discover card and from `/place/[id]`, add a link, remove one
+  item for good, remove another and Undo, rename, delete; a reload after
+  each write, plus a service-role read of the final rows.
+- `place-map-hours.spec.ts` — `/place/[id]`'s map iframe is absent until
+  scrolled to or "Show map" (src host `www.google.com`, title only; Google
+  never loads here), and the hours line under a frozen Dubai clock
+  (listed / "Closes in 20 min" / closed).
+- `plan-decided-share.spec.ts` — per-test plans from `plan-factory.ts`:
+  "Why this?" chips from budget + radius with an over-budget card as the
+  control; a decided plan's WhatsApp link announces the winner; the
+  opengraph-image is a PNG with `max-age=300`; the weather line matches what
+  `/api/weather` really answered (no mock; a 204 must render nothing).
+- `demo-flow.spec.ts` — `/demo`'s deal reveal ends on a link to
+  `/demo/vote`, which plays three rounds and a final to the winner reveal.
 - `login-redirect.spec.ts` — FE.10's `next` param wiring on `/login`: a valid
   `?next=` is carried as a hidden field into both the email and Google forms;
   an unsafe value (`https://evil.example.com`) falls back to `/home`; no
