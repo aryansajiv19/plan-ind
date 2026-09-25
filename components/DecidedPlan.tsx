@@ -4,7 +4,9 @@ import { useState } from "react";
 import type { Plan, Rating, Rsvp, Spot } from "@/lib/types";
 import { googleCalUrl, icsHref } from "@/lib/calendar";
 import { categoryMeta } from "@/lib/categories";
-import { directionsUrl, haversineKm } from "@/lib/directions";
+import { fitForEvent, hoursLabel } from "@/lib/open-hours";
+import { dubaiMinuteOfDay } from "@/lib/dubai-phase";
+import GettingThere from "@/components/vote/GettingThere";
 import UnrateButton from "@/components/UnrateButton";
 import WinnerReveal from "@/components/WinnerReveal";
 import PhotoCredit from "@/components/PhotoCredit";
@@ -103,19 +105,13 @@ export default function DecidedPlan({
   const gcal = googleCalUrl(plan, winner);
   const ics = icsHref(plan, winner);
 
-  // "Getting there" — docs/archive/PRIORITIES-2026-09-18.md's Venue-link enrichment section, free
-  // tier: straight-line distance + a transit-mode Maps deep link. Only
-  // when both endpoints exist; a plan created before origin was picked
-  // (or a spot with no coordinates) has nothing honest to show here.
-  const hasRoute =
-    plan.origin_latitude != null && plan.origin_longitude != null
-    && winner.latitude != null && winner.longitude != null;
-  const distanceKm = hasRoute
-    ? haversineKm(plan.origin_latitude as number, plan.origin_longitude as number, winner.latitude as number, winner.longitude as number)
-    : null;
-  const directions = hasRoute
-    ? directionsUrl(plan.origin_latitude as number, plan.origin_longitude as number, winner.latitude as number, winner.longitude as number)
-    : null;
+  // The listed closing time against the plan's start (Dubai clock). Only a
+  // verdict is worth a line; a bare listing already sits in the details.
+  const fit = plan.event_time ? fitForEvent(winner.open_till, new Date(plan.event_time)) : null;
+  const fitWarns = fit?.kind === "tight" || fit?.kind === "after-close";
+  const startDate = plan.event_time ? new Date(plan.event_time) : null;
+  const viewerOffDubai = startDate != null
+    && startDate.getHours() * 60 + startDate.getMinutes() !== dubaiMinuteOfDay(startDate);
 
   const myRating = ratings.find((r) => r.voter_name === voterName);
   const avgStars =
@@ -170,7 +166,7 @@ export default function DecidedPlan({
           beside the reveal. */}
       <p className="vote-result__details mt-2 text-sm">
         {winner.description ?? winner.vibe}
-        <span className="text-muted"> · Open till {winner.open_till} · from AED {winner.min_spend}pp</span>
+        <span className="text-muted"> · {hoursLabel(winner.open_till) ?? "Hours not listed"} · from AED {winner.min_spend}pp</span>
       </p>
 
       <button
@@ -205,6 +201,11 @@ export default function DecidedPlan({
               loading, on failure, or with no venue coordinates. */}
           {winner.latitude != null && winner.longitude != null && (
             <PlanWeather latitude={winner.latitude} longitude={winner.longitude} at={plan.event_time} />
+          )}
+          {fit && fit.kind !== "listed" && (
+            <p className={`mt-1 text-sm ${fitWarns ? "font-medium" : "text-muted"}`}>
+              {fitWarns ? "Heads up: " : ""}{fit.label}{viewerOffDubai ? " (Dubai time)" : ""}
+            </p>
           )}
           </>
         ) : isHost ? (
@@ -314,27 +315,7 @@ export default function DecidedPlan({
         )}
       </div>
 
-      {/* Getting there */}
-      {hasRoute && (
-        <div className="mt-4 border-t border-line pt-4">
-          <p className="text-xs font-bold uppercase tracking-wide text-muted">
-            Getting there
-          </p>
-          <div className="mt-2 flex flex-wrap items-center gap-3">
-            <span className="text-sm font-medium">
-              {Math.round((distanceKm as number) * 10) / 10} km from {plan.origin_label ?? "your start point"}
-            </span>
-            <a
-              href={directions as string}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm font-bold text-grape underline"
-            >
-              See live transit options
-            </a>
-          </div>
-        </div>
-      )}
+      <GettingThere plan={plan} winner={winner} />
 
       {/* Booking */}
       <div className="mt-4 border-t border-line pt-4">

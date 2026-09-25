@@ -9,6 +9,9 @@ import { categoryMeta } from "@/lib/categories";
 import { getCurrentUser } from "@/lib/auth";
 import PlaceDirectPlanCta from "@/components/PlaceDirectPlanCta";
 import PlaceSaveToBoard from "@/components/account/PlaceSaveToBoard";
+import OpenStatus from "@/components/OpenStatus";
+import VenueMap from "@/components/VenueMap";
+import { appleMapsUrl, googleMapsUrl } from "@/lib/directions";
 
 // The venue detail page — SPECS.md §6, previously unbuilt (12a). Scoped down
 // from the full original brief: this design system references a "four-source
@@ -61,12 +64,6 @@ export default async function PlacePage({
 
   const cat = categoryMeta(spot.category);
   const hasPhoto = Boolean(spot.photo_url);
-  const mapsHref =
-    spot.latitude != null && spot.longitude != null
-      ? `https://www.google.com/maps/search/?api=1&query=${spot.latitude},${spot.longitude}`
-      : spot.address
-        ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.address)}`
-        : null;
 
   return (
     <main className="place-page">
@@ -100,7 +97,7 @@ export default async function PlacePage({
         <div className="place-meta">
           <span>{spot.price_band}</span>
           <span>From AED {spot.min_spend}pp</span>
-          <span>Open till {spot.open_till}</span>
+          <OpenStatus openTill={spot.open_till} />
         </div>
 
         {(spot.description ?? spot.vibe) && (
@@ -118,17 +115,31 @@ export default async function PlacePage({
               Book a table
             </a>
           )}
-          {mapsHref && (
-            <a
-              href={mapsHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="place-action place-action--secondary"
-            >
-              Open in Maps
-            </a>
-          )}
+          <a
+            href={googleMapsUrl(spot)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="place-action place-action--secondary"
+          >
+            Open in Google Maps
+          </a>
+          <a
+            href={appleMapsUrl(spot)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="place-action place-action--secondary"
+          >
+            Apple Maps
+          </a>
         </div>
+
+        {/* The in-app map sits under the deep links, which stay the primary
+            way to get there. It loads only when scrolled to or asked for. */}
+        <section className="mt-8" aria-labelledby="place-where">
+          <p id="place-where" className="text-xs font-medium uppercase tracking-wide text-muted">Where</p>
+          <p className="mt-1 text-sm">{spot.address ?? `${spot.area}, Dubai`}</p>
+          <VenueMap venue={spot} />
+        </section>
 
         {/* SPECS.md §10.1: the direct-plan entry point. Signed-in only —
             create_direct_plan rejects a signed-out/anonymous caller
