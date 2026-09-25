@@ -3981,3 +3981,63 @@ create or replace function is_permanent_user()
 returns boolean language sql stable set search_path = pg_catalog as $$
   select auth.uid() is not null and coalesce(auth.jwt()->'is_anonymous' = 'false'::jsonb, false)
 $$;
+
+-- 065: a spot other people depend on cannot be deleted (C5). Refused if it is
+-- in any plan (open or decided) or in someone else's visits/lists/imports; the
+-- deleter's own visits and list items still cascade. 23503 + readable hint;
+-- the way out is visibility = 'private'. Kept verbatim in sync with
+-- supabase/migration-065-protect-spots-in-plans.sql, which carries the reasoning.
+create or replace function public.protect_spots_in_use()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  uid uuid := auth.uid();
+begin
+  if exists (select 1 from plan_spots x where x.spot_id = old.id)
+     or exists (select 1 from votes x where x.spot_id = old.id)
+     or exists (select 1 from ratings x where x.spot_id = old.id)
+     or exists (select 1 from plans x where x.winner_spot_id = old.id) then
+    raise exception 'This place is part of a plan, so it can''t be deleted.'
+      using errcode = '23503',
+            hint = 'Make it private instead: it leaves Discover, and plans that already use it keep working.';
+  end if;
+
+  if exists (select 1 from visits x where x.spot_id = old.id
+               and not exists (select 1 from people p
+                               where p.id = x.person_id and p.auth_user_id = uid))
+     or exists (select 1 from place_collection_items x
+                join place_collections c on c.id = x.collection_id
+                where x.spot_id = old.id
+                  and not exists (select 1 from people p
+                                  where p.id = c.person_id and p.auth_user_id = uid))
+     or exists (select 1 from place_imports x where x.resolved_spot_id = old.id
+                  and not exists (select 1 from people p
+                                  where p.id = x.person_id and p.auth_user_id = uid)) then
+    raise exception 'Someone else has saved or visited this place, so it can''t be deleted.'
+      using errcode = '23503',
+            hint = 'Make it private instead: it leaves Discover, and their saved places keep working.';
+  end if;
+
+  return old;
+end;
+$$;
+
+-- A trigger function cannot be called directly, but no client role needs
+-- EXECUTE on it either (the 021/024 trap: revoke the named grants too).
+revoke all on function public.protect_spots_in_use() from public, anon, authenticated;
+
+drop trigger if exists spots_protect_in_use on spots;
+create trigger spots_protect_in_use before delete on spots
+  for each row execute function public.protect_spots_in_use();
+
+-- Reverse-lookup indexes for the trigger above (security review of 065): each
+-- reference check is by spot id, and these columns were only indexed as the
+-- second key of a composite (or not at all), so every check was a seq scan.
+create index if not exists plan_spots_spot_idx on plan_spots (spot_id);
+create index if not exists votes_spot_idx on votes (spot_id);
+create index if not exists plans_winner_spot_idx on plans (winner_spot_id) where winner_spot_id is not null;
+create index if not exists place_imports_resolved_spot_idx on place_imports (resolved_spot_id) where resolved_spot_id is not null;
+create index if not exists place_collection_items_spot_idx on place_collection_items (spot_id);

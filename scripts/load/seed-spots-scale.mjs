@@ -54,7 +54,12 @@ if (target === 0) {
 }
 
 if ((existing ?? 0) > target) {
-  await admin.from("spots").delete().like("name", `${PREFIX}%`);
+  const { error } = await admin.from("spots").delete().like("name", `${PREFIX}%`);
+  // 065 refuses deleting a spot a plan uses; reseeding on top would skew the counts.
+  if (error) {
+    console.error(`delete failed: ${error.message} -- not reseeding.`);
+    process.exit(1);
+  }
   console.log("target below current count -- cleared, reseeding from scratch.");
 }
 
