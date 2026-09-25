@@ -72,16 +72,18 @@ async function loadSpots(): Promise<BackfillSpot[]> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!url || !anonKey) block("no --spots file and no NEXT_PUBLIC_SUPABASE_URL / PUBLISHABLE_KEY to read the live catalogue");
-  // Read-only: one throwaway anonymous session reads the public curated
-  // catalogue (same as backfill-spot-coordinates.mjs). Nothing is written.
+  // Read-only and sessionless: the anon role reads curated spots directly
+  // (policy "read curated spots anonymously", migration 041). No sign-in --
+  // anonymous sessions are refused everywhere since migration 064, and this
+  // read never needed one. Nothing is written.
   const { createClient } = await import("@supabase/supabase-js");
   const client = createClient(url, anonKey, { auth: { persistSession: false } });
-  const { error: authError } = await client.auth.signInAnonymously();
-  if (authError) block(`anonymous sign-in failed: ${authError.message}`);
   const { data, error } = await client.from("spots")
     .select("id, name, area, category, latitude, longitude, photo_url")
     .eq("source", "curated").order("category").order("name");
   if (error) block(`reading curated spots failed: ${error.message}`);
+  // Zero rows with no error is what a missing anon policy looks like.
+  if (!data?.length) block("read 0 curated spots without a session -- is migration 041's anon policy applied?");
   return data as BackfillSpot[];
 }
 

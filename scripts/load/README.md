@@ -16,9 +16,8 @@ LOAD_BASE_URL=http://localhost:3001 npm run load home   # against a prod build
 ```
 
 `deal` needs a **permanent** (non-anonymous) session token — `/api/spots/deal`
-401s anonymous sessions outright. No test account is scripted yet; minting one
-means email OTP or a seeded permanent user, which is real setup, not a quick
-add.
+401s anonymous sessions outright. Against a local stack, `mint-local-users.mjs`
+(below) mints permanent accounts and records their tokens.
 
 ## Baseline — 2026-09-01, `home` scenario, 10 connections / 10s
 
@@ -49,9 +48,19 @@ front of `cast_plan_vote`/`set_plan_rsvp`/`rate_plan` — the browser calls
 `supabase.rpc(...)` straight from the client).
 
 ```
-node --env-file=.env.local scripts/load/mint-voters.mjs [count]   # setup, once
-node --env-file=.env.local scripts/load/concurrency.mjs <scenario> [n]
+psql <local db url> -f supabase/seed-load-test-plan.sql   # the fixture plan, once
+node scripts/load/mint-voters.mjs [count]                 # setup, once
+node scripts/load/concurrency.mjs <scenario> [n]
 ```
+
+**Local stack only, permanent accounts.** Since 2026-09-25 a plan needs a
+permanent account (migration 064 refuses anonymous sessions in every
+participant RPC), so `mint-voters.mjs` creates accounts with the local stack's
+well-known demo admin key, signs each in with a password and redeems
+`claim_plan_access` under its own session. Both scripts default to
+`http://127.0.0.1:54321` and refuse any non-loopback `NEXT_PUBLIC_SUPABASE_URL`.
+The live-project figures below were anonymous-era and can't be re-run: the
+live project has no admin key, and anonymous voters are now refused.
 
 Scenarios: `vote-contend`, `vote-flap`, `rsvp-contend`, `rsvp-collide`
 (mirrors `set_plan_rsvp`'s unbounded-retry-loop shape; `rate_plan` shares the
@@ -63,19 +72,13 @@ Runs against the dedicated fixture plan `33333333-3333-3333-3333-333333333333`
 `22222222-…` plan on purpose, so a load run and Playwright's guest-vote spec
 never collide.
 
-**Voters are real anonymous Supabase sessions** (`signInAnonymously`) — the
-actual guest path, not forged. **Finding, not yet acted on:** GoTrue rate-
-limits anonymous sign-in bursts hard (an IP-scoped bucket, ~30 observed
-before throttling, and it recovers slowly — single-digit sign-ins per several
-minutes once drained). `mint-voters.mjs` staggers in small batches and stops
-cleanly on a rate-limit hit rather than crashing, but this ceiling is real
-production behavior, not just a test-harness inconvenience: several guests on
-the same wifi opening a share link within the same window could be throttled
-out of getting a session at all. Not fixed here — flagging for the owner to
-decide whether the default GoTrue anonymous-signup rate limit needs raising
-for real group use.
+**History:** voters used to be anonymous sessions minted on the live
+project, and GoTrue's IP-scoped anonymous-signup limit (~30, slow to recover)
+capped runs at n≈15. That ceiling went with the guests; the sign-in limit that
+now applies to real users (`sign_in_sign_ups`, per IP) is a separate one and
+has not been measured against the live project.
 
-## Results — 2026-09-04, n=15, against the live project
+## Results — 2026-09-04, n=15, against the live project (anonymous voters)
 
 15 was the real ceiling this run — GoTrue's anonymous-signup rate limit (see
 above) capped how many voters could be minted in one session even after
@@ -285,6 +288,18 @@ environment (`TEST_DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54322/p
 — 12/12 passing, 0 skipped, across both migration-023 and migration-025's
 concurrency-correctness suites. Not new tests, just real coverage where
 there was previously an infrastructure gap.
+
+## Realtime fan-out — `realtime-fanout.mjs`
+
+`mint <count>` creates **permanent** accounts on the local stack (demo admin
+key, password sign-in — anonymous sessions are refused since migration 064);
+`run --plans P --per-plan K --rate R` joins each as its own client and socket
+and checks every vote/un-vote reaches every other member. Local only
+(`LOAD_SUPABASE_URL`, default `:54621`, must be loopback). Its votes refetch
+uses the page's exact column list: `select *` on `votes` has been refused
+since migration 049, which silently failed every refetch until 2026-09-25.
+Smoke, local Docker, 2026-09-25: `--plans 2 --per-plan 2 --rate 2` PASS
+(insert/delete delivery 1.0, 0 stale clients), twice.
 
 ## Not yet measured
 

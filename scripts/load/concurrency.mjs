@@ -8,10 +8,11 @@
 // there is no Next.js route in front of cast_plan_vote / set_plan_rsvp /
 // rate_plan, the client calls supabase.rpc(...) straight from the browser.
 //
-// Setup:
-//   node --env-file=.env.local scripts/load/mint-voters.mjs [count]
+// Setup (LOCAL stack only -- see mint-voters.mjs; both default to
+// http://127.0.0.1:54321 and its demo anon key, so no .env.local):
+//   node scripts/load/mint-voters.mjs [count]
 // Then:
-//   node --env-file=.env.local scripts/load/concurrency.mjs <scenario> [n]
+//   node scripts/load/concurrency.mjs <scenario> [n]
 //
 // Scenarios: vote-contend, vote-flap, rsvp-contend, rsvp-collide
 //
@@ -24,11 +25,15 @@ import { readFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 
 const PLAN_ID = "33333333-3333-3333-3333-333333333333";
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const apikey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-if (!url || !apikey) {
-  console.error("Missing NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY.");
-  process.exit(1);
+// Defaults are the Supabase CLI's local stack and its well-known public demo anon key.
+const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "http://127.0.0.1:54321";
+const apikey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  ?? "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0";
+// mint-voters.mjs mints permanent accounts on the LOCAL stack (plans need a
+// real account since migration 064), so its tokens only exist there.
+if (!/^https?:\/\/(127\.0\.0\.1|localhost)[:/]/.test(url)) {
+  console.error(`REFUSED: ${url} is not a local stack; voters.local.json holds local-stack sessions.`);
+  process.exit(2);
 }
 
 const scenario = process.argv[2];

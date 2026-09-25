@@ -145,13 +145,52 @@ config at `playwright.config.ts`. Not part of `npm test`/the lint-tsc-test-build
 gate: it needs `@playwright/test`'s browser binaries, which no worktree in
 this repo installs on its own (see "Setup" below).
 
-- `guest-vote.spec.ts` — the guest share-link vote path end to end, against
-  the **live Supabase project** (`.env.local`): opens the seeded plan
-  `22222222-2222-2222-2222-222222222222`, types a name, casts a vote, and
-  checks the card and the voter count both update. Self-skips if
-  `NEXT_PUBLIC_SUPABASE_URL` isn't set. This plan is shared fixture data —
-  other sessions/CI runs may vote on it too, so the assertion is "the count
-  went up", not an exact before/after number.
+**There are no anonymous guests** (owner decision 2026-09-25): proxy.ts sends
+a signed-out or anonymous visitor on `/plan/<uuid>` to `/login?next=...`, and
+migration 064 refuses anonymous sessions in every participant RPC and policy.
+Every spec that opens a plan therefore signs in a **permanent test account**
+via `e2e/local-stack.ts`'s `signInAsMember(context, baseURL, name)`: the
+account is created with the local stack's admin API (plus a `people` row and a
+`member_ages` birthday, what a real first sign-in leaves behind), signed in
+with a password, and its session is written into the browser context as the
+cookie `@supabase/ssr` itself produces. The OTP/Google UI is not driven: a
+production build requires Turnstile on both, and the session is the thing
+under test, not the email.
+
+**Local stack only.** The admin key is the Supabase CLI's public demo key,
+and `local-stack.ts` refuses any non-loopback `NEXT_PUBLIC_SUPABASE_URL`.
+`global-setup.ts` provisions one disposable plan per writing spec plus a run
+id; `global-teardown.ts` deletes those plans and every account minted under
+the run id. **Never point this at a database holding real plans** — run it
+against a scratch `supabase start` loaded from `schema.sql` (which DROPs every
+table). Against a hosted URL no fixture is provisioned and the plan specs
+skip, loudly.
+
+```
+npx supabase start
+psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -f supabase/schema.sql
+psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -f supabase/seed.sql
+export NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
+export NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<ANON_KEY from `npx supabase status`>
+npm run test:e2e
+```
+
+- `guest-vote.spec.ts` — a signed-in friend opens the share link, is greeted
+  by their account name (no name prompt), casts a vote, the card and its count
+  go 0 -> 1 exactly, and after a reload the vote is still theirs. ("Guest" in
+  the file name is historical.)
+- `realtime-multi-client.spec.ts` — two accounts in two isolated contexts; B
+  sees A's vote arrive and then be withdrawn over Realtime with no reload (the
+  withdrawal is what fails if migration 045's replica identity regresses).
+  The one spec in `npm run gate:e2e`.
+- `vote-mobile.spec.ts` — vote-screen layout on every project's viewport:
+  no horizontal overflow, 44px touch floor on phones, keyboard focus ring.
+- `sign-in-gate.spec.ts` — the gate itself: a signed-out browser on
+  `/plan/<uuid>` lands on `/login` with `next` preserved into the sign-in
+  form; positive control, a signed-in account stays on the plan; an injected
+  anonymous session is redirected too and its cookie cleared; a WhatsApp
+  crawler UA gets a 200 whose `og:title` is this run's plan title, paired with
+  a phone-browser UA getting the 307.
 - `login-redirect.spec.ts` — FE.10's `next` param wiring on `/login`: a valid
   `?next=` is carried as a hidden field into both the email and Google forms;
   an unsafe value (`https://evil.example.com`) falls back to `/home`; no

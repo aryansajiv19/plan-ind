@@ -1,78 +1,92 @@
-// Mints N real anonymous Supabase sessions against the live project — the
-// exact same path a real guest takes (signInAnonymously -> claim_plan_access)
-// -- and writes their {access_token, participant_token_hash} pairs to a local
-// JSON file for concurrency.mjs to drive load with. No service-role key, no
-// permanent account: this only exercises what's already self-serve and live.
+// Mints N PERMANENT test accounts on a LOCAL Supabase stack, each taken
+// through the real participant path -- password sign-in, then
+// claim_plan_access under its own session -- and writes their
+// {access_token, participant_token_hash} pairs to a local JSON file for
+// concurrency.mjs to drive load with.
 //
-// Usage:
-//   node --env-file=.env.local scripts/load/mint-voters.mjs [count]
+// Why local, and why permanent: since the owner decision of 2026-09-25 a plan
+// needs a permanent account (migration 064 refuses anonymous sessions in every
+// participant RPC), so the anonymous sessions this used to mint on the live
+// project can no longer vote. Minting permanent accounts needs an admin key,
+// and the only one this project has is the Supabase CLI's well-known local
+// demo key -- so this runs against loopback only.
 //
-// ponytail: one file, reuses the already-installed @supabase/supabase-js
-// rather than hand-rolling the GoTrue REST calls.
+// Usage (the load-test plan must exist locally: supabase/seed-load-test-plan.sql):
+//   NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321 node scripts/load/mint-voters.mjs [count]
 
 import { createClient } from "@supabase/supabase-js";
-import { createHash, randomUUID } from "node:crypto";
+import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
 
 const PLAN_ID = "33333333-3333-3333-3333-333333333333";
 const OUT_FILE = new URL("./voters.local.json", import.meta.url);
+// The CLI's well-known local demo keys -- public, and only valid on a local stack.
+const LOCAL_SERVICE_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU";
+const LOCAL_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0";
 
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-if (!url || !key) {
-  console.error("Missing NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY.");
-  console.error("Run with: node --env-file=.env.local scripts/load/mint-voters.mjs [count]");
+const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "http://127.0.0.1:54321";
+if (!/^https?:\/\/(127\.0\.0\.1|localhost)[:/]/.test(url)) {
+  console.error(`REFUSED: ${url} is not a local stack. This mints accounts with the local admin key.`);
+  process.exit(2);
+}
+const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? LOCAL_ANON_KEY;
+const admin = createClient(url, LOCAL_SERVICE_KEY, { auth: { persistSession: false } });
+
+const count = Number(process.argv[2] ?? 50);
+if (!(count > 0)) {
+  console.error(`REFUSED: count must be a positive number, got ${JSON.stringify(process.argv[2])}`);
+  process.exit(2);
+}
+
+const { data: plan, error: planError } = await admin.from("plans").select("id").eq("id", PLAN_ID).maybeSingle();
+if (planError || !plan) {
+  console.error(`No load-test plan ${PLAN_ID} locally (${planError?.message ?? "not found"}).`);
+  console.error("Load supabase/seed-load-test-plan.sql into the local database first.");
   process.exit(1);
 }
 
-const count = Number(process.argv[2] ?? 50);
-
 async function mintOne(i) {
-  // Fresh client per voter -- each needs its own independent auth session,
-  // not a shared/overwriting one.
-  const client = createClient(url, key, { auth: { persistSession: false } });
-  const { data, error } = await client.auth.signInAnonymously();
-  if (error || !data.session) throw new Error(`voter ${i}: signInAnonymously failed: ${error?.message}`);
+  const email = `load-voter-${Date.now()}-${i}-${randomUUID().slice(0, 6)}@example.test`;
+  const password = randomBytes(18).toString("base64url");
+  const { data: created, error: createError } = await admin.auth.admin.createUser({ email, password, email_confirm: true });
+  if (createError || !created.user) throw new Error(`voter ${i}: createUser failed: ${createError?.message}`);
 
-  const { error: claimError } = await client.rpc("claim_plan_access", { p_plan_id: PLAN_ID });
-  if (claimError) throw new Error(`voter ${i}: claim_plan_access failed: ${claimError.message}`);
+  // Fresh client per voter -- each needs its own independent auth session.
+  const client = createClient(url, key, { auth: { persistSession: false } });
+  const { data, error } = await client.auth.signInWithPassword({ email, password });
+  if (error || !data.session) throw new Error(`voter ${i}: sign-in failed: ${error?.message}`);
+  if (data.user.is_anonymous) throw new Error(`voter ${i}: came back anonymous`);
+
+  // The real membership path, under the voter's own session, not an admin insert.
+  const { data: claimed, error: claimError } = await client.rpc("claim_plan_access", { p_plan_id: PLAN_ID });
+  if (claimError || !claimed) throw new Error(`voter ${i}: claim_plan_access failed: ${claimError?.message ?? "false"}`);
 
   const participantTokenHash = createHash("sha256").update(`load-test-${randomUUID()}`).digest("hex");
   return { access_token: data.session.access_token, participant_token_hash: participantTokenHash };
 }
 
-// GoTrue rate-limits anonymous signInAnonymously bursts hard (an hour-scale
-// per-IP bucket, ~30 total observed in testing -- retrying sooner does not
-// help). Minting isn't the thing under measurement, so stagger it AND
-// tolerate individual failures -- append an existing voters.local.json
-// (dev-machine IP is a shared, slowly-replenishing bucket across runs) and
-// report a rate-limit hit as a finding, not a crash.
-const BATCH = 5;
-const DELAY_MS = 1100;
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-
+// Small batches: local GoTrue drops sign-ins past ~30 concurrent (worklog,
+// 2026-09-04). Appends to an existing voters.local.json so repeated runs
+// accumulate; a failure is reported, never silently dropped from the count.
+const BATCH = 8;
 const existing = await readFile(OUT_FILE, "utf8").then((raw) => JSON.parse(raw)).catch(() => []);
-console.log(`Minting up to ${count} anonymous voter sessions against ${url} for plan ${PLAN_ID}...`);
+console.log(`Minting ${count} permanent voter accounts on ${url} for plan ${PLAN_ID}...`);
 if (existing.length) console.log(`(${existing.length} already minted from a previous run, reusing + appending)`);
 
 const voters = [...existing];
-let rateLimited = false;
-for (let i = 0; voters.length < existing.length + count && i < count && !rateLimited; i += BATCH) {
-  const batchSize = Math.min(BATCH, existing.length + count - voters.length);
-  const results = await Promise.allSettled(Array.from({ length: batchSize }, (_, j) => mintOne(i + j)));
+let failures = 0;
+for (let i = 0; i < count; i += BATCH) {
+  const size = Math.min(BATCH, count - i);
+  const results = await Promise.allSettled(Array.from({ length: size }, (_, j) => mintOne(i + j)));
   for (const r of results) {
     if (r.status === "fulfilled") voters.push(r.value);
-    else if (String(r.reason).includes("rate limit")) rateLimited = true;
-    else console.error(`  ${r.reason}`);
+    else { failures++; console.error(`  ${r.reason}`); }
   }
   process.stdout.write(`\r  ${voters.length - existing.length}/${count} newly minted`);
-  if (!rateLimited && voters.length < existing.length + count) await sleep(DELAY_MS);
 }
 console.log();
-if (rateLimited) {
-  console.log(`Hit GoTrue's anonymous-signup rate limit -- stopped early with ${voters.length} total voters.`);
-  console.log("This is itself a finding: a burst of real guests opening a share link from the same IP");
-  console.log("(shared wifi) within the window can be throttled the same way. Not fixed here -- see report.");
-}
 await writeFile(OUT_FILE, JSON.stringify(voters, null, 2));
-console.log(`Wrote ${voters.length} voters to ${OUT_FILE.pathname}`);
+console.log(`Wrote ${voters.length} voters to ${OUT_FILE.pathname}${failures ? ` -- ${failures} FAILED, see above` : ""}`);
+if (failures) process.exit(1);

@@ -32,16 +32,15 @@ const planCount = Number(process.argv[2] ?? 50);
 const live = createClient(liveUrl, liveKey, { auth: { persistSession: false } });
 const local = createClient(LOCAL_URL, LOCAL_SERVICE_KEY, { auth: { persistSession: false } });
 
-// `spots`' "read permitted spots" RLS policy is granted `to authenticated`,
-// not `anon` -- a bare anon-key client with no session reads zero rows. One
-// throwaway anonymous session for this one read is a trivial cost against
-// the live rate limit (this script needs exactly one, not thousands).
-const { error: liveAuthError } = await live.auth.signInAnonymously();
-if (liveAuthError) throw new Error(`Live anonymous sign-in failed: ${liveAuthError.message}`);
+// Sessionless read: the anon role reads curated spots directly (policy
+// "read curated spots anonymously", migration 041). No anonymous sign-in --
+// migration 064 refuses those sessions, and this read never needed one.
 
 console.log(`Copying curated spots from the live project (${liveUrl}) into the local stack (${LOCAL_URL})...`);
 const { data: curatedSpots, error: readError } = await live.from("spots").select("*").eq("source", "curated");
 if (readError) throw new Error(`Reading live curated spots failed: ${readError.message}`);
+// Zero rows with no error is what a missing anon policy looks like.
+if (!curatedSpots.length) throw new Error("Read 0 curated spots from the live project without a session -- is migration 041 applied there?");
 console.log(`Read ${curatedSpots.length} curated spots.`);
 
 const { error: writeError } = await local.from("spots").upsert(curatedSpots, { onConflict: "id" });

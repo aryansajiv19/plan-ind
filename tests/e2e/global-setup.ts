@@ -1,9 +1,15 @@
-import { createClient } from "@supabase/supabase-js";
 import { writeFile, rm } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 
-// Provisions a DISPOSABLE plan for guest-vote.spec.ts, on the LOCAL Supabase
-// stack only.
+// Provisions a DISPOSABLE plan per writing spec, on the LOCAL Supabase stack
+// only, and a run id that the specs' test accounts are minted under.
+//
+// Participants are PERMANENT accounts (owner decision 2026-09-25: no more
+// anonymous guests; migration 064, proxy.ts's /login redirect). Specs mint
+// their own accounts per test with local-stack.ts's signInAsMember -- per
+// test, not here, because every test in every browser project needs its own
+// identity to keep one-ballot-per-account assertions exact. Teardown removes
+// the plans and every account carrying this run id.
 //
 // ── Why this exists, and why the alternatives don't work ─────────────────
 //
@@ -40,8 +46,7 @@ import { randomUUID } from "node:crypto";
 // place WebKit coverage is possible) usable.
 
 import { FIXTURE_FILE, FIXTURE_NAMES } from "./fixture";
-const LOCAL_SERVICE_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU";
+import { isLocalStack, localAdmin } from "./local-stack";
 
 export default async function globalSetup(): Promise<void> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -66,7 +71,7 @@ export default async function globalSetup(): Promise<void> {
   // for them to vote on. That is structural rather than a promise -- there is
   // no flag here that makes a voting spec run against production, which is
   // the property that must not be weakened.
-  if (!/^https?:\/\/(127\.0\.0\.1|localhost)[:/]/.test(url)) {
+  if (!isLocalStack(url)) {
     // A fixture left over from an earlier LOCAL run would otherwise let a
     // writing spec pick up a plan id while pointed at a remote target. It
     // would 404 rather than write, but relying on that is luck; delete it.
@@ -74,14 +79,14 @@ export default async function globalSetup(): Promise<void> {
     console.log(
       `[e2e] ${url} is not a local stack — no fixture provisioned.\n` +
       "      Read-only specs (runtime-health, layout-consistency) will run.\n" +
-      "      Specs that cast a vote will SKIP: neither plans nor votes can be\n" +
-      "      deleted by anything in this project (no delete policy, no\n" +
-      "      service-role key), so a write here would be permanent.",
+      "      Specs that sign in or cast a vote will SKIP: test accounts need the\n" +
+      "      local admin key, and neither plans nor votes can be deleted by\n" +
+      "      anything in this project, so a write here would be permanent.",
     );
     return;
   }
 
-  const admin = createClient(url, LOCAL_SERVICE_KEY, { auth: { persistSession: false } });
+  const admin = localAdmin();
 
   // Nine curated spots, three per pool -- the same shape create_secure_plan
   // builds, written directly because the service role is provisioning a
@@ -99,12 +104,17 @@ export default async function globalSetup(): Promise<void> {
 
   // One plan per spec: they run in parallel and each asserts exact counts,
   // so a shared plan would have them voting on each other's rows.
+  const runId = randomUUID().slice(0, 8);
   const plans: Record<string, string> = {};
+  const titles: Record<string, string> = {};
   for (const name of FIXTURE_NAMES) {
     const planId = randomUUID();
+    // Unique per run, so the sign-in gate spec's og:title assertion can only
+    // match THIS plan's preview, never the generic card.
+    const title = `E2E ${name} ${runId}`;
     const { error: planError } = await admin.from("plans").insert({
       id: planId,
-      title: `E2E ${name} ${new Date().toISOString()}`,
+      title,
       category: "dinner",
       status: "open",
       stage: "pool",
@@ -122,8 +132,9 @@ export default async function globalSetup(): Promise<void> {
     );
     if (spotLinkError) throw new Error(`fixture(${name}): linking spots failed -- ${spotLinkError.message}`);
     plans[name] = planId;
+    titles[name] = title;
   }
 
-  await writeFile(FIXTURE_FILE, JSON.stringify({ plans, createdAt: new Date().toISOString() }, null, 2));
+  await writeFile(FIXTURE_FILE, JSON.stringify({ runId, plans, titles, createdAt: new Date().toISOString() }, null, 2));
   console.log(`[e2e] provisioned ${FIXTURE_NAMES.length} disposable plans on the local stack`);
 }
