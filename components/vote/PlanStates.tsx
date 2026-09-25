@@ -1,13 +1,12 @@
 import Link from "next/link";
 import type { Dispatch, SetStateAction } from "react";
-import Turnstile, { type TurnstileStatus } from "@/components/Turnstile";
 import VoteState from "@/components/VoteState";
 import type { Access, Load } from "@/hooks/use-plan-data";
 import type { Plan } from "@/lib/types";
 
   // ── States ───────────────────────────────────────────────────────
   // All six full-screen non-content states render through <VoteState>. The
-  // access reasons come straight from bootstrapPlanAccess; the load ones from
+  // access reasons come straight from claimPlanAccess; the load ones from
   // the plan/spots fetch below.
 //
 // A plain function, not a component, so the page's element tree is exactly
@@ -19,9 +18,6 @@ export function planStateScreen({
   plan,
   access,
   load,
-  captchaStatus,
-  setCaptchaStatus,
-  onCaptchaVerify,
   retryAccess,
   setLoad,
   setReloadKey,
@@ -31,9 +27,6 @@ export function planStateScreen({
   plan: Plan | null;
   access: Access;
   load: Load;
-  captchaStatus: TurnstileStatus;
-  setCaptchaStatus: Dispatch<SetStateAction<TurnstileStatus>>;
-  onCaptchaVerify: (token: string) => void;
   retryAccess: () => void;
   setLoad: Dispatch<SetStateAction<Load>>;
   setReloadKey: Dispatch<SetStateAction<number>>;
@@ -62,17 +55,10 @@ export function planStateScreen({
       </main>
     );
   }
-  if (access === "captcha-required") {
-    return (
-      <VoteState kind="captcha" captchaStatus={captchaStatus}>
-        <Turnstile action="plan-access" onVerify={onCaptchaVerify} onStatus={setCaptchaStatus} />
-      </VoteState>
-    );
+  if (access === "signed-out") {
+    return <VoteState kind="signed-out" />;
   }
-  if (access === "anonymous-disabled") {
-    return <VoteState kind="guest-paused" />;
-  }
-  if (access === "sign-in-failed" || access === "claim-failed") {
+  if (access === "claim-failed") {
     return <VoteState kind="retry" onRetry={retryAccess} />;
   }
   if (access === "not-found") {

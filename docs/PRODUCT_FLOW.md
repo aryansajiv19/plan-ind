@@ -6,8 +6,12 @@ to verify against — not a spec to re-derive from code, and not a wishlist to
 build blind. Where a step isn't built yet, that's stated plainly, not implied.
 
 ## 1. Sign up / log in
-`/login` — email OTP or Google OAuth. **Built and working.** Guests (share-link
-voters) get an anonymous session instead — that's a separate path, see step 5.
+`/login` — email OTP or Google OAuth. **Built and working.** Required of
+everyone who joins or votes on a plan (owner decision 2026-09-25) — there are
+no anonymous guests. A share link opened signed out goes to
+`/login?next=/plan/<id>` (proxy.ts; link crawlers are let through so the
+preview still unfurls), a first-time account detours through `/onboarding`
+for its date of birth, and both carry `next` back to the plan.
 
 ## 2. Home — discover, start a plan, moodboards, collections
 `/home`, five tabs: **Plan** (start/manage a plan), **Discover** (browse,
@@ -40,9 +44,11 @@ outside:
 worth confirming explicitly since it's the core mechanic.
 
 ## 5. Everyone votes
-Share-link guests get an anonymous session, redeem the link into
-`plan_access`, vote with `cast_plan_vote`. **Built and verified end-to-end**
-(2026-09-01, after B1/anon-sign-ins went live).
+Friends open the share link, sign in (step 1), redeem the link into
+`plan_access` with `claim_plan_access`, and vote with `cast_plan_vote` under
+their account's display name. Anonymous sessions were retired 2026-09-25;
+migration 064 makes the database refuse them. `/demo` and `/demo/vote` stay
+account-free fixtures.
 
 ## 6. The payoff — photos, travel time, weather, vibe, budget, transport/carpooling
 **Partially built.** `DecidedPlan.tsx` today shows: the winning spot's photo,

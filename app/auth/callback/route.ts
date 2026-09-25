@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { safeNextPath } from "@/lib/auth";
+import { landingAfterSignIn, safeNextPath } from "@/lib/auth";
 import { resolveAppOrigin } from "@/lib/app-origin";
 
 export async function GET(request: NextRequest) {
@@ -15,10 +15,12 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     const supabase = await createClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    // Date of birth is collected at /onboarding, which /home redirects to
-    // while it is missing — nothing to carry through the OAuth round trip.
-    if (!error) return NextResponse.redirect(new URL(next, base));
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+    // A first-time account detours through /onboarding for its date of
+    // birth, carrying `next` so a plan link still ends on the plan.
+    if (!error && data.user) {
+      return NextResponse.redirect(new URL(await landingAfterSignIn(supabase, data.user.id, next), base));
+    }
   }
 
   return NextResponse.redirect(new URL("/login?error=callback", base));

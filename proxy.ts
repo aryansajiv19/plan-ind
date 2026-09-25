@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
+import { NextResponse, userAgent } from "next/server";
 import { updateSession } from "@/lib/supabase/proxy";
 
 export async function proxy(request: NextRequest) {
@@ -22,6 +22,20 @@ export async function proxy(request: NextRequest) {
   if (/^\/(?:plan\/[0-9a-f-]{36}\/)?(?:opengraph|twitter)-image(?:-[\w-]+)?$/.test(request.nextUrl.pathname)) {
     return NextResponse.next();
   }
+
+  // A plan page needs a real account (owner decision 2026-09-25). Gated here,
+  // before render, not in the page: a redirect thrown while rendering also
+  // replaces the <head> a link crawler reads, and WhatsApp would unfurl the
+  // login page instead of the plan. Known crawlers (Next's isBot list:
+  // WhatsApp, facebookexternalhit, Twitterbot, Slackbot, Discordbot, ...) get
+  // the metadata and the client shell, which reads nothing without a session;
+  // the database refuses a sessionless or anonymous caller anyway. This is
+  // routing, not authorization.
+  const pathname = request.nextUrl.pathname;
+  const planPage = /^\/plan\/[0-9a-f-]{36}\/?$/i.test(pathname);
+  // /login too: /invite gates client-side (it must stash its #token first),
+  // so a guest session arriving from there is ended before sign-in.
+  const signOutAnonymous = planPage || pathname === "/login" || pathname === "/invite";
 
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
   const isDev = process.env.NODE_ENV === "development";
@@ -50,7 +64,17 @@ export async function proxy(request: NextRequest) {
   requestHeaders.set("x-nonce", nonce);
   requestHeaders.set("Content-Security-Policy", csp);
 
-  const response = await updateSession(request, requestHeaders);
+  const { response, session } = await updateSession(request, requestHeaders, { signOutAnonymous });
+
+  if (planPage && session !== "member" && !userAgent(request).isBot) {
+    const login = new URL("/login", request.url);
+    login.searchParams.set("next", pathname.replace(/\/$/, ""));
+    const toLogin = NextResponse.redirect(login);
+    // Carry the refreshed-or-cleared session cookies (a guest's sign-out) onto
+    // the redirect; dropping them would leave the old session in place.
+    for (const cookie of response.headers.getSetCookie()) toLogin.headers.append("set-cookie", cookie);
+    return toLogin;
+  }
   response.headers.set("Content-Security-Policy", csp);
 
   const csrfCookieName = process.env.NODE_ENV === "production" ? "__Host-csrf" : "csrf";

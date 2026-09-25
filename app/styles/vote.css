@@ -55,7 +55,7 @@
 }
 
 /* ── The full-screen non-content states ────────────────────────────
-   loading / captcha / guest-paused / retry / cold-link, all rendered
+   loading / signed-out / retry / cold-link, all rendered
    through <VoteState> on a <main> that also carries .vote-experience
    (and --night). A state screen is not "you", not the outcome, not a
    category — per the colour system it earns no hue: graphite ink on the
@@ -116,10 +116,6 @@
   padding: 0.7rem 1.5rem;
   font-family: var(--font-display);
 }
-.vote-state__slot {
-  margin-top: 1.5rem;
-}
-/* Same job as .auth-note: explains a check that is slow or never arriving. */
 /* M1: plans joined together, shown with the inviter's name before Accept.
    Ink, not an alarm colour: zero is information, not a threat. */
 .invite-trust {

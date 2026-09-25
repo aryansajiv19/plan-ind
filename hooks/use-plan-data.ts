@@ -1,14 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getSupabase, bootstrapPlanAccess, type PlanAccessDenial } from "@/lib/supabase";
+import { getSupabase, claimPlanAccess, type PlanAccessDenial } from "@/lib/supabase";
 import { participantTokenHash } from "@/lib/participant";
 import type { Plan, PlanSpot, Rating, Rsvp, Spot, Vote } from "@/lib/types";
-import type { TurnstileStatus } from "@/components/Turnstile";
 
 export type Load = "loading" | "ready" | "notfound" | "error";
 // "checking" = access not resolved yet; "ready" = membership claimed; any
-// PlanAccessDenial = a specific reason bootstrapPlanAccess handed back.
+// PlanAccessDenial = a specific reason claimPlanAccess handed back.
 export type Access = "checking" | "ready" | PlanAccessDenial;
 
 // The vote page's data layer: access bootstrap, the first load, and the
@@ -25,21 +24,13 @@ export function usePlanData(id: string) {
   const [reloadKey, setReloadKey] = useState(0); // bump to retry the load
   const [participantHash, setParticipantHash] = useState<string | null>(null);
 
-  // All the "get a session, redeem the share id" logic lives in
-  // bootstrapPlanAccess (lib/supabase.ts) so it returns a typed reason rather
-  // than throwing — each reason gets its own screen below.
-  const runAccess = useCallback(async (captchaToken?: string) => {
-    const result = await bootstrapPlanAccess(id, captchaToken);
+  // Redeeming the share id lives in claimPlanAccess (lib/supabase.ts) so it
+  // returns a typed reason rather than throwing — each reason gets its own
+  // screen (components/vote/PlanStates.tsx).
+  const runAccess = useCallback(async () => {
+    const result = await claimPlanAccess(id);
     setAccess(result.ok ? "ready" : result.reason);
   }, [id]);
-  // Stable identity so <Turnstile>'s effect (keyed on `onVerify`) doesn't
-  // tear down and rebuild the live widget on every unrelated re-render of
-  // this page while the captcha screen is showing.
-  // "loading" is what is true before the widget has reported anything.
-  const [captchaStatus, setCaptchaStatus] = useState<TurnstileStatus>("loading");
-  const onCaptchaVerify = useCallback((token: string) => {
-    if (token) void runAccess(token);
-  }, [runAccess]);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => void runAccess());
@@ -191,9 +182,6 @@ export function usePlanData(id: string) {
     access,
     setAccess,
     runAccess,
-    captchaStatus,
-    setCaptchaStatus,
-    onCaptchaVerify,
     plan,
     setPlan,
     spots,

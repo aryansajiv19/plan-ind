@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { validateBirthDate } from "@/lib/age-policy";
 import { consumeOtpRequestLimit, consumeOtpVerifyLimit, recordSecurityEvent, reportControlUnavailable, requestId } from "@/lib/security/controls";
-import { safeNextPath } from "@/lib/auth";
+import { landingAfterSignIn, safeNextPath } from "@/lib/auth";
 import { resolveAppOrigin } from "@/lib/app-origin";
 
 export interface AuthFormState {
@@ -135,7 +135,7 @@ export async function verifyEmailCode(
     return { email, sent: true, error: "Too many attempts for this code. Request a new one in a few minutes." };
   }
 
-  const { error } = await supabase.auth.verifyOtp({
+  const { data, error } = await supabase.auth.verifyOtp({
     email,
     token,
     type: "email",
@@ -148,14 +148,13 @@ export async function verifyEmailCode(
     requestId: await requestId(),
   });
 
-  if (error) {
+  if (error || !data.user) {
     return { email, sent: true, error: "That code is invalid or has expired." };
   }
 
-  // /home sends anyone without a date of birth on file to /onboarding; any
-  // other destination (e.g. back to the plan a guest was voting on) bypasses
-  // that detour entirely — voting needs no date of birth.
-  redirect(next);
+  // A first-time account detours through /onboarding for its date of birth,
+  // carrying `next` so a plan link still ends on the plan.
+  redirect(await landingAfterSignIn(supabase, data.user.id, next));
 }
 
 export async function signInWithGoogle(formData: FormData) {
@@ -189,7 +188,8 @@ export async function saveBirthDate(_state: { error?: string }, formData: FormDa
       ? "Your date of birth is already saved. Contact us if it needs correcting."
       : "We couldn't save that yet. Please try again." };
   }
-  redirect("/home");
+  // Back to wherever sign-in was headed, e.g. the plan link that started it.
+  redirect(safeNextPath(formData.get("next")?.toString()));
 }
 
 export async function signOut() {

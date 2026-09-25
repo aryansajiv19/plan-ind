@@ -1,16 +1,23 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, safeNextPath } from "@/lib/auth";
 import { memberAge } from "@/lib/age-policy";
 import { createClient } from "@/lib/supabase/server";
 import AgeForm from "@/components/AgeForm";
 
-export default async function OnboardingPage() {
+export default async function OnboardingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>;
+}) {
+  // Where sign-in was headed (e.g. the plan link that started it); carried
+  // through the form so a first-time member still lands there.
+  const next = safeNextPath((await searchParams).next);
   const user = await getCurrentUser();
-  if (!user) redirect("/login");
+  if (!user) redirect(`/login?next=${encodeURIComponent(next)}`);
   // Date of birth is write-once, so this form has nothing left to do once it
   // is on file. Without this the page stays reachable forever.
-  if (await memberAge(await createClient(), user.id) !== null) redirect("/home");
+  if (await memberAge(await createClient(), user.id) !== null) redirect(next);
 
   return (
     <main className="auth-shell">
@@ -23,7 +30,7 @@ export default async function OnboardingPage() {
         </section>
         <section className="auth-panel" aria-label="Add your date of birth">
           <div className="auth-panel__heading"><p>Almost there</p><h2>When were you born?</h2></div>
-          <AgeForm />
+          <AgeForm next={next} />
         </section>
       </div>
     </main>

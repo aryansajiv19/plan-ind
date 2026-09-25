@@ -15,11 +15,11 @@ export function useVoterName(id: string) {
     if (saved) setVoterName(saved);
   }, [id]);
 
-  // Anyone signed in already told us their name in Settings, so asking "who's
-  // voting?" invites them to answer differently and appear to their friends
-  // under a name their profile doesn't have. Use people.display_name — the
-  // same one /home greets them with. Signed-out guests still see the gate,
-  // which is the whole point of it.
+  // Every voter is signed in (owner decision 2026-09-25) and already told us
+  // their name in Settings, so asking "who's voting?" invites them to answer
+  // differently and appear to their friends under a name their profile
+  // doesn't have. Use people.display_name — the same one /home greets them
+  // with. The name gate is left for a clash with someone already on the plan.
   const [accountNameTried, setAccountNameTried] = useState(false);
   useEffect(() => {
     if (accountNameTried || localStorage.getItem(`voter:${id}`)) return;

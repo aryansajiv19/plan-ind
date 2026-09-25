@@ -9,8 +9,9 @@ interface NameGateProps {
   notice?: string | null;
 }
 
-// Voters type their name once. No account, no email — just a name so the
-// group can see who's in. Persisted per-plan by the parent.
+// Voters normally arrive named (their account's display name). This asks only
+// when that name clashes with someone already on the plan. Persisted per-plan
+// by the parent.
 export default function NameGate({ planTitle, onSubmit, notice }: NameGateProps) {
   const [name, setName] = useState("");
   const trimmed = name.trim();
@@ -28,7 +29,7 @@ export default function NameGate({ planTitle, onSubmit, notice }: NameGateProps)
       </p>
       <h1 className="mt-2 text-3xl font-extrabold">{planTitle}</h1>
       <label htmlFor="voter-name" className="mt-6 block text-sm text-muted">
-        First, who’s voting?
+        What should the group call you?
       </label>
       <input
         id="voter-name"
@@ -46,7 +47,7 @@ export default function NameGate({ planTitle, onSubmit, notice }: NameGateProps)
         </p>
       )}
       <p id="voter-name-help" className="vote-name-help">
-        Your choices are remembered on this device for this plan. Use the same browser if you come back later.
+        Only for this plan. Your account name stays as it is.
       </p>
       <button
         type="submit"

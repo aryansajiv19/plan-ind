@@ -13,10 +13,11 @@ function Submit() {
   );
 }
 
-export default function AgeForm() {
+export default function AgeForm({ next }: { next: string }) {
   const [state, action] = useActionState(saveBirthDate, { error: "" });
   return (
     <form action={action} className="auth-form">
+      <input type="hidden" name="next" value={next} />
       <div className="auth-fields">
         <div>
           <label htmlFor="onboarding-dateOfBirth">Date of birth</label>
