@@ -65,6 +65,7 @@ Apply in order. Every migration is additive and re-run safe unless noted.
 | 062 | `migration-062-plan-share-preview.sql` | **NOT applied — staged 2026-09-24.** `plan_share_preview(uuid)` for link previews: title, status, stage, deadline, host first name, spot count, event time, and the winner's name + area (decided plans only; edited in place 2026-09-25, still unapplied); callable by `anon`. Needs a `security` review, then owner approval. Link previews fall back to a generic card until it is live. |
 | 063 | `migration-063-google-place-ids.sql` | **NOT applied — staged 2026-09-24.** `spots.google_place_id` (format CHECK, curated-only CHECK, partial unique index) + `places_synced_at`, column SELECT grant; `consume_app_quota` gains `place-photo` (60/min, 600/day, 300/day global). Proven on local PG16 (shim + schema + seed, applied twice, negative controls). Needs `security` review, then owner approval. Generated `places-backfill-*` migrations follow it. |
 | 064 | `migration-064-signed-in-participants.sql` | **NOT applied — staged 2026-09-25; the decision is owner-approved (2026-09-25), the apply still needs the owner's go.** Apply after 061. Anonymous sessions refused (42501 "Sign in to ...") by `claim_plan_access`, `cast_plan_vote`, `set_plan_rsvp`, `rate_plan`, `unrate_plan`, `leave_plan`; all plan_access-scoped read policies and both plan presence policies now require `is_permanent_user()`. Existing guest rows kept, inert. Ship with the client change that drops `signInAnonymously`, or share links break for guests. Verify: `pg_get_functiondef('claim_plan_access(uuid)'::regprocedure) like '%is_permanent_user%'`, same for `pg_policies.qual` on `read accessible votes`. Needs `security` review. |
+| 065 | `migration-065-protect-spots-in-plans.sql` | **NOT applied — staged 2026-09-25.** Independent of 061/064. `BEFORE DELETE` trigger `spots_protect_in_use` (security definer `protect_spots_in_use()`, EXECUTE revoked from all client roles) refuses deleting a spot in any plan (plan_spots/votes/ratings/winner, open or decided) or in someone else's visits/list items/imports, with 23503 + readable hint ("make it private instead"). Owner's own visits/list items still cascade. Re-running `seed.sql`/`seed-categories.sql` on a DB with plans now raises instead of cascading. Proven on PG16 (applied twice; refusals + positive controls; `test:db` 12/12). Verify: `select tgname from pg_trigger where tgname = 'spots_protect_in_use'`. Needs `security` review. |
 | 049 / 051 | `migration-049-hide-voter-user-id.sql`, `migration-051-hide-creator-user-id.sql` | **NOT applied — next in the queue, and now unblocked.** They were gated on the client deploy, which happened 2026-09-18. Verified still pending: `authenticated` can still SELECT `votes.user_id`. Needs the owner's approval like every migration. |
 
 `npm run test:smoke` asserts the 019 guards against the live project. All ten
@@ -210,3 +211,14 @@ account. Mirrored at the end of `schema.sql`; no type change. Proven on PG16
 (applied twice; anon claim/vote/rsvp/leave refused, anon member reads 0 rows
 where it read 1 before; permanent claim → vote → read works); `test:db` 6/6,
 fixtures needed no change (no `is_anonymous` claim = permanent).
+
+## 2026-09-25 — backend: migration 065 STAGED — spots in plans can't be deleted (C5)
+
+An owner deleting a custom spot cascaded it (and its votes) out of other
+people's plans and visit logs. 065 refuses that at the table (row trigger, all
+paths); way out is the existing `visibility = 'private'`, which plan members
+still read through `plan_spots`. No client deletes spots today (no UI; only a
+direct PostgREST call). Realtime: DELETE events skip RLS and carry the PK only;
+`plan_spots`' PK includes `plan_id` (a join capability). After 065 the only
+`plan_spots` DELETEs come from plan deletion, whose id is dead on commit;
+votes/rsvps/ratings DELETEs carry only their own row `id`.
