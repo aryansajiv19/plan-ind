@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore, useState } from "react";
 import { haptic } from "@/lib/interaction";
-import { shareMessage, whatsappShareUrl } from "@/lib/share-preview";
+import { shareMessage, whatsappShareUrl, type ShareWinner } from "@/lib/share-preview";
 
 // In Dubai the plan link travels through WhatsApp, so it leads the share row;
 // the native sheet (where the browser has one) and copy-link sit beside it.
@@ -30,7 +30,9 @@ function useCanNativeShare(): boolean {
   );
 }
 
-export default function ShareActions({ title }: { title: string | null }) {
+// `winner` is set only on a decided plan: the message then announces where the
+// group is going instead of asking for votes.
+export default function ShareActions({ title, winner = null }: { title: string | null; winner?: ShareWinner | null }) {
   const url = usePlanUrl();
   const canShare = useCanNativeShare();
   const [copied, setCopied] = useState(false);
@@ -50,7 +52,7 @@ export default function ShareActions({ title }: { title: string | null }) {
   async function nativeShare() {
     if (!url) return;
     try {
-      await navigator.share({ title: title ?? "Deal three", text: shareMessage(title, "").trim(), url });
+      await navigator.share({ title: title ?? "Deal three", text: shareMessage(title, "", winner).trim(), url });
     } catch {
       // AbortError when the sheet is dismissed; nothing to report either way
     }
@@ -61,7 +63,7 @@ export default function ShareActions({ title }: { title: string | null }) {
       {/* A real link, not a button that calls window.open: the WhatsApp app
           handles wa.me on a phone, and it works with scripting blocked. */}
       <a
-        href={url ? whatsappShareUrl(title, url) : undefined}
+        href={url ? whatsappShareUrl(title, url, winner) : undefined}
         aria-disabled={url ? undefined : true}
         target="_blank"
         rel="noopener noreferrer"

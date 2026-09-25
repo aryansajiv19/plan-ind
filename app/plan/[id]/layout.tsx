@@ -15,6 +15,8 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const { id } = await params;
   const copy = shareCopy(await fetchPlanSharePreview(id));
   const title = `${copy.title} | ${SITE_NAME}`;
+  // The unfurl's bold line: a decided plan leads with where the group is going.
+  const cardTitle = copy.winner ? `We're going to ${copy.winner}` : copy.title;
   return {
     title,
     description: copy.description,
@@ -27,10 +29,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       type: "website",
       siteName: SITE_NAME,
       locale: "en_AE",
-      title: copy.title,
+      title: cardTitle,
       description: copy.description,
     },
-    twitter: { card: "summary_large_image", title: copy.title, description: copy.description },
+    twitter: { card: "summary_large_image", title: cardTitle, description: copy.description },
   };
 }
 

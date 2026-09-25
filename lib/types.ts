@@ -125,6 +125,10 @@ export interface PlanSharePreview {
   deadline: string | null;
   host_first_name: string | null;
   spot_count: number;
+  event_time: string | null;
+  /** The winning spot, only when status is 'decided'; null otherwise. */
+  winner_name: string | null;
+  winner_area: string | null;
 }
 
 // After the decision: who's actually coming. A vote is an opinion; an RSVP

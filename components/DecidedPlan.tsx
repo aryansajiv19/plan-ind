@@ -10,6 +10,8 @@ import WinnerReveal from "@/components/WinnerReveal";
 import PhotoCredit from "@/components/PhotoCredit";
 import PlanWeather from "@/components/PlanWeather";
 import { avatarStyle, initialsOf } from "@/lib/avatar";
+import { shareMessage, type ShareWinner } from "@/lib/share-preview";
+import ShareActions from "@/components/ShareActions";
 
 interface DecidedPlanProps {
   plan: Plan;
@@ -84,17 +86,12 @@ export default function DecidedPlan({
       ? r.seats_available != null ? ` (driving · ${r.seats_available} ${r.seats_available === 1 ? "seat" : "seats"})` : " (driving)"
       : r.transport === "need_ride" ? " (needs a ride)" : "";
 
+  // One announcement for every share path: this button, WhatsApp and the
+  // native sheet all send lib/share-preview's shareMessage.
+  const shareWinner: ShareWinner = { name: winner.name, area: winner.area, eventTime: plan.event_time };
+
   async function copyForChat() {
-    const line2 = [winner.area];
-    if (plan.event_time) line2.push(prettyTime(plan.event_time));
-    if (coming.length) line2.push(`${coming.length} in`);
-    const text = [
-      `We're going to ${winner.name}!`,
-      line2.join(" · "),
-      typeof window !== "undefined" ? window.location.href : "",
-    ]
-      .filter(Boolean)
-      .join("\n");
+    const text = shareMessage(plan.title, window.location.href, shareWinner);
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
@@ -183,6 +180,7 @@ export default function DecidedPlan({
       >
         {copied ? "Copied. Paste it in the chat" : "Copy for the group chat"}
       </button>
+      <ShareActions title={plan.title} winner={shareWinner} />
 
       {/* When */}
       <div className="mt-4 border-t border-line pt-4">

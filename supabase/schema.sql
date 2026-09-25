@@ -3549,7 +3549,8 @@ create policy "read permitted visit photo files" on storage.objects for select t
 
 -- 062: plan share preview for link crawlers (WhatsApp unfurls). A keyless
 -- caller holding a plan id gets title, status, stage, deadline, the host's
--- first name and the spot count -- nothing else. The v4 id is the capability;
+-- first name, the spot count, the event time and -- only once decided -- the
+-- winning spot's name and area. Nothing else. The v4 id is the capability;
 -- see supabase/migration-062-plan-share-preview.sql for the full reasoning.
 create or replace function public.plan_share_preview(p_plan_id uuid)
 returns jsonb
@@ -3570,9 +3571,21 @@ as $$
         and h.auth_user_id = p.created_by_user_id
       limit 1
     ),
-    'spot_count', (select count(*) from public.plan_spots s where s.plan_id = p.id)
+    'spot_count', (select count(*) from public.plan_spots s where s.plan_id = p.id),
+    'event_time', p.event_time,
+    'winner_name', w.name,
+    'winner_area', w.area
   )
   from public.plans p
+  -- The winner only once the plan is decided: a reopened plan keeps no
+  -- winner_spot_id today (reopen_plan nulls it), and this guard keeps an open
+  -- plan from ever naming a spot even if that changes.
+  left join lateral (
+    select nullif(left(btrim(s.name), 80), '') as name,
+           nullif(left(btrim(s.area), 40), '') as area
+    from public.spots s
+    where p.status = 'decided' and s.id = p.winner_spot_id
+  ) w on true
   where p_plan_id is not null and p.id = p_plan_id
 $$;
 revoke all on function public.plan_share_preview(uuid) from public, anon, authenticated;

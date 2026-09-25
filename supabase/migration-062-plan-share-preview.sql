@@ -30,10 +30,17 @@
 --                     max, or null (no profile / blank). The host chose to
 --                     share the link; no OTHER member's name is ever returned.
 --   spot_count        number of plan_spots rows
+--   event_time        timestamptz or null -- when the outing is, once set
+--   winner_name       the winning spot's name (80 chars), ONLY when
+--   winner_area       status = 'decided' (its area, 40 chars); null otherwise.
+--                     "We're going to X" is the most shared moment, and every
+--                     link holder can read the winner after a free anonymous
+--                     claim anyway. Capped here because a custom spot's name
+--                     is user text written straight into spots.
 -- It NEVER returns user ids (created_by_user_id, people.id, auth ids), host
 -- tokens or their hashes, participant token hashes, votes, rsvps, ratings,
--- member names, spot names, area, budget, origin coordinates or the smart
--- brief.
+-- member names, booking owner, any non-winning spot, the plan's own area,
+-- budget, origin coordinates or the smart brief.
 --
 -- DOCUMENTED EXCEPTIONS to .claude/skills/rls-policies: (a) no auth.uid()
 -- check -- the whole point is a caller without a session, the second
@@ -64,9 +71,21 @@ as $$
         and h.auth_user_id = p.created_by_user_id
       limit 1
     ),
-    'spot_count', (select count(*) from public.plan_spots s where s.plan_id = p.id)
+    'spot_count', (select count(*) from public.plan_spots s where s.plan_id = p.id),
+    'event_time', p.event_time,
+    'winner_name', w.name,
+    'winner_area', w.area
   )
   from public.plans p
+  -- The winner only once the plan is decided: a reopened plan keeps no
+  -- winner_spot_id today (reopen_plan nulls it), and this guard keeps an open
+  -- plan from ever naming a spot even if that changes.
+  left join lateral (
+    select nullif(left(btrim(s.name), 80), '') as name,
+           nullif(left(btrim(s.area), 40), '') as area
+    from public.spots s
+    where p.status = 'decided' and s.id = p.winner_spot_id
+  ) w on true
   where p_plan_id is not null and p.id = p_plan_id
 $$;
 

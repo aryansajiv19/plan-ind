@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   GENERIC_PLAN_TITLE,
   isPlanId,
+  eventLabel,
   parseSharePreview,
   shareCopy,
   shareMessage,
@@ -55,4 +56,43 @@ test("the WhatsApp link carries the title and the plan link, encoded", () => {
   const wa = new URL(whatsappShareUrl("Dinner & drinks", url));
   assert.equal(wa.origin, "https://wa.me");
   assert.equal(wa.searchParams.get("text"), shareMessage("Dinner & drinks", url));
+});
+
+const decidedRow = {
+  ...open, status: "decided", stage: "decided", deadline: null,
+  event_time: "2026-09-26T16:00:00Z", winner_name: "  Il Borro\nBistro ", winner_area: "Jumeirah",
+};
+
+test("an open plan never names a winner, even if the payload carries one", () => {
+  const parsed = parseSharePreview({ ...open, winner_name: "Leak", winner_area: "Marina" });
+  assert.equal(parsed?.winner_name, null);
+  assert.equal(parsed?.winner_area, null);
+  assert.equal(shareCopy(parsed, NOW).winner, null);
+});
+
+test("event times read in Dubai time, minutes only when they are not :00", () => {
+  assert.equal(eventLabel("2026-09-26T16:00:00Z"), "Sat 26 Sep, 8 pm");
+  assert.equal(eventLabel("2026-09-26T16:30:00Z"), "Sat 26 Sep, 8:30 pm");
+  assert.equal(eventLabel("nonsense"), null);
+  assert.equal(eventLabel(null), null);
+});
+
+test("a decided plan's card leads with the winner, its time and area", () => {
+  const copy = shareCopy(parseSharePreview(decidedRow), NOW);
+  assert.equal(copy.winner, "Il Borro Bistro");
+  assert.equal(copy.details, "Sat 26 Sep, 8 pm · Jumeirah");
+  assert.equal(copy.title, "Friday dinner");
+  assert.equal(copy.description, "Sat 26 Sep, 8 pm · Jumeirah. Friday dinner is decided. Open the plan to RSVP.");
+  const noTime = shareCopy(parseSharePreview({ ...decidedRow, event_time: null }), NOW);
+  assert.equal(noTime.details, "Jumeirah");
+});
+
+test("a decided plan's share message announces the winner", () => {
+  const url = `https://plan-ind.vercel.app/plan/${ID}`;
+  const winner = { name: "Il Borro", area: "Jumeirah", eventTime: "2026-09-26T16:00:00Z" };
+  assert.equal(shareMessage("Friday dinner", url, winner), `We're going to Il Borro (Jumeirah) — Sat 26 Sep, 8 pm. RSVP: ${url}`);
+  assert.equal(shareMessage("Friday dinner", url, { ...winner, area: null, eventTime: null }), `We're going to Il Borro. RSVP: ${url}`);
+  assert.equal(shareMessage("Friday dinner", "", winner), "We're going to Il Borro (Jumeirah) — Sat 26 Sep, 8 pm.");
+  const wa = new URL(whatsappShareUrl("Friday dinner", url, winner));
+  assert.equal(wa.searchParams.get("text"), shareMessage("Friday dinner", url, winner));
 });
