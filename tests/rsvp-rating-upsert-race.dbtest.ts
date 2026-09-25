@@ -73,7 +73,7 @@ async function detectSkip(): Promise<string | false> {
     return "auth.uid() is missing — this DB is not a Supabase instance. Load supabase/schema.sql via `supabase start`.";
   }
   for (const [sig, label] of [
-    ["public.set_plan_rsvp(uuid,text,boolean,text,text)", "set_plan_rsvp"],
+    ["public.set_plan_rsvp(uuid,text,boolean,text,text,text,smallint)", "set_plan_rsvp"],
     ["public.rate_plan(uuid,uuid,text,integer,boolean,text)", "rate_plan"],
   ] as const) {
     let ret: string;

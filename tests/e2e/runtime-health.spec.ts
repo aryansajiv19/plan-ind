@@ -1,4 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
+import { randomUUID } from "node:crypto";
+import { isLocalStack, localAdmin } from "./local-stack";
 
 // Runtime bug-hunt: the failures that ship silently because nothing throws.
 //
@@ -120,12 +122,39 @@ for (const path of PAGES) {
 }
 
 // The place page is where today's broken image actually lived, and it is the
-// only public route that renders a venue photo. Museum of the Future is one
-// of the six spots with a photo, so this is a real assertion rather than a
-// vacuous pass over a null photo_url.
-test("a venue page with a photo renders that photo and its credit", async ({ page }) => {
+// only public route that renders a venue photo.
+//
+// Against a deployment, Museum of the Future is one of the six spots with a
+// photo (migration 039), so this is a real assertion rather than a vacuous
+// pass over a null photo_url. A local stack loaded from schema.sql + seed.sql
+// has no such row (039 is data against the LIVE bucket, not part of the
+// schema) and the page 404s, so locally the spec provisions its own curated
+// spot. Its photo is a same-origin static asset because the production CSP's
+// img-src allows 'self' and https: only -- a http://127.0.0.1 storage URL
+// would be blocked, and pointing at the live bucket would leave loopback.
+const HOSTED_PHOTO_SPOT = "87000000-0000-0000-0000-000000000003";
+
+async function withPhotoSpot(run: (spotId: string) => Promise<void>): Promise<void> {
+  if (!isLocalStack(process.env.NEXT_PUBLIC_SUPABASE_URL)) return run(HOSTED_PHOTO_SPOT);
+  const admin = localAdmin();
+  const spotId = randomUUID();
+  const { error } = await admin.from("spots").insert({
+    id: spotId, name: "E2E photo spot", category: "culture", area: "Trade Centre", cuisine: "Museum",
+    price_band: "$$", min_spend: 100, open_till: "9pm", vibe: "Fixture for the photo check",
+    source: "curated", photo_url: "/demo/alserkal-dinner.webp", photo_source: "wikimedia",
+    photo_attribution: "E2E fixture / Wikimedia Commons / CC BY 4.0",
+  });
+  if (error) throw new Error(`provisioning the photo spot failed: ${error.message}`);
+  try {
+    await run(spotId);
+  } finally {
+    await admin.from("spots").delete().eq("id", spotId);
+  }
+}
+
+test("a venue page with a photo renders that photo and its credit", async ({ page }) => withPhotoSpot(async (spotId) => {
   const found = collect(page);
-  await page.goto("/place/87000000-0000-0000-0000-000000000003", { waitUntil: "networkidle" });
+  await page.goto(`/place/${spotId}`, { waitUntil: "networkidle" });
 
   const hero = page.locator("img.place-hero__img");
   await expect(hero, "the place hero image is missing entirely").toHaveCount(1);
@@ -138,4 +167,4 @@ test("a venue page with a photo renders that photo and its credit", async ({ pag
 
   expect(found.badResponses, `4xx/5xx while loading the place page: ${JSON.stringify(found.badResponses, null, 1)}`)
     .toEqual([]);
-});
+}));

@@ -170,10 +170,21 @@ skip, loudly.
 npx supabase start
 psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -f supabase/schema.sql
 psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -f supabase/seed.sql
+# the quota RPCs fail closed without this (docs/SECURITY_SETUP.md):
+psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -c "insert into app_control_secrets(name, secret_hash) values ('server-control', extensions.crypt('local-secret', extensions.gen_salt('bf'))) on conflict (name) do update set secret_hash = excluded.secret_hash"
+export SECURITY_CONTROL_SECRET=local-secret
 export NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
 export NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<ANON_KEY from `npx supabase status`>
 npm run test:e2e
 ```
+
+`NEXT_PUBLIC_*` is baked in at build time, so build with these exported. In a
+sandbox with a preinstalled Chromium and no registry access, add
+`PW_CHROMIUM_PATH=<chrome binary>` and pass
+`--exclude studio,postgres-meta,edge-runtime,imgproxy,logflare,vector,pgbouncer`
+to `supabase start` (only the uncached images need excluding).
+`runtime-health`'s photo check provisions its own photographed spot on a
+local stack (the migration-039 rows are live-only data).
 
 - `guest-vote.spec.ts` — a signed-in friend opens the share link, is greeted
   by their account name (no name prompt), casts a vote, the card and its count
