@@ -222,3 +222,22 @@ direct PostgREST call). Realtime: DELETE events skip RLS and carry the PK only;
 `plan_spots`' PK includes `plan_id` (a join capability). After 065 the only
 `plan_spots` DELETEs come from plan deletion, whose id is dead on commit;
 votes/rsvps/ratings DELETEs carry only their own row `id`.
+
+## 2026-09-25 — Lead session: state at hand-off
+
+`main` = `claude/jolly-hypatia-hj9vhp` (fast-forwarded; `vercel.json` stops
+`main` auto-deploying). Production still runs `d536b6f` from 2026-09-20.
+
+**Apply order for the owner-approved migrations** (all verified on Postgres 16
+with `tests/supabase-shim.sql`; none applied live): 049 → 051 → 061 → 062 →
+063 → 064 → 065. Back up votes/rsvps/ratings before 061 (it dedupes). 064 must
+ship with the client that has the sign-in gate (this branch) — applying it
+under the live `d536b6f` client breaks guest share links.
+
+**Verified this session:** unit 250/250; `test:db` 12/12 (incl. the 025 race
+suite that had been silently skipping); browser E2E on a local Supabase stack
+chromium 91/0 and Mobile Chrome 92/0 (33 skips = visual baselines not generated
++ one mobile-only check). Local stack recipe in `tests/README.md`.
+
+**Owner decisions recorded:** sign in from the start (064); migrations approved;
+`main` is truth but not production yet.

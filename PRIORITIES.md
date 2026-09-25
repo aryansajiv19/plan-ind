@@ -14,28 +14,27 @@ Legend: `S` under a day · `M` a day or two · `L` more.
 | O1 | **Push the unpushed local commits**: `git push origin ai-engineering` from the laptop (production runs `d536b6f`, not on GitHub). Contains a Turnstile fix (challenge that never paints, seen live on `/login` 2026-09-20) that exists nowhere else; the card-reason change is superseded by the "Why this?" chips. Then merge `ai-engineering` into `main` | The live code exists only on one machine |
 | O2 | **Turnstile:** add `plan-ind.vercel.app` to the widget's hostnames; put the secret key in Supabase → Auth → Attack Protection | Production sign-in and guest voting are impossible until both are done (`docs/DEPLOYMENT.md`) |
 | O3 | **Google Places API key** — Places API (New) only, budget alert set, `GOOGLE_PLACES_API_KEY` (server-only, never `NEXT_PUBLIC_`). The pipeline is built; the 5-step runbook is at the end of `docs/PLACES_INGESTION_SCOPE.md` | Venue photos — the biggest visual gap (6 of 82 venues have one) |
-| O4 | **Migrations 049, 051, 061, 062, 063 (+064 when staged) — APPROVED by the owner 2026-09-25.** Blocked only on access: add `api.supabase.com` + `*.supabase.co` to the environment's network allowlist and `SUPABASE_ACCESS_TOKEN` (personal access token, revoke after) as an env var; a new session then applies them in order via the Management API and verifies each by catalog query. Back up votes/rsvps/ratings before 061 | Approved; needs a way in |
+| O4 | **Migrations 049, 051, 061–065 — APPROVED by the owner 2026-09-25.** Blocked only on access. Easiest: connect the **Supabase connector** in claude.ai (earlier sessions applied migrations through it). Alternative: allow `api.supabase.com` + `*.supabase.co` in the environment and set `SUPABASE_ACCESS_TOKEN` (revoke after). Order and precautions: last `worklog.md` entry | Approved; needs a way in |
 | O5 | **Keep the database awake**: a daily `/api/health` ping is committed (`.github/workflows/keepalive.yml`) and starts once it reaches `main`; Supabase Pro removes the risk entirely | A paused DB is a dead CV link |
 | O6 | **Cloud-session network access**: allow `*.supabase.co`, `plan-ind.vercel.app`, `api.open-meteo.com` | Lets sessions verify against live instead of guessing |
 | O7 | `main` is now the source of truth (fast-forwarded 2026-09-25; `vercel.json` keeps it from auto-deploying). Left for the owner: delete the fully merged `lane/backend`, `lane/frontend`, `lane/qa`, `lane/design` (branch deletion needs owner permission), and point Vercel production at `main` when going live | One branch that is always true |
 | O8 | Upload the 13 approved photos to `spot-photos` (blocks migration 046) | Bucket writes are refused for every client role by design |
 
-## Done on `claude/jolly-hypatia-hj9vhp` (2026-09-24), not yet on production
+## Done on `main` (2026-09-24/25), not yet on production
 
-Audit fixes (vote integrity, deadline, guest limits, SSRF, Realtime
-coalescing, mobile app bar, honest vote errors) · playable `/demo/vote` and a
-deal-reveal preview on `/demo` · WhatsApp share + per-plan link previews ·
-weather/heat on the decided plan · "Why this?" chips · skeleton loading ·
-catalogue cache + one profile write per account (landing 1 → 0 DB reads) ·
-Google Places pipeline, key-ready · every `.ts/.tsx` under 500 lines, CSS in
-ordered partials · Next.js RCE patch (16.3.6) · `schema.sql` builds again ·
-CI on every branch · daily keep-alive · docs consolidation · README.
-Migrations **061–063** are staged and verified on local Postgres (O4).
+Audit fixes (vote integrity, deadline, guest limits, SSRF, open redirect,
+Realtime coalescing, mobile app bar, honest errors) · sign-in from the start ·
+playable `/demo/vote` + deal reveal · WhatsApp share + link previews that
+announce the winner · weather/heat · in-app map, open-hours, drive estimate ·
+"Why this?" chips · persisted moodboards · catalogue cache · Google Places
+pipeline, key-ready · no `.ts/.tsx` over 500 lines · Next.js RCE patch ·
+`schema.sql` builds again · CI on every branch · E2E runs locally (183 pass) ·
+keep-alive · docs consolidation · README. Migrations **061–065** staged (O4).
 
 **Owner decision 2026-09-25: sign in from the start.** Joining or voting on a
 plan requires a permanent account (email code or Google); anonymous guests are
 gone. That closes the private-window re-vote that 061 alone could not.
-Migration 064 + the client change are in progress.
+Done: migration 064 (staged) + the client gate on `main`.
 
 ## Next — the portfolio pass
 
@@ -49,8 +48,8 @@ Migration 064 + the client change are in progress.
 | # | Item | Size |
 |---|---|---|
 | C4 | Migrations: 57 flat files, CI tests only `schema.sql` (a replay log). Adopt `supabase/migrations/`, squash to a baseline from production, `supabase db reset` in CI | M |
-| C5 | Realtime DELETE may reveal other plans' ids when a community spot is deleted — confirm with `scripts/load/realtime-fanout.mjs`; refuse deleting a spot in live plans | S |
-| C6 | `test:e2e` off in CI — point it at a throwaway plan and turn it on; one real load pass against the deployment | M |
+| C6 | E2E runs locally (recipe in `tests/README.md`); turn it on in CI by pointing the job's env at the stack it starts; one real load pass against the deployment | M |
+| C7 | Generate visual baselines after the cinematic pass (32 visual specs skip without them) | S |
 
 ## Later — "never leave the app"
 
