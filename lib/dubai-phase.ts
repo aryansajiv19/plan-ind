@@ -36,6 +36,18 @@ export function dubaiHour(now: Date = new Date()): number {
   return Number(hour) % 24;
 }
 
+/** Minutes since midnight in Dubai, 0-1439, for a given instant. */
+export function dubaiMinuteOfDay(now: Date = new Date()): number {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Dubai",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(now);
+  const part = (type: string) => Number(parts.find((p) => p.type === type)?.value ?? 0);
+  return (part("hour") % 24) * 60 + part("minute");
+}
+
 /** The ground the Dubai clock asks for, ignoring any user override. */
 export function groundForHour(hour: number): Ground {
   return hour >= NIGHT_FROM_HOUR || hour < DAY_FROM_HOUR ? "night" : "day";

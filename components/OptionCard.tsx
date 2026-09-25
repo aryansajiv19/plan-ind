@@ -6,6 +6,8 @@ import { avatarStyle, initialsOf } from "@/lib/avatar";
 import type { Spot } from "@/lib/types";
 import { categoryMeta } from "@/lib/categories";
 import type { DealReason } from "@/lib/deal-reasons";
+import { hoursLabel, openStatus } from "@/lib/open-hours";
+import { useMinuteClock } from "@/hooks/use-minute-clock";
 
 interface OptionCardProps {
   spot: Spot;
@@ -39,6 +41,12 @@ export default function OptionCard({
   const cat = categoryMeta(spot.category);
   // The distance chip carries the km itself; saying it twice is clutter.
   const shownKm = reasons?.some((reason) => reason.kind === "distance") ? null : distanceKm;
+  // The vote is for later, so "Closed now" would mislead a card; only the
+  // last hour before closing (which also proves it is open) replaces the
+  // listing, so the meta line stays one line.
+  const now = useMinuteClock();
+  const status = now ? openStatus(spot.open_till, now) : null;
+  const hours = status?.kind === "closing-soon" ? status.label : hoursLabel(spot.open_till);
 
   // A vote arriving over realtime is the only "someone else is here" signal
   // this screen has. Acknowledge it once, then clear — a permanent highlight
@@ -111,7 +119,7 @@ export default function OptionCard({
       </p>
 
       <p className="vote-option__meta mt-2 text-xs text-muted">
-        Open till {spot.open_till} · from AED {spot.min_spend}pp{shownKm != null ? ` · ${Math.max(1, Math.round(shownKm))} km away` : ""}
+        {hours ? `${hours} · ` : ""}from AED {spot.min_spend}pp{shownKm != null ? ` · ${Math.max(1, Math.round(shownKm))} km away` : ""}
       </p>
 
       {/* Why the deal picked it. Spans, not a list: this sits inside a
