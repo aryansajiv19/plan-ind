@@ -4,8 +4,8 @@
 
 A group decision app for going out in Dubai. One person starts a plan and sets
 the budget, distance and vibe; the app deals **nine** curated places across
-**three rounds of three**. Friends open a share link — no install, no sign-up —
-and vote. Each round sends one finalist forward, a final round picks the
+**three rounds of three**. Friends open a share link — no install; they sign in
+with Google or an email code in seconds — and vote. Each round sends one finalist forward, a final round picks the
 winner, and the plan carries through to RSVPs, who's driving, calendar export
 and ratings afterwards.
 
@@ -24,8 +24,9 @@ should do something" into a place everyone has actually agreed to.
   decide, reopen, delete).
 - **After the decision** — RSVPs, carpool ("who's driving / needs a ride"),
   booking owner, `.ics` and Google Calendar export, directions, ratings.
-- **Accounts** — email one-time code or Google; share-link guests get an
-  anonymous session. Friends, visit history, collections, delete-my-account.
+- **Accounts** — email one-time code or Google, required for everyone who
+  joins or votes on a plan. Friends, visit history, collections,
+  delete-my-account.
 
 ## Engineering
 

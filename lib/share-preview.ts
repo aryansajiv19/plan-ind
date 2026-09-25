@@ -19,8 +19,9 @@ export function isPlanId(id: unknown): id is string {
 
 export const SITE_NAME = "Deal three";
 export const GENERIC_PLAN_TITLE = "A Dubai plan to vote on";
+const SIGN_IN_NOTE = "Sign in with Google or an email code in seconds.";
 export const GENERIC_PLAN_DESCRIPTION =
-  "Vote on 9 Dubai spots across three rounds of three, then let the app call it.";
+  `Vote on 9 Dubai spots across three rounds of three, then let the app call it. ${SIGN_IN_NOTE}`;
 
 /** Narrows an untyped RPC payload; anything off-shape is treated as absent. */
 export function parseSharePreview(value: unknown): PlanSharePreview | null {
@@ -93,7 +94,8 @@ export function shareCopy(preview: PlanSharePreview | null, now = Date.now()): S
   const lead = preview.host_first_name ? `${preview.host_first_name} wants your vote.` : "Your vote is wanted.";
   const description = decided
     ? `${preview.host_first_name ? `${preview.host_first_name}'s` : "The"} group has picked a spot. Open the plan to see it.`
-    : [lead, `${state}.`, closes ? `${closes}.` : null].filter(Boolean).join(" ");
+    // Voting needs an account now; say so before the tap, not after it.
+    : [lead, `${state}.`, closes ? `${closes}.` : null, SIGN_IN_NOTE].filter(Boolean).join(" ");
   return { title: preview.title, state, host, closes, description };
 }
 

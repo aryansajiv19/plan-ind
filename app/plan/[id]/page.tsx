@@ -41,7 +41,7 @@ export default function VotePage() {
 
   const {
     load, setLoad, setReloadKey,
-    access, setAccess, runAccess, captchaStatus, setCaptchaStatus, onCaptchaVerify,
+    access, setAccess, runAccess,
     plan, setPlan, spots, planSpots, setPlanSpots, votes, setVotes, rsvps, setRsvps, ratings, setRatings,
     participantHash, refetchVotes, refetchRsvps, refetchRatings, refetchPlanSpots,
   } = usePlanData(id);
@@ -170,11 +170,13 @@ export default function VotePage() {
   useFaceFlight();
 
   const stateScreen = planStateScreen({
-    deleted, left, plan, access, load, captchaStatus, setCaptchaStatus, onCaptchaVerify, retryAccess, setLoad, setReloadKey,
+    deleted, left, plan, access, load, retryAccess, setLoad, setReloadKey,
   });
   if (stateScreen) return stateScreen;
 
-  // Hold the gate while a signed-in account's name resolves, so it doesn't flash.
+  // Hold the gate while the account's name resolves, so it doesn't flash. The
+  // gate itself only shows when that name clashes with someone already on
+  // this plan (reportParticipantFailure clears it).
   if (!voterName && !accountNameTried) {
     return <VoteState kind="loading" planTitle={plan?.title} />;
   }
@@ -418,7 +420,7 @@ export default function VotePage() {
       </div>
 
       <p className="mt-4 px-1 text-center text-xs text-muted">
-        No account needed. Choose one place from each pool, then vote on the final three.
+        Choose one place from each pool, then vote on the final three.
       </p>
     </main>
   );

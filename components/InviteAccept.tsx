@@ -70,7 +70,11 @@ export default function InviteAccept({
       setToken(found);
       stash(found);
       if (!signedIn) {
+        // Straight on to sign-in, now the token is stashed. Gated here, not in
+        // proxy.ts: a server redirect would run before the #token was saved.
+        // The screen below stays as the fallback if navigation is slow.
         setState({ step: "signed-out" });
+        window.location.replace("/login?next=/invite");
         return;
       }
       if (profileFailed) {
@@ -127,7 +131,7 @@ export default function InviteAccept({
       break;
     case "signed-out":
       title = "Someone wants to be friends";
-      body = "Sign in to see who sent this. Nothing happens until you accept.";
+      body = "Taking you to sign in so you can see who sent this. Nothing happens until you accept.";
       action = <Link href="/login?next=/invite" className="vote-primary-action">Sign in</Link>;
       break;
     case "preview": {

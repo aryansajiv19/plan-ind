@@ -27,10 +27,10 @@ Nothing in the repo can do either of these, and the first one gates sign-in.
    hands it to Supabase, so the secret belongs there and **nowhere else** —
    never in Vercel, never in this repo.
 
-Until both are done, **production sign-in and guest voting cannot start at
-all** — `bootstrapPlanAccess` demands the token before it attempts a session
-(`components/AuthForm.tsx`, `app/auth/actions.ts`, `lib/supabase.ts`). Google
-OAuth is unaffected. This is a hard wall, not a hardening nicety.
+Until both are done, **production email sign-in cannot start at all** — the
+email-code form demands the token before it requests a code
+(`components/AuthForm.tsx`, `app/auth/actions.ts`), and since 2026-09-25 every
+plan voter signs in. Google OAuth is unaffected. This is a hard wall, not a hardening nicety.
 
 ## Environment variables
 
