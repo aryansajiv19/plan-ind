@@ -41,6 +41,11 @@ export default defineConfig({
   use: {
     baseURL: process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000",
     trace: "on-first-retry",
+    // Sandboxes that ship a preinstalled Chromium but cannot download the
+    // pinned build (e.g. cloud sessions) point this at it. Unset everywhere else.
+    ...(process.env.PW_CHROMIUM_PATH
+      ? { launchOptions: { executablePath: process.env.PW_CHROMIUM_PATH } }
+      : {}),
   },
   // Cross-environment matrix. Was chromium-desktop only, which is the wrong
   // shape for this app: a plan is created on one device and its share link
