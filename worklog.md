@@ -64,6 +64,7 @@ Apply in order. Every migration is additive and re-run safe unless noted.
 | 061 | `migration-061-vote-integrity-and-guest-limits.sql` | **NOT applied — staged 2026-09-24, needs owner approval and a `security` review.** Deletes duplicate votes/RSVPs/ratings per user first (keeps latest); back up or count the three tables before applying. Verify: three `*_user*_key` indexes in `pg_indexes`, new policies in `pg_policies`. |
 | 062 | `migration-062-plan-share-preview.sql` | **NOT applied — staged 2026-09-24.** `plan_share_preview(uuid)` for link previews: title, status, stage, deadline, host first name, spot count; callable by `anon`. Needs a `security` review, then owner approval. Link previews fall back to a generic card until it is live. |
 | 063 | `migration-063-google-place-ids.sql` | **NOT applied — staged 2026-09-24.** `spots.google_place_id` (format CHECK, curated-only CHECK, partial unique index) + `places_synced_at`, column SELECT grant; `consume_app_quota` gains `place-photo` (60/min, 600/day, 300/day global). Proven on local PG16 (shim + schema + seed, applied twice, negative controls). Needs `security` review, then owner approval. Generated `places-backfill-*` migrations follow it. |
+| 064 | `migration-064-signed-in-participants.sql` | **NOT applied — staged 2026-09-25; the decision is owner-approved (2026-09-25), the apply still needs the owner's go.** Apply after 061. Anonymous sessions refused (42501 "Sign in to ...") by `claim_plan_access`, `cast_plan_vote`, `set_plan_rsvp`, `rate_plan`, `unrate_plan`, `leave_plan`; all plan_access-scoped read policies and both plan presence policies now require `is_permanent_user()`. Existing guest rows kept, inert. Ship with the client change that drops `signInAnonymously`, or share links break for guests. Verify: `pg_get_functiondef('claim_plan_access(uuid)'::regprocedure) like '%is_permanent_user%'`, same for `pg_policies.qual` on `read accessible votes`. Needs `security` review. |
 | 049 / 051 | `migration-049-hide-voter-user-id.sql`, `migration-051-hide-creator-user-id.sql` | **NOT applied — next in the queue, and now unblocked.** They were gated on the client deploy, which happened 2026-09-18. Verified still pending: `authenticated` can still SELECT `votes.user_id`. Needs the owner's approval like every migration. |
 
 `npm run test:smoke` asserts the 019 guards against the live project. All ten
@@ -194,3 +195,18 @@ requests, $0 in free tier / $2.87 worst case. Proven with fixtures + loopback
 mock server and PG16; the live `og:image` fetch was not exercisable from this
 sandbox (egress 403). Owner runbook: end of `docs/PLACES_INGESTION_SCOPE.md`.
 UI still has to call the photo route and render attributions (frontend lane).
+
+## 2026-09-25 — backend: migration 064 STAGED — plan participants need an account
+
+Owner decision: joining or voting on a plan requires a permanent account
+(email OTP or Google). `supabase/migration-064-signed-in-participants.sql`
+(written, NOT applied) reuses 020's `is_permanent_user()`: the six participant
+RPCs raise 42501 "Sign in to ..." for anonymous sessions, and every
+plan_access-scoped read policy (plans, plan_spots, votes, rsvps, ratings,
+plan_access, the plan branch of spots, plan presence) requires it too. Guest
+rows are kept and inert; a guest upgraded in place (same uid) regains access.
+`enforce_plan_membership` is untouched so a guest can still delete their
+account. Mirrored at the end of `schema.sql`; no type change. Proven on PG16
+(applied twice; anon claim/vote/rsvp/leave refused, anon member reads 0 rows
+where it read 1 before; permanent claim → vote → read works); `test:db` 6/6,
+fixtures needed no change (no `is_anonymous` claim = permanent).
