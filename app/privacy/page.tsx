@@ -21,7 +21,7 @@ export default function PrivacyPage() {
         <p className="legal-page__date">Effective 19 August 2026</p>
         {legal.isPlaceholder && <p className="legal-page__notice">Development legal details are shown on this build.</p>}
         <h2>What we collect</h2>
-        <p>We process account identifiers, profile details you provide, date of birth for age eligibility, plan content, votes, RSVP choices, ratings, and limited security and usage records. Shared-plan guests receive an anonymous session; their typed name and plan activity are visible to other members of that plan.</p>
+        <p>We process account identifiers, profile details you provide, date of birth for age eligibility, plan content, votes, RSVP choices, ratings, and limited security and usage records. Everyone who joins a shared plan signs in; their display name and plan activity are visible to other members of that plan.</p>
         <h2>Why we use it</h2>
         <p>We use data to provide and secure the service, enforce age and usage limits, maintain plan history, troubleshoot failures, and prevent abuse. Smart-search text is sent to our AI provider to interpret your request; do not include secrets or sensitive personal information.</p>
         <h2>Sharing and retention</h2>

@@ -409,3 +409,12 @@ alter policy "plan members send presence" on realtime.messages with check (
   and exists(select 1 from public.plan_access a where a.user_id=(select auth.uid())
     and a.plan_id=split_part((select realtime.topic()),':',2)::uuid)
 );
+
+-- Fail closed (security review of 064): only an explicit `"is_anonymous": false`
+-- counts as permanent. The 020 version treated a missing or non-boolean claim
+-- as permanent; Supabase Auth always sets the boolean, but a future access-token
+-- hook or third-party auth that dropped it would have silently re-admitted guests.
+create or replace function is_permanent_user()
+returns boolean language sql stable set search_path = pg_catalog as $$
+  select auth.uid() is not null and coalesce(auth.jwt()->'is_anonymous' = 'false'::jsonb, false)
+$$;

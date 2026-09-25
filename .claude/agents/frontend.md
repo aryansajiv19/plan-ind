@@ -52,7 +52,7 @@ signatures.
 
 `docs/PRODUCT_FLOW.md` is the source of truth. In short: a signed-in host deals
 nine spots across three rounds (`StartPlanForm`); guests open `/plan/[id]`, get
-an anonymous Supabase session, give a name once (`NameGate`), and vote through
+are sent to sign in first (`proxy.ts` gate; their account name is used, `NameGate` only on a name clash), and vote through
 the `cast_plan_vote` RPC; live counts arrive over one Realtime channel per plan;
 the host (or the deadline) advances rounds and decides via
 `/api/plans/[id]/command`; `DecidedPlan` then carries RSVPs, carpool, booking

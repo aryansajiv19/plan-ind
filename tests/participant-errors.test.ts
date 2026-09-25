@@ -23,3 +23,7 @@ test("authorization and unknown failures keep the fallback", () => {
   assert.equal(participantFailure({ code: "PGRST301", message: "JWT expired" }, fallback).notice, fallback);
   assert.equal(participantFailure(null, fallback).notice, fallback);
 });
+
+test("a guest refusal says to sign in", () => {
+  assert.equal(participantFailure({ code: "42501", message: "Sign in to vote on this plan" }, fallback).notice, "Sign in to vote on this plan");
+});

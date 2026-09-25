@@ -60,7 +60,8 @@ not after.
 - **RLS is membership-scoped.** Reads go through `plan_access`;
   `votes`/`rsvps`/`ratings` have no direct write policy — writes go through
   security-definer RPCs. Never add one.
-- **Identity is a Supabase Auth session**, anonymous for share-link guests. Age
+- **Identity is a permanent Supabase Auth account** — joining or voting on a
+  plan requires sign-in (owner decision 2026-09-25, migration 064). Age
   comes from server-owned `member_ages`, never a request body or `user_metadata`.
 - **`status` is exactly `'open' | 'decided'`.**
 - **The publishable/anon key is public by design.** No service-role key exists;

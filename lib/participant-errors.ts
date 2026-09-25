@@ -14,6 +14,8 @@ export const NAME_TAKEN_NOTICE =
 export function participantFailure(error: RpcError, fallback: string): ParticipantFailure {
   const message = error?.message ?? "";
   if (message.includes("name is already in use")) return { notice: NAME_TAKEN_NOTICE, nameTaken: true };
+  // 064: guest sessions are refused with a person-readable "Sign in to …".
+  if (error?.code === "42501" && message.startsWith("Sign in to ")) return { notice: message, nameTaken: false };
   if ((error?.code === "22023" || error?.code === "40001") && message) return { notice: message, nameTaken: false };
   return { notice: fallback, nameTaken: false };
 }

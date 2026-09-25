@@ -150,7 +150,7 @@ async function mintParticipant(planId: string): Promise<Participant> {
 // A session that auth.uid() resolves for, acting as the `authenticated` role
 // so the EXECUTE grant is exercised too.
 function authPrelude(p: Participant): string {
-  return `set request.jwt.claims to '{"sub":"${p.uid}","role":"authenticated"}'; set role authenticated;`;
+  return `set request.jwt.claims to '{"sub":"${p.uid}","role":"authenticated","is_anonymous":false}'; set role authenticated;`;
 }
 
 function rsvpCall(p: Participant, planId: string, coming: boolean, choice: "coming" | "maybe" | "no"): string {
