@@ -1822,6 +1822,8 @@ create table if not exists app_control_secrets (
   created_at timestamptz not null default now()
 );
 alter table app_control_secrets enable row level security;
+-- 066: no table privileges for client roles either (zero policies already hide it).
+revoke all on app_control_secrets from anon, authenticated;
 
 create table if not exists app_rate_limits (
   scope text not null,
@@ -1846,16 +1848,18 @@ create index if not exists security_events_created_idx on security_events(create
 alter table security_events enable row level security;
 
 -- 066: a stored hash starting '$2' is bcrypt (crypt()); anything else is the
--- lowercase hex sha256 of the secret, microseconds instead of ~6ms per call.
--- Any other format never matches. The secret is 32+ random bytes, so bcrypt's
--- slowness bought nothing (see migration-066).
+-- lowercase hex sha256 of the secret, microseconds instead of ~3ms per call.
+-- Any other format never matches, and an empty, null or over-256-character
+-- secret never verifies (sha256('') must not make '' valid). The secret is
+-- 32+ random bytes, so bcrypt's slowness bought nothing (see migration-066).
 create or replace function valid_control_secret(p_secret text)
 returns boolean language sql stable security definer set search_path = public, extensions, pg_temp as $$
-  select exists(select 1 from app_control_secrets
-    where name = 'server-control' and case
-      when secret_hash like '$2%' then secret_hash = crypt(p_secret, secret_hash)
-      else secret_hash = encode(digest(p_secret, 'sha256'), 'hex')
-    end)
+  select coalesce(p_secret, '') <> '' and length(p_secret) <= 256
+    and exists(select 1 from app_control_secrets
+      where name = 'server-control' and case
+        when secret_hash like '$2%' then secret_hash = crypt(p_secret, secret_hash)
+        else secret_hash = encode(digest(p_secret, 'sha256'), 'hex')
+      end)
 $$;
 -- 021: `from public` alone is a no-op against Supabase's named grants to
 -- anon/authenticated. This function returns a boolean instead of raising, so

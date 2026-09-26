@@ -13,7 +13,7 @@ It is **public by design**. Know the boundary before you file anything.
 | `NEXT_PUBLIC_SUPABASE_URL` | public | by design |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | public | by design — **not a leak** |
 | `OPENAI_API_KEY` | **server only** | never `NEXT_PUBLIC_` |
-| `SECURITY_CONTROL_SECRET` | **server only** | 256 random bits, bcrypt-hashed in `app_control_secrets` |
+| `SECURITY_CONTROL_SECRET` | **server only** | 256 random bits, ≤64 chars (also an HMAC key); sha256 digest in `app_control_secrets` (066; bcrypt still verifies) |
 | service-role key | **does not exist** | none may be added, ever |
 
 ## The check

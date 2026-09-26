@@ -148,7 +148,7 @@ node scripts/load/scale.mjs <scenario> [n]
 ```
 
 **The `app_control_secrets` step is not optional and fails confusingly.** The
-local database needs the bcrypt hash of *this machine's*
+local database needs the sha256 digest (or a bcrypt hash) of *this machine's*
 `SECURITY_CONTROL_SECRET` (`docs/SECURITY_SETUP.md` has the insert). Skip it and
 every quota-gated route returns **429 "Too many deals"** on a freshly minted
 user's very first request — which reads like a rate limit and is actually
