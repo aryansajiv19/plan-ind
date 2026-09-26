@@ -6,13 +6,15 @@ The application changes are committed in code, but the database and identity-pro
 
 Run `supabase/migration-020-production-security.sql` in the Supabase SQL editor after migration 019. Do not run `schema.sql` against a live project; it is destructive and exists only for empty scratch databases.
 
-Generate a random value of at least 32 bytes, set it as the Vercel `SECURITY_CONTROL_SECRET`, then store only its bcrypt hash in Supabase:
+Generate a random value of at least 32 bytes (`openssl rand -hex 32`), set it as the Vercel `SECURITY_CONTROL_SECRET`, then store only its sha256 hex digest in Supabase. Compute the digest locally so the secret never enters SQL history (`printf %s "$SECURITY_CONTROL_SECRET" | shasum -a 256`):
 
 ```sql
 insert into public.app_control_secrets(name, secret_hash)
-values ('server-control', extensions.crypt('PASTE_THE_SECRET_HERE', extensions.gen_salt('bf')))
+values ('server-control', 'PASTE_THE_SHA256_HEX_HERE')
 on conflict (name) do update set secret_hash = excluded.secret_hash;
 ```
+
+A bcrypt hash (starting `$2`) is still accepted (migration 066); it just costs ~6ms of database CPU on every rate-limited request.
 
 Schedule the following once per day with Supabase Cron:
 

@@ -280,6 +280,31 @@ more off-loopback. Don't credit it with raising the ceiling. Moving n=100
 is a horizontal lever (serverless instances, which a real deployment already
 provides), not a matter of shaving trips off a saturated single process.
 
+### Before/after: control secret as sha256, not bcrypt (migration 066)
+
+**Method.** One stack, one warm `next start`; 066 accepts both formats, so
+the only thing switched between paired reps is the `app_control_secrets` row
+(A = bcrypt, today's cost; B = sha256), order alternating per rep, 3 discarded
+warm-up rounds. In SQL, 066 on a bcrypt row costs the same as the pre-066
+function (2.63-2.70 vs 2.66-2.77 ms/call), so A is a faithful "before"; on a
+sha256 row it is 0.004 ms/call. Medians of per-rep values, 2026-09-26:
+
+| n | p50 A → B | quota RPC DB time per call A → B | B wins p50 / DB time |
+|---|---|---|---|
+| 1 (×12) | 56.5 → 56.5ms | 4.0 → 0.45ms | 6/12 / 12/12 |
+| 100 (×6) | 905 → 798ms | 15.5 → 1.15ms | 4/6 / 6/6 |
+| 200 (×6) | 1376 → 1243ms | 22.1 → 0.96ms | 4/6 / 6/6 |
+
+**The quota RPC's DB time falls 93-96% at every n, winning every paired rep.
+The local p50 barely moves** (uncontended: no change; loaded: -10 to -12%, a
+4/6 paired win, weak), because the latency here is the one Node process.
+
+**Most DB CPU was never bcrypt.** One 100-deal burst used 4.7s of DB container
+CPU but only 0.49s of statement time, and opened 500 new Postgres sessions:
+GoTrue (`supabase_auth_admin`) connects per `getUser()` lookup on the local
+stack, about 5 connections per deal. Connection setup, not SQL, is the local
+DB's main cost; whether hosted Auth pools is unmeasured.
+
 ### Bonus: `npm run test:db` runs for real now
 
 The same local stack this phase built makes the previously self-skipping
