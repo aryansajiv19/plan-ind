@@ -69,7 +69,10 @@ export async function proxy(request: NextRequest) {
 
   const { response, session } = await updateSession(request, requestHeaders, { signOutAnonymous });
 
-  if (planPage && session !== "member" && !userAgent(request).isBot) {
+  // Only a known signed-out visitor is sent to sign in. "unknown" (auth outage)
+  // renders the client shell; PostgREST checks the JWT itself, so the plan
+  // keeps working through a GoTrue blip and RLS still gates every read.
+  if (planPage && (session === "none" || session === "anonymous") && !userAgent(request).isBot) {
     const login = new URL("/login", request.url);
     login.searchParams.set("next", pathname.replace(/\/$/, ""));
     const toLogin = NextResponse.redirect(login);
