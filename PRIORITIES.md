@@ -39,7 +39,8 @@ Done: migration 064 (staged) + the client gate on `main`.
 | # | Item | Size |
 |---|---|---|
 | B3 | **Venue photos** (needs O3): run the Places runbook, upload approved photos, then render the per-request Google photo fallback + attributions on cards (`/api/spots/[id]/photo` exists; UI not wired) | M |
-| B6 | Winner reveal: full-bleed photo when present, faces of who picked it, share card | M |
+| B6 | Winner reveal: full-bleed photo when present (faces + share: done 2026-09-26) | S |
+| B7 | **Host controls follow the account, not the device.** Today they need the host token in that browser's localStorage, so a host on a new device sees only "Leave this plan". Proposal: `execute_plan_command` (and edit/reopen/delete) also accept `auth.uid() = plans.created_by_user_id`; migration + `security` review + owner approval to apply | M |
 
 ## Scale and hygiene
 

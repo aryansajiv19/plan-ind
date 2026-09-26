@@ -242,3 +242,12 @@ live apply needs the owner.
   with a JSON body was not, fixed on merge). Local deal n=200 ×3: 401s under
   load 249 → 0; signed-out callers still get 401. Pages (`getCurrentUser`)
   still redirect on an outage: handed to the frontend lane.
+- **UI states pass (frontend lane, b0a3738):** every core screen tested with
+  real failures on the local stack (REST container stopped by id, expired
+  deadline, plan deleted mid-vote, quota hit). Fixed: an outage no longer
+  reads as "no date of birth" (`readMemberAge` throws; `memberAge` still fails
+  closed for age gates) or as signed out (`getCurrentUser` on `sessionUser`);
+  a failed deal shows the server's reason, not "raise your budget"; an unsaved
+  vote/RSVP/rating is rolled back instead of shown as saved; the plan notice is
+  sticky beside the control that failed. Open: duplicate React key on the
+  voter's own face; host controls tied to one device (PRIORITIES B7).
