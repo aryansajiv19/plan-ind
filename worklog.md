@@ -188,3 +188,24 @@ after the deploy): extra ballots via free guest sessions on a shared link, and
 guests draining the global Luna quota (300/day). Ordering trap recorded in
 PRIORITIES O2/O4: the Turnstile secret must be set AFTER `main` deploys.
 
+
+## 2026-09-26 — Frontend + platform lanes merged; README; one dev server
+
+- **B6 (partial):** the decided screen shows the faces and names of who picked
+  the winner in the final (`pickedBy`, no "of N": the roster is a lower bound).
+  Sharing was already complete. `DecidedPlan.tsx` 473 → 233 lines
+  (`components/vote/{WhosIn,Booking,Rating}Section.tsx`, pure move).
+- **Landing / demo polish:** hero deck shows a real venue photo with its
+  licence credit; `/demo`'s wall uses the cached curated catalogue (it showed
+  an empty state to every visitor); secondary CTA is "See a sample vote".
+- **Context hygiene (platform lane):** agent docs −2.9k tokens, directory
+  `CLAUDE.md` −0.6k; false rules removed (021 "unapplied", "share link dead",
+  old votes key, "deadline unenforced"); dead npm aliases dropped;
+  `supabase/APPLY_RUNBOOK.md` (a second, orphaned ledger) archived.
+- **Go-live compatibility sweep** (workflow, 4 finders + skeptics): 146 Supabase
+  call sites in `main` checked against the live catalog, 0 mismatches.
+- **README** rewritten in the owner's voice (no jargon, no dashes).
+- **One dev server:** `:3000` serves `main` against the local stack
+  `plan-ind-frontend` (127.0.0.1:55021), reloaded from `schema.sql` + seeds +
+  039 locally. The stale `:3000` from `~/plan-ind-frontend` pointed at
+  production and was stopped.
