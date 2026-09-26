@@ -20,6 +20,8 @@ const eslintConfig = defineConfig([
     // whole run useless. `.claude/skills` holds symlinks into the same tree.
     ".agents/**",
     ".claude/skills/**",
+    // Local /brag-slim renders (gitignored).
+    "brag-output*/**",
   ]),
 ]);
 
