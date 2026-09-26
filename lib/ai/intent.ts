@@ -150,11 +150,11 @@ export function normalizeIntent(value: unknown): SmartSearchIntent {
 
 export type IntentOutcome =
   | { ok: true; intent: SmartSearchIntent }
-  | { ok: false; status: 400 | 422 | 502; error: string; reason: "truncated" | "unparseable" | "invalid" | "age" };
+  | { ok: false; status: 400 | 422 | 502; error: string; reason: "truncated" | "refused" | "unparseable" | "invalid" | "age" };
 
 /** The subset of a Responses result this module reads. Kept structural so a
- *  fixture is three fields, not forty, while still deriving its types from the SDK. */
-export type IntentResponse = Pick<OpenAI.Responses.Response, "status" | "incomplete_details" | "output_text">;
+ *  fixture is four fields, not forty, while still deriving its types from the SDK. */
+export type IntentResponse = Pick<OpenAI.Responses.Response, "status" | "incomplete_details" | "output_text" | "output">;
 
 /**
  * Everything between "the model returned" and "the route replies", as one
@@ -162,6 +162,20 @@ export type IntentResponse = Pick<OpenAI.Responses.Response, "status" | "incompl
  * asks the model to cooperate, this re-checks whether it did.
  */
 export function intentFromResponse(response: IntentResponse, age: number): IntentOutcome {
+  // A refusal is a policy answer, not a fault: the same query is refused the
+  // same way every time, and each retry spends a daily search. It arrives as a
+  // "refusal" content part (output_text is then ""), or as a content-filter
+  // stop. Never pass the provider's refusal text through.
+  const refused = response.incomplete_details?.reason === "content_filter"
+    || response.output.some((item) => item.type === "message" && item.content.some((part) => part.type === "refusal"));
+  if (refused) {
+    return {
+      ok: false,
+      status: 422,
+      error: "Smart search can’t help with that request. Describe a different plan instead.",
+      reason: "refused",
+    };
+  }
   // A truncated response has invalid JSON in output_text; parsing it throws
   // into the generic 502 with nothing to diagnose from.
   if (response.status === "incomplete") {
