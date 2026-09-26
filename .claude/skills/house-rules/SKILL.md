@@ -54,8 +54,6 @@ git diff --check
 
 Stop and fix on any failure. **Never claim done with a red check.**
 
-`test:security` and `test:wrapped` are plain aliases for `npm run test` and
-filter nothing — a green `test:security` is not targeted security coverage.
 `test:smoke` needs a running server and real Supabase credentials; it is
 deployment verification, not regression coverage, and is expected red for
 unapplied-migration guards.

@@ -29,8 +29,9 @@ The account is on a **free tier: 10 requests/minute, 50/day.** That is not
 the route returns a 503 with honest copy and nothing else breaks.
 
 **If billing is ever added, set a budget cap first.** Quotas key on
-`auth.uid()`, and anonymous sign-ins are enabled for guest voting, so anything
-that can mint a session can mint a quota.
+`auth.uid()`, and anonymous sign-ins are still enabled in Supabase Auth (guests
+are gone, the toggle is not), so anything that can mint a session can mint a
+quota.
 
 ## Evals
 

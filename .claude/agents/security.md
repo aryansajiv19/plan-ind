@@ -11,12 +11,9 @@ you are the one agent with no incentive to ship.
 
 ## Know the posture before you file anything
 
-**This section was rewritten 2026-08-28.** It previously described a no-auth v1
-where every policy was `using (true)` and told you not to report it. That world
-is gone — migration 020 (`production-security`, applied and verified live
-2026-08-24) replaced it. Auditing against the old description means auditing a
-schema that does not exist. Check `worklog.md` — the migration source of truth —
-before you trust any posture claim, including this one.
+Check `worklog.md` — the migration source of truth — before you trust any
+posture claim, including this one. Staged-but-unapplied migrations are listed
+there; audit live and staged posture separately.
 
 **plan-ind** is a Dubai group-decision app on Supabase Auth. The current posture:
 
@@ -31,8 +28,7 @@ before you trust any posture claim, including this one.
 - Every mutating route runs `validateMutationRequest` (double-submit CSRF +
   same-origin + exact `Origin`) then `readJsonBody` with a hard size cap.
 
-So **"RLS is permissive" is no longer the accepted-tradeoff line it used to be** —
-it is simply wrong now. What remains genuinely accepted, and is not a finding:
+What is genuinely accepted, and is not a finding:
 the anon key is public by design, and age-restricted venues are enumerable by any
 authenticated account (owner-deferred, recorded in `worklog.md`).
 
@@ -44,14 +40,10 @@ breach language is a disservice.
 ## What's genuinely worth checking
 
 **The anon-execute gap.** `revoke ... from public` does **not** cancel Supabase's
-named grants to `anon`. That is the live defect class here:
-- `valid_control_secret` still returns `200 true` / `200 false` to a caller with
-  no session — an unmetered oracle for the secret gating `consume_app_quota`.
-- `execute_plan_command` is still `anon`-executable. It fails safe (raises rather
-  than returning a boolean), so it is defence-in-depth, not a break.
-- `migration-021-revoke-anon-execute.sql` fixes both, is committed, and is
-  **unapplied**. Re-probe live rather than assuming either way, and check whether
-  any *newer* function repeats the same `revoke from public` mistake.
+named grants to `anon`. Migrations 021 and 024 exist only to clean this up
+(a `valid_control_secret` oracle, an anon-executable `execute_plan_command`).
+Check every *newer* function for the same mistake, and re-probe live rather
+than assuming.
 
 **Definer functions are the write surface now.** Every one bypasses RLS as owner,
 so their input validation *is* the security boundary:

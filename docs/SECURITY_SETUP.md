@@ -44,7 +44,7 @@ Add the Cloudflare Turnstile site key as `NEXT_PUBLIC_TURNSTILE_SITE_KEY`. Keep 
 
 ## 4. Operational checks
 
-- Run `npm audit`, `npm run lint`, `npx tsc --noEmit`, `npm run test:security`, and `npm run build` before release.
+- Run `npm audit`, `npm run lint`, `npx tsc --noEmit`, `npm test`, and `npm run build` before release.
 - Run `npm run test:smoke` against the deployed preview after applying the migration.
 - Review `security_events` for blocked authorization, CAPTCHA, OTP, rate-limit, and AI-quota activity. Do not log raw emails, tokens, prompts, cookies, or API keys.
 - If payments are added later, calculate products and prices from server-owned records and verify the provider signature against the raw webhook body before changing order state. There is currently no payment or webhook surface to secure.
