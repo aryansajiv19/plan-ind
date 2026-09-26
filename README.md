@@ -2,169 +2,157 @@
 
 # plan-ind
 
-**Dubai plans, without the group chat.**
+**Group plans in Dubai, decided in three rounds instead of three hundred messages.**
 
-Nine places. Three rounds. One plan everyone actually agreed to.
-
-[**Live app**](https://plan-ind.vercel.app) · [**Try the demo — no account**](https://plan-ind.vercel.app/demo) · [How it works](#how-it-works) · [Engineering](#engineering-decisions)
+[Open the app](https://plan-ind.vercel.app) · [Try the demo, no account needed](https://plan-ind.vercel.app/demo)
 
 [![CI](https://github.com/aryansajiv19/plan-ind/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/aryansajiv19/plan-ind/actions/workflows/ci.yml)
 ![Next.js 16](https://img.shields.io/badge/Next.js-16-000?logo=nextdotjs)
 ![React 19](https://img.shields.io/badge/React-19-149eca?logo=react&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white)
-![Supabase](https://img.shields.io/badge/Supabase-Postgres%20·%20RLS%20·%20Realtime-3ecf8e?logo=supabase&logoColor=white)
-![Playwright](https://img.shields.io/badge/tested%20with-Playwright-2ead33?logo=playwright&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178c6?logo=typescript&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-3ecf8e?logo=supabase&logoColor=white)
+![Playwright](https://img.shields.io/badge/Playwright-2ead33?logo=playwright&logoColor=white)
 
 </div>
 
----
+<!-- screenshots: docs/media/ -->
 
-## The problem
+## Why I built this
 
-Every weekend plan starts the same way: someone says *"we should do something"*,
-forty messages later there are six suggestions, three people who haven't
-replied, and no booking. Planning apps get good **after** someone already knows
-the plan. plan-ind owns the messy moment before that.
+Anyone who has planned a night out in a group chat knows how it goes. Someone
+says "we should do something", six places get suggested, three people never
+reply, and nothing gets booked.
 
-## What it does
-
-1. **One person hosts.** They set the budget, how far people will drive, the
-   vibe, and the kind of night (dinner, brunch, desert, padel…).
-2. **The app deals nine places** from a curated Dubai catalogue — filtered by
-   budget, distance, age suitability and places the group has already been —
-   and says *why* each one made the cut.
-3. **Friends vote from a link.** No install. Three rounds of three, each sends
-   one finalist forward; a final round picks the winner. Votes and faces move
-   live for everyone in the room.
-4. **The plan carries through.** RSVPs, who's driving and who needs a ride,
-   calendar export, directions, weather for the night, and ratings afterwards.
-
-<!-- Screenshots land here: docs/media/ -->
+Most planning apps help once you already know the plan. I wanted something for
+the part before that, when nobody has decided anything yet.
 
 ## How it works
 
+1. One person starts a plan and picks a budget, how far everyone will drive,
+   and the kind of night: dinner, brunch, desert, padel and so on.
+2. The app deals nine places from a Dubai list I put together, and each card
+   says why it made the cut.
+3. Friends open the link and vote. Three rounds of three, one finalist from
+   each, then a final round picks the winner.
+4. After that the plan keeps going: who's coming, who's driving, calendar
+   invites, directions, the weather that night, and a rating once you've been.
+
 ```mermaid
 flowchart LR
-    H([Host sets budget,<br/>distance, vibe]) --> D[Deal 9 places<br/>in 3 pools of 3]
-    D --> R1[Round 1<br/>pick 1 of 3] --> R2[Round 2<br/>pick 1 of 3] --> R3[Round 3<br/>pick 1 of 3]
-    R3 --> F{{Final round<br/>the 3 finalists}}
-    F --> W([Winner])
-    W --> L[RSVP · carpool · calendar<br/>directions · rating]
+    A([Host sets the plan]) --> B[9 places dealt<br/>in 3 rounds of 3]
+    B --> C[Round 1] --> D[Round 2] --> E[Round 3]
+    E --> F{{Final round}}
+    F --> G([Winner])
+    G --> H[RSVP, carpool,<br/>calendar, rating]
 ```
+
+## The fun part: making it feel alive
+
+I didn't want voting to feel like filling in a form. It should feel like
+everyone is in the same room.
+
+* When you vote, your face flies from the group onto the card you picked.
+* The leading card slowly pulls ahead while the others drift back.
+* Everything runs on Dubai time wherever you open it, so "closing soon" and the
+  evening look of the app match the city, not your phone.
+* Colour only ever means something: one colour per kind of night, gold only for
+  the winner. I wrote the rules down in
+  [`docs/FRONTEND_DESIGN_STANDARDS.md`](docs/FRONTEND_DESIGN_STANDARDS.md) so I
+  would stop breaking them.
+
+## Under the hood
 
 ```mermaid
 flowchart TB
-    subgraph Client["Browser"]
-        UI[Next.js App Router UI<br/>React 19 · Tailwind v4]
-        RT[Realtime subscriptions<br/>votes · presence]
+    subgraph Browser
+        UI[Next.js + React 19]
+        LIVE[Live votes and presence]
     end
-    subgraph Vercel["Vercel · Node runtime"]
-        API[Route handlers<br/>CSRF · Origin checks · nonce CSP]
-        AI[Smart search<br/>OpenAI Responses API]
+    subgraph Vercel
+        API[API routes]
     end
     subgraph Supabase
-        PG[(Postgres<br/>RLS scoped by plan membership)]
-        RPC[Security-definer RPCs<br/>votes · RSVPs · ratings]
-        AUTH[Auth<br/>Google · email code]
-        RTS[Realtime]
+        DB[(Postgres with row level security)]
+        FN[Database functions for every vote]
+        AUTH[Sign in with Google or email]
+        RT[Realtime]
     end
-    UI --> API
-    UI -- reads under RLS --> PG
-    UI -- writes --> RPC --> PG
-    RT <--> RTS <--> PG
-    API --> PG
-    API --> AI
+    UI --> API --> DB
+    UI -- reads --> DB
+    UI -- votes --> FN --> DB
+    LIVE <--> RT <--> DB
     UI --> AUTH
 ```
 
-## Engineering decisions
+A few decisions I'm proud of:
 
-Measured, not guessed. Every number below comes from a harness in this repo
-(`scripts/load/`, `tests/`), with its method recorded next to it.
+* **Nobody can fake a vote.** The browser never writes a vote directly. Every
+  vote goes through a database function that checks the round is open, you're
+  in the plan, and it's your only ballot. Two votes fired at the same instant
+  still leave exactly one row.
+* **A shared link doesn't leak the plan.** People can only read plans they've
+  joined. The WhatsApp link preview gets a tiny read only summary and nothing
+  else.
+* **Everyone signs in.** I originally let guests vote without an account, then
+  found you could open a private window and vote again. Now it's one account,
+  one vote.
+* **Search that actually scales.** At 5,000 places, a failed search went from
+  2.26 ms to 0.07 ms after adding the right index. The same work caught a bug
+  where results were silently capped at 1,000 rows.
+* **I measured where it breaks.** On my laptop, 200 people voting at the same
+  moment took at most 262 ms with no errors. It starts failing around 250, and
+  now I know that number instead of guessing it.
 
-| Decision | Why | Result |
+## Things I learned the hard way
+
+* **Measure both versions at the same time.** My first benchmark said a change
+  made things 40% faster. It was just the server warming up. Running both
+  builds side by side gave the honest answer: 8.5%.
+* **A notes file can lie.** My list of which database changes were live was
+  wrong more than once, so now I check the database itself before trusting it.
+* **One bad regex can take down a server.** Pasting a long link used to freeze
+  the whole app. It now gives up in under 50 ms, and a test keeps it that way.
+
+## Tests
+
+| What | How | Run it |
 |---|---|---|
-| **Every vote, RSVP and rating goes through a security-definer RPC** — no direct write policy exists on those tables | A client can't forge a ballot, vote in a round that has closed, or vote twice | Two parallel `cast_plan_vote` calls from separate Postgres backends leave exactly **1 row**; 15 simultaneous same-name RSVPs → **1 winner, 14 clean rejections**, no raw Postgres error |
-| **Reads scoped by plan membership** (`plan_access`), not "anyone with the link" | Share links travel through WhatsApp; the row data shouldn't | Link previews use a separate function that returns only non-sensitive fields |
-| **Idempotent votes** on a unique per-user round key | Double-taps and retries on flaky mobile networks | A repeated vote is a no-op, a changed vote is an update |
-| **Trigram indexes** on the catalogue search | Fuzzy place search at catalogue scale | At 5,082 spots: a search miss went from **2.26 ms → 0.07 ms (30×)**; the same pass found and fixed a silent PostgREST 1,000-row cap |
-| **Parallelised auth + quota check** on the deal route | Two independent round trips were sequential | p50 **61.6 → 56.3 ms**; the new build won **12/12** paired reps (both builds run at once, alternating). An earlier sequential run claimed 40% — that was server warm-up, and it's documented as such |
-| **Bounded link parsing** for pasted Instagram/TikTok/web links | One regex could hang the whole Node process | A 536 KB input that never returned now finishes in **< 50 ms** (regression-tested) |
-| **Postgres-backed quotas** per user and globally | Stops abuse of AI search and place photos without adding Redis | Enforced in the database, so every server instance shares one limit |
-| **Knowing the ceiling** | Load tests are only useful if they find where things break | Vote RPC burst on one machine: **200 concurrent at p99 262 ms, 0 errors**; errors begin at 250. A production build serves **857 req/s at p99 30 ms** locally |
+| Logic | 250 unit tests for voting, ties, dealing and parsing | `npm test` |
+| Database | Real Postgres: races, permissions, duplicate votes | `npm run test:db` |
+| The whole app | 213 Playwright tests in desktop and mobile Chrome | `npm run test:e2e` |
+| Load | Vote bursts and live update fan out | `scripts/load/` |
 
-## Design
+Every push runs lint, type checks, the database tests and a build in CI.
 
-The interface is built to feel like going out, not filling in a form:
-
-- **Faces, not counters.** A vote flies the voter's face from the room onto the
-  card they picked (FLIP with the Web Animations API — the element is always
-  laid out at its real position, so a backgrounded tab can never strand one
-  mid-flight).
-- **The clock is Dubai's.** Opening hours, "closing soon" and the day/night
-  treatment follow the venue's timezone, wherever the viewer is.
-- **Colour has jobs.** Five category groups, a champagne tone reserved for the
-  outcome, and nothing else gets a hue — the rules are written down in
-  [`docs/FRONTEND_DESIGN_STANDARDS.md`](docs/FRONTEND_DESIGN_STANDARDS.md).
-- **Accessible by default.** 44 px targets, visible focus rings, reduced-motion
-  respected, and state is never carried by colour alone.
-
-## Security model
-
-- **Identity is a real account.** Everyone who joins or votes signs in (Google
-  or an email code). Age comes from a server-owned table, never from a request.
-- **Row-level security everywhere**, scoped to plan membership; secrets such as
-  host tokens live in tables with no read policy at all.
-- **Nonce-based CSP** with `strict-dynamic`, CSRF double-submit plus Origin
-  checks, SSRF guards (private-IP and redirect checks) on link import.
-- **Model output is treated as untrusted input**: strict structured output,
-  re-validated on the server, and it never reaches a query filter unchecked.
-
-## Testing
-
-| Layer | What | Command |
-|---|---|---|
-| Unit | Tally, tie-breaks, dealing, parsing, security helpers — hermetic | `npm test` |
-| Database | Real Postgres: races, idempotency, grants, RLS | `npm run test:db` |
-| End-to-end | Playwright, desktop Chromium + mobile, against a local Supabase stack | `npm run test:e2e` |
-| Load | Vote bursts, Realtime fan-out, route latency | `scripts/load/` |
-
-CI runs lint, typecheck, a schema-to-types drift check, `npm audit`, the build
-and the database suite on every push.
-
-## Stack
-
-**Next.js 16** (App Router, React 19) · **Tailwind CSS v4** · **Supabase**
-(Postgres, Auth, Realtime, Storage) · **OpenAI Responses API** · **Vercel** ·
-**Playwright** · TypeScript throughout.
-
-## Run it locally
+## Run it yourself
 
 ```bash
 npm ci
-cp .env.local.example .env.local   # a Supabase project URL + publishable key
-npm run dev                        # http://localhost:3000
+cp .env.local.example .env.local   # your Supabase URL and public key
+npm run dev
 ```
 
-For a throwaway database, run `supabase start` and apply `supabase/schema.sql`.
-It drops and recreates every table, so never point it at a real project.
-Full recipe for the database and E2E suites: [`tests/README.md`](tests/README.md).
+For a local database, run `supabase start` and load `supabase/schema.sql`. It
+wipes and rebuilds every table, so only point it at a throwaway project. The
+full setup for the database and browser tests is in
+[`tests/README.md`](tests/README.md).
 
-## Repository map
+## Where things live
 
-| Path | What |
+| Folder | What's in it |
 |---|---|
-| [`app/`](app) | Routes and API handlers |
+| [`app/`](app) | Pages and API routes |
 | [`components/`](components) | UI |
-| [`lib/`](lib) | Domain logic: dealing, tally, open hours, security, AI, place import |
-| [`supabase/`](supabase) | `schema.sql` (end-state) and numbered migrations applied to production |
-| [`tests/`](tests) · [`scripts/`](scripts) | Unit, database and E2E tests; load harnesses |
-| [`docs/`](docs) | Deployment, product flow, design standards, security setup |
+| [`lib/`](lib) | The logic: dealing, vote counting, opening hours, security, search |
+| [`supabase/`](supabase) | Database schema and every change applied to it |
+| [`tests/`](tests), [`scripts/`](scripts) | Tests and load testing |
+| [`docs/`](docs) | Product flow, design rules, deployment |
 
----
+**Built with** Next.js 16, React 19, TypeScript, Tailwind CSS 4, Supabase,
+OpenAI and Vercel.
 
 <div align="center">
 
-Built by **Aryan Sajiv** · [GitHub](https://github.com/aryansajiv19)
+Made by **Aryan Sajiv** · [GitHub](https://github.com/aryansajiv19)
 
 </div>
