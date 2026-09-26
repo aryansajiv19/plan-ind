@@ -325,3 +325,13 @@ advance ties by uuid; F5 advance/decide not idempotent across two host
 devices; F6 `am_plan_host` must be null for creator-less plans (platform lane);
 F7/F8 client timing edge cases (frontend lane); F9 `safeNextPath` threw on
 `//[` (fixed, ab8932c).
+- **Live re-verify on the local stack (066–068 applied), frontend lane:** host
+  controls with no device token via `am_plan_host` ok; Realtime rejoin resync
+  ok (stage caught up 7 s after the socket returned, no reload); both age
+  refusals render at 375/768/1280/1440; sign-out cleared 9 → 0 per-plan keys.
+- **Incident (platform lane, local only):** a lane `supabase start` failed on
+  a port held by another local project (skillverse), the error was hidden by
+  truncated output, and `schema.sql` + test:db ran against skillverse's local
+  DB (plan-ind objects added; its own data untouched). Owner informed; cleanup
+  is the owner's call. Rule since: throwaway Homebrew Postgres for test:db,
+  and confirm the port's container by name before any psql.
