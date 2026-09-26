@@ -1,4 +1,6 @@
 import HomeExperience from "@/components/HomeExperience";
+import { curatedWall } from "@/lib/spots/catalogue";
+import type { Spot } from "@/lib/types";
 
 // The public demo: the account tabs filled with DemoAccountViews' fixtures,
 // so someone can see a finished plan, a visit log and a friends list without
@@ -14,6 +16,9 @@ import HomeExperience from "@/components/HomeExperience";
 // (SPECS.md §9).
 export const dynamic = "force-dynamic";
 
-export default function DemoPage() {
-  return <HomeExperience name="Aryan" demoMode fixtures />;
+export default async function DemoPage() {
+  // The same bounded, cached catalogue sample as the landing page
+  // (app/page.tsx). Without it the wall showed "no places in the catalog".
+  const { data } = await curatedWall(12);
+  return <HomeExperience name="Aryan" demoMode fixtures spots={(data ?? []) as Spot[]} />;
 }
