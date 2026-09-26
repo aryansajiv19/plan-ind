@@ -225,8 +225,16 @@ production standards in the `house-rules` skill.
 **In flight when paused:**
 - Confirmation pass on F1–F6 (workflow `wf_f64a158f-125`); result below if it
   landed, otherwise re-run it (script under this session's workflows dir).
-- **B8 landing redesign** (frontend lane, `lane/frontend-a`, WIP commit). See
-  the line below for where it stopped.
+- **B8 landing redesign** (frontend lane, `lane/frontend-a` @ d4f4288, WIP,
+  not merged). Done: `HomeHero` extracted (HomeExperience 440 → 364), hero
+  deck replaced by `LiveVoteLoop` (real OptionCards replaying the sample
+  round, paused offscreen, settled under reduced motion), CTAs "Start a plan"
+  / "Try the demo". Left: `LandingNav` (anchors, Dubai clock, Start a plan),
+  How it works strip, 18-tile wall with category codes, counts line, footer,
+  delete unused `components/kokonutui/card-stack.tsx`, review-animations,
+  1280/768/390 pass, before/after shots (1440 "before" captured). Note:
+  `/demo` shares HomeHero so it shows the loop too; hero cards are tight at
+  ~175 px (Select chip hidden in the embed; narrow widths unchecked).
 - The one dev server was stopped at pause. Restart, serving `main` against the
   local stack (never `.env.local`, which is production):
   `NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:55021 NEXT_PUBLIC_SUPABASE_ANON_KEY=<CLI demo anon key>
