@@ -167,3 +167,12 @@ commit-commands. Kept: supabase, superpowers, pr-review-toolkit, ponytail,
 playwright, context7, typescript-lsp, frontend-design, security-guidance,
 claude-md-management, code-review, github. Re-enable any by deleting its line.
 
+
+## 2026-09-26 — Platform lane: merge gate for 4c7a320 passed
+
+E2E on a local stack (own project id, prod build), chromium + Mobile Chrome
+**213 passed / 0 failed** (33 skips: visual baselines not generated + one
+mobile-only check). A one-off 521–559px sweep on `/demo` and signed-in `/home`
+found no horizontal overflow, so the old nav bug is gone without porting its
+fix. Option-card Select buttons share one baseline at ≥768px; in the narrow
+one-card carousel the "leading" card is 6px taller (cosmetic).
