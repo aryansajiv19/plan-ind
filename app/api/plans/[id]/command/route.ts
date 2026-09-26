@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { AUTH_UNAVAILABLE_MESSAGE, sessionUser } from "@/lib/auth";
 import {
   readJsonBody,
   requestError,
@@ -51,8 +52,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const supabase = await createClient();
   // Independent I/O, run together -- see app/api/spots/deal/route.ts's
   // identical comment for why this is safe.
-  const [{ data: { user } }, quota] = await Promise.all([
-    supabase.auth.getUser(),
+  const [user, quota] = await Promise.all([
+    sessionUser(supabase),
     consumeQuota(supabase, "plan-command"),
   ]);
   // /api/plans refuses to create a plan for an anonymous user, so no
@@ -60,7 +61,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   // keyed on auth.uid(), which an anonymous sign-in can mint fresh at will.
   // Without this, that quota doesn't actually bound a leaked-host-token
   // attacker the way its own comment claims.
-  if (!user || user.is_anonymous) return Response.json({ error: "Plan access required." }, { status: 401 });
+  if (user === "unavailable") return Response.json({ error: AUTH_UNAVAILABLE_MESSAGE }, { status: 503 });
+  if (user === "signed-out" || user.is_anonymous) return Response.json({ error: "Plan access required." }, { status: 401 });
   // Migration 030 -- was the only app/api/** route with no rate limit at
   // all. The RPC's own row lock serializes concurrent commands per plan but
   // doesn't cap volume; a valid (or leaked) host token could otherwise
