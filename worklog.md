@@ -235,3 +235,10 @@ with 401 "Sign in", a silent-failure bug; fix is a shared helper returning 503.
 (B) swap bcrypt for a sha256 compare (the secret is 256-bit random, so bcrypt's
 slowness buys nothing), backward compatible, benchmarked paired-alternating;
 live apply needs the owner.
+- **Auth outage ≠ signed out (7e70d36, 9fdcfea):** `sessionUser()` in
+  `lib/auth.ts` returns user | "signed-out" | "unavailable"; all 8 API routes
+  answer an auth-service failure with 503 "couldn't check your sign-in", not
+  401 "Sign in". Only a missing session or a GoTrue 4xx is signed-out (a 5xx
+  with a JSON body was not, fixed on merge). Local deal n=200 ×3: 401s under
+  load 249 → 0; signed-out callers still get 401. Pages (`getCurrentUser`)
+  still redirect on an outage: handed to the frontend lane.
