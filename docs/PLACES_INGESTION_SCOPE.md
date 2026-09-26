@@ -313,7 +313,8 @@ Photo names may not be cached and expire. So:
    Places API (New) and never `NEXT_PUBLIC_`. Try one spot first:
    `npm run places:backfill -- --only a0000000-0000-0000-0000-000000000004`.
    Then run everything: `npm run places:backfill`. It reads the live catalogue
-   through an anonymous session and writes no database.
+   with the public key and no session (curated spots are anon-readable) and
+   writes no database.
 2. **Review** `scripts/places-review.local.json`. `high` (name and own pin
    agree within 300 m) comes pre-approved. Open every `review` entry's
    `place` and set `approve: true` only when it is this venue and this

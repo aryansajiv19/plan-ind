@@ -223,21 +223,51 @@ direct PostgREST call). Realtime: DELETE events skip RLS and carry the PK only;
 `plan_spots` DELETEs come from plan deletion, whose id is dead on commit;
 votes/rsvps/ratings DELETEs carry only their own row `id`.
 
-## 2026-09-25 — Lead session: state at hand-off
+## 2026-09-26 — Lead session: hand-off (read this first)
 
-`main` = `claude/jolly-hypatia-hj9vhp` (fast-forwarded; `vercel.json` stops
-`main` auto-deploying). Production still runs `d536b6f` from 2026-09-20.
+**Branches.** `main` = `claude/jolly-hypatia-hj9vhp` = everything below;
+`vercel.json` stops `main` auto-deploying (owner: `main` is truth, not live
+yet). Production still runs `d536b6f` (2026-09-20, CLI deploy from the owner's
+laptop, **not on GitHub**). Its only unique content: a `components/Turnstile.tsx`
+fix for a challenge that never paints (seen live on `/login`) and a lazy
+`lib/supabase.ts` client; its card-reason change is superseded by the "Why
+this?" chips. When the owner pushes `ai-engineering`, merge it into `main`
+(expect conflicts in `worklog.md`, `PRIORITIES.md`, `OptionCard.tsx`,
+`globals.css` → now `app/styles/*`). If it never arrives, re-implement the
+Turnstile timeout. Merged `lane/*` branches still exist (branch deletion needs
+the owner).
 
-**Apply order for the owner-approved migrations** (all verified on Postgres 16
-with `tests/supabase-shim.sql`; none applied live): 049 → 051 → 061 → 062 →
-063 → 064 → 065. Back up votes/rsvps/ratings before 061 (it dedupes). 064 must
-ship with the client that has the sign-in gate (this branch) — applying it
-under the live `d536b6f` client breaks guest share links.
+**Next session, in order.**
+1. If the owner has connected the Supabase connector (or set
+   `SUPABASE_ACCESS_TOKEN` + allowed `api.supabase.com`/`*.supabase.co`),
+   apply the approved migrations in order **049 → 051 → 061 → 062 → 063 → 064
+   → 065**, one at a time, verifying each by catalog query and recording it in
+   the ledger above. Count/back up votes/rsvps/ratings before 061 (it dedupes).
+   064 must never be live while production still runs the old client (it
+   breaks guest share links): apply 064 only together with deploying `main`.
+2. Owner go-live: remove the `main: false` line from `vercel.json`, deploy
+   `main` to production, verify on the live URL (`docs/DEPLOYMENT.md`): sign
+   up, create, share, vote, decide. Turnstile hostname + secret must be done
+   first or sign-in is impossible.
+3. With the Places key: runbook at the end of `docs/PLACES_INGESTION_SCOPE.md`,
+   then B3/B6 in `PRIORITIES.md` (photo fallback UI + full-bleed winner).
 
-**Verified this session:** unit 250/250; `test:db` 12/12 (incl. the 025 race
-suite that had been silently skipping); browser E2E on a local Supabase stack
-chromium 91/0 and Mobile Chrome 92/0 (33 skips = visual baselines not generated
-+ one mobile-only check). Local stack recipe in `tests/README.md`.
+**This sandbox, as found.** Outbound network allows npm/GitHub/googleapis
+but blocks `*.supabase.co`, `plan-ind.vercel.app`, `api.open-meteo.com`. Docker
+works: the local Supabase stack + browser E2E recipe is in `tests/README.md`
+(`PW_CHROMIUM_PATH=/opt/pw-browsers/chromium-1194/chrome-linux/chrome`,
+chromium + "Mobile Chrome" only). Without Docker, plain Postgres 16 + 
+`tests/supabase-shim.sql` + `schema.sql` runs `test:db` and proves migrations
+(apply each twice). Vercel MCP can read deployments/env names but its file
+reader truncates large files. Never `pkill -f` a pattern that can match your
+own shell.
 
-**Owner decisions recorded:** sign in from the start (064); migrations approved;
-`main` is truth but not production yet.
+**Verified at hand-off (06fddbe+):** unit 250/250; `test:db` 12/12; E2E
+chromium 91/0, Mobile Chrome 92/0 (33 skips: visual baselines not generated +
+one mobile-only check); CI green on every branch push; lint/typecheck/build
+clean. Every change this session had an independent `security` review; all
+findings fixed or recorded (accepted: a `delete_my_account` race that rolls
+back safely; moodboard `visibility` values are stored but unused).
+
+**Owner decisions recorded:** sign in from the start (064); all staged
+migrations approved; `main` is truth but not production.

@@ -28,7 +28,7 @@ The migration removes anonymous table reads, requires plan membership, makes pla
 
 ## 2. Configure Supabase Auth
 
-- Enable anonymous sign-ins. Shared links redeem an anonymous session into membership for that one plan.
+- Anonymous sign-ins are no longer used by the app: since the owner's 2026-09-25 decision (migration 064) everyone signs in before joining a plan. Leave the setting on only for local E2E (`tests/e2e/sign-in-gate.spec.ts` proves guests are refused); in production it can be turned off.
 - Enable Cloudflare Turnstile CAPTCHA and paste its secret key into Supabase Auth CAPTCHA settings.
 - Set OTP expiry to 10 minutes or less and keep one-time-token reuse protection enabled.
 - Allow only the production origin and the exact OAuth callback URL. Remove stale preview and localhost URLs from the production project.
