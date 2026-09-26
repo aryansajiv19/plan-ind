@@ -4061,7 +4061,12 @@ create index if not exists plan_spots_spot_idx on plan_spots (spot_id);
 create index if not exists votes_spot_idx on votes (spot_id);
 create index if not exists plans_winner_spot_idx on plans (winner_spot_id) where winner_spot_id is not null;
 create index if not exists place_imports_resolved_spot_idx on place_imports (resolved_spot_id) where resolved_spot_id is not null;
-create index if not exists place_collection_items_spot_idx on place_collection_items (spot_id);
+-- 068 (R18): 065's line here reused 012's unique-index name, so IF NOT EXISTS
+-- skipped it; these are the reverse lookups it meant.
+create index if not exists place_collection_items_spot_id_idx
+  on place_collection_items (spot_id) where spot_id is not null;
+create index if not exists place_collection_items_import_id_idx
+  on place_collection_items (import_id) where import_id is not null;
 
 -- 067: host and ballot identity -- one host rule (creator on any device; the
 -- token only for creator-less legacy plans), R1 final round + tie-break, R7
@@ -4607,3 +4612,62 @@ begin
 end; $$;
 revoke all on function claim_plan_access(uuid) from public, anon, authenticated;
 grant execute on function claim_plan_access(uuid) to authenticated;
+
+-- 068: data hygiene -- custom spots carry no links/photos and bounded text
+-- (R4), 'friends' visit photos correlated to the owner (R9), a per-account
+-- visit-photo cap (C1). From migration-068-data-hygiene.sql.
+
+alter table spots drop constraint if exists spots_custom_no_links;
+alter table spots add constraint spots_custom_no_links check (
+  source = 'curated'
+  or (booking_url is null and photo_url is null and photo_source is null and photo_attribution is null)
+);
+
+alter table spots drop constraint if exists spots_custom_text_caps;
+alter table spots add constraint spots_custom_text_caps check (
+  source = 'curated' or (
+    char_length(name) <= 80 and char_length(area) <= 80 and char_length(cuisine) <= 40
+    and char_length(open_till) <= 20 and char_length(vibe) <= 280
+    and coalesce(char_length(description), 0) <= 280 and coalesce(char_length(address), 0) <= 300
+  )
+);
+
+-- ── R9: a 'friends' photo is visible to the owner's friends ────────────────
+-- The old branch's unqualified person_id bound to friendships.person_id, so
+-- it asked whether the viewer was anyone's friend of themselves: always
+-- false today, and one widened friendships policy from leaking every
+-- 'friends' photo. Now the same shape as "read permitted visits". Friendships
+-- are stored both ways (friendships_mirror_ins), so the viewer's own row
+-- proves it. The community and own-photo branches are unchanged.
+drop policy if exists "read permitted visit photos" on visit_photos;
+create policy "read permitted visit photos" on visit_photos for select to authenticated using (
+  visibility = 'community'
+  or exists (select 1 from people owner where owner.id = person_id and owner.auth_user_id = (select auth.uid()))
+  or (
+    visibility = 'friends' and exists (
+      select 1 from friendships f
+      where f.person_id = (select auth.uid()) and f.friend_id = visit_photos.person_id
+    )
+  )
+);
+
+-- ── C1: a per-account cap on visit-photo files ─────────────────────────────
+-- Nothing bounded how many files one account could put in visit-photos, and
+-- a file with no visit_photos row shows nowhere and is never cleaned up. 200
+-- files per account (8MB each at most, the bucket's limit) is far above any
+-- real use. Counted by a definer function: the storage read policy hides
+-- files with no visit_photos row -- exactly the orphans this cap is for.
+-- ponytail: count checked per upload, so a burst of parallel uploads can
+-- overshoot by the burst size; a hard cap would need a lock.
+create or replace function visit_photo_upload_allowed()
+returns boolean language sql stable security definer set search_path = public, pg_temp as $$
+  select (select count(*) from storage.objects o
+          where o.bucket_id = 'visit-photos' and o.owner_id = (select auth.uid())::text) < 200
+$$;
+revoke all on function visit_photo_upload_allowed() from public, anon, authenticated;
+grant execute on function visit_photo_upload_allowed() to authenticated;
+
+-- Restrictive: ANDed with "upload own visit photos"; other buckets unaffected.
+drop policy if exists "cap visit photo uploads" on storage.objects;
+create policy "cap visit photo uploads" on storage.objects as restrictive for insert to authenticated
+  with check (bucket_id <> 'visit-photos' or public.visit_photo_upload_allowed());
