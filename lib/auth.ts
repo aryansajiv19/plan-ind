@@ -57,7 +57,12 @@ export function safeNextPath(value: string | null | undefined): string {
   // which a browser reads as another host.
   if (/[\\\u0000-\u001f\u007f]/.test(value)) return "/home";
   const base = "https://internal.invalid";
-  const url = new URL(value, base);
+  let url: URL;
+  try {
+    url = new URL(value, base);
+  } catch {
+    return "/home"; // e.g. "//[": the parser throws on a malformed host
+  }
   return url.origin === base && !url.pathname.startsWith("//")
     ? `${url.pathname}${url.search}${url.hash}`
     : "/home";

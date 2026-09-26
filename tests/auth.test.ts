@@ -4,6 +4,10 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { AuthApiError, AuthRetryableFetchError, AuthSessionMissingError, AuthUnknownError } from "@supabase/supabase-js";
 import { safeNextPath, sessionUser } from "../lib/auth.ts";
 
+test("safeNextPath falls back to /home when the URL parser throws", () => {
+  for (const value of ["//[", "//:", "///:x"]) assert.equal(safeNextPath(value), "/home");
+});
+
 test("safeNextPath passes an internal path through unchanged", () => {
   assert.equal(
     safeNextPath("/plan/22222222-2222-2222-2222-222222222222"),
