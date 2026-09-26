@@ -36,9 +36,13 @@ export function useVoteActions({
 }) {
   const [voteUndo, setVoteUndo] = useState<{ message: string; restore: () => Promise<boolean> } | null>(null);
   const { phase: currentPhase, poolNumber: currentPoolNumber } = round;
+  // Your votes are the rows under your name: since 064 the account is the
+  // voter (one row per account per round, whichever device cast it), and a
+  // name is unique on a plan. Matching this device's hash as well hid your
+  // own vote on a second browser and briefly doubled your face on a card.
   const iVotedYes = (spotId: string) =>
     votes.some(
-      (v) => v.spot_id === spotId && v.voter_name === voterName && (!v.participant_token_hash || v.participant_token_hash === participantHash) && v.value && isInRound(v, round),
+      (v) => v.spot_id === spotId && v.voter_name === voterName && v.value && isInRound(v, round),
     );
 
   // One choice per voter per pool/final. Picking another card replaces it.
@@ -53,7 +57,6 @@ export function useVoteActions({
 
     const isMineThisRound = (v: Vote) =>
       v.voter_name === voterName &&
-      (!v.participant_token_hash || v.participant_token_hash === participantHash) &&
       (v.phase ?? "final") === currentPhase &&
       (v.pool_number ?? 0) === currentPoolNumber;
     const before = votes.filter(isMineThisRound);
@@ -84,13 +87,13 @@ export function useVoteActions({
       p_participant_token_hash: participantHash,
     });
     if (error) {
-      // Reconcile with the server rather than restoring the pre-optimistic
-      // snapshot: a realtime event for someone else's vote can land while
-      // this RPC is in flight, and setVotes(prev) would silently discard it
-      // along with the failed attempt. Same pattern as setRsvp/rateWinner.
-      // If the reconcile read fails too, put the previous pick back.
-      if (!(await refetchVotes())) setVotes((cur) => [...cur.filter((v) => !isMineThisRound(v)), ...before]);
+      // Put back only your own previous pick, at once, then reconcile. A
+      // whole-list snapshot restore would discard a Realtime vote from
+      // someone else that landed meanwhile; waiting on the reconcile read
+      // showed the unsaved pick as saved for ~7s of GET retries.
+      setVotes((cur) => [...cur.filter((v) => !isMineThisRound(v)), ...before]);
       reportParticipantFailure(error, "That vote didn't save. Check your connection and tap again.");
+      void refetchVotes();
     } else {
       setNotice(null);
       // Clearing your pick is quick and reversible: offer Undo, which re-casts
