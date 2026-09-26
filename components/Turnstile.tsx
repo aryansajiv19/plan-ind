@@ -19,14 +19,28 @@ declare global {
 export type TurnstileStatus = "loading" | "ready" | "failed";
 
 /**
- * How long to wait for Cloudflare's script before calling it failed.
+ * How long to wait for a challenge to actually reach the visitor before
+ * calling it failed.
  *
  * There has to be a timeout, because the worst case is not an error — it is
- * silence. Verified today: in a headless context the script keeps its load
- * event pending indefinitely, so neither `load` nor `error` ever fires and a
- * status derived only from callbacks stays "loading" forever. That is what
- * leaves a real user looking at a permanently dead submit button with nothing
- * said. An adblocker or a blocked region produces the same shape.
+ * silence. Verified: in a headless context the script keeps its load event
+ * pending indefinitely, so neither `load` nor `error` ever fires and a status
+ * derived only from callbacks stays "loading" forever. That is what leaves a
+ * real user looking at a permanently dead submit button with nothing said. An
+ * adblocker or a blocked region produces the same shape.
+ *
+ * There are TWO ways to reach that silence, and the second one was uncovered
+ * until 2026-09-20 (observed live on /login):
+ *
+ *   1. the script never loads      → `render()` never runs, widgetId stays null
+ *   2. `render()` returns an id but Cloudflare never paints a challenge into
+ *      the container — no iframe, no callback, no error-callback
+ *
+ * Case 2 used to be invisible because this timer was cleared the instant
+ * `render()` returned. Status went to "ready", which no caller matches
+ * (AuthForm and VoteState both branch on "loading" and "failed" only), so the
+ * visitor got a disabled button and not one word of explanation. The timer now
+ * outlives render and judges the outcome instead of the attempt.
  */
 const LOAD_TIMEOUT_MS = 12_000;
 
@@ -47,6 +61,7 @@ export default function Turnstile({
   useEffect(() => {
     if (!siteKey || !containerRef.current) return;
     let widgetId: string | null = null;
+    let solved = false;
     let cancelled = false;
 
     // Reported from real events and a timer only — never synchronously from
@@ -57,7 +72,11 @@ export default function Turnstile({
     };
     const fail = () => { setError(true); report("failed"); };
     const timer = window.setTimeout(() => {
-      if (!widgetId) fail();
+      if (solved) return;
+      // An iframe in the container means the challenge reached the visitor —
+      // whether it auto-solves or waits for a click is then their business,
+      // and NOT a failure. No iframe means nobody can act on anything.
+      if (!widgetId || !containerRef.current?.querySelector("iframe")) fail();
     }, LOAD_TIMEOUT_MS);
 
     const render = () => {
@@ -68,6 +87,8 @@ export default function Turnstile({
         theme: "auto",
         size: "flexible",
         callback: (token: string) => {
+          solved = true;
+          window.clearTimeout(timer);
           setError(false);
           report("ready");
           onVerify(token);
@@ -77,7 +98,9 @@ export default function Turnstile({
         // the token so the gate closes again, and stay "ready".
         "expired-callback": () => onVerify(""),
       });
-      window.clearTimeout(timer);
+      // Deliberately NOT clearing the timer here: render() returning an id
+      // only means Cloudflare accepted the call, not that a challenge ever
+      // appeared. The timer is what tells those two apart.
       report("ready");
     };
 

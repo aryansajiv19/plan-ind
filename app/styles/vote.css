@@ -410,11 +410,25 @@
   border-left: 2px solid var(--vote-metal);
   color: var(--color-punch-text);
   font-weight: 600;
+  max-width: 100%;
+  white-space: nowrap;
 }
-
-.vote-option__price {
+.vote-option__cuisine {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* No new hue: this card already spends its colour on category, state and
+   outcome, so case and weight carry it. */
+.vote-option__leading {
+  padding: 0.1rem 0.4rem;
   border: 1px solid var(--color-line);
-  border-radius: 0;
+  color: var(--color-ink);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 .vote-option h3 {
   font-weight: 600;

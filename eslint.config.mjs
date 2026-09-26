@@ -14,6 +14,12 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Agent worktrees are full repo copies.
     ".claude/**",
+    // Installed agent skills (npx skills add). Third-party source we neither
+    // wrote nor ship — linting it buried this project's own findings under
+    // thousands of foreign errors, including a parse error that made the
+    // whole run useless. `.claude/skills` holds symlinks into the same tree.
+    ".agents/**",
+    ".claude/skills/**",
   ]),
 ]);
 

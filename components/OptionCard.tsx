@@ -96,17 +96,13 @@ export default function OptionCard({
     >
       {isWinner && <span className="vote-option__winner-label">Selected</span>}
 
-      {/* Category strip: compact typographic code + type, in champagne metal. */}
-      <div className="flex items-center justify-between gap-2">
-        <span className="vote-option__category inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold">
-          <span aria-hidden="true">{cat.code}</span>
-          {spot.cuisine}
-          {isLeader && !decided && <span className="vote-option__leading"> · leading</span>}
-        </span>
-        <span className="vote-option__price px-2 py-0.5 text-xs font-semibold text-muted">
-          {spot.price_band}
-        </span>
-      </div>
+      {/* Category strip: identity only, one line. The cuisine truncates rather
+          than wrapping ("Coffee & healthy" pushed one card's Select 16px below
+          its neighbours'). No price band: the meta line says the AED figure. */}
+      <span className="vote-option__category inline-flex min-w-0 items-center gap-1.5 self-start px-2.5 py-1 text-xs font-bold">
+        <span aria-hidden="true">{cat.code}</span>
+        <span className="vote-option__cuisine">{spot.cuisine}</span>
+      </span>
 
       <h3 className="mt-2.5 font-display text-lg font-extrabold leading-tight tracking-tight">
         {spot.name}
@@ -136,7 +132,16 @@ export default function OptionCard({
         </span>
       )}
 
-      <div className="mt-3 flex items-center justify-between">
+      {/* State on its own line: category marks identity and never state. */}
+      {isLeader && !decided && (
+        <span className="mt-2 block">
+          <span className="vote-option__leading">leading</span>
+        </span>
+      )}
+
+      {/* mt-auto pins the action row to the card's bottom, so uneven content
+          above can never stagger the Select buttons. */}
+      <div className="mt-auto flex items-center justify-between pt-3">
         <span className="inline-flex items-center gap-2">
           {/* Who picked this. Faces rather than a number: a count says how
               many, a face says who — and "who" is the whole reason a group

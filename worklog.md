@@ -66,7 +66,7 @@ Apply in order. Every migration is additive and re-run safe unless noted.
 | 063 | `migration-063-google-place-ids.sql` | **NOT applied — staged 2026-09-24.** `spots.google_place_id` (format CHECK, curated-only CHECK, partial unique index) + `places_synced_at`, column SELECT grant; `consume_app_quota` gains `place-photo` (60/min, 600/day, 300/day global). Proven on local PG16 (shim + schema + seed, applied twice, negative controls). Needs `security` review, then owner approval. Generated `places-backfill-*` migrations follow it. |
 | 064 | `migration-064-signed-in-participants.sql` | **NOT applied — staged 2026-09-25; the decision is owner-approved (2026-09-25), the apply still needs the owner's go.** Apply after 061. Anonymous sessions refused (42501 "Sign in to ...") by `claim_plan_access`, `cast_plan_vote`, `set_plan_rsvp`, `rate_plan`, `unrate_plan`, `leave_plan`; all plan_access-scoped read policies and both plan presence policies now require `is_permanent_user()`. Existing guest rows kept, inert. Ship with the client change that drops `signInAnonymously`, or share links break for guests. Verify: `pg_get_functiondef('claim_plan_access(uuid)'::regprocedure) like '%is_permanent_user%'`, same for `pg_policies.qual` on `read accessible votes`. Needs `security` review. |
 | 065 | `migration-065-protect-spots-in-plans.sql` | **NOT applied — staged 2026-09-25.** Independent of 061/064. `BEFORE DELETE` trigger `spots_protect_in_use` (security definer `protect_spots_in_use()`, EXECUTE revoked from all client roles) refuses deleting a spot in any plan (plan_spots/votes/ratings/winner, open or decided) or in someone else's visits/list items/imports, with 23503 + readable hint ("make it private instead"). Owner's own visits/list items still cascade. Re-running `seed.sql`/`seed-categories.sql` on a DB with plans now raises instead of cascading. Proven on PG16 (applied twice; refusals + positive controls; `test:db` 12/12). Verify: `select tgname from pg_trigger where tgname = 'spots_protect_in_use'`. Needs `security` review. |
-| 049 / 051 | `migration-049-hide-voter-user-id.sql`, `migration-051-hide-creator-user-id.sql` | **NOT applied — next in the queue, and now unblocked.** They were gated on the client deploy, which happened 2026-09-18. Verified still pending: `authenticated` can still SELECT `votes.user_id`. Needs the owner's approval like every migration. |
+| 049 / 051 | `migration-049-hide-voter-user-id.sql`, `migration-051-hide-creator-user-id.sql` | **yes — applied live 2026-09-19 13:20Z via Supabase MCP (T0), owner-approved.** Confirmed 2026-09-26 by `list_migrations` (`migration_049_hide_voter_user_id`, `migration_051_hide_creator_user_id`). This row said "NOT applied" for a week because the entry recording it lived only on the unpushed `ai-engineering`. |
 
 `npm run test:smoke` asserts the 019 guards against the live project. All ten
 database guards pass as of 2026-08-10: the plans projection carries no host
@@ -271,3 +271,22 @@ back safely; moodboard `visibility` values are stored but unused).
 
 **Owner decisions recorded:** sign in from the start (064); all staged
 migrations approved; `main` is truth but not production.
+
+## 2026-09-26 — Lead: `ai-engineering` merged into `main`; 049/051 were already live
+
+The 9 commits production runs (`d536b6f`, `ed5f1d0`) were on the owner's laptop
+and are now pushed and merged. Kept: the Turnstile no-paint timeout
+(`components/Turnstile.tsx`), the option-card layout fix (identity-only category
+chip that truncates, "leading" on its own line, action row pinned with
+`mt-auto`), `/demo` in the layout suite, the eslint ignores for installed
+skills. Dropped as superseded by `main`: the anonymous-guest path in
+`lib/supabase.ts` and the plan page (sign-in-first), the card's reason chips
+(`dealReasons` chips), tracked `graphify-out/`.
+
+Facts that only existed on that branch: 049 and 051 were applied live on
+2026-09-19 (ledger fixed); the owner added `plan-ind.vercel.app` to the
+Turnstile hostnames on 2026-09-20; Turnstile is **not enforced server-side**
+(live anonymous sign-in succeeds with no captcha token, so the Supabase secret
+is not set). Live Auth settings 2026-09-26: `google: false`, `email: true`,
+`anonymous_users: true`.
+

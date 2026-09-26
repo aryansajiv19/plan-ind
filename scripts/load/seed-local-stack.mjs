@@ -37,7 +37,16 @@ const local = createClient(LOCAL_URL, LOCAL_SERVICE_KEY, { auth: { persistSessio
 // migration 064 refuses those sessions, and this read never needed one.
 
 console.log(`Copying curated spots from the live project (${liveUrl}) into the local stack (${LOCAL_URL})...`);
-const { data: curatedSpots, error: readError } = await live.from("spots").select("*").eq("source", "curated");
+// Explicit column list, not `*`: migration 051 revoked table-level SELECT on
+// spots and granted it back per column, so `select=*` now fails 42501 against
+// the live project. This list IS the granted set; the only column it drops is
+// created_by_user_id, which is null on every curated row anyway.
+const { data: curatedSpots, error: readError } = await live
+  .from("spots")
+  .select(
+    "id, name, category, minimum_age, area, cuisine, price_band, min_spend, open_till, vibe, photo_url, photo_source, photo_attribution, description, booking_url, source, visibility, address, latitude, longitude",
+  )
+  .eq("source", "curated");
 if (readError) throw new Error(`Reading live curated spots failed: ${readError.message}`);
 // Zero rows with no error is what a missing anon policy looks like.
 if (!curatedSpots.length) throw new Error("Read 0 curated spots from the live project without a session -- is migration 041 applied there?");
