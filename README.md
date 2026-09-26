@@ -15,7 +15,10 @@
 
 </div>
 
-<p align="center"><img src="docs/media/hero.png" alt="plan-ind landing page" width="900"></p>
+<p align="center">
+  <a href="docs/media/demo.mp4"><img src="docs/media/demo-poster.jpg" alt="Watch the plan-ind demo video" width="900"></a>
+  <br><sub><a href="docs/media/demo.mp4">▶ Watch the 20 second demo, with sound</a></sub>
+</p>
 
 ## Why I built this
 
