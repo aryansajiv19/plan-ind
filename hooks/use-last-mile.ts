@@ -7,14 +7,16 @@ import { haptic } from "@/lib/interaction";
 import type { Plan, Rating, Rsvp } from "@/lib/types";
 import type { HostCommands } from "@/hooks/use-host-commands";
 
-// A decided plan's follow-through: event time and booking (host patches),
-// RSVP and carpool, rating the winner and filing the visit under Been.
-// A failed save whose reconcile read failed too (the backend is down): put
-// this voter's last known row back, so an unsaved choice never shows as saved.
+// A failed save: put back only this voter's last known row, at once. Waiting
+// for the reconcile read left an unsaved choice showing as saved for ~7s
+// while supabase-js retried the GET; restoring only your own row keeps any
+// Realtime update for someone else that landed meanwhile.
 function restoreMine<T extends { voter_name: string }>(cur: T[], name: string, prev: T | undefined): T[] {
   return [...cur.filter((r) => r.voter_name !== name), ...(prev ? [prev] : [])];
 }
 
+// A decided plan's follow-through: event time and booking (host patches),
+// RSVP and carpool, rating the winner and filing the visit under Been.
 export function useLastMile({
   id,
   plan,
@@ -90,8 +92,9 @@ export function useLastMile({
       p_seats_available: mine?.seats_available ?? null,
     });
     if (error) {
-      if (!(await refetchRsvps())) setRsvps((cur) => restoreMine(cur, voterName, mine));
+      setRsvps((cur) => restoreMine(cur, voterName, mine));
       reportParticipantFailure(error, "Couldn't update your RSVP. Try again.");
+      void refetchRsvps();
     }
   }
 
@@ -115,8 +118,9 @@ export function useLastMile({
       p_seats_available: nextSeats,
     });
     if (error) {
-      if (!(await refetchRsvps())) setRsvps((cur) => restoreMine(cur, voterName, mine));
+      setRsvps((cur) => restoreMine(cur, voterName, mine));
       setNotice("Couldn't update how you're getting there. Try again.");
+      void refetchRsvps();
     }
   }
 
@@ -141,8 +145,9 @@ export function useLastMile({
       p_participant_token_hash: participantHash,
     });
     if (error) {
-      if (!(await refetchRatings())) setRatings((cur) => restoreMine(cur, voterName, mine));
+      setRatings((cur) => restoreMine(cur, voterName, mine));
       reportParticipantFailure(error, "Couldn't save your rating. Try again.");
+      void refetchRatings();
       return;
     }
     void rememberVisit();
