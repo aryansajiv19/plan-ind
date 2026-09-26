@@ -50,15 +50,15 @@ fixes ship with go-live.
 
 | Lane | Items |
 |---|---|
-| Platform (SQL) | migration 067 (host = creator account, B7; deadline auto-pick skips the final round, R1 high; one name per ballot; hash-squat lockout; booking_owner cleaning) and 068 (community spots can't carry links/photos; friends-photo policy; 065's missing index; visit-photo upload cap) |
+| Platform (SQL) | migration 067 (age gate on joining, owner decision; host = creator account, B7; deadline auto-pick skips the final round, R1 high; one name per ballot; hash-squat lockout; booking_owner cleaning) and 068 (community spots can't carry links/photos; friends-photo policy; 065's missing index; visit-photo upload cap) |
 | Frontend | B7 client, clear host tokens on sign-out, R1 client, Realtime resync on reconnect, no email username in custom spots, 15 s browser fetch timeout |
 | Server (subagent) | open redirect via dot-segments in `safeNextPath`, Turnstile verified before OTP limits, `/api/weather` needs a session, model refusals not reported as retryable, proxy treats an auth outage as signed out, proxy off `/api/*` |
 
 Recorded, not built (fine at tens of users): Discover scan cost at 100k custom
 spots; unindexed `user_id` FKs; 1000-row PostgREST cap on vote reads;
 unbounded per-user lists; global Luna/photo caps drainable by ~10 real
-accounts (accepted residual after the cutover). Owner decision pending:
-should under-age accounts be able to join 21+ plans?
+accounts (accepted residual after the cutover). Owner decision 2026-09-26:
+under-age accounts cannot join a plan they are too young for (067, clear message).
 
 ## Scale and hygiene
 
