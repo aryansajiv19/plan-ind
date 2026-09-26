@@ -115,8 +115,10 @@ A few decisions I'm proud of:
   2.26 ms to 0.07 ms after adding the right index. The same work caught a bug
   where results were silently capped at 1,000 rows.
 * **I measured where it breaks.** On my laptop, 200 people voting at the same
-  moment took at most 262 ms with no errors. It starts failing around 250, and
-  now I know that number instead of guessing it.
+  moment finished in under 250 ms with no errors. Past that, the local gateway
+  ran out of connections, not the database: each vote costs about half a
+  millisecond of database time, and 1,000 votes sent straight to the database
+  all went through.
 
 ## Things I learned the hard way
 

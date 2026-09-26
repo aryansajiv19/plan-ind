@@ -218,3 +218,20 @@ PRIORITIES O2/O4: the Turnstile secret must be set AFTER `main` deploys.
 - **README media** (`docs/media/`): hero, deal, vote, winner at 1440x900 and
   `flow.gif` (960 wide, 1.3 MB), captured from `/demo` routes on the local
   stack. Wired into the README.
+
+## 2026-09-26 — Platform lane: scale re-measure on `main` (a590ee2)
+
+Local stack, 3 reps per point after warm-up. **Vote burst:** n=200 p50
+112–151 / p99 211–241 ms, 0 errors; n=250 6–8% errors. The knee is the local
+Kong gateway (512 worker_connections ≈ 256 in flight), not the app: PostgREST
+direct took 1000/1000 clean, and a vote costs 0.6 ms of DB time.
+**spot-deal:** n=50 p50 431–520 ms clean; n=100 p50 915–970 ms (was 2131 ms
+before the C2 cache); n=200 1.3–1.8 s with 25–55% errors. Latency is one Node
+process at ~7 ms CPU per request; errors are the same Kong cap. DB side:
+`valid_control_secret`'s bcrypt is ~93% of the route's DB time (6.4 ms
+uncontended, ~20 ms loaded).
+Found and approved: (A) 8 API routes answer a failed `getUser()` (network)
+with 401 "Sign in", a silent-failure bug; fix is a shared helper returning 503.
+(B) swap bcrypt for a sha256 compare (the secret is 256-bit random, so bcrypt's
+slowness buys nothing), backward compatible, benchmarked paired-alternating;
+live apply needs the owner.
