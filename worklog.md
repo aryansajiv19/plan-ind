@@ -312,3 +312,16 @@ recorded, not built (owner's target: tens of users).
   stays the one verifier; revisit by keying the limit on email + IP. C2
   (forwarding the client IP to GoTrue) needs a secret API key, which this repo
   deliberately never holds.
+
+## 2026-09-26 — Lead: security review of the fix batch
+
+Second workflow (SQL + TS reviewers, skeptic per finding, local stack): every
+original fix confirmed closed (R1 decide half, R2/R13, R4, R6 for new joins,
+R8, R9, R14, R18, B7). 9 residuals, no High, all fixable while 067/068 are
+unapplied: F1 (medium) upload cap still 1.6 GB per account → byte ceiling;
+F2 claim-first name squat → server takes the caller's own display name;
+F3 under-age members from before 067 keep rights → one-off cleanup; F4
+advance ties by uuid; F5 advance/decide not idempotent across two host
+devices; F6 `am_plan_host` must be null for creator-less plans (platform lane);
+F7/F8 client timing edge cases (frontend lane); F9 `safeNextPath` threw on
+`//[` (fixed, ab8932c).
