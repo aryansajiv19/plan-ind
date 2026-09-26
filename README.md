@@ -15,7 +15,7 @@
 
 </div>
 
-<!-- screenshots: docs/media/ -->
+<p align="center"><img src="docs/media/hero.png" alt="plan-ind landing page" width="900"></p>
 
 ## Why I built this
 
@@ -36,6 +36,21 @@ the part before that, when nobody has decided anything yet.
    each, then a final round picks the winner.
 4. After that the plan keeps going: who's coming, who's driving, calendar
    invites, directions, the weather that night, and a rating once you've been.
+
+<p align="center"><img src="docs/media/flow.gif" alt="A group voting through three rounds to a winner" width="720"></p>
+
+<table>
+  <tr>
+    <td><img src="docs/media/deal.png" alt="Nine places dealt into three rounds"></td>
+    <td><img src="docs/media/vote.png" alt="Voting, with faces on the cards people picked"></td>
+    <td><img src="docs/media/winner.png" alt="The winner revealed"></td>
+  </tr>
+  <tr>
+    <td align="center">The deal</td>
+    <td align="center">Voting live</td>
+    <td align="center">The winner</td>
+  </tr>
+</table>
 
 ```mermaid
 flowchart LR
