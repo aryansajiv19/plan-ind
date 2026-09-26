@@ -335,3 +335,6 @@ F7/F8 client timing edge cases (frontend lane); F9 `safeNextPath` threw on
   DB (plan-ind objects added; its own data untouched). Owner informed; cleanup
   is the owner's call. Rule since: throwaway Homebrew Postgres for test:db,
   and confirm the port's container by name before any psql.
+- **F7/F8 (frontend lane):** auto-decide is held back only when the server gave the
+  final no time; `usePlanData` hands out a `setPlan` that bumps the plan
+  sequence on every write, so any fresher write discards an in-flight resync.
