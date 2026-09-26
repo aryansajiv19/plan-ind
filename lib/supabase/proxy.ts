@@ -2,8 +2,9 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { getSupabaseConfig } from "./config";
 
-/** Who the refreshed cookie session belongs to, as far as the proxy can tell. */
-export type ProxySession = "none" | "anonymous" | "member";
+/** Who the refreshed cookie session belongs to, as far as the proxy can tell.
+ *  "unknown": the auth service did not answer, which is not "signed out". */
+export type ProxySession = "none" | "anonymous" | "member" | "unknown";
 
 export async function updateSession(
   request: NextRequest,
@@ -47,9 +48,17 @@ export async function updateSession(
 
   // This validates (and, when needed, refreshes) the cookie-backed session.
   // Authorization still happens at pages/actions and in Postgres RLS.
-  const { data } = await supabase.auth.getClaims();
+  const { data, error } = await supabase.auth.getClaims();
   const claims = data?.claims;
-  if (!claims) return { response, session: "none" };
+  if (!claims) {
+    // Same rule as sessionUser (lib/auth.ts): signed out means no session or a
+    // 4xx (session missing, a token GoTrue rejected, a malformed cookie token).
+    // A network failure, a 5xx or a non-JSON reply is an auth outage, and must
+    // not bounce signed-in members to /login.
+    const status = error?.status;
+    const signedOut = !error || (status !== undefined && status >= 400 && status < 500);
+    return { response, session: signedOut ? "none" : "unknown" };
+  }
   if (!claims.is_anonymous) return { response, session: "member" };
 
   // Share-link guests used to get an anonymous session. Every plan now needs a

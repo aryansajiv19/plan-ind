@@ -69,7 +69,10 @@ export async function proxy(request: NextRequest) {
 
   const { response, session } = await updateSession(request, requestHeaders, { signOutAnonymous });
 
-  if (planPage && session !== "member" && !userAgent(request).isBot) {
+  // Only a known signed-out visitor is sent to sign in. "unknown" (auth outage)
+  // renders the client shell; PostgREST checks the JWT itself, so the plan
+  // keeps working through a GoTrue blip and RLS still gates every read.
+  if (planPage && (session === "none" || session === "anonymous") && !userAgent(request).isBot) {
     const login = new URL("/login", request.url);
     login.searchParams.set("next", pathname.replace(/\/$/, ""));
     const toLogin = NextResponse.redirect(login);
@@ -93,8 +96,13 @@ export async function proxy(request: NextRequest) {
   return response;
 }
 
+// Not /api/*: every route authenticates itself with sessionUser(), whose
+// getUser() also refreshes the session and writes the cookies (route handlers
+// can). Running the proxy there cost a second GoTrue call per request and
+// bought nothing: no HTML to nonce, no /plan gate, and the csrf cookie is set
+// on page loads. Server Actions post to page paths, so they stay covered.
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!api/|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

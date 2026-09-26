@@ -52,6 +52,7 @@ function completed(output: Record<string, unknown> | string): IntentResponse {
     status: "completed",
     incomplete_details: null,
     output_text: typeof output === "string" ? output : JSON.stringify(output),
+    output: [],
   };
 }
 
@@ -280,6 +281,7 @@ test("a truncated response is diagnosed, not thrown into a bare 502", () => {
     status: "incomplete",
     incomplete_details: { reason: "max_output_tokens" },
     output_text: '{"valid":true,"category":"din',
+    output: [],
   };
   const outcome = intentFromResponse(truncated, 25);
   assert.equal(outcome.ok, false);
@@ -291,10 +293,32 @@ test("truncation is checked before parsing, even when the partial JSON happens t
   // A truncated response whose text is coincidentally valid JSON must still be
   // rejected: the fields it contains are not the fields the model meant to send.
   const outcome = intentFromResponse(
-    { status: "incomplete", incomplete_details: { reason: "max_output_tokens" }, output_text: '{"valid":true}' },
+    { status: "incomplete", incomplete_details: { reason: "max_output_tokens" }, output_text: '{"valid":true}', output: [] },
     25,
   );
   assert.equal(outcome.ok === false && outcome.reason, "truncated");
+});
+
+test("a model refusal is its own non-retryable 422, never a 'try again' 502", () => {
+  const refusal: IntentResponse = {
+    status: "completed",
+    incomplete_details: null,
+    output_text: "",
+    output: [{
+      id: "msg_1", type: "message", role: "assistant", status: "completed",
+      content: [{ type: "refusal", refusal: "I'm sorry, I can't help with that. PROVIDER-TEXT" }],
+    }],
+  };
+  const contentFilter: IntentResponse = {
+    status: "incomplete", incomplete_details: { reason: "content_filter" }, output_text: "", output: [],
+  };
+  for (const response of [refusal, contentFilter]) {
+    const outcome = intentFromResponse(response, 25);
+    assert.equal(outcome.ok === false && outcome.reason, "refused");
+    assert.equal(outcome.ok === false && outcome.status, 422);
+    assert.ok(outcome.ok === false && !/try again/i.test(outcome.error), "a refusal must not invite a retry");
+    assert.ok(outcome.ok === false && !outcome.error.includes("PROVIDER-TEXT"), "the provider's text is never passed through");
+  }
 });
 
 test("unparseable output is a 502, not a crash", () => {

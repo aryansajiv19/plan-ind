@@ -1,3 +1,5 @@
+import { createClient } from "@/lib/supabase/server";
+import { AUTH_UNAVAILABLE_MESSAGE, sessionUser } from "@/lib/auth";
 import { forecastUrl, parseWeatherQuery, summarise } from "@/lib/weather";
 
 export const runtime = "nodejs";
@@ -10,17 +12,24 @@ export const runtime = "nodejs";
 // fetch, and validateMutationRequest is for mutations. Cross-site browser
 // callers are refused (a same-origin feature, not a public proxy).
 //
-// No quota: consumeQuota needs a Supabase session and a server-side scope
-// that does not exist for this. Abuse is bounded instead by the strict
-// input (UAE box, 16-day window) and the cache below: the upstream URL is
-// lat/lon at 2dp plus one Dubai hour, cached for 30 minutes, so a whole
-// group opening the same decided plan costs Open-Meteo one request.
+// Permanent accounts only: the one caller is the members' decided screen, and
+// an open proxy let any script spend invocations and Open-Meteo's per-IP
+// allowance. No quota yet: no consume_app_quota scope fits (a `weather` scope
+// needs a migration). The strict input (UAE box, 16-day window) and the cache
+// below bound the rest: the upstream URL is lat/lon at 1dp plus one Dubai
+// hour, cached for 30 minutes, so a whole group opening the same decided plan
+// costs Open-Meteo one request.
 const REVALIDATE_SECONDS = 1800;
 const UPSTREAM_TIMEOUT_MS = 3000;
 
 export async function GET(request: Request) {
   if (request.headers.get("sec-fetch-site") === "cross-site") {
     return Response.json({ error: "Cross-site requests are not accepted." }, { status: 403 });
+  }
+  const user = await sessionUser(await createClient());
+  if (user === "unavailable") return Response.json({ error: AUTH_UNAVAILABLE_MESSAGE }, { status: 503 });
+  if (user === "signed-out" || user.is_anonymous) {
+    return Response.json({ error: "Sign in to see the weather." }, { status: 401 });
   }
   const query = parseWeatherQuery(new URL(request.url).searchParams, new Date());
   if (!query) {
@@ -40,7 +49,9 @@ export async function GET(request: Request) {
     const summary = summarise(await res.json(), query.at);
     if (!summary) return unavailable();
     return Response.json(summary, {
-      headers: { "Cache-Control": `public, max-age=600, s-maxage=${REVALIDATE_SECONDS}` },
+      // private: a shared cache must not answer a sessionless caller, nor store
+      // a response that carries a refreshed session cookie. Upstream stays cached.
+      headers: { "Cache-Control": "private, max-age=600" },
     });
   } catch (error) {
     console.error("Weather upstream failed", JSON.stringify({ code: error instanceof Error ? error.name : "unknown" }));

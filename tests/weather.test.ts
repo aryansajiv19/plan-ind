@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { AsyncLocalStorage } from "node:async_hooks";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
@@ -130,4 +131,29 @@ test("parseWeatherQuery accepts a good query and rejects everything else", () =>
     "lat=25.2&lon=55.27&at=tomorrow",
   ];
   for (const s of bad) assert.equal(parseWeatherQuery(q(s), NOW), null, s);
+});
+
+test("GET /api/weather refuses a caller with no session, before any upstream call", async () => {
+  process.env.NEXT_PUBLIC_SUPABASE_URL = "http://127.0.0.1:54321";
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "test-publishable-key";
+  // The route reads cookies() through Next's request store. Next's server sets
+  // this global before loading anything; a bare node --test run must do it too.
+  // A work store with forceStatic then makes cookies() read as empty: a request
+  // with no session cookie.
+  Object.assign(globalThis, { AsyncLocalStorage });
+  const { GET } = await import("../app/api/weather/route.ts");
+  const { workAsyncStorage } = await import("next/dist/server/app-render/work-async-storage.external.js");
+  const realFetch = globalThis.fetch;
+  let upstream = 0;
+  globalThis.fetch = async () => { upstream += 1; return new Response("{}", { status: 500 }); };
+  try {
+    const at = encodeURIComponent(new Date(Date.now() + 3_600_000).toISOString());
+    const request = new Request(`http://localhost/api/weather?lat=25.2&lon=55.27&at=${at}`);
+    const store = { route: "/api/weather", forceStatic: true } as Parameters<typeof workAsyncStorage.run>[0];
+    const response = await workAsyncStorage.run(store, () => GET(request));
+    assert.equal(response.status, 401);
+    assert.equal(upstream, 0, "no Open-Meteo call for a sessionless caller");
+  } finally {
+    globalThis.fetch = realFetch;
+  }
 });

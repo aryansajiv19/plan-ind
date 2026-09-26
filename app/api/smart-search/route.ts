@@ -89,7 +89,7 @@ export async function POST(request: Request) {
     // decides whether it did. Never move that check into the prompt alone.
     const outcome = intentFromResponse(response, age);
     if (!outcome.ok) {
-      if (outcome.reason === "truncated" || outcome.reason === "unparseable") {
+      if (outcome.reason === "truncated" || outcome.reason === "refused" || outcome.reason === "unparseable") {
         console.error("Smart search response unusable", JSON.stringify({
           reason: outcome.reason,
           responseId: response.id,
