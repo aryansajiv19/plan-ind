@@ -103,3 +103,6 @@ skills-lock.json
 !.claude/skills/secrets-audit/
 !.claude/skills/security-review/
 !.claude/skills/ui-implementation/
+
+# /brag-slim renders (share the mp4, do not commit it)
+/brag-output*/
