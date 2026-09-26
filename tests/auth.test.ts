@@ -130,6 +130,17 @@ test("proxy keeps a member on the plan page when the auth service fails", async 
   }
 });
 
+test("proxy skips /api/* (routes authenticate themselves) but still runs on every page", async () => {
+  const { config } = await import("../proxy.ts");
+  const { unstable_doesMiddlewareMatch: runs } = await import("next/experimental/testing/server");
+  for (const url of ["/api/spots/deal", "/api/weather?lat=25&lon=55", "/api/plans/x/command", "/api/health"]) {
+    assert.equal(runs({ config, url }), false, url);
+  }
+  for (const url of [PLAN_PATH, "/login", "/invite", "/home", "/auth/callback", "/apiary", "/"]) {
+    assert.equal(runs({ config, url }), true, url);
+  }
+});
+
 test("proxy still sends a signed-out visitor, or a rejected token, to /login", async () => {
   const signedOut = await planPageWith(json(200, {}));
   assert.equal(signedOut.calls, 0);

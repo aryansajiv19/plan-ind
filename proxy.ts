@@ -96,8 +96,13 @@ export async function proxy(request: NextRequest) {
   return response;
 }
 
+// Not /api/*: every route authenticates itself with sessionUser(), whose
+// getUser() also refreshes the session and writes the cookies (route handlers
+// can). Running the proxy there cost a second GoTrue call per request and
+// bought nothing: no HTML to nonce, no /plan gate, and the csrf cookie is set
+// on page loads. Server Actions post to page paths, so they stay covered.
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!api/|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
