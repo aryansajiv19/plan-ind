@@ -51,11 +51,16 @@ export function safeNextPath(value: string | null | undefined): string {
   if (!value?.startsWith("/")) return "/home";
   // Backslashes and control characters are refused outright: browsers treat
   // "\\" as "/", and the URL parser strips tab/CR/LF, so "/\t/evil.com" would
-  // otherwise become "//evil.com". Then the parsed result must stay on our origin.
+  // otherwise become "//evil.com". Then the parsed result must stay on our origin,
+  // and so must its path: the parser collapses dot segments, so "/.//evil.com"
+  // (or "/%2e%2e//evil.com") stays on origin but comes out as "//evil.com",
+  // which a browser reads as another host.
   if (/[\\\u0000-\u001f\u007f]/.test(value)) return "/home";
   const base = "https://internal.invalid";
   const url = new URL(value, base);
-  return url.origin === base ? `${url.pathname}${url.search}${url.hash}` : "/home";
+  return url.origin === base && !url.pathname.startsWith("//")
+    ? `${url.pathname}${url.search}${url.hash}`
+    : "/home";
 }
 
 /**

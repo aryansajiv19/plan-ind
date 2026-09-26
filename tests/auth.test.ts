@@ -35,8 +35,23 @@ test("safeNextPath refuses anything the URL parser could turn into another origi
     assert.equal(safeNextPath(hostile), "/home", JSON.stringify(hostile));
   }
   // Encoded separators stay on our origin as path text, so they pass unchanged.
+  assert.equal(safeNextPath("/%5C%5Cevil.com"), "/%5C%5Cevil.com");
   assert.equal(safeNextPath("/%2F%2Fevil.com"), "/%2F%2Fevil.com");
   assert.equal(safeNextPath("/plan/abc?x=1#y"), "/plan/abc?x=1#y");
+});
+
+test("safeNextPath refuses dot segments that collapse into a protocol-relative //host", () => {
+  const shapes = [
+    "/.//evil.com", "/..//evil.com", "/a/..//evil.com", "/%2e//evil.com", "/%2e%2e//evil.com",
+    "/.%2e//evil.com", "/%2E//evil.com", "/.///evil.com", "/././/evil.com", "/a/b/../..//evil.com?x#y",
+  ];
+  for (const hostile of shapes) assert.equal(safeNextPath(hostile), "/home", hostile);
+  // Whatever the input, the result is never something a browser reads as another host.
+  for (const value of [...shapes, "//evil.com", "/\\evil.com", "/%2F%2Fevil.com", "/./home", "/a/../plan/x"]) {
+    assert.ok(!/^[/\\]{2}/.test(safeNextPath(value)), value);
+  }
+  // Dot segments that land on a normal path still work.
+  assert.equal(safeNextPath("/a/../plan/x"), "/plan/x");
 });
 
 // sessionUser: an auth outage must never read as "signed out" (that told
