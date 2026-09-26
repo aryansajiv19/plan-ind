@@ -1,0 +1,12 @@
+{
+  "enabledPlugins": {
+    "vercel@claude-plugins-official": false,
+    "feature-dev@claude-plugins-official": false,
+    "code-simplifier@claude-plugins-official": false,
+    "superdesign@claude-plugins-official": false,
+    "claude-code-setup@claude-plugins-official": false,
+    "skill-creator@claude-plugins-official": false,
+    "ralph-loop@claude-plugins-official": false,
+    "commit-commands@claude-plugins-official": false
+  }
+}

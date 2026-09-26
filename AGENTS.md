@@ -11,3 +11,5 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## Frontend work
 
 Before frontend implementation, read and follow `docs/FRONTEND_DESIGN_STANDARDS.md`. The exclusions recorded in that file are intentional.
+
+Design skills (user-level, load only when doing that work): `emil-design-eng` for motion and component craft, `review-animations` to check motion before hand-off, `design-taste-frontend` for landing/marketing surfaces only. Where any of them disagrees with the repo's standards or the `design-standards` skill, the repo wins.

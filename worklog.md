@@ -153,3 +153,17 @@ probe (ledger rows above). 061's dedupe removed nothing (3 votes, 0 rsvps, 0
 ratings live). 064 is the only staged migration left; it ships with the `main`
 deploy. Independent `security` review of the live catalog running.
 
+## 2026-09-26 — Lead: skills and plugins for this repo
+
+The design set kept by hygiene pass 5 had been living only in a stale worktree,
+so no session had it. Installed at user level (every worktree sees them, ~150
+tokens total): `emil-design-eng`, `review-animations`, `design-taste-frontend`;
+routing rule in `AGENTS.md`. The other 32 skills in that pack (image gen,
+slides, mobile, brand) stay out. `.claude/settings.json` turns off, for this
+project only, plugins it doesn't use or already duplicates: vercel (~6k tokens
+a session with its start-up hook; the `vercel` CLI covers deploys), feature-dev,
+code-simplifier, superdesign, claude-code-setup, skill-creator, ralph-loop,
+commit-commands. Kept: supabase, superpowers, pr-review-toolkit, ponytail,
+playwright, context7, typescript-lsp, frontend-design, security-guidance,
+claude-md-management, code-review, github. Re-enable any by deleting its line.
+
