@@ -66,6 +66,7 @@ Apply in order. Every migration is additive and re-run safe unless noted.
 | 063 | `migration-063-google-place-ids.sql` | **yes — applied live 2026-09-26 via Supabase MCP (lead), owner-approved.** Live `consume_app_quota` matched the pre-063 body exactly before replace. Verified: both columns, both CHECKs, `place-photo-global` in the quota body, anon cannot execute. No place ids loaded yet (needs the Places key). |
 | 064 | `migration-064-signed-in-participants.sql` | **NOT applied — the only staged migration left. Held until the owner says go-live: apply it in the same step as deploying `main` (the production client still uses guest sessions).** Apply after 061. Anonymous sessions refused (42501 "Sign in to ...") by `claim_plan_access`, `cast_plan_vote`, `set_plan_rsvp`, `rate_plan`, `unrate_plan`, `leave_plan`; all plan_access-scoped read policies and both plan presence policies now require `is_permanent_user()`. Existing guest rows kept, inert. Ship with the client change that drops `signInAnonymously`, or share links break for guests. Verify: `pg_get_functiondef('claim_plan_access(uuid)'::regprocedure) like '%is_permanent_user%'`, same for `pg_policies.qual` on `read accessible votes`. Needs `security` review. |
 | 065 | `migration-065-protect-spots-in-plans.sql` | **yes — applied live 2026-09-26 via Supabase MCP (lead), owner-approved.** Verified: trigger `spots_protect_in_use` enabled, `protect_spots_in_use()` not executable by client roles, 5 spot indexes present; spots 82 / plans 6 / votes 3 unchanged. |
+| 066 | `migration-066-control-secret-digest.sql` | **NOT applied — staged 2026-09-26.** `valid_control_secret` accepts a bcrypt row (`$2…`, as today) or a lowercase sha256 hex; anything else fails closed. Applying changes nothing until the `server-control` row is switched to the digest (computed off the DB; revert = restore the bcrypt row). Needs `security` review + owner approval. |
 | 049 / 051 | `migration-049-hide-voter-user-id.sql`, `migration-051-hide-creator-user-id.sql` | **yes — applied live 2026-09-19 13:20Z via Supabase MCP (T0), owner-approved.** Confirmed 2026-09-26 by `list_migrations` (`migration_049_hide_voter_user_id`, `migration_051_hide_creator_user_id`). This row said "NOT applied" for a week because the entry recording it lived only on the unpushed `ai-engineering`. |
 
 `npm run test:smoke` asserts the 019 guards against the live project. All ten
@@ -251,3 +252,12 @@ live apply needs the owner.
   vote/RSVP/rating is rolled back instead of shown as saved; the plan notice is
   sticky beside the control that failed. Open: duplicate React key on the
   voter's own face; host controls tied to one device (PRIORITIES B7).
+- **066 staged (9ab07ae):** control secret checked by sha256 (256-bit random
+  secret, so bcrypt's cost buys nothing). Paired A/B on one local stack,
+  switching only the row: quota RPC DB time 4.0 → 0.45 ms (n=1, 12/12),
+  15.5 → 1.15 ms (n=100, 6/6), 22.1 → 0.96 ms (n=200, 6/6); local p50 flat
+  uncontended, −10–12% loaded (4/6, weak: Node is the local bottleneck).
+  Found: most local DB CPU in a deal burst is GoTrue opening ~5 Postgres
+  sessions per `getUser()`; `getClaims()` in routes would remove it but lets a
+  revoked token work until expiry and needs ES256 in production (owner Q).
+
