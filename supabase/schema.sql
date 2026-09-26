@@ -4093,14 +4093,31 @@ $$;
 revoke all on function plan_host_authorized(uuid, text) from public, anon, authenticated;
 
 -- For the page: show host controls on any device the creator signs in on.
--- Legacy (creator-less) plans answer false; the client falls back to its token.
+-- NULL for a legacy (creator-less) or unknown plan, so the client falls back
+-- to its token (F6); false only when the plan has a creator and it isn't you.
 create or replace function am_plan_host(p_plan_id uuid)
 returns boolean language sql stable security definer set search_path = public, pg_temp as $$
-  select is_permanent_user()
-     and exists (select 1 from plans where id = p_plan_id and created_by_user_id = auth.uid())
+  select case when p.created_by_user_id is null then null
+              else is_permanent_user() and p.created_by_user_id = auth.uid() end
+  from plans p where p.id = p_plan_id
 $$;
 revoke all on function am_plan_host(uuid) from public, anon, authenticated;
 grant execute on function am_plan_host(uuid) to authenticated;
+
+-- The age a member must be to take part in a plan: its category's gate and
+-- every dealt spot's (R6). One definition for claim_plan_access and the F3
+-- cleanup below.
+create or replace function plan_required_age(p_plan_id uuid)
+returns integer language sql stable set search_path = public, pg_temp as $$
+  select greatest(category_min_age(p.category), coalesce(max(spot_required_age(s.category, s.minimum_age)), 0))
+  from plans p
+  left join plan_spots ps on ps.plan_id = p.id
+  left join spots s on s.id = ps.spot_id
+  where p.id = p_plan_id
+  group by p.category
+$$;
+-- Internal: only definer functions and this migration call it.
+revoke all on function plan_required_age(uuid) from public, anon, authenticated;
 
 create or replace function execute_plan_command(
   p_plan_id uuid,
@@ -4125,7 +4142,15 @@ begin
   end if;
 
   if p_command = 'advance' then
-    if target.status <> 'open' or target.stage <> 'pool' then
+    -- 067 (F5): already advanced or decided -- e.g. the host's other device
+    -- got there first. Same answer as the first call, not an error.
+    if target.status <> 'open' or target.stage in ('final', 'decided') then
+      select coalesce(array_agg(spot_id order by pool_number), '{}') into finalists
+        from plan_spots where plan_id = p_plan_id and advanced;
+      return jsonb_build_object('plan', to_jsonb(target) - 'created_by_user_id',
+        'winner_spot_id', target.winner_spot_id, 'finalists', finalists);
+    end if;
+    if target.stage <> 'pool' then
       raise exception 'This plan is not ready to advance';
     end if;
 
@@ -4142,7 +4167,9 @@ begin
     ), picked as (
       select distinct on (pool_number) pool_number, spot_id
       from ranked
-      order by pool_number, yes_count desc, spot_id
+      -- 067 (F4): a tie, or a pool nobody voted in, goes to a per-plan hash --
+      -- stable within the plan, but not the same catalogue venues every time.
+      order by pool_number, yes_count desc, md5(p_plan_id::text || spot_id::text)
     )
     select coalesce(array_agg(spot_id order by pool_number), '{}') into finalists from picked;
 
@@ -4157,6 +4184,13 @@ begin
     where id = p_plan_id;
 
   elsif p_command = 'decide' then
+    -- 067 (F5): already decided: return it, as for advance above.
+    if target.status = 'decided' then
+      select coalesce(array_agg(spot_id order by pool_number), '{}') into finalists
+        from plan_spots where plan_id = p_plan_id and advanced;
+      return jsonb_build_object('plan', to_jsonb(target) - 'created_by_user_id',
+        'winner_spot_id', target.winner_spot_id, 'finalists', finalists);
+    end if;
     if target.status <> 'open' or target.stage <> 'final' then
       raise exception 'This plan is not ready to decide';
     end if;
@@ -4382,7 +4416,9 @@ create or replace function cast_plan_vote(
 ) returns jsonb language plpgsql security definer set search_path = public, pg_temp as $$
 declare
   target plans%rowtype;
-  clean_name text := clean_display_name(p_voter_name);
+  -- 067 (F2): the caller's own profile name; p_voter_name only without one.
+  clean_name text := clean_display_name(coalesce(
+    (select pe.display_name from people pe where pe.auth_user_id = auth.uid()), p_voter_name));
   caller uuid := auth.uid();
 begin
   -- 064: a permanent account is the price of taking part.
@@ -4460,7 +4496,9 @@ create or replace function set_plan_rsvp(
 declare
   existing rsvps%rowtype;
   target plans%rowtype;
-  clean_name text := clean_display_name(p_voter_name);
+  -- 067 (F2): the caller's own profile name; p_voter_name only without one.
+  clean_name text := clean_display_name(coalesce(
+    (select pe.display_name from people pe where pe.auth_user_id = auth.uid()), p_voter_name));
   caller uuid := auth.uid();
 begin
   -- 064: a permanent account is the price of taking part.
@@ -4523,7 +4561,9 @@ create or replace function rate_plan(
 declare
   existing ratings%rowtype;
   target plans%rowtype;
-  clean_name text := clean_display_name(p_voter_name);
+  -- 067 (F2): the caller's own profile name; p_voter_name only without one.
+  clean_name text := clean_display_name(coalesce(
+    (select pe.display_name from people pe where pe.auth_user_id = auth.uid()), p_voter_name));
   caller uuid := auth.uid();
 begin
   -- 064: a permanent account is the price of taking part.
@@ -4592,13 +4632,7 @@ begin
   -- 067 (R6): a joiner meets the same age gate the host met at creation: the
   -- plan's category and every dealt spot. Raised, not false (false means no
   -- such plan); the messages are shown verbatim.
-  select greatest(category_min_age(p.category), coalesce(max(spot_required_age(s.category, s.minimum_age)), 0))
-    into required_age
-    from plans p
-    left join plan_spots ps on ps.plan_id = p.id
-    left join spots s on s.id = ps.spot_id
-    where p.id = p_plan_id
-    group by p.category;
+  required_age := plan_required_age(p_plan_id);
   age_value := current_member_age();
   if age_value is null then
     raise exception 'Add your date of birth to join this plan.' using errcode = '42501';
@@ -4612,6 +4646,19 @@ begin
 end; $$;
 revoke all on function claim_plan_access(uuid) from public, anon, authenticated;
 grant execute on function claim_plan_access(uuid) to authenticated;
+
+-- 067 (F3): one-off. Access granted before the gate existed is held to it
+-- too: a non-creator member without a date of birth, or younger than the
+-- plan requires, loses plan_access (and with it every participant RPC).
+-- Their past votes/RSVPs/ratings stay, inert. Re-running removes nothing new
+-- unless someone joined around the gate.
+delete from plan_access pa
+using plans p
+where p.id = pa.plan_id
+  and pa.user_id is distinct from p.created_by_user_id
+  and coalesce((select extract(year from age(current_date, m.date_of_birth))::integer
+                from member_ages m where m.user_id = pa.user_id), -1)
+      < plan_required_age(p.id);
 
 -- 068: data hygiene -- custom spots carry no links/photos and bounded text
 -- (R4), 'friends' visit photos correlated to the owner (R9), a per-account
@@ -4651,18 +4698,21 @@ create policy "read permitted visit photos" on visit_photos for select to authen
   )
 );
 
--- ── C1: a per-account cap on visit-photo files ─────────────────────────────
--- Nothing bounded how many files one account could put in visit-photos, and
--- a file with no visit_photos row shows nowhere and is never cleaned up. 200
--- files per account (8MB each at most, the bucket's limit) is far above any
--- real use. Counted by a definer function: the storage read policy hides
--- files with no visit_photos row -- exactly the orphans this cap is for.
--- ponytail: count checked per upload, so a burst of parallel uploads can
--- overshoot by the burst size; a hard cap would need a lock.
+-- ── C1 + F1: a per-account cap on visit-photo files ───────────────────────
+-- Nothing bounded how much one account could put in visit-photos, and a
+-- file with no visit_photos row shows nowhere and is never cleaned up. Per
+-- account: 200 files AND 500 MB (the file cap alone still allowed 200 x 8MB
+-- = 1.6 GB, F1). Both are far above real use. Counted by a definer function:
+-- the storage read policy hides files with no visit_photos row -- exactly
+-- the orphans this cap is for.
+-- ponytail: checked per upload against files already stored (a new file's
+-- own size is not in its row yet), so one upload or a parallel burst can
+-- overshoot by its own size; a hard cap would need a lock.
 create or replace function visit_photo_upload_allowed()
 returns boolean language sql stable security definer set search_path = public, pg_temp as $$
-  select (select count(*) from storage.objects o
-          where o.bucket_id = 'visit-photos' and o.owner_id = (select auth.uid())::text) < 200
+  select count(*) < 200 and coalesce(sum((o.metadata->>'size')::bigint), 0) < 500 * 1024 * 1024
+  from storage.objects o
+  where o.bucket_id = 'visit-photos' and o.owner_id = (select auth.uid())::text
 $$;
 revoke all on function visit_photo_upload_allowed() from public, anon, authenticated;
 grant execute on function visit_photo_upload_allowed() to authenticated;

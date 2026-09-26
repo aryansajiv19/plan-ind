@@ -117,7 +117,7 @@ describe("068 place_collection_items reverse-lookup indexes (R18)", { skip: SKIP
 });
 
 // ── C1 ──────────────────────────────────────────────────────────────────────
-describe("068 visit-photo upload cap (C1)", { skip: SKIP }, () => {
+describe("068 visit-photo upload cap (C1, F1)", { skip: SKIP }, () => {
   test("an account's 200th file is accepted and its 201st refused", async () => {
     const uid = await member();
     await psql(`insert into storage.objects (bucket_id, name, owner_id)
@@ -126,5 +126,16 @@ describe("068 visit-photo upload cap (C1)", { skip: SKIP }, () => {
       as(uid, `insert into storage.objects (bucket_id, name, owner_id) values ('visit-photos', '${uid}/x/${n}.jpg', '${uid}')`);
     await upload(200);
     await assert.rejects(upload(201), /row-level security/);
+  });
+
+  test("500 MB stored refuses the next file, however few files that is (F1)", async () => {
+    const uid = await member();
+    await psql(`insert into storage.objects (bucket_id, name, owner_id, metadata)
+      select 'visit-photos', '${uid}/big/' || g || '.jpg', '${uid}', jsonb_build_object('size', 300 * 1024 * 1024)
+      from generate_series(1, 2) g`);
+    await assert.rejects(
+      as(uid, `insert into storage.objects (bucket_id, name, owner_id) values ('visit-photos', '${uid}/x/3.jpg', '${uid}')`),
+      /row-level security/,
+    );
   });
 });
