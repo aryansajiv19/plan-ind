@@ -215,3 +215,6 @@ PRIORITIES O2/O4: the Turnstile secret must be set AFTER `main` deploys.
 - **C4 paused:** needs a production schema dump (DB password) and a
   `migration repair` on live; owner call.
 
+- **README media** (`docs/media/`): hero, deal, vote, winner at 1440x900 and
+  `flow.gif` (960 wide, 1.3 MB), captured from `/demo` routes on the local
+  stack. Wired into the README.
