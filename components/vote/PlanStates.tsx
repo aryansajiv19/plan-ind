@@ -17,6 +17,7 @@ export function planStateScreen({
   left,
   plan,
   access,
+  accessMessage,
   load,
   retryAccess,
   setLoad,
@@ -26,6 +27,7 @@ export function planStateScreen({
   left: "open" | "decided" | null;
   plan: Plan | null;
   access: Access;
+  accessMessage: string | null;
   load: Load;
   retryAccess: () => void;
   setLoad: Dispatch<SetStateAction<Load>>;
@@ -63,6 +65,9 @@ export function planStateScreen({
   }
   if (access === "not-found") {
     return <VoteState kind="cold-link" />;
+  }
+  if (access === "age-restricted" || access === "needs-birthday") {
+    return <VoteState kind={access} message={accessMessage} />;
   }
 
   // "checking" means we haven't been allowed to look yet — not that the plan is

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from "react";
+import { useCallback, useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { getSupabase } from "@/lib/supabase";
 import { secureJsonFetch } from "@/lib/security/csrf-client";
 import type { Plan, PlanSpot, PlanStage, Spot } from "@/lib/types";
@@ -10,6 +10,14 @@ export function toLocalInput(iso: string | null): string {
   if (!iso) return "";
   const d = new Date(iso);
   return new Date(d.getTime() - d.getTimezoneOffset() * 60_000).toISOString().slice(0, 16);
+}
+
+// B7: is the signed-in account this plan's creator? Null when the answer is
+// unknown (am_plan_host is migration 067, not on every stack yet, or the
+// read failed): the device's host token decides, as before 067.
+async function amPlanHost(planId: string): Promise<boolean | null> {
+  const { data, error } = await getSupabase().rpc("am_plan_host", { p_plan_id: planId });
+  return !error && typeof data === "boolean" ? data : null;
 }
 
 // Everything only the plan's creator can do: advance, decide, edit, delete,
@@ -45,19 +53,26 @@ export function useHostCommands({
   const [editPending, setEditPending] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
   const [hostToken, setHostToken] = useState<string | null>(null);
-  // Whoever created the plan, and only them — execute_plan_command enforces
-  // this server-side for every command (advance/decide/patch), so this flag
-  // is UI truthfulness, not the actual gate. See advanceToFinal/decide/patchPlan.
-  const isHost = Boolean(hostToken);
+  const [accountIsHost, setAccountIsHost] = useState<boolean | null>(null);
+  // Whoever created the plan, on any device. The RPCs enforce this
+  // server-side for every command, so this flag is UI truthfulness, not the
+  // gate: a wrong guess shows controls the server refuses, nothing more.
+  const isHost = accountIsHost ?? Boolean(hostToken);
+  // R1: set when this tab closes the pool rounds, so the deadline effect
+  // never decides in the same tick it advanced.
+  const advancedHere = useRef(false);
 
   useEffect(() => {
     const saved = localStorage.getItem(`plan-host:${id}`);
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (saved) setHostToken(saved);
+    let live = true;
+    void amPlanHost(id).then((answer) => { if (live) setAccountIsHost(answer); });
+    return () => { live = false; };
   }, [id]);
 
   const runHostCommand = useCallback(async (command: "advance" | "decide" | "patch", patch: Partial<Plan> = {}) => {
-    if (!hostToken) return null;
+    if (!isHost) return null;
     const response = await secureJsonFetch(`/api/plans/${id}/command`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -66,7 +81,7 @@ export function useHostCommands({
     const result = await response.json() as { plan?: Plan; finalists?: string[]; error?: string };
     if (!response.ok || !result.plan) throw new Error(result.error ?? "That plan command could not be saved.");
     return result;
-  }, [hostToken, id]);
+  }, [hostToken, isHost, id]);
 
   // A host command refused with 403 can mean the plan was deleted mid-flight
   // (a decide racing a delete). Telling the person who just deleted it "you
@@ -86,8 +101,8 @@ export function useHostCommands({
   // through runHostCommand -- which throws when `plan` is missing and would
   // report a successful edit as a failure. `nothing_to_change` is a success.
   async function saveEdit() {
-    if (!hostToken || !plan || !editing) return;
-    const body: { command: "edit"; hostToken: string; title?: string; deadline?: string } = { command: "edit", hostToken };
+    if (!isHost || !plan || !editing) return;
+    const body: { command: "edit"; hostToken: string | null; title?: string; deadline?: string } = { command: "edit", hostToken };
     const title = editing.title.trim();
     if (title !== plan.title) body.title = title;
     if (editing.deadline && editing.deadline !== toLocalInput(plan.deadline)) {
@@ -137,7 +152,7 @@ export function useHostCommands({
   // through runHostCommand. The deadline is omitted: it clears, and the host
   // decides by hand.
   async function reopenPlan() {
-    if (!hostToken) return;
+    if (!isHost) return;
     setReopening(true);
     try {
       const response = await secureJsonFetch(`/api/plans/${id}/command`, {
@@ -170,7 +185,7 @@ export function useHostCommands({
   }
 
   async function deletePlan() {
-    if (!hostToken) return;
+    if (!isHost) return;
     setDeciding(true);
     try {
       const response = await secureJsonFetch(`/api/plans/${id}/command`, {
@@ -200,13 +215,14 @@ export function useHostCommands({
   // which migration 015 revoked — one tally, server-side, is the whole point.
   const advanceToFinal = useCallback(async () => {
     if (!plan || plan.status !== "open" || stage !== "pool") return;
-    if (!hostToken) {
+    if (!isHost) {
       setNotice("Only the person who started this plan can close the rounds.");
       return;
     }
     setDeciding(true);
     try {
       const result = await runHostCommand("advance");
+      advancedHere.current = true;
       if (result?.finalists) setPlanSpots((current) => current.map((link) => ({ ...link, advanced: result.finalists!.includes(link.spot_id) })));
       if (result?.plan) setPlan(result.plan);
       setNotice(null);
@@ -215,11 +231,11 @@ export function useHostCommands({
     } finally {
       setDeciding(false);
     }
-  }, [plan, stage, hostToken, runHostCommand, failHostCommand, setNotice, setPlan, setPlanSpots]);
+  }, [plan, stage, isHost, runHostCommand, failHostCommand, setNotice, setPlan, setPlanSpots]);
 
   const decide = useCallback(async () => {
     if (!plan || plan.status !== "open" || spots.length === 0) return;
-    if (!hostToken) {
+    if (!isHost) {
       setNotice("Only the person who started this plan can decide it.");
       return;
     }
@@ -233,14 +249,18 @@ export function useHostCommands({
     } finally {
       setDeciding(false);
     }
-  }, [plan, spots.length, hostToken, runHostCommand, failHostCommand, setNotice, setPlan]);
+  }, [plan, spots.length, isHost, runHostCommand, failHostCommand, setNotice, setPlan]);
 
   // ── Deadline auto-pick ───────────────────────────────────────────
   // Host only. Everyone else receives the transition over realtime, so a
   // participant's browser never fires a command it isn't allowed to run.
   useEffect(() => {
-    if (!plan || plan.status !== "open" || !plan.deadline || !hostToken || deleted) return;
+    if (!plan || plan.status !== "open" || !plan.deadline || !isHost || deleted) return;
     const ms = new Date(plan.deadline).getTime() - Date.now();
+    // R1: the final round gets its own time ('advance' extends the deadline
+    // server-side). A final whose deadline is already past right after this
+    // tab advanced means it got none, so leave the decision to the host.
+    if (stage !== "pool" && ms <= 0 && advancedHere.current) return;
     // setTimeout(…, 0) defers even a past deadline, so we never call
     // setState synchronously in the effect body.
     const t = setTimeout(() => {
@@ -248,10 +268,9 @@ export function useHostCommands({
       else void decide();
     }, Math.max(0, ms));
     return () => clearTimeout(t);
-  }, [plan, stage, hostToken, deleted, decide, advanceToFinal]);
+  }, [plan, stage, isHost, deleted, decide, advanceToFinal]);
 
   return {
-    hostToken,
     isHost,
     runHostCommand,
     deciding,

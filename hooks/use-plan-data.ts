@@ -12,9 +12,12 @@ export type Access = "checking" | "ready" | PlanAccessDenial;
 
 // The vote page's data layer: access bootstrap, the first load, and the
 // sequence-guarded refetches that Realtime (use-plan-realtime.ts) calls.
+const PLAN_COLUMNS = "id,title,category,area,deadline,status,stage,pool_count,budget_per_person,origin_label,origin_latitude,origin_longitude,radius_km,smart_brief,vibe_preferences,avoid_preferences,intelligence_model,winner_spot_id,event_time,booking_owner,booked,created_at,reopened_at";
+
 export function usePlanData(id: string) {
   const [load, setLoad] = useState<Load>("loading");
   const [access, setAccess] = useState<Access>("checking");
+  const [accessMessage, setAccessMessage] = useState<string | null>(null);
   const [plan, setPlan] = useState<Plan | null>(null);
   const [spots, setSpots] = useState<Spot[]>([]);
   const [planSpots, setPlanSpots] = useState<PlanSpot[]>([]);
@@ -30,6 +33,7 @@ export function usePlanData(id: string) {
   const runAccess = useCallback(async () => {
     const result = await claimPlanAccess(id);
     setAccess(result.ok ? "ready" : result.reason);
+    setAccessMessage(result.ok ? null : result.message ?? null);
   }, [id]);
 
   useEffect(() => {
@@ -46,7 +50,7 @@ export function usePlanData(id: string) {
   // happens to trigger another refetch. One counter per fetch kind, bumped
   // before the await and checked after, discards a response once a newer
   // request for the same kind has already started.
-  const fetchSeq = useRef({ votes: 0, rsvps: 0, ratings: 0, planSpots: 0 });
+  const fetchSeq = useRef({ plan: 0, votes: 0, rsvps: 0, ratings: 0, planSpots: 0 });
 
   // Reports whether the read actually succeeded. A refetch that fails keeps
   // the last good tally, which is right — a dropped poll should not wipe a
@@ -87,6 +91,17 @@ export function usePlanData(id: string) {
     return true;
   }, [id]);
 
+  // R5: postgres_changes are not replayed after a socket drop, so an advance
+  // or decide missed meanwhile never arrives as an event. The realtime hook
+  // calls this on every (re)subscribe.
+  const refetchPlan = useCallback(async () => {
+    const seq = ++fetchSeq.current.plan;
+    const { data, error } = await getSupabase().from("plans").select(PLAN_COLUMNS).eq("id", id).maybeSingle();
+    if (error) return false;
+    if (data && seq === fetchSeq.current.plan) setPlan(data as Plan);
+    return true;
+  }, [id]);
+
   const refetchPlanSpots = useCallback(async () => {
     const seq = ++fetchSeq.current.planSpots;
     const { data } = await getSupabase().from("plan_spots").select("*").eq("plan_id", id);
@@ -102,7 +117,7 @@ export function usePlanData(id: string) {
     (async () => {
       const { data: planRow, error: planErr } = await getSupabase()
         .from("plans")
-        .select("id,title,category,area,deadline,status,stage,pool_count,budget_per_person,origin_label,origin_latitude,origin_longitude,radius_km,smart_brief,vibe_preferences,avoid_preferences,intelligence_model,winner_spot_id,event_time,booking_owner,booked,created_at,reopened_at")
+        .select(PLAN_COLUMNS)
         .eq("id", id)
         .maybeSingle();
       if (!active) return;
@@ -180,6 +195,7 @@ export function usePlanData(id: string) {
     setLoad,
     setReloadKey,
     access,
+    accessMessage,
     setAccess,
     runAccess,
     plan,
@@ -198,5 +214,6 @@ export function usePlanData(id: string) {
     refetchRsvps,
     refetchRatings,
     refetchPlanSpots,
+    refetchPlan,
   };
 }

@@ -52,11 +52,19 @@ export type PlanAccessDenial =
   /** Session is fine; there is no plan with that id. */
   | "not-found"
   /** Session is fine; the claim itself failed. */
-  | "claim-failed";
+  | "claim-failed"
+  /** 067: the account is under this plan's minimum age. Final, no retry. */
+  | "age-restricted"
+  /** 067: the account has no date of birth yet; onboarding adds it. */
+  | "needs-birthday";
 
 export type PlanAccessResult =
   | { ok: true }
-  | { ok: false; reason: PlanAccessDenial };
+  /** `message` is the server's own wording, shown as-is (the age refusals). */
+  | { ok: false; reason: PlanAccessDenial; message?: string };
+
+const AGE_REFUSAL = /^This plan is for ages \d+ and up\.$/;
+const NEEDS_BIRTHDAY = "Add your date of birth to join this plan.";
 
 /**
  * Redeem a share-link uuid into a readable plan membership.
@@ -76,6 +84,10 @@ export async function claimPlanAccess(planId: string): Promise<PlanAccessResult>
     // Migration 020 is additive. Keep local development usable while it is
     // being applied, but fail closed in production.
     if (process.env.NODE_ENV !== "production" && error.code === "PGRST202") return { ok: true };
+    // 067 refuses by age with a sentence meant for the person: pass it
+    // through rather than offering a retry that can never succeed.
+    if (error.code === "42501" && AGE_REFUSAL.test(error.message)) return { ok: false, reason: "age-restricted", message: error.message };
+    if (error.code === "42501" && error.message === NEEDS_BIRTHDAY) return { ok: false, reason: "needs-birthday", message: error.message };
     return { ok: false, reason: "claim-failed" };
   }
   // claim_plan_access returns false only when no plan has that id.
