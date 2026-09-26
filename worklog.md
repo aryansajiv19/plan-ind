@@ -209,3 +209,9 @@ PRIORITIES O2/O4: the Turnstile secret must be set AFTER `main` deploys.
   `plan-ind-frontend` (127.0.0.1:55021), reloaded from `schema.sql` + seeds +
   039 locally. The stale `:3000` from `~/plan-ind-frontend` pointed at
   production and was stopped.
+- **C6 done:** CI `test-e2e` runs on every push against the job's own local
+  stack (no production secrets), chromium + Mobile Chrome 213/0 (33 skips) in
+  1.9 min. Firefox left out until it has ever run green.
+- **C4 paused:** needs a production schema dump (DB password) and a
+  `migration repair` on live; owner call.
+

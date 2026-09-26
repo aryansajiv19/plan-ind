@@ -45,8 +45,7 @@ Done: migration 064 (staged) + the client gate on `main`.
 
 | # | Item | Size |
 |---|---|---|
-| C4 | Migrations: 57 flat files, CI tests only `schema.sql` (a replay log). Adopt `supabase/migrations/`, squash to a baseline from production, `supabase db reset` in CI | M |
-| C6 | E2E runs locally (recipe in `tests/README.md`); turn it on in CI by pointing the job's env at the stack it starts; one real load pass against the deployment | M |
+| C4 | Migrations: adopt `supabase/migrations/` from a **baseline dumped from production** (`supabase db dump --linked`, needs the owner's DB password or `supabase login`) plus `migration repair` on live; then `supabase start` in CI. Never use `schema.sql` as the baseline: it DROPs every table if `db push` ever runs it. Owner to decide: retire `schema.sql` or keep it as a generated snapshot | M |
 | C7 | Generate visual baselines after the cinematic pass (32 visual specs skip without them) | S |
 
 ## Later — "never leave the app"
