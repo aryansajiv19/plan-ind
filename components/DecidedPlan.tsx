@@ -30,6 +30,8 @@ interface DecidedPlanProps {
   ratings: Rating[];
   /** Everyone the plan can see, you first. A lower bound — see the vote page. */
   roster: string[];
+  /** Who voted for the winner in the final round, sorted. */
+  pickedBy: string[];
   onSetTime: (iso: string) => void;
   onSetRsvp: (choice: "coming" | "maybe" | "no") => void;
   onSetCarpool: (transport: Rsvp["transport"], seats: number | null) => void;
@@ -65,6 +67,7 @@ export default function DecidedPlan({
   rsvps,
   ratings,
   roster,
+  pickedBy,
   onSetTime,
   onSetRsvp,
   onSetCarpool,
@@ -152,11 +155,18 @@ export default function DecidedPlan({
           <p className="vote-kicker text-xs font-bold uppercase tracking-wide">
             Decided · you’re going
           </p>
-          {/* "It's {name}." used to sit here at 1.25rem, directly beneath a
-              reveal already rendering that same name as a heading. It was a
-              duplicate, not a type-scale problem — enlarging it would have
-              made the repetition louder. The reveal's settled heading is the
-              headline; this row is the badge and the status beside it. */}
+          {/* A count says how many; faces say who. No "of N": the roster
+              is a lower bound. Legacy/tied plans can have no final votes. */}
+          {pickedBy.length > 0 && (
+            <p className="mt-1 inline-flex items-center gap-2 text-sm text-muted">
+              <span className="vote-face-stack" aria-hidden="true">
+                {pickedBy.slice(0, 8).map((name) => (
+                  <span key={name} style={avatarStyle(name)}>{initialsOf(name)}</span>
+                ))}
+              </span>
+              <span>Picked by {pickedBy.join(", ")}</span>
+            </p>
+          )}
         </div>
       </div>
       <p className="mt-2 text-sm text-muted">
