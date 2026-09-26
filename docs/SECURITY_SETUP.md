@@ -6,7 +6,13 @@ The application changes are committed in code, but the database and identity-pro
 
 Run `supabase/migration-020-production-security.sql` in the Supabase SQL editor after migration 019. Do not run `schema.sql` against a live project; it is destructive and exists only for empty scratch databases.
 
-Generate a random value of at least 32 bytes (`openssl rand -hex 32`), set it as the Vercel `SECURITY_CONTROL_SECRET`, then store only its sha256 hex digest in Supabase. Compute the digest locally so the secret never enters SQL history (`printf %s "$SECURITY_CONTROL_SECRET" | shasum -a 256`):
+Generate a random value of 32 bytes (`openssl rand -hex 32`, 64 characters) and set it as the Vercel `SECURITY_CONTROL_SECRET`. Keep it **at most 64 characters**: it is also the HMAC key for security-event subjects, and HMAC-SHA256 replaces a longer key with its sha256, which is exactly the stored row.
+
+Then store only its sha256 hex digest in Supabase. This **needs migration 066 applied first**; before 066 only a bcrypt hash verifies, and a sha256 row fails closed (every rate-limited request answers 503). Compute the digest off the database, so the secret never enters SQL history; this throws if the variable is unset rather than hashing an empty string:
+
+```
+node --env-file=.env.local -e "process.stdout.write(require('crypto').createHash('sha256').update(process.env.SECURITY_CONTROL_SECRET).digest('hex'))"
+```
 
 ```sql
 insert into public.app_control_secrets(name, secret_hash)
@@ -14,7 +20,7 @@ values ('server-control', 'PASTE_THE_SHA256_HEX_HERE')
 on conflict (name) do update set secret_hash = excluded.secret_hash;
 ```
 
-A bcrypt hash (starting `$2`) is still accepted (migration 066); it just costs ~6ms of database CPU on every rate-limited request.
+Switching an existing bcrypt row: follow the guarded runbook at the top of `supabase/migration-066-control-secret-digest.sql` (save the row, guarded update, check, restore on failure).
 
 Schedule the following once per day with Supabase Cron:
 

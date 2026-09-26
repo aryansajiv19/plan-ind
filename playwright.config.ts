@@ -34,6 +34,10 @@ export default defineConfig({
   // browser is WebKit). To run them locally, serve over https or point
   // PLAYWRIGHT_BASE_URL at a deployed preview -- do NOT relax the headers to
   // make a test pass.
+  // A missing baseline fails instead of being written: the default ("missing")
+  // writes it, fails once, and CI's retry then passes against the new file.
+  // Baselines are only ever written by the CI dispatch (tests/README.md).
+  updateSnapshots: "none",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
@@ -59,12 +63,13 @@ export default defineConfig({
   // backdrop-filter, and `100vh` behaves differently under a Safari toolbar.
   //
   // Run a subset with `--project`, e.g. `npm run test:e2e -- --project="Mobile Safari"`.
+  // visual.spec.ts runs on chromium only (its header says why).
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
-    { name: "webkit", use: { ...devices["Desktop Safari"] } },
-    { name: "firefox", use: { ...devices["Desktop Firefox"] } },
-    { name: "Mobile Safari", use: { ...devices["iPhone 14"] } },
-    { name: "Mobile Chrome", use: { ...devices["Pixel 7"] } },
+    { name: "webkit", use: { ...devices["Desktop Safari"] }, testIgnore: /visual\.spec\.ts/ },
+    { name: "firefox", use: { ...devices["Desktop Firefox"] }, testIgnore: /visual\.spec\.ts/ },
+    { name: "Mobile Safari", use: { ...devices["iPhone 14"] }, testIgnore: /visual\.spec\.ts/ },
+    { name: "Mobile Chrome", use: { ...devices["Pixel 7"] }, testIgnore: /visual\.spec\.ts/ },
   ],
   // Reuses a server you already have running (PLAYWRIGHT_BASE_URL or a local
   // `npm run dev`/`npm run start`) if one answers; otherwise builds and

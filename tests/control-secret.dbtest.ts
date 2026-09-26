@@ -45,6 +45,16 @@ async function checks(hashSql: string): Promise<string> {
     rollback;`);
 }
 
+/** valid_control_secret(argSql) with the row set to `hashSql`, rolled back. */
+async function one(hashSql: string, argSql: string): Promise<string> {
+  return psql(`
+    begin;
+    delete from app_control_secrets where name = 'server-control';
+    insert into app_control_secrets(name, secret_hash) values ('server-control', ${hashSql});
+    select valid_control_secret(${argSql})::text;
+    rollback;`);
+}
+
 describe("valid_control_secret (migration 066)", { skip: SKIP }, () => {
   test("a bcrypt row still verifies, so applying 066 alone changes nothing", async () => {
     assert.equal(await checks(`extensions.crypt('${SECRET}', extensions.gen_salt('bf'))`), "true,false,false");
@@ -58,7 +68,22 @@ describe("valid_control_secret (migration 066)", { skip: SKIP }, () => {
     assert.equal(await checks(`'${SECRET}'`), "false,false,false");
   });
 
-  test("no client role can execute it", async () => {
+  test("an empty or oversize secret never verifies, even when the row is its digest", async () => {
+    // An unset env var hashed by mistake stores sha256(''): '' must still fail.
+    assert.equal(await one(`'${sha256("")}'`, "''"), "false");
+    assert.equal(await one(`'${sha256("")}'`, "null"), "false");
+    const long = "x".repeat(257);
+    assert.equal(await one(`'${sha256(long)}'`, `'${long}'`), "false");
+    // Positive control at the bound, so the 257 case fails on length alone.
+    const max = "x".repeat(256);
+    assert.equal(await one(`'${sha256(max)}'`, `'${max}'`), "true");
+  });
+
+  test("no client role can execute it, or read the table", async () => {
+    const table = await psql(`
+      select string_agg(r || '=' || has_table_privilege(r, 'app_control_secrets', 'select')::text, ',')
+      from unnest(array['anon', 'authenticated']) r`);
+    assert.equal(table, "anon=false,authenticated=false");
     const grants = await psql(`
       select string_agg(r || '=' || has_function_privilege(r, 'valid_control_secret(text)', 'execute')::text, ',')
       from unnest(array['anon', 'authenticated']) r`);
