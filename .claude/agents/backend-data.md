@@ -23,8 +23,8 @@ The core four tables still exist and still mean what they did:
 - **`plans`** — one row per share link. **The uuid is the URL slug.**
   `status` is `'open' | 'decided'` — there is no `closed`.
 - **`plan_spots`** — links a plan to its options, now pool-numbered for rounds.
-- **`votes`** — one row per participant per round
-  (`votes_participant_round_key`), written only by `cast_plan_vote`.
+- **`votes`** — one row per account per round (`votes_user_round_key`, 061),
+  written only by `cast_plan_vote`.
 
 Around them: `auth.users`, `people`, `friendships`, `visits`, `rsvps`,
 `ratings`, `plan_access`, `plan_host_tokens`, `member_ages`,
@@ -86,8 +86,7 @@ columns and left the file unable to produce a working database.
 - **Exactly-three-options is unenforced.** If you rely on it, either enforce it
   (constraint or trigger) or handle 2 and 4 gracefully. Don't assume.
 - **The deadline is enforced by migration 061** (`cast_plan_vote` refuses once
-  it passes). 061 is staged, not live — check the `worklog.md` ledger before
-  telling `frontend` it holds in production.
+  it passes).
 - **Ties are guaranteed.** Three options and a small group tie constantly.
   Decide the rule explicitly, document it in the schema, and make it
   deterministic — `order by` on an unstable column is a bug.

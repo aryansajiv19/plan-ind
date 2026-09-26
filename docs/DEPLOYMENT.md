@@ -68,9 +68,8 @@ one plan decided. Those need the Turnstile steps above first.
   old `:3000` bug.
 - **The email template must send a six-digit code**, not a magic link. The UI
   promises a code; a mismatch breaks sign-up for every new user.
-- **`test:e2e` is off in CI** (`vars.RUN_E2E`) because `guest-vote.spec.ts`
-  votes on the live shared seed plan every run. Now that a real URL exists this
-  is worth wiring to a throwaway plan and turning on.
+- **`test:e2e` runs in CI** against a throwaway local stack the job starts;
+  it never touches the deployment.
 - **Every load number this project has is loopback-local**, against a local
   Docker stack — a ceiling for that environment, not a field number. The front
   door managed 857.5 req/s and `/api/spots/deal` hit a real wall near n=100,

@@ -1,6 +1,6 @@
 # tests
 
-Four kinds of tests live here.
+Three kinds of tests live here.
 
 ## Hermetic unit tests — `npm test`
 
@@ -108,35 +108,11 @@ The one infra assumption that may need a tweak when CI wires this up: the
 future GoTrue schema adds a NOT NULL column without a default, add it there —
 it is the only place the tests touch `auth`.
 
-## For T0 / CI
+### In CI
 
-To make `test:db` execute rather than skip:
-
-1. Install the Supabase CLI and `supabase start` (or stand up any Postgres with
-   the `auth` schema, `auth.uid()`, and the `authenticated` / `anon` roles).
-2. Load `supabase/schema.sql` into it (fresh DB only — it is destructive).
-3. Set `TEST_DATABASE_URL` in the CI job env.
-4. Add `npm run test:db` as a CI step (its own job, after the hermetic suite).
-
-Until then the suite reports, e.g.:
-`SKIP no reachable Postgres at postgresql://... — set TEST_DATABASE_URL to a
-LOCAL Supabase`.
-
-### Note from the migration-025 QA pass
-
-No Supabase CLI was available in that environment (`supabase start` couldn't
-be used). Both `.dbtest.ts` files were instead run and verified green against
-a throwaway database on the machine's local Homebrew Postgres, hand-stubbed to
-be Supabase-shaped: an `auth` schema with a minimal `auth.users` table,
-`auth.uid()` / `auth.jwt()` reading `request.jwt.claims` the same way real
-Supabase does, `anon`/`authenticated` roles, and bare-minimum `storage.*` /
-`realtime.*` stub schemas (`storage.buckets`, `storage.objects`,
-`storage.foldername()`, `realtime.messages`, `realtime.topic()`) — just enough
-surface for `schema.sql` to load end to end without touching the objects the
-Supabase platform itself provides in a real project. The database was dropped
-immediately after. Anyone reproducing this without the Supabase CLI needs the
-same stub; with the CLI, `supabase start` provides all of it for free and none
-of this is necessary.
+The `test-db` job in `.github/workflows/ci.yml` starts a throwaway local stack,
+loads `schema.sql` and runs `npm run test:db`. Without the Supabase CLI, the
+plain-Postgres route above (`tests/supabase-shim.sql` + `schema.sql`) works too.
 
 ## End-to-end tests — `npm run test:e2e`
 
@@ -247,9 +223,9 @@ Whoever runs this should do it once, somewhere that's fine to affect the
 shared install (the main tree, or CI) — not casually from inside a lane
 worktree.
 
-### For T0 / CI
+### In CI
 
-Same idea as `test:db`: its own job, after the hermetic suite, with the setup
-above run first. `PLAYWRIGHT_BASE_URL` can point the specs at an
-already-running deployment instead of having Playwright build+start one
-itself.
+The `test-e2e` job starts its own local stack, loads `schema.sql` + `seed.sql`
++ the control secret, and runs chromium + Mobile Chrome against a production
+build — the recipe above, nothing hosted. WebKit needs an https preview
+(`PLAYWRIGHT_BASE_URL`), see `playwright.config.ts`.

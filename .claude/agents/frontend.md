@@ -65,9 +65,7 @@ owner, calendar export and ratings. The server tally is the only tally.
   `open_till`, `vibe`, and `area` are what people actually decide on. Show them
   on the vote card; don't hide them behind a tap.
 - **`booking_url` is nullable.** Never render a dead or empty link.
-- **`deadline` is nullable.** Migration 061 enforces it server-side, but 061 is
-  staged, not live — check the `worklog.md` ledger before building UI that
-  implies voting is locked.
+- **`deadline` is nullable.** When set, migration 061 enforces it server-side.
 - **`status` is only `'open' | 'decided'`** — there is no `closed`. Match
   `lib/types.ts` exactly.
 - **Realtime cleanup.** Always `removeChannel` on unmount. A leaked subscription

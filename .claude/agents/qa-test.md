@@ -35,8 +35,8 @@ UI and rendering → `frontend`.
 
 ## What to test in THIS app
 
-Identity is a signed-in account; one ballot per participant per round
-(`votes_participant_round_key`), cast only through `cast_plan_vote`.
+Identity is a signed-in account; one ballot per account per round
+(`votes_user_round_key`, 061), cast only through `cast_plan_vote`.
 
 - **Tally and decide (unit):** clear winner, unanimous no, and **ties** — assert
   the documented tie-break and that it is deterministic on shuffled input.
