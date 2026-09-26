@@ -290,3 +290,11 @@ open redirect via dot-segment `next`; community custom spots can carry any
 link/photo; Realtime never resyncs after reconnect; plus critic: no per-user
 visit-photo quota. Triage and lanes in PRIORITIES "In flight". Scale-only items
 recorded, not built (owner's target: tens of users).
+- **Review batch, client (frontend lane, merged):** host controls follow
+  `am_plan_host` (067) on any device, falling back to the device token until
+  067 is applied; the command route takes an optional host token; the
+  deadline effect never decides in the tick it advanced (R1); every Realtime
+  (re)subscribe re-reads the plan and its rows (R5); sign-out clears per-plan
+  localStorage (R14); custom places never show an email prefix (R15);
+  browser requests bounded at 15 s, photo uploads exempt; 067's age refusals
+  get their own screens.
