@@ -874,6 +874,16 @@ create policy "manage own visit photos" on visit_photos for all to authenticated
 insert into storage.buckets (id, name, public)
 values ('visit-photos', 'visit-photos', false)
 on conflict (id) do nothing;
+-- storage.objects outlives the table drops above, so its policies must be
+-- dropped by name for this file to re-run.
+drop policy if exists "read permitted visit photo files" on storage.objects;
+drop policy if exists "upload own visit photos" on storage.objects;
+drop policy if exists "manage own visit photo files" on storage.objects;
+drop policy if exists "delete own visit photo files" on storage.objects;
+drop policy if exists "read spot photo files" on storage.objects;
+drop policy if exists "no client writes to spot photos" on storage.objects;
+drop policy if exists "no client updates to spot photos" on storage.objects;
+drop policy if exists "no client deletes of spot photos" on storage.objects;
 create policy "read permitted visit photo files" on storage.objects for select to anon, authenticated
   using (bucket_id = 'visit-photos' and exists (
     select 1 from public.visit_photos photo where photo.storage_path = name
