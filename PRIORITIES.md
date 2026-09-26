@@ -42,12 +42,29 @@ Done: migration 064 (staged) + the client gate on `main`.
 | B6 | Winner reveal: full-bleed photo when present (faces + share: done 2026-09-26) | S |
 | B7 | **Host controls follow the account, not the device.** Today they need the host token in that browser's localStorage, so a host on a new device sees only "Leave this plan". Proposal: `execute_plan_command` (and edit/reopen/delete) also accept `auth.uid() = plans.created_by_user_id`; migration + `security` review + owner approval to apply | M |
 
+## In flight: review batch (2026-09-26)
+
+Security + scalability review of `main` (6 reviewers, every finding
+adversarially verified): 23 confirmed, 7 refuted, 0 critical, 1 high. All
+fixes ship with go-live.
+
+| Lane | Items |
+|---|---|
+| Platform (SQL) | migration 067 (host = creator account, B7; deadline auto-pick skips the final round, R1 high; one name per ballot; hash-squat lockout; booking_owner cleaning) and 068 (community spots can't carry links/photos; friends-photo policy; 065's missing index; visit-photo upload cap) |
+| Frontend | B7 client, clear host tokens on sign-out, R1 client, Realtime resync on reconnect, no email username in custom spots, 15 s browser fetch timeout |
+| Server (subagent) | open redirect via dot-segments in `safeNextPath`, Turnstile verified before OTP limits, `/api/weather` needs a session, model refusals not reported as retryable, proxy treats an auth outage as signed out, proxy off `/api/*` |
+
+Recorded, not built (fine at tens of users): Discover scan cost at 100k custom
+spots; unindexed `user_id` FKs; 1000-row PostgREST cap on vote reads;
+unbounded per-user lists; global Luna/photo caps drainable by ~10 real
+accounts (accepted residual after the cutover). Owner decision pending:
+should under-age accounts be able to join 21+ plans?
+
 ## Scale and hygiene
 
 | # | Item | Size |
 |---|---|---|
 | C4 | Migrations: adopt `supabase/migrations/` from a **baseline dumped from production** (`supabase db dump --linked`, needs the owner's DB password or `supabase login`) plus `migration repair` on live; then `supabase start` in CI. Never use `schema.sql` as the baseline: it DROPs every table if `db push` ever runs it. Owner to decide: retire `schema.sql` or keep it as a generated snapshot | M |
-| C7 | Generate visual baselines after the cinematic pass (32 visual specs skip without them) | S |
 
 ## Later — "never leave the app"
 
