@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { signOut } from "@/app/auth/actions";
-import { clearMe } from "@/lib/device";
+import { clearAccountState } from "@/lib/device";
 import DemoAccountViews from "@/components/DemoAccountViews";
 import AccountViews from "@/components/AccountViews";
 import type { PersonCard, ProfileVisit, Spot, WrappedSummary, WrappedSummaryError } from "@/lib/types";
@@ -421,7 +421,7 @@ export default function HomeExperience({
           {activeView === "profile" && !demoMode && (
             <form
               action={signOut}
-              onSubmit={() => clearMe()}
+              onSubmit={() => clearAccountState()}
               className="home-profile-actions"
             >
               <span>Signed in as {name}</span>
