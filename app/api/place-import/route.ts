@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { AUTH_UNAVAILABLE_MESSAGE, sessionUser } from "@/lib/auth";
 import { classifyPlaceLink, type PlaceCollectionKind } from "@/lib/place-import/classify";
 import { resolvePlaceImport } from "@/lib/place-import/resolve";
 import {
@@ -27,8 +28,9 @@ export async function POST(request: Request) {
     return requestError(error, "The request could not be read.");
   }
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
+  const user = await sessionUser(supabase);
+  if (user === "unavailable") return Response.json({ error: AUTH_UNAVAILABLE_MESSAGE }, { status: 503 });
+  if (user === "signed-out") {
     return Response.json({ error: "Sign in to save a place." }, { status: 401 });
   }
   const quota = await consumeQuota(supabase, "place-import");
@@ -117,8 +119,9 @@ export async function POST(request: Request) {
 
 export async function GET() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return Response.json({ error: "Sign in to view saved places." }, { status: 401 });
+  const user = await sessionUser(supabase);
+  if (user === "unavailable") return Response.json({ error: AUTH_UNAVAILABLE_MESSAGE }, { status: 503 });
+  if (user === "signed-out") return Response.json({ error: "Sign in to view saved places." }, { status: 401 });
   try {
     const personId = await authenticatedProfile(supabase, user);
     const { data, error } = await supabase

@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { safeNextPath } from "../lib/auth.ts";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { AuthApiError, AuthRetryableFetchError, AuthSessionMissingError, AuthUnknownError } from "@supabase/supabase-js";
+import { safeNextPath, sessionUser } from "../lib/auth.ts";
 
 test("safeNextPath passes an internal path through unchanged", () => {
   assert.equal(
@@ -35,4 +37,33 @@ test("safeNextPath refuses anything the URL parser could turn into another origi
   // Encoded separators stay on our origin as path text, so they pass unchanged.
   assert.equal(safeNextPath("/%2F%2Fevil.com"), "/%2F%2Fevil.com");
   assert.equal(safeNextPath("/plan/abc?x=1#y"), "/plan/abc?x=1#y");
+});
+
+// sessionUser: an auth outage must never read as "signed out" (that told
+// signed-in people to sign in, as a 401, under load).
+const clientReturning = (user: unknown, error: unknown) =>
+  ({ auth: { getUser: async () => ({ data: { user }, error }) } }) as unknown as SupabaseClient;
+
+test("sessionUser returns the user when getUser finds one", async () => {
+  const user = { id: "u1", is_anonymous: false };
+  assert.equal(await sessionUser(clientReturning(user, null)), user);
+});
+
+test("sessionUser is signed-out for no session or a token GoTrue rejected", async () => {
+  assert.equal(await sessionUser(clientReturning(null, null)), "signed-out");
+  assert.equal(await sessionUser(clientReturning(null, new AuthSessionMissingError())), "signed-out");
+  assert.equal(await sessionUser(clientReturning(null, new AuthApiError("invalid JWT", 403, "bad_jwt"))), "signed-out");
+});
+
+test("sessionUser is unavailable when the auth service did not answer", async () => {
+  const quiet = console.error;
+  console.error = () => {};
+  try {
+    // status 0 is what auth-js throws for a failed fetch (connection reset).
+    assert.equal(await sessionUser(clientReturning(null, new AuthRetryableFetchError("fetch failed", 0))), "unavailable");
+    assert.equal(await sessionUser(clientReturning(null, new AuthRetryableFetchError("bad gateway", 502))), "unavailable");
+    assert.equal(await sessionUser(clientReturning(null, new AuthUnknownError("not json", null))), "unavailable");
+  } finally {
+    console.error = quiet;
+  }
 });

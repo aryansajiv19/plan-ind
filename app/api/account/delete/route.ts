@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { AUTH_UNAVAILABLE_MESSAGE, sessionUser } from "@/lib/auth";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   readJsonBody,
@@ -50,14 +51,15 @@ export async function POST(request: Request) {
   }
 
   const supabase = await createClient();
-  const [{ data: { user } }, quota] = await Promise.all([
-    supabase.auth.getUser(),
+  const [user, quota] = await Promise.all([
+    sessionUser(supabase),
     // Reuses the plan-command quota (20/minute) rather than adding a scope to
     // consume_app_quota: one more definer function to re-create for a button
     // that can only succeed once per account.
     consumeQuota(supabase, "plan-command"),
   ]);
-  if (!user) return Response.json({ error: "Sign in required." }, { status: 401 });
+  if (user === "unavailable") return Response.json({ error: AUTH_UNAVAILABLE_MESSAGE }, { status: 503 });
+  if (user === "signed-out") return Response.json({ error: "Sign in required." }, { status: 401 });
   if (quota === "unavailable") {
     reportControlUnavailable("account-delete");
     return Response.json({ error: CONTROL_UNAVAILABLE_MESSAGE }, { status: 503 });

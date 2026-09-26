@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import { createClient } from "@/lib/supabase/server";
+import { AUTH_UNAVAILABLE_MESSAGE, sessionUser } from "@/lib/auth";
 import { MIN_ACCOUNT_AGE, memberAge, prohibitedVenueReason } from "@/lib/age-policy";
 import {
   QUERY_LIMITS,
@@ -34,10 +35,11 @@ export async function POST(request: Request) {
     return requestError(error, "The search request could not be read.");
   }
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await sessionUser(supabase);
   // Same refusal as /api/plans: a guest (anonymous) session costs nothing to
   // mint, so it must not be able to spend model calls.
-  if (!user || user.is_anonymous) {
+  if (user === "unavailable") return Response.json({ error: AUTH_UNAVAILABLE_MESSAGE }, { status: 503 });
+  if (user === "signed-out" || user.is_anonymous) {
     return Response.json({ error: "Sign in to use smart search." }, { status: 401 });
   }
 

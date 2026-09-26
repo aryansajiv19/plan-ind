@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { AUTH_UNAVAILABLE_MESSAGE, sessionUser } from "@/lib/auth";
 import { CONTROL_UNAVAILABLE_MESSAGE, consumeQuota, reportControlUnavailable } from "@/lib/security/controls";
 import { placesApiKey } from "@/lib/places/config";
 import { eligiblePlaceId, parseSpotId, resolvePlacePhoto, type PhotoSpotRow } from "@/lib/places/photo";
@@ -29,10 +30,11 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   if (!apiKey) return Response.json({ error: "Photos are not available." }, { status: 503, headers: NO_STORE });
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await sessionUser(supabase);
   // Permanent accounts only: a throwaway guest session is free to mint, so a
   // guest-reachable route could drain the shared daily photo budget.
-  if (!user || user.is_anonymous) return Response.json({ error: "Sign in to see photos." }, { status: 401, headers: NO_STORE });
+  if (user === "unavailable") return Response.json({ error: AUTH_UNAVAILABLE_MESSAGE }, { status: 503, headers: NO_STORE });
+  if (user === "signed-out" || user.is_anonymous) return Response.json({ error: "Sign in to see photos." }, { status: 401, headers: NO_STORE });
 
   // Read the row BEFORE spending quota: a spot with its own photo, or
   // without a place id, costs nothing and should not count. RLS applies --

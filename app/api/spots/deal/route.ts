@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { AUTH_UNAVAILABLE_MESSAGE, sessionUser } from "@/lib/auth";
 import { CONTROL_UNAVAILABLE_MESSAGE, consumeQuota, recordSecurityEvent, reportControlUnavailable } from "@/lib/security/controls";
 import { MIN_ACCOUNT_AGE, memberAge } from "@/lib/age-policy";
 import {
@@ -66,11 +67,12 @@ export async function POST(request: Request) {
   // (scripts/load/README.md, ~n=100 -- five to six sequential round trips
   // per request). Still checked in the original order below, so an
   // unauthenticated caller sees 401, never a stray 429.
-  const [{ data: { user } }, quota] = await Promise.all([
-    supabase.auth.getUser(),
+  const [user, quota] = await Promise.all([
+    sessionUser(supabase),
     consumeQuota(supabase, "spot-deal"),
   ]);
-  if (!user || user.is_anonymous) {
+  if (user === "unavailable") return Response.json({ error: AUTH_UNAVAILABLE_MESSAGE }, { status: 503 });
+  if (user === "signed-out" || user.is_anonymous) {
     return Response.json({ error: "Sign in to deal places." }, { status: 401 });
   }
   // Its own bucket, not plan-create's: dealing happens before a plan exists

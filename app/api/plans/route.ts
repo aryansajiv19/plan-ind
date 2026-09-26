@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { AUTH_UNAVAILABLE_MESSAGE, sessionUser } from "@/lib/auth";
 import { CONTROL_UNAVAILABLE_MESSAGE, consumeQuota, recordSecurityEvent, reportControlUnavailable } from "@/lib/security/controls";
 import {
   plainText,
@@ -30,11 +31,12 @@ export async function POST(request: Request) {
   // Independent I/O, run together -- see app/api/spots/deal/route.ts's
   // identical comment for why this is safe (the quota RPC fails closed on
   // its own session, doesn't need the user object below).
-  const [{ data: { user } }, quota] = await Promise.all([
-    supabase.auth.getUser(),
+  const [user, quota] = await Promise.all([
+    sessionUser(supabase),
     consumeQuota(supabase, "plan-create"),
   ]);
-  if (!user || user.is_anonymous) {
+  if (user === "unavailable") return Response.json({ error: AUTH_UNAVAILABLE_MESSAGE }, { status: 503 });
+  if (user === "signed-out" || user.is_anonymous) {
     return Response.json({ error: "Sign in to start a plan." }, { status: 401 });
   }
   if (quota === "unavailable") {
