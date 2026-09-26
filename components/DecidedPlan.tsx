@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import type { Plan, Rating, Rsvp, Spot } from "@/lib/types";
-import { googleCalUrl, icsHref } from "@/lib/calendar";
 import { categoryMeta } from "@/lib/categories";
 import { fitForEvent, hoursLabel } from "@/lib/open-hours";
 import { dubaiMinuteOfDay } from "@/lib/dubai-phase";
 import GettingThere from "@/components/vote/GettingThere";
-import UnrateButton from "@/components/UnrateButton";
+import BookingSection from "@/components/vote/BookingSection";
+import RatingSection from "@/components/vote/RatingSection";
+import WhosInSection from "@/components/vote/WhosInSection";
 import WinnerReveal from "@/components/WinnerReveal";
 import PhotoCredit from "@/components/PhotoCredit";
 import PlanWeather from "@/components/PlanWeather";
@@ -30,6 +31,8 @@ interface DecidedPlanProps {
   ratings: Rating[];
   /** Everyone the plan can see, you first. A lower bound — see the vote page. */
   roster: string[];
+  /** Who voted for the winner in the final round, sorted. */
+  pickedBy: string[];
   onSetTime: (iso: string) => void;
   onSetRsvp: (choice: "coming" | "maybe" | "no") => void;
   onSetCarpool: (transport: Rsvp["transport"], seats: number | null) => void;
@@ -65,6 +68,7 @@ export default function DecidedPlan({
   rsvps,
   ratings,
   roster,
+  pickedBy,
   onSetTime,
   onSetRsvp,
   onSetCarpool,
@@ -76,17 +80,6 @@ export default function DecidedPlan({
   const [editingTime, setEditingTime] = useState(false);
   const [copied, setCopied] = useState(false);
   const cat = categoryMeta(winner.category);
-
-  const choiceFor = (r: Rsvp) => r.choice ?? (r.coming ? "coming" : "no");
-  const coming = rsvps.filter((r) => choiceFor(r) === "coming");
-  const mine = rsvps.find((r) => r.voter_name === voterName);
-  const myChoice = mine ? choiceFor(mine) : null;
-  const rsvpOf = new Map(rsvps.map((r) => [r.voter_name, r]));
-  const withChoice = (choice: "maybe" | "no") => rsvps.filter((r) => choiceFor(r) === choice).map((r) => r.voter_name);
-  const carpoolNote = (r: Rsvp) =>
-    r.transport === "driving"
-      ? r.seats_available != null ? ` (driving · ${r.seats_available} ${r.seats_available === 1 ? "seat" : "seats"})` : " (driving)"
-      : r.transport === "need_ride" ? " (needs a ride)" : "";
 
   // One announcement for every share path: this button, WhatsApp and the
   // native sheet all send lib/share-preview's shareMessage.
@@ -102,8 +95,6 @@ export default function DecidedPlan({
       // Clipboard blocked (e.g. no focus / permissions) — don't claim success.
     }
   }
-  const gcal = googleCalUrl(plan, winner);
-  const ics = icsHref(plan, winner);
 
   // The listed closing time against the plan's start (Dubai clock). Only a
   // verdict is worth a line; a bare listing already sits in the details.
@@ -112,18 +103,6 @@ export default function DecidedPlan({
   const startDate = plan.event_time ? new Date(plan.event_time) : null;
   const viewerOffDubai = startDate != null
     && startDate.getHours() * 60 + startDate.getMinutes() !== dubaiMinuteOfDay(startDate);
-
-  const myRating = ratings.find((r) => r.voter_name === voterName);
-  const avgStars =
-    ratings.length > 0
-      ? ratings.reduce((s, r) => s + r.stars, 0) / ratings.length
-      : 0;
-  const againPct =
-    ratings.length > 0
-      ? Math.round(
-          (ratings.filter((r) => r.again).length / ratings.length) * 100,
-        )
-      : 0;
 
   return (
     <div className="vote-result mt-6 rounded-2xl border-2 border-punch bg-punch/5 p-4 sm:p-5">
@@ -152,11 +131,18 @@ export default function DecidedPlan({
           <p className="vote-kicker text-xs font-bold uppercase tracking-wide">
             Decided · you’re going
           </p>
-          {/* "It's {name}." used to sit here at 1.25rem, directly beneath a
-              reveal already rendering that same name as a heading. It was a
-              duplicate, not a type-scale problem — enlarging it would have
-              made the repetition louder. The reveal's settled heading is the
-              headline; this row is the badge and the status beside it. */}
+          {/* A count says how many; faces say who. No "of N": the roster
+              is a lower bound. Legacy/tied plans can have no final votes. */}
+          {pickedBy.length > 0 && (
+            <p className="mt-1 inline-flex items-center gap-2 text-sm text-muted">
+              <span className="vote-face-stack" aria-hidden="true">
+                {pickedBy.slice(0, 8).map((name) => (
+                  <span key={name} style={avatarStyle(name)}>{initialsOf(name)}</span>
+                ))}
+              </span>
+              <span>Picked by {pickedBy.join(", ")}</span>
+            </p>
+          )}
         </div>
       </div>
       <p className="mt-2 text-sm text-muted">
@@ -227,237 +213,21 @@ export default function DecidedPlan({
         )}
       </div>
 
-      {/* Who's in. Same seats as the vote page: a face for everyone coming,
-          an open seat for everyone else the plan can see. The lines below
-          name only what RSVPs actually say — never "not answered: X", which
-          would pass a lower-bound roster off as the whole group. */}
-      <div className="mt-4 border-t border-line pt-4">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-wide text-muted">
-              Who’s in
-            </p>
-            {roster.length > 1 && (
-              <ul className="vote-seats__row mt-2" aria-label="People on this plan">
-                {roster.slice(0, 10).map((name) => {
-                  const r = rsvpOf.get(name);
-                  const going = r ? choiceFor(r) === "coming" : false;
-                  return (
-                    <li key={name} className="vote-seat" data-open={going ? undefined : "1"}>
-                      <span aria-hidden="true" style={going ? avatarStyle(name) : undefined}>{initialsOf(name)}</span>
-                      <span className="sr-only">
-                        {name}, {r ? (choiceFor(r) === "coming" ? "coming" : choiceFor(r) === "maybe" ? "maybe" : "can’t make it") : "no RSVP"}
-                      </span>
-                    </li>
-                  );
-                })}
-                {roster.length > 10 && <li className="vote-seat vote-seat--more">+{roster.length - 10}</li>}
-              </ul>
-            )}
-            <p className="mt-2 text-sm">
-              {coming.length === 0 ? (
-                <span className="text-muted">No one’s committed yet.</span>
-              ) : (
-                <span className="font-medium">
-                  <span className="text-muted">{coming.length} going: </span>
-                  {coming.map((r) => r.voter_name + carpoolNote(r)).join(", ")}
-                </span>
-              )}
-            </p>
-            {withChoice("maybe").length > 0 && (
-              <p className="mt-1 text-sm text-muted">Maybe: {withChoice("maybe").join(", ")}</p>
-            )}
-            {withChoice("no").length > 0 && (
-              <p className="mt-1 text-sm text-muted">Can’t make it: {withChoice("no").join(", ")}</p>
-            )}
-          </div>
-          <div className="vote-rsvp-choices" aria-label="Your attendance choice">
-            {(["coming", "maybe", "no"] as const).map((choice) => (
-              <button key={choice} type="button" onClick={() => onSetRsvp(choice)} aria-pressed={myChoice === choice} className="vote-result__button">
-                {choice === "coming" ? "Coming" : choice === "maybe" ? "Maybe" : "Can’t make it"}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Carpool (035). Only once you're coming — a ride is a commitment.
-            Tapping your current option again clears it back to unset. */}
-        {myChoice === "coming" && mine && (
-          <div className="vote-carpool">
-            <p id="carpool-label" className="text-xs font-bold uppercase tracking-wide text-muted">How you’re getting there</p>
-            <div className="vote-rsvp-choices" role="group" aria-labelledby="carpool-label">
-              {([["driving", "I’m driving"], ["need_ride", "Need a ride"], ["own_way", "Own way"]] as const).map(([value, label]) => (
-                <button
-                  key={value}
-                  type="button"
-                  aria-pressed={mine.transport === value}
-                  className="vote-result__button"
-                  onClick={() => onSetCarpool(mine.transport === value ? null : value, value === "driving" ? mine.seats_available ?? null : null)}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-            {mine.transport === "driving" && (
-              <label className="vote-carpool__seats">
-                Spare seats
-                <select
-                  className="vote-field"
-                  value={mine.seats_available ?? ""}
-                  onChange={(e) => onSetCarpool("driving", e.target.value === "" ? null : Number(e.target.value))}
-                >
-                  <option value="">Not sure</option>
-                  {[0, 1, 2, 3, 4, 5, 6, 7].map((n) => <option key={n} value={n}>{n === 0 ? "Car’s full" : n}</option>)}
-                </select>
-              </label>
-            )}
-          </div>
-        )}
-      </div>
+      <WhosInSection rsvps={rsvps} roster={roster} voterName={voterName} onSetRsvp={onSetRsvp} onSetCarpool={onSetCarpool} />
 
       <GettingThere plan={plan} winner={winner} />
 
-      {/* Booking */}
-      <div className="mt-4 border-t border-line pt-4">
-        <p className="text-xs font-bold uppercase tracking-wide text-muted">
-          Booking
-        </p>
-        <div className="mt-2 flex flex-wrap items-center gap-2">
-          {plan.booked ? (
-            <>
-              <span className="vote-result__booked rounded-full bg-mint/15 px-3 py-1.5 text-sm font-bold text-mint">
-                Booked{plan.booking_owner ? ` by ${plan.booking_owner}` : ""}
-              </span>
-              {/* "Mark as booked" had no way back: a mis-tap was permanent, and
-                  reopening a plan requires it untaken. */}
-              {isHost && (
-                <button type="button" onClick={onUnmarkBooked} className="vote-result__button px-4 py-2 text-sm font-display">
-                  Unmark booked
-                </button>
-              )}
-            </>
-          ) : plan.booking_owner ? (
-            <>
-              <span className="text-sm font-medium">
-                {plan.booking_owner === voterName
-                  ? "You’re booking it."
-                  : `${plan.booking_owner}’s booking it.`}
-              </span>
-              {plan.booking_owner === voterName && (
-                <button
-                  type="button"
-                  onClick={onMarkBooked}
-                  className="vote-result__button px-4 py-2 text-sm font-display"
-                >
-                  Mark as booked
-                </button>
-              )}
-            </>
-          ) : isHost ? (
-            <button
-              type="button"
-              onClick={onClaimBooking}
-              className="vote-result__button px-4 py-2 text-sm font-display"
-            >
-              I’ll book it
-            </button>
-          ) : (
-            <span className="text-sm text-muted">The plan host can book this.</span>
-          )}
-          {winner.booking_url && (
-            <a
-              href={winner.booking_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm font-bold text-grape underline"
-            >
-              Book a table
-            </a>
-          )}
-        </div>
-      </div>
+      <BookingSection
+        plan={plan}
+        winner={winner}
+        voterName={voterName}
+        isHost={isHost}
+        onClaimBooking={onClaimBooking}
+        onMarkBooked={onMarkBooked}
+        onUnmarkBooked={onUnmarkBooked}
+      />
 
-      {/* Add to calendar */}
-      {plan.event_time && (
-        <div className="mt-4 flex flex-wrap gap-3 border-t border-line pt-4 text-sm font-bold">
-          {gcal && (
-            <a
-              href={gcal}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-grape underline"
-            >
-              Add to Google Calendar
-            </a>
-          )}
-          {ics && (
-            <a href={ics} download={`${winner.name}.ics`} className="text-grape underline">
-              Download .ics
-            </a>
-          )}
-        </div>
-      )}
-
-      {/* After the visit: rate it */}
-      <div className="mt-4 border-t border-line pt-4">
-        <div className="flex items-center justify-between gap-2">
-          <p className="text-xs font-bold uppercase tracking-wide text-muted">
-            Been? Rate it
-          </p>
-          {ratings.length > 0 && (
-            <p className="text-xs font-semibold text-muted tabular-nums">
-              {avgStars.toFixed(1)} / 5 · {ratings.length} rated · {againPct}% would go again
-            </p>
-          )}
-        </div>
-
-        <div className="mt-2 flex items-center gap-1">
-          {[1, 2, 3, 4, 5].map((n) => (
-            <button
-              key={n}
-              type="button"
-              onClick={() => onRate({ stars: n })}
-              aria-label={`Rate ${n} out of 5`}
-              aria-pressed={(myRating?.stars ?? 0) >= n}
-              className="vote-rating-button"
-            >
-              {n}
-            </button>
-          ))}
-          {myRating && (
-            <span className="ml-1 text-sm text-muted">your rating</span>
-          )}
-          {myRating && <UnrateButton planId={plan.id} />}
-        </div>
-
-        {myRating && (
-          <div className="mt-2 flex items-center gap-2">
-            <span className="text-sm text-muted">Would you go again?</span>
-            <button
-              type="button"
-              onClick={() => onRate({ again: true })}
-              aria-pressed={myRating.again}
-              className={[
-                "vote-toggle",
-                myRating.again ? "vote-toggle--on" : "",
-              ].join(" ")}
-            >
-              Yes
-            </button>
-            <button
-              type="button"
-              onClick={() => onRate({ again: false })}
-              aria-pressed={!myRating.again}
-              className={[
-                "vote-toggle",
-                !myRating.again ? "vote-toggle--on" : "",
-              ].join(" ")}
-            >
-              Not really
-            </button>
-          </div>
-        )}
-      </div>
+      <RatingSection planId={plan.id} voterName={voterName} ratings={ratings} onRate={onRate} />
     </div>
   );
 }

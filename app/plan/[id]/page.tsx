@@ -378,6 +378,7 @@ export default function VotePage() {
               ratings={ratings}
               onSetTime={(iso) => patchPlan({ event_time: iso })}
               roster={roster}
+              pickedBy={votersFor(votes, winnerSpot.id, { phase: "final", poolNumber: 0 })}
               onSetRsvp={setRsvp}
               onSetCarpool={setCarpool}
               onClaimBooking={() => patchPlan({ booking_owner: voterName })}
