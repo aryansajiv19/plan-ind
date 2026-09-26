@@ -13,24 +13,32 @@ The **deployment URL** (`plan-*-safebox.vercel.app`) 302s — deployment
 protection is on for those. The **production alias** is public and deliberately
 so; the owner puts it on a CV.
 
-## The two owner-only steps that are still open
+## Go-live checklist (when the owner says "go live")
 
-Nothing in the repo can do either of these, and the first one gates sign-in.
+Order matters: the old client in production mints guest sessions, so anything
+that refuses guests must land in the same step as the new client.
 
-1. **Turnstile hostname list** — add `plan-ind.vercel.app` at
-   dash.cloudflare.com → Turnstile → the widget → Hostnames. Keep `localhost`.
-   Cloudflare applies it instantly; no rebuild. A preview URL needs its own
-   entry, and previews have **two** hostnames (the deployment URL and the
-   branch alias) — list both or auth silently fails on one of them.
-2. **Turnstile secret key into Supabase** → Authentication → Attack Protection →
-   CAPTCHA, provider Turnstile. The app never verifies the token itself; it
-   hands it to Supabase, so the secret belongs there and **nowhere else** —
-   never in Vercel, never in this repo.
+1. **Pre-flight.** `main` green in CI; the migration batch reviewed by
+   `security`; Google provider enabled in Supabase Auth (owner); redirect
+   allow-list contains `https://plan-ind.vercel.app/**`; the email template
+   sends a six-digit code. Turnstile hostname: done 2026-09-20.
+2. **Database.** Apply 064, then 067, then 068 through the Supabase MCP, one at
+   a time, each verified by the catalog probe in its ledger row (`worklog.md`).
+3. **Deploy `main`.** Remove the `"main": false` line from `vercel.json`,
+   commit and push, then from a clean checkout of `main` run
+   `vercel --prod --yes --scope safebox` (the CLI deploys the working
+   directory, not a branch).
+4. **Auth settings (owner, dashboard).** Turn **off** anonymous sign-ins, then
+   put the Turnstile secret in Authentication → Attack Protection → CAPTCHA.
+   Never before step 3: the old client sends no captcha token for guests.
+5. **Verify on the live URL**, never locally: the curl loop below, then sign up
+   with an email code, create a plan, open the share link as a second account,
+   vote, decide. Check that an under-age account is refused with its message.
+6. **Optional:** migration 066 and its row switch, following the runbook in the
+   file.
 
-Until both are done, **production email sign-in cannot start at all** — the
-email-code form demands the token before it requests a code
-(`components/AuthForm.tsx`, `app/auth/actions.ts`), and since 2026-09-25 every
-plan voter signs in. Google OAuth is unaffected. This is a hard wall, not a hardening nicety.
+Rollback: fix forward. Promoting the previous deployment after 064 would leave
+its guest share links refused, so a revert means reverting 064 as well.
 
 ## Environment variables
 
@@ -57,17 +65,12 @@ done
 curl -s https://plan-ind.vercel.app/api/health   # {"status":"ok"} is a real DB read
 ```
 
-All six return 200 as of 2026-09-18. What that does **not** cover, and what is
-still unproven in production: sign-in, a guest vote through a share link, and
-one plan decided. Those need the Turnstile steps above first.
+All six return 200 as of 2026-09-18. What that does **not** cover: sign-in,
+joining through a share link, a vote and a decision. Step 5 of the go-live
+checklist covers them.
 
-## Also still open
+## Notes
 
-- **Supabase redirect allow-list** must contain every hostname you expect to
-  sign in from, or auth substitutes its own site URL — the same mechanism as the
-  old `:3000` bug.
-- **The email template must send a six-digit code**, not a magic link. The UI
-  promises a code; a mismatch breaks sign-up for every new user.
 - **`test:e2e` runs in CI** against a throwaway local stack the job starts;
   it never touches the deployment.
 - **Every load number this project has is loopback-local**, against a local
