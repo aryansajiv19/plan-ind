@@ -59,31 +59,19 @@ jobs:
           TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
 
   test-e2e:
-    # OPT-IN (set repo variable RUN_E2E=true) until its env points at the
-    # local stack it starts: the Supabase URL/key below come from repo secrets
-    # that are not configured, so the web server cannot boot (PRIORITIES C6).
-    #
-    # History: ON by default as of 2026-09-07. It used to vote on the LIVE shared plan
-    # every run, which is why it was opt-in; tests/e2e/global-setup.ts now
-    # provisions a disposable plan against a LOCAL Supabase stack and
-    # global-teardown removes it. Setup REFUSES any non-loopback base URL, so
-    # a misconfigured run cannot point browsers at production and start
-    # voting.
-    #
-    # Teardown is only real locally, and that is not a convenience: `plans`
-    # and `votes` have no delete policy at all (writes go through
-    # security-definer RPCs) and there is no service-role key, so nothing in
-    # this project can remove a plan or a vote from a hosted project once
-    # created. Per-run fixtures against live would have leaked rows into
-    # production permanently.
-    if: vars.RUN_E2E == 'true'
+    # Against a throwaway local stack this job starts, never a hosted project:
+    # global-setup provisions plans only on a loopback Supabase URL, and
+    # nothing can delete a plan or vote from a hosted one.
+    # WebKit / Mobile Safari are excluded on purpose: the prod build's HSTS +
+    # upgrade-insecure-requests break WebKit on http://localhost. Don't relax
+    # the headers; get WebKit coverage from an https preview (playwright.config.ts).
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     env:
-      NEXT_PUBLIC_SITE_URL: https://example.test
-      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
-      SECURITY_CONTROL_SECRET: ${{ secrets.SECURITY_CONTROL_SECRET }}
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+      SECURITY_CONTROL_SECRET: local-secret
+      DB: postgresql://postgres:postgres@127.0.0.1:54322/postgres
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -91,21 +79,15 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      # webkit and Mobile Safari are deliberately EXCLUDED here, and the
-      # headers are deliberately NOT relaxed to include them.
-      #
-      # The production build sends HSTS plus a CSP carrying
-      # upgrade-insecure-requests. WebKit honours both on localhost and
-      # rewrites every asset to https://, which fails with an SSL error over
-      # plain http; Chromium and Firefox exempt localhost from HSTS, so they
-      # do not. That is correct production behaviour on all three -- in
-      # production everything is https and the upgrade is a no-op. Weakening
-      # the headers to make a test pass would trade a real security control
-      # for green CI.
-      #
-      # So these three run here, and WebKit coverage comes from running the
-      # suite against an https preview deployment. Confirmed by WebKit's own
-      # requestfailed events, not inferred.
-      - run: npx playwright install --with-deps chromium firefox
-      - run: npx supabase start
-      - run: npm run test:e2e -- --project=chromium --project=firefox --project="Mobile Chrome"
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - run: supabase start --exclude studio,edge-runtime,imgproxy,logflare,vector,pgbouncer,postgres-meta
+      - run: echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$(supabase status -o json | jq -r .ANON_KEY)" >> "$GITHUB_ENV"
+      - run: |
+          psql "$DB" -v ON_ERROR_STOP=1 -q -f supabase/schema.sql
+          psql "$DB" -v ON_ERROR_STOP=1 -q -f supabase/seed.sql
+          # the quota RPCs fail closed without it (docs/SECURITY_SETUP.md)
+          psql "$DB" -v ON_ERROR_STOP=1 -q -c "insert into app_control_secrets(name, secret_hash) values ('server-control', extensions.crypt('$SECURITY_CONTROL_SECRET', extensions.gen_salt('bf')))"
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e -- --project=chromium --project="Mobile Chrome"

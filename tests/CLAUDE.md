@@ -11,9 +11,9 @@ verified.
 | DB integration (`*.dbtest.ts`) | `npm run test:db` | a running local Supabase |
 | E2E (`e2e/*.spec.ts`) | `npm run test:e2e` | a running app |
 
-Only the unit tier is in the merge gate. **Keep it that way for speed, but the
-Realtime multi-client spec is the exception** — it guards a bug that has already
-shipped twice, and it belongs where a merge can't skip it.
+CI runs all three on every push, each tier in its own job against a
+throwaway local stack. The local `npm run gate` adds only the Realtime
+multi-client spec (`gate:e2e`) — it guards a bug that has shipped twice.
 
 ## A test that cannot fail is not a test
 
