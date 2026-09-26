@@ -63,6 +63,8 @@ test("sessionUser is unavailable when the auth service did not answer", async ()
     assert.equal(await sessionUser(clientReturning(null, new AuthRetryableFetchError("fetch failed", 0))), "unavailable");
     assert.equal(await sessionUser(clientReturning(null, new AuthRetryableFetchError("bad gateway", 502))), "unavailable");
     assert.equal(await sessionUser(clientReturning(null, new AuthUnknownError("not json", null))), "unavailable");
+    // A GoTrue 5xx that still carries a JSON body arrives as AuthApiError.
+    assert.equal(await sessionUser(clientReturning(null, new AuthApiError("internal", 500, "unexpected_failure"))), "unavailable");
   } finally {
     console.error = quiet;
   }

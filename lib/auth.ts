@@ -19,7 +19,7 @@ export const AUTH_UNAVAILABLE_MESSAGE = "We couldn't check your sign-in just now
 export async function sessionUser(supabase: SupabaseClient): Promise<User | "signed-out" | "unavailable"> {
   const { data: { user }, error } = await supabase.auth.getUser();
   if (user) return user;
-  if (!error || isAuthSessionMissingError(error) || isAuthApiError(error)) return "signed-out";
+  if (!error || isAuthSessionMissingError(error) || (isAuthApiError(error) && error.status < 500)) return "signed-out";
   log("error", "auth.unavailable", { error: serializeError(error) });
   return "unavailable";
 }
