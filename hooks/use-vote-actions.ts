@@ -51,15 +51,14 @@ export function useVoteActions({
     // actually confirms the pick; this is a bonus where it exists.
     haptic(next ? 10 : 6);
 
+    const isMineThisRound = (v: Vote) =>
+      v.voter_name === voterName &&
+      (!v.participant_token_hash || v.participant_token_hash === participantHash) &&
+      (v.phase ?? "final") === currentPhase &&
+      (v.pool_number ?? 0) === currentPoolNumber;
+    const before = votes.filter(isMineThisRound);
     setVotes((cur) => {
-      const rest = cur.filter(
-        (v) => !(
-          v.voter_name === voterName &&
-          (!v.participant_token_hash || v.participant_token_hash === participantHash) &&
-          (v.phase ?? "final") === currentPhase &&
-          (v.pool_number ?? 0) === currentPoolNumber
-        ),
-      );
+      const rest = cur.filter((v) => !isMineThisRound(v));
       return next ? [
         ...rest,
         {
@@ -89,7 +88,8 @@ export function useVoteActions({
       // snapshot: a realtime event for someone else's vote can land while
       // this RPC is in flight, and setVotes(prev) would silently discard it
       // along with the failed attempt. Same pattern as setRsvp/rateWinner.
-      await refetchVotes();
+      // If the reconcile read fails too, put the previous pick back.
+      if (!(await refetchVotes())) setVotes((cur) => [...cur.filter((v) => !isMineThisRound(v)), ...before]);
       reportParticipantFailure(error, "That vote didn't save. Check your connection and tap again.");
     } else {
       setNotice(null);

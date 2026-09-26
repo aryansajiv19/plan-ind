@@ -50,8 +50,12 @@ export function prohibitedVenueReason(...values: Array<string | null | undefined
  * certified by the same account it is supposed to gate. `member_ages` has no
  * insert or update policy — the only write path is the `set_birth_date` RPC,
  * which refuses to overwrite an existing row.
+ *
+ * Null means no date of birth on file; a failed read throws. Pages that
+ * branch on "has a date of birth" must use this, not memberAge: during an
+ * outage memberAge's null sent signed-in members back to /onboarding.
  */
-export async function memberAge(supabase: SupabaseClient, userId: string): Promise<number | null> {
+export async function readMemberAge(supabase: SupabaseClient, userId: string): Promise<number | null> {
   if (!userId) return null;
   const { data, error } = await supabase.rpc("current_member_age");
   if (!error && typeof data === "number") return data;
@@ -63,6 +67,12 @@ export async function memberAge(supabase: SupabaseClient, userId: string): Promi
     .select("date_of_birth")
     .eq("user_id", userId)
     .maybeSingle();
+  if (error && legacy.error) throw new Error("member age unavailable");
   const value = (legacy.data as { date_of_birth?: unknown } | null)?.date_of_birth;
   return typeof value === "string" ? ageOnDate(value) : null;
+}
+
+/** readMemberAge, with a failed read treated as no date of birth (fail closed). */
+export function memberAge(supabase: SupabaseClient, userId: string): Promise<number | null> {
+  return readMemberAge(supabase, userId).catch(() => null);
 }

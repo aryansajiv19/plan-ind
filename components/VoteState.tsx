@@ -117,7 +117,7 @@ function COPY({
     case "cold-link":
       return {
         title: "This link’s gone cold",
-        body: "This plan isn’t here anymore — the host may have deleted it, or the link is incomplete. Ask whoever sent it for a fresh one.",
+        body: "This plan isn’t here anymore. The host may have deleted it, or the link is incomplete. Ask whoever sent it for a fresh one.",
       };
     case "deleted":
       return {
