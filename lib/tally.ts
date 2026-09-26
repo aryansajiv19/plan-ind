@@ -65,3 +65,58 @@ export function agreementOf(counts: readonly number[]): number {
   const share = Math.max(...counts) / total;
   return Math.min(1, Math.max(0, (share - 1 / n) / (1 - 1 / n)));
 }
+
+/** What the vote page derives from its rows on every render. Pure. */
+export function planView<S extends { id: string }>({
+  votes, rsvps, ratings, presentNames, voterName, spots, planSpots, stage, activePool, poolCount, round, winnerId, planOpen, iVotedYes,
+}: {
+  votes: readonly Vote[];
+  rsvps: readonly { voter_name: string }[];
+  ratings: readonly { voter_name: string }[];
+  presentNames: readonly string[];
+  voterName: string;
+  spots: S[];
+  planSpots: PlanSpot[];
+  stage: PlanStage;
+  activePool: number;
+  poolCount: number;
+  round: Round;
+  winnerId: string | null;
+  planOpen: boolean;
+  iVotedYes: (spotId: string) => boolean;
+}) {
+  const voterCount = new Set(votes.map((v) => v.voter_name)).size;
+  // Editable only before voting starts; the server enforces the same rule.
+  const canEdit = planOpen && stage === "pool" && votes.length === 0;
+  // Everyone the client can see on this plan, you first. See the seats row.
+  const roster = [...new Set([
+    ...votes.map((v) => v.voter_name),
+    ...rsvps.map((r) => r.voter_name),
+    ...ratings.map((r) => r.voter_name),
+    ...presentNames,
+  ])].filter((name) => name !== voterName).sort((a, b) => a.localeCompare(b));
+  roster.unshift(voterName);
+  const pickedThisRound = new Set(votes.filter((v) => v.value && isInRound(v, round)).map((v) => v.voter_name));
+  const othersHere = presentNames.filter((name) => name !== voterName);
+  const winnerSpot = spots.find((s) => s.id === winnerId) ?? null;
+  const visibleSpots = visibleSpotsFor(spots, planSpots, stage, activePool);
+  const hasCurrentSelection = visibleSpots.some((spot) => iVotedYes(spot.id));
+  const countFor = (spotId: string) => yesCount(votes, spotId, round);
+  // Leader drives the After Dark sheen; agreement is §25.2 plan gravity,
+  // recomputed per Realtime vote event rather than on a frame loop.
+  const leaderId = leaderOf(visibleSpots.map((spot) => spot.id), countFor);
+  const agreement = agreementOf(visibleSpots.map((spot) => countFor(spot.id)));
+
+  const poolsChosenByMe = new Set(
+    votes
+      .filter((vote) => vote.voter_name === voterName && vote.value && (vote.phase ?? "final") === "pool")
+      .map((vote) => vote.pool_number),
+  );
+  const allPoolsChosen = Array.from({ length: poolCount }, (_, index) => index + 1)
+    .every((poolNumber) => poolsChosenByMe.has(poolNumber));
+
+  return {
+    voterCount, canEdit, roster, pickedThisRound, othersHere, winnerSpot, visibleSpots,
+    hasCurrentSelection, countFor, leaderId, agreement, poolsChosenByMe, allPoolsChosen,
+  };
+}
