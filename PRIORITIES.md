@@ -52,8 +52,7 @@ Done: migration 064 (staged) + the client gate on `main`.
 
 ## Later — "never leave the app"
 
-Open-now from `open_till` against the Dubai clock · travel time beyond
-straight-line distance · real moodboards on migration 036's tables (demo is
-localStorage) · Ramadan/iftar-aware hours · Arabic/RTL · Instagram/social links
-on the place page · booking handoffs. Deliberately not yet: taste profiles and
+Ramadan/iftar-aware hours · Arabic/RTL · Instagram/social links on the place
+page · booking handoffs. (Open-now, drive estimates and persisted moodboards are
+done.) Deliberately not yet: taste profiles and
 year-in-review features — they need usage data the app does not have.

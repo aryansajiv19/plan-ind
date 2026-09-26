@@ -3872,3 +3872,146 @@ No key needed; the bucket is public. This is the check 039 was originally held
 for. It also confirms live's object keys are hyphen-stripped, which is why 046
 must be written against the keys that actually land, never the filenames sent.
 
+## 2026-09-18 — T0: PRODUCTION IS LIVE — https://plan-ind.vercel.app
+
+Deployed with the Vercel CLI (`vercel --prod --yes --scope safebox`) after the
+MCP route dead-ended: `list_teams` kept returning empty and project fetch 403'd
+even once the owner had granted safebox scope, because **the token was minted
+before the grant**. A stale token does not look expired, it looks unauthorised —
+re-mint before debugging permissions.
+
+Deployment `plan-ird95gwpa-safebox.vercel.app`, aliased to
+**`plan-ind.vercel.app`**. The deployment URL itself 302s (protection is on);
+the production alias is public, which is what the owner asked for — the link
+goes on a CV.
+
+Verified **on the deployed URL**, not locally, and re-verified before closing:
+`/`, `/demo`, `/login`, `/privacy`, `/terms` all 200; `/api/health` returns
+`{"status":"ok"}`, which is a real database read, not a static string; the legal
+pages render `Aryan Sajiv` / `aryansajiv2@gmail.com` / `Dubai, United Arab
+Emirates`. `NEXT_PUBLIC_TURNSTILE_SITE_KEY` was confirmed **inside the built
+chunk** (`/_next/static/chunks/app/login/page-*.js`) rather than by reading the
+Vercel env list — a `NEXT_PUBLIC_*` var that exists but was set after the last
+build is absent from the bundle and present in the dashboard at the same time.
+
+Eight migrations went live the same day, each owner-approved, each verified by
+catalog query before the next: 052, 054, 055, 056, 057, 059 (feature half), 060,
+plus 053 closed by deleting data. Ledger rows above corrected **and the
+filenames proven against `supabase/` on disk** — six of the names in the first
+draft of those rows were wrong, which is precisely how this ledger has been
+wrong three times before.
+
+### Still open, in the order they should be done
+
+1. **Turnstile hostname list** — owner-only, and it is a hard gate: a production
+   build refuses sign-in without a captcha, and the widget refuses to render on
+   a hostname it does not list. `plan-ind.vercel.app` must be added; keep
+   `localhost`. The **secret** key belongs in Supabase Auth → Attack Protection
+   → CAPTCHA and nowhere else — never Vercel, never the repo.
+2. **049 + 051** — the client deploy was their gate and it has happened.
+   Confirmed still pending: `authenticated` can still SELECT `votes.user_id`.
+3. **End-to-end sign-in on the live URL** — never done. Everything verified so
+   far is signed-out. This is Phase 4's real acceptance test and it cannot run
+   until (1).
+4. **058, and 059's age-gate consolidation** — from the file, by a backend
+   session, never retyped.
+5. **046** — blocked on the owner uploading 13 files.
+
+### Sessions closed
+
+All four worktrees verified clean and every lane branch merged into
+`ai-engineering` before shutdown. T3's last uncommitted change (Realtime
+fan-out instrumentation, `a8fdee8`) was committed and merged rather than lost —
+an uncommitted tree was wiped here once, so "clean" is checked, not assumed.
+
+## 2026-09-24 — Lead session: audit, docs consolidation
+
+Fresh cloud session. **`main` is 504 commits behind `ai-engineering`**, and
+production runs `d536b6f`, which is not on GitHub (two unpushed local commits,
+including "Cards say why this place, not just what it is"). Work continues on
+`claude/jolly-hypatia-hj9vhp` (branched from `ai-engineering` 5044920);
+nothing is pushed to `main`/`ai-engineering` until the owner pushes, because a
+push there may deploy over production.
+
+Three independent audits (code health, security, product/UX) ran against
+5044920. Findings are queued in `PRIORITIES.md`. The one HIGH, verified by hand:
+`cast_plan_vote` keys a vote on a caller-chosen participant hash, so one
+session can cast unlimited votes.
+
+Docs consolidated: 16 root docs → 5 (`CLAUDE.md`, `AGENTS.md`, `README.md`,
+`PRIORITIES.md`, `worklog.md`); reference docs moved to `docs/`, history to
+`docs/archive/`; `graphify-out/` (2.2 MB, two weeks stale, and the root
+`CLAUDE.md` told every session to navigate by it) deleted and ignored; README
+rewritten from create-next-app boilerplate; stale v1 claims removed from agent
+briefs. Sandbox cannot reach Supabase or the live URL (network policy).
+
+## 2026-09-24 — backend: migration 061 STAGED (unapplied) + two route/SSRF fixes
+
+`supabase/migration-061-vote-integrity-and-guest-limits.sql` is **written, NOT
+applied anywhere** (live DB unreachable from this session). It makes the auth
+user the ballot key (unique `votes(plan_id,user_id,phase,pool_number)`,
+`rsvps(plan_id,user_id)`, `ratings(plan_id,user_id)`, partial on user_id not
+null) so one session can no longer mint hashes/names for extra votes; it
+**first deletes duplicates, keeping the latest row per key**. `cast_plan_vote`
+now refuses after `plans.deadline`; names go through `clean_display_name`;
+guests cannot upload to `visit-photos`; `visit_photos` rows/files need a
+session. Mirrored at the end of `schema.sql`. App: `/api/smart-search` refuses
+guest sessions like `/api/plans`; `safeFetch` checks every resolved address and
+pins the connect to it; `ip-guard` covers NAT64, 6to4, IPv4-compatible,
+hex-mapped, 192.0.0.0/24, 198.18.0.0/15. Apply 061 only with owner approval,
+then verify by catalog probe (`pg_indexes` for the three `*_user*_key` indexes).
+
+## 2026-09-24 — backend: C1 profile once per account, C2 curated-catalogue cache
+
+No schema change. **C1:** `/home` reads `people` by `auth_user_id` first
+(`lib/own-profile.ts`) and calls `ensure_authenticated_profile` only when no
+row exists; `AuthProfileBridge` now caches the server-resolved profile with no
+network (RPC fallback only if the server got none). **C2:** `lib/spots/catalogue.ts`
+wraps curated reads in `unstable_cache` (1h, tag `spots:curated`, key includes
+the deployment id) through a sessionless anon client, so only
+`source='curated'` rows are ever cached; age/budget/been filters still run per
+request in `dealSpotIds`; `/home` Discover merges cached curated with a live
+non-curated read. Invalidation: a deploy or TTL; no revalidate route by
+design. Measured (prod build, stub Supabase counting requests, warm cache):
+landing 1→0, `/home` server 13→12 (+ browser 2→0), deal 6→5 round trips.
+
+## 2026-09-24 — backend: Google Places pipeline built, fixture-proven (no key yet)
+
+`npm run places:backfill` (dry-run by default, never writes a DB): Text Search
+(New) per curated spot with a pinned Enterprise field mask, name-F1 +
+distance matcher (`high` only when name and the spot's own pin agree within
+300 m, and no rival branch), venue `og:image` via new `safeFetchImage`
+(SSRF-pinned, 5 MB refuse-not-truncate, magic-byte sniff) → review file →
+`--write-sql` (offline) emits staged ids/photos migrations. Terms decision:
+only `place_id` stored; Google photos via `GET /api/spots/{id}/photo`
+(short-lived `photoUri` + attributions, `no-store`, quota-capped). Cost: 82
+requests, $0 in free tier / $2.87 worst case. Proven with fixtures + loopback
+mock server and PG16; the live `og:image` fetch was not exercisable from this
+sandbox (egress 403). Owner runbook: end of `docs/PLACES_INGESTION_SCOPE.md`.
+UI still has to call the photo route and render attributions (frontend lane).
+
+## 2026-09-25 — backend: migration 064 STAGED — plan participants need an account
+
+Owner decision: joining or voting on a plan requires a permanent account
+(email OTP or Google). `supabase/migration-064-signed-in-participants.sql`
+(written, NOT applied) reuses 020's `is_permanent_user()`: the six participant
+RPCs raise 42501 "Sign in to ..." for anonymous sessions, and every
+plan_access-scoped read policy (plans, plan_spots, votes, rsvps, ratings,
+plan_access, the plan branch of spots, plan presence) requires it too. Guest
+rows are kept and inert; a guest upgraded in place (same uid) regains access.
+`enforce_plan_membership` is untouched so a guest can still delete their
+account. Mirrored at the end of `schema.sql`; no type change. Proven on PG16
+(applied twice; anon claim/vote/rsvp/leave refused, anon member reads 0 rows
+where it read 1 before; permanent claim → vote → read works); `test:db` 6/6,
+fixtures needed no change (no `is_anonymous` claim = permanent).
+
+## 2026-09-25 — backend: migration 065 STAGED — spots in plans can't be deleted (C5)
+
+An owner deleting a custom spot cascaded it (and its votes) out of other
+people's plans and visit logs. 065 refuses that at the table (row trigger, all
+paths); way out is the existing `visibility = 'private'`, which plan members
+still read through `plan_spots`. No client deletes spots today (no UI; only a
+direct PostgREST call). Realtime: DELETE events skip RLS and carry the PK only;
+`plan_spots`' PK includes `plan_id` (a join capability). After 065 the only
+`plan_spots` DELETEs come from plan deletion, whose id is dead on commit;
+votes/rsvps/ratings DELETEs carry only their own row `id`.
