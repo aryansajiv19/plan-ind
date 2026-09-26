@@ -58,9 +58,9 @@ invariants; this has the rules for changing the database.
 ## Applying migrations
 
 The Supabase MCP (`mcp__plugin_supabase_supabase__apply_migration`) works
-against the live project when authenticated. **This project has no migration
-ledger** — `list_migrations` is empty and MCP migration names don't match the
-repo's numbered files. Verify by direct catalog probe (`pg_proc`, `pg_indexes`,
+against the live project when authenticated. `list_migrations` only shows what
+went through the MCP, under names like `migration_061_...`; earlier files were
+applied by hand. Verify by direct catalog probe (`pg_proc`, `pg_indexes`,
 `pg_publication_tables`), never by assuming the apply succeeded.
 
 Applying to live production is an **owner decision**, every time. Stage the

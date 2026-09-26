@@ -11,16 +11,15 @@ Legend: `S` under a day · `M` a day or two · `L` more.
 
 | # | Item | Why it matters |
 |---|---|---|
-| O1 | **Push the unpushed local commits**: `git push origin ai-engineering` from the laptop (production runs `d536b6f`, not on GitHub). Contains a Turnstile fix (challenge that never paints, seen live on `/login` 2026-09-20) that exists nowhere else; the card-reason change is superseded by the "Why this?" chips. Then merge `ai-engineering` into `main` | The live code exists only on one machine |
-| O2 | **Turnstile:** add `plan-ind.vercel.app` to the widget's hostnames; put the secret key in Supabase → Auth → Attack Protection | Production sign-in and guest voting are impossible until both are done (`docs/DEPLOYMENT.md`) |
+| O2 | **Go-live prerequisites:** put the Turnstile **secret** in Supabase → Auth → Attack Protection (the hostname was added 2026-09-20, but the secret is not set, so captcha is not enforced server-side); enable the **Google** provider in Supabase Auth (live: `google: false`, so email code only) | Sign-in is the front door after 064 |
 | O3 | **Google Places API key** — Places API (New) only, budget alert set, `GOOGLE_PLACES_API_KEY` (server-only, never `NEXT_PUBLIC_`). The pipeline is built; the 5-step runbook is at the end of `docs/PLACES_INGESTION_SCOPE.md` | Venue photos — the biggest visual gap (6 of 82 venues have one) |
-| O4 | **Migrations 049, 051, 061–065 — APPROVED by the owner 2026-09-25.** Blocked only on access. Easiest: connect the **Supabase connector** in claude.ai (earlier sessions applied migrations through it). Alternative: allow `api.supabase.com` + `*.supabase.co` in the environment and set `SUPABASE_ACCESS_TOKEN` (revoke after). Order and precautions: last `worklog.md` entry | Approved; needs a way in |
+| O4 | **Say "go live"**: the lead then applies 064 (the last staged migration), removes `main: false` from `vercel.json`, deploys `main`, and verifies sign up → create → share → vote → decide on the live URL. 049/051/061/062/063/065 are live | 064 breaks guest links on the old client, so it ships with the deploy |
 | O5 | **Keep the database awake**: a daily `/api/health` ping is committed (`.github/workflows/keepalive.yml`) and starts once it reaches `main`; Supabase Pro removes the risk entirely | A paused DB is a dead CV link |
 | O6 | **Cloud-session network access**: allow `*.supabase.co`, `plan-ind.vercel.app`, `api.open-meteo.com` | Lets sessions verify against live instead of guessing |
 | O7 | `main` is now the source of truth (fast-forwarded 2026-09-25; `vercel.json` keeps it from auto-deploying). Left for the owner: delete the fully merged `lane/backend`, `lane/frontend`, `lane/qa`, `lane/design` (branch deletion needs owner permission), and point Vercel production at `main` when going live | One branch that is always true |
 | O8 | Upload the 13 approved photos to `spot-photos` (blocks migration 046) | Bucket writes are refused for every client role by design |
 
-## Done on `main` (2026-09-24/25), not yet on production
+## Done on `main` (2026-09-24/26), not yet on production
 
 Audit fixes (vote integrity, deadline, guest limits, SSRF, open redirect,
 Realtime coalescing, mobile app bar, honest errors) · sign-in from the start ·
@@ -29,7 +28,7 @@ announce the winner · weather/heat · in-app map, open-hours, drive estimate ·
 "Why this?" chips · persisted moodboards · catalogue cache · Google Places
 pipeline, key-ready · no `.ts/.tsx` over 500 lines · Next.js RCE patch ·
 `schema.sql` builds again · CI on every branch · E2E runs locally (183 pass) ·
-keep-alive · docs consolidation · README. Migrations **061–065** staged (O4).
+keep-alive · docs consolidation · README. Migrations 061/062/063/065 live 2026-09-26; 064 waits for go-live (O4).
 
 **Owner decision 2026-09-25: sign in from the start.** Joining or voting on a
 plan requires a permanent account (email code or Google); anonymous guests are
