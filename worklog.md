@@ -260,4 +260,8 @@ live apply needs the owner.
   Found: most local DB CPU in a deal burst is GoTrue opening ~5 Postgres
   sessions per `getUser()`; `getClaims()` in routes would remove it but lets a
   revoked token work until expiry and needs ES256 in production (owner Q).
+- **Owner: scale target is tens of concurrent users (CV demo).** Headroom is
+  ample (vote 200 clean, deal 50 clean). Scalability work is fixed only when
+  it is correctness in disguise or near-free; `getClaims()` in routes dropped;
+  066 optional.
 
