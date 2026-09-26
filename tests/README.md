@@ -44,7 +44,7 @@ Covers the cross-lane request from T1:
 2. **Tally under a concurrent double-vote** — two `cast_plan_vote` calls for
    the same participant/round on different spots, fired as two separate
    Postgres backends, leave exactly one `votes` row (the
-   `votes_participant_round_key` unique index serialises them, second lands as
+   `votes_user_round_key` unique index (061; 067 dropped the hash-keyed one) serialises them, second lands as
    `ON CONFLICT DO UPDATE`). The `execute_plan_command`-shaped pool tally then
    counts that participant as exactly one YES, and the real
    `execute_plan_command(..., 'advance')` advances cleanly off that state.

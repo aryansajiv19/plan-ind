@@ -2,9 +2,10 @@
 // winner-deciding tally's behaviour under a concurrent double-vote.
 //
 // These run against a REAL Postgres (RLS + the votes_require_plan_access
-// trigger + the security-definer RPC + the votes_participant_round_key unique
-// index). A pure-function unit test cannot cover any of those, so there is no
-// mock here on purpose.
+// trigger + the security-definer RPC + the one-vote-per-account-per-round
+// unique index, votes_user_round_key since 061; 067 dropped the old hash-keyed
+// votes_participant_round_key). A pure-function unit test cannot cover any of
+// those, so there is no mock here on purpose.
 //
 // Not picked up by `npm test` (glob is tests/*.test.ts) — run with `npm run
 // test:db`. Skips itself, loudly, when no database is reachable or migration
@@ -74,10 +75,10 @@ async function detectSkip(): Promise<string | false> {
     return `cast_plan_vote returns '${ret}', expected 'jsonb' — migration 023 not applied`;
   }
   const idx = await psql(
-    `select count(*) from pg_indexes where indexname = 'votes_participant_round_key'`,
+    `select count(*) from pg_indexes where indexname = 'votes_user_round_key'`,
   ).catch(() => "0");
   if (idx !== "1") {
-    return "votes_participant_round_key unique index missing — migration 023 not applied";
+    return "votes_user_round_key unique index missing — migration 061 not applied";
   }
   return false;
 }
@@ -139,6 +140,10 @@ function authPrelude(p: Participant): string {
   return `set request.jwt.claims to '{"sub":"${p.uid}","role":"authenticated","is_anonymous":false}'; set role authenticated;`;
 }
 
+// One name per account: since 067 a second account voting under a name
+// someone else already uses in the plan is refused (R7).
+const voterName = (p: Participant) => `QA-${p.uid.slice(0, 8)}`;
+
 function castVoteSql(
   p: Participant,
   planId: string,
@@ -147,7 +152,7 @@ function castVoteSql(
   phase: "pool" | "final" = "pool",
   pool = 1,
 ): string {
-  return `${authPrelude(p)} select cast_plan_vote('${planId}','${spotId}','QA',${value},'${phase}',${pool}::smallint,'${p.hash}');`;
+  return `${authPrelude(p)} select cast_plan_vote('${planId}','${spotId}','${voterName(p)}',${value},'${phase}',${pool}::smallint,'${p.hash}');`;
 }
 
 async function castVote(
@@ -262,11 +267,11 @@ describe("migration 023 — tally under a concurrent double-vote", { skip: SKIP 
     const p = await mintParticipant(plan.id);
 
     // Force a real interleave: call A holds its transaction (and the new
-    // votes_participant_round_key row) open for a second; call B, fired right
+    // votes_user_round_key row) open for a second; call B, fired right
     // after, must block on that key and then resolve as ON CONFLICT DO UPDATE.
     // Pre-023 (delete-then-insert, no unique index) B does not block and both
     // inserts land — two rows.
-    const held = `${authPrelude(p)} begin; select cast_plan_vote('${plan.id}','${plan.spots[0]}','QA',true,'pool',1::smallint,'${p.hash}'); select pg_sleep(1); commit;`;
+    const held = `${authPrelude(p)} begin; select cast_plan_vote('${plan.id}','${plan.spots[0]}','${voterName(p)}',true,'pool',1::smallint,'${p.hash}'); select pg_sleep(1); commit;`;
     const settled = await Promise.allSettled([
       psql(held),
       (async () => {
