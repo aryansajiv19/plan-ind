@@ -265,3 +265,12 @@ live apply needs the owner.
   it is correctness in disguise or near-free; `getClaims()` in routes dropped;
   066 optional.
 
+- **Frontend lane (88d8acf):** a failed vote/RSVP/rating reverts at once;
+  own votes match by account name (064 made the account the voter), fixing
+  "my vote isn't mine on a second device" and the duplicate React key; vote
+  page 432 → 295 lines (pure move); sticky notice pins (shell overflow-clip).
+  Gap for the B7 batch: `votes` has no per-plan name uniqueness (rsvps and
+  ratings do), so two accounts with one display name could each see the
+  other's vote as theirs; `cast_plan_vote` should refuse a name in use, as
+  `set_plan_rsvp` does. Proposal logged: browser Supabase client has no
+  request timeout (`AbortSignal.timeout` in `lib/supabase.ts`).
