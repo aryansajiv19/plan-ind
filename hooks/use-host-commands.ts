@@ -58,8 +58,9 @@ export function useHostCommands({
   // server-side for every command, so this flag is UI truthfulness, not the
   // gate: a wrong guess shows controls the server refuses, nothing more.
   const isHost = accountIsHost ?? Boolean(hostToken);
-  // R1: set when this tab closes the pool rounds, so the deadline effect
-  // never decides in the same tick it advanced.
+  // R1: set when this tab's advance left the final round no time, so the
+  // deadline effect never decides in the same tick it advanced (F7: never
+  // set when the final got its own deadline, or it would block auto-decide).
   const advancedHere = useRef(false);
 
   useEffect(() => {
@@ -222,7 +223,8 @@ export function useHostCommands({
     setDeciding(true);
     try {
       const result = await runHostCommand("advance");
-      advancedHere.current = true;
+      // Only a final round the server gave no time (before 067's extension).
+      advancedHere.current = Boolean(result?.plan?.deadline) && Date.parse(result!.plan!.deadline!) <= Date.now();
       if (result?.finalists) setPlanSpots((current) => current.map((link) => ({ ...link, advanced: result.finalists!.includes(link.spot_id) })));
       if (result?.plan) setPlan(result.plan);
       setNotice(null);

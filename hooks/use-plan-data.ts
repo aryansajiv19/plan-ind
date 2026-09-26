@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { getSupabase, claimPlanAccess, type PlanAccessDenial } from "@/lib/supabase";
 import { participantTokenHash } from "@/lib/participant";
 import type { Plan, PlanSpot, Rating, Rsvp, Spot, Vote } from "@/lib/types";
@@ -18,7 +18,7 @@ export function usePlanData(id: string) {
   const [load, setLoad] = useState<Load>("loading");
   const [access, setAccess] = useState<Access>("checking");
   const [accessMessage, setAccessMessage] = useState<string | null>(null);
-  const [plan, setPlan] = useState<Plan | null>(null);
+  const [plan, setPlanRow] = useState<Plan | null>(null);
   const [spots, setSpots] = useState<Spot[]>([]);
   const [planSpots, setPlanSpots] = useState<PlanSpot[]>([]);
   const [votes, setVotes] = useState<Vote[]>([]);
@@ -51,6 +51,15 @@ export function usePlanData(id: string) {
   // before the await and checked after, discards a response once a newer
   // request for the same kind has already started.
   const fetchSeq = useRef({ plan: 0, votes: 0, rsvps: 0, ratings: 0, planSpots: 0 });
+
+  // Every plan write from outside refetchPlan (the initial load, a Realtime
+  // UPDATE, a host command's result, an optimistic patch) is fresher than a
+  // resync read still in flight, so it bumps the sequence and that read is
+  // discarded (review F8). refetchPlan alone writes through setPlanRow.
+  const setPlan = useCallback<Dispatch<SetStateAction<Plan | null>>>((next) => {
+    fetchSeq.current.plan++;
+    setPlanRow(next);
+  }, []);
 
   // Reports whether the read actually succeeded. A refetch that fails keeps
   // the last good tally, which is right — a dropped poll should not wipe a
@@ -98,7 +107,7 @@ export function usePlanData(id: string) {
     const seq = ++fetchSeq.current.plan;
     const { data, error } = await getSupabase().from("plans").select(PLAN_COLUMNS).eq("id", id).maybeSingle();
     if (error) return false;
-    if (data && seq === fetchSeq.current.plan) setPlan(data as Plan);
+    if (data && seq === fetchSeq.current.plan) setPlanRow(data as Plan);
     return true;
   }, [id]);
 
