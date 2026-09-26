@@ -27,7 +27,7 @@ signatures.
 
 - `app/**` — routes, layouts, `loading.tsx`, `error.tsx`, `not-found.tsx`
 - `components/**` — all React components
-- `app/globals.css` + `app/styles/*.css` — theme, tokens and styles. **Tailwind v4**: there is no
+- `app/styles/*.css` (`app/globals.css` only orders the imports) — theme, tokens and styles. **Tailwind v4**: there is no
   `tailwind.config.ts`. Declare theme values with `@theme` in `app/styles/tokens.css`.
 - Client-side form state and optimistic UI
 - **Supabase Realtime subscriptions in the browser** — `votes` and `plans` are
@@ -65,31 +65,31 @@ owner, calendar export and ratings. The server tally is the only tally.
   `open_till`, `vibe`, and `area` are what people actually decide on. Show them
   on the vote card; don't hide them behind a tap.
 - **`booking_url` is nullable.** Never render a dead or empty link.
-- **`deadline` is nullable**, and nothing currently enforces it server-side.
-  Don't build UI that implies voting is locked when it isn't — say
-  "closes ~9pm", not "voting closed", unless `status === 'decided'`.
+- **`deadline` is nullable.** Migration 061 enforces it server-side, but 061 is
+  staged, not live — check the `worklog.md` ledger before building UI that
+  implies voting is locked.
 - **`status` is only `'open' | 'decided'`** — there is no `closed`. Match
   `lib/types.ts` exactly.
 - **Realtime cleanup.** Always `removeChannel` on unmount. A leaked subscription
   on a page people leave open in a group chat is a real cost.
 - **Timezones and Dubai.** Render deadlines in the viewer's local time; friends
   may not all be in GST.
-- **Mobile-first, 375px.** These links are opened on phones in group chats,
-  usually one-handed.
+- **Desktop is the primary surface**, but share links are opened on phones:
+  check both (the `a11y-responsive` skill has the widths).
 - **A11y**: real `<button>`s for votes, labeled name input, visible focus,
   keyboard operable. Never signal a yes/no purely by color.
-- **Env vars.** Only `NEXT_PUBLIC_SUPABASE_URL` and
-  `NEXT_PUBLIC_SUPABASE_ANON_KEY` exist. `lib/supabase.ts` throws when they're
-  missing — surface that as a real error state, don't swallow it.
+- **Env vars.** The client needs `NEXT_PUBLIC_SUPABASE_URL` and
+  `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`; `lib/supabase/config.ts` throws when
+  they're missing — surface that as a real error state, don't swallow it.
 
 ## Defaults
 
-- Next.js 16.2, React 19.2, Tailwind v4 (`@tailwindcss/postcss`), TypeScript 5.
+- Next.js 16, React 19.2, Tailwind v4 (`@tailwindcss/postcss`), TypeScript 5.
   `app/` is at the repo root; there is no `src/`.
 - React 19: prefer `useActionState` / `useFormStatus` over hand-rolled pending
   state.
-- `lib/supabase.ts` exports a **browser** client using the anon key. There is no
-  server client and no service-role key in this project — don't invent one.
+- Browser client: `getSupabase()` in `lib/supabase.ts`; server client:
+  `lib/supabase/server.ts`. There is no service-role key — don't invent one.
 - Import row types from `lib/types.ts`. No `any` at component boundaries.
 - Tailwind utilities in JSX; extract a class only when a pattern repeats 3+
   times.

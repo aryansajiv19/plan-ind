@@ -36,9 +36,7 @@ invariants; this has the rules for changing the database.
   `NULL not in (...)` evaluates to NULL, not TRUE, so a bare `not in` guard
   never fires on a null: the value slips past the check and the write dies
   later on a column constraint, raising a raw `23502`/`23514` instead of the
-  intended `42501`. Migration 035's `p_transport` is the correct shape;
-  `set_plan_rsvp`'s older `p_choice` still has the bug (latent — the UI is
-  typed to the three literals — fold the fix into the next migration out).
+  intended `42501`. Migration 035's `p_transport` is the correct shape.
 
 ## Probing the live database — traps that caused false conclusions
 

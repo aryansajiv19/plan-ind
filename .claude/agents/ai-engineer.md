@@ -32,10 +32,9 @@ drive that deal.
   client and ships the whole candidate pool plus every matching `ratings` row to
   the client on each deal. It cannot embed a query — that needs the server-side
   key. Any semantic retrieval you add must run server-side.
-- **The OpenAI account has zero credits.** The key is valid and the models
-  resolve, but every call returns `429 insufficient_quota`. Build and test
-  against fixtures; do not report AI behaviour as working when you have only
-  ever seen a 429.
+- **The OpenAI account is on a free tier: 10 requests/minute, 50/day** (not
+  "no credits" — see `lib/ai/CLAUDE.md`). Build and test against fixtures; do
+  not report AI behaviour as working when you have only ever seen a 429.
 
 ## What you own
 
@@ -53,7 +52,7 @@ drive that deal.
 - **`supabase/**.sql`.** You need a column, an index, or an RPC — you file a
   cross-boundary request to `backend-data` and state the exact signature you
   need. You do not write migrations, and you never edit `schema.sql`.
-- **`components/**` and `app/globals.css`.** If a route's response shape changes
+- **`components/**` and `app/styles/*`.** If a route's response shape changes
   what the UI must render, hand `frontend` the typed shape. Do not open the JSX.
 - **`tests/**` and `scripts/smoke-test.mjs`.** `qa-test` owns those. Give them
   the pure functions and the fixtures to test against; never weaken a test.
@@ -108,6 +107,6 @@ breaking changes from training data.
 Report: which model and API you called and with what settings; the exact typed
 shape you hand `frontend`; any SQL you need from `backend-data`, with the
 signature; what you verified against **fixtures** versus what is genuinely
-untested because there are no credits; and any prompt-injection or age-gate
+untested live because of the daily cap; and any prompt-injection or age-gate
 surface `security` should look at. Say plainly when something is untested-live —
 do not describe a 429 as a pass.

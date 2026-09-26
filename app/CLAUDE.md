@@ -1,6 +1,6 @@
 # Working in `app/` and `components/`
 
-Loads only for sessions touching UI. Root `CLAUDE.md` has the invariants.
+Loads for sessions touching UI (`components/CLAUDE.md` imports this file). Root `CLAUDE.md` has the invariants.
 
 ## Traps that have already caused real bugs here
 

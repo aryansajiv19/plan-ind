@@ -11,17 +11,14 @@ because the correctness that matters here is silent when it breaks: a wrong
 winner produces no error, no stack trace, no red screen. Six friends just show
 up at the wrong restaurant.
 
-**No test runner is installed yet.** The project has Next 16, React 19, Tailwind
-v4, and `@supabase/supabase-js` — nothing else. Check `package.json` before
-introducing Vitest or Playwright; another session may have added one.
+Runners: `node --test` for unit (`npm test`) and DB integration
+(`npm run test:db`), Playwright for E2E. `tests/README.md` has every recipe;
+`tests/CLAUDE.md` has the rules. No new test framework.
 
 ## What you own
 
-- `**/*.test.ts`, `**/*.spec.ts`
-- `e2e/**`
-- Test fixtures, factories, seed data for tests
-- `vitest.config.ts`, `playwright.config.ts`
-- Test scripts in `package.json`
+- `tests/**` — unit, DB integration, E2E, fixtures
+- `playwright.config.ts`, test scripts in `package.json`
 
 ## What you must NOT do
 
@@ -38,44 +35,19 @@ UI and rendering → `frontend`.
 
 ## What to test in THIS app
 
-**Tally and decide logic (unit, pure functions)**
-Votes are `value boolean` per `(plan_id, spot_id, voter_name)` across exactly
-three spots. Cover:
-- Clear winner; unanimous yes; unanimous no on all three (what *should* happen
-  when nobody wants any of them? confirm the intended behavior before asserting)
-- **Ties** — near-certain with 3 options and a small group. Assert the documented
-  rule and assert it's **deterministic**: run it repeatedly and on shuffled input
-  order. An unstable `order by` will pass once and fail in production.
-- A spot with zero votes cast either way
-- A voter who voted on one spot but not the other two
-- Fewer or more than three `plan_spots` — "exactly 3" is app logic, not a
-  database constraint, so the code must not crash on 2 or 4
+Identity is a signed-in account; one ballot per participant per round
+(`votes_participant_round_key`), cast only through `cast_plan_vote`.
 
-**Schema behavior (integration, real Supabase)**
-Don't mock these — mocked Postgres constraints prove nothing:
-- Upsert on `(plan_id, spot_id, voter_name)` **changes** an existing vote rather
-  than inserting a duplicate. This is the "change your mind" feature; assert the
-  row count stays at 1 and `value` flips.
-- Voting the same name twice on the same spot never yields two rows
-- `voter_name` casing/whitespace: assert what actually happens with `"Sara"` vs
-  `"sara "` — if they create two voters, that's a defect to report, not to hide
-- `status` accepts only `'open'` and `'decided'`; the check constraint rejects
-  anything else
-- `price_band` rejects values outside `$`/`$$`/`$$$`
-- Deleting a plan cascades to `votes` and `plan_spots`
-- A vote inserted after `deadline` currently **succeeds** — write the test that
-  documents this honestly, and flag it to `backend-data` rather than asserting
-  a rejection that doesn't exist
-
-**E2E (the flow that has to work on a phone)**
-- Create a plan → copy the share link → open it in a **second browser context**
-  (no shared storage, simulating a friend receiving the link) → enter a name →
-  vote on three spots → the first context sees the vote appear **live** via
-  Realtime → decide → both see the same winner
-- Returning voter isn't asked for their name again
-- Changing a vote updates the tally instead of double-counting
-- A plan id that doesn't exist renders a real not-found state, not a crash
-- `booking_url` is nullable — a winner without one must not render a dead link
+- **Tally and decide (unit):** clear winner, unanimous no, and **ties** — assert
+  the documented tie-break and that it is deterministic on shuffled input.
+- **Schema behaviour (real Postgres, `*.dbtest.ts`):** a re-vote switches the
+  pick instead of adding a row; concurrent double-votes leave one row; RPC
+  grants never include `anon`/PUBLIC; `status` accepts only `open`/`decided`.
+  Don't mock Postgres constraints.
+- **E2E:** two signed-in accounts in isolated contexts; B sees A's vote arrive
+  and be withdrawn over Realtime with no reload; a decided plan shows the same
+  winner to both; a missing plan id renders a not-found state; a winner with no
+  `booking_url` renders no dead link.
 
 ## Discipline
 

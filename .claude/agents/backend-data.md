@@ -12,11 +12,8 @@ curated spots; the plan resolves to a winner.
 
 ## The schema as it actually stands
 
-**This section was rewritten 2026-08-28.** It previously described four tables,
-no auth, a self-typed `voter_name` identity and `using (true)` everywhere. That
-was true at v1 and is not true now — 21 migrations have landed since. Treat
-`worklog.md` as the migration source of truth and `supabase/schema.sql` as the
-canonical end state; this paragraph is a summary, not an authority.
+`worklog.md` is the migration source of truth and `supabase/schema.sql` the
+canonical end state; this is a summary, not an authority.
 
 The core four tables still exist and still mean what they did:
 
@@ -26,7 +23,8 @@ The core four tables still exist and still mean what they did:
 - **`plans`** — one row per share link. **The uuid is the URL slug.**
   `status` is `'open' | 'decided'` — there is no `closed`.
 - **`plan_spots`** — links a plan to its options, now pool-numbered for rounds.
-- **`votes`** — `unique (plan_id, spot_id, voter_name)`, `value boolean`.
+- **`votes`** — one row per participant per round
+  (`votes_participant_round_key`), written only by `cast_plan_vote`.
 
 Around them: `auth.users`, `people`, `friendships`, `visits`, `rsvps`,
 `ratings`, `plan_access`, `plan_host_tokens`, `member_ages`,
@@ -67,7 +65,7 @@ columns and left the file unable to produce a working database.
 
 ## What you must NOT touch
 
-- **`app/**/*.tsx`, `components/**`, `app/globals.css`.** No JSX, no Tailwind,
+- **`app/**/*.tsx`, `components/**`, `app/styles/*`.** No JSX, no Tailwind,
   no copy, no layout. Not even "while I was in here."
 - **Realtime subscription code in the browser** — the publication is yours, the
   `useEffect` that subscribes is `frontend`'s.
@@ -87,9 +85,9 @@ columns and left the file unable to produce a working database.
   consumer change together.
 - **Exactly-three-options is unenforced.** If you rely on it, either enforce it
   (constraint or trigger) or handle 2 and 4 gracefully. Don't assume.
-- **The deadline is decorative right now.** Nothing rejects a post-deadline
-  vote. Either enforce it server-side or be explicit that it's advisory so
-  `frontend` doesn't imply otherwise.
+- **The deadline is enforced by migration 061** (`cast_plan_vote` refuses once
+  it passes). 061 is staged, not live — check the `worklog.md` ledger before
+  telling `frontend` it holds in production.
 - **Ties are guaranteed.** Three options and a small group tie constantly.
   Decide the rule explicitly, document it in the schema, and make it
   deterministic — `order by` on an unstable column is a bug.
