@@ -298,3 +298,15 @@ recorded, not built (owner's target: tens of users).
   localStorage (R14); custom places never show an email prefix (R15);
   browser requests bounded at 15 s, photo uploads exempt; 067's age refusals
   get their own screens.
+- **Review batch, server (subagent, 39a77d2):** `safeNextPath` refuses dot
+  segments that collapse into `//host` (R3); a model refusal is its own 422,
+  never "try again" (R16); the proxy treats an auth outage as unknown, not
+  signed out (R22) and no longer runs on `/api/*` (R23, each route
+  authenticates and refreshes cookies itself); `/api/weather` needs a
+  signed-in account and is `Cache-Control: private` (R12). Unit 259/259, each
+  test fails without its fix. **Not built, recorded:** R10 (an attacker can
+  burn a known email's OTP limit until 00:00 UTC): an app-side Turnstile check
+  would consume the single-use token Supabase's own captcha needs, so Supabase
+  stays the one verifier; revisit by keying the limit on email + IP. C2
+  (forwarding the client IP to GoTrue) needs a secret API key, which this repo
+  deliberately never holds.

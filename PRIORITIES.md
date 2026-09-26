@@ -57,7 +57,9 @@ fixes ship with go-live.
 Recorded, not built (fine at tens of users): Discover scan cost at 100k custom
 spots; unindexed `user_id` FKs; 1000-row PostgREST cap on vote reads;
 unbounded per-user lists; global Luna/photo caps drainable by ~10 real
-accounts (accepted residual after the cutover). Owner decision 2026-09-26:
+accounts (accepted residual after the cutover); R10 OTP-limit lockout of a
+known email until 00:00 UTC (Supabase stays the one captcha verifier); C2
+client IP to GoTrue (needs a secret key the repo never holds). Owner decision 2026-09-26:
 under-age accounts cannot join a plan they are too young for (067, clear message).
 
 ## Scale and hygiene
