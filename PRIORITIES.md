@@ -46,8 +46,9 @@ Done: migration 064 (staged) + the client gate on `main`.
 ## In flight (paused 2026-09-26 evening)
 
 The review batch is **done and merged**: server fixes, client fixes, 067/068
-(staged) and their follow-up fixes F1–F6. Left: the F1–F6 confirmation pass
-result, and **B8** (landing redesign, frontend lane, WIP on
+(staged) and their follow-up fixes F1–F6. Left: two partly-closed fixes the
+confirmation pass found (F1 upload burst, F2 name squat; see the worklog
+checkpoint; both in unapplied 067/068, so they block go-live), and **B8** (landing redesign, frontend lane, WIP on
 `lane/frontend-a`). Then go-live on the owner's word.
 
 Recorded, not built (fine at tens of users): Discover scan cost at 100k custom

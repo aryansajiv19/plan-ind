@@ -223,8 +223,24 @@ CI; E2E in CI; context trimmed (plugins, agent docs, skills); owner's
 production standards in the `house-rules` skill.
 
 **In flight when paused:**
-- Confirmation pass on F1–F6 (workflow `wf_f64a158f-125`); result below if it
-  landed, otherwise re-run it (script under this session's workflows dir).
+- **Confirmation pass on F1–F6: F3, F4, F5, F6 closed; two still open, both in
+  unapplied 067/068, so FIRST JOB ON RESUME (platform lane), before go-live:**
+  - F1 (medium): the upload cap is checked only in Storage's RLS probe, which
+    runs before the upload; the real row is written later as superuser, so a
+    burst of parallel uploads by one account passes (125 × 8 MB ≈ 1 GB).
+    Fix: a BEFORE INSERT/UPDATE trigger on `storage.objects` for visit-photos
+    with a per-owner advisory lock (first confirm the hosted role may create
+    triggers there), else lower the bucket's `file_size_limit`; add the orphan
+    purge; correct the 068 comment.
+  - F2 (low): a member can still squat a friend's display name by renaming
+    their own profile, voting, and renaming back; the victim is then refused
+    and can't fix it at the name gate (the server ignores the typed name).
+    Better shape: identity by account only (drop the name-in-use refusal;
+    one ballot per account is already enforced by `votes_user_round_key`).
+    Catch: the client finds "mine" by name because `user_id` is not readable
+    (049), so it needs a small `my_rows(plan_id)`-style RPC, and
+    `use-voter-name.ts` should match the server's 40-char name cap.
+  Details: `~/plan-ind-review-findings.md` (local only).
 - **B8 landing redesign** (frontend lane, `lane/frontend-a` @ d4f4288, WIP,
   not merged). Done: `HomeHero` extracted (HomeExperience 440 → 364), hero
   deck replaced by `LiveVoteLoop` (real OptionCards replaying the sample
