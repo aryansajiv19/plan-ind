@@ -158,6 +158,7 @@ export default function StartPlanForm({
       avoidKeywords: smartIntent?.avoidKeywords,
       age,
     });
+    if (dealt && "error" in dealt) return dealt;
     if (!dealt) {
       return { error: `Not enough related ${categoryLabel.toLowerCase()} places match that budget and distance. Raise either limit, add a custom place, or try another type.` };
     }

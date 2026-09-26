@@ -24,12 +24,12 @@ export async function sessionUser(supabase: SupabaseClient): Promise<User | "sig
   return "unavailable";
 }
 
+// An auth outage throws to the page's error boundary (retry) instead of
+// reading as signed out, which redirected members to /login mid-outage.
 export const getCurrentUser = cache(async () => {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  return user?.is_anonymous ? null : user;
+  const user = await sessionUser(await createClient());
+  if (user === "unavailable") throw new Error("auth unavailable");
+  return user === "signed-out" || user.is_anonymous ? null : user;
 });
 
 export async function requireUser() {

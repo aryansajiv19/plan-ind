@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getCurrentUser, safeNextPath } from "@/lib/auth";
-import { memberAge } from "@/lib/age-policy";
+import { readMemberAge } from "@/lib/age-policy";
 import { createClient } from "@/lib/supabase/server";
 import AgeForm from "@/components/AgeForm";
 
@@ -17,7 +17,7 @@ export default async function OnboardingPage({
   if (!user) redirect(`/login?next=${encodeURIComponent(next)}`);
   // Date of birth is write-once, so this form has nothing left to do once it
   // is on file. Without this the page stays reachable forever.
-  if (await memberAge(await createClient(), user.id) !== null) redirect(next);
+  if (await readMemberAge(await createClient(), user.id) !== null) redirect(next);
 
   return (
     <main className="auth-shell">

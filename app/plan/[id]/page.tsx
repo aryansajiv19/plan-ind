@@ -405,8 +405,10 @@ export default function VotePage() {
           <UndoBar key={voteUndo.message} message={voteUndo.message} onUndo={voteUndo.restore} onDone={() => setVoteUndo(null)} />
         )}
 
+        {/* Sticky so a failure shows where you are: on the decided screen the
+            end of the page is far below the RSVP and booking buttons. */}
         {notice && (
-          <p role="alert" className="mt-3 text-sm font-medium text-punch-text">
+          <p role="alert" className="sticky bottom-4 z-10 mt-3 rounded-xl border border-line bg-card px-4 py-3 text-sm font-medium text-punch-text">
             {notice}
           </p>
         )}
@@ -420,9 +422,11 @@ export default function VotePage() {
         )}
       </div>
 
-      <p className="mt-4 px-1 text-center text-xs text-muted">
-        Choose one place from each pool, then vote on the final three.
-      </p>
+      {!decided && (
+        <p className="mt-4 px-1 text-center text-xs text-muted">
+          Choose one place from each pool, then vote on the final three.
+        </p>
+      )}
     </main>
   );
 }

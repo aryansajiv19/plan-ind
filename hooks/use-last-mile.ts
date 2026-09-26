@@ -9,6 +9,12 @@ import type { HostCommands } from "@/hooks/use-host-commands";
 
 // A decided plan's follow-through: event time and booking (host patches),
 // RSVP and carpool, rating the winner and filing the visit under Been.
+// A failed save whose reconcile read failed too (the backend is down): put
+// this voter's last known row back, so an unsaved choice never shows as saved.
+function restoreMine<T extends { voter_name: string }>(cur: T[], name: string, prev: T | undefined): T[] {
+  return [...cur.filter((r) => r.voter_name !== name), ...(prev ? [prev] : [])];
+}
+
 export function useLastMile({
   id,
   plan,
@@ -84,7 +90,7 @@ export function useLastMile({
       p_seats_available: mine?.seats_available ?? null,
     });
     if (error) {
-      await refetchRsvps(); // reconcile on failure
+      if (!(await refetchRsvps())) setRsvps((cur) => restoreMine(cur, voterName, mine));
       reportParticipantFailure(error, "Couldn't update your RSVP. Try again.");
     }
   }
@@ -109,7 +115,7 @@ export function useLastMile({
       p_seats_available: nextSeats,
     });
     if (error) {
-      await refetchRsvps();
+      if (!(await refetchRsvps())) setRsvps((cur) => restoreMine(cur, voterName, mine));
       setNotice("Couldn't update how you're getting there. Try again.");
     }
   }
@@ -135,7 +141,7 @@ export function useLastMile({
       p_participant_token_hash: participantHash,
     });
     if (error) {
-      await refetchRatings();
+      if (!(await refetchRatings())) setRatings((cur) => restoreMine(cur, voterName, mine));
       reportParticipantFailure(error, "Couldn't save your rating. Try again.");
       return;
     }

@@ -2,7 +2,7 @@ import AuthProfileBridge from "@/components/AuthProfileBridge";
 import HomeExperience from "@/components/HomeExperience";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
-import { memberAge } from "@/lib/age-policy";
+import { readMemberAge } from "@/lib/age-policy";
 import { createClient } from "@/lib/supabase/server";
 import { ensureOwnProfile } from "@/lib/own-profile";
 import { curatedDiscover, DISCOVER_COLUMNS } from "@/lib/spots/catalogue";
@@ -31,7 +31,7 @@ export default async function HomePage({
 }) {
   const user = await requireUser();
   const supabase = await createClient();
-  const age = await memberAge(supabase, user.id);
+  const age = await readMemberAge(supabase, user.id);
   if (age === null) redirect("/onboarding");
   const metadataName = user.user_metadata.full_name ?? user.user_metadata.name;
   const fallbackName =
