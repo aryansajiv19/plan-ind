@@ -197,7 +197,7 @@ export function usePlanData(id: string) {
     return () => {
       active = false;
     };
-  }, [access, id, refetchVotes, refetchRsvps, refetchRatings, reloadKey]);
+  }, [access, id, refetchVotes, refetchRsvps, refetchRatings, reloadKey, setPlan]);
 
   return {
     load,
