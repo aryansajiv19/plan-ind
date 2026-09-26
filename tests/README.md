@@ -147,7 +147,7 @@ npx supabase start
 psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -f supabase/schema.sql
 psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -f supabase/seed.sql
 # the quota RPCs fail closed without this (docs/SECURITY_SETUP.md):
-psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -c "insert into app_control_secrets(name, secret_hash) values ('server-control', extensions.crypt('local-secret', extensions.gen_salt('bf'))) on conflict (name) do update set secret_hash = excluded.secret_hash"
+psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -c "insert into app_control_secrets(name, secret_hash) values ('server-control', encode(extensions.digest('local-secret', 'sha256'), 'hex')) on conflict (name) do update set secret_hash = excluded.secret_hash"
 export SECURITY_CONTROL_SECRET=local-secret
 export NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
 export NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<ANON_KEY from `npx supabase status`>

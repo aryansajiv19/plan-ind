@@ -88,6 +88,6 @@ jobs:
           psql "$DB" -v ON_ERROR_STOP=1 -q -f supabase/schema.sql
           psql "$DB" -v ON_ERROR_STOP=1 -q -f supabase/seed.sql
           # the quota RPCs fail closed without it (docs/SECURITY_SETUP.md)
-          psql "$DB" -v ON_ERROR_STOP=1 -q -c "insert into app_control_secrets(name, secret_hash) values ('server-control', extensions.crypt('$SECURITY_CONTROL_SECRET', extensions.gen_salt('bf')))"
+          psql "$DB" -v ON_ERROR_STOP=1 -q -c "insert into app_control_secrets(name, secret_hash) values ('server-control', encode(extensions.digest('$SECURITY_CONTROL_SECRET', 'sha256'), 'hex'))"
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e -- --project=chromium --project="Mobile Chrome"

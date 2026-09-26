@@ -21,9 +21,9 @@ to `schema.sql` too — functions and indexes, not just columns.**
 
 ## Non-negotiables
 
-1. **Migrations are additive and numbered.** 020 is applied and verified live
-   (2026-08-24). 021 is written, committed and **unapplied** — fix it in place
-   only until it is applied; after that the next number is 022.
+1. **Migrations are additive and numbered.** Fix one in place only until it is
+   applied; after that the next number is the only option. What is live is in
+   the `worklog.md` ledger.
 
 2. **Record application in `worklog.md` the same day.** That table is the source
    of truth; prose scattered through checkpoints stopped being trustworthy at 014.
