@@ -1,6 +1,6 @@
 -- Migration 068: data hygiene. STAGED -- written, not applied anywhere.
 -- Applies after 064 (independent of 067). Security review 2026-09-26,
--- findings file items R4, R9, R18, C1.
+-- findings file items R4, R9, R18, C1; batch review F1 (byte ceiling).
 --
 -- Before applying live, check the length caps hold on existing rows (the
 -- CHECK validates, so a violating row makes the whole migration fail cleanly):
@@ -66,18 +66,21 @@ create index if not exists place_collection_items_spot_id_idx
 create index if not exists place_collection_items_import_id_idx
   on place_collection_items (import_id) where import_id is not null;
 
--- ── C1: a per-account cap on visit-photo files ─────────────────────────────
--- Nothing bounded how many files one account could put in visit-photos, and
--- a file with no visit_photos row shows nowhere and is never cleaned up. 200
--- files per account (8MB each at most, the bucket's limit) is far above any
--- real use. Counted by a definer function: the storage read policy hides
--- files with no visit_photos row -- exactly the orphans this cap is for.
--- ponytail: count checked per upload, so a burst of parallel uploads can
--- overshoot by the burst size; a hard cap would need a lock.
+-- ── C1 + F1: a per-account cap on visit-photo files ───────────────────────
+-- Nothing bounded how much one account could put in visit-photos, and a
+-- file with no visit_photos row shows nowhere and is never cleaned up. Per
+-- account: 200 files AND 500 MB (the file cap alone still allowed 200 x 8MB
+-- = 1.6 GB, F1). Both are far above real use. Counted by a definer function:
+-- the storage read policy hides files with no visit_photos row -- exactly
+-- the orphans this cap is for.
+-- ponytail: checked per upload against files already stored (a new file's
+-- own size is not in its row yet), so one upload or a parallel burst can
+-- overshoot by its own size; a hard cap would need a lock.
 create or replace function visit_photo_upload_allowed()
 returns boolean language sql stable security definer set search_path = public, pg_temp as $$
-  select (select count(*) from storage.objects o
-          where o.bucket_id = 'visit-photos' and o.owner_id = (select auth.uid())::text) < 200
+  select count(*) < 200 and coalesce(sum((o.metadata->>'size')::bigint), 0) < 500 * 1024 * 1024
+  from storage.objects o
+  where o.bucket_id = 'visit-photos' and o.owner_id = (select auth.uid())::text
 $$;
 revoke all on function visit_photo_upload_allowed() from public, anon, authenticated;
 grant execute on function visit_photo_upload_allowed() to authenticated;

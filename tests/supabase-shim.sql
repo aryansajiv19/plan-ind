@@ -51,3 +51,13 @@ create or replace function cron.schedule(job_name text, schedule text, command t
 create or replace function cron.unschedule(job_name text) returns boolean language sql as
   $$ delete from cron.job where jobname = job_name returning true $$;
 do $$ begin create publication supabase_realtime; exception when duplicate_object then null; end $$;
+-- Two Supabase defaults the tests depend on. pgcrypto lives in `extensions`
+-- (schema.sql's bare `create extension pgcrypto` is then a no-op, as on a real
+-- stack). Client roles hold table privileges by default; RLS and schema.sql's
+-- explicit revokes are what restrict them, so without these grants a
+-- "refused" test would pass for the wrong reason.
+create extension if not exists pgcrypto with schema extensions;
+alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
+alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
+alter default privileges in schema public grant execute on functions to anon, authenticated, service_role;
+grant all on storage.objects, storage.buckets to anon, authenticated, service_role;
