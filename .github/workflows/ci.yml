@@ -5,6 +5,14 @@ on:
   # Every branch: work lands on long-lived non-main branches here, and a
   # main-only trigger let a schema.sql that could not build go unnoticed.
   push:
+  # Visual baselines are made here, in CI's own Linux environment, never on a
+  # laptop: gh workflow run ci.yml --ref <branch> -f update_visual=true
+  workflow_dispatch:
+    inputs:
+      update_visual:
+        description: Regenerate visual baselines and upload them as an artifact
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -90,4 +98,15 @@ jobs:
           # the quota RPCs fail closed without it (docs/SECURITY_SETUP.md)
           psql "$DB" -v ON_ERROR_STOP=1 -q -c "insert into app_control_secrets(name, secret_hash) values ('server-control', encode(extensions.digest('$SECURITY_CONTROL_SECRET', 'sha256'), 'hex'))"
       - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e -- --project=chromium --project="Mobile Chrome"
+      - run: npm run test:e2e -- --project=chromium --project="Mobile Chrome" ${{ inputs.update_visual && '--update-snapshots' || '' }}
+      - if: inputs.update_visual
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-baselines
+          path: tests/e2e/visual.spec.ts-snapshots/
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: test-results/
+          retention-days: 7

@@ -229,3 +229,24 @@ The `test-e2e` job starts its own local stack, loads `schema.sql` + `seed.sql`
 + the control secret, and runs chromium + Mobile Chrome against a production
 build — the recipe above, nothing hosted. WebKit needs an https preview
 (`PLAYWRIGHT_BASE_URL`), see `playwright.config.ts`.
+
+### Visual baselines
+
+`visual.spec.ts` compares six public pages (`/`, `/demo`, `/demo/vote`,
+`/login`, `/privacy`, `/terms`) at four widths against
+`tests/e2e/visual.spec.ts-snapshots/*-chromium-linux.png`. The baselines are
+made in CI's Linux environment and nowhere else, since fonts rasterise
+differently per OS; on macOS the spec skips and says so. The browser clock is
+frozen and motion reduced, so a diff means the page changed.
+
+After an intended visual change, regenerate on your branch and commit the
+result:
+
+```
+gh workflow run ci.yml --ref <branch> -f update_visual=true
+gh run download <run-id> -n visual-baselines -D tests/e2e/visual.spec.ts-snapshots
+```
+
+A missing baseline fails the run (`updateSnapshots: "none"`), it is never
+written silently. A failed E2E run uploads `test-results/` (diffs, traces) as
+the `playwright-results` artifact.
