@@ -34,9 +34,9 @@ export default function VotePage() {
 
   const {
     load, setLoad, setReloadKey,
-    access, setAccess, runAccess,
+    access, accessMessage, setAccess, runAccess,
     plan, setPlan, spots, planSpots, setPlanSpots, votes, setVotes, rsvps, setRsvps, ratings, setRatings,
-    participantHash, refetchVotes, refetchRsvps, refetchRatings, refetchPlanSpots,
+    participantHash, refetchVotes, refetchRsvps, refetchRatings, refetchPlanSpots, refetchPlan,
   } = usePlanData(id);
   const { voterName, setVoterName, accountNameTried } = useVoterName(id);
   const [notice, setNotice] = useState<string | null>(null);
@@ -64,11 +64,11 @@ export default function VotePage() {
   // The live channels are held so leavePlan can close them BEFORE the page
   // moves on (use-plan-realtime.ts).
   const { dataChannelRef, cancelRefetchesRef } = usePlanRealtime({
-    id, access, deleted, left, refetchVotes, refetchRsvps, refetchRatings, refetchPlanSpots, setPlan, setDeleted,
+    id, access, deleted, left, refetchVotes, refetchRsvps, refetchRatings, refetchPlanSpots, refetchPlan, setPlan, setDeleted,
   });
   const { presentNames, presenceChannelRef } = usePlanPresence({ id, access, voterName, left });
   const { visitSaved, patchPlan, setRsvp, setCarpool, rateWinner } = useLastMile({
-    id, plan, setPlan, hostToken: host.hostToken, runHostCommand: host.runHostCommand, voterName, participantHash, winnerId,
+    id, plan, setPlan, isHost: host.isHost, runHostCommand: host.runHostCommand, voterName, participantHash, winnerId,
     rsvps, setRsvps, ratings, setRatings, refetchRsvps, refetchRatings, setNotice, reportParticipantFailure,
   });
 
@@ -107,7 +107,7 @@ export default function VotePage() {
   useFaceFlight();
 
   const stateScreen = planStateScreen({
-    deleted, left, plan, access, load, retryAccess, setLoad, setReloadKey,
+    deleted, left, plan, access, accessMessage, load, retryAccess, setLoad, setReloadKey,
   });
   if (stateScreen) return stateScreen;
 

@@ -36,7 +36,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }
   if (!body || typeof body !== "object") return Response.json({ error: "Send a valid command." }, { status: 400 });
   const raw = body as Record<string, unknown>;
-  const hostToken = typeof raw.hostToken === "string" ? raw.hostToken : "";
+  // B7: the token is optional. Authority is the signed-in account, checked by
+  // the RPCs (migration 067); a device that has the token still sends it.
+  const hostToken = raw.hostToken === undefined || raw.hostToken === null ? null
+    : typeof raw.hostToken === "string" ? raw.hostToken : "";
   const command = typeof raw.command === "string" ? raw.command : "";
   const patch = raw.patch && typeof raw.patch === "object" && !Array.isArray(raw.patch) ? raw.patch as Record<string, unknown> : {};
   // edit/reopen: optional title (edit only) and ISO deadline; the RPC owns the real rules.
@@ -45,7 +48,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const badDeadline = deadline !== null && (typeof deadline !== "string" || !ISO_INSTANT.test(deadline));
   const badEdit = (command === "edit" && (badDeadline || (title !== null && (typeof title !== "string" || title.length > 200))))
     || (command === "reopen" && badDeadline);
-  if (!UUID.test(id) || !/^[0-9a-f]{64}$/.test(hostToken) || !COMMANDS.has(command) || badEdit
+  if (!UUID.test(id) || (hostToken !== null && !/^[0-9a-f]{64}$/.test(hostToken)) || !COMMANDS.has(command) || badEdit
       || Object.keys(patch).some((key) => !PATCH_FIELDS.has(key))) {
     return Response.json({ error: "Invalid plan command." }, { status: 400 });
   }

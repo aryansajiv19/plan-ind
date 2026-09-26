@@ -92,7 +92,8 @@ export function useCustomPlaces(category: string, setError: (message: string | n
         price_band: "$$",
         min_spend: 0,
         open_till: "Flexible",
-        vibe: note.trim() || `Saved by ${auth.user.email?.split("@")[0] ?? "a friend"}`,
+        // Never the email prefix: community places are readable by every account.
+        vibe: note.trim() || "Saved by a friend",
         description: note.trim() || null,
         booking_url: null,
         photo_url: null,

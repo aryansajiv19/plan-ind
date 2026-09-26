@@ -10,6 +10,7 @@
 // network, and the cache keeps client-only social UI responsive.
 
 import type { PersonCard } from "./types";
+import { TOKEN_PREFIX } from "./participant";
 
 const BEEN_KEY = "plan-ind:been";
 const ME_KEY = "plan-ind:me";
@@ -97,8 +98,23 @@ export function cacheMe(profile: DeviceProfile): void {
   localStorage.setItem(ME_KEY, JSON.stringify(profile));
 }
 
-/** Forget this device's identity. The server row (and its visits) survive. */
-export function clearMe(): void {
+// Per-plan keys that belong to whoever is signed in: host tokens, voter
+// names and participant tokens.
+const ACCOUNT_PREFIXES = ["plan-host:", "voter:", TOKEN_PREFIX];
+
+/**
+ * Forget this device's identity on sign-out: the cached profile and every
+ * per-plan key, so the next account on a shared browser inherits no host
+ * controls, name or participant token (review R14). Server rows survive.
+ */
+export function clearAccountState(): void {
   if (typeof window === "undefined") return;
-  localStorage.removeItem(ME_KEY);
+  try {
+    localStorage.removeItem(ME_KEY);
+    for (const key of Object.keys(localStorage)) {
+      if (ACCOUNT_PREFIXES.some((prefix) => key.startsWith(prefix))) localStorage.removeItem(key);
+    }
+  } catch {
+    // storage blocked: nothing was kept
+  }
 }

@@ -1,4 +1,4 @@
-const TOKEN_PREFIX = "deal-three:participant:";
+export const TOKEN_PREFIX = "deal-three:participant:";
 
 function randomToken(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();

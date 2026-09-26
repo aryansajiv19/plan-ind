@@ -21,7 +21,7 @@ export function useLastMile({
   id,
   plan,
   setPlan,
-  hostToken,
+  isHost,
   runHostCommand,
   voterName,
   participantHash,
@@ -38,7 +38,7 @@ export function useLastMile({
   id: string;
   plan: Plan | null;
   setPlan: Dispatch<SetStateAction<Plan | null>>;
-  hostToken: string | null;
+  isHost: boolean;
   runHostCommand: HostCommands["runHostCommand"];
   voterName: string | null;
   participantHash: string | null;
@@ -59,7 +59,7 @@ export function useLastMile({
     if (!plan) return;
     const previous = plan;
     setPlan({ ...plan, ...fields }); // optimistic
-    if (!hostToken) {
+    if (!isHost) {
       setPlan(previous);
       setNotice("Only the person who started this plan can change these details.");
       return;

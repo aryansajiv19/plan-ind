@@ -25,20 +25,25 @@ export type VoteStateKind =
   | "retry"
   | "cold-link"
   | "deleted"
-  | "deleted-by-you";
+  | "deleted-by-you"
+  | "age-restricted"
+  | "needs-birthday";
 
 export default function VoteState({
   kind,
   planTitle,
+  message,
   onRetry,
 }: {
   kind: VoteStateKind;
   /** Shown in the loading copy once the plan row is known. */
   planTitle?: string | null;
+  /** The server's own sentence, for the age refusals. */
+  message?: string | null;
   /** Required for `kind="retry"` — renders the primary "Try again" button. */
   onRetry?: () => void;
 }) {
-  const content = COPY({ kind, planTitle });
+  const content = COPY({ kind, planTitle, message });
   // So "Sign in" returns here instead of /home — FE.10.
   const pathname = usePathname();
 
@@ -65,7 +70,7 @@ export default function VoteState({
           </div>
         )}
 
-        {(onRetry || kind === "signed-out") && (
+        {(onRetry || kind === "signed-out" || kind === "age-restricted" || kind === "needs-birthday") && (
           <div className="vote-state__actions">
             {onRetry && (
               <button type="button" className="vote-primary-action" onClick={onRetry}>
@@ -75,6 +80,16 @@ export default function VoteState({
             {kind === "signed-out" && (
               <Link href={`/login?next=${encodeURIComponent(pathname)}`} className="vote-primary-action">
                 Sign in
+              </Link>
+            )}
+            {kind === "needs-birthday" && (
+              <Link href={`/onboarding?next=${encodeURIComponent(pathname)}`} className="vote-primary-action">
+                Add your date of birth
+              </Link>
+            )}
+            {kind === "age-restricted" && (
+              <Link href="/home" className="vote-primary-action">
+                Go home
               </Link>
             )}
           </div>
@@ -87,11 +102,23 @@ export default function VoteState({
 function COPY({
   kind,
   planTitle,
+  message,
 }: {
   kind: VoteStateKind;
   planTitle?: string | null;
+  message?: string | null;
 }): { title: string | null; body: ReactNode } {
   switch (kind) {
+    case "age-restricted":
+      return {
+        title: message ?? "This plan has an age requirement",
+        body: "Ask the host to pick a plan everyone can join.",
+      };
+    case "needs-birthday":
+      return {
+        title: message ?? "Add your date of birth to join this plan.",
+        body: "It stays private and only leaves out places the group can’t get into.",
+      };
     case "loading":
       return {
         title: null,

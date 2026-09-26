@@ -27,7 +27,7 @@ export default function RoundActions({
       <div className="mt-6 flex flex-col gap-3 sm:flex-row">
         {!isHost ? (
           // advanceToFinal/decide are host-only server-side
-          // (execute_plan_command checks hostToken for every command) —
+          // (execute_plan_command checks the host on every command) —
           // a non-host tapping a "Continue" button here would just get an
           // optimistic flash that reverts with a generic error. Voting
           // itself is unaffected; only the round-advance control is gated.

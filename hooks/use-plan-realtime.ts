@@ -17,6 +17,7 @@ export function usePlanRealtime({
   refetchRsvps,
   refetchRatings,
   refetchPlanSpots,
+  refetchPlan,
   setPlan,
   setDeleted,
 }: {
@@ -28,6 +29,7 @@ export function usePlanRealtime({
   refetchRsvps: () => Promise<boolean>;
   refetchRatings: () => Promise<boolean>;
   refetchPlanSpots: () => Promise<void>;
+  refetchPlan: () => Promise<boolean>;
   setPlan: Dispatch<SetStateAction<Plan | null>>;
   setDeleted: Dispatch<SetStateAction<"self" | "remote" | null>>;
 }) {
@@ -87,7 +89,13 @@ export function usePlanRealtime({
         { event: "UPDATE", schema: "public", table: "plan_spots", filter: `plan_id=eq.${id}` },
         planSpotsLater,
       )
-      .subscribe();
+      // R5: on every (re)join, the first included (it closes the gap after
+      // the initial load), re-read everything an event could have changed.
+      .subscribe((status) => {
+        if (status !== "SUBSCRIBED") return;
+        void refetchPlan();
+        later.forEach((refetch) => refetch());
+      });
     dataChannelRef.current = channel;
     cancelRefetchesRef.current = () => later.forEach((refetch) => refetch.cancel());
     return () => {
@@ -95,7 +103,7 @@ export function usePlanRealtime({
       later.forEach((refetch) => refetch.cancel());
       getSupabase().removeChannel(channel);
     };
-  }, [access, deleted, left, id, refetchVotes, refetchRsvps, refetchRatings, refetchPlanSpots, setPlan, setDeleted]);
+  }, [access, deleted, left, id, refetchVotes, refetchRsvps, refetchRatings, refetchPlanSpots, refetchPlan, setPlan, setDeleted]);
 
   return { dataChannelRef, cancelRefetchesRef };
 }
