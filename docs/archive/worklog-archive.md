@@ -4015,3 +4015,143 @@ direct PostgREST call). Realtime: DELETE events skip RLS and carry the PK only;
 `plan_spots`' PK includes `plan_id` (a join capability). After 065 the only
 `plan_spots` DELETEs come from plan deletion, whose id is dead on commit;
 votes/rsvps/ratings DELETEs carry only their own row `id`.
+
+## 2026-09-26 — Lead session: hand-off (read this first)
+
+**Branches.** `main` = `claude/jolly-hypatia-hj9vhp` = everything below;
+`vercel.json` stops `main` auto-deploying (owner: `main` is truth, not live
+yet). Production still runs `d536b6f` (2026-09-20, CLI deploy from the owner's
+laptop, **not on GitHub**). Its only unique content: a `components/Turnstile.tsx`
+fix for a challenge that never paints (seen live on `/login`) and a lazy
+`lib/supabase.ts` client; its card-reason change is superseded by the "Why
+this?" chips. When the owner pushes `ai-engineering`, merge it into `main`
+(expect conflicts in `worklog.md`, `PRIORITIES.md`, `OptionCard.tsx`,
+`globals.css` → now `app/styles/*`). If it never arrives, re-implement the
+Turnstile timeout. Merged `lane/*` branches still exist (branch deletion needs
+the owner).
+
+**Next session, in order.**
+1. If the owner has connected the Supabase connector (or set
+   `SUPABASE_ACCESS_TOKEN` + allowed `api.supabase.com`/`*.supabase.co`),
+   apply the approved migrations in order **049 → 051 → 061 → 062 → 063 → 064
+   → 065**, one at a time, verifying each by catalog query and recording it in
+   the ledger above. Count/back up votes/rsvps/ratings before 061 (it dedupes).
+   064 must never be live while production still runs the old client (it
+   breaks guest share links): apply 064 only together with deploying `main`.
+2. Owner go-live: remove the `main: false` line from `vercel.json`, deploy
+   `main` to production, verify on the live URL (`docs/DEPLOYMENT.md`): sign
+   up, create, share, vote, decide. Turnstile hostname + secret must be done
+   first or sign-in is impossible.
+3. With the Places key: runbook at the end of `docs/PLACES_INGESTION_SCOPE.md`,
+   then B3/B6 in `PRIORITIES.md` (photo fallback UI + full-bleed winner).
+
+**This sandbox, as found.** Outbound network allows npm/GitHub/googleapis
+but blocks `*.supabase.co`, `plan-ind.vercel.app`, `api.open-meteo.com`. Docker
+works: the local Supabase stack + browser E2E recipe is in `tests/README.md`
+(`PW_CHROMIUM_PATH=/opt/pw-browsers/chromium-1194/chrome-linux/chrome`,
+chromium + "Mobile Chrome" only). Without Docker, plain Postgres 16 + 
+`tests/supabase-shim.sql` + `schema.sql` runs `test:db` and proves migrations
+(apply each twice). Vercel MCP can read deployments/env names but its file
+reader truncates large files. Never `pkill -f` a pattern that can match your
+own shell.
+
+**Verified at hand-off (06fddbe+):** unit 250/250; `test:db` 12/12; E2E
+chromium 91/0, Mobile Chrome 92/0 (33 skips: visual baselines not generated +
+one mobile-only check); CI green on every branch push; lint/typecheck/build
+clean. Every change this session had an independent `security` review; all
+findings fixed or recorded (accepted: a `delete_my_account` race that rolls
+back safely; moodboard `visibility` values are stored but unused).
+
+**Owner decisions recorded:** sign in from the start (064); all staged
+migrations approved; `main` is truth but not production.
+
+## 2026-09-26 — Lead: `ai-engineering` merged into `main`; 049/051 were already live
+
+The 9 commits production runs (`d536b6f`, `ed5f1d0`) were on the owner's laptop
+and are now pushed and merged. Kept: the Turnstile no-paint timeout
+(`components/Turnstile.tsx`), the option-card layout fix (identity-only category
+chip that truncates, "leading" on its own line, action row pinned with
+`mt-auto`), `/demo` in the layout suite, the eslint ignores for installed
+skills. Dropped as superseded by `main`: the anonymous-guest path in
+`lib/supabase.ts` and the plan page (sign-in-first), the card's reason chips
+(`dealReasons` chips), tracked `graphify-out/`.
+
+Facts that only existed on that branch: 049 and 051 were applied live on
+2026-09-19 (ledger fixed); the owner added `plan-ind.vercel.app` to the
+Turnstile hostnames on 2026-09-20; Turnstile is **not enforced server-side**
+(live anonymous sign-in succeeds with no captcha token, so the Supabase secret
+is not set). Live Auth settings 2026-09-26: `google: false`, `email: true`,
+`anonymous_users: true`.
+
+## 2026-09-26 — Lead: 061, 062, 063, 065 applied live; 064 held for go-live
+
+Applied one at a time via Supabase MCP from the files, each verified by catalog
+probe (ledger rows above). 061's dedupe removed nothing (3 votes, 0 rsvps, 0
+ratings live). 064 is the only staged migration left; it ships with the `main`
+deploy. Independent `security` review of the live catalog running.
+
+## 2026-09-26 — Lead: skills and plugins for this repo
+
+The design set kept by hygiene pass 5 had been living only in a stale worktree,
+so no session had it. Installed at user level (every worktree sees them, ~150
+tokens total): `emil-design-eng`, `review-animations`, `design-taste-frontend`;
+routing rule in `AGENTS.md`. The other 32 skills in that pack (image gen,
+slides, mobile, brand) stay out. `.claude/settings.json` turns off, for this
+project only, plugins it doesn't use or already duplicates: vercel (~6k tokens
+a session with its start-up hook; the `vercel` CLI covers deploys), feature-dev,
+code-simplifier, superdesign, claude-code-setup, skill-creator, ralph-loop,
+commit-commands. Kept: supabase, superpowers, pr-review-toolkit, ponytail,
+playwright, context7, typescript-lsp, frontend-design, security-guidance,
+claude-md-management, code-review, github. Re-enable any by deleting its line.
+
+
+## 2026-09-26 — Platform lane: merge gate for 4c7a320 passed
+
+E2E on a local stack (own project id, prod build), chromium + Mobile Chrome
+**213 passed / 0 failed** (33 skips: visual baselines not generated + one
+mobile-only check). A one-off 521–559px sweep on `/demo` and signed-in `/home`
+found no horizontal overflow, so the old nav bug is gone without porting its
+fix. Option-card Select buttons share one baseline at ≥768px; in the narrow
+one-card carousel the "leading" card is 6px taller (cosmetic).
+
+## 2026-09-26 — Lead: security review of today's live state
+
+Independent `security` review of 061/062/063/065 live with 064 not, plus merge
+4c7a320: no new High/Medium. Lead ran the catalog checks the reviewer could
+not: every security-definer function's anon/authenticated grant matches its
+file; all seven visit-photo policies are `{authenticated}`. Open until
+cutover (both pre-existing, both close when anonymous sign-ins are turned off
+after the deploy): extra ballots via free guest sessions on a shared link, and
+guests draining the global Luna quota (300/day). Ordering trap recorded in
+PRIORITIES O2/O4: the Turnstile secret must be set AFTER `main` deploys.
+
+
+## 2026-09-26 — Frontend + platform lanes merged; README; one dev server
+
+- **B6 (partial):** the decided screen shows the faces and names of who picked
+  the winner in the final (`pickedBy`, no "of N": the roster is a lower bound).
+  Sharing was already complete. `DecidedPlan.tsx` 473 → 233 lines
+  (`components/vote/{WhosIn,Booking,Rating}Section.tsx`, pure move).
+- **Landing / demo polish:** hero deck shows a real venue photo with its
+  licence credit; `/demo`'s wall uses the cached curated catalogue (it showed
+  an empty state to every visitor); secondary CTA is "See a sample vote".
+- **Context hygiene (platform lane):** agent docs −2.9k tokens, directory
+  `CLAUDE.md` −0.6k; false rules removed (021 "unapplied", "share link dead",
+  old votes key, "deadline unenforced"); dead npm aliases dropped;
+  `supabase/APPLY_RUNBOOK.md` (a second, orphaned ledger) archived.
+- **Go-live compatibility sweep** (workflow, 4 finders + skeptics): 146 Supabase
+  call sites in `main` checked against the live catalog, 0 mismatches.
+- **README** rewritten in the owner's voice (no jargon, no dashes).
+- **One dev server:** `:3000` serves `main` against the local stack
+  `plan-ind-frontend` (127.0.0.1:55021), reloaded from `schema.sql` + seeds +
+  039 locally. The stale `:3000` from `~/plan-ind-frontend` pointed at
+  production and was stopped.
+- **C6 done:** CI `test-e2e` runs on every push against the job's own local
+  stack (no production secrets), chromium + Mobile Chrome 213/0 (33 skips) in
+  1.9 min. Firefox left out until it has ever run green.
+- **C4 paused:** needs a production schema dump (DB password) and a
+  `migration repair` on live; owner call.
+
+- **README media** (`docs/media/`): hero, deal, vote, winner at 1440x900 and
+  `flow.gif` (960 wide, 1.3 MB), captured from `/demo` routes on the local
+  stack. Wired into the README.

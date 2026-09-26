@@ -43,17 +43,12 @@ Done: migration 064 (staged) + the client gate on `main`.
 | B8 | **Landing that isn't empty** (owner, 2026-09-26): visitor nav with anchors, a Dubai clock and a Start-a-plan CTA; a live looping mini vote in the hero (real components, sample group); How it works with real UI crops; a denser Dubai-right-now wall; real counts; a footer. Frontend lane. The biggest remaining lever is photography (O3 Places key) | M |
 | B7 | **Host controls follow the account, not the device.** Today they need the host token in that browser's localStorage, so a host on a new device sees only "Leave this plan". Proposal: `execute_plan_command` (and edit/reopen/delete) also accept `auth.uid() = plans.created_by_user_id`; migration + `security` review + owner approval to apply | M |
 
-## In flight: review batch (2026-09-26)
+## In flight (paused 2026-09-26 evening)
 
-Security + scalability review of `main` (6 reviewers, every finding
-adversarially verified): 23 confirmed, 7 refuted, 0 critical, 1 high. All
-fixes ship with go-live.
-
-| Lane | Items |
-|---|---|
-| Platform (SQL) | migration 067 (age gate on joining, owner decision; host = creator account, B7; deadline auto-pick skips the final round, R1 high; one name per ballot; hash-squat lockout; booking_owner cleaning) and 068 (community spots can't carry links/photos; friends-photo policy; 065's missing index; visit-photo upload cap) |
-| Frontend | B7 client, clear host tokens on sign-out, R1 client, Realtime resync on reconnect, no email username in custom spots, 15 s browser fetch timeout |
-| Server (subagent) | open redirect via dot-segments in `safeNextPath`, Turnstile verified before OTP limits, `/api/weather` needs a session, model refusals not reported as retryable, proxy treats an auth outage as signed out, proxy off `/api/*` |
+The review batch is **done and merged**: server fixes, client fixes, 067/068
+(staged) and their follow-up fixes F1–F6. Left: the F1–F6 confirmation pass
+result, and **B8** (landing redesign, frontend lane, WIP on
+`lane/frontend-a`). Then go-live on the owner's word.
 
 Recorded, not built (fine at tens of users): Discover scan cost at 100k custom
 spots; unindexed `user_id` FKs; 1000-row PostgREST cap on vote reads;
