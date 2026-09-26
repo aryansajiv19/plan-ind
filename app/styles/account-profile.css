@@ -288,19 +288,6 @@
   text-decoration: underline;
   text-underline-offset: 0.2em;
 }
-.home-demo-link {
-  margin-top: 0.9rem;
-  max-width: 34rem;
-  color: var(--color-muted);
-  font-size: max(0.85rem, var(--type-floor));
-  line-height: 1.5;
-}
-.home-demo-link a {
-  color: var(--color-ink);
-  font-weight: 600;
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
-}
 .demo-tool-saved {
   margin-top: 0.5rem;
   color: var(--color-muted);

@@ -12,13 +12,14 @@
  * Re-tokenised and re-purposed for plan-ind (design-system/SPECS.md §5):
  * "the deck" — nine places dealt across three rounds, the product's real
  * mechanic, replacing the generic four-fintech-product demo this shipped
- * with. Cards are typographic only, matching the rest of the app's
- * photo-less treatment (PhotoTile) rather than the original's hotlinked
- * Unsplash URLs, which next.config has no remotePatterns allowlist for.
+ * with. Cards show a spot's own photo when it has one and are typographic
+ * otherwise, like PhotoTile, never the original's hotlinked Unsplash URLs.
  */
 
+import Image from "next/image";
 import { motion, useReducedMotion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import PhotoCredit from "@/components/PhotoCredit";
 import { categoryMeta } from "@/lib/categories";
 import type { Spot } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -30,6 +31,8 @@ interface DeckSpot {
   area: string;
   category: string;
   price_band: string;
+  photo_url?: string | null;
+  photo_attribution?: string | null;
 }
 
 // Shown only when no real spots are passed in (the signed-out marketing
@@ -56,6 +59,8 @@ function toDeck(spots: Spot[]): DeckSpot[] {
     area: spot.area,
     category: spot.category,
     price_band: spot.price_band,
+    photo_url: spot.photo_url,
+    photo_attribution: spot.photo_attribution,
   }));
 }
 
@@ -185,7 +190,7 @@ const Card = ({
         zIndex: totalCards - index,
       }}
       className={cn(
-        "absolute inset-0 w-full rounded-2xl p-6",
+        "absolute inset-0 flex w-full flex-col rounded-2xl p-6",
         "bg-card",
         "border border-line",
         "backdrop-blur-xl backdrop-saturate-150",
@@ -232,6 +237,25 @@ const Card = ({
           <span className="text-muted">{spot.price_band}</span>
         </div>
       </div>
+
+      {/* Real photography where the spot has it (landing sorts photos
+          first, so the top card usually does). Credit is a licence
+          obligation wherever the image renders. */}
+      {spot.photo_url && (
+        <div className="relative mt-5 min-h-0 flex-1 overflow-hidden rounded-xl">
+          <Image
+            src={spot.photo_url}
+            alt=""
+            fill
+            sizes="320px"
+            className="object-cover"
+            priority={index === 0}
+            // Same reason as PhotoTile: no remotePatterns allowlist.
+            unoptimized
+          />
+          <PhotoCredit spot={{ photo_url: spot.photo_url, photo_attribution: spot.photo_attribution ?? null }} />
+        </div>
+      )}
     </motion.div>
   );
 };

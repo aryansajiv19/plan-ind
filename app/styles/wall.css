@@ -50,6 +50,10 @@
   background: var(--photo-scrim);
   color: var(--photo-ink);
 }
+/* Room for the licence credit, which sits over the bottom of the photo. */
+.wall-tile:has(.photo-credit) .wall-tile__body {
+  padding-bottom: 40px;
+}
 .wall-tile__name {
   margin: 0;
   font-family: var(--font-display);

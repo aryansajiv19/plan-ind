@@ -287,7 +287,7 @@ export default function HomeExperience({
           rule 1: never show invented data as a signed-in user's own. */}
       {fixtures && (
         <p className="home-demo-banner" role="note">
-          <strong>Sample data.</strong> This is a demo account — the people, visits and photos are made up, and nothing here saves.{" "}
+          <strong>Sample data.</strong> This is a demo account. The people, visits and photos are made up, and nothing here saves.{" "}
           <Link href="/login">Start your own plan →</Link>
         </p>
       )}
@@ -320,35 +320,19 @@ export default function HomeExperience({
           </h1>
 
           <p className="home-deck home-reveal" style={{ "--delay": "680ms" } as React.CSSProperties}>
-            Dinner in DIFC, padel in Al Quoz, or a beach day on the Palm. Set the budget and distance, shortlist through three pools, and let everyone choose.
+            Dinner in DIFC or padel in Al Quoz. Set a budget, and the group picks from nine places in three quick rounds.
           </p>
 
           <div className="home-actions home-reveal" style={{ "--delay": "780ms" } as React.CSSProperties}>
             <a href="#plan-lab" className="home-primary-cta">
               Open a decision
             </a>
-            {/* /demo/vote plays a whole sample decision from fixtures. The
-                seeded /plan/1111… row it replaces is membership scoped, so a
-                signed-out visitor sent there met "This plan wouldn't open". */}
-            {fixtures ? (
-              <Link href="/demo/vote" className="home-secondary-cta">
-                See a sample vote
-              </Link>
-            ) : (
-              <Link href="/login" className="home-secondary-cta">
-                Sign in to start
-              </Link>
-            )}
+            {/* The product without an email: /demo/vote plays a whole sample
+                decision from fixtures. Sign in already sits in the nav. */}
+            <Link href="/demo/vote" className="home-secondary-cta">
+              See a sample vote
+            </Link>
           </div>
-          {/* The demo is the only way to see the product without an email.
-              A quiet line, not a second big button: it must not compete with
-              the primary action, and the copy promises what is actually
-              there -- a finished sample, not a sandbox that saves. */}
-          {!fixtures && (
-            <p className="home-demo-link home-reveal" style={{ "--delay": "860ms" } as React.CSSProperties}>
-              <Link href="/demo">See a finished plan</Link> — a sample group, mid-decision. Nothing you do there is saved.
-            </p>
-          )}
         </div>
 
         <div className="home-stage home-reveal" style={{ "--delay": "420ms" } as React.CSSProperties} aria-hidden="true">
