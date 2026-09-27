@@ -1,6 +1,4 @@
-import ProfileNameForm from "@/components/ProfileNameForm";
-import ProfileEmojiForm from "@/components/ProfileEmojiForm";
-import BirthdayCorrection from "@/components/BirthdayCorrection";
+import SettingsBlock from "@/components/account/SettingsBlock";
 import WrappedRecap from "@/components/account/WrappedRecap";
 import type { VisitStats } from "@/components/account/useVisitStats";
 import { initialsOf } from "@/lib/avatar";
@@ -31,9 +29,7 @@ export default function ProfileTab({
         <div><p className="home-section-kicker">Your account</p><h1 id="profile-title">{name}</h1><p>Dubai</p></div>
       </header>
 
-      {personId && <ProfileNameForm personId={personId} name={name} />}
-      {personId && <ProfileEmojiForm personId={personId} emoji={emoji} />}
-      {personId && <BirthdayCorrection />}
+      <SettingsBlock name={name} emoji={emoji} personId={personId} />
 
       <div className="demo-profile-stats">
         <span><strong>{stats.places}</strong> places</span>

@@ -2,8 +2,6 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { signOut } from "@/app/auth/actions";
-import { clearAccountState } from "@/lib/device";
 import DemoAccountViews from "@/components/DemoAccountViews";
 import AccountViews from "@/components/AccountViews";
 import type { PersonCard, ProfileVisit, Spot, WrappedSummary, WrappedSummaryError } from "@/lib/types";
@@ -247,7 +245,7 @@ export default function HomeExperience({
             title="Profile"
             onClick={() => showView("profile")}
           >
-            {name.slice(0, 1).toUpperCase()}
+            {emoji ?? name.slice(0, 1).toUpperCase()}
           </button>
         </div>
       </header>
@@ -356,16 +354,6 @@ export default function HomeExperience({
               onStartPlan={() => showView("plan")}
               onPlanFromBoard={(prefill) => { setPlanPrefill(prefill); showView("plan"); }}
             />
-          )}
-          {activeView === "profile" && !demoMode && (
-            <form
-              action={signOut}
-              onSubmit={() => clearAccountState()}
-              className="home-profile-actions"
-            >
-              <span>Signed in as {name}</span>
-              <button type="submit">Sign out</button>
-            </form>
           )}
         </div>
       )}
