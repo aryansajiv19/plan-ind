@@ -6396,3 +6396,74 @@ language sql stable security invoker set search_path = public, pg_temp as $$
 $$;
 revoke all on function my_plan_rail(integer) from public, anon, authenticated;
 grant execute on function my_plan_rail(integer) to authenticated;
+
+-- 075: any member can claim the booking -- see migration-075-member-booking.sql.
+-- The RPCs only here: its generated catalogue half updates curated rows a
+-- scratch build doesn't have.
+create or replace function claim_booking(p_plan_id uuid)
+returns jsonb language plpgsql security definer set search_path = public, pg_temp as $$
+declare
+  target plans%rowtype;
+  holder uuid;
+  label text;
+begin
+  if not is_permanent_user() then
+    raise exception 'Sign in required' using errcode = '42501';
+  end if;
+  -- Plans first, then child rows: the order every other plan write takes.
+  select * into target from plans where id = p_plan_id for update;
+  if target.id is null then
+    return jsonb_build_object('result', 'not_found');
+  end if;
+  if not exists (select 1 from plan_access where plan_id = p_plan_id and user_id = auth.uid()) then
+    return jsonb_build_object('result', 'not_member');
+  end if;
+  if target.booked is true then
+    return jsonb_build_object('result', 'booked', 'booking_owner', target.booking_owner);
+  end if;
+  -- A claim whose account was deleted (user_id set null) is free to take.
+  select user_id into holder from plan_booking_owners where plan_id = p_plan_id;
+  if holder is not null and holder <> auth.uid() then
+    return jsonb_build_object('result', 'taken', 'booking_owner', target.booking_owner);
+  end if;
+  -- The label is the caller's own profile name, never text they send.
+  select nullif(clean_display_name(display_name), '') into label from people where auth_user_id = auth.uid();
+  if label is null then
+    return jsonb_build_object('result', 'no_profile');
+  end if;
+  update plans set booking_owner = label where id = p_plan_id;
+  insert into plan_booking_owners (plan_id, user_id) values (p_plan_id, auth.uid())
+  on conflict (plan_id) do update set user_id = excluded.user_id;
+  return jsonb_build_object('result', 'claimed', 'booking_owner', label);
+end; $$;
+revoke all on function claim_booking(uuid) from public, anon, authenticated;
+grant execute on function claim_booking(uuid) to authenticated;
+
+create or replace function release_booking(p_plan_id uuid)
+returns jsonb language plpgsql security definer set search_path = public, pg_temp as $$
+declare
+  target plans%rowtype;
+begin
+  if not is_permanent_user() then
+    raise exception 'Sign in required' using errcode = '42501';
+  end if;
+  select * into target from plans where id = p_plan_id for update;
+  if target.id is null then
+    return jsonb_build_object('result', 'not_found');
+  end if;
+  if not exists (select 1 from plan_access where plan_id = p_plan_id and user_id = auth.uid()) then
+    return jsonb_build_object('result', 'not_member');
+  end if;
+  -- Booked means the reservation exists: the name stays, as leave_plan keeps it.
+  if target.booked is true then
+    return jsonb_build_object('result', 'booked', 'booking_owner', target.booking_owner);
+  end if;
+  if not exists (select 1 from plan_booking_owners where plan_id = p_plan_id and user_id = auth.uid()) then
+    return jsonb_build_object('result', 'not_yours', 'booking_owner', target.booking_owner);
+  end if;
+  update plans set booking_owner = null where id = p_plan_id;
+  delete from plan_booking_owners where plan_id = p_plan_id;
+  return jsonb_build_object('result', 'released');
+end; $$;
+revoke all on function release_booking(uuid) from public, anon, authenticated;
+grant execute on function release_booking(uuid) to authenticated;

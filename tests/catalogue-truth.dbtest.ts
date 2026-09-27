@@ -10,10 +10,12 @@ import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { randomUUID } from "node:crypto";
 import { fileURLToPath } from "node:url";
+import { readFileSync } from "node:fs";
 
 const execFileAsync = promisify(execFile);
 const DB_URL = process.env.TEST_DATABASE_URL ?? "postgresql://postgres:postgres@127.0.0.1:54322/postgres";
 const MIGRATION = fileURLToPath(new URL("../supabase/migration-070-catalogue-truth.sql", import.meta.url));
+const MIGRATION_075 = fileURLToPath(new URL("../supabase/migration-075-member-booking.sql", import.meta.url));
 
 async function psql(...args: string[]): Promise<string> {
   try {
@@ -158,5 +160,25 @@ describe("071 new plans refuse closed places", { skip: SKIP }, () => {
       const [open] = await nine();
       await direct(uid, open); // control
     } finally { await cleanup(); }
+  });
+});
+
+// ── 075: catalogue decisions made after 070 went live ─────────────────────────
+describe("075 catalogue decisions (generated block)", { skip: SKIP }, () => {
+  test("Scoopi Cafe and Garage Dubai are retired, and Iris Harbour moves to vibes as a lounge", async () => {
+    // Only the generated block: 075's own begin/commit would end this transaction.
+    const m075 = readFileSync(MIGRATION_075, "utf8");
+    const block = m075.slice(m075.indexOf("-- BEGIN GENERATED"), m075.indexOf("-- END GENERATED"));
+    const [scoopi, garage, iris] = ["20000000-0000-0000-0000-000000000002", "60000000-0000-0000-0000-000000000002", "d0000000-0000-0000-0000-000000000004"];
+    const rows = [scoopi, garage, iris].map((id, i) =>
+      `('${id}','QA075 ${i}','shisha','Dubai','Lounge & shisha','$$',100,'12am','test')`).join(",");
+    const out = await psql(
+      "-c", `begin; insert into spots (id,name,category,area,cuisine,price_band,min_spend,open_till,vibe) values ${rows};`,
+      "-c", block,
+      "-c", `select string_agg(visibility, ',' order by id) || '|' ||
+        (select category || ' ' || cuisine || ' ' || visibility from spots where id = '${iris}')
+        from spots where id in ('${scoopi}', '${garage}')`,
+      "-c", "rollback;");
+    assert.equal(out.split("\n").filter(Boolean).pop(), "private,private|vibes Lounge community");
   });
 });

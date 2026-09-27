@@ -39,6 +39,9 @@ jobs:
       - run: npm ci
       - run: npm audit --omit=dev --audit-level=high
       - run: npm run check:schema
+      # 070 is applied live (frozen) and 075's catalogue block is generated:
+      # re-running the generator must change neither.
+      - run: node scripts/gen-catalogue-truth.mjs > /dev/null && git diff --exit-code -- supabase/migration-070-catalogue-truth.sql supabase/migration-075-member-booking.sql
       - run: npm test
       - run: npm run lint
       - run: npm run typecheck

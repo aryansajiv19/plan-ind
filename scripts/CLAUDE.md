@@ -28,7 +28,7 @@ to users; it exists to measure, verify or back-fill.
 | `smoke-test.mjs` | deployment verification | needs live infrastructure |
 | `backfill-*.mjs` | one-off data fills | keep, they document how the data got there |
 | `places-backfill.ts` | Google Places: place ids + venue photos → review file → staged migrations | `npm run places:backfill`; runbook in `docs/PLACES_INGESTION_SCOPE.md` |
-| `gen-catalogue-truth.mjs` | `data/venue-facts.json` → migration 070 | never hand-edit 070; re-run after changing the data. Skips any value a checker note flags |
+| `gen-catalogue-truth.mjs` | `data/venue-facts.json` → migration 070, plus 075's marked catalogue block | never hand-edit either; re-run after changing the data or its lists. 070 is live: its output must not change, so later decisions are tagged for 075. Skips any value a checker note flags |
 | `eval-smart-search.ts` | AI eval, opt-in | never in CI; one full run per day is the whole budget |
 | `load/` | concurrency + fan-out harness | mirrors the app's real queries — if the app changes its query, change this too, or you are measuring a query nobody runs |
 
