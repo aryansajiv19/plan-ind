@@ -139,7 +139,6 @@
 .home-app-tab:active,
 .home-nav__link:active,
 .home-avatar:active,
-.demo-reaction-row button:active,
 .demo-primary-action:active {
   transform: translateY(1px) scale(.98);
 }
@@ -253,7 +252,6 @@
     transform: translateY(-2px) rotate(-.4deg);
   }
   .plan-category-option:hover,
-  .demo-board-items > div:hover,
   .demo-friend-row:hover {
     transform: translateY(-3px) rotate(.25deg);
   }
@@ -268,38 +266,15 @@
   .place-link-importer__field button:active:not(:disabled) {
     transform: translateY(0) scale(.98);
   }
-  .demo-reaction-row button:active {
-    transform: scale(.94);
-  }
   .vote-option:active:not([data-locked]) {
     transform: scale(.985);
   }
   .plan-category-option,
-  .demo-board-items > div,
   .demo-friend-row,
   .place-link-importer__result {
     transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease;
   }
-  .demo-reaction-row button:hover {
-    transform: translateY(-2px) rotate(-1deg);
-  }
-  .demo-reaction-row button[aria-pressed="true"] {
-    animation: reaction-pop 260ms ease both;
-  }
 }
-
-@keyframes reaction-pop {
-  0% {
-    transform: scale(.94);
-  }
-  65% {
-    transform: scale(1.06);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
 
 .home-hero {
   width: min(100% - 2 * var(--page-gutter), 76rem);

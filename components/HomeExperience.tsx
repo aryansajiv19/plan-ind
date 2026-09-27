@@ -331,7 +331,7 @@ export default function HomeExperience({
               reaches here at all. Presenting invented friends and history as
               someone's own record is not a demo. */}
           {fixtures ? (
-            <DemoAccountViews view={activeView} name={name} onStartPlan={() => showView("plan")} />
+            <DemoAccountViews view={activeView} name={name} onStartPlan={(prefill) => { if (prefill) setPlanPrefill(prefill); showView("plan"); }} />
           ) : (
             <AccountViews
               view={activeView}

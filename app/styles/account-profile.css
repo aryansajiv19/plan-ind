@@ -288,11 +288,6 @@
   text-decoration: underline;
   text-underline-offset: 0.2em;
 }
-.demo-tool-saved {
-  margin-top: 0.5rem;
-  color: var(--color-muted);
-  font-size: max(0.78rem, var(--type-floor));
-}
 .demo-profile-avatar.demo-profile-avatar--emoji {
   font-family: inherit;
   font-size: clamp(2.5rem, 5vw, 3.75rem);
@@ -650,42 +645,6 @@
   font-weight: 500;
   cursor: pointer;
 }
-.demo-shared-card {
-  padding: 1.5rem;
-  border-radius: var(--radius-panel);
-  background: var(--color-card);
-  box-shadow: var(--elevation-card);
-}
-/* §19.3 */
-.demo-shared-card .demo-face-stack {
-  margin-top: 1.2rem;
-}
-.demo-shared-card h2 {
-  margin-top: 1rem;
-  font-size: 1.4rem;
-}
-.demo-shared-card > p:not(.home-section-kicker) {
-  margin-top: 0.5rem;
-  color: var(--color-muted);
-  line-height: 1.5;
-}
-.demo-shared-card > div:last-child {
-  margin-top: 1.2rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--color-line);
-}
-.demo-shared-card > div:last-child span {
-  display: block;
-  color: var(--color-muted);
-  font-size: max(0.64rem, var(--type-floor));
-  text-transform: uppercase;
-}
-.demo-shared-card > div:last-child strong {
-  display: block;
-  margin-top: 0.35rem;
-  font-size: 0.85rem;
-}
-
 .demo-profile-head {
   display: flex;
   align-items: center;
@@ -804,60 +763,6 @@
 .demo-area-list small {
   color: var(--color-muted);
   font-size: max(0.58rem, var(--type-floor));
-}
-.demo-profile-grid {
-  margin-top: 2.5rem;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 2rem;
-}
-.demo-profile-grid > section {
-  padding-top: 1rem;
-  border-top: 1px solid var(--home-metal);
-}
-.demo-profile-grid h2 {
-  margin-top: 0.6rem;
-  font-size: 1.5rem;
-}
-.demo-profile-grid > section > p:last-child {
-  margin-top: 1rem;
-  color: var(--color-muted);
-  line-height: 1.5;
-}
-.demo-taste-list {
-  margin-top: 1rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-}
-.demo-taste-list span {
-  padding: 0.48rem 0.65rem;
-  border: 1px solid var(--color-line);
-  font-size: max(0.68rem, var(--type-floor));
-  font-weight: 600;
-}
-.demo-privacy-options {
-  margin-top: 1rem;
-  display: grid;
-}
-.demo-privacy-options button {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.8rem 0;
-  border: 0;
-  border-bottom: 1px solid var(--color-line);
-  background: transparent;
-  color: var(--color-muted);
-  text-align: left;
-  cursor: pointer;
-}
-.demo-privacy-options button[aria-pressed="true"] {
-  color: var(--color-punch-text);
-  font-weight: 500;
-}
-.demo-privacy-options small {
-  font-weight: 500;
 }
 .demo-photo-strip {
   margin-top: 3rem;

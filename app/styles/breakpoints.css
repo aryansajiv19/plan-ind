@@ -95,19 +95,6 @@
   .demo-city-pattern {
     grid-template-columns: 1fr;
   }
-  .demo-shared-card {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.7rem 1.5rem;
-  }
-  .demo-shared-card > div:last-child {
-    grid-column: 2;
-    grid-row: 1 / span 3;
-    margin-top: 0;
-    padding: 0 0 0 1.5rem;
-    border: 0;
-    border-left: 1px solid var(--color-line);
-  }
   .demo-photo-strip {
     grid-template-columns: repeat(4, 1fr);
   }
@@ -251,8 +238,7 @@
     grid-column: auto;
   }
   .demo-place-grid,
-  .demo-visit-grid,
-  .demo-profile-grid {
+  .demo-visit-grid {
     grid-template-columns: 1fr;
   }
   .demo-visit--featured {
@@ -281,15 +267,6 @@
   .demo-friend-row button {
     grid-column: 3;
     grid-row: 1 / span 2;
-  }
-  .demo-shared-card {
-    display: block;
-  }
-  .demo-shared-card > div:last-child {
-    margin-top: 1.2rem;
-    padding: 1rem 0 0;
-    border-left: 0;
-    border-top: 1px solid var(--color-line);
   }
   .demo-profile-head {
     align-items: flex-start;

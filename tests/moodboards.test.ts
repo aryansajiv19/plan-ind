@@ -10,7 +10,7 @@ import {
   safeExternalUrl,
   spotIdFromItem,
 } from "../lib/social.ts";
-import { boardPlanPrefill, originForArea } from "../lib/board-plan.ts";
+import { boardPlanPrefill, friendPlanPrefill, originForArea, placePlanPrefill } from "../lib/board-plan.ts";
 
 const SPOT = "3f2b8c1e-5d4a-4b6c-9e7f-0a1b2c3d4e5f";
 
@@ -117,4 +117,21 @@ test("a duplicate board name is told apart from a failure", async () => {
   const refused = await createMoodboard("p", "Summer", fakeDb({ data: null, error: null }));
   assert.deepEqual(refused, { ok: false, reason: "failed" });
   assert.deepEqual(await createMoodboard("p", "   ", fakeDb({ data: null, error: null })), { ok: false, reason: "invalid" });
+});
+
+test("Start a vote with this place: the place is pinned, the form takes its type and area (P30)", () => {
+  const spot = { id: "a0000000-0000-0000-0000-000000000003", name: "3Fils", area: "Dubai Marina", category: "dinner", photo_url: null, photo_attribution: null };
+  const prefill = placePlanPrefill(spot, () => true, "k");
+  assert.equal(prefill.pinned?.id, spot.id);
+  assert.equal(prefill.category, "dinner");
+  assert.equal(prefill.origin, "marina");
+  assert.equal(prefill.source, "place");
+  assert.equal(placePlanPrefill(spot, () => false, "k").category, null, "a type the viewer can't plan is not set");
+});
+
+test("Plan together asks the question with the friend in it (P30)", () => {
+  const prefill = friendPlanPrefill("Omar Khalid", "k");
+  assert.equal(prefill.title, "Omar, where to?");
+  assert.equal(prefill.source, "friend");
+  assert.equal(prefill.origin, "anywhere");
 });

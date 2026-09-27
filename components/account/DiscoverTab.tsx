@@ -5,7 +5,8 @@ import PlaceLinkImporter from "@/components/PlaceLinkImporter";
 import PlaceCard from "@/components/account/PlaceCard";
 import MoodboardsSection from "@/components/account/MoodboardsSection";
 import type { MoodboardsState } from "@/components/account/useMoodboards";
-import type { PlanPrefill } from "@/lib/board-plan";
+import { placePlanPrefill, type PlanPrefill } from "@/lib/board-plan";
+import { CATEGORIES } from "@/components/categoryGroups";
 import { categoryLabel } from "@/lib/categories";
 import { minimumAgeForCategory } from "@/lib/age-policy";
 import { listableToday } from "@/lib/venue-facts";
@@ -114,17 +115,16 @@ export default function DiscoverTab({
   search,
   boards,
   age,
-  onStartPlan,
   onPlanFromBoard,
 }: {
   spots: Spot[];
   search: ReturnType<typeof useDiscoverSearch>;
   boards: MoodboardsState;
   age: number;
-  onStartPlan: () => void;
   onPlanFromBoard: (prefill: PlanPrefill) => void;
 }) {
   const { query, setQuery, placeFilter, setPlaceFilter, categories, visiblePlaces, searchFailed } = search;
+  const allowedCategory = (category: string) => CATEGORIES.some((c) => c.key === category) && age >= minimumAgeForCategory(category);
   return (
     <section className="demo-view" aria-labelledby="discover-title">
       <header className="demo-view__header">
@@ -149,7 +149,15 @@ export default function DiscoverTab({
         <p className="demo-empty" role="alert">Search failed. Check your connection and try again.</p>
       ) : visiblePlaces.length ? (
         <div className="demo-place-grid">
-          {visiblePlaces.map((spot) => <PlaceCard key={spot.id} spot={spot} onStartPlan={onStartPlan} boards={boards} />)}
+          {visiblePlaces.map((spot) => (
+            <PlaceCard
+              key={spot.id}
+              spot={spot}
+              // P30: the vote really starts with this place (round 1).
+              onStartPlan={() => onPlanFromBoard(placePlanPrefill(spot, allowedCategory, `${spot.id}:${Date.now()}`))}
+              boards={boards}
+            />
+          ))}
         </div>
       ) : (
         <p className="demo-empty">

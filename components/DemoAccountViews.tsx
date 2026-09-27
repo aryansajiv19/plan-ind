@@ -3,7 +3,8 @@
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import PlaceLinkImporter from "@/components/PlaceLinkImporter";
-import DemoPlanningTools from "@/components/DemoPlanningTools";
+import DemoMoodboards from "@/components/demo/DemoMoodboards";
+import { friendPlanPrefill, originForArea, type PlanPrefill } from "@/lib/board-plan";
 import { validateImageFile } from "@/lib/upload";
 import { categoryLabel } from "@/lib/categories";
 
@@ -14,6 +15,7 @@ const PLACES = [
     name: "Ninive",
     area: "Emirates Towers",
     category: "Dinner",
+    key: "dinner",
     group: "food",
     price: "AED 220 pp",
     rating: "4.8",
@@ -25,6 +27,7 @@ const PLACES = [
     name: "Drift Beach",
     area: "One&Only Royal Mirage",
     category: "Beach club",
+    key: "beach_club",
     group: "water",
     price: "AED 350 pp",
     rating: "4.6",
@@ -36,6 +39,7 @@ const PLACES = [
     name: "Padel Art",
     area: "Al Quoz",
     category: "Sports",
+    key: "padel",
     group: "active",
     price: "AED 100 pp",
     rating: "4.7",
@@ -47,6 +51,7 @@ const PLACES = [
     name: "Al Qudra Lakes",
     area: "Seih Al Salam",
     category: "Escape",
+    key: "outdoors",
     group: "leisure",
     price: "Free",
     rating: "4.9",
@@ -76,11 +81,11 @@ const DEFAULT_COLLECTIONS: DemoCollection[] = [
 ];
 
 const FRIENDS = [
-  { initials: "SA", name: "Sara Ahmed", shared: 14, match: 92, last: "Ninive", note: "Dinner · arts · low-key nights" },
-  { initials: "ZM", name: "Zain Malik", shared: 11, match: 88, last: "Padel Art", note: "Padel · games · late food" },
-  { initials: "MK", name: "Maya Khan", shared: 9, match: 84, last: "Drift Beach", note: "Beach clubs · brunch · wellness" },
-  { initials: "OA", name: "Omar Ali", shared: 8, match: 81, last: "Al Qudra Lakes", note: "Outdoors · sports · coffee" },
-  { initials: "LN", name: "Leila Noor", shared: 6, match: 76, last: "Cinema Akil", note: "Cinema · live music · dessert" },
+  { initials: "SA", name: "Sara Ahmed", shared: 14, last: "Ninive", note: "Dinner · arts · low-key nights" },
+  { initials: "ZM", name: "Zain Malik", shared: 11, last: "Padel Art", note: "Padel · games · late food" },
+  { initials: "MK", name: "Maya Khan", shared: 9, last: "Drift Beach", note: "Beach clubs · brunch · wellness" },
+  { initials: "OA", name: "Omar Ali", shared: 8, last: "Al Qudra Lakes", note: "Outdoors · sports · coffee" },
+  { initials: "LN", name: "Leila Noor", shared: 6, last: "Cinema Akil", note: "Cinema · live music · dessert" },
 ] as const;
 
 const CITY_AREAS = [
@@ -106,14 +111,14 @@ export default function DemoAccountViews({
 }: {
   view: AccountView;
   name: string;
-  onStartPlan: () => void;
+  /** Opens the composer; a prefill sets it up the way the button said. */
+  onStartPlan: (prefill?: PlanPrefill) => void;
 }) {
   const [placeFilter, setPlaceFilter] = useState("All");
   const [query, setQuery] = useState("");
   const [uploadedPhoto, setUploadedPhoto] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadVisitId, setUploadVisitId] = useState<string>(VISITS[0].id);
-  const [privacy, setPrivacy] = useState("Friends");
   const [collections, setCollections] = useState<DemoCollection[]>(DEFAULT_COLLECTIONS);
   const [activeCollection, setActiveCollection] = useState("all");
   const [newCollectionName, setNewCollectionName] = useState("");
@@ -186,7 +191,7 @@ export default function DemoAccountViews({
 
         <PlaceLinkImporter demoMode />
 
-        <DemoPlanningTools view="discover" onStartPlan={onStartPlan} />
+        <DemoMoodboards onPlan={onStartPlan} />
 
         <div className="demo-discover-tools">
           <label><span>Search places</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Area, place or category" /></label>
@@ -206,7 +211,8 @@ export default function DemoAccountViews({
                   <div className="demo-place-card__meta"><span>{categoryLabel(place.category)}</span><span>{place.rating} / 5</span></div>
                   <h2>{place.name}</h2><p className="demo-place-card__area">{place.area} · {place.price}</p>
                   <p>{place.note}</p><p className="demo-place-card__context">{place.friendNote}</p>
-                  <button type="button" onClick={onStartPlan}>Start a vote with this place</button>
+                  {/* The preview deal can't hold a sample place, so it promises what it does. */}
+                  <button type="button" onClick={() => onStartPlan({ key: `${place.name}:${Date.now()}`, boardName: place.name, category: place.key, origin: originForArea(place.area) ?? "anywhere", title: `Somewhere like ${place.name}?`, source: "like" })}>Plan something like this</button>
                 </div>
               </article>
             ))}
@@ -279,7 +285,6 @@ export default function DemoAccountViews({
             <label className="demo-photo-target"><span>Attach to</span><select value={uploadVisitId} onChange={(event) => setUploadVisitId(event.target.value)}>{VISITS.map((visit) => <option key={visit.id} value={visit.id}>{visit.place.name}</option>)}</select></label>
           </div>
         </div>
-        <DemoPlanningTools view="been" onStartPlan={onStartPlan} />
       </section>
     );
   }
@@ -289,7 +294,7 @@ export default function DemoAccountViews({
       <section className="demo-view" aria-labelledby="friends-title">
         <header className="demo-view__header demo-view__header--split">
           <div><p className="home-section-kicker">Your planning circle</p><h1 id="friends-title">The people you actually go out with.</h1></div>
-          <button type="button" className="demo-primary-action" onClick={onStartPlan}>Start a group plan</button>
+          <button type="button" className="demo-primary-action" onClick={() => onStartPlan()}>Start a group plan</button>
         </header>
 
         <div className="demo-friend-layout">
@@ -298,18 +303,12 @@ export default function DemoAccountViews({
               <article key={friend.name} className="demo-friend-row">
                 <span className="demo-friend-avatar" aria-hidden="true">{friend.initials}</span>
                 <div><h2>{friend.name}</h2><p>{friend.note}</p><small>Last together · {friend.last}</small></div>
-                <div className="demo-friend-row__numbers"><strong>{friend.match}%</strong><span>taste match</span><small>{friend.shared} shared visits</small></div>
-                <button type="button" onClick={onStartPlan}>Plan together</button>
+                <div className="demo-friend-row__numbers"><strong>{friend.shared}</strong><span>outings</span></div>
+                <button type="button" onClick={() => onStartPlan(friendPlanPrefill(friend.name, `${friend.name}:${Date.now()}`))}>Plan together</button>
               </article>
             ))}
           </div>
-          <aside className="demo-shared-card">
-            <p className="home-section-kicker">Your regular four</p><FaceStack people={["S", "Z", "M", "O"]} />
-            <h2>Friday crew</h2><p>26 plans · 19 places · usually choose late dinners and sport.</p>
-            <div><span>Next suggestion</span><strong>Dinner near Al Quoz, then padel</strong></div>
-          </aside>
         </div>
-        <DemoPlanningTools view="friends" onStartPlan={onStartPlan} />
       </section>
     );
   }
@@ -341,12 +340,6 @@ export default function DemoAccountViews({
         </div>
       </section>
 
-      <div className="demo-profile-grid">
-        <section><p className="home-section-kicker">Taste profile</p><h2>What you usually choose</h2><div className="demo-taste-list"><span>Late dinner</span><span>Beach clubs</span><span>Padel</span><span>Arts & culture</span><span>Quiet cafes</span></div><p>Usually AED 150–350 · Dubai Marina, Al Quoz and Jumeirah · prefers groups of 3–6.</p></section>
-        <section><p className="home-section-kicker">Photo privacy</p><h2>Who sees your visit photos?</h2><div className="demo-privacy-options">{["Only me", "Friends", "Community"].map((option) => <button key={option} type="button" onClick={() => setPrivacy(option)} aria-pressed={privacy === option}>{option}<small>{option === "Friends" ? "Recommended" : option === "Only me" ? "Private archive" : "Helps everyone"}</small></button>)}</div></section>
-      </div>
-
-      <DemoPlanningTools view="profile" onStartPlan={onStartPlan} />
 
       <section className="demo-photo-strip"><div><p className="home-section-kicker">Recent photos</p><h2>Your July in Dubai</h2></div>{PLACES.map((place) => <span key={place.name}><Image src={place.image} alt={`From ${place.name}`} fill sizes="160px" /></span>)}</section>
     </section>
