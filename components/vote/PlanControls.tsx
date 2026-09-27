@@ -1,5 +1,6 @@
 import type { Dispatch, SetStateAction } from "react";
-import { toLocalInput, type HostCommands } from "@/hooks/use-host-commands";
+import type { HostCommands } from "@/hooks/use-host-commands";
+import { toDubaiInput } from "@/lib/dubai-phase";
 import type { Plan } from "@/lib/types";
 
 // Host-only edit and delete, shown under the vote while the plan is open.
@@ -32,7 +33,7 @@ export function HostPlanControls({
             <input value={editing.title} maxLength={60} onChange={(event) => setEditing({ ...editing, title: event.target.value })} />
           </label>
           <label>
-            <span>Voting closes</span>
+            <span>Voting closes, Dubai time</span>
             <input type="datetime-local" value={editing.deadline} onChange={(event) => setEditing({ ...editing, deadline: event.target.value })} />
           </label>
           <div className="vote-edit__actions">
@@ -47,7 +48,7 @@ export function HostPlanControls({
       {isHost && (
         <div className="vote-delete">
           {isHost && canEdit && !editing && !confirmDelete && (
-            <button type="button" onClick={() => { setEditError(null); setEditing({ title: plan!.title, deadline: toLocalInput(plan!.deadline) }); }}>
+            <button type="button" onClick={() => { setEditError(null); setEditing({ title: plan!.title, deadline: plan!.deadline ? toDubaiInput(plan!.deadline) : "" }); }}>
               Edit this plan
             </button>
           )}
