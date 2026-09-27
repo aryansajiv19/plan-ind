@@ -416,3 +416,7 @@ control has no UI yet.
 - **P26 client:** the composer deals before the reveal (no reveal-then-bounce);
   when the deal sends cards, the reveal flips the real nine into their real
   rounds (photo + credit, or the serif name); face down otherwise.
+- **P21 client:** "When?" row in the composer (none, or 2–4 Dubai times),
+  live "Which times work for you?" tick chips with faces on the vote screen,
+  and the poll count under the decided time. Verified live with two accounts.
+  Open: un-ticks need replica identity full on plan_time_votes (in 073).
