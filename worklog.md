@@ -398,3 +398,8 @@ control has no UI yet.
   facts that exist, each with its source, "Checked <month>"); "Reopens <date>"
   on place, vote cards and decided; closure filters in every curated search.
   **Phase 2 (never ask a friend) done** except P21-P24.
+- **P23 + P6 client:** plan time is a Dubai-time draft with Save/Cancel; the
+  calendar invite carries the address and Maps link; composer chips show how
+  many places each budget/radius offers and disable ones that cannot fill a
+  plan; categories that cannot fill are hidden. test:db runs serially (a
+  trigger toggle deadlocked a parallel cleanup in CI).
