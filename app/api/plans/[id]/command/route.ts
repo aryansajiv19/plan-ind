@@ -14,7 +14,7 @@ const COMMANDS = new Set(["advance", "decide", "patch", "delete", "edit", "reope
 // raising them, so a no-op can never read as a success. Unchanged edit
 // (nothing_to_change) is a success: saving an untouched form is not an error.
 const RESULT_COMMANDS: Record<string, { rpc: string; status: Record<string, number>; failure: string }> = {
-  delete: { rpc: "delete_plan", failure: "That plan could not be deleted.", status: { deleted: 200, not_found: 404, not_host: 403, already_decided: 409 } },
+  delete: { rpc: "delete_plan", failure: "That plan could not be deleted.", status: { deleted: 200, not_found: 404, not_host: 403, already_decided: 409, already_happened: 409 } },
   edit: { rpc: "edit_plan", failure: "That plan could not be edited.", status: { edited: 200, nothing_to_change: 200, not_found: 404, not_host: 403, voting_started: 409, invalid_title: 422, invalid_deadline: 422 } },
   reopen: { rpc: "reopen_plan", failure: "That plan could not be reopened.", status: { reopened: 200, not_found: 404, not_host: 403, not_decided: 409, no_rounds: 409, booked: 409, already_happened: 409, invalid_deadline: 422 } },
 };
