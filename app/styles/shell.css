@@ -174,12 +174,10 @@
   .place-link-importer fieldset button,
   .demo-filter-tabs button,
   .demo-collection-tabs button,
-  .demo-friend-row button,
-  .demo-reaction-row button {
+  .demo-friend-row button {
     min-height: 2.75rem;
   }
-  .demo-inline-form input,
-  .demo-tool-field input {
+  .demo-inline-form input {
     min-height: 2.75rem;
   }
   /* Selects need the height, not the min-height — see the note on

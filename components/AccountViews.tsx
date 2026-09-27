@@ -96,7 +96,6 @@ export default function AccountViews({
         search={search}
         boards={boards}
         age={age}
-        onStartPlan={onStartPlan}
         onPlanFromBoard={onPlanFromBoard}
       />
     );
@@ -126,6 +125,7 @@ export default function AccountViews({
         plannedWith={plannedWith}
         plannedWithUnavailable={plannedWithUnavailable}
         onStartPlan={onStartPlan}
+        onPlanWith={onPlanFromBoard}
       />
     );
   }

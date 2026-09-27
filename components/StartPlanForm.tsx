@@ -69,11 +69,15 @@ export default function StartPlanForm({
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const custom = useCustomPlaces(category, setError);
+  // P30: "Start a vote with this place" puts that place in round 1.
+  const [placePin, setPlacePin] = useState(prefill?.pinned ?? null);
+  // ponytail: one pin per round, so a fourth pin (place + three saved) drops the last saved one.
+  const pinnedIds = [...(placePin ? [placePin.id] : []), ...custom.selectedIds].slice(0, 3);
   const when = useWhenPicks(); // P21
   // P6: label each limit with what it can deal from, and switch off what
   // can't fill the nine left after pinned places. Needs a session, so not in the demo.
   const preview = useDealPreview(category, originValue, !demoMode);
-  const need = 9 - custom.selectedIds.length;
+  const need = 9 - pinnedIds.length;
   const countChip = (n: number | null) => n != null && (
     <><span className="sr-only"> · </span><span className="block font-medium">{n} {n === 1 ? "place" : "places"}</span></>
   );
@@ -120,7 +124,7 @@ export default function StartPlanForm({
 
   /** Deal the nine: pinned places first, one into each round, then the ranked catalogue. */
   async function deal(): Promise<{ spotIds: string[]; cards: RevealCard[] | null } | { error: string }> {
-    const pinned = custom.selectedIds;
+    const pinned = pinnedIds;
     const dealt = await dealSpotsForCategory(category, 9 - pinned.length, pinned, {
       maxBudget,
       origin: selectedOrigin.coordinates,
@@ -134,7 +138,8 @@ export default function StartPlanForm({
       return { error: `Not enough related ${categoryLabel.toLowerCase()} places match that budget and distance. Raise either limit, add a custom place, or try another type.` };
     }
     // P26: the real cards when the route sent them and every pin is known; else face down.
-    const all = [...custom.pinnedCards, ...(dealt.cards ?? [])];
+    const pins = [...(placePin ? [placePin] : []), ...custom.pinnedCards].slice(0, pinned.length);
+    const all = [...pins, ...(dealt.cards ?? [])];
     const complete = dealt.cards != null && all.every(Boolean) && all.length === 9;
     return { spotIds: [...pinned, ...dealt.ids], cards: complete ? inRevealOrder(all as RevealCard[]) : null };
   }
@@ -224,6 +229,7 @@ export default function StartPlanForm({
       ? (radiusKm != null ? `Within ${radiusKm} km of ${selectedOrigin.label}` : `From ${selectedOrigin.label}`)
       : "Anywhere in Dubai",
     ...(smartIntent?.vibeKeywords.slice(0, 2) ?? []),
+    ...(placePin ? [`With ${placePin.name}`] : []),
     ...(custom.selectedIds.length > 0 ? [`${custom.selectedIds.length} of your places`] : []),
   ];
 
@@ -287,11 +293,14 @@ export default function StartPlanForm({
     // tabs visibly recolours the form. Each tab overrides it with its own.
     <form onSubmit={start} className="plan-form">
       {modeToggle}
-      {prefill && (
+      {/* A pinned place explains itself in its own line below. */}
+      {prefill && prefill.source !== "place" && (
         <p className="plan-form__demo-note" role="status">
-          {prefill.boardName
-            ? `Set up from your board ${prefill.boardName}, leaning the way its places do. Check the type and area, then deal nine from the catalogue.`
-            : "Picked up where you left off before signing in. Check it, then deal nine."}
+          {prefill.source === "friend" ? `Set up for a plan with ${prefill.boardName}. Share the link with them once it’s dealt.`
+            : prefill.source === "like" ? `Set up like ${prefill.boardName}: the same type and area.`
+              : prefill.boardName
+                ? `Set up from your board ${prefill.boardName}, leaning the way its places do. Check the type and area, then deal nine from the catalogue.`
+                : "Picked up where you left off before signing in. Check it, then deal nine."}
         </p>
       )}
       {smartSearchAvailable && (
@@ -335,6 +344,13 @@ export default function StartPlanForm({
           ))}
         </div>
       </fieldset>
+
+      {placePin && (
+        <p className="mt-4 flex flex-wrap items-center gap-x-3 text-sm">
+          <span><strong>{placePin.name}</strong> is in round 1; the other eight are dealt around it.</span>
+          <button type="button" className="min-h-11 text-muted underline underline-offset-4" onClick={() => setPlacePin(null)}>Remove</button>
+        </p>
+      )}
 
       <CustomPlaceSection places={custom} onSignIn={demoMode ? signIn : undefined} />
 

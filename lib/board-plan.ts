@@ -16,6 +16,10 @@ export interface PlanPrefill {
   /** A DUBAI_ORIGINS value; "anywhere" when the places don't cluster. */
   origin: string;
   title: string;
+  /** What set the form up, for the note it shows. Absent means a board, or a restored draft. */
+  source?: "place" | "like" | "friend";
+  /** P30: a catalogue place the vote starts with, dealt into round 1. */
+  pinned?: { id: string; name: string; area: string; photo_url: string | null; photo_attribution: string | null };
   /** A signed-out draft restored after sign-in (P7) also carries these. */
   maxBudget?: number | null;
   radiusKm?: number | null;
@@ -64,4 +68,31 @@ export function boardPlanPrefill(
     origin: near && near.count * 2 > places.length ? near.value : "anywhere",
     title: board.name.trim().slice(0, 60),
   };
+}
+
+/**
+ * "Start a vote with this place" (P30): the place itself goes into round 1,
+ * and the form is set to its type and nearest starting area so the other
+ * eight are dealt around it. A place the viewer may not plan sets no type.
+ */
+export function placePlanPrefill(
+  spot: { id: string; name: string; area: string; category: string; photo_url: string | null; photo_attribution: string | null },
+  allowedCategory: (category: string) => boolean,
+  key: string,
+): PlanPrefill {
+  return {
+    key,
+    boardName: spot.name,
+    category: allowedCategory(spot.category) ? spot.category : null,
+    origin: originForArea(spot.area) ?? "anywhere",
+    title: `${spot.name}, or somewhere better?`.slice(0, 60),
+    source: "place",
+    pinned: { id: spot.id, name: spot.name, area: spot.area, photo_url: spot.photo_url, photo_attribution: spot.photo_attribution },
+  };
+}
+
+/** "Plan together" (P30): the composer asks the question with them in it; the share link does the inviting. */
+export function friendPlanPrefill(name: string, key: string): PlanPrefill {
+  const first = name.trim().split(/\s+/)[0] || name;
+  return { key, boardName: name, category: null, origin: "anywhere", title: `${first}, where to?`.slice(0, 60), source: "friend" };
 }

@@ -6,6 +6,7 @@ import UnavailableState from "@/components/account/UnavailableState";
 import { avatarStyle, initialsOf } from "@/lib/avatar";
 import type { PlannedWith } from "@/lib/social";
 import type { PersonCard } from "@/lib/types";
+import { friendPlanPrefill, type PlanPrefill } from "@/lib/board-plan";
 
 export default function FriendsTab({
   personId,
@@ -14,6 +15,7 @@ export default function FriendsTab({
   plannedWith,
   plannedWithUnavailable,
   onStartPlan,
+  onPlanWith,
 }: {
   personId: string | null;
   friends: PersonCard[];
@@ -21,6 +23,8 @@ export default function FriendsTab({
   plannedWith: PlannedWith[];
   plannedWithUnavailable: boolean;
   onStartPlan: () => void;
+  /** Opens the composer set up for a plan with this person. */
+  onPlanWith: (prefill: PlanPrefill) => void;
 }) {
   const router = useRouter();
   return (
@@ -59,7 +63,7 @@ export default function FriendsTab({
                   <strong>{friend.shared}</strong>
                   <span>{friend.shared === 1 ? "outing" : "outings"}</span>
                 </div>
-                <button type="button" onClick={onStartPlan}>Plan together</button>
+                <button type="button" onClick={() => onPlanWith(friendPlanPrefill(friend.name, `${friend.name}:${Date.now()}`))}>Plan together</button>
               </article>
             ))}
           </div>
