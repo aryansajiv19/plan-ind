@@ -23,6 +23,7 @@ export function useVoteActions({
   refetchVotes,
   setNotice,
   reportParticipantFailure,
+  onPicked,
 }: {
   id: string;
   votes: Vote[];
@@ -36,6 +37,8 @@ export function useVoteActions({
   refetchVotes: () => Promise<boolean>;
   setNotice: Dispatch<SetStateAction<string | null>>;
   reportParticipantFailure: (error: { code?: string; message?: string } | null, fallback: string) => void;
+  /** After a pick (not a clear) saves: the page may move to the next round. */
+  onPicked?: (round: Round) => void;
 }) {
   const [voteUndo, setVoteUndo] = useState<{ message: string; restore: () => Promise<boolean> } | null>(null);
   const { phase: currentPhase, poolNumber: currentPoolNumber } = round;
@@ -96,6 +99,7 @@ export function useVoteActions({
       void refetchVotes();
     } else {
       setNotice(null);
+      if (next) onPicked?.(round);
       // Clearing your pick is quick and reversible: offer Undo, which re-casts
       // the same pick in the same round (captured here -- toggleVote itself
       // would read a stale tally by the time Undo is tapped).

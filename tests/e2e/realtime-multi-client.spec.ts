@@ -90,6 +90,11 @@ test("a second client sees the first client's vote without reloading", async ({ 
     // p_value:false, which DELETEs). Measured: under `default` B stays on 1
     // forever; under `full` B returns to 0. This assertion is the one that
     // fails if 045 is ever reverted.
+    // P2: A's saved pick moved A to round 2 by itself; go back to round 1 so
+    // this tap clears the pick rather than picking in round 2.
+    await expect(pageA.getByText(/Round (2|II) of (3|III)/i).first()).toBeVisible({ timeout: 10_000 });
+    await pageA.getByRole("button", { name: /^Round 1 of 3/ }).click();
+    await expect(firstCard).toHaveAttribute("aria-pressed", "true");
     await firstCard.click();
     await expect(firstCard).toHaveAttribute("aria-pressed", "false");
 

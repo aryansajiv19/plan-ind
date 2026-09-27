@@ -19,8 +19,8 @@ import { join } from "node:path";
 // minted under this run's `runId` (see local-stack.ts).
 export const FIXTURE_FILE = join(process.cwd(), "tests/e2e/.fixture.local.json");
 
-export type FixtureName = "guest-vote" | "realtime" | "vote-mobile" | "sign-in-gate";
-export const FIXTURE_NAMES: FixtureName[] = ["guest-vote", "realtime", "vote-mobile", "sign-in-gate"];
+export type FixtureName = "guest-vote" | "guest-rounds" | "realtime" | "vote-mobile" | "sign-in-gate";
+export const FIXTURE_NAMES: FixtureName[] = ["guest-vote", "guest-rounds", "realtime", "vote-mobile", "sign-in-gate"];
 
 export interface FixtureFile {
   runId?: string;

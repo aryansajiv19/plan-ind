@@ -26,6 +26,7 @@ import { signInAsMember } from "./local-stack";
 // Because the plan is private to this spec, the count assertion is EXACT
 // (0 -> 1) instead of "went up by at least one".
 const PLAN_ID = planIdFor("guest-vote");
+const ROUNDS_PLAN_ID = planIdFor("guest-rounds");
 
 test("a signed-in friend can open a shared plan and cast a vote", async ({ page, context, baseURL }) => {
   test.skip(!PLAN_ID, NO_FIXTURE_REASON);
@@ -34,8 +35,8 @@ test("a signed-in friend can open a shared plan and cast a vote", async ({ page,
   await page.goto(`/plan/${PLAN_ID}`);
 
   // Signed in, so no detour through /login, and the account's display name
-  // is the voter name: the screen greets it and never asks for one. The name
-  // gate now appears only on a clash with someone already on the plan.
+  // is the voter name: the screen greets it and never asks for one (the
+  // name gate is gone; the name is the profile's).
   await expect(page).toHaveURL(new RegExp(`/plan/${PLAN_ID}$`));
   await expect(page.getByText(`Hey ${me.name}`, { exact: true })).toBeVisible({ timeout: 20_000 });
   await expect(page.getByPlaceholder("Your name")).toHaveCount(0);
@@ -56,6 +57,13 @@ test("a signed-in friend can open a shared plan and cast a vote", async ({ page,
   const firstCard = page.locator(".vote-options-grid button.token").first();
   await expect(firstCard).toHaveAttribute("aria-pressed", "false"); // fresh account, nothing voted yet
   await firstCard.click();
+  await expect(firstCard).toHaveAttribute("aria-pressed", "true");
+
+  // P2: a saved pick moves a non-host to the next round by itself. Wait for
+  // that, then come back to round 1 with the round dots, so the checks below
+  // never race the move.
+  await expect(page.getByText(/Round (2|II) of (3|III)/i).first()).toBeVisible({ timeout: 10_000 });
+  await page.getByRole("button", { name: /^Round 1 of 3/ }).click();
   await expect(firstCard).toHaveAttribute("aria-pressed", "true");
 
   // Exact, not "greater than": this plan belongs to this spec alone, so a
@@ -97,3 +105,33 @@ async function readVoterCount(locator: import("@playwright/test").Locator): Prom
   const text = await locator.innerText();
   return Number(text.match(/(\d+)\s*yes/)?.[1] ?? NaN);
 }
+
+// P2: a member who is not the host used to be told to wait after round one,
+// so the host alone picked two of the three finalists. Now each pick moves
+// them to the next round they haven't picked in, with no host action, and
+// "waiting for the host" appears only once every round has a pick. Its own
+// plan, so the exact counts in the test above stay exact.
+test("a signed-in friend picks in all three rounds without the host", async ({ page, context, baseURL }) => {
+  test.skip(!ROUNDS_PLAN_ID, NO_FIXTURE_REASON);
+
+  await signInAsMember(context, baseURL!, `Rounds ${Date.now()}`);
+  await page.goto(`/plan/${ROUNDS_PLAN_ID}`);
+
+  // The round label, in either numeral style (RoundLabel uses roman at night).
+  const roundLabel = (round: number) =>
+    page.getByText(new RegExp(`Round (${round}|${["I", "II", "III"][round - 1]}) of (3|III)`, "i")).first();
+
+  await expect(roundLabel(1)).toBeVisible({ timeout: 20_000 });
+  for (const round of [1, 2, 3]) {
+    await expect(page.getByText(/waiting for the host/i)).toHaveCount(0);
+    const card = page.locator(".vote-options-grid button.token").first();
+    await card.click();
+    // Rounds 1 and 2: the saved pick moves the page on by itself, which is
+    // the proof (the card locator re-resolves to the next round's card).
+    // Round 3 is the last unpicked round, so the page stays and the card holds.
+    if (round < 3) await expect(roundLabel(round + 1)).toBeVisible({ timeout: 10_000 });
+    else await expect(card).toHaveAttribute("aria-pressed", "true");
+  }
+
+  await expect(page.getByText(/waiting for the host to build the final shortlist/i)).toBeVisible({ timeout: 10_000 });
+});

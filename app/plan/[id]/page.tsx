@@ -78,11 +78,27 @@ export default function VotePage() {
   const round = roundFor(stage, activePool);
   const { poolNumber: currentPoolNumber } = round;
   const { iVotedYes, toggleVote, voteUndo, setVoteUndo } = useVoteActions({
-    id, votes, setVotes, voterName, participantHash, mine, decided, round, spots, refetchVotes, setNotice, reportParticipantFailure,
+    id, votes, setVotes, voterName, participantHash, mine, decided, round, spots, refetchVotes, setNotice, reportParticipantFailure, onPicked: afterPick,
   });
   const { confirmLeave, setConfirmLeave, leaving, leavePlan } = useLeavePlan({
     id, plan, setLeft, setDeleted, setNotice, presenceChannelRef, dataChannelRef, cancelRefetchesRef,
   });
+
+  // P2: a member other than the host moves through the pool rounds alone.
+  // After a pick saves, go to the next round they haven't picked in (after a
+  // beat, so the face lands first), unless they already moved elsewhere.
+  function afterPick(picked: { phase: string; poolNumber: number }) {
+    if (isHost || picked.phase !== "pool") return;
+    const chosen = new Set(votes.filter((v) => mine.vote(v) && v.value && v.phase === "pool").map((v) => v.pool_number));
+    chosen.add(picked.poolNumber);
+    const order = [...Array(poolCount)].map((_, i) => ((picked.poolNumber + i) % poolCount) + 1);
+    const next = order.find((pool) => !chosen.has(pool));
+    if (!next) return;
+    setTimeout(() => {
+      setRoundDir(next > picked.poolNumber ? 1 : -1);
+      setActivePool((current) => (current === picked.poolNumber ? next : current));
+    }, 700);
+  }
 
   // The name is the profile's (F2), so a clash is fixed in Settings, which
   // the notice says; there is no per-plan name to re-enter here.
@@ -209,6 +225,8 @@ export default function VotePage() {
               if (activePool < poolCount) setActivePool((pool) => pool + 1);
               else void advanceToFinal();
             }}
+            firstUnchosen={[...Array(poolCount)].map((_, i) => i + 1).find((pool) => !poolsChosenByMe.has(pool)) ?? null}
+            onGoToPool={(pool) => { setRoundDir(pool > activePool ? 1 : -1); setActivePool(pool); }}
             onDecide={decide}
           />
           <ShareActions title={plan?.title ?? null} />
@@ -272,7 +290,7 @@ export default function VotePage() {
 
       {!decided && (
         <p className="mt-4 px-1 text-center text-xs text-muted">
-          Choose one place from each pool, then vote on the final three.
+          Pick one in each round, then vote on the final three.
         </p>
       )}
     </main>

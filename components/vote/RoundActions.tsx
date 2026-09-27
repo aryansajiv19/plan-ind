@@ -9,7 +9,9 @@ export default function RoundActions({
   deciding,
   hasCurrentSelection,
   allPoolsChosen,
+  firstUnchosen,
   onContinue,
+  onGoToPool,
   onDecide,
 }: {
   isHost: boolean;
@@ -19,20 +21,30 @@ export default function RoundActions({
   deciding: boolean;
   hasCurrentSelection: boolean;
   allPoolsChosen: boolean;
+  /** The earliest pool round this voter hasn't picked in, if any. */
+  firstUnchosen: number | null;
   onContinue: () => void;
+  onGoToPool: (pool: number) => void;
   onDecide: () => void;
 }) {
   return (
     <>
       <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-        {!isHost ? (
-          // advanceToFinal/decide are host-only server-side
-          // (execute_plan_command checks the host on every command) —
-          // a non-host tapping a "Continue" button here would just get an
-          // optimistic flash that reverts with a generic error. Voting
-          // itself is unaffected; only the round-advance control is gated.
+        {!isHost && stage === "pool" && !allPoolsChosen ? (
+          // P2: moving between pool rounds is local, so every member does it
+          // alone; only building the shortlist and deciding are host-only
+          // (execute_plan_command checks the host on every command).
+          <button
+            type="button"
+            onClick={() => (activePool < poolCount ? onContinue() : onGoToPool(firstUnchosen ?? 1))}
+            disabled={!hasCurrentSelection}
+            className="vote-primary-action flex-1 rounded-2xl border-2 border-ink font-display text-lg font-extrabold disabled:opacity-40"
+          >
+            {activePool < poolCount ? "Next round" : `Go to round ${firstUnchosen}`}
+          </button>
+        ) : !isHost ? (
           <p className="flex-1 self-center text-sm font-medium text-muted">
-            Waiting for the host to continue.
+            {stage === "pool" ? "Waiting for the host to build the final shortlist." : "Waiting for the host to continue."}
           </p>
         ) : stage === "pool" ? (
           <button
@@ -44,7 +56,7 @@ export default function RoundActions({
             {deciding
               ? "Building the shortlist…"
               : activePool < poolCount
-                ? `Continue to pool ${activePool + 1}`
+                ? `Continue to round ${activePool + 1}`
                 : "Build the final shortlist"}
           </button>
         ) : (
@@ -60,13 +72,17 @@ export default function RoundActions({
       </div>
       <p className="vote-action-hint" aria-live="polite">
         {!hasCurrentSelection
-          ? "Choose one place to continue. You can change your choice before moving on."
+          ? stage === "pool"
+            ? "Pick one in each round. You can change your choice before moving on."
+            : "Choose one place. You can change your choice until the host decides."
           : !isHost
-            ? "Your vote is in. The host will move things along once everyone’s ready."
+            ? stage === "pool" && !allPoolsChosen
+              ? `Round ${activePool} is set. Pick one in each round.`
+              : "Your picks are in. The host moves things along once everyone’s ready."
             : stage === "pool" && activePool < poolCount
-              ? `Pool ${activePool} is set. Continue when you’re ready.`
+              ? `Round ${activePool} is set. Continue when you’re ready.`
               : stage === "pool"
-                ? "All pools are set. Build the final shortlist when everyone has had a chance to vote."
+                ? "All rounds are set. Build the final shortlist when everyone has had a chance to vote."
                 : "The final shortlist is ready. Choose the place the group should visit."}
       </p>
     </>
