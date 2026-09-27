@@ -228,3 +228,25 @@ test("the closure date is Dubai's calendar day, not UTC's", async () => {
   assert.equal(dubaiToday(new Date("2026-09-27T21:00:00Z")), "2026-09-28"); // 01:00 in Dubai
   assert.equal(dubaiToday(new Date("2026-09-27T19:59:00Z")), "2026-09-27");
 });
+
+// ── P6: counts per composer option ───────────────────────────────────────────
+test("eligibleCount counts what a deal could draw for each budget, radius and age", async () => {
+  const { eligibleCount, eligibleDealSpots } = await import("../lib/spots/match.ts");
+  const today = "2026-09-27";
+  const marina = { latitude: 25.0805, longitude: 55.1403 };
+  const pool = [
+    spot("cheap-near", { min_spend: 80, latitude: 25.08, longitude: 55.14 }),
+    spot("dear-near", { min_spend: 300, latitude: 25.081, longitude: 55.141 }),
+    spot("cheap-far", { min_spend: 90, latitude: 25.3, longitude: 55.5 }),
+    spot("adults", { min_spend: 50, minimum_age: 21, latitude: 25.3, longitude: 55.5 }),
+    spot("closed", { min_spend: 50, reopens_on: "2026-10-01" }),
+  ];
+  assert.equal(eligibleCount(pool, { age: 25 }, today), 4);
+  assert.equal(eligibleCount(pool, { age: 18 }, today), 3);
+  assert.equal(eligibleCount(pool, { age: 25, maxBudget: 100 }, today), 3);
+  assert.equal(eligibleCount(pool, { age: 25, maxBudget: 100, origin: marina, radiusKm: 10 }, today), 1);
+  // Same rule as the deal itself: a count of n means a deal of n succeeds and n+1 doesn't.
+  const c = { age: 25, maxBudget: 100 };
+  assert.ok(eligibleDealSpots({ pool, count: 3, constraints: c, today }));
+  assert.equal(eligibleDealSpots({ pool, count: 4, constraints: c, today }), null);
+});

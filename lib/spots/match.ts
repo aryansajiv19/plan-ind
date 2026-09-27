@@ -129,6 +129,36 @@ function shuffle<T>(arr: T[], rng: () => number): T[] {
  * Hard filters, then the soft "been" filter. Returns null when the catalog
  * cannot fill the deal. Pure.
  */
+/** A spot passes every hard filter (not "been", which is soft). Pure. */
+function passesHardFilters(spot: DealSpotRow, constraints: DealConstraints, today: string): boolean {
+  // Evaluated per deal, not in the cached pool read: the cache isn't keyed by
+  // date, so a query filter there could hide a place for an hour after it reopens.
+  if (!isDealableToday(spot, today)) return false;
+  const minimumAge = Math.max(minimumAgeForCategory(spot.category), Number(spot.minimum_age ?? 0));
+  if (constraints.age != null && constraints.age < minimumAge) return false;
+  if (prohibitedVenueReason(spot.name, spot.cuisine, spot.vibe, spot.description)) return false;
+  if (constraints.maxBudget != null && spot.min_spend > constraints.maxBudget) return false;
+  if (constraints.origin && constraints.radiusKm != null) {
+    const destination = spot.latitude != null && spot.longitude != null
+      ? { latitude: spot.latitude, longitude: spot.longitude }
+      : coordinatesForArea(spot.area);
+    if (!destination || distanceKm(constraints.origin, destination) > constraints.radiusKm) return false;
+  }
+  const text = searchText(spot);
+  if (constraints.avoidKeywords?.some((keyword) => text.includes(keyword.toLowerCase()))) return false;
+  return true;
+}
+
+/** The composer's budget and radius choices; the deal preview counts each (P6). */
+export const DEAL_BUDGET_OPTIONS: readonly (number | null)[] = [null, 100, 200, 350, 500];
+export const DEAL_RADIUS_OPTIONS_KM: readonly (number | null)[] = [10, 20, 35, null];
+export const DEAL_CATEGORIES: readonly string[] = CATEGORY_FAMILIES.flat();
+
+/** How many spots of a pool pass the hard filters: what a deal could draw from. Pure. */
+export function eligibleCount(pool: readonly DealSpotRow[], constraints: DealConstraints = {}, today: string = dubaiToday()): number {
+  return pool.filter((spot) => passesHardFilters(spot, constraints, today)).length;
+}
+
 export function eligibleDealSpots(input: {
   pool: readonly DealSpotRow[];
   count: number;
@@ -140,25 +170,7 @@ export function eligibleDealSpots(input: {
   const constraints = input.constraints ?? {};
   const excluded = new Set(input.excludeIds ?? []);
   const today = input.today ?? dubaiToday();
-  const available = input.pool.filter((spot) => {
-    if (excluded.has(spot.id)) return false;
-    // Evaluated per deal, not in the cached pool read: the cache isn't keyed by
-    // date, so a query filter there could hide a place for an hour after it reopens.
-    if (!isDealableToday(spot, today)) return false;
-    const minimumAge = Math.max(minimumAgeForCategory(spot.category), Number(spot.minimum_age ?? 0));
-    if (constraints.age != null && constraints.age < minimumAge) return false;
-    if (prohibitedVenueReason(spot.name, spot.cuisine, spot.vibe, spot.description)) return false;
-    if (constraints.maxBudget != null && spot.min_spend > constraints.maxBudget) return false;
-    if (constraints.origin && constraints.radiusKm != null) {
-      const destination = spot.latitude != null && spot.longitude != null
-        ? { latitude: spot.latitude, longitude: spot.longitude }
-        : coordinatesForArea(spot.area);
-      if (!destination || distanceKm(constraints.origin, destination) > constraints.radiusKm) return false;
-    }
-    const text = searchText(spot);
-    if (constraints.avoidKeywords?.some((keyword) => text.includes(keyword.toLowerCase()))) return false;
-    return true;
-  });
+  const available = input.pool.filter((spot) => !excluded.has(spot.id) && passesHardFilters(spot, constraints, today));
   if (available.length < input.count) return null;
 
   const been = new Set(input.been ?? []);
