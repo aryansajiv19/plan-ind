@@ -73,6 +73,10 @@ describe("075 any member can claim the booking", { skip: SKIP }, () => {
     assert.deepEqual(await claim(a, p.id), { result: "claimed", booking_owner: await nameOf(a) });
     assert.equal(await holder(p.id), `${await nameOf(a)}|${a}`);
     assert.deepEqual(await claim(b, p.id), { result: "taken", booking_owner: await nameOf(a) });
+    // my_plan_rows says whose it is, even when two members share a name.
+    await psql(`update people set display_name = '${await nameOf(a)}' where id = '${b}'`);
+    const mine = async (uid: string) => JSON.parse(await as(uid, `select my_plan_rows('${p.id}')`)).my_booking;
+    assert.deepEqual([await mine(a), await mine(b)], [true, false]);
     assert.equal((await release(b, p.id)).result, "not_yours");
     assert.equal((await claim(a, p.id)).result, "claimed"); // claiming your own again is fine
     assert.equal((await release(a, p.id)).result, "released");
@@ -102,6 +106,17 @@ describe("075 any member can claim the booking", { skip: SKIP }, () => {
     assert.equal((await claim(nameless, q.id)).result, "no_profile");
     await assert.rejects(as(a, `select claim_booking('${q.id}')`, true), /Sign in required/);
     await assert.rejects(psql(`set role anon; select release_booking('${q.id}')`), /permission denied/);
+  });
+
+  test("claiming needs a decided plan; the holder can still release after a reopen", async () => {
+    const [host, a] = [await user(), await user()];
+    const p = await plan(host, [a]);
+    await psql(`update plans set status = 'open', stage = 'final' where id = '${p.id}'`);
+    assert.equal((await claim(a, p.id)).result, "not_decided");
+    await psql(`update plans set status = 'decided', stage = 'decided' where id = '${p.id}'`);
+    assert.equal((await claim(a, p.id)).result, "claimed");
+    await psql(`update plans set status = 'open', stage = 'final' where id = '${p.id}'`); // reopened
+    assert.equal((await release(a, p.id)).result, "released");
   });
 
   // Security audit: leave_plan keeps a booked claim, so a booking that fell through stranded it.

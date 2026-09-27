@@ -85,7 +85,7 @@ const viewOf = (votes: Vote[], myVoteIds: string[]) =>
   planView({
     votes, rsvps: [], ratings: [], presentNames: [], voterName: "Alice", spots: [], planSpots: [], stage: "pool",
     activePool: 1, poolCount: 3, round: round1, winnerId: null, planOpen: true, iVotedYes: () => false,
-    mine: mineFrom({ voteIds: new Set(myVoteIds), rsvpId: null, ratingId: null, seatKey: null }, "Alice"),
+    mine: mineFrom({ voteIds: new Set(myVoteIds), rsvpId: null, ratingId: null, seatKey: null, myBooking: false }, "Alice"),
   });
 
 test("planView: two people sharing a name get two seats, and only yours is you", () => {
