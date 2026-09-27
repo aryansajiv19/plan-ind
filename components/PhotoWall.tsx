@@ -93,13 +93,16 @@ export default function PhotoWall({
             return (
               <motion.div
                 key={item.id}
-                initial={reduced ? false : { opacity: 0, y: 14 }}
+                // The same initial on server and client: the server can't read
+                // the motion preference, so switching `initial` on it was a
+                // hydration mismatch. Reduced motion lands the tile instantly.
+                initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{
+                transition={reduced ? { duration: 0 } : {
                   duration: 0.55,
                   // A short stagger, capped: past ~10 tiles the tail would be
                   // waiting on an animation rather than reading the page.
-                  delay: reduced ? 0 : Math.min(index * 0.04, 0.4),
+                  delay: Math.min(index * 0.04, 0.4),
                   ease: [0.16, 1, 0.3, 1],
                 }}
               >
