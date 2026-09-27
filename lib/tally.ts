@@ -4,16 +4,18 @@
 import type { PlanSpot, PlanStage, Rating, Rsvp, Vote } from "@/lib/types";
 import type { Mine } from "@/lib/my-rows";
 
-type PersonRow = { voter_name: string; participant_token_hash?: string | null };
+type PersonRow = { voter_name: string; participant_token_hash?: string | null; seat_key?: string | null };
 
 /** One seat per person the client can see; `you` marks this account's. */
 export type Seat = { key: string; name: string; you: boolean };
 
 /**
- * Names repeat on a plan (F2), so a row's person is its participant token
- * hash; a name stands in only where there is no hash (presence).
+ * Names repeat on a plan (F2), so a row's person is its seat_key (069: one
+ * per account per plan, whichever device). The participant hash stands in
+ * only where seat_key is null (anonymised rows), a name only for presence.
  */
 export function seatKey(row: PersonRow): string {
+  if (row.seat_key) return `s:${row.seat_key}`;
   return row.participant_token_hash ? `p:${row.participant_token_hash}` : `n:${row.voter_name}`;
 }
 
