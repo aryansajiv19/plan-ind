@@ -5,6 +5,7 @@ import { getSupabase } from "@/lib/supabase";
 import { haptic } from "@/lib/interaction";
 import { isInRound, type Round } from "@/lib/tally";
 import type { Spot, Vote } from "@/lib/types";
+import type { Mine } from "@/lib/my-rows";
 
 // This voter's pick in the current round: optimistic toggle, the
 // cast_plan_vote RPC, and Undo for a cleared pick. The count itself is
@@ -15,6 +16,7 @@ export function useVoteActions({
   setVotes,
   voterName,
   participantHash,
+  mine,
   decided,
   round,
   spots,
@@ -27,6 +29,7 @@ export function useVoteActions({
   setVotes: Dispatch<SetStateAction<Vote[]>>;
   voterName: string | null;
   participantHash: string | null;
+  mine: Mine;
   decided: boolean;
   round: Round;
   spots: Spot[];
@@ -36,14 +39,11 @@ export function useVoteActions({
 }) {
   const [voteUndo, setVoteUndo] = useState<{ message: string; restore: () => Promise<boolean> } | null>(null);
   const { phase: currentPhase, poolNumber: currentPoolNumber } = round;
-  // Your votes are the rows under your name: since 064 the account is the
-  // voter (one row per account per round, whichever device cast it), and a
-  // name is unique on a plan. Matching this device's hash as well hid your
-  // own vote on a second browser and briefly doubled your face on a card.
+  // Your votes are your account's rows (lib/my-rows.ts, F2): one per round,
+  // whichever device cast it. Not this device's hash (that hid your vote on a
+  // second browser) and not your name (names are not unique on a plan).
   const iVotedYes = (spotId: string) =>
-    votes.some(
-      (v) => v.spot_id === spotId && v.voter_name === voterName && v.value && isInRound(v, round),
-    );
+    votes.some((v) => v.spot_id === spotId && mine.vote(v) && v.value && isInRound(v, round));
 
   // One choice per voter per pool/final. Picking another card replaces it.
   async function toggleVote(spotId: string) {
@@ -56,7 +56,7 @@ export function useVoteActions({
     haptic(next ? 10 : 6);
 
     const isMineThisRound = (v: Vote) =>
-      v.voter_name === voterName &&
+      mine.vote(v) &&
       (v.phase ?? "final") === currentPhase &&
       (v.pool_number ?? 0) === currentPoolNumber;
     const before = votes.filter(isMineThisRound);

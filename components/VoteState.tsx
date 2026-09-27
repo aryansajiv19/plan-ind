@@ -27,7 +27,8 @@ export type VoteStateKind =
   | "deleted"
   | "deleted-by-you"
   | "age-restricted"
-  | "needs-birthday";
+  | "needs-birthday"
+  | "needs-name";
 
 export default function VoteState({
   kind,
@@ -70,7 +71,7 @@ export default function VoteState({
           </div>
         )}
 
-        {(onRetry || kind === "signed-out" || kind === "age-restricted" || kind === "needs-birthday") && (
+        {(onRetry || kind === "signed-out" || kind === "age-restricted" || kind === "needs-birthday" || kind === "needs-name") && (
           <div className="vote-state__actions">
             {onRetry && (
               <button type="button" className="vote-primary-action" onClick={onRetry}>
@@ -85,6 +86,11 @@ export default function VoteState({
             {kind === "needs-birthday" && (
               <Link href={`/onboarding?next=${encodeURIComponent(pathname)}`} className="vote-primary-action">
                 Add your date of birth
+              </Link>
+            )}
+            {kind === "needs-name" && (
+              <Link href="/home?view=profile" className="vote-primary-action">
+                Open Settings
               </Link>
             )}
             {kind === "age-restricted" && (
@@ -113,6 +119,11 @@ function COPY({
       return {
         title: message ?? "This plan has an age requirement",
         body: "Ask the host to pick a plan everyone can join.",
+      };
+    case "needs-name":
+      return {
+        title: "Add a name to your profile",
+        body: "Plans show the name on your profile, so the group knows who picked what.",
       };
     case "needs-birthday":
       return {

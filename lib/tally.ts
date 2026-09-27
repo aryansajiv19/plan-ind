@@ -68,7 +68,7 @@ export function agreementOf(counts: readonly number[]): number {
 
 /** What the vote page derives from its rows on every render. Pure. */
 export function planView<S extends { id: string }>({
-  votes, rsvps, ratings, presentNames, voterName, spots, planSpots, stage, activePool, poolCount, round, winnerId, planOpen, iVotedYes,
+  votes, rsvps, ratings, presentNames, voterName, spots, planSpots, stage, activePool, poolCount, round, winnerId, planOpen, iVotedYes, isMyVote,
 }: {
   votes: readonly Vote[];
   rsvps: readonly { voter_name: string }[];
@@ -84,6 +84,7 @@ export function planView<S extends { id: string }>({
   winnerId: string | null;
   planOpen: boolean;
   iVotedYes: (spotId: string) => boolean;
+  isMyVote: (vote: Vote) => boolean;
 }) {
   const voterCount = new Set(votes.map((v) => v.voter_name)).size;
   // Editable only before voting starts; the server enforces the same rule.
@@ -109,7 +110,7 @@ export function planView<S extends { id: string }>({
 
   const poolsChosenByMe = new Set(
     votes
-      .filter((vote) => vote.voter_name === voterName && vote.value && (vote.phase ?? "final") === "pool")
+      .filter((vote) => isMyVote(vote) && vote.value && (vote.phase ?? "final") === "pool")
       .map((vote) => vote.pool_number),
   );
   const allPoolsChosen = Array.from({ length: poolCount }, (_, index) => index + 1)

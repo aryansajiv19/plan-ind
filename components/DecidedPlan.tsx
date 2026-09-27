@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { Plan, Rating, Rsvp, Spot } from "@/lib/types";
+import type { Mine } from "@/lib/my-rows";
 import { categoryMeta } from "@/lib/categories";
 import { fitForEvent, hoursLabel } from "@/lib/open-hours";
 import { dubaiMinuteOfDay } from "@/lib/dubai-phase";
@@ -20,6 +21,8 @@ interface DecidedPlanProps {
   plan: Plan;
   winner: Spot;
   voterName: string;
+  /** Which rows are this account's (lib/my-rows.ts). */
+  mine: Mine;
   /**
    * Whoever created the plan. onSetTime/onClaimBooking/onMarkBooked all
    * route through patchPlan, which the server (execute_plan_command) rejects
@@ -64,6 +67,7 @@ export default function DecidedPlan({
   plan,
   winner,
   voterName,
+  mine,
   isHost,
   rsvps,
   ratings,
@@ -213,7 +217,7 @@ export default function DecidedPlan({
         )}
       </div>
 
-      <WhosInSection rsvps={rsvps} roster={roster} voterName={voterName} onSetRsvp={onSetRsvp} onSetCarpool={onSetCarpool} />
+      <WhosInSection rsvps={rsvps} roster={roster} isMine={mine.rsvp} onSetRsvp={onSetRsvp} onSetCarpool={onSetCarpool} />
 
       <GettingThere plan={plan} winner={winner} />
 
@@ -227,7 +231,7 @@ export default function DecidedPlan({
         onUnmarkBooked={onUnmarkBooked}
       />
 
-      <RatingSection planId={plan.id} voterName={voterName} ratings={ratings} onRate={onRate} />
+      <RatingSection planId={plan.id} isMine={mine.rating} ratings={ratings} onRate={onRate} />
     </div>
   );
 }

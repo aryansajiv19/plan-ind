@@ -9,7 +9,7 @@ type RpcError = { code?: string; message?: string } | null | undefined;
 export type ParticipantFailure = { notice: string; nameTaken: boolean };
 
 export const NAME_TAKEN_NOTICE =
-  "Someone on this plan already goes by that name. Add an initial so the group can tell you apart.";
+  "Someone on this plan already goes by that name. Change yours in Settings so the group can tell you apart.";
 
 export function participantFailure(error: RpcError, fallback: string): ParticipantFailure {
   const message = error?.message ?? "";

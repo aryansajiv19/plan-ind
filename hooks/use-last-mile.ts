@@ -6,13 +6,14 @@ import { logVisit } from "@/lib/social";
 import { haptic } from "@/lib/interaction";
 import type { Plan, Rating, Rsvp } from "@/lib/types";
 import type { HostCommands } from "@/hooks/use-host-commands";
+import type { Mine } from "@/lib/my-rows";
 
 // A failed save: put back only this voter's last known row, at once. Waiting
 // for the reconcile read left an unsaved choice showing as saved for ~7s
 // while supabase-js retried the GET; restoring only your own row keeps any
 // Realtime update for someone else that landed meanwhile.
-function restoreMine<T extends { voter_name: string }>(cur: T[], name: string, prev: T | undefined): T[] {
-  return [...cur.filter((r) => r.voter_name !== name), ...(prev ? [prev] : [])];
+function restoreMine<T>(cur: T[], isMine: (row: T) => boolean, prev: T | undefined): T[] {
+  return [...cur.filter((r) => !isMine(r)), ...(prev ? [prev] : [])];
 }
 
 // A decided plan's follow-through: event time and booking (host patches),
@@ -25,6 +26,7 @@ export function useLastMile({
   runHostCommand,
   voterName,
   participantHash,
+  isMine,
   winnerId,
   rsvps,
   setRsvps,
@@ -42,6 +44,7 @@ export function useLastMile({
   runHostCommand: HostCommands["runHostCommand"];
   voterName: string | null;
   participantHash: string | null;
+  isMine: Mine;
   winnerId: string | null;
   rsvps: Rsvp[];
   setRsvps: Dispatch<SetStateAction<Rsvp[]>>;
@@ -75,11 +78,11 @@ export function useLastMile({
 
   async function setRsvp(choice: "coming" | "maybe" | "no") {
     if (!voterName || !participantHash) return;
-    const mine = rsvps.find((r) => r.voter_name === voterName);
+    const mine = rsvps.find(isMine.rsvp);
     const nextComing = choice === "coming";
     haptic(8);
     setRsvps((cur) => [
-      ...cur.filter((r) => r.voter_name !== voterName),
+      ...cur.filter((r) => !isMine.rsvp(r)),
       { id: mine?.id ?? `local-${voterName}`, plan_id: id, voter_name: voterName, coming: nextComing, choice, participant_token_hash: participantHash },
     ]);
     const { error } = await getSupabase().rpc("set_plan_rsvp", {
@@ -92,7 +95,7 @@ export function useLastMile({
       p_seats_available: mine?.seats_available ?? null,
     });
     if (error) {
-      setRsvps((cur) => restoreMine(cur, voterName, mine));
+      setRsvps((cur) => restoreMine(cur, isMine.rsvp, mine));
       reportParticipantFailure(error, "Couldn't update your RSVP. Try again.");
       void refetchRsvps();
     }
@@ -102,12 +105,12 @@ export function useLastMile({
   // row, so the current choice is resent and a cleared option writes null.
   async function setCarpool(transport: Rsvp["transport"], seats: number | null) {
     if (!voterName || !participantHash) return;
-    const mine = rsvps.find((r) => r.voter_name === voterName);
+    const mine = rsvps.find(isMine.rsvp);
     if (!mine) return;
     const choice = mine.choice ?? (mine.coming ? "coming" : "no");
     const nextSeats = transport === "driving" ? seats : null;
     haptic(8);
-    setRsvps((cur) => cur.map((r) => (r.voter_name === voterName ? { ...r, transport, seats_available: nextSeats } : r)));
+    setRsvps((cur) => cur.map((r) => (isMine.rsvp(r) ? { ...r, transport, seats_available: nextSeats } : r)));
     const { error } = await getSupabase().rpc("set_plan_rsvp", {
       p_plan_id: id,
       p_voter_name: voterName,
@@ -118,7 +121,7 @@ export function useLastMile({
       p_seats_available: nextSeats,
     });
     if (error) {
-      setRsvps((cur) => restoreMine(cur, voterName, mine));
+      setRsvps((cur) => restoreMine(cur, isMine.rsvp, mine));
       setNotice("Couldn't update how you're getting there. Try again.");
       void refetchRsvps();
     }
@@ -128,12 +131,12 @@ export function useLastMile({
   // so one interaction writes a valid row; each control merges with the rest.
   async function rateWinner(partial: { stars?: number; again?: boolean }) {
     if (!voterName || !winnerId || !participantHash) return;
-    const mine = ratings.find((r) => r.voter_name === voterName);
+    const mine = ratings.find(isMine.rating);
     haptic(8);
     const stars = partial.stars ?? mine?.stars ?? 5;
     const again = partial.again ?? mine?.again ?? stars >= 4;
     setRatings((cur) => [
-      ...cur.filter((r) => r.voter_name !== voterName),
+      ...cur.filter((r) => !isMine.rating(r)),
       { id: mine?.id ?? `local-${voterName}`, plan_id: id, spot_id: winnerId, voter_name: voterName, stars, again, participant_token_hash: participantHash },
     ]);
     const { error } = await getSupabase().rpc("rate_plan", {
@@ -145,7 +148,7 @@ export function useLastMile({
       p_participant_token_hash: participantHash,
     });
     if (error) {
-      setRatings((cur) => restoreMine(cur, voterName, mine));
+      setRatings((cur) => restoreMine(cur, isMine.rating, mine));
       reportParticipantFailure(error, "Couldn't save your rating. Try again.");
       void refetchRatings();
       return;
@@ -177,7 +180,7 @@ export function useLastMile({
       visited_at: plan.event_time ?? undefined,
       group_label: plan.title,
       companions: rsvps
-        .filter((r) => (r.choice ?? (r.coming ? "coming" : "no")) === "coming" && r.voter_name !== voterName)
+        .filter((r) => (r.choice ?? (r.coming ? "coming" : "no")) === "coming" && !isMine.rsvp(r))
         .map((r) => ({ name: r.voter_name })),
     });
     setVisitSaved(saved ? "saved" : "failed");

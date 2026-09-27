@@ -4,20 +4,21 @@ import { avatarStyle, initialsOf } from "@/lib/avatar";
 export default function WhosInSection({
   rsvps,
   roster,
-  voterName,
+  isMine,
   onSetRsvp,
   onSetCarpool,
 }: {
   rsvps: Rsvp[];
   /** Everyone the plan can see, you first. A lower bound — see the vote page. */
   roster: string[];
-  voterName: string;
+  /** This account's RSVP row (lib/my-rows.ts): names are not unique. */
+  isMine: (rsvp: Rsvp) => boolean;
   onSetRsvp: (choice: "coming" | "maybe" | "no") => void;
   onSetCarpool: (transport: Rsvp["transport"], seats: number | null) => void;
 }) {
   const choiceFor = (r: Rsvp) => r.choice ?? (r.coming ? "coming" : "no");
   const coming = rsvps.filter((r) => choiceFor(r) === "coming");
-  const mine = rsvps.find((r) => r.voter_name === voterName);
+  const mine = rsvps.find(isMine);
   const myChoice = mine ? choiceFor(mine) : null;
   const rsvpOf = new Map(rsvps.map((r) => [r.voter_name, r]));
   const withChoice = (choice: "maybe" | "no") => rsvps.filter((r) => choiceFor(r) === choice).map((r) => r.voter_name);

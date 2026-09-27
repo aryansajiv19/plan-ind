@@ -16,7 +16,6 @@ import { useLeavePlan } from "@/hooks/use-leave-plan";
 import { useRoundFold } from "@/hooks/use-round-fold";
 import { usePlanDevice } from "@/hooks/use-plan-device";
 import OptionCard from "@/components/OptionCard";
-import NameGate from "@/components/NameGate";
 import DecidedPlan from "@/components/DecidedPlan";
 import VoteState from "@/components/VoteState";
 import ShareActions from "@/components/ShareActions";
@@ -28,6 +27,7 @@ import { useFaceFlight } from "@/components/vote/useFaceFlight";
 import { planStateScreen } from "@/components/vote/PlanStates";
 import { HostPlanControls, LeaveControl, ReopenControl } from "@/components/vote/PlanControls";
 import { participantFailure } from "@/lib/participant-errors";
+import { mineFrom } from "@/lib/my-rows";
 
 export default function VotePage() {
   const { id } = useParams<{ id: string }>();
@@ -35,10 +35,12 @@ export default function VotePage() {
   const {
     load, setLoad, setReloadKey,
     access, accessMessage, setAccess, runAccess,
-    plan, setPlan, spots, planSpots, setPlanSpots, votes, setVotes, rsvps, setRsvps, ratings, setRatings,
+    plan, setPlan, spots, planSpots, setPlanSpots, votes, setVotes, rsvps, setRsvps, ratings, setRatings, myRows,
     participantHash, refetchVotes, refetchRsvps, refetchRatings, refetchPlanSpots, refetchPlan,
   } = usePlanData(id);
-  const { voterName, setVoterName, accountNameTried } = useVoterName(id);
+  const { voterName, accountNameTried } = useVoterName();
+  // Which rows are this account's: by id once my_plan_rows exists, by name before (F2).
+  const mine = mineFrom(myRows, voterName);
   const [notice, setNotice] = useState<string | null>(null);
   // Set once the plan is gone: "self" when this host deleted it here,
   // "remote" when the deletion arrived from somewhere else.
@@ -68,7 +70,7 @@ export default function VotePage() {
   });
   const { presentNames, presenceChannelRef } = usePlanPresence({ id, access, voterName, left });
   const { visitSaved, patchPlan, setRsvp, setCarpool, rateWinner } = useLastMile({
-    id, plan, setPlan, isHost: host.isHost, runHostCommand: host.runHostCommand, voterName, participantHash, winnerId,
+    id, plan, setPlan, isHost: host.isHost, runHostCommand: host.runHostCommand, voterName, participantHash, isMine: mine, winnerId,
     rsvps, setRsvps, ratings, setRatings, refetchRsvps, refetchRatings, setNotice, reportParticipantFailure,
   });
 
@@ -76,26 +78,16 @@ export default function VotePage() {
   const round = roundFor(stage, activePool);
   const { poolNumber: currentPoolNumber } = round;
   const { iVotedYes, toggleVote, voteUndo, setVoteUndo } = useVoteActions({
-    id, votes, setVotes, voterName, participantHash, decided, round, spots, refetchVotes, setNotice, reportParticipantFailure,
+    id, votes, setVotes, voterName, participantHash, mine, decided, round, spots, refetchVotes, setNotice, reportParticipantFailure,
   });
   const { confirmLeave, setConfirmLeave, leaving, leavePlan } = useLeavePlan({
     id, plan, setLeft, setDeleted, setNotice, presenceChannelRef, dataChannelRef, cancelRefetchesRef,
   });
 
-  function saveName(name: string) {
-    localStorage.setItem(`voter:${id}`, name);
-    setVoterName(name);
-    setNotice(null);
-  }
-
-  // A name clash sends the person back to the name gate: the fix is theirs.
+  // The name is the profile's (F2), so a clash is fixed in Settings, which
+  // the notice says; there is no per-plan name to re-enter here.
   function reportParticipantFailure(error: { code?: string; message?: string } | null, fallback: string) {
-    const failure = participantFailure(error, fallback);
-    setNotice(failure.notice);
-    if (failure.nameTaken) {
-      localStorage.removeItem(`voter:${id}`);
-      setVoterName(null);
-    }
+    setNotice(participantFailure(error, fallback).notice);
   }
 
   const retryAccess = () => { setAccess("checking"); void runAccess(); };
@@ -111,18 +103,10 @@ export default function VotePage() {
   });
   if (stateScreen) return stateScreen;
 
-  // Hold the gate while the account's name resolves, so it doesn't flash. The
-  // gate itself only shows when that name clashes with someone already on
-  // this plan (reportParticipantFailure clears it).
-  if (!voterName && !accountNameTried) {
-    return <VoteState kind="loading" planTitle={plan?.title} />;
-  }
+  // Hold while the account's name resolves, so the page doesn't flash. With no
+  // name at all (no profile name, metadata or email), Settings is the fix.
   if (!voterName) {
-    return (
-      <main className={"vote-experience mx-auto grid min-h-dvh max-w-md place-items-center px-5"}>
-        <NameGate planTitle={plan!.title} onSubmit={saveName} notice={notice} />
-      </main>
-    );
+    return <VoteState kind={accountNameTried ? "needs-name" : "loading"} planTitle={plan?.title} />;
   }
 
   const {
@@ -130,7 +114,7 @@ export default function VotePage() {
     hasCurrentSelection, countFor, leaderId, agreement, poolsChosenByMe, allPoolsChosen,
   } = planView({
     votes, rsvps, ratings, presentNames, voterName, spots, planSpots, stage, activePool, poolCount, round, winnerId,
-    planOpen: plan!.status === "open", iVotedYes,
+    planOpen: plan!.status === "open", iVotedYes, isMyVote: mine.vote,
   });
 
   return (
@@ -236,6 +220,7 @@ export default function VotePage() {
               plan={plan!}
               winner={winnerSpot}
               voterName={voterName}
+              mine={mine}
               isHost={isHost}
               rsvps={rsvps}
               ratings={ratings}

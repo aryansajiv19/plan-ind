@@ -4,16 +4,16 @@ import UnrateButton from "@/components/UnrateButton";
 // After the visit: rate the winner, and see how the group rated it.
 export default function RatingSection({
   planId,
-  voterName,
+  isMine,
   ratings,
   onRate,
 }: {
   planId: string;
-  voterName: string;
+  isMine: (rating: Rating) => boolean;
   ratings: Rating[];
   onRate: (partial: { stars?: number; again?: boolean }) => void;
 }) {
-  const myRating = ratings.find((r) => r.voter_name === voterName);
+  const myRating = ratings.find(isMine);
   const avgStars =
     ratings.length > 0
       ? ratings.reduce((s, r) => s + r.stars, 0) / ratings.length

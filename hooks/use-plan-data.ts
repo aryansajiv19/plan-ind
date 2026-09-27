@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { getSupabase, claimPlanAccess, type PlanAccessDenial } from "@/lib/supabase";
 import { participantTokenHash } from "@/lib/participant";
+import { parseMyRows, type MyRows } from "@/lib/my-rows";
 import type { Plan, PlanSpot, Rating, Rsvp, Spot, Vote } from "@/lib/types";
 
 export type Load = "loading" | "ready" | "notfound" | "error";
@@ -24,6 +25,7 @@ export function usePlanData(id: string) {
   const [votes, setVotes] = useState<Vote[]>([]);
   const [rsvps, setRsvps] = useState<Rsvp[]>([]);
   const [ratings, setRatings] = useState<Rating[]>([]);
+  const [myRows, setMyRows] = useState<MyRows | null>(null);
   const [reloadKey, setReloadKey] = useState(0); // bump to retry the load
   const [participantHash, setParticipantHash] = useState<string | null>(null);
 
@@ -69,13 +71,25 @@ export function usePlanData(id: string) {
   // this read blocked, a plan with nine voters showed "0 people voting", every
   // option at 0 yes, no leader, and no error anywhere — fully usable, entirely
   // wrong, and nothing would make anyone retry.
+  // Which rows are this account's (F2), read beside every votes/rsvps/ratings
+  // read and applied in the same tick, so a fresh server row is never shown
+  // as someone else's while its id is unknown. A failed read keeps the last
+  // good answer; before the RPC exists this stays null (name match).
+  const readMine = useCallback(async () => {
+    const { data, error } = await getSupabase().rpc("my_plan_rows", { p_plan_id: id });
+    return error ? null : parseMyRows(data);
+  }, [id]);
+
   const refetchVotes = useCallback(async () => {
     const seq = ++fetchSeq.current.votes;
-    const { data, error } = await getSupabase().from("votes").select("id,plan_id,spot_id,voter_name,value,phase,pool_number,participant_token_hash,created_at").eq("plan_id", id);
+    const [{ data, error }, rows] = await Promise.all([
+      getSupabase().from("votes").select("id,plan_id,spot_id,voter_name,value,phase,pool_number,participant_token_hash,created_at").eq("plan_id", id),
+      readMine(),
+    ]);
     if (error) return false;
-    if (data && seq === fetchSeq.current.votes) setVotes(data as Vote[]);
+    if (data && seq === fetchSeq.current.votes) { setVotes(data as Vote[]); if (rows) setMyRows(rows); }
     return true;
-  }, [id]);
+  }, [id, readMine]);
 
   useEffect(() => {
     if (access !== "ready") return;
@@ -86,19 +100,25 @@ export function usePlanData(id: string) {
 
   const refetchRsvps = useCallback(async () => {
     const seq = ++fetchSeq.current.rsvps;
-    const { data, error } = await getSupabase().from("rsvps").select("id,plan_id,voter_name,coming,choice,participant_token_hash,transport,seats_available,created_at").eq("plan_id", id);
+    const [{ data, error }, rows] = await Promise.all([
+      getSupabase().from("rsvps").select("id,plan_id,voter_name,coming,choice,participant_token_hash,transport,seats_available,created_at").eq("plan_id", id),
+      readMine(),
+    ]);
     if (error) return false;
-    if (data && seq === fetchSeq.current.rsvps) setRsvps(data as Rsvp[]);
+    if (data && seq === fetchSeq.current.rsvps) { setRsvps(data as Rsvp[]); if (rows) setMyRows(rows); }
     return true;
-  }, [id]);
+  }, [id, readMine]);
 
   const refetchRatings = useCallback(async () => {
     const seq = ++fetchSeq.current.ratings;
-    const { data, error } = await getSupabase().from("ratings").select("id,plan_id,spot_id,voter_name,stars,again,participant_token_hash,created_at").eq("plan_id", id);
+    const [{ data, error }, rows] = await Promise.all([
+      getSupabase().from("ratings").select("id,plan_id,spot_id,voter_name,stars,again,participant_token_hash,created_at").eq("plan_id", id),
+      readMine(),
+    ]);
     if (error) return false;
-    if (data && seq === fetchSeq.current.ratings) setRatings(data as Rating[]);
+    if (data && seq === fetchSeq.current.ratings) { setRatings(data as Rating[]); if (rows) setMyRows(rows); }
     return true;
-  }, [id]);
+  }, [id, readMine]);
 
   // R5: postgres_changes are not replayed after a socket drop, so an advance
   // or decide missed meanwhile never arrives as an event. The realtime hook
@@ -218,6 +238,7 @@ export function usePlanData(id: string) {
     setRsvps,
     ratings,
     setRatings,
+    myRows,
     participantHash,
     refetchVotes,
     refetchRsvps,
