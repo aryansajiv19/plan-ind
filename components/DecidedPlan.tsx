@@ -29,8 +29,7 @@ interface DecidedPlanProps {
   /** Which rows are this account's (lib/my-rows.ts). */
   mine: Mine;
   /**
-   * Whoever created the plan. onSetTime/onMarkBooked/onUnmarkBooked all
-   * route through patchPlan, which the server (execute_plan_command) rejects
+   * Whoever created the plan. onSetTime routes through patchPlan, which the server (execute_plan_command) rejects
    * for anyone else — this only controls whether the UI *offers* those
    * controls, not whether they'd work if shown to a non-host.
    */
@@ -46,9 +45,6 @@ interface DecidedPlanProps {
   onSetCarpool: (transport: Rsvp["transport"], seats: number | null) => void;
   /** 075: any member takes or hands back the booking. */
   booking: BookingClaim;
-  onMarkBooked: () => void;
-  /** Host only: take "booked" back off (a wrong tick, or before reopening). */
-  onUnmarkBooked: () => void;
   onRate: (partial: { stars?: number; again?: boolean }) => void;
 }
 
@@ -78,8 +74,6 @@ export default function DecidedPlan({
   onSetRsvp,
   onSetCarpool,
   booking,
-  onMarkBooked,
-  onUnmarkBooked,
   onRate,
 }: DecidedPlanProps) {
   // P23: the time is a draft until Save; null means not editing. A host
@@ -253,8 +247,6 @@ export default function DecidedPlan({
         winner={winner}
         isHost={isHost}
         booking={booking}
-        onMarkBooked={onMarkBooked}
-        onUnmarkBooked={onUnmarkBooked}
       />
 
       <GettingThere plan={plan} winner={winner} />

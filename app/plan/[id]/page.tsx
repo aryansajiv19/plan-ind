@@ -248,8 +248,6 @@ export default function VotePage() {
               onSetRsvp={setRsvp}
               onSetCarpool={setCarpool}
               booking={booking}
-              onMarkBooked={() => patchPlan({ booked: true })}
-              onUnmarkBooked={() => patchPlan({ booked: false })}
               onRate={rateWinner}
             />
           )
