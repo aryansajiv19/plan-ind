@@ -355,3 +355,6 @@ Migration 070 "catalogue truth" briefed to the platform lane; the facts UI
   correction, sign out, delete account with a typed DELETE); onboarding asks
   "What should friends call you?"; the header avatar shows the chosen emoji.
   Phase 1 of the roadmap is complete except P6/P8 (platform lane).
+- **P16:** a "Get there" row (Drive, Metro, Walk, Apple Maps, Uber) on the place
+  page and the winner, from the viewer's own device location; drive estimates
+  say "in rush hour" only in Dubai rush windows.
