@@ -1,6 +1,6 @@
 import LiveVoteLoop from "@/components/landing/LiveVoteLoop";
+import VenuePhoto from "@/components/VenuePhoto";
 import { avatarStyle, initialsOf } from "@/lib/avatar";
-import { categoryMeta } from "@/lib/categories";
 import { FRIEND_PICKS, SAMPLE_FRIENDS, SAMPLE_POOLS, SAMPLE_VOTER } from "@/components/demo/sampleDecision";
 
 // Dealt → voted → decided, each shown with a small piece of the real UI and
@@ -49,7 +49,7 @@ export default function HowItWorks() {
           <h3>One place, decided</h3>
           <p>The winner, who picked it, and then who’s coming, the booking and the ride.</p>
           <div className="how__decided" aria-hidden="true">
-            <span className="vote-result__category grid h-12 w-12 shrink-0 place-items-center rounded-xl text-2xl">{categoryMeta(WINNER.category).code}</span>
+            <VenuePhoto spot={WINNER} sizes="(min-width: 850px) 24rem, 90vw" />
             <div>
               <p className="vote-kicker">Decided · you’re going</p>
               <p className="how__winner">{WINNER.name}</p>

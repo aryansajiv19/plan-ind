@@ -547,9 +547,8 @@
   list-style: none;
 }
 .how__step h3 {
-  font-family: var(--font-display);
-  font-size: 1.4rem;
-  font-weight: 500;
+  font-size: 1.6rem;
+  text-transform: uppercase;
 }
 .how__deal,
 .how__card,
@@ -559,44 +558,71 @@
 .how__deal,
 .how__deal-row {
   display: grid;
-  gap: 0.4rem;
+  gap: 3px;
 }
 .how__deal-row {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
+/* A dealt place as a small listing: the name at the foot of a square. Too
+   small to carry a photo's credit, so no photo. */
 .how__deal-card {
   display: grid;
-  align-content: start;
+  align-content: end;
   gap: 0.15rem;
-  min-height: 3.6rem;
-  padding: 0.55rem 0.6rem;
-  border: 1px solid var(--color-line);
-  border-radius: var(--radius-control);
+  aspect-ratio: 1;
+  padding: 0.45rem;
   background: var(--color-card);
   font-size: max(0.72rem, var(--type-floor));
 }
 .how__deal-card b {
-  font-weight: 500;
-  line-height: 1.25;
+  font-stretch: 75%;
+  font-weight: 800;
+  line-height: 1.05;
+  text-transform: uppercase;
 }
-.how__deal-card span,
+.how__deal-card span {
+  color: var(--color-muted);
+}
 .how__picked {
   color: var(--color-muted);
 }
+/* The outcome sits on the winner's photo. */
 .how__decided {
+  position: relative;
   display: flex;
-  align-items: flex-start;
-  gap: 0.9rem;
+  align-items: flex-end;
+  min-height: 15rem;
   padding: 1.1rem;
-  border: 1px solid var(--vote-metal);
+  overflow: hidden;
+  border: 2px solid var(--color-punch);
   border-radius: var(--radius-panel);
   background: var(--color-card);
+  color: var(--photo-ink);
+}
+.how__decided::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(0deg, rgba(12, 12, 16, 0.92), rgba(12, 12, 16, 0.2) 75%);
+}
+.how__decided > div {
+  position: relative;
+  z-index: 2;
+}
+.how__decided .photo-credit {
+  inset: 0.6rem 0.6rem auto auto;
+  z-index: 3;
 }
 .how__winner {
   margin-top: 0.25rem;
-  font-family: var(--font-display);
-  font-size: 1.9rem;
-  line-height: 1.05;
+  font-size: 2.6rem;
+  font-weight: 900;
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+.how__decided .how__picked {
+  color: var(--photo-body);
 }
 .how__picked {
   display: flex;
