@@ -6845,8 +6845,12 @@ begin
   -- 078: a holder who joined after the decision may not mark it booked (the
   -- host still can): a booked plan can't be reopened, and a link-holder who
   -- arrives late must not be able to lock it -- 069's plan_has_happened rule
-  -- (security review F2b). Unmarking stays open to them.
-  if p_booked and not plan_host_authorized(p_plan_id, null) and not exists (
+  -- (security review F2b). Only where there is a reopen to lock: a plan with
+  -- one finalist (a direct plan, born decided) can't be reopened. Unmarking
+  -- stays open to them.
+  if p_booked and not plan_host_authorized(p_plan_id, null)
+     and (select count(*) from plan_spots where plan_id = p_plan_id and advanced) >= 2
+     and not exists (
       select 1 from plan_access a
       where a.plan_id = p_plan_id and a.user_id = auth.uid() and a.created_at < target.decided_at) then
     return booking_result('joined_after_decision', target);
@@ -6865,6 +6869,74 @@ begin
 end; $$;
 revoke all on function mark_booked(uuid, boolean) from public, anon, authenticated;
 grant execute on function mark_booked(uuid, boolean) to authenticated;
+
+
+-- execute_plan_command (069 body, copied verbatim, edited where marked 078).
+create or replace function execute_plan_command(
+  p_plan_id uuid,
+  p_host_token text,
+  p_command text,
+  p_patch jsonb default '{}'::jsonb
+) returns jsonb
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+as $$
+declare
+  target plans%rowtype;
+  finalists uuid[] := '{}';
+begin
+  select * into target from plans where id = p_plan_id for update;
+  -- 067 (B7/R14): the one host rule (plan_host_authorized). It had no
+  -- creator binding before, so a leftover token worked for any account.
+  if target.id is null or not plan_host_authorized(p_plan_id, p_host_token) then
+    raise exception 'Host authorization required' using errcode = '42501';
+  end if;
+
+  -- 069 (P4): advance/decide live in plan_transition, shared with expire_plan.
+  if p_command in ('advance', 'decide') then
+    return plan_transition(p_plan_id, p_command);
+  elsif p_command = 'patch' then
+    update plans set
+      event_time = case when p_patch ? 'event_time' then nullif(p_patch->>'event_time', '')::timestamptz else event_time end,
+      -- 069: the label is the claimer's own name (profile, else the text sent),
+      -- so it always names the account recorded in plan_booking_owners.
+      booking_owner = case when p_patch ? 'booking_owner' then
+        case when nullif(clean_app_text(p_patch->>'booking_owner', 80), '') is null then null
+             else nullif(clean_display_name(coalesce(
+               (select pe.display_name from people pe where pe.auth_user_id = auth.uid()),
+               p_patch->>'booking_owner')), '') end
+        else booking_owner end,
+      booked = case when p_patch ? 'booked' then (p_patch->>'booked')::boolean else booked end
+    where id = p_plan_id;
+    -- 069: record which account holds the booking claim (the label stays in plans).
+    if p_patch ? 'booking_owner' then
+      if nullif(clean_app_text(p_patch->>'booking_owner', 80), '') is null then
+        delete from plan_booking_owners where plan_id = p_plan_id;
+      else
+        insert into plan_booking_owners (plan_id, user_id) values (p_plan_id, auth.uid())
+        on conflict (plan_id) do update set user_id = excluded.user_id;
+      end if;
+    end if;
+    -- 078: unbooking here clears a claim whose holder is gone, as mark_booked
+    -- does, so this older host path can't recreate a claim held by nobody.
+    if p_patch ? 'booked' and (p_patch->>'booked')::boolean is false and not exists (
+        select 1 from plan_booking_owners b
+        join plan_access a on a.plan_id = b.plan_id and a.user_id = b.user_id
+        where b.plan_id = p_plan_id) then
+      update plans set booking_owner = null where id = p_plan_id;
+      delete from plan_booking_owners where plan_id = p_plan_id;
+    end if;
+  else
+    raise exception 'Unsupported plan command';
+  end if;
+
+  select * into target from plans where id = p_plan_id;
+  return jsonb_build_object('plan', to_jsonb(target) - 'created_by_user_id', 'winner_spot_id', target.winner_spot_id, 'finalists', finalists);
+end;
+$$;
+revoke all on function execute_plan_command(uuid, text, text, jsonb) from public, anon, authenticated;
+grant execute on function execute_plan_command(uuid, text, text, jsonb) to authenticated;
 
 -- Plans already in that state: an unbooked claim whose holder is not a
 -- member (deleted account, 'Former member'; or no recorded holder at all).

@@ -29,7 +29,7 @@ const SKIP = await psql("select auth.uid()").then(
   () => `no Supabase-shaped Postgres at ${DB_URL} — set TEST_DATABASE_URL to a LOCAL database (never the live project)`,
 );
 
-const made = { plans: [] as string[], users: [] as string[] };
+const made = { plans: [] as string[], users: [] as string[], spots: [] as string[] };
 
 /** An account; `name` null means no profile row. */
 async function user(name: string | null = `QA-${randomBytes(3).toString("hex")}`): Promise<string> {
@@ -69,6 +69,7 @@ after(async () => {
   const ids = (xs: string[]) => xs.map((x) => `'${x}'`).join(",");
   if (made.plans.length) await psql(`delete from plans where id in (${ids(made.plans)})`);
   if (made.users.length) await psql(`delete from auth.users where id in (${ids(made.users)})`);
+  if (made.spots.length) await psql(`delete from spots where id in (${ids(made.spots)})`);
 });
 
 describe("075 any member can claim the booking", { skip: SKIP }, () => {
@@ -198,9 +199,19 @@ describe("075 any member can claim the booking", { skip: SKIP }, () => {
     assert.equal(await holder(p.id), "none|none");
   });
 
+  /** Advanced plan_spots: 2+ is a plan reopen_plan could reopen; 1 is a direct plan. */
+  const finalists = async (planId: string, n: number) => {
+    const ids = Array.from({ length: n }, () => randomUUID());
+    await psql(`insert into spots (id,name,category,area,cuisine,price_band,min_spend,open_till,vibe)
+        values ${ids.map((id) => `('${id}','QA078','dinner','Dubai','Test','$$',100,'12am','test')`).join(",")};
+      insert into plan_spots (plan_id,spot_id,pool_number,advanced) values ${ids.map((id) => `('${planId}','${id}',1,true)`).join(",")};`);
+    made.spots.push(...ids);
+  };
+
   test("F2b: a holder who joined after the decision can't mark it booked; the host and an early holder can", async () => {
     const [host, early, late] = [await user(), await user(), await user()];
     const p = await plan(host, [early]);
+    await finalists(p.id, 2);
     await psql(`insert into plan_access (plan_id, user_id) values ('${p.id}', '${late}')`);
     assert.equal((await claim(late, p.id)).result, "claimed");
     assert.deepEqual(await mark(late, p.id, true), { result: "joined_after_decision", booking_owner: await nameOf(late), booked: false });
@@ -209,6 +220,23 @@ describe("075 any member can claim the booking", { skip: SKIP }, () => {
     await release(late, p.id);
     await claim(early, p.id);
     assert.equal((await mark(early, p.id, true)).result, "marked");
+
+    // A direct plan has one finalist and can't be reopened: nothing to lock.
+    const direct = await plan(host, []);
+    await finalists(direct.id, 1);
+    await psql(`insert into plan_access (plan_id, user_id) values ('${direct.id}', '${late}')`);
+    await claim(late, direct.id);
+    assert.equal((await mark(late, direct.id, true)).result, "marked");
+  });
+
+  test("the host's older patch path clears a claim held by nobody when it unbooks too", async () => {
+    const [host, a] = [await user(), await user()];
+    const p = await plan(host, [a]);
+    await claim(a, p.id);
+    await mark(host, p.id, true);
+    await as(a, "select delete_my_account(false)");
+    await as(host, `select execute_plan_command('${p.id}', '${p.token}', 'patch', '{"booked": false}'::jsonb)`);
+    assert.equal(await holder(p.id), "none|none");
   });
 
   test("applying 078 clears unbooked claims already held by nobody, and keeps the rest", async () => {
