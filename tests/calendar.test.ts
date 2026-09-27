@@ -4,9 +4,10 @@ import { googleCalUrl, icsHref } from "../lib/calendar.ts";
 import { fromDubaiInput, toDubaiInput } from "../lib/dubai-phase.ts";
 
 const plan = { id: "p1", title: "Friday, finally", event_time: "2026-10-02T16:00:00.000Z" };
-const spot = { name: "Bu Qtair", area: "Umm Suqeim", address: null, latitude: 25.1515, longitude: 55.1972, google_place_id: null };
+type CalSpot = { name: string; area: string; address: string | null; latitude: number | null; longitude: number | null; google_place_id: string | null };
+const spot: CalSpot = { name: "Bu Qtair", area: "Umm Suqeim", address: null, latitude: 25.1515, longitude: 55.1972, google_place_id: null };
 const url = "https://plan-ind.vercel.app/plan/p1";
-const ics = (s: typeof spot) => decodeURIComponent(icsHref(plan, s, url)!.split(",").slice(1).join(","));
+const ics = (s: CalSpot) => decodeURIComponent(icsHref(plan, s, url)!.split(",").slice(1).join(","));
 
 test("a Dubai wall time saves as that instant wherever the host is", () => {
   assert.equal(fromDubaiInput("2026-10-02T20:00"), "2026-10-02T16:00:00.000Z");
