@@ -1,0 +1,280 @@
+/* Experimental track: the landing as a street of lit shop signs (Satwa and
+   Karama lightboxes). A locked five-colour sign palette, no tints: an off
+   sign goes dark, it never goes pale. Contrast (AA): white on red 4.95,
+   white on green 5.3, white on cobalt 7.3, ink on yellow and on acrylic 13+. */
+.street {
+  --sign-red: #d6282f;
+  --sign-green: #0e7c3a;
+  --sign-yellow: #ffd400;
+  --sign-cobalt: #1f46c8;
+  --sign-white: #f6f4ee;
+  --sign-ink: #141210;
+  --frame: #3b362e;
+  --off: #26221c;
+  --beat: 14s;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.25fr);
+  gap: clamp(1.5rem, 4vw, 4.5rem);
+  align-items: start;
+  padding: clamp(6rem, 9vh, 7.5rem) max(var(--page-gutter, 1rem), calc((100vw - 84rem) / 2)) 3.5rem;
+  /* The theme's own ground, so the street meets the nav by night and by day;
+     the facade behind the signs stays a dark fascia either way. */
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+/* ── The headline is itself a lightbox ─────────────────────────────── */
+.headSign {
+  position: relative;
+  padding: 1.4rem 1.6rem 0;
+  border: 4px solid var(--frame);
+  background: radial-gradient(120% 90% at 50% 40%, #ffe45c 0%, var(--sign-yellow) 60%, #f2c400 100%);
+  color: var(--sign-ink);
+  box-shadow: 0 1.4rem 2.4rem -1rem rgb(0 0 0 / 0.6);
+}
+.title {
+  display: grid;
+  font-family: var(--font-sign), system-ui, sans-serif;
+  font-size: clamp(3.1rem, 6.2vw, 6.4rem);
+  font-weight: 900;
+  line-height: 0.88;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+.headArabic {
+  font-family: var(--font-sign-arabic), system-ui, sans-serif;
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0;
+}
+.headStrip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 1.2rem -1.6rem 0;
+  padding: 0.55rem 1.6rem;
+  background: var(--sign-ink);
+  color: var(--sign-yellow);
+  font-family: var(--font-sign), system-ui, sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.deck {
+  max-width: 34rem;
+  margin-top: 1.6rem;
+  color: var(--color-ink);
+  font-size: 1.05rem;
+  line-height: 1.55;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+  margin-top: 1.6rem;
+}
+.cta {
+  display: inline-flex;
+  align-items: center;
+  min-height: 3.5rem;
+  padding: 0 1.8rem;
+  border: 4px solid var(--frame);
+  background: radial-gradient(120% 110% at 50% 35%, #ea3a40 0%, var(--sign-red) 70%);
+  color: #fff;
+  font-family: var(--font-sign), system-ui, sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.cta:active {
+  transform: scale(0.97);
+}
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  color: var(--color-ink);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--sign-yellow);
+  text-decoration-thickness: 3px;
+  text-underline-offset: 0.3em;
+}
+.cta:focus-visible,
+.secondary:focus-visible {
+  outline: 3px solid var(--color-ink);
+  outline-offset: 3px;
+}
+
+/* ── The facade: nine real places, three pools of three ─────────────── */
+.facade {
+  margin: 0;
+}
+.rounds {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.4rem;
+  margin-bottom: 0.7rem;
+}
+.rounds span {
+  padding: 0.35rem 0;
+  border: 2px solid var(--frame);
+  background: var(--off);
+  color: #6f685c;
+  font-family: var(--font-sign), system-ui, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-align: center;
+  text-transform: uppercase;
+}
+.wall {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr 1.1fr;
+  gap: 0.6rem;
+  padding: 0.6rem;
+  background: #0f0d0a;
+  list-style: none;
+}
+.sign {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: clamp(7.5rem, 11vw, 9.5rem);
+  padding: 0.7rem 0.8rem 0;
+  border: 3px solid var(--frame);
+  overflow: hidden;
+  background: var(--lit);
+  color: var(--ink);
+}
+/* Staggered like a real street: no two rows line up. */
+.sign[data-row="2"] { translate: 0.7rem 0; }
+.sign[data-row="3"] { translate: -0.4rem 0; }
+.sign[data-colour="red"] { --lit: radial-gradient(120% 100% at 50% 35%, #ea3a40, var(--sign-red) 70%); --ink: #fff; --strip: #8f1418; }
+.sign[data-colour="green"] { --lit: radial-gradient(120% 100% at 50% 35%, #179a4a, var(--sign-green) 70%); --ink: #fff; --strip: #07501f; }
+.sign[data-colour="yellow"] { --lit: radial-gradient(120% 100% at 50% 35%, #ffe45c, var(--sign-yellow) 70%); --ink: var(--sign-ink); --strip: var(--sign-ink); }
+.sign[data-colour="cobalt"] { --lit: radial-gradient(120% 100% at 50% 35%, #3a62e6, var(--sign-cobalt) 70%); --ink: #fff; --strip: #122a80; }
+.sign[data-colour="white"] { --lit: radial-gradient(120% 100% at 50% 35%, #fff, var(--sign-white) 70%); --ink: var(--sign-ink); --strip: var(--sign-ink); }
+.signTop {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.code {
+  font-family: var(--font-sign), system-ui, sans-serif;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+.arabic {
+  font-family: var(--font-sign-arabic), system-ui, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.name {
+  align-self: center;
+  font-family: var(--font-sign), system-ui, sans-serif;
+  font-size: clamp(1.25rem, 1.9vw, 1.9rem);
+  font-weight: 800;
+  line-height: 0.95;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+.strip {
+  margin: 0.5rem -0.8rem 0;
+  padding: 0.3rem 0.8rem;
+  background: var(--strip);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Switched off: the tube goes dark and the lettering reads only faintly. */
+.sign::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--off);
+  opacity: 0;
+  pointer-events: none;
+}
+.caption {
+  margin-top: 0.8rem;
+  color: var(--color-muted);
+  font-size: 0.8rem;
+}
+
+/* ── The deal, played once per beat ─────────────────────────────────────
+   One timeline for every sign (no per-sign delay), so each round switches
+   its two signs off on the same instant; only the power-on flicker is
+   staggered. Round 1 at 26%, round 2 at 38%, round 3 at 50%, final at 64%,
+   everything powers down at 94% and the street lights up again. */
+@media (prefers-reduced-motion: no-preference) {
+  .sign {
+    animation: power var(--beat) calc(var(--i) * 70ms) infinite;
+  }
+  .sign[data-role="drop"][data-row="1"]::after { animation: off-r1 var(--beat) infinite; }
+  .sign[data-role="drop"][data-row="2"]::after { animation: off-r2 var(--beat) infinite; }
+  .sign[data-role="drop"][data-row="3"]::after { animation: off-r3 var(--beat) infinite; }
+  .sign[data-role="keep"]::after { animation: off-final var(--beat) infinite; }
+  .sign[data-role="win"]::after { animation: off-end var(--beat) infinite; }
+  .sign[data-role="win"] { animation: power var(--beat) calc(var(--i) * 70ms) infinite, win var(--beat) infinite; }
+  .rounds [data-beat="1"] { animation: beat-r1 var(--beat) infinite; }
+  .rounds [data-beat="2"] { animation: beat-r2 var(--beat) infinite; }
+  .rounds [data-beat="3"] { animation: beat-r3 var(--beat) infinite; }
+  .rounds [data-beat="final"] { animation: beat-final var(--beat) infinite; }
+}
+@keyframes power {
+  0% { filter: brightness(0.25); }
+  2% { filter: brightness(1.05); }
+  2.6% { filter: brightness(0.45); }
+  3.4%, 100% { filter: brightness(1); }
+}
+@keyframes off-r1 { 0%, 25.9% { opacity: 0; } 26%, 93.9% { opacity: 0.86; } 94%, 100% { opacity: 1; } }
+@keyframes off-r2 { 0%, 37.9% { opacity: 0; } 38%, 93.9% { opacity: 0.86; } 94%, 100% { opacity: 1; } }
+@keyframes off-r3 { 0%, 49.9% { opacity: 0; } 50%, 93.9% { opacity: 0.86; } 94%, 100% { opacity: 1; } }
+@keyframes off-final { 0%, 63.9% { opacity: 0; } 64%, 93.9% { opacity: 0.86; } 94%, 100% { opacity: 1; } }
+@keyframes off-end { 0%, 93.9% { opacity: 0; } 94%, 100% { opacity: 1; } }
+@keyframes win {
+  0%, 63.9% { transform: none; border-color: var(--frame); }
+  66%, 92% { transform: scale(1.04); border-color: #fff; }
+  94%, 100% { transform: none; border-color: var(--frame); }
+}
+@keyframes beat-r1 { 0%, 25.9% { background: var(--off); color: #6f685c; } 26%, 93.9% { background: var(--sign-white); color: var(--sign-ink); } 94%, 100% { background: var(--off); color: #6f685c; } }
+@keyframes beat-r2 { 0%, 37.9% { background: var(--off); color: #6f685c; } 38%, 93.9% { background: var(--sign-white); color: var(--sign-ink); } 94%, 100% { background: var(--off); color: #6f685c; } }
+@keyframes beat-r3 { 0%, 49.9% { background: var(--off); color: #6f685c; } 50%, 93.9% { background: var(--sign-white); color: var(--sign-ink); } 94%, 100% { background: var(--off); color: #6f685c; } }
+@keyframes beat-final { 0%, 63.9% { background: var(--off); color: #6f685c; } 64%, 93.9% { background: var(--sign-red); color: #fff; } 94%, 100% { background: var(--off); color: #6f685c; } }
+
+/* ── Phone: the headline sign first, the facade below it ─────────────── */
+@media (max-width: 760px) {
+  .street {
+    grid-template-columns: 1fr;
+    padding-top: 5.5rem;
+    min-height: auto;
+  }
+  .title { font-size: clamp(2.7rem, 13vw, 3.6rem); }
+  .headArabic { font-size: 1rem; }
+  .headStrip { font-size: 0.8rem; }
+  .cta { flex: 1 1 100%; justify-content: center; }
+  .wall { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.4rem; padding: 0.4rem; }
+  .sign { min-height: 6.2rem; padding: 0.45rem 0.5rem 0; }
+  .sign[data-row] { translate: none; }
+  .name { font-size: 0.95rem; }
+  .arabic { font-size: 0.8rem; }
+  .code { font-size: 0.65rem; }
+  .strip { margin: 0.35rem -0.5rem 0; padding: 0.2rem 0.5rem; font-size: 0.6rem; }
+  .rounds span { font-size: 0.7rem; }
+}
