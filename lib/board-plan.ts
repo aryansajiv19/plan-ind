@@ -16,6 +16,10 @@ export interface PlanPrefill {
   /** A DUBAI_ORIGINS value; "anywhere" when the places don't cluster. */
   origin: string;
   title: string;
+  /** A signed-out draft restored after sign-in (P7) also carries these. */
+  maxBudget?: number | null;
+  radiusKm?: number | null;
+  smartQuery?: string;
 }
 
 /** A place counts toward an origin only when it sits this close to it. */

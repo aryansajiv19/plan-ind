@@ -58,6 +58,13 @@ export async function POST(request: Request) {
   // who never provided one.
   const age = (await memberAge(supabase, user.id)) ?? MIN_ACCOUNT_AGE;
 
+  // P7: before the quota, so a stack without a key never spends a visitor's
+  // daily searches on a refusal (the page hides the box there anyway).
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    return Response.json({ error: "Smart search is not configured yet." }, { status: 503 });
+  }
+
   const safetyIdentifier = privateIdentifier(user.id);
   const quota = await consumeQuota(supabase, "smart-search");
   if (quota === "unavailable") {
@@ -67,11 +74,6 @@ export async function POST(request: Request) {
   if (quota === "limited") {
     await recordSecurityEvent(supabase, { type: "ai_quota", outcome: "blocked", subject: user.id, requestId: request.headers.get("x-vercel-id") });
     return Response.json({ error: "Too many searches. Try again in a minute." }, { status: 429 });
-  }
-
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    return Response.json({ error: "Smart search is not configured yet." }, { status: 503 });
   }
 
   try {

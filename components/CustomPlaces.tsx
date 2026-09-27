@@ -127,12 +127,18 @@ export function useCustomPlaces(category: string, setError: (message: string | n
   };
 }
 
-export default function CustomPlaceSection({ places: p }: { places: ReturnType<typeof useCustomPlaces> }) {
+// onSignIn is set when signed out (P7): saving needs an account, so the
+// button asks for one up front instead of refusing a filled-in form.
+export default function CustomPlaceSection({ places: p, onSignIn }: { places: ReturnType<typeof useCustomPlaces>; onSignIn?: () => void }) {
   return (
     <section className="plan-custom-place" aria-labelledby="custom-place-heading">
       <div className="plan-custom-place__header">
         <div><p id="custom-place-heading" className="plan-form__label">Your own places</p><small>Pin up to three saved locations into this plan.</small></div>
-        <button type="button" onClick={() => p.setOpen((open) => !open)} aria-expanded={p.open}>{p.open ? "Close" : "Add a place"}</button>
+        {onSignIn ? (
+          <button type="button" onClick={onSignIn}>Sign in to add a place</button>
+        ) : (
+          <button type="button" onClick={() => p.setOpen((open) => !open)} aria-expanded={p.open}>{p.open ? "Close" : "Add a place"}</button>
+        )}
       </div>
 
       {p.loadFailed && (
