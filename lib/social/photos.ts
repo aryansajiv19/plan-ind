@@ -2,7 +2,7 @@
 
 import type { SpotVisibility } from "../types";
 import { getSupabase } from "../supabase";
-import type { Db } from "./shared";
+import type { Db, ListRead } from "./shared";
 
 export const PHOTO_BUCKET = "visit-photos";
 
@@ -67,13 +67,15 @@ export interface VisitPhotoView {
 export async function getVisitPhotos(
   personId: string,
   db: Db = getSupabase(),
-): Promise<VisitPhotoView[]> {
+): Promise<ListRead<VisitPhotoView>> {
   const { data, error } = await db
     .from("visit_photos")
     .select("id, visit_id, storage_path, caption, visibility, created_at")
     .eq("person_id", personId)
-    .order("created_at", { ascending: false });
-  if (error || !data) return [];
+    .order("created_at", { ascending: false })
+    .limit(200);
+  // A failed read says so (P13); it used to come back as "no photos".
+  if (error || !data) return { rows: [], failed: true };
   const rows = data as unknown as {
     id: string;
     visit_id: string;
@@ -82,7 +84,7 @@ export async function getVisitPhotos(
     visibility: SpotVisibility;
     created_at: string;
   }[];
-  if (rows.length === 0) return [];
+  if (rows.length === 0) return { rows: [], failed: false };
 
   const { data: signed } = await db.storage
     .from("visit-photos")
@@ -91,15 +93,18 @@ export async function getVisitPhotos(
     (signed ?? []).map((s) => [s.path, s.error ? null : s.signedUrl]),
   );
 
-  return rows.map((r) => ({
-    id: r.id,
-    visit_id: r.visit_id,
-    storage_path: r.storage_path,
-    url: urlByPath.get(r.storage_path) ?? null,
-    caption: r.caption,
-    visibility: r.visibility,
-    created_at: r.created_at,
-  }));
+  return {
+    failed: false,
+    rows: rows.map((r) => ({
+      id: r.id,
+      visit_id: r.visit_id,
+      storage_path: r.storage_path,
+      url: urlByPath.get(r.storage_path) ?? null,
+      caption: r.caption,
+      visibility: r.visibility,
+      created_at: r.created_at,
+    })),
+  };
 }
 
 /**

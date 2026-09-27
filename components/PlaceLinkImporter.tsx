@@ -38,6 +38,8 @@ export default function PlaceLinkImporter({ demoMode = false }: { demoMode?: boo
   const [collection, setCollection] = useState<PlaceCollectionKind>("want_to_try");
   const [saved, setSaved] = useState<SavedLink[]>([]);
   const [savedFilter, setSavedFilter] = useState<PlaceCollectionKind | "all">("all");
+  const [loadFailed, setLoadFailed] = useState(false); // P13: a failed read, not "no links"
+  const [showAll, setShowAll] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -69,10 +71,10 @@ export default function PlaceLinkImporter({ demoMode = false }: { demoMode?: boo
     // refetchSaved itself is for addLink's non-effect call site below.
     if (demoMode) return;
     void fetch("/api/place-import").then(async (response) => {
-      if (!response.ok) return;
+      if (!response.ok) { setLoadFailed(true); return; }
       const result = await response.json() as { saved?: SavedLink[] };
       if (Array.isArray(result.saved)) setSaved(result.saved);
-    }).catch(() => undefined);
+    }).catch(() => setLoadFailed(true));
   }, [demoMode]);
 
   async function addLink(event: React.FormEvent) {
@@ -177,6 +179,8 @@ export default function PlaceLinkImporter({ demoMode = false }: { demoMode?: boo
     );
   }
 
+  const filteredSaved = saved.filter((item) => savedFilter === "all" || item.collection === savedFilter);
+
   return (
     <section className="place-link-importer" aria-labelledby="place-link-title">
       <div className="place-link-importer__intro">
@@ -191,6 +195,9 @@ export default function PlaceLinkImporter({ demoMode = false }: { demoMode?: boo
         {message && <p className="place-link-importer__message" role="status">{message}</p>}
         {error && <p className="place-link-importer__error" role="alert">{error}</p>}
       </form>
+      {loadFailed && saved.length === 0 && (
+        <p className="place-link-importer__error" role="alert">Couldn’t load your saved links. Refresh to try again.</p>
+      )}
       {saved.length > 0 && <div className="place-link-importer__saved">
         <div className="place-link-importer__saved-head"><p>Saved links</p><span>{saved.length} total</span></div>
         <div className="place-link-importer__filters" role="group" aria-label="Filter saved links">
@@ -200,9 +207,14 @@ export default function PlaceLinkImporter({ demoMode = false }: { demoMode?: boo
             </button>
           ))}
         </div>
-        {saved.filter((item) => savedFilter === "all" || item.collection === savedFilter).slice(0, 8).map((item) => (
+        {filteredSaved.slice(0, showAll ? undefined : 8).map((item) => (
           <div key={item.id}>{renderResult(item)}</div>
         ))}
+        {filteredSaved.length > 8 && (
+          <button type="button" className="place-link-importer__more" onClick={() => setShowAll((all) => !all)}>
+            {showAll ? "Show fewer" : `Show all ${filteredSaved.length}`}
+          </button>
+        )}
       </div>}
     </section>
   );

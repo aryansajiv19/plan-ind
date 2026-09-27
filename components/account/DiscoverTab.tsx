@@ -53,7 +53,7 @@ export function useDiscoverSearch(spots: Spot[], age: number) {
   // Results carry the key they belong to, so a stale response is recognised
   // during render rather than cleared from an effect — the React 19
   // setState-in-effect trap this repo has hit twice.
-  const [remote, setRemote] = useState<{ key: string; rows: Spot[] } | null>(null);
+  const [remote, setRemote] = useState<{ key: string; rows: Spot[]; failed: boolean } | null>(null);
 
   useEffect(() => {
     const q = debouncedQuery;
@@ -62,8 +62,9 @@ export function useDiscoverSearch(spots: Spot[], age: number) {
     let cancelled = false;
     let request = getSupabase()
       .from("spots")
-      .select("id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, photo_url, photo_attribution, description, minimum_age")
-      .eq("source", "curated");
+      // Every spot this account may read (RLS: curated, community, its own),
+      // as the grid shows, not only curated (P13).
+      .select("id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, photo_url, photo_attribution, description, minimum_age");
     if (filter !== "All") request = request.eq("category", filter);
     if (q) {
       // Quote the value and escape what the quoting cares about. PostgREST's
@@ -81,9 +82,9 @@ export function useDiscoverSearch(spots: Spot[], age: number) {
         `name.ilike."%${esc}%",area.ilike."%${esc}%",cuisine.ilike."%${esc}%"`,
       );
     }
-    request.order("name").limit(200).then(({ data }) => {
+    request.order("name").limit(200).then(({ data, error }) => {
       if (cancelled) return;
-      setRemote({ key: `${q}\u0000${filter}`, rows: (data ?? []) as Spot[] });
+      setRemote({ key: `${q}\u0000${filter}`, rows: (data ?? []) as Spot[], failed: Boolean(error) });
     });
     return () => { cancelled = true; };
   }, [debouncedQuery, placeFilter]);
@@ -102,7 +103,9 @@ export function useDiscoverSearch(spots: Spot[], age: number) {
     });
   }, [searching, remote, remoteKey, spots, placeFilter, debouncedQuery, allowed]);
 
-  return { query, setQuery, placeFilter, setPlaceFilter, categories, visiblePlaces };
+  // The search on screen failed: said as such, never as "no matches" (P13).
+  const searchFailed = searching && remote?.key === remoteKey && remote.failed;
+  return { query, setQuery, placeFilter, setPlaceFilter, categories, visiblePlaces, searchFailed };
 }
 
 export default function DiscoverTab({
@@ -120,7 +123,7 @@ export default function DiscoverTab({
   onStartPlan: () => void;
   onPlanFromBoard: (prefill: PlanPrefill) => void;
 }) {
-  const { query, setQuery, placeFilter, setPlaceFilter, categories, visiblePlaces } = search;
+  const { query, setQuery, placeFilter, setPlaceFilter, categories, visiblePlaces, searchFailed } = search;
   return (
     <section className="demo-view" aria-labelledby="discover-title">
       <header className="demo-view__header">
@@ -135,13 +138,15 @@ export default function DiscoverTab({
       <div className="demo-discover-tools">
         <label><span>Search places</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Area, place or category" /></label>
         <div className="demo-filter-tabs" aria-label="Filter places">
-          {categories.slice(0, 8).map((filter) => (
+          {categories.map((filter) => (
             <button key={filter} type="button" onClick={() => setPlaceFilter(filter)} aria-pressed={placeFilter === filter}>{categoryLabel(filter)}</button>
           ))}
         </div>
       </div>
 
-      {visiblePlaces.length ? (
+      {searchFailed ? (
+        <p className="demo-empty" role="alert">Search failed. Check your connection and try again.</p>
+      ) : visiblePlaces.length ? (
         <div className="demo-place-grid">
           {visiblePlaces.map((spot) => <PlaceCard key={spot.id} spot={spot} onStartPlan={onStartPlan} boards={boards} />)}
         </div>
