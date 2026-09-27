@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import type { Plan, Rating, Rsvp, Spot } from "@/lib/types";
 import type { Mine } from "@/lib/my-rows";
 import type { Seat } from "@/lib/tally";
@@ -162,7 +163,8 @@ export default function DecidedPlan({
           beside the reveal. */}
       <p className="vote-result__details mt-2 text-sm">
         {winner.description ?? winner.vibe}
-        <span className="text-muted"> · {hoursLabel(winner.open_till) ?? "Hours not listed"} · from AED {winner.min_spend}pp</span>
+        <span className="text-muted"> · {hoursLabel(winner.open_till) ?? "Hours not listed"} · from AED {winner.min_spend}pp · </span>
+        <Link href={`/place/${winner.id}?from=/plan/${plan.id}`}>Place details</Link>
       </p>
 
       <button

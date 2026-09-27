@@ -107,12 +107,13 @@ const readCounts = cached("curated-counts", async (): Promise<CuratedCounts> => 
 
 /** Columns the Discover grid reads (see app/home/page.tsx). */
 export const DISCOVER_COLUMNS =
-  "id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, photo_url, photo_attribution, description, minimum_age";
+  "id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, photo_url, photo_attribution, description, minimum_age, address, google_place_id";
 
 export interface DiscoverSpotRow {
   id: string; name: string; category: string; area: string; cuisine: string; price_band: string;
   min_spend: number; open_till: string; vibe: string; photo_url: string | null;
   photo_attribution: string | null; description: string | null; minimum_age: number | null;
+  address: string | null; google_place_id: string | null;
 }
 
 const readDiscover = cached("curated-discover", async (limit: number): Promise<DiscoverSpotRow[]> => {
