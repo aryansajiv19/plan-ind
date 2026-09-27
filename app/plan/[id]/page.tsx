@@ -148,6 +148,7 @@ export default function VotePage() {
           pickedThisRound={pickedThisRound}
           othersHere={othersHere}
           viewer={viewer}
+          when={{ planId: id, seatKey: myRows?.seatKey ?? null }}
         />
 
         {stage === "pool" && !decided && (

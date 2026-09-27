@@ -4,6 +4,7 @@ import VoteSeats from "@/components/vote/VoteSeats";
 import { RoundLabel } from "@/components/vote/RoundProgress";
 import { useMinuteClock } from "@/hooks/use-minute-clock";
 import ComingFrom from "@/components/vote/ComingFrom";
+import WhenPoll from "@/components/vote/WhenPoll";
 import type { ViewerOrigin } from "@/hooks/use-viewer-origin";
 
 function closesLabel(deadline: string | null): string {
@@ -29,6 +30,7 @@ export default function PlanHeader({
   pickedThisRound,
   othersHere,
   viewer,
+  when,
 }: {
   plan: Plan;
   voterName: string;
@@ -41,6 +43,8 @@ export default function PlanHeader({
   pickedThisRound: Set<string>;
   othersHere: string[];
   viewer: ViewerOrigin;
+  /** P21: the plan's time poll, and this account's seat on it. */
+  when: { planId: string; seatKey: string | null };
 }) {
   useMinuteClock(); // re-render each minute, so the "Closes in" chip counts down
   return (
@@ -66,6 +70,7 @@ export default function PlanHeader({
       )}
       {/* §26.1: the group, not just the people who acted. */}
       {!decided && <ComingFrom viewer={viewer} />}
+      {!decided && <WhenPoll planId={when.planId} seatKey={when.seatKey} roster={roster} />}
       {!decided && roster.length > 1 && (
         <VoteSeats roster={roster} picked={pickedThisRound} othersHere={othersHere} />
       )}
