@@ -285,7 +285,7 @@ export default function HomeExperience({
 
         <div className="home-plan-card">
           <div className="home-plan-card__tape" aria-hidden="true">New plan</div>
-          <StartPlanForm key={planPrefill?.key} age={age} demoMode={demoMode} prefill={planPrefill} smartSearchAvailable={smartSearchAvailable} />
+          <StartPlanForm key={planPrefill?.key} age={age} demoMode={demoMode} sampleShelf={fixtures} prefill={planPrefill} smartSearchAvailable={smartSearchAvailable} />
         </div>
       </section>
 

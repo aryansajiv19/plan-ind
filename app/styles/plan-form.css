@@ -356,39 +356,6 @@
   color: var(--color-error);
   font-size: max(0.72rem, var(--type-floor));
 }
-.plan-custom-place__saved {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.5rem;
-  margin-top: 0.9rem;
-}
-
-.plan-custom-place__saved > button {
-  display: grid;
-  gap: 0.2rem;
-  padding: 0.7rem 0.75rem;
-  border: 1px solid var(--color-line);
-  border-radius: var(--radius-control);
-  background: transparent;
-  color: var(--color-ink);
-  text-align: left;
-  cursor: pointer;
-}
-
-.plan-custom-place__saved > button[aria-pressed="true"] {
-  border-color: var(--color-punch-text);
-  box-shadow: inset 2px 0 0 var(--home-metal);
-}
-
-.plan-custom-place__saved strong {
-  font-size: 0.75rem;
-  font-weight: 650;
-}
-.plan-custom-place__saved span {
-  color: var(--color-muted);
-  font-size: max(0.62rem, var(--type-floor));
-  text-transform: capitalize;
-}
 
 .plan-custom-place__editor {
   display: grid;
@@ -467,9 +434,6 @@
   cursor: wait;
   opacity: 0.45;
 }
-
-
-
 
 /* P25: the deck of places the deal draws from; tap one to pin it. */
 .plan-deck__row {

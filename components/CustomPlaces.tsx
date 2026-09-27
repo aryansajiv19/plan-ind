@@ -29,6 +29,8 @@ export function useCustomPlaces(category: string, setError: (message: string | n
   const [saved, setSaved] = useState<SavedCustomPlace[]>([]);
   // A refused read must not look like "you have no saved places".
   const [loadFailed, setLoadFailed] = useState(false);
+  // Read or refused: until then an empty list is "loading", not "none".
+  const [loaded, setLoaded] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   useEffect(() => {
@@ -41,6 +43,7 @@ export function useCustomPlaces(category: string, setError: (message: string | n
       // auth.uid(). Already ordered by name.
       const { data, error } = await getSupabase().rpc("my_custom_spots");
       if (cancelled) return;
+      setLoaded(true);
       if (error) { setLoadFailed(true); return; }
       setSaved((data ?? []) as SavedCustomPlace[]);
     })();
@@ -124,7 +127,7 @@ export function useCustomPlaces(category: string, setError: (message: string | n
 
   return {
     open, setOpen, name, setName, area, setArea, address, setAddress, note, setNote,
-    visibility, setVisibility, saving, saved, loadFailed, selectedIds, toggle, restrictedFor, save,
+    visibility, setVisibility, saving, saved, loaded, loadFailed, selectedIds, toggle, restrictedFor, save,
     // P26: the pinned places as the reveal shows them, in pin order.
     pinnedCards: selectedIds.map((id) => saved.find((place) => place.id === id))
       .map((place) => place && { name: place.name, area: place.area, photo_url: null, photo_attribution: null }),
@@ -137,7 +140,7 @@ export default function CustomPlaceSection({ places: p, onSignIn }: { places: Re
   return (
     <section className="plan-custom-place" aria-labelledby="custom-place-heading">
       <div className="plan-custom-place__header">
-        <div><p id="custom-place-heading" className="plan-form__label">Your own places</p><small>Pin up to three saved locations into this plan.</small></div>
+        <div><p id="custom-place-heading" className="plan-form__label">A place of your own</p><small>Save it once; it waits in My places for any plan.</small></div>
         {onSignIn ? (
           <button type="button" onClick={onSignIn}>Sign in to add a place</button>
         ) : (
@@ -147,15 +150,6 @@ export default function CustomPlaceSection({ places: p, onSignIn }: { places: Re
 
       {p.loadFailed && (
         <p className="plan-custom-place__error" role="status">Couldn’t load your saved places. Refresh to try again.</p>
-      )}
-      {p.saved.length > 0 && (
-        <div className="plan-custom-place__saved">
-          {p.saved.map((place) => (
-            <button key={place.id} type="button" onClick={() => p.toggle(place.id)} aria-pressed={p.selectedIds.includes(place.id)}>
-              <strong>{place.name}</strong><span>{place.area} · {place.visibility}</span>
-            </button>
-          ))}
-        </div>
       )}
 
       {p.open && (

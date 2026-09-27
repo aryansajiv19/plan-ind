@@ -195,7 +195,6 @@
   .plan-smart-result > div:first-child {
     display: block;
   }
-  .plan-custom-place__saved,
   .plan-custom-place__editor {
     grid-template-columns: 1fr;
   }
