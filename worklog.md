@@ -557,3 +557,22 @@ the impeccable skill, standards advisory, on `lane/frontend-exp` only.
   alternating local run (5 reps) confirms the JS drop and demo-mobile LCP -7%;
   it cannot show the image fix, whose photos point at the live host.
 - **075, 066, 076 applied live** (ledger above); P35 merged (8d2277f).
+
+## 2026-09-28 — Lead: redesign "night-listings magazine" (owner: "go all out")
+
+Impeccable direction (seed 571d077f, code-led; contract in the local-only
+.impeccable/surfaces brief; PRODUCT.md local-only). Owner answers: audience
+everyone, all screens, nothing off limits, place ids approved.
+- **Photos everywhere:** VenuePhoto (own photo first, else the matched
+  Google place's, fetched per card near the viewport); 076 ids + 077 visitor
+  quota live. Verified live signed-out: 12/12 photo calls 200, 0 errors.
+- **1/5 tokens + type (f08b0e0):** Archivo variable replaces Cormorant +
+  Hanken (90 KB vs ~240 KB); paper/ink, souk-gold fill, coral live; every
+  text pair re-measured; tokens.css 26 -> 12 KB.
+- **2/5 landing cover (6581478):** photo mosaic behind a poster-scale cover
+  line, gold issue band with real counts; card-stack deleted.
+- **3/5 vote (2f588e1):** name over the photo, the bracket wired into the
+  final, gold primary; fixed the current round's label vanishing once picked.
+- **Lanes:** A on 4/5 (signed-in pages); B on 078 (booking F1/F2/F6); an
+  agent is sourcing CC-licensed venue photos for 079 (own photos cost nothing
+  per view; Google's are capped at 300/day).
