@@ -16,6 +16,7 @@ import { CATEGORIES, CATEGORY_GROUPS, type Category, type GroupKey } from "@/com
 import DirectPlanSearch from "@/components/DirectPlanSearch";
 import CustomPlaceSection, { useCustomPlaces } from "@/components/CustomPlaces";
 import DealReveal, { type RevealCard } from "@/components/DealReveal";
+import WhenPicker, { offerTimes, useWhenPicks } from "@/components/WhenPicker";
 import { fetchSampleDeal } from "@/lib/deal-sample";
 import { SAMPLE_POOLS } from "@/components/demo/sampleDecision";
 import type { PlanPrefill } from "@/lib/board-plan";
@@ -68,6 +69,7 @@ export default function StartPlanForm({
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const custom = useCustomPlaces(category, setError);
+  const when = useWhenPicks(); // P21
   // P6: label each limit with what it can deal from, and switch off what
   // can't fill the nine left after pinned places. Needs a session, so not in the demo.
   const preview = useDealPreview(category, originValue, !demoMode);
@@ -181,6 +183,7 @@ export default function StartPlanForm({
       return;
     }
 
+    if (!when.valid) { setError("Offer two to four times, or none."); return; }
     const restricted = custom.restrictedFor(age);
     if (restricted) {
       setError(`${restricted.name} has an age requirement that does not match this account.`);
@@ -206,8 +209,11 @@ export default function StartPlanForm({
       setCreating(false);
       return;
     }
+    // The time poll rides along the reveal too; if it doesn't save, the plan
+    // page says so rather than showing no poll as if none was offered.
+    const timesSaved = await offerTimes(outcome.id, when.picks).catch(() => false);
     await shown;
-    router.push(`/plan/${outcome.id}`);
+    router.push(`/plan/${outcome.id}${timesSaved ? "" : "?when=unsaved"}`);
   }
 
   // What the deal is working from, echoed back as the reveal's chips.
@@ -381,6 +387,8 @@ export default function StartPlanForm({
           </fieldset>
         </div>
       </section>
+
+      {!demoMode && <WhenPicker when={when} />}
 
       <label htmlFor="plan-title" className="plan-form__label plan-form__label--spaced">
         Give it a title

@@ -10,6 +10,7 @@ import { fitForEvent, hoursLabel } from "@/lib/open-hours";
 import { dubaiMinuteOfDay, fromDubaiInput, toDubaiInput } from "@/lib/dubai-phase";
 import GettingThere from "@/components/vote/GettingThere";
 import KnowBeforeYouGo from "@/components/KnowBeforeYouGo";
+import { WhenChosen } from "@/components/vote/WhenPoll";
 import { reopensLabel } from "@/lib/venue-facts";
 import BookingSection from "@/components/vote/BookingSection";
 import RatingSection from "@/components/vote/RatingSection";
@@ -200,6 +201,7 @@ export default function DecidedPlan({
               </button>
             )}
           </div>
+          <WhenChosen planId={plan.id} eventTime={plan.event_time} />
           {/* The forecast at the venue for that hour. Renders nothing while
               loading, on failure, or with no venue coordinates. */}
           {winner.latitude != null && winner.longitude != null && (
