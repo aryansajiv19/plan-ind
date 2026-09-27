@@ -39,6 +39,54 @@ alter table spots add constraint spots_custom_text_caps check (
   )
 );
 
+-- Owners type these fields, and a direct insert skips the form: a CR or a
+-- bidi override (U+202E) in a name reached every screen that shows it. Cleaned
+-- as participant names are (clean_app_text: control characters and bidi marks
+-- out, trimmed), but capped at the value's own length on purpose: over-long
+-- text is still refused by spots_custom_text_caps, never silently cut. An
+-- optional field that cleans to nothing becomes null; a name can't.
+-- clean_app_text (020) also drops the invisible characters it missed: U+061C
+-- (the one bidi mark not listed; it reorders like U+200F), U+200B, U+2060 and
+-- U+FEFF. ZWNJ/ZWJ stay: Persian text and emoji need them. No index or CHECK
+-- uses it, so every caller simply gets stricter.
+create or replace function clean_app_text(value text, maximum integer)
+returns text language sql immutable set search_path = pg_catalog as $$
+  select left(trim(regexp_replace(translate(coalesce(value, ''),
+    chr(8206)||chr(8207)||chr(8234)||chr(8235)||chr(8236)||chr(8237)||chr(8238)||chr(8294)||chr(8295)||chr(8296)||chr(8297)
+    ||chr(1564)||chr(8203)||chr(8288)||chr(65279),
+    ''), '[[:cntrl:]]', '', 'g')), maximum)
+$$;
+
+create or replace function sanitize_custom_spot_text()
+returns trigger language plpgsql set search_path = public, pg_temp as $$
+begin
+  if new.source <> 'curated' then
+    new.name := clean_app_text(new.name, char_length(new.name));
+    -- clean_display_name's wider invisible set decides "empty" (it caps at 40,
+    -- so it only judges): a name of zero-width or no-break spaces is none.
+    if coalesce(clean_display_name(new.name), '') = '' then
+      raise exception 'A place name is required' using errcode = '22023';
+    end if;
+    new.area := clean_app_text(new.area, char_length(new.area));
+    new.cuisine := clean_app_text(new.cuisine, char_length(new.cuisine));
+    new.open_till := clean_app_text(new.open_till, char_length(new.open_till));
+    new.vibe := clean_app_text(new.vibe, char_length(new.vibe));
+    new.description := nullif(clean_app_text(new.description, char_length(new.description)), '');
+    new.address := nullif(clean_app_text(new.address, char_length(new.address)), '');
+  end if;
+  return new;
+end; $$;
+revoke all on function sanitize_custom_spot_text() from public, anon, authenticated;
+drop trigger if exists spots_sanitize_custom_text on spots;
+create trigger spots_sanitize_custom_text before insert or update on spots
+  for each row execute function sanitize_custom_spot_text();
+-- Rows written before the trigger: an update runs each through it once. A
+-- name that cleans to nothing would make that update raise and stop the
+-- whole migration, so it gets a visible placeholder first.
+update spots set name = 'Unnamed place'
+where source <> 'curated' and coalesce(clean_display_name(name), '') = '';
+update spots set name = name where source <> 'curated';
+
 -- ── R9: a 'friends' photo is visible to the owner's friends ────────────────
 -- The old branch's unqualified person_id bound to friendships.person_id, so
 -- it asked whether the viewer was anyone's friend of themselves: always
