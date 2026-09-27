@@ -320,3 +320,6 @@ are live.
   plan's state in Dubai time, and an honest error state.
 - **P15 approved:** cancelling a decided plan = deleting it when the outing
   didn't happen (no ratings or visits), allowed even when booked.
+- **P7:** signed-out composer controls say "Sign in to …" before any work;
+  the draft survives sign-in (sessionStorage → prefill on /home); smart search
+  hidden when the server has no model key, key checked before the quota.
