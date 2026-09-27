@@ -41,10 +41,9 @@ not after.
 
 ## Git and deploys
 
-- Production (`https://plan-ind.vercel.app`) is promoted from the Vercel CLI
-  only. `main` is the source of truth, and `vercel.json` stops pushes to it
-  from auto-deploying — remove that line only when the owner decides to go
-  live from `main`. Every other pushed branch gets a protected preview.
+- A push to `main` deploys production (`https://plan-ind.vercel.app`); only
+  commits touching nothing but `*.md` or `docs/` skip the build
+  (`vercel.json`). Gate before pushing. Other branches get protected previews.
 - Commit promptly and push. Stage explicit paths while a subagent is working in
   the same tree — never `git add -A`.
 - Subagents for genuine fan-out only (independent audits, unrelated files).
