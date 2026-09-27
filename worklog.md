@@ -343,3 +343,6 @@ Migration 070 "catalogue truth" briefed to the platform lane; the facts UI
 - **P12:** direct-plan form has no dead budget/radius controls; submit recovers
   from network errors; search matches name/area/cuisine on a sanitised query,
   with a real error state and 12 curated tiles before typing.
+- **P5 + P15 (platform lane):** a failed deal read is a 503 "Couldn't deal places
+  right now", never "raise your budget"; the host can cancel (delete) a decided
+  plan until someone rates or logs a visit, even when booked. test:db 59/59.
