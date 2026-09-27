@@ -36,6 +36,11 @@ async function decidedPlanWithTwo(browser: Browser, baseURL: string,
     const member = await signInAsMember(memberContext, baseURL, `Mira ${stamp}`);
     await withPlan({ title: `E2E booking ${stamp}`, spotIds, status: "decided", winnerSpotId: SEEDED.threeFils,
       createdBy: host.userId }, async (planId) => {
+      // Both were in the plan before it was decided (078: a holder who joined
+      // after the decision can't mark it booked), so stamp decided_at after.
+      const admin = localAdmin();
+      await admin.from("plan_access").insert([{ plan_id: planId, user_id: host.userId }, { plan_id: planId, user_id: member.userId }]);
+      await admin.from("plans").update({ decided_at: new Date(Date.now() + 1_000).toISOString() }).eq("id", planId);
       const [hostPage, memberPage] = [await hostContext.newPage(), await memberContext.newPage()];
       for (const page of [hostPage, memberPage]) {
         const ready = realtimeReady(page);
@@ -103,3 +108,56 @@ test("tapping on a stale screen after someone else claimed shows who has it, and
     expect(await holderOf(planId)).toBe(member.userId); // the member keeps it
   });
 });
+
+// ── 078 (security review of 075) ─────────────────────────────────────────────
+test("a member who doesn't hold it is never offered Mark as booked; the host is", async ({ browser, baseURL }) => {
+  test.skip(!canProvision(), "needs the local stack to mint an account");
+  await decidedPlanWithTwo(browser, baseURL!, async ({ planId, member, hostPage, memberPage }) => {
+    await section(memberPage).getByRole("button", { name: "I’ll book it" }).click();
+    await expect(section(memberPage)).toContainText("You’re booking it.");
+    const bystanderContext = await browser.newContext();
+    try {
+      await signInAsMember(bystanderContext, baseURL!, `Bo ${Date.now()}`);
+      const bystander = await bystanderContext.newPage();
+      await bystander.goto(`/plan/${planId}`);
+      await expect(section(bystander)).toContainText(`${member.name}’s booking it.`, { timeout: 20_000 });
+      await expect(section(bystander).getByRole("button", { name: "Mark as booked" })).toHaveCount(0);
+    } finally {
+      await bystanderContext.close();
+    }
+    await expect(section(hostPage).getByRole("button", { name: "Mark as booked" })).toBeVisible();
+  });
+});
+
+test("the host can unmark a booking the holder made, and the claim stays theirs", async ({ browser, baseURL }) => {
+  test.skip(!canProvision(), "needs the local stack to mint an account");
+  await decidedPlanWithTwo(browser, baseURL!, async ({ planId, member, hostPage, memberPage }) => {
+    await section(memberPage).getByRole("button", { name: "I’ll book it" }).click();
+    await section(memberPage).getByRole("button", { name: "Mark as booked" }).click();
+    await expect(section(hostPage)).toContainText(`Booked by ${member.name}`, { timeout: 15_000 });
+    await section(hostPage).getByRole("button", { name: "Unmark booked" }).click();
+    for (const page of [hostPage, memberPage]) {
+      await expect(section(page)).not.toContainText("Booked by", { timeout: 15_000 });
+    }
+    await expect(section(memberPage)).toContainText("You’re booking it.");
+    const { data } = await localAdmin().from("plans").select("booked").eq("id", planId).single();
+    expect(data!.booked).toBe(false);
+    expect(await holderOf(planId)).toBe(member.userId);
+  });
+});
+
+test("a holder who deletes their account frees the claim for everyone (it used to stick as 'Former member')", async ({ browser, baseURL }) => {
+  test.skip(!canProvision(), "needs the local stack to mint an account");
+  await decidedPlanWithTwo(browser, baseURL!, async ({ planId, host, member, hostPage, memberPage }) => {
+    await section(memberPage).getByRole("button", { name: "I’ll book it" }).click();
+    await expect(section(hostPage)).toContainText(`${member.name}’s booking it.`, { timeout: 15_000 });
+    const { data } = await clientAs(member).rpc("delete_my_account", { p_probe: false });
+    expect(data).toMatchObject({ result: "deleted" });
+    const claimAgain = section(hostPage).getByRole("button", { name: "I’ll book it" });
+    await expect(claimAgain).toBeVisible({ timeout: 15_000 }); // over Realtime, no reload
+    await claimAgain.click();
+    await expect(section(hostPage)).toContainText("You’re booking it.");
+    expect(await holderOf(planId)).toBe(host.userId);
+  });
+});
+
