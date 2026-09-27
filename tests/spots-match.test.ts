@@ -135,10 +135,36 @@ test("avoid keywords hard-filter case-insensitively across name, cuisine, vibe a
     deal(pool, { constraints: { avoidKeywords: ["sushi"], vibeKeywords: ["sushi"] }, count: 1 }),
     ["safe"],
   );
+});
 
-  // Documented, not endorsed: matching is plain substring, so "bar" removes
-  // "Barbecue" and "Barasti". Reported to backend-data.
-  assert.deepEqual(eligible([spot("bbq", { cuisine: "Barbecue" })], { avoidKeywords: ["bar"] }), []);
+test("avoid matches whole words, so 'bar' keeps Barbecue and Al Barsha", () => {
+  const pool = [
+    spot("wine-bar", { name: "The Wine Bar" }),
+    spot("hyphen", { vibe: "rooftop bar-hopping" }),
+    spot("bbq", { cuisine: "Barbecue" }),
+    spot("barsha", { description: "Al Barsha's favourite grill" }),
+  ];
+  assert.deepEqual(eligible(pool, { avoidKeywords: ["bar"] }), ["bbq", "barsha"]);
+
+  // Accented letters are word characters too (\b would miss "Café Nero").
+  const cafes = [spot("cafe", { name: "Café Nero" }), spot("plural", { name: "Cafés of Dubai" })];
+  assert.deepEqual(eligible(cafes, { avoidKeywords: ["café"] }), ["plural"]);
+});
+
+test("avoid stops filtering when the rest can't fill the deal, and draws the avoided last", () => {
+  const pool = [
+    spot("bar-1", { name: "Wine Bar One" }),
+    spot("sibling", { category: "brunch" }),
+    spot("bar-2", { name: "Bar Two" }),
+    spot("kept"),
+  ];
+  const avoidBar = { avoidKeywords: ["bar"] };
+
+  // Enough without them: still a filter.
+  assert.deepEqual(deal(pool, { count: 2, constraints: avoidBar }), ["kept", "sibling"]);
+  // Two can't fill three: the old hard filter dealt nothing. Now both are
+  // in, and an avoided dinner spot loses even to a brunch sibling.
+  assert.deepEqual(deal(pool, { count: 3, constraints: avoidBar }), ["kept", "sibling", "bar-1"]);
 });
 
 test("area is outside the searched text, so avoid keywords never filter on it", () => {

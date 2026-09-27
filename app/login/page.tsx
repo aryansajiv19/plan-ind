@@ -26,11 +26,12 @@ export default async function LoginPage({
   // row. Null (bad id, deleted plan, timeout) falls back to generic copy.
   const planId = planIdFrom(next);
   const planTitle = planId ? (await fetchPlanSharePreview(planId))?.title ?? null : null;
-  const pageError = params.message ?? (params.error === "google"
-    ? "Google sign-in is not configured yet. Enable Google in Supabase Authentication, or use email instead."
-    : params.error === "callback"
-      ? "Sign-in could not be completed. Check the OAuth redirect settings and try again."
-      : params.error);
+  // Fixed copy only: echoing the param would let any link write the alert.
+  const pageError = params.error === "google"
+    ? "Google sign-in isn’t available right now. Use your email instead."
+    : params.error || params.message
+      ? "Sign-in did not finish. Please try again."
+      : undefined;
 
   return (
     <main className="auth-shell">

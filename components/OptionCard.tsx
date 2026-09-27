@@ -12,8 +12,9 @@ import type { DealReason } from "@/lib/deal-reasons";
 import { hoursLabel, openStatus } from "@/lib/open-hours";
 import { metroFor } from "@/lib/dubai-metro";
 import { reopensLabel } from "@/lib/venue-facts";
-import type { Coordinates } from "@/lib/dubai-areas";
-import { driveMinutesEstimate, haversineKm } from "@/lib/directions";
+// Aliased: `distanceKm` is also this card's prop (the distance from the host's origin).
+import { distanceKm as straightLineKm, type Coordinates } from "@/lib/dubai-areas";
+import { driveMinutesEstimate } from "@/lib/directions";
 import { useMinuteClock } from "@/hooks/use-minute-clock";
 
 interface OptionCardProps {
@@ -60,7 +61,7 @@ export default function OptionCard({
   const cat = categoryMeta(spot.category);
   // The distance chip carries the km itself; saying it twice is clutter.
   const fromYou = viewerFrom && spot.latitude != null && spot.longitude != null
-    ? haversineKm(viewerFrom.latitude, viewerFrom.longitude, spot.latitude, spot.longitude) : null;
+    ? straightLineKm(viewerFrom, { latitude: spot.latitude, longitude: spot.longitude }) : null;
   // Your own distance wins over the host-based chip, so the card never shows two.
   const reasons = fromYou != null ? dealtReasons?.filter((reason) => reason.kind !== "distance") : dealtReasons;
   const shownKm = reasons?.some((reason) => reason.kind === "distance") ? null : distanceKm;

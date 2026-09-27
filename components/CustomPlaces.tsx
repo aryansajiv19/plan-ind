@@ -93,9 +93,11 @@ export function useCustomPlaces(category: string, setError: (message: string | n
         category,
         area: cleanArea,
         cuisine: "Custom place",
+        // The form asks neither, so hours stay empty. price_band can't: its
+        // CHECK allows only $/$$/$$$ (schema.sql), so it holds a placeholder.
         price_band: "$$",
         min_spend: 0,
-        open_till: "Flexible",
+        open_till: "",
         // Never the email prefix: community places are readable by every account.
         vibe: note.trim() || "Saved by a friend",
         description: note.trim() || null,

@@ -177,13 +177,9 @@
   border-color: transparent;
 }
 .auth-google__icon {
-  display: grid;
-  place-items: center;
-  width: 1.45rem;
-  height: 1.45rem;
-  border: 1px solid currentColor;
-  font-size: max(.72rem, var(--type-floor));
-  font-weight: 500;
+  width: 1.1rem;
+  height: 1.1rem;
+  flex-shrink: 0;
 }
 .auth-divider {
   display: flex;
