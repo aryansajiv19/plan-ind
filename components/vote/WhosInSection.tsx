@@ -1,4 +1,5 @@
 import type { Rsvp } from "@/lib/types";
+import { seatKey, type Seat } from "@/lib/tally";
 import { avatarStyle, initialsOf } from "@/lib/avatar";
 
 export default function WhosInSection({
@@ -10,7 +11,7 @@ export default function WhosInSection({
 }: {
   rsvps: Rsvp[];
   /** Everyone the plan can see, you first. A lower bound — see the vote page. */
-  roster: string[];
+  roster: Seat[];
   /** This account's RSVP row (lib/my-rows.ts): names are not unique. */
   isMine: (rsvp: Rsvp) => boolean;
   onSetRsvp: (choice: "coming" | "maybe" | "no") => void;
@@ -20,7 +21,7 @@ export default function WhosInSection({
   const coming = rsvps.filter((r) => choiceFor(r) === "coming");
   const mine = rsvps.find(isMine);
   const myChoice = mine ? choiceFor(mine) : null;
-  const rsvpOf = new Map(rsvps.map((r) => [r.voter_name, r]));
+  const rsvpOf = new Map(rsvps.map((r) => [seatKey(r), r]));
   const withChoice = (choice: "maybe" | "no") => rsvps.filter((r) => choiceFor(r) === choice).map((r) => r.voter_name);
   const carpoolNote = (r: Rsvp) =>
     r.transport === "driving"
@@ -40,11 +41,11 @@ export default function WhosInSection({
           </p>
           {roster.length > 1 && (
             <ul className="vote-seats__row mt-2" aria-label="People on this plan">
-              {roster.slice(0, 10).map((name) => {
-                const r = rsvpOf.get(name);
+              {roster.slice(0, 10).map(({ key, name, you }) => {
+                const r = you ? mine : rsvpOf.get(key);
                 const going = r ? choiceFor(r) === "coming" : false;
                 return (
-                  <li key={name} className="vote-seat" data-open={going ? undefined : "1"}>
+                  <li key={key} className="vote-seat" data-open={going ? undefined : "1"}>
                     <span aria-hidden="true" style={going ? avatarStyle(name) : undefined}>{initialsOf(name)}</span>
                     <span className="sr-only">
                       {name}, {r ? (choiceFor(r) === "coming" ? "coming" : choiceFor(r) === "maybe" ? "maybe" : "can’t make it") : "no RSVP"}

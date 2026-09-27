@@ -1,7 +1,21 @@
 // Pure tally helpers for the vote page (app/plan/[id]/page.tsx). Display
 // only: the tally that actually advances or decides a plan runs server-side
 // in execute_plan_command. No imports beyond types, so it tests without env.
-import type { PlanSpot, PlanStage, Vote } from "@/lib/types";
+import type { PlanSpot, PlanStage, Rating, Rsvp, Vote } from "@/lib/types";
+import type { Mine } from "@/lib/my-rows";
+
+type PersonRow = { voter_name: string; participant_token_hash?: string | null };
+
+/** One seat per person the client can see; `you` marks this account's. */
+export type Seat = { key: string; name: string; you: boolean };
+
+/**
+ * Names repeat on a plan (F2), so a row's person is its participant token
+ * hash; a name stands in only where there is no hash (presence).
+ */
+export function seatKey(row: PersonRow): string {
+  return row.participant_token_hash ? `p:${row.participant_token_hash}` : `n:${row.voter_name}`;
+}
 
 export type Round = { phase: "pool" | "final"; poolNumber: number };
 
@@ -66,13 +80,26 @@ export function agreementOf(counts: readonly number[]): number {
   return Math.min(1, Math.max(0, (share - 1 / n) / (1 - 1 / n)));
 }
 
+/**
+ * The next pool round (1..poolCount) this voter hasn't picked in, searching
+ * forward from `after` and wrapping; null when every round has a pick. With
+ * `after` = 0 it is the earliest unpicked round.
+ */
+export function nextUnpickedPool(chosen: ReadonlySet<number>, after: number, poolCount: number): number | null {
+  for (let i = 1; i <= poolCount; i++) {
+    const pool = ((after + i - 1) % poolCount) + 1;
+    if (!chosen.has(pool)) return pool;
+  }
+  return null;
+}
+
 /** What the vote page derives from its rows on every render. Pure. */
 export function planView<S extends { id: string }>({
-  votes, rsvps, ratings, presentNames, voterName, spots, planSpots, stage, activePool, poolCount, round, winnerId, planOpen, iVotedYes, isMyVote,
+  votes, rsvps, ratings, presentNames, voterName, spots, planSpots, stage, activePool, poolCount, round, winnerId, planOpen, iVotedYes, mine,
 }: {
   votes: readonly Vote[];
-  rsvps: readonly { voter_name: string }[];
-  ratings: readonly { voter_name: string }[];
+  rsvps: readonly Rsvp[];
+  ratings: readonly Rating[];
   presentNames: readonly string[];
   voterName: string;
   spots: S[];
@@ -84,20 +111,29 @@ export function planView<S extends { id: string }>({
   winnerId: string | null;
   planOpen: boolean;
   iVotedYes: (spotId: string) => boolean;
-  isMyVote: (vote: Vote) => boolean;
+  mine: Mine;
 }) {
-  const voterCount = new Set(votes.map((v) => v.voter_name)).size;
+  const voterCount = new Set(votes.map(seatKey)).size;
   // Editable only before voting starts; the server enforces the same rule.
   const canEdit = planOpen && stage === "pool" && votes.length === 0;
-  // Everyone the client can see on this plan, you first. See the seats row.
-  const roster = [...new Set([
-    ...votes.map((v) => v.voter_name),
-    ...rsvps.map((r) => r.voter_name),
-    ...ratings.map((r) => r.voter_name),
-    ...presentNames,
-  ])].filter((name) => name !== voterName).sort((a, b) => a.localeCompare(b));
-  roster.unshift(voterName);
-  const pickedThisRound = new Set(votes.filter((v) => v.value && isInRound(v, round)).map((v) => v.voter_name));
+  // Everyone the client can see on this plan, one seat per person, you first.
+  const seats = new Map<string, Seat>();
+  const seat = (row: PersonRow, you: boolean) => {
+    const key = seatKey(row);
+    const known = seats.get(key);
+    if (known) known.you ||= you;
+    else seats.set(key, { key, name: row.voter_name, you });
+  };
+  votes.forEach((row) => seat(row, mine.vote(row)));
+  rsvps.forEach((row) => seat(row, mine.rsvp(row)));
+  ratings.forEach((row) => seat(row, mine.rating(row)));
+  // Presence carries only a name: a seat for someone here with no rows yet.
+  const named = new Set([...seats.values()].map((s) => s.name));
+  presentNames.forEach((name) => { if (!named.has(name) && name !== voterName) seat({ voter_name: name }, false); });
+  const you = [...seats.values()].find((s) => s.you) ?? { key: "you", name: voterName, you: true };
+  const roster = [you, ...[...seats.values()].filter((s) => !s.you).sort((a, b) => a.name.localeCompare(b.name))];
+  // Seat keys that picked in the round on screen (your rows count as your seat).
+  const pickedThisRound = new Set(votes.filter((v) => v.value && isInRound(v, round)).map((v) => (mine.vote(v) ? you.key : seatKey(v))));
   const othersHere = presentNames.filter((name) => name !== voterName);
   const winnerSpot = spots.find((s) => s.id === winnerId) ?? null;
   const visibleSpots = visibleSpotsFor(spots, planSpots, stage, activePool);
@@ -110,7 +146,7 @@ export function planView<S extends { id: string }>({
 
   const poolsChosenByMe = new Set(
     votes
-      .filter((vote) => isMyVote(vote) && vote.value && (vote.phase ?? "final") === "pool")
+      .filter((vote) => mine.vote(vote) && vote.value && (vote.phase ?? "final") === "pool")
       .map((vote) => vote.pool_number),
   );
   const allPoolsChosen = Array.from({ length: poolCount }, (_, index) => index + 1)

@@ -153,7 +153,8 @@ function SampleRun({ onReplay }: { onReplay: () => void }) {
   const myPick = votes.find((v) => v.voter_name === SAMPLE_VOTER && v.phase === round.phase && v.pool_number === round.poolNumber)?.spot_id ?? null;
   const leaderId = leaderOf(visibleIds, countFor);
   const agreement = agreementOf(visibleIds.map(countFor));
-  const roster = [SAMPLE_VOTER, ...SAMPLE_FRIENDS];
+  // Fixture names are unique, so each seat is keyed by its name.
+  const roster = [SAMPLE_VOTER, ...SAMPLE_FRIENDS].map((name) => ({ key: name, name, you: name === SAMPLE_VOTER }));
   const pickedThisRound = new Set(votes.filter((v) => v.phase === round.phase && v.pool_number === round.poolNumber).map((v) => v.voter_name));
   const waitingOn = SAMPLE_FRIENDS.filter((name) => !pickedThisRound.has(name)).map((name) => name.split(" ")[0]);
   const poolsChosen = new Set(votes.filter((v) => v.voter_name === SAMPLE_VOTER && v.phase === "pool").map((v) => v.pool_number));
@@ -176,7 +177,7 @@ function SampleRun({ onReplay }: { onReplay: () => void }) {
             <RoundLabel stage={stage === "pool" ? "pool" : "final"} activePool={activePool} poolCount={SAMPLE_PLAN.poolCount} nightMode={false} />
           )}
           {!decided && (
-            <VoteSeats roster={roster} voterName={SAMPLE_VOTER} picked={pickedThisRound} othersHere={[...SAMPLE_FRIENDS]} />
+            <VoteSeats roster={roster} picked={pickedThisRound} othersHere={[...SAMPLE_FRIENDS]} />
           )}
         </div>
         <span className="vote-deadline shrink-0 whitespace-nowrap px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-grape">

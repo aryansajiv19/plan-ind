@@ -1,4 +1,5 @@
 import { avatarStyle, initialsOf } from "@/lib/avatar";
+import type { Seat } from "@/lib/tally";
 
 // Past this many seats the row stops reading as faces; the rest collapse to +N.
 const SEAT_LIMIT = 10;
@@ -12,14 +13,12 @@ const SEAT_LIMIT = 10;
  */
 export default function VoteSeats({
   roster,
-  voterName,
   picked,
   othersHere,
 }: {
-  /** Everyone on the plan, you first. */
-  roster: string[];
-  voterName: string;
-  /** Names that have picked in the round on screen. */
+  /** Everyone on the plan, one seat per person, you first. */
+  roster: Seat[];
+  /** Seat keys that have picked in the round on screen. */
   picked: ReadonlySet<string>;
   /** Other people with the plan open right now. */
   othersHere: string[];
@@ -27,15 +26,15 @@ export default function VoteSeats({
   return (
     <div className="vote-seats">
       <ul className="vote-seats__row" aria-label="People on this plan">
-        {roster.slice(0, SEAT_LIMIT).map((name) => {
-          const done = picked.has(name);
+        {roster.slice(0, SEAT_LIMIT).map(({ key, name, you }) => {
+          const done = picked.has(key);
           return (
-            <li key={name} className="vote-seat" data-open={done ? undefined : "1"}>
+            <li key={key} className="vote-seat" data-open={done ? undefined : "1"}>
               <span aria-hidden="true" data-face-name={name} data-face-slot="seat" style={done ? avatarStyle(name) : undefined}>
                 {initialsOf(name)}
               </span>
               <span className="sr-only">
-                {name === voterName ? `${name} (you)` : name}, {done ? "picked" : "not picked yet"}
+                {you ? `${name} (you)` : name}, {done ? "picked" : "not picked yet"}
               </span>
             </li>
           );

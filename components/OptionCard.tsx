@@ -19,6 +19,8 @@ interface OptionCardProps {
   /** Most yes-votes in this round, and not a tie. Drives the After Dark sheen. */
   isLeader: boolean;
   decided: boolean; // plan is settled — voting closed
+  /** The deadline passed and the plan hasn't moved on yet: look, don't touch. */
+  closed?: boolean;
   distanceKm?: number | null;
   /** "Why this?" chips from `dealReasons()`. Omitted means none render. */
   reasons?: readonly DealReason[];
@@ -33,6 +35,7 @@ export default function OptionCard({
   isWinner,
   isLeader,
   decided,
+  closed = false,
   distanceKm,
   reasons,
   onToggle,
@@ -82,7 +85,7 @@ export default function OptionCard({
     <button
       type="button"
       onClick={onToggle}
-      disabled={decided}
+      disabled={decided || closed}
       aria-pressed={voted}
       className={[
         // `token` is the signature offset shadow — the card sits on the page

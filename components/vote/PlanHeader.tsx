@@ -1,6 +1,8 @@
 import type { Plan, PlanStage } from "@/lib/types";
+import type { Seat } from "@/lib/tally";
 import VoteSeats from "@/components/vote/VoteSeats";
 import { RoundLabel } from "@/components/vote/RoundProgress";
+import { useMinuteClock } from "@/hooks/use-minute-clock";
 
 function closesLabel(deadline: string | null): string {
   if (!deadline) return "Open";
@@ -32,10 +34,11 @@ export default function PlanHeader({
   activePool: number;
   poolCount: number;
   nightMode: boolean;
-  roster: string[];
+  roster: Seat[];
   pickedThisRound: Set<string>;
   othersHere: string[];
 }) {
+  useMinuteClock(); // re-render each minute, so the "Closes in" chip counts down
   return (
   <div className="vote-header flex items-start justify-between gap-3">
     <div>
@@ -59,7 +62,7 @@ export default function PlanHeader({
       )}
       {/* §26.1: the group, not just the people who acted. */}
       {!decided && roster.length > 1 && (
-        <VoteSeats roster={roster} voterName={voterName} picked={pickedThisRound} othersHere={othersHere} />
+        <VoteSeats roster={roster} picked={pickedThisRound} othersHere={othersHere} />
       )}
     </div>
     <span className="vote-deadline shrink-0 whitespace-nowrap px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-grape">

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Plan, Rating, Rsvp, Spot } from "@/lib/types";
 import type { Mine } from "@/lib/my-rows";
+import type { Seat } from "@/lib/tally";
 import { categoryMeta } from "@/lib/categories";
 import { fitForEvent, hoursLabel } from "@/lib/open-hours";
 import { dubaiMinuteOfDay } from "@/lib/dubai-phase";
@@ -33,7 +34,7 @@ interface DecidedPlanProps {
   rsvps: Rsvp[];
   ratings: Rating[];
   /** Everyone the plan can see, you first. A lower bound — see the vote page. */
-  roster: string[];
+  roster: Seat[];
   /** Who voted for the winner in the final round, sorted. */
   pickedBy: string[];
   onSetTime: (iso: string) => void;

@@ -5,9 +5,10 @@ import UndoBar from "@/components/UndoBar";
 import { useParams } from "next/navigation";
 import { dealReasons, spotDistanceKm } from "@/lib/deal-reasons";
 import { haptic } from "@/lib/interaction";
-import { planView, roundFor, votersFor } from "@/lib/tally";
+import { nextUnpickedPool, planView, roundFor, votersFor } from "@/lib/tally";
 import { usePlanData } from "@/hooks/use-plan-data";
 import { useVoterName } from "@/hooks/use-voter-name";
+import { useMinuteClock } from "@/hooks/use-minute-clock";
 import { usePlanPresence, usePlanRealtime } from "@/hooks/use-plan-realtime";
 import { useHostCommands } from "@/hooks/use-host-commands";
 import { useLastMile } from "@/hooks/use-last-mile";
@@ -56,6 +57,9 @@ export default function VotePage() {
   const stageRef = useRef<HTMLDivElement>(null);
 
   const decided = plan?.status === "decided";
+  // P4: past the deadline the cards lock until expire_plan moves the plan on.
+  const now = useMinuteClock();
+  const closed = !decided && Boolean(plan?.deadline && now && Date.parse(plan.deadline) <= now.getTime());
   const winnerId = plan?.winner_spot_id ?? null;
   const stage = plan?.stage ?? (decided ? "decided" : "final");
   const poolCount = plan?.pool_count ?? 1;
@@ -89,10 +93,8 @@ export default function VotePage() {
   // beat, so the face lands first), unless they already moved elsewhere.
   function afterPick(picked: { phase: string; poolNumber: number }) {
     if (isHost || picked.phase !== "pool") return;
-    const chosen = new Set(votes.filter((v) => mine.vote(v) && v.value && v.phase === "pool").map((v) => v.pool_number));
-    chosen.add(picked.poolNumber);
-    const order = [...Array(poolCount)].map((_, i) => ((picked.poolNumber + i) % poolCount) + 1);
-    const next = order.find((pool) => !chosen.has(pool));
+    const chosen = new Set(votes.filter((v) => mine.vote(v) && v.value && v.phase === "pool").map((v) => v.pool_number)).add(picked.poolNumber);
+    const next = nextUnpickedPool(chosen, picked.poolNumber, poolCount);
     if (!next) return;
     setTimeout(() => {
       setRoundDir(next > picked.poolNumber ? 1 : -1);
@@ -130,7 +132,7 @@ export default function VotePage() {
     hasCurrentSelection, countFor, leaderId, agreement, poolsChosenByMe, allPoolsChosen,
   } = planView({
     votes, rsvps, ratings, presentNames, voterName, spots, planSpots, stage, activePool, poolCount, round, winnerId,
-    planOpen: plan!.status === "open", iVotedYes, isMyVote: mine.vote,
+    planOpen: plan!.status === "open", iVotedYes, mine,
   });
 
   return (
@@ -200,6 +202,7 @@ export default function VotePage() {
                   isWinner={winnerId === spot.id}
                   isLeader={spot.id === leaderId}
                   decided={decided}
+                  closed={closed}
                   distanceKm={km}
                   reasons={dealReasons({ spot, maxBudget: plan!.budget_per_person, radiusKm: plan!.radius_km, distanceKm: km, vibeKeywords: plan!.vibe_preferences, been })}
                   onToggle={() => toggleVote(spot.id)}
@@ -225,7 +228,7 @@ export default function VotePage() {
               if (activePool < poolCount) setActivePool((pool) => pool + 1);
               else void advanceToFinal();
             }}
-            firstUnchosen={[...Array(poolCount)].map((_, i) => i + 1).find((pool) => !poolsChosenByMe.has(pool)) ?? null}
+            firstUnchosen={nextUnpickedPool(poolsChosenByMe, 0, poolCount)}
             onGoToPool={(pool) => { setRoundDir(pool > activePool ? 1 : -1); setActivePool(pool); }}
             onDecide={decide}
           />

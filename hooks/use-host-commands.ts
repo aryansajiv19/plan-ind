@@ -253,24 +253,45 @@ export function useHostCommands({
     }
   }, [plan, spots.length, isHost, runHostCommand, failHostCommand, setNotice, setPlan]);
 
-  // ── Deadline auto-pick ───────────────────────────────────────────
-  // Host only. Everyone else receives the transition over realtime, so a
-  // participant's browser never fires a command it isn't allowed to run.
+  // ── Deadline: any member's device moves the plan on (P4) ─────────
+  // expire_plan (069) advances or decides an expired plan for whichever
+  // member is looking, idempotent and race-safe, so a closed tab on the
+  // host's phone no longer freezes the group. Without 069 on a stack, the
+  // host's tab does it as before. Returns false only for "not due yet".
+  const expire = useCallback(async (): Promise<boolean> => {
+    const { data, error } = await getSupabase().rpc("expire_plan", { p_plan_id: id });
+    if (error) {
+      if (error.code === "PGRST202" && isHost) {
+        if (stage === "pool") await advanceToFinal();
+        else await decide();
+      }
+      return true;
+    }
+    const result = data as { result?: string; plan?: Plan; finalists?: string[] } | null;
+    if (result?.result === "not_due") return false;
+    if (result?.finalists) setPlanSpots((current) => current.map((link) => ({ ...link, advanced: result.finalists!.includes(link.spot_id) })));
+    if (result?.plan) setPlan(result.plan);
+    return true;
+  }, [id, isHost, stage, advanceToFinal, decide, setPlan, setPlanSpots]);
+
   useEffect(() => {
-    if (!plan || plan.status !== "open" || !plan.deadline || !isHost || deleted) return;
+    if (!plan || plan.status !== "open" || !plan.deadline || deleted) return;
     const ms = new Date(plan.deadline).getTime() - Date.now();
     // R1: the final round gets its own time ('advance' extends the deadline
     // server-side). A final whose deadline is already past right after this
     // tab advanced means it got none, so leave the decision to the host.
     if (stage !== "pool" && ms <= 0 && advancedHere.current) return;
-    // setTimeout(…, 0) defers even a past deadline, so we never call
-    // setState synchronously in the effect body.
-    const t = setTimeout(() => {
-      if (stage === "pool") void advanceToFinal();
-      else void decide();
-    }, Math.max(0, ms));
-    return () => clearTimeout(t);
-  }, [plan, stage, isHost, deleted, decide, advanceToFinal]);
+    // On load for an already-past deadline, else at the deadline. "Not due"
+    // means this device's clock runs ahead of the server's: try again soon.
+    // setTimeout(…, 0) keeps setState out of the effect body.
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout>;
+    const run = async () => {
+      if (!(await expire()) && !cancelled) timer = setTimeout(run, 5_000);
+    };
+    timer = setTimeout(run, Math.max(0, ms));
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [plan, stage, deleted, expire]);
 
   return {
     isHost,

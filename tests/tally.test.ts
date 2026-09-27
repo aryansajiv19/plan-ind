@@ -4,12 +4,15 @@ import {
   agreementOf,
   isInRound,
   leaderOf,
+  nextUnpickedPool,
+  planView,
   roundFor,
   visibleSpotsFor,
   votersFor,
   yesCount,
 } from "../lib/tally.ts";
 import type { PlanSpot, Vote } from "../lib/types.ts";
+import { mineFrom } from "../lib/my-rows.ts";
 
 let n = 0;
 function vote(spot_id: string, voter_name: string, overrides: Partial<Vote> = {}): Vote {
@@ -73,4 +76,40 @@ test("agreementOf: even split is 0, unanimity is 1, no votes or one option is 0"
   assert.equal(agreementOf([0, 0, 0]), 0);
   assert.equal(agreementOf([5]), 0);
   assert.ok(Math.abs(agreementOf([2, 1, 1]) - 0.25) < 1e-9);
+});
+
+// F2: names repeat on a plan, so seats are one per participant hash and your
+// own is found by row id, never by name.
+const round1 = { phase: "pool", poolNumber: 1 } as const;
+const viewOf = (votes: Vote[], myVoteIds: string[]) =>
+  planView({
+    votes, rsvps: [], ratings: [], presentNames: [], voterName: "Alice", spots: [], planSpots: [], stage: "pool",
+    activePool: 1, poolCount: 3, round: round1, winnerId: null, planOpen: true, iVotedYes: () => false,
+    mine: mineFrom({ voteIds: new Set(myVoteIds), rsvpId: null, ratingId: null }, "Alice"),
+  });
+
+test("planView: two people sharing a name get two seats, and only yours is you", () => {
+  const view = viewOf([
+    vote("a", "Alice", { id: "mine", phase: "pool", pool_number: 1, participant_token_hash: "h-me" }),
+    vote("b", "Alice", { id: "theirs", phase: "pool", pool_number: 1, participant_token_hash: "h-other" }),
+  ], ["mine"]);
+  assert.equal(view.roster.length, 2);
+  assert.deepEqual(view.roster.map((seat) => seat.you), [true, false]);
+  assert.equal(view.voterCount, 2);
+  assert.equal(view.pickedThisRound.size, 2);
+});
+
+test("planView: another Alice's pick never marks your seat as picked", () => {
+  const view = viewOf([vote("b", "Alice", { id: "theirs", phase: "pool", pool_number: 1, participant_token_hash: "h-other" })], []);
+  const you = view.roster.find((seat) => seat.you)!;
+  assert.equal(view.roster.length, 2);
+  assert.equal(view.pickedThisRound.has(you.key), false);
+  assert.equal(view.poolsChosenByMe.size, 0);
+});
+
+test("nextUnpickedPool: forward from the round just picked, wrapping; null once all are picked", () => {
+  assert.equal(nextUnpickedPool(new Set([1]), 1, 3), 2);
+  assert.equal(nextUnpickedPool(new Set([1, 3]), 3, 3), 2);
+  assert.equal(nextUnpickedPool(new Set([2]), 0, 3), 1);
+  assert.equal(nextUnpickedPool(new Set([1, 2, 3]), 2, 3), null);
 });
