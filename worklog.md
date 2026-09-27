@@ -300,3 +300,8 @@ are live.
   green. Both lanes stopped at the owner's usage limit; their queues are in
   PRIORITIES and `docs/ROADMAP.md`.
 
+- **P4 client + seats (587d9d8, 4c2e0b3):** every member's device calls
+  `expire_plan` on load and at the deadline (verified live: with the host's tab
+  closed, a member's device moved an expired plan to the final); cards lock past
+  the deadline; seats are per person (participant hash), so repeated names
+  never merge; the photo cap is stated plainly.
