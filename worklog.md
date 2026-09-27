@@ -275,3 +275,13 @@ are live.
 - **F2 client (frontend lane, cherry-picked):** own votes/RSVP/rating found by
   row id from `my_plan_rows` (name match only as a pre-migration fallback);
   the voter name is always the profile's (40 chars); NameGate removed.
+- **F1/F2 reworked (platform lane, a7c6d26):** the visit-photos cap is a
+  BEFORE INSERT/UPDATE trigger on `storage.objects` (per-owner advisory lock,
+  200 files / 500 MB) that also holds on Storage's superuser landing write;
+  the restrictive storage policy was removed because hosted projects refuse
+  CREATE POLICY on `storage.objects` without ownership (a cutover risk), while
+  TRIGGER is granted to `postgres`. No SQL orphan purge: deleting the row
+  leaves the S3 file billed and would free quota. Identity is the account
+  only: name refusals and the voter_name unique keys dropped;
+  `my_plan_rows(uuid)` gives the client its own row ids. test:db 43/43, CI
+  green. Both applied on the local stack; re-confirmation running.
