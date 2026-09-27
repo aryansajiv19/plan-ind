@@ -83,7 +83,7 @@ export function usePlanData(id: string) {
   const refetchVotes = useCallback(async () => {
     const seq = ++fetchSeq.current.votes;
     const [{ data, error }, rows] = await Promise.all([
-      getSupabase().from("votes").select("id,plan_id,spot_id,voter_name,value,phase,pool_number,participant_token_hash,created_at").eq("plan_id", id),
+      getSupabase().from("votes").select("id,plan_id,spot_id,voter_name,value,phase,pool_number,participant_token_hash,seat_key,created_at").eq("plan_id", id),
       readMine(),
     ]);
     if (error) return false;
@@ -101,7 +101,7 @@ export function usePlanData(id: string) {
   const refetchRsvps = useCallback(async () => {
     const seq = ++fetchSeq.current.rsvps;
     const [{ data, error }, rows] = await Promise.all([
-      getSupabase().from("rsvps").select("id,plan_id,voter_name,coming,choice,participant_token_hash,transport,seats_available,created_at").eq("plan_id", id),
+      getSupabase().from("rsvps").select("id,plan_id,voter_name,coming,choice,participant_token_hash,seat_key,transport,seats_available,created_at").eq("plan_id", id),
       readMine(),
     ]);
     if (error) return false;
@@ -112,7 +112,7 @@ export function usePlanData(id: string) {
   const refetchRatings = useCallback(async () => {
     const seq = ++fetchSeq.current.ratings;
     const [{ data, error }, rows] = await Promise.all([
-      getSupabase().from("ratings").select("id,plan_id,spot_id,voter_name,stars,again,participant_token_hash,created_at").eq("plan_id", id),
+      getSupabase().from("ratings").select("id,plan_id,spot_id,voter_name,stars,again,participant_token_hash,seat_key,created_at").eq("plan_id", id),
       readMine(),
     ]);
     if (error) return false;

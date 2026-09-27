@@ -113,3 +113,14 @@ test("nextUnpickedPool: forward from the round just picked, wrapping; null once 
   assert.equal(nextUnpickedPool(new Set([2]), 0, 3), 1);
   assert.equal(nextUnpickedPool(new Set([1, 2, 3]), 2, 3), null);
 });
+
+test("planView: one account voting from two devices is one seat (seat_key), two same-named accounts are two", () => {
+  const view = viewOf([
+    vote("a", "Sam", { id: "r1", phase: "pool", pool_number: 1, participant_token_hash: "phone", seat_key: "sam" }),
+    vote("b", "Sam", { id: "r2", phase: "pool", pool_number: 2, participant_token_hash: "laptop", seat_key: "sam" }),
+    vote("c", "Sam", { id: "r3", phase: "pool", pool_number: 1, participant_token_hash: "other", seat_key: "other-sam" }),
+  ], []);
+  // You (no rows yet) + Sam + the other Sam.
+  assert.equal(view.roster.length, 3);
+  assert.equal(view.voterCount, 2);
+});
