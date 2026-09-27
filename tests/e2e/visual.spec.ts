@@ -15,9 +15,17 @@ import { test, expect } from "@playwright/test";
 // projects): cross-engine baselines diff on the engine, not the app, which
 // is the noise that gets a suite muted.
 
-// A fixed evening in Dubai (19:30): the greeting and the "Closes in N min"
-// lines read the browser clock, so an unfrozen one changes pixels by the hour.
+// A fixed evening in Dubai (19:30): the "Closes in N min" lines read the
+// browser clock, so an unfrozen one changes pixels by the hour.
 const FIXED_TIME = new Date("2026-09-26T15:30:00.000Z");
+
+// P28 renders two things on the SERVER from the real Dubai clock, which the
+// frozen browser clock can't reach: the greeting, and the "right now" wall
+// (picked by what is open). Both are masked, and the wall is pinned to a
+// fixed box so the page's length doesn't change with the pick either. Test
+// CSS only: no production code path exists for this.
+const TIME_DEPENDENT = ".home-hello, .home-appbar__hello, #right-now .wall";
+const PIN_WALL = "#right-now .wall { height: 60rem !important; overflow: hidden !important; }";
 
 const VIEWPORTS = [
   { name: "mobile-390", width: 390, height: 844 },
@@ -49,8 +57,10 @@ test.describe("visual regression", () => {
         await page.clock.setFixedTime(FIXED_TIME);
         await page.setViewportSize({ width: vp.width, height: vp.height });
         await page.goto(page_.path, { waitUntil: "networkidle" });
+        await page.addStyleTag({ content: PIN_WALL });
         await expect(page).toHaveScreenshot(`${page_.name}-${vp.name}.png`, {
           fullPage: true,
+          mask: [page.locator(TIME_DEPENDENT)],
           // Antialiasing noise: per-pixel colour tolerance (0.2 is
           // Playwright's default, stated so it is a decision) plus up to 1% of
           // pixels. Real layout or colour change moves far more than that.

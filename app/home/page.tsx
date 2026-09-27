@@ -1,4 +1,5 @@
 import AuthProfileBridge from "@/components/AuthProfileBridge";
+import { greetingFor } from "@/lib/right-now";
 import HomeExperience from "@/components/HomeExperience";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
@@ -108,6 +109,7 @@ export default async function HomePage({
       />
       <HomeExperience
         name={displayName}
+        greeting={greetingFor(new Date())}
         emoji={chosenEmoji(me?.emoji)}
         age={age}
         initialView={initialView}
