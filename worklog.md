@@ -390,3 +390,7 @@ control has no UI yet.
 - **069 security fixes + 071 (merged):** a stranger can no longer block
   cancel/reopen with a fake visit; new plans refuse closed places. test:db 67/67.
 
+- **Re-confirmation (visits fix + 071): both closed.** Every insert path for a
+  plan visit refused for strangers and before the outing; 071 not bypassable,
+  Dubai midnight boundary verified. Low follow-up queued: only members who
+  joined before `decided_at` count toward `already_happened`.
