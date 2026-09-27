@@ -35,9 +35,44 @@ for (const [id, name] of [...Object.entries(PERMANENTLY_CLOSED), ...Object.entri
   if (byId.get(id)?.name !== name) throw new Error(`closure list: ${id} is not ${name} in the facts file`);
 }
 
+// age_limit (P20): a hard, venue-wide minimum becomes minimum_age -- raised,
+// never lowered; anything conditional ("under-21s need a parent", pool-only,
+// kids' hours) is a guest note instead. Only a clear minimum above the
+// youngest account age (13) is hard; "5+"-style limits don't gate anyone here.
+const HARD_AGE = [
+  /^(\d{2})\+(?: \([^)]*\))?(?: for brunch)?$/, // "21+", "18+ (valid ID required)", "21+ for brunch"
+  /^No children under (\d{2})$/,                // "No children under 14"
+];
+function hardMinimumAge(text) {
+  for (const re of HARD_AGE) {
+    const m = text.trim().match(re);
+    if (m && Number(m[1]) > 13 && Number(m[1]) <= 21) return Number(m[1]);
+  }
+  return null;
+}
+
+// Which field a source supports (P20), so the client links a fact to its
+// source without guessing. First match wins, in this order; the patterns are
+// the ones the client used (lib/venue-facts.ts), mapped to column names.
+const SOURCE_FIELDS = [
+  ["minimum_age", /\bage\b|\b(1[2-8]|21)\+|under-?\d|adults? only|over 21/i],
+  ["licensed", /licen|alcohol|beer|wine|cocktail|spirits|champagne|happy hour/i],
+  ["dress_code", /dress/i],
+  ["reservations", /book|reserv|walk-in/i],
+  ["parking", /park|valet/i],
+  ["halal_friendly", /halal|pork/i],
+  ["vegetarian_options", /vegetarian|vegan/i],
+  ["phone", /phone|tel\b|\+971|\b0\d[\s-]?\d/i],
+  ["spend_pp_aed", /AED|Dhs|price|menu|package/i],
+  ["nearest_station", /\bmetro\b|\btram\b|station/i],
+  ["address", /coordinat|openstreetmap|\bOSM\b|address|located|location/i],
+  ["website", /website|official site/i],
+];
+const fieldFor = (fact) => SOURCE_FIELDS.find(([, re]) => re.test(fact))?.[0] ?? "good_to_know";
+
 const lit = (v) => (v === null || v === undefined ? "null" : `'${String(v).replace(/'/g, "''")}'`);
 
-const counts = { venues: 0, updated: 0, fields: 0, skippedByChecker: 0, sourcesDropped: 0, stations: 0 };
+const counts = { venues: 0, updated: 0, fields: 0, skippedByChecker: 0, sourcesDropped: 0, stations: 0, minimumAges: 0, ageNotes: 0 };
 const flagged = [];
 const updates = [];
 
@@ -78,8 +113,20 @@ for (const v of facts.venues) {
   put("halal_friendly", "halal_friendly", v.halal_friendly, String(v.halal_friendly));
   put("vegetarian_options", "vegetarian_options", v.vegetarian_options, String(v.vegetarian_options));
   put("spend_pp_aed", "spend_pp_aed", v.spend_pp_aed);
-  if (!internalNote) put("good_to_know", "good_to_know", v.good_to_know);
-  else if (v.good_to_know) flagged.push(`${v.name}: good_to_know not written (a research note, not guest text)`);
+  const ageText = !blocked.has("age_limit") && typeof v.age_limit === "string" ? v.age_limit.trim() : "";
+  const hardAge = ageText ? hardMinimumAge(ageText) : null;
+  if (hardAge) {
+    set.push(`minimum_age = greatest(coalesce(minimum_age, 0), ${hardAge})`);
+    counts.minimumAges += 1;
+  }
+  const ageNote = ageText && !hardAge ? `Age: ${ageText.replace(/\.?$/, ".")}` : null;
+  if (!internalNote) {
+    const note = blocked.has("good_to_know") ? null : v.good_to_know;
+    if (v.good_to_know && blocked.has("good_to_know")) counts.skippedByChecker += 1;
+    const text = [note, ageNote].filter(Boolean).join(" ");
+    if (text) set.push(`good_to_know = ${lit(text)}`);
+    if (ageNote) counts.ageNotes += 1;
+  } else if (v.good_to_know) flagged.push(`${v.name}: good_to_know not written (a research note, not guest text)`);
 
   const station = v.nearest_station;
   if (station && !blocked.has("coords") && !blocked.has("nearest_station")) {
@@ -94,7 +141,7 @@ for (const v of facts.venues) {
   if (!Array.isArray(v.sources) && v.sources) flagged.push(`${v.name}: sources is not a list; none written`);
   const sources = raw.filter((_, i) => !droppedSources.has(i))
     .filter((s) => s && typeof s.fact === "string" && /^https?:\/\//.test(s.url ?? ""))
-    .map((s) => ({ fact: s.fact, url: s.url }));
+    .map((s) => ({ field: fieldFor(s.fact), fact: s.fact, url: s.url }));
   counts.sourcesDropped += raw.length - sources.length;
   if (set.length === 0 && sources.length === 0) continue;
   set.push(`facts_checked_on = ${lit(facts.generated)}`);
@@ -120,7 +167,9 @@ const sql = `-- Migration 070: catalogue truth. STAGED -- written, not applied a
 -- ${counts.venues} venues read; ${counts.updated} updated with ${counts.fields} field values;
 -- ${counts.skippedByChecker} values withheld because a checker note flagged them;
 -- ${counts.sourcesDropped} source entries dropped (flagged or without an http(s) url);
--- ${counts.stations} nearest stations written.
+-- ${counts.stations} nearest stations written; ${counts.minimumAges} hard age limits raised
+-- minimum_age (never lowered); ${counts.ageNotes} conditional age rules added to good_to_know.
+-- Every facts_sources entry is {field, fact, url}: the column it supports.
 --
 -- Closures: permanently closed venues become visibility 'private' (on a curated
 -- row that means retired: the deal pool, the wall and Discover skip it, and

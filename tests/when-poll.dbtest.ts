@@ -155,4 +155,8 @@ describe("073 \"When\" time poll", { skip: SKIP }, () => {
     assert.equal(await as(stranger, `select count(*) from plan_time_votes where plan_id = '${p.id}'`), "0");
     assert.equal(await as(stranger, `select count(*) from plan_time_options where plan_id = '${p.id}'`), "0");
   });
+
+  test("an un-tick reaches Realtime subscribers filtered by plan (replica identity full)", async () => {
+    assert.equal(await psql(`select relreplident from pg_class where oid = 'public.plan_time_votes'::regclass`), "f");
+  });
 });

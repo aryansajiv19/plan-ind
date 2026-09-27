@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Frame, type Page } from "@playwright/test";
 import { randomUUID } from "node:crypto";
 import { isLocalStack, localAdmin } from "./local-stack";
 
@@ -73,13 +73,19 @@ function collect(page: Page): Collected {
   });
   // An uncaught exception or unhandled rejection in the page.
   page.on("pageerror", (error) => out.pageErrors.push(error.message));
+  // Only the page's own frame counts: a third-party iframe's inner traffic (the
+  // Google map on /place, a Turnstile widget) isn't ours to break or fix, and
+  // one Google map tile answering 500 once failed this spec on a clean run.
+  const ours = (frame: () => Frame) => { try { return frame() === page.mainFrame(); } catch { return false; } };
   page.on("requestfailed", (req) => {
+    if (!ours(() => req.frame())) return;
     const failure = req.failure()?.errorText ?? "unknown";
     // Playwright reports a deliberate abort as a failure; it is not one.
     if (/ERR_ABORTED/i.test(failure)) return;
     out.failedRequests.push({ url: req.url(), failure });
   });
   page.on("response", (res) => {
+    if (!ours(() => res.frame())) return;
     if (res.status() >= 400) out.badResponses.push({ url: res.url(), status: res.status() });
   });
   return out;
