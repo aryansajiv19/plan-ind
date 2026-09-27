@@ -494,3 +494,26 @@ Everything on `main` is reviewed; go-live waits only on the owner.
   pin-able cards (shared cap of three), an empty state with Add a place /
   Import from a link, labelled samples in the demo; PlaceRow shared with the
   deck.
+
+## 2026-09-27 (evening) — CHECKPOINT: go-live half done (read this first)
+
+**Applied to LIVE today** (owner-approved, via MCP, one agent per file, full
+byte counts read): 064, 067, 068, 069, 070, 071, 072, 073, 074. 066 skipped
+on purpose; **075 merged but NOT applied**. Fingerprint check, live vs local:
+every function created or changed by 064–074 is byte-identical, and columns
+and triggers match. Remaining diffs are old drift (valid_control_secret
+because of 066, seven older functions from schema.sql, spots_name_idx, one
+legacy policy and constraint). **OPEN:** the 070 facts fingerprint over the 49
+shared curated rows differs (live 2603e91eb2a8, local ac1bc2cc5d32). Probably
+old seed/history differences in area, coordinates, age or visibility, but
+NOT verified. Next session: diff it per column before trusting the data.
+
+**NOT DONE, do next, in order:** (1) resolve the 070 fingerprint; (2) remove
+`"main": false` from vercel.json, push, then `vercel --prod --yes --scope
+safebox` from a clean `main` (production still runs the OLD client, which
+breaks guest links now that 064 is live; there are no real users, all 104
+access rows were anonymous test sessions); (3) owner: turn off anonymous
+sign-ins, then set the Turnstile secret; (4) verify on plan-ind.vercel.app;
+(5) apply 075; (6) Places ingestion (the key is in .env.local and Vercel;
+platform lane doing a local dry run first). Owner is setting up Google OAuth
+(steps given in chat).
