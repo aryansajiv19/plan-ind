@@ -42,17 +42,8 @@
     height: 29rem;
     margin: 0 auto;
   }
-  /* §22: the stage height and the deck's own floor have to agree, and
-     below this breakpoint they did not. The shell carries a fixed
-     min-h-[440px] at every width while the stage drops to 29rem (464px)
-     here and 27rem (432px) below — and the fan's rotation adds ~47px on
-     top of the shell, so the deck ran past the stage at every width under
-     768: worst case 20px above and 36px below at 520.
-
-     Neither number was wrong on its own; nobody had decided which one
-     gives. The stage owns the page rhythm at these breakpoints, so the
-     floor is what yields. Selected via the stage rather than by adding a
-     class, because the shell is the stage's only element child. */
+  /* §22: the stage owns the rhythm here, so the deck's floor yields to the
+     stage height (the fixed 440px shell ran past it under 768). */
   .home-stage > button {
     min-height: 24rem;
   }
@@ -173,20 +164,36 @@
     box-shadow: var(--elevation-card);
     transform: none;
   }
+  /* Signed in, the page heading already asks the question, so the form
+     comes first and "Deal nine" stays above the tab bar (P25). */
+  .home-plan-section--app {
+    padding-top: 1rem;
+  }
+  .home-plan-section--app .home-plan-section__intro {
+    display: none;
+  }
+  .plan-deck__row {
+    grid-auto-columns: 8rem;
+  }
+  .plan-deal-bar {
+    bottom: calc(3.75rem + env(safe-area-inset-bottom)); /* clear of the tab bar */
+  }
+  .plan-deck__paging {
+    display: none; /* a thumb swipes the row */
+  }
   /* §19.3: same soft lift as desktop; the old rgba(36,27,46) drop was heavier and cool-tinted, off the warm ramp */
   .plan-category-group {
     padding-inline: 0.68rem;
   }
-  /* height: touch-target block */
-  .plan-smart-search {
-    padding: 0.85rem;
+  /* One scrolling row of types on a phone keeps "Deal nine" in view. */
+  .plan-category-options {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
   }
-  .plan-smart-search__heading,
+  /* height: touch-target block */
   .plan-smart-result > div:first-child {
     display: block;
-  }
-  .plan-category-options {
-    min-height: 9rem;
   }
   .plan-custom-place__saved,
   .plan-custom-place__editor {
@@ -194,10 +201,6 @@
   }
   .plan-custom-place__wide {
     grid-column: auto;
-  }
-  .plan-round-summary span {
-    padding-inline: 0.2rem;
-    font-size: max(0.5rem, var(--type-floor));
   }
   .plan-constraints__heading {
     display: block;

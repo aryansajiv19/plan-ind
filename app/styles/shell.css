@@ -60,19 +60,9 @@
   }
 }
 
-/* Round change: the incoming set slides in once, on mount. Guarded by
-   no-preference — with reduced motion the round simply appears.
-
-   --round-dir is set by the vote screen: +1 moving forward through the
-   rounds, -1 going back to one you already answered. Without it every
-   round entered from the same side and advancing felt like a repaint
-   rather than travel. The set also arrives slightly under size and
-   grows into place, which is the momentum: it is still moving when it
-   becomes readable.
-
-   Deliberately NOT a spring — this is arrival, not something the
-   person is holding, and an overshoot on a full column of cards reads
-   as a bounce. --ease-settle decelerates hard and stops. */
+/* Round change: the incoming set slides in once, from the side --round-dir
+   gives (+1 forward, -1 back), slightly under size. No spring: this is
+   arrival, not something held. Reduced motion: the round simply appears. */
 @media (prefers-reduced-motion: no-preference) {
   .vote-round {
     animation: vote-round-in 420ms var(--ease-settle) both;
@@ -370,38 +360,13 @@
   --i: 6;
 }
 
-/* The restraint block used to live here: three `display: none !important`
-   rules, a `box-shadow: none !important` list that included the signature
-   .token, and a blanket `a/button/[role=button]:hover { transform: none }`
-   for every pointer device. It is gone, and this note is the record of why.
-
-   Its display and box-shadow targets were dead classes (.sky-root,
-   .home-backdrop-grid, .home-decision-orbit) or the signature itself. The
-   blanket hover rule cancelled a whole press-and-lift layer that is still
-   written above under `prefers-reduced-motion: no-preference` — the tab lift,
-   the category-tile tilt, the friend-row tilt, the CTA nudge — so the app
-   spent that code and rendered none of it. That is most of what "flat" was.
-
-   What was genuinely restrained is now restrained at its source instead of
-   being cancelled by !important further down: the outline buttons answer
-   hover with their border rather than a soft drop. Nothing here needs an
-   override to stay quiet.
-
-   One line of this note is now out of date and is corrected rather than
-   left to mislead: it used to read that .home-plan-card "declares no
-   shadow (it is a surface, not a control)". SPECS.md §19.3 reverses that
-   — under "smooth", surfaces separate from the canvas by value plus a
-   soft diffuse elevation, and that card now carries --elevation-card. The
-   banned thing was always the hard opaque OFFSET shadow, which is still
-   banned; a soft diffuse lift is the opposite treatment. */
-
 /* One rule per boundary. These blocks each draw border-block, so any two
    stacked with a margin between them showed a doubled divider 40px apart
    (profile had three in a row). When one directly follows another, the
    follower drops its top edge and the previous block's bottom edge is the
    single divider. */
 :is(.demo-profile-stats, .demo-city-pattern, .demo-wrapped, .place-link-importer, .demo-discover-tools, .plan-custom-place)
-  + :is(.demo-city-pattern, .demo-wrapped, .legal-links, .demo-discover-tools, .plan-round-summary) {
+  + :is(.demo-city-pattern, .demo-wrapped, .legal-links, .demo-discover-tools) {
   border-top: 0;
 }
 

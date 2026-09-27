@@ -18,7 +18,7 @@ interface SavedCustomPlace {
  * one, and pin up to three into the deal. State lives in the hook so the form
  * can read the pinned ids at submit; the section below only renders it.
  */
-export function useCustomPlaces(category: string, setError: (message: string | null) => void) {
+export function useCustomPlaces(category: string, setError: (message: string | null) => void, reserved = 0) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [area, setArea] = useState("");
@@ -50,7 +50,8 @@ export function useCustomPlaces(category: string, setError: (message: string | n
   function toggle(id: string) {
     setSelectedIds((current) => {
       if (current.includes(id)) return current.filter((item) => item !== id);
-      if (current.length >= 3) return current;
+      // One pin per round, shared with catalogue pins (`reserved`, P25).
+      if (current.length + reserved >= 3) return current;
       return [...current, id];
     });
   }
@@ -106,7 +107,7 @@ export function useCustomPlaces(category: string, setError: (message: string | n
       .select("id,name,area,category,visibility")
       .single();
     if (saveError || !data) {
-      setError("That place couldn’t be saved. Check the database migration and try again.");
+      setError("That place couldn’t be saved. Try again in a moment.");
       setSaving(false);
       return;
     }

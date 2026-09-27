@@ -5,7 +5,6 @@ import Link from "next/link";
 import { categoryMeta } from "@/lib/categories";
 import SmartSearchBox from "@/components/SmartSearchBox";
 import DirectPlanSearch from "@/components/DirectPlanSearch";
-import CustomPlaceSection from "@/components/CustomPlaces";
 import DealReveal from "@/components/DealReveal";
 import ComposerDeck from "@/components/composer/ComposerDeck";
 import TuneIt from "@/components/composer/TuneIt";
@@ -35,7 +34,7 @@ export default function StartPlanForm({
   // reasoning as gating PlaceDirectPlanCta on a real user.
   const [mode, setMode] = useState<"deal" | "direct">("deal");
   const composer = useComposer({ age, demoMode, prefill });
-  const { category, title, creating, error, custom, revealing, setRevealing, revealCards, revealShown, smartQuery, setSmartQuery, smartIntent, setSmartIntent, applyIntent, stashDraft, signIn, start, constraintChips } = composer;
+  const { category, title, creating, error, revealing, setRevealing, revealCards, revealShown, smartQuery, setSmartQuery, smartIntent, setSmartIntent, applyIntent, stashDraft, signIn, start, constraintChips } = composer;
 
   if (revealing) {
     return (
@@ -85,8 +84,6 @@ export default function StartPlanForm({
   }
 
   return (
-    // The composer takes the hue of whichever group is open, so switching
-    // tabs visibly recolours the form. Each tab overrides it with its own.
     <form onSubmit={start} className="plan-form">
       {modeToggle}
       {/* A pinned place explains itself in its own line below. */}
@@ -99,47 +96,46 @@ export default function StartPlanForm({
                 : "Picked up where you left off before signing in. Check it, then deal nine."}
         </p>
       )}
-      {smartSearchAvailable && (
-        <SmartSearchBox
-          query={smartQuery}
-          onQueryChange={(query) => { setSmartQuery(query); setSmartIntent(null); }}
-          intent={smartIntent}
-          onIntent={applyIntent}
-          demoMode={demoMode}
-          onSignIn={signIn}
-        />
-      )}
+      {/* P25: reward before effort. The places, then the deal; every setting
+          past that has a valid default and folds away under "Tune it". */}
+      <ComposerDeck composer={composer} age={age} demoMode={demoMode} />
 
-      <ComposerDeck composer={composer} />
+      <TuneIt
+        composer={composer}
+        demoMode={demoMode}
+        luna={smartSearchAvailable && (
+          <SmartSearchBox
+            query={smartQuery}
+            onQueryChange={(query) => { setSmartQuery(query); setSmartIntent(null); }}
+            intent={smartIntent}
+            onIntent={applyIntent}
+            demoMode={demoMode}
+            onSignIn={signIn}
+          />
+        )}
+      />
 
-      <CustomPlaceSection places={custom} onSignIn={demoMode ? signIn : undefined} />
-
-      <div className="plan-round-summary" aria-label="Plan voting format">
-        <span><strong>9</strong> places</span>
-        <span><strong>3</strong> pools</span>
-        <span><strong>3</strong> finalists</span>
-        <span><strong>1</strong> plan</span>
+      {/* The deal stays in reach from anywhere in the form, Tune it included:
+          sticky at the bottom edge, on the card's own surface. */}
+      <div className="plan-deal-bar">
+        {error && (
+          <p role="alert" className="plan-form__error">
+            {error}
+          </p>
+        )}
+        {!title.trim() && <p className="plan-form__demo-note">Give it a title under Tune it to deal.</p>}
+        <button
+          type="submit"
+          disabled={creating || !title.trim()}
+          className="plan-submit"
+        >
+          {creating ? (demoMode ? "Dealing…" : "Dealing nine…") : demoMode ? "Preview the deal" : "Deal nine"}
+        </button>
       </div>
-
-      <TuneIt composer={composer} demoMode={demoMode} />
-
-      <button
-        type="submit"
-        disabled={creating || !title.trim()}
-        className="plan-submit"
-      >
-        {creating ? (demoMode ? "Dealing…" : "Building three rounds…") : demoMode ? "Preview the deal" : "Deal 9 places in 3 rounds"}
-      </button>
 
       {demoMode && (
         <p className="plan-form__demo-note">
           Exploring the preview? <Link href="/login?next=/home" onClick={stashDraft}>Sign in</Link> to save, share and vote on a real plan.
-        </p>
-      )}
-
-      {error && (
-        <p role="alert" className="plan-form__error">
-          {error}
         </p>
       )}
     </form>
