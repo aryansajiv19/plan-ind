@@ -160,4 +160,39 @@ describe("073 \"When\" time poll", { skip: SKIP }, () => {
   test("an un-tick reaches Realtime subscribers filtered by plan (replica identity full)", async () => {
     assert.equal(await psql(`select relreplident from pg_class where oid = 'public.plan_time_votes'::regclass`), "f");
   });
+
+  // Security review: a past pick would open rating and plan_has_happened the moment it's decided.
+  test("a time that has passed never becomes the plan's time, and can't be ticked", async () => {
+    const [host, a, b] = [await user(), await user(), await user()];
+    const toPast = (optionId: string) => psql(`update plan_time_options set starts_at = now() - interval '1 hour' where id = '${optionId}'`);
+    const p = await plan(host, [a, b]);
+    const [gone, ahead] = (await setWhen(host, p, [inDays(1), inDays(2)])).options;
+    for (const u of [a, b]) await tick(u, p.id, gone.id);
+    await tick(a, p.id, ahead.id);
+    await toPast(gone.id);
+    assert.equal(await decide(host, p), await startsAt(p.id, ahead.id)); // 1 tick ahead beats 2 in the past
+
+    const onlyPast = await plan(host, [a, b]);
+    const [o1] = (await setWhen(host, onlyPast, [inDays(1), inDays(2)])).options;
+    for (const u of [a, b]) await tick(u, onlyPast.id, o1.id);
+    await toPast(o1.id);
+    await assert.rejects(tick(a, onlyPast.id, o1.id), /That time has passed/);
+    await tick(b, onlyPast.id, o1.id, false); // taking a tick back is fine
+    assert.equal(await decide(host, onlyPast), "none"); // a's tick is on a past time: decided_at + 3h stands
+  });
+
+  test("leaving an open plan or deleting the account takes the member's ticks, and nobody else's", async () => {
+    const [host, leaver, deleter, stays] = [await user(), await user(), await user(), await user()];
+    const p = await plan(host, [leaver, deleter, stays]);
+    const other = await plan(host, [deleter]);
+    const [o1] = (await setWhen(host, p, [inDays(1), inDays(2)])).options;
+    const [o2] = (await setWhen(host, other, [inDays(1), inDays(2)])).options;
+    for (const u of [leaver, deleter, stays]) await tick(u, p.id, o1.id);
+    await tick(deleter, other.id, o2.id);
+
+    assert.equal(JSON.parse(await as(leaver, `select leave_plan('${p.id}')`)).result, "left");
+    assert.equal(JSON.parse(await as(deleter, "select delete_my_account(false)")).result, "deleted");
+    const seat = (planId: string, uid: string) => createHash("md5").update(`${planId}:${uid}`).digest("hex");
+    assert.equal(await psql(`select string_agg(seat_key, ',') from plan_time_votes where plan_id in ('${p.id}', '${other.id}')`), seat(p.id, stays));
+  });
 });
