@@ -590,7 +590,6 @@
   border-top: 1px solid var(--color-line);
 }
 .how h2 {
-  margin-top: 0.8rem;
   font-size: clamp(1.8rem, 1.2rem + 1.8vw, 2.6rem);
   line-height: 1.02;
 }
@@ -671,6 +670,12 @@
 }
 @media (max-width: 850px) {
   .how__steps {
+    grid-template-columns: 1fr;
+  }
+}
+/* A phone has no room for three cards abreast: stack them, still live. */
+@media (max-width: 640px) {
+  .live-vote__cards {
     grid-template-columns: 1fr;
   }
 }

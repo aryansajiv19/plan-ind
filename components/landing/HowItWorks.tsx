@@ -15,7 +15,6 @@ export default function HowItWorks() {
   return (
     <section id="how" className="how" aria-labelledby="how-title">
       <div className="how__intro">
-        <p className="home-section-kicker">How it works</p>
         <h2 id="how-title">From nine places to one plan</h2>
         <p className="how__note">Shown with the sample group from the demo.</p>
       </div>
