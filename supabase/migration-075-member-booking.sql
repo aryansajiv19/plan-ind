@@ -120,6 +120,11 @@ update spots set visibility = 'private' where id = '60000000-0000-0000-0000-0000
 -- Iris Harbour is a lounge: vibes, not shisha (owner decision 2026-09-27).
 update spots set category = 'vibes', cuisine = 'Lounge'
   where id = 'd0000000-0000-0000-0000-000000000004' and source = 'curated';
+-- Tresind Studio is at St. Regis Gardens, Palm Jumeirah, not DIFC (its sourced
+-- address, written by 070). Coordinates unchanged: the facts file has none for
+-- the new site.
+update spots set area = 'Palm Jumeirah'
+  where id = 'a0000000-0000-0000-0000-000000000005' and source = 'curated';
 -- END GENERATED
 
 commit;

@@ -165,20 +165,22 @@ describe("071 new plans refuse closed places", { skip: SKIP }, () => {
 
 // ── 075: catalogue decisions made after 070 went live ─────────────────────────
 describe("075 catalogue decisions (generated block)", { skip: SKIP }, () => {
-  test("Scoopi Cafe and Garage Dubai are retired, and Iris Harbour moves to vibes as a lounge", async () => {
+  test("Scoopi Cafe and Garage Dubai are retired, Iris Harbour moves to vibes as a lounge, Tresind to the Palm", async () => {
     // Only the generated block: 075's own begin/commit would end this transaction.
     const m075 = readFileSync(MIGRATION_075, "utf8");
     const block = m075.slice(m075.indexOf("-- BEGIN GENERATED"), m075.indexOf("-- END GENERATED"));
-    const [scoopi, garage, iris] = ["20000000-0000-0000-0000-000000000002", "60000000-0000-0000-0000-000000000002", "d0000000-0000-0000-0000-000000000004"];
-    const rows = [scoopi, garage, iris].map((id, i) =>
+    const [scoopi, garage, iris, tresind] = ["20000000-0000-0000-0000-000000000002", "60000000-0000-0000-0000-000000000002",
+      "d0000000-0000-0000-0000-000000000004", "a0000000-0000-0000-0000-000000000005"];
+    const rows = [scoopi, garage, iris, tresind].map((id, i) =>
       `('${id}','QA075 ${i}','shisha','Dubai','Lounge & shisha','$$',100,'12am','test')`).join(",");
     const out = await psql(
       "-c", `begin; insert into spots (id,name,category,area,cuisine,price_band,min_spend,open_till,vibe) values ${rows};`,
       "-c", block,
       "-c", `select string_agg(visibility, ',' order by id) || '|' ||
-        (select category || ' ' || cuisine || ' ' || visibility from spots where id = '${iris}')
+        (select category || ' ' || cuisine || ' ' || visibility from spots where id = '${iris}') || '|' ||
+        (select area from spots where id = '${tresind}')
         from spots where id in ('${scoopi}', '${garage}')`,
       "-c", "rollback;");
-    assert.equal(out.split("\n").filter(Boolean).pop(), "private,private|vibes Lounge community");
+    assert.equal(out.split("\n").filter(Boolean).pop(), "private,private|vibes Lounge community|Palm Jumeirah");
   });
 });

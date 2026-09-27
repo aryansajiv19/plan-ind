@@ -50,10 +50,25 @@ update spots set name = 'Iris Harbour', area = 'Dubai Harbour'
   { migration: "075", sql: `-- Iris Harbour is a lounge: vibes, not shisha (owner decision 2026-09-27).
 update spots set category = 'vibes', cuisine = 'Lounge'
   where id = 'd0000000-0000-0000-0000-000000000004' and source = 'curated';` },
+  { migration: "075", backedBy: { id: "a0000000-0000-0000-0000-000000000005", address: /Palm Jumeirah/ },
+    sql: `-- Tresind Studio is at St. Regis Gardens, Palm Jumeirah, not DIFC (its sourced
+-- address, written by 070). Coordinates unchanged: the facts file has none for
+-- the new site.
+update spots set area = 'Palm Jumeirah'
+  where id = 'a0000000-0000-0000-0000-000000000005' and source = 'curated';` },
 ];
 const corrections = (migration) => CORRECTIONS.filter((c) => c.migration === migration).map((c) => c.sql).join("\n");
 
 const byId = new Map(facts.venues.map((v) => [v.id, v]));
+// A correction that restates the facts file must still agree with it, unflagged.
+for (const { backedBy } of CORRECTIONS.filter((c) => c.backedBy)) {
+  const v = byId.get(backedBy.id);
+  // Same field rule as the facts loop below: a note is "<field>: ...".
+  const flagged = (v?.checker_notes ?? []).some((note) => note.slice(0, note.indexOf(":")).match(/^[a-z_/]+/)?.[0] === "address");
+  if (!v || !backedBy.address.test(v.address ?? "") || flagged) {
+    throw new Error(`correction for ${backedBy.id}: the facts file no longer backs it (address or a checker note)`);
+  }
+}
 for (const [id, name] of [...Object.entries(PERMANENTLY_CLOSED), ...Object.entries(RETIRED_075), ...Object.entries(REOPENS_ON).map(([id, [n]]) => [id, n])]) {
   if (byId.get(id)?.name !== name) throw new Error(`closure list: ${id} is not ${name} in the facts file`);
 }
