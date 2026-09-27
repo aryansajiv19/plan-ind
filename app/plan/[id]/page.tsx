@@ -40,7 +40,7 @@ export default function VotePage() {
   const {
     load, setLoad, setReloadKey,
     access, accessMessage, setAccess, runAccess,
-    plan, setPlan, spots, planSpots, setPlanSpots, votes, setVotes, rsvps, setRsvps, ratings, setRatings, myRows,
+    plan, setPlan, spots, planSpots, setPlanSpots, votes, setVotes, rsvps, setRsvps, ratings, setRatings, myRows, refetchMine,
     participantHash, refetchVotes, refetchRsvps, refetchRatings, refetchPlanSpots, refetchPlan,
   } = usePlanData(id);
   const { voterName, accountNameTried } = useVoterName();
@@ -79,8 +79,8 @@ export default function VotePage() {
     id, access, deleted, left, refetchVotes, refetchRsvps, refetchRatings, refetchPlanSpots, refetchPlan, setPlan, setDeleted,
   });
   const { presentNames, presenceChannelRef } = usePlanPresence({ id, access, voterName, left });
-  const { visitSaved, patchPlan, setRsvp, setCarpool, rateWinner } = useLastMile({
-    id, plan, setPlan, isHost: host.isHost, runHostCommand: host.runHostCommand, voterName, participantHash, isMine: mine, winnerId,
+  const { visitSaved, patchPlan, setRsvp, setCarpool, rateWinner, booking } = useLastMile({
+    id, plan, setPlan, isHost: host.isHost, runHostCommand: host.runHostCommand, voterName, participantHash, isMine: mine, myRows, refetchMine, winnerId,
     rsvps, setRsvps, ratings, setRatings, refetchRsvps, refetchRatings, setNotice, reportParticipantFailure,
   });
 
@@ -238,7 +238,6 @@ export default function VotePage() {
             <DecidedPlan
               plan={plan!}
               winner={winnerSpot}
-              voterName={voterName}
               mine={mine}
               isHost={isHost}
               rsvps={rsvps}
@@ -248,7 +247,7 @@ export default function VotePage() {
               pickedBy={votersFor(votes, winnerSpot.id, { phase: "final", poolNumber: 0 })}
               onSetRsvp={setRsvp}
               onSetCarpool={setCarpool}
-              onClaimBooking={() => patchPlan({ booking_owner: voterName })}
+              booking={booking}
               onMarkBooked={() => patchPlan({ booked: true })}
               onUnmarkBooked={() => patchPlan({ booked: false })}
               onRate={rateWinner}

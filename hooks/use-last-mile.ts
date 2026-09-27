@@ -7,7 +7,8 @@ import { addBeen } from "@/lib/device";
 import { haptic } from "@/lib/interaction";
 import type { Plan, Rating, Rsvp } from "@/lib/types";
 import type { HostCommands } from "@/hooks/use-host-commands";
-import type { Mine } from "@/lib/my-rows";
+import type { Mine, MyRows } from "@/lib/my-rows";
+import { useBookingClaim } from "@/hooks/use-booking-claim";
 
 // A failed save: put back only this voter's last known row, at once. Waiting
 // for the reconcile read left an unsaved choice showing as saved for ~7s
@@ -17,8 +18,9 @@ function restoreMine<T>(cur: T[], isMine: (row: T) => boolean, prev: T | undefin
   return [...cur.filter((r) => !isMine(r)), ...(prev ? [prev] : [])];
 }
 
-// A decided plan's follow-through: event time and booking (host patches),
-// RSVP and carpool, rating the winner and filing the visit under Been.
+// A decided plan's follow-through: event time (host patch), the booking
+// claim (any member, 075), RSVP and carpool, rating the winner and filing
+// the visit under Been.
 export function useLastMile({
   id,
   plan,
@@ -28,6 +30,8 @@ export function useLastMile({
   voterName,
   participantHash,
   isMine,
+  myRows,
+  refetchMine,
   winnerId,
   rsvps,
   setRsvps,
@@ -46,6 +50,8 @@ export function useLastMile({
   voterName: string | null;
   participantHash: string | null;
   isMine: Mine;
+  myRows: MyRows | null;
+  refetchMine: () => Promise<void>;
   winnerId: string | null;
   rsvps: Rsvp[];
   setRsvps: Dispatch<SetStateAction<Rsvp[]>>;
@@ -57,6 +63,7 @@ export function useLastMile({
   reportParticipantFailure: (error: { code?: string; message?: string } | null, fallback: string) => void;
 }) {
   const [visitSaved, setVisitSaved] = useState<"saved" | "failed" | null>(null);
+  const booking = useBookingClaim({ id, plan, setPlan, voterName, myRows, refetchMine });
 
   // ── The last mile: set time, RSVP, claim/mark booking ────────────
   async function patchPlan(fields: Partial<Plan>) {
@@ -188,5 +195,5 @@ export function useLastMile({
     setVisitSaved(saved ? "saved" : "failed");
   }
 
-  return { visitSaved, patchPlan, setRsvp, setCarpool, rateWinner };
+  return { visitSaved, patchPlan, setRsvp, setCarpool, rateWinner, booking };
 }
