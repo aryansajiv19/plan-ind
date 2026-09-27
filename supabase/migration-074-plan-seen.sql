@@ -18,6 +18,8 @@
 -- so last_seen_at is never broadcast; stage_changed_at is (plans is), which
 -- tells members nothing the stage change itself doesn't.
 
+begin;
+
 -- ── plans.stage_changed_at ───────────────────────────────────────────────────
 alter table plans add column if not exists stage_changed_at timestamptz;
 -- Existing plans: the latest moment on record. An advance before 074 was
@@ -82,3 +84,5 @@ language sql stable security invoker set search_path = public, pg_temp as $$
 $$;
 revoke all on function my_plan_rail(integer) from public, anon, authenticated;
 grant execute on function my_plan_rail(integer) to authenticated;
+
+commit;

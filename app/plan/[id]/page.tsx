@@ -19,6 +19,7 @@ import { useVoteActions } from "@/hooks/use-vote-actions";
 import { useLeavePlan } from "@/hooks/use-leave-plan";
 import { useRoundFold } from "@/hooks/use-round-fold";
 import { usePlanDevice } from "@/hooks/use-plan-device";
+import { usePlanSeen } from "@/hooks/use-plan-seen";
 import OptionCard from "@/components/OptionCard";
 import DecidedPlan from "@/components/DecidedPlan";
 import VoteState from "@/components/VoteState";
@@ -43,6 +44,7 @@ export default function VotePage() {
     participantHash, refetchVotes, refetchRsvps, refetchRatings, refetchPlanSpots, refetchPlan,
   } = usePlanData(id);
   const { voterName, accountNameTried } = useVoterName();
+  usePlanSeen(id, access, plan?.stage); // P31: clears this plan's "changed" on the /home rail
   // Which rows are this account's: by id once my_plan_rows exists, by name before (F2).
   const mine = mineFrom(myRows, voterName);
   const [notice, setNotice] = useState<string | null>(null);
