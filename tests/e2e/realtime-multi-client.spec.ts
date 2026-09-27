@@ -40,7 +40,7 @@ async function joinPlanAsMember(browser: Browser, baseURL: string, name: string)
 // count was removed in 82145e0. Same signal on this fixture plan: 0 -> 1 on
 // A's vote, back to 0 on the withdrawal.
 const voterCount = async (page: Page): Promise<number> => {
-  const text = await page.locator(".vote-options-grid button.token").first().innerText();
+  const text = await page.locator(".vote-options-grid .vote-option").first().innerText();
   return Number(text.match(/(\d+)\s*yes/)?.[1] ?? NaN);
 };
 
@@ -61,7 +61,7 @@ test("a second client sees the first client's vote without reloading", async ({ 
 
     // A votes. B does nothing at all -- no reload, no navigation, no click.
     // Anything B observes from here can only have arrived over the socket.
-    const firstCard = pageA.locator(".vote-options-grid button.token").first();
+    const firstCard = pageA.locator(".vote-options-grid .vote-option__choice").first();
     await expect(firstCard).toHaveAttribute("aria-pressed", "false");
     await firstCard.click();
     await expect(firstCard).toHaveAttribute("aria-pressed", "true");
@@ -76,7 +76,7 @@ test("a second client sees the first client's vote without reloading", async ({ 
     // B's own card must NOT be marked as voted: A's vote is A's. This
     // separates "the socket delivered a change" from "the UI confused two
     // participants for one", which a shared count alone would not catch.
-    await expect(pageB.locator(".vote-options-grid button.token").first())
+    await expect(pageB.locator(".vote-options-grid .vote-option__choice").first())
       .toHaveAttribute("aria-pressed", "false");
 
     // ── The half that actually regresses ─────────────────────────────────

@@ -18,7 +18,7 @@ import { canProvision, FILLER, SEEDED, withPlan, withSpot } from "./plan-factory
 const JUMEIRAH = { label: "Jumeirah", latitude: 25.204, longitude: 55.238 };
 
 function cardFor(page: Page, name: string) {
-  return page.locator(".vote-options-grid button.token").filter({ hasText: name });
+  return page.locator(".vote-options-grid .vote-option").filter({ hasText: name });
 }
 
 test("dealt cards say why they were picked, and only what the deal filtered on", async ({ page, context, baseURL }) => {

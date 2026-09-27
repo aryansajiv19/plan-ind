@@ -189,28 +189,16 @@
 }
 
 /* ── SPECS.md §25.2: plan gravity ──────────────────────────────────
-   Nine scattered options resolving into one decision is what this app
-   does; gravity renders that. Cards start scattered and pull into
-   alignment as agreement emerges.
-
-   THERE IS NO PHYSICS LOOP, and that is the reason this is affordable.
-   No per-frame integration, no rAF running for the length of a round.
-   Votes arrive as discrete Realtime events, so --c changes a handful of
-   times across a whole round and each change is exactly one transition.
-   Nothing runs while nobody is voting — which matters because a round
-   sits open for hours and people read menus on this screen.
-
-   Two channels, and only one of them costs layout. */
+   Cards start scattered and pull into line as agreement (--c) emerges.
+   No physics loop: --c changes once per Realtime vote, each change one
+   transition, and nothing runs while nobody votes. */
 .vote-options-grid {
-  /* THE one layout property in the whole effect, and it changes at most
-     once per vote. Everything else below is transform. */
+  /* The effect's one layout property, at most once per vote. */
   gap: calc(20px - 11px * var(--c, 0));
   transition: gap 420ms var(--ease-settle);
 }
 .vote-option-shell {
-  /* Compositor only: translate on a fixed per-card offset, scaled down to
-     nothing as agreement approaches 1. At --c 0 the cards sit scattered;
-     at 1 they are in line. */
+  /* Compositor only: a fixed per-card offset, gone as --c reaches 1. */
   transform: translate3d(0, calc(var(--off, 0px) * (1 - var(--c, 0))), 0)
              scale(calc(1 + 0.045 * var(--lead, 0)));
   transition: transform 420ms var(--ease-settle);
@@ -221,7 +209,6 @@
 /* The card fills the shell and leaves room for "Details" below it (P9). */
 .vote-option-shell > .vote-option {
   flex: 1 0 auto;
-  min-height: 0;
 }
 /* The leader's weight costs no colour. §23.4b holds: size is never the only
    signal, and the word "leading" stays in the markup next to it
@@ -271,7 +258,7 @@
     gap: 1.25rem;
   }
   .vote-option-shell,
-  .vote-options-grid .vote-option[aria-pressed="true"]:not(:disabled) {
+  .vote-options-grid .vote-option[data-selected]:not([data-locked]) {
     transform: none;
   }
 }
@@ -300,12 +287,9 @@
   }
 }
 
-/* The card carries `token` in the markup, so the offset shadow comes from
-   the @layer components block near the top of this file. Every box-shadow
-   below has to restate it: these rules are unlayered and would otherwise
-   drop the signature the moment the card is chosen or wins. */
+/* P27: an article. data-selected is your pick, data-locked a decided or
+   closed round; the Select button inside carries aria-pressed. */
 .vote-option {
-  min-height: 100%;
   border: 1px solid var(--color-line);
   border-radius: var(--radius-control);
   /* Transform gets the spring and a longer run than the colour props:
@@ -314,7 +298,7 @@
   transition: border-color 150ms ease, background 150ms ease, transform 320ms var(--ease-settle), opacity 150ms ease;
 }
 
-.vote-option:hover:not(:disabled) {
+.vote-option:hover:not([data-locked]) {
   border-color: color-mix(in srgb, var(--vote-metal) 70%, var(--color-line));
   transform: translateY(-1px);
 }
@@ -322,57 +306,34 @@
 /* Your pick and the group's winner used to be the same champagne, so the
    card you chose was indistinguishable from the card that won. Your vote is
    now the live accent; champagne is reserved for the outcome. */
-.vote-option[aria-pressed="true"] {
+.vote-option[data-selected] {
   border-color: var(--color-live);
   background: color-mix(in srgb, var(--color-live) 8%, var(--color-card));
   box-shadow: inset 3px 0 0 var(--color-live);
 }
 
-/* The pick, with weight. A transition (not an animation) on purpose:
-   transitions do not fire on first paint, so a returning voter whose
-   choice is already saved sees the card in its chosen state rather
-   than watching it re-choose itself on load.
-
-   Specificity 0-3-0, ties :hover above and wins on order, so a chosen
-   card does not lose its lift to the cursor. Scale is deliberately
-   tiny — on a phone this card is 85% of the viewport inside a
-   scroll-snap track, and anything past ~1% adds real scrollable
-   width. SPECS.md §7's no-bounce sweep moved this off --ease-spring, so
-   the settle is doing the work now, not an overshoot. */
-.vote-option[aria-pressed="true"]:not(:disabled) {
+/* The pick, with weight: a transition, so a saved pick doesn't replay on
+   load. Scale stays tiny: past ~1% the phone deck gains scrollable width. */
+.vote-option[data-selected]:not([data-locked]) {
   transform: translateY(-2px) scale(1.008);
 }
 
-/* Later in the file than the press layer near the top, so this wins: a chosen
-   card must still sink when you press it again to unpick.
-
-   Deliberately NOT inside a no-preference guard. A press response is direct
-   manipulation, not decoration — removing it leaves a reduced-motion user
-   tapping a card that gives nothing back. The global reduce block below
-   zeroes the duration, so they get the same state instantly instead. */
-.vote-option:active:not(:disabled) {
+/* A chosen card still sinks when pressed again to unpick. Not behind a
+   no-preference guard: a press response is direct manipulation, and the
+   global reduce block zeroes its duration instead. */
+.vote-option:active:not([data-locked]) {
   transform: scale(0.975);
   transition-duration: 90ms;
   transition-timing-function: ease-out;
 }
 
-/* Pressing a card you already chose has to sink too — without this the
-   aria-pressed rule above keeps the full 5px shadow under your thumb and
-   the card reads as unpressable exactly when you go to change your mind. */
-.vote-option[aria-pressed="true"]:active:not(:disabled) {
-  box-shadow: inset 3px 0 0 var(--color-live);
-}
-
-/* Decided cards are disabled, so they never sink — a hairline top accent is
-   what is left of the tactility, and the winner keeps it in champagne.
-   No offset term: that is the exact .token signature FRONTEND_DESIGN_
-   STANDARDS.md's Components section retired (SPECS.md §16.2). */
+/* Decided cards never sink; the winner keeps a hairline champagne accent. */
 .vote-option--winner {
   border-color: var(--color-punch-text);
   box-shadow: inset 0 2px 0 var(--color-punch-text);
 }
 /* Decided: the outcome wins the card even if it is also the one you picked. */
-.vote-option--winner[aria-pressed="true"] {
+.vote-option--winner[data-selected] {
   border-color: var(--color-punch-text);
   background: color-mix(in srgb, var(--vote-metal) 8%, var(--color-card));
   box-shadow: inset 0 2px 0 var(--color-punch-text);
@@ -392,11 +353,7 @@
   text-transform: uppercase;
 }
 
-/* All three options in a round share the plan's category, so this strip is
-   not distinguishing cards — it tells you at a glance what kind of night
-   this is. Hence the group hue rather than champagne, which stays reserved
-   for the outcome. The category code sits inside it, so the chip still
-   reads with colour ignored. */
+/* What kind of night this is: the code and type, no hue (group hues are retired). */
 .vote-option__category {
   padding-left: 0.55rem;
   border-left: 2px solid var(--vote-metal);
@@ -432,7 +389,48 @@
 .vote-option__choice {
   border: 1px solid var(--color-line);
   border-radius: 0;
+  background: transparent;
   color: var(--color-ink);
+  cursor: pointer;
+}
+/* The whole card is the Select button's hit area, above the photo credit. */
+.vote-option__choice::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+}
+/* A fixed 4:3 band: the photo, or the name on a quiet raised panel. */
+.vote-option__media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-bottom: 1px solid var(--color-line);
+  border-radius: calc(var(--radius-control) - 1px) calc(var(--radius-control) - 1px) 0 0;
+  background: color-mix(in srgb, var(--color-ink) 5%, var(--color-card));
+}
+.vote-option__type {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1rem;
+}
+/* The band covers the card's inset accents, so it repeats them, clipped to
+   its own corner: your pick's bar, and the winner's hairline. */
+.vote-option[data-selected] .vote-option__media::after,
+.vote-option--winner .vote-option__media::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  z-index: 3;
+  background: var(--color-live);
+}
+.vote-option.vote-option--winner .vote-option__media::after {
+  inset: 0 0 auto;
+  width: auto;
+  height: 2px;
+  background: var(--color-punch-text);
 }
 /* "Selected" is your state, so it takes the live accent, not the outcome
    colour. White on cobalt is 6.0:1; on the night tint the ink reads. */

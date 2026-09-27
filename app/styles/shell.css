@@ -131,7 +131,8 @@
   }
   .plan-custom-place__header button,
   .demo-collection-create button,
-  .vote-result__button {
+  .vote-result__button,
+  .vote-option__choice {
     min-height: 2.75rem;
     padding-inline: 0.9rem;
   }
