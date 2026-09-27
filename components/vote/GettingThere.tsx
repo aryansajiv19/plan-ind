@@ -2,6 +2,7 @@ import type { Plan, Spot } from "@/lib/types";
 import { appleMapsUrl, driveMinutesEstimate, googleMapsUrl, haversineKm, isDubaiRushHour } from "@/lib/directions";
 import { useMinuteClock } from "@/hooks/use-minute-clock";
 import GetThere from "@/components/GetThere";
+import { metroLine } from "@/lib/dubai-metro";
 import VenueMap from "@/components/VenueMap";
 
 // The decided plan's "Where": the address, how far it is from the plan's
@@ -22,12 +23,14 @@ export default function GettingThere({ plan, winner }: { plan: Plan; winner: Spo
   const drive = km != null ? driveMinutesEstimate(km) : null;
   // The estimate is at peak speed: say "in rush hour" only at the peaks (P16).
   const now = useMinuteClock();
+  const metro = metroLine(winner.latitude, winner.longitude); // P17
   const rush = now != null && isDubaiRushHour(now);
 
   return (
     <div className="mt-4 border-t border-line pt-4">
       <p className="text-xs font-bold uppercase tracking-wide text-muted">Where</p>
       <p className="mt-1 text-sm">{winner.address ?? `${winner.area}, Dubai`}</p>
+      {metro && <p className="mt-1 text-sm text-muted">{metro}</p>}
       {km != null && (
         <p className="mt-1 text-sm font-medium">
           {Math.round(km * 10) / 10} km from {plan.origin_label ?? "your start point"}
