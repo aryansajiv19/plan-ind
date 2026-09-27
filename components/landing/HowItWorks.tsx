@@ -1,4 +1,4 @@
-import OptionCard from "@/components/OptionCard";
+import LiveVoteLoop from "@/components/landing/LiveVoteLoop";
 import { avatarStyle, initialsOf } from "@/lib/avatar";
 import { categoryMeta } from "@/lib/categories";
 import { FRIEND_PICKS, SAMPLE_FRIENDS, SAMPLE_POOLS, SAMPLE_VOTER } from "@/components/demo/sampleDecision";
@@ -41,17 +41,8 @@ export default function HowItWorks() {
         <li className="how__step">
           <h3>Everyone votes</h3>
           <p>One pick per round, from any phone. Faces show who chose what, as it happens.</p>
-          <div className="how__card" aria-hidden="true" inert>
-            <OptionCard
-              spot={WINNER}
-              voters={PICKED_BY}
-              yesCount={PICKED_BY.length}
-              voted
-              isWinner={false}
-              isLeader
-              decided={false}
-              onToggle={() => {}}
-            />
+          <div className="how__card" aria-hidden="true">
+            <LiveVoteLoop />
           </div>
         </li>
 

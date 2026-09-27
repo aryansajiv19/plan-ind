@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import WeightRise from "@/components/WeightRise";
-import LiveVoteLoop from "@/components/landing/LiveVoteLoop";
+import CardStackExample from "@/components/kokonutui/card-stack";
+import type { Spot } from "@/lib/types";
 
-// The signed-out pitch (/ and /demo): the headline, and the product itself
-// beside it, a sample group voting on a loop. A signed-in account opens
-// straight onto the composer instead (HomeExperience's app bar).
-export default function HomeHero({ greeting, name, fixtures }: { greeting: string; name: string; fixtures: boolean }) {
+// The signed-out pitch (/ and /demo): the headline, and beside it the deck,
+// nine real places that fan out on a tap (owner's pick), photographed spots
+// first. A signed-in account opens onto the composer instead.
+export default function HomeHero({ greeting, name, fixtures, spots }: { greeting: string; name: string; fixtures: boolean; spots: Spot[] }) {
   // SPECS.md §14.3: scroll-based depth drift on the front-door hero. A single
   // scroll-position custom property, not a JS animation loop: this effect
   // only computes the number and writes it via setProperty; the motion is
@@ -69,8 +70,9 @@ export default function HomeHero({ greeting, name, fixtures }: { greeting: strin
         </div>
       </div>
 
-      <div className="home-stage home-reveal" style={{ "--delay": "420ms" } as React.CSSProperties} aria-hidden="true">
-        <LiveVoteLoop />
+      {/* Not aria-hidden: the deck is a real button (expand / collapse). */}
+      <div className="home-stage home-reveal" style={{ "--delay": "420ms" } as React.CSSProperties}>
+        <CardStackExample spots={spots} />
       </div>
     </section>
   );

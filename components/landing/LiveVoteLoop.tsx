@@ -8,8 +8,8 @@ import { leaderOf, votersFor, yesCount, type Round } from "@/lib/tally";
 import type { Vote } from "@/lib/types";
 import { FRIEND_PICKS, SAMPLE_FRIENDS, SAMPLE_PLAN, SAMPLE_POOLS, SAMPLE_VOTER } from "@/components/demo/sampleDecision";
 
-// The landing hero: round one of the /demo/vote sample group, replayed on a
-// loop with the real OptionCard. Faces arrive in the order the demo's friends
+// How it works' "Everyone votes" step: round one of the /demo/vote sample
+// group, replayed on a loop with the real OptionCard. Faces arrive in the order the demo's friends
 // vote, "You" tips it, the leader wins, then it resets. Fixture-driven: no
 // fetch, nothing saved, labelled as a sample group like /demo/vote.
 
@@ -60,10 +60,7 @@ export default function LiveVoteLoop() {
 
   return (
     <div ref={ref} className="live-vote vote-experience vote-experience--embed">
-      <p className="live-vote__label">
-        <span>{SAMPLE_PLAN.title}</span>
-        <span className="live-vote__meta">{decided ? "Decided" : "Round 1 of 3"} · a sample group of five</span>
-      </p>
+      <p className="live-vote__meta">{decided ? "Decided" : "Round 1 of 3"} · a sample group of five</p>
       {/* inert: the cards are real buttons, but here they are an illustration. */}
       <div className="live-vote__cards" inert>
         {CARDS.map((spot) => {
