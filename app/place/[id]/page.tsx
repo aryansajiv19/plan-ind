@@ -2,6 +2,7 @@ import { cache } from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Image from "next/image";
+import { canOptimiseImage } from "@/lib/image-src";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import PhotoCredit from "@/components/PhotoCredit";
@@ -86,9 +87,7 @@ export default async function PlacePage({
               sizes="100vw"
               priority
               className="place-hero__img"
-              // Same posture as PhotoTile: photo_url is unconstrained today and
-              // next.config has no remotePatterns allowlist.
-              unoptimized
+              unoptimized={!canOptimiseImage(spot.photo_url as string)}
             />
             {/* Licence obligation — see PhotoCredit. */}
             <PhotoCredit spot={spot} />

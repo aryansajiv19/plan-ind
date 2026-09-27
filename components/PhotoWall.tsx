@@ -111,14 +111,12 @@ export default function PhotoWall({
                     spot={item.spot}
                     note={item.note}
                     height={HEIGHTS[index % HEIGHTS.length]}
-                    priority={index < COLUMNS}
                   />
                 ) : item.kind === "visit" ? (
                   <VisitTile
                     visit={item.visit}
                     photoUrl={item.photoUrl}
                     height={HEIGHTS[index % HEIGHTS.length]}
-                    priority={index < COLUMNS}
                   />
                 ) : (
                   <div className="wall-pin">{item.children}</div>

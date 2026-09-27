@@ -1,9 +1,13 @@
 import type { NextConfig } from "next";
+import { SPOT_PHOTOS_PATH, spotPhotoHost } from "./lib/image-src";
 
 const productionOrigin = process.env.NEXT_PUBLIC_SITE_URL
   ? new URL(process.env.NEXT_PUBLIC_SITE_URL).host
   : undefined;
 const isProduction = process.env.NODE_ENV === "production";
+// Only our own public spot-photos bucket is optimised (lib/image-src.ts);
+// no https Supabase URL at build time means no remote image is allowed.
+const spotPhotoHostname = spotPhotoHost(process.env.NEXT_PUBLIC_SUPABASE_URL);
 
 // CORS, verified 2026-09-04, not assumed: deliberately no
 // Access-Control-Allow-* header is set anywhere in this app (grepped every
@@ -37,6 +41,11 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  images: {
+    remotePatterns: spotPhotoHostname
+      ? [{ protocol: "https", hostname: spotPhotoHostname, port: "", pathname: `${SPOT_PHOTOS_PATH}**` }]
+      : [],
+  },
   experimental: {
     serverActions: {
       bodySizeLimit: "64kb",

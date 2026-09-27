@@ -3,6 +3,7 @@
 import { useRef, type KeyboardEvent, type ReactNode } from "react";
 import Image from "next/image";
 import PhotoCredit from "@/components/PhotoCredit";
+import { canOptimiseImage } from "@/lib/image-src";
 import { categoryMeta } from "@/lib/categories";
 
 /** A place as a composer row shows it: the deck (P25) and My places. */
@@ -37,7 +38,7 @@ function Face({ card }: { card: RowCard }) {
       <span className="plan-deck__band">
         {card.photo_url ? (
           <>
-            <Image src={card.photo_url} alt="" fill sizes="10rem" className="object-cover" unoptimized />
+            <Image src={card.photo_url} alt="" fill sizes="10rem" className="object-cover" unoptimized={!canOptimiseImage(card.photo_url)} />
             <PhotoCredit spot={card} />
           </>
         ) : (

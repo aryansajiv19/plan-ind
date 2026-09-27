@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { canOptimiseImage } from "@/lib/image-src";
 import type { Spot } from "@/lib/types";
 import PhotoCredit from "@/components/PhotoCredit";
 import { categoryLabel, categoryMeta } from "@/lib/categories";
@@ -32,12 +33,10 @@ export default function PhotoTile({
   spot,
   note,
   height,
-  priority = false,
 }: {
   spot: Spot;
   note?: WallNote;
   height: number;
-  priority?: boolean;
 }) {
   const hasPhoto = Boolean(spot.photo_url);
   const meta = [spot.area, spot.min_spend ? `AED ${spot.min_spend}` : null]
@@ -56,11 +55,7 @@ export default function PhotoTile({
           fill
           sizes="(max-width: 720px) 50vw, 25vw"
           className="wall-tile__img"
-          priority={priority}
-          // photo_url is unconstrained today — a data URI or an unproven host —
-          // and next.config has no remotePatterns allowlist. Optimising it
-          // would mean letting the image optimiser fetch arbitrary origins.
-          unoptimized
+          unoptimized={!canOptimiseImage(spot.photo_url as string)}
         />
       ) : null}
 

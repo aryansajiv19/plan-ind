@@ -20,12 +20,10 @@ export default function VisitTile({
   visit,
   photoUrl,
   height,
-  priority = false,
 }: {
   visit: ProfileVisit;
   photoUrl: string | null;
   height: number;
-  priority?: boolean;
 }) {
   const hasPhoto = Boolean(photoUrl);
   const name = visit.spot?.name ?? "A place that has since been removed";
@@ -45,7 +43,6 @@ export default function VisitTile({
           fill
           sizes="(max-width: 720px) 50vw, 25vw"
           className="wall-tile__img"
-          priority={priority}
           // A signed URL from the private visit-photos bucket — same posture
           // as PhotoTile's spot photos, the optimiser never fetches it.
           unoptimized

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
+import { canOptimiseImage } from "@/lib/image-src";
 
 // Read via useSyncExternalStore, not a plain useEffect + setState: the
 // server has no matchMedia, so the client's first render must match its
@@ -287,10 +288,7 @@ export default function WinnerReveal({
             fill
             sizes="(max-width: 700px) 100vw, 40rem"
             className="winner-reveal__img"
-            // Same posture as PhotoTile and the place hero: photo_url is
-            // unconstrained today and next.config has no remotePatterns, so
-            // the optimiser is never pointed at an unproven origin.
-            unoptimized
+            unoptimized={!canOptimiseImage(photoUrl)}
           />
           {/* The scrim/ink pair .place-hero uses. Those tokens keep their
               night values on both grounds on purpose — a headline that flips

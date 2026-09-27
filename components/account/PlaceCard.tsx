@@ -1,5 +1,6 @@
 import Image from "next/image";
 import PhotoCredit from "@/components/PhotoCredit";
+import { canOptimiseImage } from "@/lib/image-src";
 import SaveToBoard from "@/components/account/SaveToBoard";
 import type { MoodboardsState } from "@/components/account/useMoodboards";
 import { categoryLabel, categoryMeta } from "@/lib/categories";
@@ -28,7 +29,7 @@ export default function PlaceCard({
     >
       {spot.photo_url ? (
         <div className="demo-place-card__image">
-          <Image src={spot.photo_url} alt={`${spot.name}, ${spot.area}`} fill sizes="(max-width: 700px) 100vw, 50vw" unoptimized />
+          <Image src={spot.photo_url} alt={`${spot.name}, ${spot.area}`} fill sizes="(max-width: 700px) 100vw, 50vw" unoptimized={!canOptimiseImage(spot.photo_url)} />
           <PhotoCredit spot={spot} />
         </div>
       ) : (

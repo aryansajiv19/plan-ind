@@ -17,6 +17,7 @@
  */
 
 import Image from "next/image";
+import { canOptimiseImage } from "@/lib/image-src";
 import { motion, useReducedMotion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import PhotoCredit from "@/components/PhotoCredit";
@@ -247,11 +248,11 @@ const Card = ({
             src={spot.photo_url}
             alt=""
             fill
-            sizes="320px"
+            // The card is CARD_WIDTH wide less its p-6 padding.
+            sizes="272px"
             className="object-cover"
-            priority={index === 0}
-            // Same reason as PhotoTile: no remotePatterns allowlist.
-            unoptimized
+            preload={index === 0}
+            unoptimized={!canOptimiseImage(spot.photo_url)}
           />
           <PhotoCredit spot={{ photo_url: spot.photo_url, photo_attribution: spot.photo_attribution ?? null }} />
         </div>
