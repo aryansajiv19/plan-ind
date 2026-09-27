@@ -81,6 +81,13 @@ export function usePlanData(id: string) {
     return error ? null : parseMyRows(data);
   }, [id]);
 
+  // 075: a booking claim moves with plans.booking_owner, not with any row read
+  // above, so the page re-reads "is it mine" when that name changes.
+  const refetchMine = useCallback(async () => {
+    const rows = await readMine();
+    if (rows) setMyRows(rows);
+  }, [readMine]);
+
   const refetchVotes = useCallback(async () => {
     const seq = ++fetchSeq.current.votes;
     const [{ data, error }, rows] = await Promise.all([
@@ -240,6 +247,7 @@ export function usePlanData(id: string) {
     ratings,
     setRatings,
     myRows,
+    refetchMine,
     participantHash,
     refetchVotes,
     refetchRsvps,

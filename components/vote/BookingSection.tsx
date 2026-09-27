@@ -1,23 +1,24 @@
+import Link from "next/link";
 import type { Plan, Spot } from "@/lib/types";
+import type { BookingClaim } from "@/hooks/use-booking-claim";
 import { googleCalUrl, icsHref } from "@/lib/calendar";
 
-// The decided plan's booking claim and calendar links. The booking
-// callbacks route through patchPlan, which the server rejects for anyone
-// but the host; isHost only decides what is offered.
+// The decided plan's booking and calendar links. Taking and handing back the
+// booking is any member's (075: claim_booking / release_booking). Marking it
+// booked stays the host's (patchPlan, which the server rejects for anyone
+// else), so only the host is offered it.
 export default function BookingSection({
   plan,
   winner,
-  voterName,
   isHost,
-  onClaimBooking,
+  booking,
   onMarkBooked,
   onUnmarkBooked,
 }: {
   plan: Plan;
   winner: Spot;
-  voterName: string;
   isHost: boolean;
-  onClaimBooking: () => void;
+  booking: BookingClaim;
   onMarkBooked: () => void;
   onUnmarkBooked: () => void;
 }) {
@@ -49,30 +50,24 @@ export default function BookingSection({
           ) : plan.booking_owner ? (
             <>
               <span className="text-sm font-medium">
-                {plan.booking_owner === voterName
-                  ? "You’re booking it."
-                  : `${plan.booking_owner}’s booking it.`}
+                {booking.mine ? "You’re booking it." : `${plan.booking_owner}’s booking it.`}
               </span>
-              {plan.booking_owner === voterName && (
-                <button
-                  type="button"
-                  onClick={onMarkBooked}
-                  className="vote-result__button px-4 py-2 text-sm font-display"
-                >
+              {isHost && (
+                <button type="button" onClick={onMarkBooked} className="vote-result__button px-4 py-2 text-sm font-display">
                   Mark as booked
                 </button>
               )}
+              {booking.mine && (
+                <button type="button" onClick={booking.release} disabled={booking.busy} className="vote-result__button px-4 py-2 text-sm font-display disabled:opacity-50">
+                  I can’t book after all
+                </button>
+              )}
+              {booking.mine && !isHost && <span className="text-sm text-muted">Once it’s booked, the host marks it here.</span>}
             </>
-          ) : isHost ? (
-            <button
-              type="button"
-              onClick={onClaimBooking}
-              className="vote-result__button px-4 py-2 text-sm font-display"
-            >
+          ) : (
+            <button type="button" onClick={booking.claim} disabled={booking.busy} className="vote-result__button px-4 py-2 text-sm font-display disabled:opacity-50">
               I’ll book it
             </button>
-          ) : (
-            <span className="text-sm text-muted">The plan host can book this.</span>
           )}
           {winner.booking_url && (
             <a
@@ -85,6 +80,11 @@ export default function BookingSection({
             </a>
           )}
         </div>
+        {/* Present before it has words, so a refusal is announced when it lands. */}
+        <p role="status" className="mt-2 text-sm empty:hidden">
+          {booking.note?.text}
+          {booking.note?.profileLink && <> <Link href="/home?view=profile" className="inline-flex min-h-11 items-center font-semibold underline underline-offset-4">Add your name</Link></>}
+        </p>
       </div>
 
       {/* Add to calendar */}
