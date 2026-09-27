@@ -248,9 +248,6 @@ export default function DecidedPlan({
 
       <WhosInSection rsvps={rsvps} roster={roster} isMine={mine.rsvp} onSetRsvp={onSetRsvp} onSetCarpool={onSetCarpool} />
 
-      <GettingThere plan={plan} winner={winner} />
-      <KnowBeforeYouGo spot={winner} className="mt-4 border-t border-line pt-4" />
-
       <BookingSection
         plan={plan}
         winner={winner}
@@ -260,6 +257,10 @@ export default function DecidedPlan({
         onMarkBooked={onMarkBooked}
         onUnmarkBooked={onUnmarkBooked}
       />
+
+      <GettingThere plan={plan} winner={winner} />
+      <KnowBeforeYouGo spot={winner} className="mt-4 border-t border-line pt-4" />
+
 
       <RatingSection planId={plan.id} spotId={winner.id} opensAt={rateOpensAt} isMine={mine.rating} ratings={ratings} onRate={onRate} />
     </div>

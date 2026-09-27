@@ -8,9 +8,9 @@ export default function KnowBeforeYouGo({ spot, className = "" }: { spot: Parame
   return (
     <section className={className} aria-labelledby="know-before-you-go">
       <p id="know-before-you-go" className="text-xs font-bold uppercase tracking-wide text-muted">Know before you go</p>
-      <dl className="mt-2 grid gap-x-5 gap-y-2 text-sm sm:grid-cols-[8rem_1fr]">
+      <dl className="mt-2 grid gap-x-5 gap-y-3 text-sm sm:grid-cols-[8rem_1fr] sm:gap-y-2">
         {rows.map((row) => (
-          <div key={row.label} className="contents">
+          <div key={row.label} className="grid gap-0.5 sm:contents">
             <dt className="text-muted">{row.label}</dt>
             <dd className="min-w-0 break-words">
               {row.href ? <a href={row.href} className="underline" {...(row.href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}>{row.value}</a> : row.value}

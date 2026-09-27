@@ -34,7 +34,7 @@ export default function WhosInSection({
   // roster off as the whole group.
   return (
     <div className="mt-4 border-t border-line pt-4">
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-xs font-bold uppercase tracking-wide text-muted">
             Who’s in

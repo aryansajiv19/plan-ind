@@ -1,5 +1,5 @@
 import type { Plan, Spot } from "@/lib/types";
-import { appleMapsUrl, driveMinutesEstimate, googleMapsUrl, haversineKm, isDubaiRushHour } from "@/lib/directions";
+import { driveMinutesEstimate, googleMapsUrl, haversineKm, isDubaiRushHour } from "@/lib/directions";
 import { useMinuteClock } from "@/hooks/use-minute-clock";
 import GetThere from "@/components/GetThere";
 import { metroLine } from "@/lib/dubai-metro";
@@ -40,9 +40,6 @@ export default function GettingThere({ plan, winner }: { plan: Pick<Plan, "origi
       <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2 text-sm font-medium">
         <a href={googleMapsUrl(winner)} target="_blank" rel="noopener noreferrer" className="text-grape underline">
           Open in Google Maps
-        </a>
-        <a href={appleMapsUrl(winner)} target="_blank" rel="noopener noreferrer" className="text-grape underline">
-          Apple Maps
         </a>
       </div>
       <GetThere venue={winner} className="mt-2" />
