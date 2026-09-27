@@ -5,12 +5,32 @@ import UnavailableState from "@/components/account/UnavailableState";
 import { useMinuteClock } from "@/hooks/use-minute-clock";
 import type { Plan } from "@/lib/types";
 
-export type PlanSummary = Pick<Plan, "id" | "title" | "status" | "stage" | "deadline" | "event_time" | "winner_spot_id" | "decided_at">;
+export type PlanSummary = Pick<Plan, "id" | "title" | "status" | "stage" | "deadline" | "event_time" | "winner_spot_id" | "decided_at" | "stage_changed_at"> & {
+  /** P31 (074): the stage moved on since this account last opened the plan. */
+  changed?: boolean;
+};
 
 // Dubai time and one fixed locale, so the server and the browser render the
 // same string (no hydration mismatch) and it matches the app's Dubai clock.
 const when = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Dubai", weekday: "short", hour: "numeric", minute: "2-digit", hour12: true });
 const at = (iso: string) => when.format(new Date(iso)).replace(":00", "").replace(" am", "am").replace(" pm", "pm");
+
+// "5m ago", from the stage's own timestamp. Null before the clock is known.
+function ago(iso: string | null | undefined, now: Date | null): string | null {
+  if (!iso || !now) return null;
+  const minutes = Math.max(0, Math.round((now.getTime() - Date.parse(iso)) / 60_000));
+  if (Number.isNaN(minutes)) return null;
+  if (minutes < 1) return "just now";
+  if (minutes < 60) return `${minutes}m ago`;
+  if (minutes < 24 * 60) return `${Math.round(minutes / 60)}h ago`;
+  return `${Math.round(minutes / (24 * 60))}d ago`;
+}
+
+// What moved on since you last looked (P31): decided, or the final round opening.
+function changeBadge(plan: PlanSummary): string {
+  if (plan.status === "decided") return "Decided";
+  return plan.stage === "final" ? "Final round open" : "Updated";
+}
 
 function stateLine(plan: PlanSummary, now: Date | null): string {
   if (plan.status === "decided") {
@@ -36,6 +56,12 @@ export default function YourPlans({ plans, unavailable }: { plans: PlanSummary[]
         {plans.map((plan) => (
           <li key={plan.id}>
             <Link href={`/plan/${plan.id}`} className="your-plans__card">
+              {plan.changed && (
+                // Your news, so the live accent; the words carry it without colour.
+                <span className="self-start rounded-full border border-[var(--color-live)] px-2 py-0.5 text-[0.7rem] font-semibold text-[var(--color-live)]">
+                  {changeBadge(plan)}{ago(plan.stage_changed_at, now) ? ` · ${ago(plan.stage_changed_at, now)}` : ""}
+                </span>
+              )}
               <span className="your-plans__name">{plan.title}</span>
               <span className="your-plans__state">{stateLine(plan, now)}</span>
             </Link>

@@ -5,6 +5,7 @@ import { getSupabase } from "@/lib/supabase";
 import { secureJsonFetch } from "@/lib/security/csrf-client";
 import type { Plan, PlanSpot, PlanStage, Spot } from "@/lib/types";
 import { fromDubaiInput, toDubaiInput } from "@/lib/dubai-phase";
+import { finalRoundMessage } from "@/lib/share-preview";
 
 // B7: is the signed-in account this plan's creator? Null when the answer is
 // unknown (am_plan_host is migration 067, not on every stack yet, or the
@@ -39,6 +40,9 @@ export function useHostCommands({
   setNotice: Dispatch<SetStateAction<string | null>>;
 }) {
   const [deciding, setDeciding] = useState(false);
+  // P31: after this host opens the final round, one tap tells the group on
+  // WhatsApp. Only here, so a member or a reload never sees it.
+  const [nudge, setNudge] = useState<string | null>(null);
   const [confirmReopen, setConfirmReopen] = useState(false);
   const [reopening, setReopening] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -226,12 +230,16 @@ export function useHostCommands({
       if (result?.finalists) setPlanSpots((current) => current.map((link) => ({ ...link, advanced: result.finalists!.includes(link.spot_id) })));
       if (result?.plan) setPlan(result.plan);
       setNotice(null);
+      if (result?.plan?.stage === "final") {
+        const url = `${window.location.origin}/plan/${id}`;
+        setNudge(`https://wa.me/?text=${encodeURIComponent(finalRoundMessage(result.plan.title, url))}`);
+      }
     } catch (error) {
       await failHostCommand(error, "The shortlist didn’t save. Try again.");
     } finally {
       setDeciding(false);
     }
-  }, [plan, stage, isHost, runHostCommand, failHostCommand, setNotice, setPlan, setPlanSpots]);
+  }, [id, plan, stage, isHost, runHostCommand, failHostCommand, setNotice, setPlan, setPlanSpots]);
 
   const decide = useCallback(async () => {
     if (!plan || plan.status !== "open" || spots.length === 0) return;
@@ -310,6 +318,9 @@ export function useHostCommands({
     deletePlan,
     advanceToFinal,
     decide,
+    /** P31: the WhatsApp link to send once the final round opens, or null. */
+    nudge,
+    dismissNudge: () => setNudge(null),
   };
 }
 

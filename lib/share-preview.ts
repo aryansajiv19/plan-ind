@@ -171,6 +171,12 @@ export function shareMessage(title: string | null | undefined, url: string, winn
   return name ? `Help pick where we go: "${name}"\n${url}` : `Help pick where we go\n${url}`;
 }
 
+/** P31: the host's nudge when the final round opens: the three left, and the link. */
+export function finalRoundMessage(title: string | null | undefined, url: string): string {
+  const name = oneLine(title, 80);
+  return `The final round is open${name ? ` for "${name}"` : ""}. Three places left, pick one:\n${url}`;
+}
+
 export function whatsappShareUrl(title: string | null | undefined, url: string, winner?: ShareWinner | null): string {
   return `https://wa.me/?text=${encodeURIComponent(shareMessage(title, url, winner))}`;
 }

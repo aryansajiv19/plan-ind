@@ -8,6 +8,7 @@ import {
   shareCopy,
   shareMessage,
   whatsappShareUrl,
+  finalRoundMessage,
 } from "../lib/share-preview.ts";
 
 const ID = "a6ad8145-7e3f-456c-be8e-2430175d6fb6";
@@ -95,4 +96,12 @@ test("a decided plan's share message announces the winner", () => {
   assert.equal(shareMessage("Friday dinner", "", winner), "We're going to Il Borro (Jumeirah) — Sat 26 Sep, 8 pm.");
   const wa = new URL(whatsappShareUrl("Friday dinner", url, winner));
   assert.equal(wa.searchParams.get("text"), shareMessage("Friday dinner", url, winner));
+});
+
+test("the host's final-round nudge names the plan and carries the link (P31)", () => {
+  assert.equal(
+    finalRoundMessage("Friday, finally", "https://plan-ind.vercel.app/plan/p1"),
+    'The final round is open for "Friday, finally". Three places left, pick one:\nhttps://plan-ind.vercel.app/plan/p1',
+  );
+  assert.equal(finalRoundMessage("   ", "u"), "The final round is open. Three places left, pick one:\nu");
 });
