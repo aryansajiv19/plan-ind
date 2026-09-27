@@ -25,7 +25,7 @@ to users; it exists to measure, verify or back-fill.
 |---|---|---|
 | `check-schema-types.mjs` | `lib/types.ts` vs `schema.sql` | in CI |
 | `check-spot-photo-urls.sh` | every `photo_url` resolves to a real image | run before applying any photo migration |
-| `smoke-test.mjs`, `verify-journey.mjs` | deployment verification | needs live infrastructure |
+| `smoke-test.mjs` | deployment verification | needs live infrastructure |
 | `backfill-*.mjs` | one-off data fills | keep, they document how the data got there |
 | `places-backfill.ts` | Google Places: place ids + venue photos → review file → staged migrations | `npm run places:backfill`; runbook in `docs/PLACES_INGESTION_SCOPE.md` |
 | `gen-catalogue-truth.mjs` | `data/venue-facts.json` → migration 070 | never hand-edit 070; re-run after changing the data. Skips any value a checker note flags |

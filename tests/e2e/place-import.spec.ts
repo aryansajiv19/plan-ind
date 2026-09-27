@@ -3,7 +3,7 @@ import { randomBytes } from "node:crypto";
 import { localAdmin, signInAsMember } from "./local-stack";
 import { canProvision } from "./plan-factory";
 
-// P33: the place-link intake's seams, moved here from scripts/verify-journey.mjs
+// P33: the place-link intake's seams, moved here from the retired scripts/verify-journey.mjs
 // (steps 21-24). Instagram links on purpose: with no provider credentials they
 // resolve to needs_input without a network call, so the run is deterministic.
 // Matching and safe-fetch are unit tests (place-import-*.test.ts).
@@ -51,19 +51,21 @@ test("a link with no provider says why it needs input, and re-saving it reuses t
   expect((await listed.json() as { saved: { id: string }[] }).saved.map((s) => s.id)).toContain(id);
 });
 
-test("two first saves of one link at once make one row and one collection item", async ({ context, request, baseURL }) => {
+test("first saves of one link at once make one row and one collection item", async ({ context, request, baseURL }) => {
   test.skip(!canProvision(), "needs the local stack to mint an account");
   const me = await signInAsMember(context, baseURL!, `Racer ${Date.now()}`);
   const { save } = await saver(context, request, baseURL!);
   const url = instagram();
 
-  const [a, b] = await Promise.all([save(url), save(url)]);
-  expect([a.status(), b.status()]).toEqual([200, 200]);
-  const [idA, idB] = [(await a.json() as { id: string }).id, (await b.json() as { id: string }).id];
-  expect(idA).toBe(idB);
+  // Four, not two: the losers' 23505 recovery only runs when inserts actually
+  // collide, and with two a planted bug slipped through on one project of two.
+  const saves = await Promise.all(Array.from({ length: 4 }, () => save(url)));
+  expect(saves.map((s) => s.status())).toEqual([200, 200, 200, 200]);
+  const ids = await Promise.all(saves.map(async (s) => (await s.json() as { id: string }).id));
+  expect(new Set(ids).size).toBe(1);
   const admin = localAdmin();
   const { data: rows } = await admin.from("place_imports").select("id").eq("person_id", me.userId);
   expect(rows).toHaveLength(1);
-  const { count } = await admin.from("place_collection_items").select("import_id", { count: "exact", head: true }).eq("import_id", idA);
+  const { count } = await admin.from("place_collection_items").select("import_id", { count: "exact", head: true }).eq("import_id", ids[0]);
   expect(count).toBe(1);
 });

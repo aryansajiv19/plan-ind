@@ -3,8 +3,8 @@ import { randomUUID } from "node:crypto";
 import { clientAs, signInAsMember } from "./local-stack";
 import { canProvision, SEEDED } from "./plan-factory";
 
-// P33: visit photos in the private bucket, moved here from
-// scripts/verify-journey.mjs (step 25). There is no service key in the app, so
+// P33: visit photos in the private bucket, moved here from the
+// retired scripts/verify-journey.mjs (step 25). There is no service key in the app, so
 // everything below runs on the members' own sessions, as the app does: a
 // photo goes into its owner's folder only, is signed for its owner only, and
 // is gone once its owner removes it.
