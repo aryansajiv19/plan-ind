@@ -450,3 +450,7 @@ control has no UI yet.
 - **P31 client:** "Your plans" badges for stages changed since you last
   looked ("Final round open · 5m ago"); the host gets a one-tap WhatsApp nudge
   when the final round opens. Verified live with two accounts.
+- **P28 prep:** the landing/demo wall is picked per request (open now on the
+  Dubai clock, at most two per category, photos first) from an 80-row cached
+  pool; the greeting is server-side on the Dubai clock; the visual spec masks
+  and pins those regions so baselines do not flake by time of day.
