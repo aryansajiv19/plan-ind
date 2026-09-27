@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { motion, useReducedMotion } from "motion/react";
+import PhotoCredit from "@/components/PhotoCredit";
 
 /** Length of the whole sequence. Kept under 1.5s (PRIORITIES X2). */
 export const DEAL_REVEAL_MS = 1300;
@@ -12,6 +13,9 @@ const ROUNDS = [0, 1, 2] as const;
 export interface RevealCard {
   name: string;
   area: string;
+  /** With its credit: a licence obligation wherever the photo renders. */
+  photo_url?: string | null;
+  photo_attribution?: string | null;
 }
 
 /**
@@ -24,9 +28,9 @@ export interface RevealCard {
  * motion, where everything renders in its end state). Only what arrives
  * animates; nothing loops.
  *
- * The real flow has ids only until the plan page loads, so its cards are
- * face down, marked with the category code. `cards` is for the signed-out
- * preview: nine real places for its settings (P8), or the sample decks.
+ * `cards`, round by round, turns the real places over: the deal's own (P26),
+ * the signed-out preview's (P8), or the sample decks. Without them the
+ * cards stay face down, marked with the category code.
  */
 export default function DealReveal({
   constraints,
@@ -68,6 +72,13 @@ export default function DealReveal({
     animate: { opacity: 1, y: 0 },
     transition: { delay, duration: 0.22, ease: EASE_SETTLE },
   } as const);
+  // A real card turns over into place (P26); the face-down deal slides in.
+  const flip = (delay: number) => ({
+    initial: reduced ? false : { opacity: 0, rotateY: -75 },
+    animate: { opacity: 1, rotateY: 0 },
+    transition: { delay, duration: 0.28, ease: EASE_SETTLE },
+    style: { transformPerspective: 700 },
+  } as const);
 
   return (
     <section className="plan-form" aria-labelledby="deal-reveal-heading">
@@ -106,23 +117,41 @@ export default function DealReveal({
               {ROUNDS.map((slot) => {
                 const index = round * 3 + slot;
                 const card = cards?.[index];
+                if (card) {
+                  // The vote card's band in miniature: the photo with its
+                  // credit, or the name in the display serif.
+                  return (
+                    <motion.li key={slot} {...flip(0.5 + index * 0.06)} className="flex flex-col overflow-hidden rounded-lg border border-line bg-card">
+                      <span className="relative block aspect-[4/3] bg-[color-mix(in_srgb,var(--color-ink)_5%,var(--color-card))]">
+                        {card.photo_url ? (
+                          <>
+                            {/* eslint-disable-next-line @next/next/no-img-element -- a 1.3s moment; same unoptimized posture as the cards */}
+                            <img src={card.photo_url} alt="" className="absolute inset-0 h-full w-full object-cover" />
+                            <PhotoCredit spot={{ photo_url: card.photo_url, photo_attribution: card.photo_attribution ?? null }} />
+                          </>
+                        ) : (
+                          <span className="absolute inset-0 flex items-end p-2.5 font-display text-base font-semibold leading-tight tracking-tight">
+                            <span className="line-clamp-3">{card.name}</span>
+                          </span>
+                        )}
+                      </span>
+                      <span className="px-2.5 py-1.5">
+                        {card.photo_url && <span className="line-clamp-1 block text-xs font-medium">{card.name}</span>}
+                        <span className="block truncate text-[0.7rem] text-muted">{card.area}</span>
+                      </span>
+                    </motion.li>
+                  );
+                }
                 return (
                   <motion.li
                     key={slot}
                     {...enter(0.5 + index * 0.06, 8)}
                     className="flex min-h-16 flex-col justify-center rounded-lg border border-line bg-card p-2.5"
                   >
-                    {card ? (
-                      <>
-                        <span className="line-clamp-2 text-xs font-medium leading-snug">{card.name}</span>
-                        <span className="mt-0.5 truncate text-[0.7rem] text-muted">{card.area}</span>
-                      </>
-                    ) : (
-                      <span className="text-center text-xs font-medium tracking-widest text-muted">
-                        <span aria-hidden="true">{code}</span>
-                        <span className="sr-only">Place {index + 1}</span>
-                      </span>
-                    )}
+                    <span className="text-center text-xs font-medium tracking-widest text-muted">
+                      <span aria-hidden="true">{code}</span>
+                      <span className="sr-only">Place {index + 1}</span>
+                    </span>
                   </motion.li>
                 );
               })}
