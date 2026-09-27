@@ -7,6 +7,7 @@ import type { Mine } from "@/lib/my-rows";
 import type { BookingClaim } from "@/hooks/use-booking-claim";
 import type { Seat } from "@/lib/tally";
 import { categoryMeta } from "@/lib/categories";
+import { knownMinSpend } from "@/lib/price";
 import { fitForEvent, hoursLabel } from "@/lib/open-hours";
 import { dubaiMinuteOfDay, fromDubaiInput, toDubaiInput } from "@/lib/dubai-phase";
 import GettingThere from "@/components/vote/GettingThere";
@@ -17,7 +18,6 @@ import BookingSection from "@/components/vote/BookingSection";
 import RatingSection from "@/components/vote/RatingSection";
 import WhosInSection from "@/components/vote/WhosInSection";
 import WinnerReveal from "@/components/WinnerReveal";
-import PhotoCredit from "@/components/PhotoCredit";
 import PlanWeather from "@/components/PlanWeather";
 import { avatarStyle, initialsOf } from "@/lib/avatar";
 import { shareMessage, type ShareWinner } from "@/lib/share-preview";
@@ -119,14 +119,7 @@ export default function DecidedPlan({
           Ungated — it reconstructs the NAME, which every plan has, so it
           runs on every decided plan rather than the 7% with a photo. When
           there is a photo it still settles onto it. */}
-      <WinnerReveal
-        name={winner.name}
-        photoUrl={winner.photo_url}
-        alt={`${winner.name}, ${winner.area}`}
-      />
-      {/* Licence obligation — see PhotoCredit. Renders nothing without both
-          a photo and an attribution. */}
-      <PhotoCredit spot={winner} />
+      <WinnerReveal name={winner.name} spot={winner} />
 
       {/* Decision summary */}
       <div className="flex items-center gap-3">
@@ -163,7 +156,7 @@ export default function DecidedPlan({
           beside the reveal. */}
       <p className="vote-result__details mt-2 text-sm">
         {winner.description ?? winner.vibe}
-        <span className="text-muted"> · {hoursLabel(winner.open_till) ?? "Hours not listed"} · from AED {winner.min_spend}pp · </span>
+        <span className="text-muted"> · {hoursLabel(winner.open_till) ?? "Hours not listed"}{knownMinSpend(winner) != null ? ` · from AED ${winner.min_spend}pp` : ""} · </span>
         <Link href={`/place/${winner.id}?from=/plan/${plan.id}`}>Place details</Link>
       </p>
 

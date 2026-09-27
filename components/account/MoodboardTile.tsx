@@ -1,11 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import PhotoCredit from "@/components/PhotoCredit";
-import { canOptimiseImage } from "@/lib/image-src";
+import VenuePhoto, { hasVenuePhoto } from "@/components/VenuePhoto";
 import { categoryLabel } from "@/lib/categories";
 import { hoursLabel } from "@/lib/open-hours";
+import { priceLabel } from "@/lib/price";
 import { safeExternalUrl, type BoardSpot } from "@/lib/social";
 import type { MoodboardItem } from "@/lib/types";
 
@@ -34,15 +33,14 @@ export default function MoodboardTile({
 }) {
   const link = item.kind === "link" ? safeExternalUrl(item.source_url) : null;
   const placeHref = spot ? `/place/${spot.id}` : null;
-  const photo = spot?.photo_url ?? null;
+  const photo = spot ? hasVenuePhoto(spot) : false;
   const name = spot?.name ?? item.label;
 
   return (
     <article className={`wall-tile board-tile ${photo ? "" : "wall-tile--typographic"}`}>
       {photo && spot && (
         <div className="board-tile__photo" style={{ aspectRatio: RATIOS[index % RATIOS.length] }}>
-          <Image src={photo} alt="" fill sizes="(max-width: 760px) 50vw, 25vw" unoptimized={!canOptimiseImage(photo)} />
-          <PhotoCredit spot={spot} />
+          <VenuePhoto spot={spot} sizes="(max-width: 760px) 50vw, 25vw" />
         </div>
       )}
       <div className="board-tile__body">
@@ -52,7 +50,7 @@ export default function MoodboardTile({
         <h3>{name}</h3>
         {spot && (
           <p>
-            {[spot.area, spot.min_spend > 0 ? `AED ${spot.min_spend} pp` : spot.price_band, hoursLabel(spot.open_till)].filter(Boolean).join(" · ")}
+            {[spot.area, priceLabel(spot), hoursLabel(spot.open_till)].filter(Boolean).join(" · ")}
           </p>
         )}
         {spot?.vibe && <p>{spot.vibe}</p>}

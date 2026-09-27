@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import Image from "next/image";
-import { canOptimiseImage } from "@/lib/image-src";
+import VenuePhoto, { hasVenuePhoto, type PhotoSpot } from "@/components/VenuePhoto";
 
 // Read via useSyncExternalStore, not a plain useEffect + setState: the
 // server has no matchMedia, so the client's first render must match its
@@ -102,15 +101,7 @@ function easeSettle(t: number): number {
   return 1 - Math.pow(1 - t, 3);
 }
 
-export default function WinnerReveal({
-  name,
-  photoUrl,
-  alt,
-}: {
-  name: string;
-  photoUrl?: string | null;
-  alt: string;
-}) {
+export default function WinnerReveal({ name, spot }: { name: string; spot: PhotoSpot }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const [phase, setPhase] = useState<"particles" | "settled">("particles");
@@ -279,17 +270,11 @@ export default function WinnerReveal({
   const showCanvas = !reducedMotion && phase === "particles";
 
   return (
-    <div className="winner-reveal" data-photo={photoUrl ? "true" : undefined}>
-      {photoUrl && (
+    <div className="winner-reveal" data-photo={hasVenuePhoto(spot) ? "true" : undefined}>
+      {hasVenuePhoto(spot) && (
         <>
-          <Image
-            src={photoUrl}
-            alt={alt}
-            fill
-            sizes="(max-width: 700px) 100vw, 40rem"
-            className="winner-reveal__img"
-            unoptimized={!canOptimiseImage(photoUrl)}
-          />
+          {/* The heading names the winner, so the photo is decorative. */}
+          <VenuePhoto spot={spot} sizes="(max-width: 700px) 100vw, 40rem" className="winner-reveal__img" />
           {/* The scrim/ink pair .place-hero uses. Those tokens keep their
               night values on both grounds on purpose — a headline that flips
               to dark ink on a photograph disappears. */}

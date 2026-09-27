@@ -59,6 +59,20 @@
    Positioned bottom-left because every photo surface in this app already
    reserves the bottom-right for its own furniture (the wall tile's note
    chip, the place hero's body block). */
+/* VenuePhoto's Google branch fills the card's photo frame, a quiet ink block
+   until the browser has the photo. */
+.venue-photo {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--color-ink) 8%, transparent);
+}
+.venue-photo > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 .photo-credit {
   position: absolute;
   left: 10px;

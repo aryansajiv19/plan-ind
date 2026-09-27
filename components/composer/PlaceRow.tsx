@@ -1,9 +1,7 @@
 "use client";
 
 import { useRef, type KeyboardEvent, type ReactNode } from "react";
-import Image from "next/image";
-import PhotoCredit from "@/components/PhotoCredit";
-import { canOptimiseImage } from "@/lib/image-src";
+import VenuePhoto, { hasVenuePhoto } from "@/components/VenuePhoto";
 import { categoryMeta } from "@/lib/categories";
 
 /** A place as a composer row shows it: the deck (P25) and My places. */
@@ -13,6 +11,7 @@ export type RowCard = {
   area: string;
   photo_url: string | null;
   photo_attribution: string | null;
+  google_place_id?: string | null;
   category?: string;
   cuisine?: string;
   min_spend?: number;
@@ -36,11 +35,8 @@ function Face({ card }: { card: RowCard }) {
   return (
     <>
       <span className="plan-deck__band">
-        {card.photo_url ? (
-          <>
-            <Image src={card.photo_url} alt="" fill sizes="10rem" className="object-cover" unoptimized={!canOptimiseImage(card.photo_url)} />
-            <PhotoCredit spot={card} />
-          </>
+        {hasVenuePhoto(card) ? (
+          <VenuePhoto spot={card} sizes="10rem" />
         ) : (
           // No photo: the vote card's typographic band (P27), not an empty frame.
           <span className="plan-deck__type">
@@ -50,8 +46,8 @@ function Face({ card }: { card: RowCard }) {
         )}
       </span>
       <span className="plan-deck__caption">
-        {card.photo_url && <strong className="font-semibold text-ink">{card.name}</strong>}
-        <span>{card.area}{card.min_spend != null ? ` · from AED ${card.min_spend}` : ""}</span>
+        {hasVenuePhoto(card) && <strong className="font-semibold text-ink">{card.name}</strong>}
+        <span>{card.area}{card.min_spend ? ` · from AED ${card.min_spend}` : ""}</span>
       </span>
     </>
   );

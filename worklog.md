@@ -76,6 +76,7 @@ Apply in order. Every migration is additive and re-run safe unless noted.
 | 073 | `migration-073-when-poll.sql` | **yes — applied live 2026-09-27 via Supabase MCP (lead, owner-approved go-live); verified by function fingerprints against the local stack.** P21 "When": `plan_time_options` (2–4 future times ≤ 60 days) and `plan_time_votes` keyed by seat_key only (no user_id: the table is in the Realtime publication); `set_plan_when` (host), `set_time_availability` (members, until decided); at decide the most-ticked time becomes `event_time` unless the host set one. test:db 77/77. Applied on the local stack. |
 | 074 | `migration-074-plan-seen.sql` | **yes — applied live 2026-09-27 via Supabase MCP (lead, owner-approved go-live); verified by function fingerprints against the local stack.** `plans.stage_changed_at` (trigger-stamped), `plan_access.last_seen_at` (default now()), `touch_plan_seen(uuid)` (own row), `my_plan_rail(int)` (security invoker, changed-first). Own security review: no C/H/M; two Lows fixed. test:db 95/95. Applied on the local stack. |
 | 075 | `migration-075-member-booking.sql` | **yes — applied live 2026-09-27 via Supabase MCP (lead; owner: "apply any migrations").** Verified: claim/release/mark_booked security definer, execute for authenticated only (anon false), booking_result no client grant, my_plan_rows returns my_booking; Scoopi Cafe and Garage Dubai private, Iris Harbour vibes/Lounge, Tresind Palm Jumeirah. |
+| 076 | `migration-076-places-backfill-ids.sql` | **yes — applied live 2026-09-27 via Supabase MCP (lead; owner approved "high + likely" place ids).** 62 curated spots (32 high, 27 reviewed, 3 hand-checked: Cove Beach, QDs, AquaFun); rejected: O Beach, Sky Views Edge Walk, Cocoa Room, Scoopi Cafe, Anantara, Bla Bla, Garage Dubai, Terra Solis. Verified: 62 ids, 62 distinct, 0 on non-curated rows. Review file deleted (Google content). |
 | 049 / 051 | `migration-049-hide-voter-user-id.sql`, `migration-051-hide-creator-user-id.sql` | **yes — applied live 2026-09-19 13:20Z via Supabase MCP (T0), owner-approved.** Confirmed 2026-09-26 by `list_migrations` (`migration_049_hide_voter_user_id`, `migration_051_hide_creator_user_id`). This row said "NOT applied" for a week because the entry recording it lived only on the unpushed `ai-engineering`. |
 
 `npm run test:smoke` asserts the 019 guards against the live project. All ten
@@ -549,3 +550,9 @@ the impeccable skill, standards advisory, on `lane/frontend-exp` only.
   mocked timers. Gate: tsc, 299 unit, lint, build green. A "winner photo has
   no credit" finding was false (DecidedPlan renders PhotoCredit after the
   reveal) and was dropped. Merged worktrees removed.
+- **Perf batch measured (live, Lighthouse 12, median of 3, same runner as the
+  baseline):** home mobile perf 72→81, LCP 10.47→4.60 s, TBT 202→64 ms; home
+  desktop 91→98, LCP 2.07→1.14 s; demo desktop 91→98; JS 323→300 KB. A paired
+  alternating local run (5 reps) confirms the JS drop and demo-mobile LCP -7%;
+  it cannot show the image fix, whose photos point at the live host.
+- **075, 066, 076 applied live** (ledger above); P35 merged (8d2277f).

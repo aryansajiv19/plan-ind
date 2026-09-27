@@ -71,17 +71,18 @@ function cached<A extends unknown[], R>(name: string, fn: (...args: A) => Promis
 export interface WallSpotRow {
   id: string; name: string; area: string; min_spend: number; vibe: string;
   photo_url: string | null; photo_attribution: string | null; category: string; price_band: string;
-  open_till: string | null;
+  open_till: string | null; google_place_id: string | null;
 }
 
 const readWall = cached("curated-wall", async (size: number): Promise<WallSpotRow[]> => {
   const { data, error } = await anon()
     .from("spots")
-    .select("id, name, area, min_spend, vibe, photo_url, photo_attribution, category, price_band, open_till")
+    .select("id, name, area, min_spend, vibe, photo_url, photo_attribution, category, price_band, open_till, google_place_id")
     .eq("source", "curated")
     .neq("visibility", "private") // 070: retired
     .or(`reopens_on.is.null,reopens_on.lte.${dubaiToday()}`) // 070: closed until a later date
     .order("photo_url", { nullsFirst: false })
+    .order("google_place_id", { nullsFirst: false })
     .order("name")
     .order("id")
     .limit(size);
@@ -112,13 +113,15 @@ const readCounts = cached("curated-counts", async (): Promise<CuratedCounts> => 
 
 /** Columns the Discover grid reads (see app/home/page.tsx). */
 export const DISCOVER_COLUMNS =
-  "id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, photo_url, photo_attribution, description, minimum_age, address, google_place_id";
+  "id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, photo_url, photo_attribution, description, minimum_age, address, google_place_id, source";
 
 export interface DiscoverSpotRow {
   id: string; name: string; category: string; area: string; cuisine: string; price_band: string;
   min_spend: number; open_till: string; vibe: string; photo_url: string | null;
   photo_attribution: string | null; description: string | null; minimum_age: number | null;
   address: string | null; google_place_id: string | null;
+  /** A custom row's price_band is a placeholder, never shown (lib/price.ts). */
+  source: "curated" | "custom";
 }
 
 const readDiscover = cached("curated-discover", async (limit: number): Promise<DiscoverSpotRow[]> => {

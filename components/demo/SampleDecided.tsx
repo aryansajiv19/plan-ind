@@ -47,7 +47,7 @@ export default function SampleDecided({
   return (
     <>
       <div className="vote-result mt-6 rounded-2xl border-2 border-punch bg-punch/5 p-4 sm:p-5">
-        <WinnerReveal name={winner.name} photoUrl={winner.photo_url} alt={`${winner.name}, ${winner.area}`} />
+        <WinnerReveal name={winner.name} spot={winner} />
 
         <div className="flex items-center gap-3">
           <span className="vote-result__category grid h-12 w-12 shrink-0 place-items-center rounded-xl text-2xl" aria-hidden="true">
