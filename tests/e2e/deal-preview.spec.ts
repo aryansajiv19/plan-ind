@@ -46,14 +46,20 @@ test("an unknown category or area is a 400, not a guess", async ({ context, base
 });
 
 // P26: POST /api/spots/deal returns cards alongside ids, same order.
-test("a deal returns its cards, one per id and in the same order", async ({ context, baseURL, page }) => {
+test("a deal returns its cards, one per id and in the same order", async ({ context, baseURL, request }) => {
   test.skip(!canProvision(), "needs the local stack to mint an account");
   await signInAsMember(context, baseURL!, "Dealer");
-  // The route's double-submit CSRF check, as the app's own fetch does it.
+  // The route's double-submit CSRF check, as the app's own fetch does it. A
+  // __Host- cookie can't be set on http through the browser context, so the
+  // request (no cookie jar of its own) carries the session and CSRF cookies
+  // in one explicit Cookie header -- the load harness's approach.
   const csrf = "e2e-csrf-" + Date.now();
-  await context.addCookies([{ name: "__Host-csrf", value: csrf, url: baseURL!, secure: true, sameSite: "Lax" }]);
-  const res = await page.request.post("/api/spots/deal", {
-    headers: { origin: new URL(baseURL!).origin, "x-csrf-token": csrf, "sec-fetch-site": "same-origin", "content-type": "application/json" },
+  const session = (await context.cookies()).map((c) => `${c.name}=${c.value}`).join("; ");
+  const res = await request.post("/api/spots/deal", {
+    headers: {
+      origin: new URL(baseURL!).origin, "sec-fetch-site": "same-origin", "content-type": "application/json",
+      "x-csrf-token": csrf, cookie: `__Host-csrf=${csrf}; ${session}`,
+    },
     data: { category: "dinner", count: 3 },
   });
   expect(res.status(), await res.text()).toBe(200);
