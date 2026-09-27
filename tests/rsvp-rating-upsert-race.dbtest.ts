@@ -263,7 +263,7 @@ describe("migration 025 — set_plan_rsvp upsert race", { skip: SKIP || undefine
     assert.equal(row?.choice, "no", "update did not take effect");
   });
 
-  test("concurrent first-time calls, DIFFERENT tokens: one wins, the other gets the clean 42501 — never a raw unique_violation", async (t) => {
+  test("concurrent first-time calls from two accounts under the same name: both succeed, one row each (067 F2)", async () => {
     const planId = await createOpenPlan();
     const a = await mintParticipant(planId);
     const b = await mintParticipant(planId);
@@ -273,30 +273,16 @@ describe("migration 025 — set_plan_rsvp upsert race", { skip: SKIP || undefine
       challenger(b, rsvpCall(b, planId, false, "no")),
     );
 
+    // Since 067 a name is a label and identity is the account: neither call is
+    // refused, and no raw unique_violation leaks from the retry loop.
     for (const r of [ra, rb]) {
-      if (r.status === "rejected") {
-        t.diagnostic(`one concurrent set_plan_rsvp raised: ${errorMessage(r.reason).split("\n")[0]}`);
-      }
+      assert.equal(r.status, "fulfilled", `a concurrent set_plan_rsvp failed: ${r.status === "rejected" ? errorMessage(r.reason).split("\n")[0] : ""}`);
     }
-
-    // Exactly one of the two calls must fail, and only with the function's
-    // own clean 42501, never a raw duplicate-key error.
-    const outcomes = [ra, rb];
-    const rejected = outcomes.filter((r) => r.status === "rejected") as PromiseRejectedResult[];
-    assert.equal(rejected.length, 1, "expected exactly one call to lose the race for this name");
-    const loserMessage = errorMessage(rejected[0].reason);
-    assert.match(loserMessage, /already in use/i, "loser did not get the function's clean ownership error");
-    assert.doesNotMatch(
-      loserMessage,
-      /duplicate key|unique constraint|23505|unique_violation/i,
-      "an unhandled Postgres unique_violation leaked to the caller — the 025 retry loop did not catch it",
+    assert.equal(await rsvpRowCount(planId), 2, "expected one rsvps row per account");
+    assert.equal(
+      await psql(`select count(distinct user_id) from rsvps where plan_id='${planId}' and voter_name='QA'`),
+      "2",
     );
-
-    assert.equal(await rsvpRowCount(planId), 1, "concurrent different-token calls left more than one row");
-    const row = await rsvpRow(planId);
-    assert.equal(row?.hash, a.hash, "the row does not belong to the actual insert winner (A, held open)");
-    assert.equal(row?.coming, true, "the winner's own values were not the ones persisted");
-    assert.equal(row?.choice, "coming", "the winner's own values were not the ones persisted");
   });
 
   test("concurrent first-time calls, SAME token (client retry): both succeed, one row, no unhandled exception", async () => {
@@ -340,7 +326,7 @@ describe("migration 025 — rate_plan upsert race", { skip: SKIP || undefined },
     assert.equal(row?.again, false, "update did not take effect");
   });
 
-  test("concurrent first-time calls, DIFFERENT tokens: one wins, the other gets the clean 42501 — never a raw unique_violation", async (t) => {
+  test("concurrent first-time calls from two accounts under the same name: both succeed, one row each (067 F2)", async () => {
     const { planId, spotId } = await createDecidedPlan();
     const a = await mintParticipant(planId);
     const b = await mintParticipant(planId);
@@ -350,28 +336,16 @@ describe("migration 025 — rate_plan upsert race", { skip: SKIP || undefined },
       challenger(b, rateCall(b, planId, spotId, 1, false)),
     );
 
+    // Since 067 a name is a label and identity is the account: neither call is
+    // refused, and no raw unique_violation leaks from the retry loop.
     for (const r of [ra, rb]) {
-      if (r.status === "rejected") {
-        t.diagnostic(`one concurrent rate_plan raised: ${errorMessage(r.reason).split("\n")[0]}`);
-      }
+      assert.equal(r.status, "fulfilled", `a concurrent rate_plan failed: ${r.status === "rejected" ? errorMessage(r.reason).split("\n")[0] : ""}`);
     }
-
-    const outcomes = [ra, rb];
-    const rejected = outcomes.filter((r) => r.status === "rejected") as PromiseRejectedResult[];
-    assert.equal(rejected.length, 1, "expected exactly one call to lose the race for this name");
-    const loserMessage = errorMessage(rejected[0].reason);
-    assert.match(loserMessage, /already in use/i, "loser did not get the function's clean ownership error");
-    assert.doesNotMatch(
-      loserMessage,
-      /duplicate key|unique constraint|23505|unique_violation/i,
-      "an unhandled Postgres unique_violation leaked to the caller — the 025 retry loop did not catch it",
+    assert.equal(await ratingRowCount(planId), 2, "expected one ratings row per account");
+    assert.equal(
+      await psql(`select count(distinct user_id) from ratings where plan_id='${planId}' and voter_name='QA'`),
+      "2",
     );
-
-    assert.equal(await ratingRowCount(planId), 1, "concurrent different-token calls left more than one row");
-    const row = await ratingRow(planId);
-    assert.equal(row?.hash, a.hash, "the row does not belong to the actual insert winner (A, held open)");
-    assert.equal(row?.stars, 5, "the winner's own values were not the ones persisted");
-    assert.equal(row?.again, true, "the winner's own values were not the ones persisted");
   });
 
   test("concurrent first-time calls, SAME token (client retry): both succeed, one row, no unhandled exception", async () => {

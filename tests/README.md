@@ -68,14 +68,13 @@ For both functions:
 
 1. **Non-concurrent sanity** — first call inserts, second (same voter, same
    token) updates in place; one row.
-2. **Concurrency, DIFFERENT tokens** (two people racing to claim the same
-   name) — fired from two separate Postgres backends, forced to interleave by
-   holding the insert-winner's transaction open behind an explicit
-   `pg_sleep(1)` before commit. Exactly one call fails, and only with the
-   function's own clean `42501 That participant name is already in use` — the
-   test asserts the failure message does **not** match `duplicate
-   key|unique_violation|23505`, i.e. no raw Postgres error leaks through. One
-   row lands, belonging to the insert winner.
+2. **Concurrency, two accounts, same name** — fired from two separate
+   Postgres backends, forced to interleave by holding the first transaction
+   open behind an explicit `pg_sleep(1)` before commit. Since 067 a name is a
+   label and identity is the account, so both calls succeed and each account
+   gets its own row; no raw `unique_violation` may leak from the retry loop.
+   (Before 067 exactly one lost, with `42501 That participant name is already
+   in use`.)
 3. **Concurrency, SAME token** (client retry / double-tap) — same interleave
    technique, both calls succeed, one row, no unhandled exception.
 
