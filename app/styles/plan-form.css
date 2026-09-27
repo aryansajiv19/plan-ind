@@ -135,61 +135,27 @@
 }
 
 .plan-smart-search {
-  margin-bottom: 1.4rem;
-  padding: 1rem;
-  border: 1px solid color-mix(in srgb, var(--home-metal) 58%, var(--color-line));
-  background: color-mix(in srgb, var(--home-metal) 4%, var(--color-card));
+  padding-top: 0.2rem;
 }
-.plan-smart-search__heading {
+/* P25: Luna as one line: the brief and its button abreast. */
+.plan-smart-search__bar {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
+  gap: 0.5rem;
+  margin-top: 0.45rem;
 }
-.plan-smart-search__heading small {
-  display: block;
-  margin-top: 0.25rem;
-  color: var(--color-muted);
-  font-size: max(0.68rem, var(--type-floor));
-}
-.plan-smart-search textarea {
-  width: 100%;
-  min-height: 6.5rem;
-  margin-top: 0.9rem;
-  padding: 0.8rem;
+.plan-smart-search__bar input {
+  flex: 1;
+  min-width: 0;
+  min-height: 2.75rem;
+  padding: 0 0.75rem;
   border: 1px solid var(--color-line);
-  border-radius: 0;
   background: var(--color-card);
   color: var(--color-ink);
-  font: inherit;
-  font-size: 0.82rem;
-  line-height: 1.5;
-  resize: vertical;
-}
-.plan-smart-search__meta {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-top: 0.4rem;
-  color: var(--color-muted);
-  font-size: max(0.66rem, var(--type-floor));
-  line-height: 1.4;
 }
 /* <small> is the UA's "smaller" (0.8em); restated so the floor reaches it. */
-.plan-smart-search__meta small {
-  font-size: max(0.8em, var(--type-floor));
-}
-.plan-smart-search__meta small:first-child {
-  max-width: 34rem;
-}
-.plan-smart-search__meta small:last-child {
-  flex: 0 0 auto;
-  white-space: nowrap;
-}
-.plan-smart-search > button {
-  min-height: 2.65rem;
-  margin-top: 0.65rem;
-  padding: 0.6rem 0.85rem;
+.plan-smart-search__bar button {
+  min-height: 2.75rem;
+  padding: 0 0.85rem;
   border: 1px solid var(--color-ink);
   background: var(--color-ink);
   color: var(--color-card);
@@ -197,7 +163,7 @@
   font-weight: 500;
   cursor: pointer;
 }
-.plan-smart-search > button:disabled {
+.plan-smart-search__bar button:disabled {
   cursor: not-allowed;
   opacity: 0.42;
 }
@@ -258,9 +224,7 @@
   cursor: pointer;
 }
 
-/* The underline is the group's own hue, so the five tabs read as five
-   different things rather than five words. It is never the only signal:
-   aria-pressed carries it, and the label darkens to full ink as well. */
+/* The open tab: an underline in the metal, with aria-pressed and full ink. */
 .plan-category-group::after {
   content: "";
   position: absolute;
@@ -278,12 +242,19 @@
   transform: scaleX(1);
 }
 
+/* P25: the types as one chip row; it wraps on desktop and scrolls on a phone. */
+.plan-form fieldset {
+  min-width: 0; /* fieldsets default to min-content, which the chip row would set */
+}
 .plan-category-options {
-  min-height: 7rem;
-  padding-top: 0.9rem;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.55rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  padding-top: 0.8rem;
+}
+.plan-category-option {
+  flex: 0 0 auto;
+  padding-inline: 0.95rem;
 }
 
 .plan-category-option,
@@ -306,17 +277,13 @@
 }
 /* was a hardcoded cool rgba(36,27,46,.42) off the warm ramp */
 
-/* The chosen category fills with the open group's hue. A 3px inset bar on
-   the leading edge means the selection is still legible as a shape when the
-   colour is not — this is the one control where colour does real work. */
+/* The chosen type: a metal tint plus a 3px inset bar, legible as a shape
+   when the colour is not. */
 .plan-category-option[aria-pressed="true"] {
   border-color: var(--color-punch-text);
   background: color-mix(in srgb, var(--home-metal) 12%, transparent);
   box-shadow: inset 3px 0 0 var(--home-metal);
   color: var(--color-ink);
-  /* Same spring as the vote card. These tiles sit in a fixed 2-column
-     grid with no scroll container, so the scale can be larger than
-     the card's without moving anything else. */
   transform: scale(1.025);
 }
 
@@ -371,6 +338,7 @@
   color: var(--color-ink);
   font-size: max(0.72rem, var(--type-floor));
   font-weight: 500;
+  white-space: nowrap;
   cursor: pointer;
 }
 /* 19px of text is a small target for a thumb AND for a mouse. The hit area
@@ -500,33 +468,139 @@
   opacity: 0.45;
 }
 
-.plan-round-summary {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  margin-top: 1.15rem;
-  border-block: 1px solid var(--color-line);
-}
 
-.plan-round-summary span {
-  display: grid;
-  gap: 0.12rem;
-  padding: 0.65rem 0.4rem;
-  border-left: 1px solid var(--color-line);
-  color: var(--color-muted);
-  font-size: max(0.58rem, var(--type-floor));
-  text-align: center;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
 
-.plan-round-summary span:first-child {
-  border-left: 0;
+
+/* P25: the deck of places the deal draws from; tap one to pin it. */
+.plan-deck__row {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 9.5rem;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+  padding-bottom: 0.4rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
 }
-.plan-round-summary strong {
+.plan-deck__card {
+  position: relative; /* holds its sr-only text inside the scrolling row */
+  display: grid;
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-control);
+  background: var(--color-card);
   color: var(--color-ink);
-  font-size: 1rem;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 150ms ease, transform 160ms var(--ease-settle);
+}
+.plan-deck__card:active:not(:disabled) {
+  transform: scale(0.97);
+}
+.plan-deck__card[aria-pressed="true"] {
+  border-color: var(--color-punch-text);
+  box-shadow: inset 0 0 0 1px var(--color-punch-text);
+}
+.plan-deck__card:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+.plan-deck__band {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  background: color-mix(in srgb, var(--color-ink) 5%, var(--color-card));
+}
+.plan-deck__type {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0.6rem;
+}
+.plan-deck__code {
+  color: var(--color-punch-text);
+  font-size: max(0.62rem, var(--type-floor));
   font-weight: 600;
-  letter-spacing: 0;
+}
+.plan-deck__name {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.15;
+}
+.plan-deck__paging {
+  display: flex;
+  gap: 0.25rem;
+}
+.plan-deck__paging button {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-control);
+  background: transparent;
+  cursor: pointer;
+}
+.plan-deck__paging button::before {
+  content: "";
+  width: 0.45rem;
+  height: 0.45rem;
+  border-right: 1.5px solid var(--color-ink);
+  border-bottom: 1.5px solid var(--color-ink);
+  transform: translateX(-0.1rem) rotate(-45deg);
+}
+.plan-deck__paging button[data-dir="back"]::before {
+  transform: translateX(0.1rem) rotate(135deg);
+}
+.plan-deck__caption {
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.45rem 0.6rem 0.55rem;
+  color: var(--color-muted);
+  font-size: max(0.68rem, var(--type-floor));
+}
+
+/* "Tune it": the summary is the settings, as text; opening it folds down. */
+.plan-tune {
+  margin-top: 1.2rem;
+  border-top: 1px solid var(--color-line);
+}
+.plan-tune > summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.75rem;
+  padding-block: 0.7rem;
+  list-style: none;
+  cursor: pointer;
+}
+.plan-tune > summary::-webkit-details-marker {
+  display: none;
+}
+.plan-tune > summary::after {
+  content: "";
+  width: 0.45rem;
+  height: 0.45rem;
+  margin: 0 0.3rem 0 auto;
+  border-right: 1.5px solid var(--color-muted);
+  border-bottom: 1.5px solid var(--color-muted);
+  transform: rotate(45deg);
+  transition: transform 160ms ease;
+}
+.plan-tune[open] > summary::after {
+  transform: rotate(-135deg);
+}
+.plan-tune__chip {
+  padding: 0.2rem 0.55rem;
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  color: var(--color-muted);
+  font-size: max(0.65rem, var(--type-floor));
 }
 
 .plan-constraints {
@@ -625,13 +699,8 @@
   padding: 0.8rem 1.2rem;
   border: 1px solid var(--color-ink);
   border-radius: var(--radius-control);
-  /* The filled-primary pair, not `var(--color-ink)` + `color: white`.
-     Those two mechanisms agreed only by coincidence in light, where the
-     ink IS dark and white sits on it at 18.10 — so the hardcoded white
-     never looked wrong and the --primary-* pair went unused on the app's
-     own primary controls while /login quietly used it. In dark the ink is
-     #D4C9C7 and white on it is 1.62: the button's own label, unreadable.
-     Reading the pair makes both grounds correct from one declaration. */
+  /* The filled-primary pair, so the label reads on both grounds (ink plus
+     a hardcoded white was 1.62:1 at night). */
   background: var(--primary-fill);
   color: var(--primary-ink);
   font-family: var(--font-display);
@@ -641,6 +710,19 @@
   transition: transform 260ms var(--ease-settle), box-shadow 150ms ease, opacity 150ms ease;
 }
 
+/* P25: the deal stays on screen anywhere in the form, on the card's surface. */
+.plan-deal-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  margin-top: 0.5rem;
+  padding-block: 0.75rem;
+  background: var(--color-card);
+  box-shadow: 0 -1px 0 var(--color-line); /* reads as floating when it covers the form */
+}
+.plan-deal-bar .plan-submit {
+  margin-top: 0.5rem;
+}
 .plan-submit:hover:not(:disabled) {
   transform: translateY(-1px);
 }
@@ -650,7 +732,7 @@
 }
 .plan-form__error {
   margin-top: 0.8rem;
-  color: var(--color-punch-text);
+  color: var(--color-error);
   font-size: 0.78rem;
   font-weight: 600;
 }

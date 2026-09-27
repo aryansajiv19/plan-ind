@@ -72,7 +72,7 @@ export default function VotePage() {
   const { nightMode, been } = usePlanDevice();
 
   const host = useHostCommands({ id, plan, setPlan, setPlanSpots, stage, spots, deleted, setDeleted, setNotice });
-  const { isHost, deciding, advanceToFinal, decide } = host;
+  const { isHost, deciding, advanceToFinal, decide, nudge, dismissNudge } = host;
   // The live channels are held so leavePlan can close them BEFORE the page
   // moves on (use-plan-realtime.ts).
   const { dataChannelRef, cancelRefetchesRef } = usePlanRealtime({
@@ -224,14 +224,11 @@ export default function VotePage() {
             deciding={deciding}
             hasCurrentSelection={hasCurrentSelection}
             allPoolsChosen={allPoolsChosen}
-            onContinue={() => {
-              setRoundDir(1);
-              if (activePool < poolCount) setActivePool((pool) => pool + 1);
-              else void advanceToFinal();
-            }}
+            onContinue={() => { setRoundDir(1); if (activePool < poolCount) setActivePool((pool) => pool + 1); else void advanceToFinal(); }}
             firstUnchosen={nextUnpickedPool(poolsChosenByMe, 0, poolCount)}
             onGoToPool={(pool) => { setRoundDir(pool > activePool ? 1 : -1); setActivePool(pool); }}
             onDecide={decide}
+            nudge={nudge ? { href: nudge, dismiss: dismissNudge } : null}
           />
           <ShareActions title={plan?.title ?? null} />
           <HostPlanControls host={host} plan={plan} voterCount={voterCount} canEdit={canEdit} />

@@ -1,9 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { dealSpotsForCategory, inRevealOrder } from "@/lib/deal";
 import { DUBAI_ORIGINS } from "@/lib/dubai-areas";
+import { DEAL_BUDGET_OPTIONS, DEAL_RADIUS_OPTIONS_KM } from "@/lib/spots/match";
 import { useDealPreview } from "@/hooks/use-deal-preview";
 import { minimumAgeForCategory } from "@/lib/age-policy";
 import { secureJsonFetch } from "@/lib/security/csrf-client";
@@ -23,6 +24,27 @@ export const PRESETS = [
 ] as const;
 
 type CategoryKey = Category["key"];
+export type PinnedPlace = NonNullable<PlanPrefill["pinned"]>;
+
+/** P25: Luna's budget or radius, snapped to the nearest chip the form offers (ties go up). */
+export function nearestOption(options: readonly (number | null)[], value: number | null): number | null {
+  if (value == null) return null;
+  const numbers = options.filter((option): option is number => option != null);
+  return numbers.reduce((best, option) => (Math.abs(option - value) <= Math.abs(best - value) ? option : best), numbers[0]);
+}
+
+// P25: the last settings a plan was dealt with, per device. Every read is
+// checked against what the form offers now; anything stale is ignored.
+const SETTINGS_KEY = "deal-three:composer";
+type Remembered = { category?: string; maxBudget?: number | null; origin?: string; radiusKm?: number | null; presetIdx?: number };
+function readRemembered(): Remembered | null {
+  try {
+    const raw = JSON.parse(localStorage.getItem(SETTINGS_KEY) ?? "null");
+    return raw && typeof raw === "object" ? raw as Remembered : null;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * The deal composer's state and actions: what the host picks, the deal,
@@ -43,11 +65,19 @@ export function useComposer({ age, demoMode, prefill }: { age: number; demoMode:
   const [radiusKm, setRadiusKm] = useState<number | null>(prefill?.radiusKm !== undefined ? prefill.radiusKm : 20);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const custom = useCustomPlaces(category, setError);
-  // P30: "Start a vote with this place" puts that place in round 1.
-  const [placePin, setPlacePin] = useState(prefill?.pinned ?? null);
-  // ponytail: one pin per round, so a fourth pin (place + three saved) drops the last saved one.
-  const pinnedIds = [...(placePin ? [placePin.id] : []), ...custom.selectedIds].slice(0, 3);
+  // Catalogue places the vote starts with (P30 prefill, P25 deck), one per round in pin order.
+  const [pins, setPins] = useState<PinnedPlace[]>(prefill?.pinned ? [prefill.pinned] : []);
+  // Saved places share the cap of three with catalogue pins, so none is ever dropped.
+  const custom = useCustomPlaces(category, setError, pins.length);
+  const pinnedIds = [...pins.map((pin) => pin.id), ...custom.selectedIds].slice(0, 3);
+  // "Tune it" opens itself when an error is about a field inside it.
+  const [tuneOpen, setTuneOpen] = useState(false);
+  const togglePin = (place: PinnedPlace) => setPins((current) => (
+    current.some((pin) => pin.id === place.id) ? current.filter((pin) => pin.id !== place.id)
+      : pinnedIds.length < 3 ? [...current, place] : current
+  ));
+  /** The round a pinned place is dealt into (create_secure_plan: place i in round i mod 3), or null. */
+  const roundOf = (id: string) => { const i = pinnedIds.indexOf(id); return i < 0 ? null : i + 1; };
   const when = useWhenPicks(); // P21
   // P6: label each limit with what it can deal from, and switch off what
   // can't fill the nine left after pinned places. Needs a session, so not in the demo.
@@ -63,6 +93,43 @@ export function useComposer({ age, demoMode, prefill }: { age: number; demoMode:
   const [smartQuery, setSmartQuery] = useState(prefill?.smartQuery ?? "");
   const [smartIntent, setSmartIntent] = useState<SmartIntent | null>(null);
 
+  // P25: the last settings, once, when nothing else set the form up. After
+  // paint, so the server render and the first client render agree.
+  const [remembered, setRemembered] = useState<Remembered | null>(null);
+  useEffect(() => {
+    if (prefill) return;
+    const frame = requestAnimationFrame(() => {
+      const saved = readRemembered();
+      if (!saved) return;
+      const known = CATEGORIES.find((c) => c.key === saved.category);
+      if (known && age >= minimumAgeForCategory(known.key)) {
+        setCategory(known.key);
+        setTitle(known.title);
+        setActiveGroup(CATEGORY_GROUPS.find((group) => group.categories.some((c) => c.key === known.key))?.key ?? "food");
+      }
+      if (saved.maxBudget === null || DEAL_BUDGET_OPTIONS.includes(saved.maxBudget as number)) setMaxBudget(saved.maxBudget ?? null);
+      if (DUBAI_ORIGINS.some((origin) => origin.value === saved.origin)) setOriginValue(saved.origin!);
+      if (saved.radiusKm === null || DEAL_RADIUS_OPTIONS_KM.includes(saved.radiusKm as number)) setRadiusKm(saved.radiusKm ?? null);
+      if (Number.isInteger(saved.presetIdx) && saved.presetIdx! >= 0 && saved.presetIdx! < PRESETS.length) setPresetIdx(saved.presetIdx!);
+      setRemembered(saved);
+    });
+    return () => cancelAnimationFrame(frame);
+    // Once, on mount: the form remounts per prefill.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // A remembered type the counts now hide (P6) gives way to the default.
+  useEffect(() => {
+    if (!remembered || remembered.category !== category || preview.canFill(category)) return;
+    const frame = requestAnimationFrame(() => {
+      setCategory("dinner");
+      setTitle(CATEGORIES[0].title);
+      setActiveGroup("food");
+      setRemembered(null);
+    });
+    return () => cancelAnimationFrame(frame);
+  });
+
   // Picking a type swaps in its default prompt — unless you've written your own.
   function pickCategory(cat: Category) {
     if (age < minimumAgeForCategory(cat.key)) return;
@@ -77,8 +144,8 @@ export function useComposer({ age, demoMode, prefill }: { age: number; demoMode:
     if (matchedCategory && age >= minimumAgeForCategory(matchedCategory.key)) setCategory(matchedCategory.key);
     if (matchedGroup) setActiveGroup(matchedGroup.key);
     if (matchedOrigin) setOriginValue(matchedOrigin.value);
-    setMaxBudget(intent.maxBudget);
-    setRadiusKm(intent.origin === "anywhere" ? null : (intent.radiusKm ?? 20));
+    setMaxBudget(nearestOption(DEAL_BUDGET_OPTIONS, intent.maxBudget));
+    setRadiusKm(intent.origin === "anywhere" ? null : nearestOption(DEAL_RADIUS_OPTIONS_KM, intent.radiusKm ?? 20));
     setTitle(intent.title);
     setTitleEdited(true);
     setSmartIntent(intent);
@@ -110,8 +177,8 @@ export function useComposer({ age, demoMode, prefill }: { age: number; demoMode:
       return { error: `Not enough related ${categoryLabel.toLowerCase()} places match that budget and distance. Raise either limit, add a custom place, or try another type.` };
     }
     // P26: the real cards when the route sent them and every pin is known; else face down.
-    const pins = [...(placePin ? [placePin] : []), ...custom.pinnedCards].slice(0, pinned.length);
-    const all = [...pins, ...(dealt.cards ?? [])];
+    const pinCards = [...pins, ...custom.pinnedCards].slice(0, pinned.length);
+    const all = [...pinCards, ...(dealt.cards ?? [])];
     const complete = dealt.cards != null && all.every(Boolean) && all.length === 9;
     return { spotIds: [...pinned, ...dealt.ids], cards: complete ? inRevealOrder(all as RevealCard[]) : null };
   }
@@ -148,6 +215,9 @@ export function useComposer({ age, demoMode, prefill }: { age: number; demoMode:
     const clean = title.trim();
     if (!clean) return;
     setError(null);
+    try {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify({ category, maxBudget, origin: originValue, radiusKm, presetIdx } satisfies Remembered));
+    } catch { /* storage blocked: nothing remembered */ }
     // Signed out (P8): deal nine real places for these settings without a
     // session, then hand over to /demo/vote instead of a sign-in dead end.
     if (demoMode) {
@@ -160,10 +230,11 @@ export function useComposer({ age, demoMode, prefill }: { age: number; demoMode:
       return;
     }
 
-    if (!when.valid) { setError("Offer two to four times, or none."); return; }
+    if (!when.valid) { setError("Offer two to four times, or none."); setTuneOpen(true); return; }
     const restricted = custom.restrictedFor(age);
     if (restricted) {
       setError(`${restricted.name} has an age requirement that does not match this account.`);
+      setTuneOpen(true);
       return;
     }
     setCreating(true);
@@ -201,7 +272,7 @@ export function useComposer({ age, demoMode, prefill }: { age: number; demoMode:
       ? (radiusKm != null ? `Within ${radiusKm} km of ${selectedOrigin.label}` : `From ${selectedOrigin.label}`)
       : "Anywhere in Dubai",
     ...(smartIntent?.vibeKeywords.slice(0, 2) ?? []),
-    ...(placePin ? [`With ${placePin.name}`] : []),
+    ...pins.map((pin) => `With ${pin.name}`),
     ...(custom.selectedIds.length > 0 ? [`${custom.selectedIds.length} of your places`] : []),
   ];
 
@@ -217,7 +288,7 @@ export function useComposer({ age, demoMode, prefill }: { age: number; demoMode:
     category, pickCategory, setActiveGroup, groups, shownGroup, visibleCategories,
     title, setTitle, setTitleEdited, presetIdx, setPresetIdx,
     maxBudget, setMaxBudget, originValue, setOriginValue, radiusKm, setRadiusKm,
-    creating, error, custom, placePin, setPlacePin, when, preview, need,
+    creating, error, custom, pins, togglePin, roundOf, pinnedIds, when, preview, need, tuneOpen, setTuneOpen,
     revealing, setRevealing, revealCards, revealShown,
     smartQuery, setSmartQuery, smartIntent, setSmartIntent, applyIntent,
     stashDraft, signIn, start, constraintChips,

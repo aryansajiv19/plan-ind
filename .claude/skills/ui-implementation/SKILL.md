@@ -1,6 +1,6 @@
 ---
 name: ui-implementation
-description: "How to build UI in plan-ind without re-triggering bugs this repo has already had — Next 16 App Router traps, React 19 effect traps, the CSS restraint block, Realtime cleanup, and theme scoping. Use before writing or editing anything in app/** or components/**."
+description: "How to build UI in plan-ind without re-triggering bugs this repo has already had — Next 16 App Router traps, React 19 effect traps, Realtime cleanup, and theme scoping. Use before writing or editing anything in app/** or components/**."
 ---
 
 # UI implementation
@@ -9,26 +9,6 @@ Training data will steer you wrong twice here: this is **Next.js 16**, whose App
 Router APIs differ from what you know, and `app/globals.css` (+ `app/styles/`) is **Tailwind v4** —
 CSS-native `@theme`, no `tailwind.config.ts`. Read `node_modules/next/dist/docs/`
 before using an App Router API you have not verified in this tree.
-
-## The restraint block
-
-`app/globals.css` ends with an override block that switches off part of the
-design:
-
-```css
-.sky-root, .home-backdrop-grid, .home-decision-orbit__glow { display: none !important; }
-.token, .home-plan-card, .home-decision-orbit, … { box-shadow: none !important; }
-@media (hover: hover) { a:hover, button:hover, [role="button"]:hover, … { transform: none !important; } }
-```
-
-Two things follow. **Read it before concluding a style "doesn't work"** — the rule
-you just wrote may be live and cancelled here. And **a design relying on hover
-transform is cancelled on every pointer device**; one working through light,
-border and colour is not. That is why After Dark survives it untouched.
-
-Some targets are already dead — `.sky-root` and `.home-decision-orbit` have no
-JSX rendering them. Removing a dead target is safe; removing a live one
-(`.home-plan-card`, the blanket hover rule) is a visual change that needs saying.
 
 ## Non-negotiables
 

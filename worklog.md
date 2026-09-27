@@ -74,6 +74,7 @@ Apply in order. Every migration is additive and re-run safe unless noted.
 | 071 | `migration-071-closed-places-guard.sql` | **NOT applied — staged 2026-09-27; ships at go-live after 070.** `create_secure_plan` / `create_direct_plan` (059 bodies + guard) refuse a retired curated spot or one with `reopens_on` after the Dubai date, 22023 with a readable message. Applied on the local stack. |
 | 072 | `migration-072-sample-deal-limit.sql` | **NOT applied — staged 2026-09-27; ships at go-live after 071.** `consume_otp_limit` (026 body, copied) gains a 'deal-preview' scope, 30/min and 300/day per HMAC'd client IP, for the signed-out sample deal (P8). Applied on the local stack. |
 | 073 | `migration-073-when-poll.sql` | **NOT applied — staged 2026-09-27; ships at go-live after 072.** P21 "When": `plan_time_options` (2–4 future times ≤ 60 days) and `plan_time_votes` keyed by seat_key only (no user_id: the table is in the Realtime publication); `set_plan_when` (host), `set_time_availability` (members, until decided); at decide the most-ticked time becomes `event_time` unless the host set one. test:db 77/77. Applied on the local stack. |
+| 074 | `migration-074-plan-seen.sql` | **NOT applied — staged 2026-09-27; ships at go-live after 073 (the /home rail on `main` needs it).** `plans.stage_changed_at` (trigger-stamped), `plan_access.last_seen_at` (default now()), `touch_plan_seen(uuid)` (own row), `my_plan_rail(int)` (security invoker, changed-first). Own security review: no C/H/M; two Lows fixed. test:db 95/95. Applied on the local stack. |
 | 049 / 051 | `migration-049-hide-voter-user-id.sql`, `migration-051-hide-creator-user-id.sql` | **yes — applied live 2026-09-19 13:20Z via Supabase MCP (T0), owner-approved.** Confirmed 2026-09-26 by `list_migrations` (`migration_049_hide_voter_user_id`, `migration_051_hide_creator_user_id`). This row said "NOT applied" for a week because the entry recording it lived only on the unpushed `ai-engineering`. |
 
 `npm run test:smoke` asserts the 019 guards against the live project. All ten
@@ -437,3 +438,15 @@ control has no UI yet.
   TuneIt (pure move). The content-first feature (WIP) has three open items:
   Deal nine below the fold at 390px, Tune it scrolls 28px on open, and the
   impeccable/animation review plus E2E re-run.
+- **P31 server (074):** plans that changed since you last looked come first
+  in the /home rail; the plan page marks itself seen. Session A builds the
+  badges and the WhatsApp nudge. test:db 95/95.
+
+- **P25:** content-first composer: a deck of real places for the chosen kind
+  of night (pin one into round 1, one Tab stop, paging), a sticky "Deal nine"
+  above the fold at 1440 and 390, "Tune it" as native details with a text
+  summary; a 390px sideways-scroll bug fixed; impeccable critique run and its
+  P1/P2 items fixed. ui-implementation skill: stale "restraint block" removed.
+- **P31 client:** "Your plans" badges for stages changed since you last
+  looked ("Final round open · 5m ago"); the host gets a one-tap WhatsApp nudge
+  when the final round opens. Verified live with two accounts.
