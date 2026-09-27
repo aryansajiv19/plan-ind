@@ -41,7 +41,7 @@ someone back to the group chat. P-numbers match `docs/ROADMAP.md`.
 
 | Phase | Items | Lanes |
 |---|---|---|
-| 1. Broken and dead ends | **P2 guests can't vote in rounds 2–3 (host picks alone)**; P4 deadlines freeze when the host is offline; P3 "Your plans" rail; P5 deal failure says "raise your budget"; P6 dead budget/radius options; P7 signed-out composer refuses after typing; P8 preview ignores the visitor's settings; P9 place details from cards; P10 Google photo route has no caller; P11 rating before the outing logs a fake visit; P12 direct-plan form; P13 account read/write errors; P14 Settings incl. account deletion; P15 host can cancel a decided plan; P1 B8 landing | frontend, server, backend-sql |
+| 1. Broken and dead ends | ~~P2~~ done; P4 server done (069), client pending; P3 "Your plans" rail; P5 deal failure says "raise your budget"; P6 dead budget/radius options; P7 signed-out composer refuses after typing; P8 preview ignores the visitor's settings; P9 place details from cards; P10 Google photo route has no caller; P11 rating before the outing logs a fake visit; P12 direct-plan form; P13 account read/write errors; P14 Settings incl. account deletion; P15 host can cancel a decided plan; P1 B8 landing | frontend, server, backend-sql |
 | 2. Never ask a friend | P16 directions per viewer (drive, metro, walk, Uber); P17 nearest metro + walk; P18 your own distance on cards; P19 coordinates for all 82; P20 "know before you go" facts; P21 "When" at creation; P22 carpool/booking as coordination; P23 time picker + calendar; P24 live routes/hours (key) | frontend, data, backend-sql |
 | 3. Interface wow | P25 content-first composer; P26 reveal the real nine; P27 media band on vote cards; P28 photos + "right now" on landing; P29 payoff before sign-up; P30 honest demo; P31 share-and-return loop | frontend, server |
 | 4. Coverage and hygiene | P32 Places ingestion; P33 E2E for create, lifecycle, last mile; P34 DB tests, retire verify-journey; P35 copy/duplicate cleanup | all |
@@ -52,7 +52,7 @@ The review batch is **done and merged**: server fixes, client fixes, 067/068
 (staged) and their follow-up fixes F1–F6. Left: two partly-closed fixes the
 confirmation pass found (F1 upload burst, F2 name squat; see the worklog
 checkpoint; both in unapplied 067/068, so they block go-live), and **B8** (landing redesign, frontend lane, WIP on
-`lane/frontend-a`). Then go-live on the owner's word.
+`lane/frontend-a`). Then go-live on the owner's word. Go-live applies 064, 067, 068, 069 in order.
 
 Recorded, not built (fine at tens of users): Discover scan cost at 100k custom
 spots; unindexed `user_id` FKs; 1000-row PostgREST cap on vote reads;

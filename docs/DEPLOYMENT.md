@@ -22,8 +22,10 @@ that refuses guests must land in the same step as the new client.
    `security`; Google provider enabled in Supabase Auth (owner); redirect
    allow-list contains `https://plan-ind.vercel.app/**`; the email template
    sends a six-digit code. Turnstile hostname: done 2026-09-20.
-2. **Database.** Apply 064, then 067, then 068 through the Supabase MCP, one at
+2. **Database.** Apply 064, then 067, then 068, then 069 through the Supabase MCP, one at
    a time, each verified by the catalog probe in its ledger row (`worklog.md`).
+   Before 068, run its header precheck and confirm
+   `has_table_privilege('postgres','storage.objects','TRIGGER')` is true.
 3. **Deploy `main`.** Remove the `"main": false` line from `vercel.json`,
    commit and push, then from a clean checkout of `main` run
    `vercel --prod --yes --scope safebox` (the CLI deploys the working
