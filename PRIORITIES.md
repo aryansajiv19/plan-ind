@@ -34,14 +34,17 @@ plan requires a permanent account (email code or Google); anonymous guests are
 gone. That closes the private-window re-vote that 061 alone could not.
 Done: migration 064 (staged) + the client gate on `main`.
 
-## Next — the portfolio pass
+## Roadmap (product audit 2026-09-27, detail in `docs/ROADMAP.md`)
 
-| # | Item | Size |
+Owner goal: complete end to end, "oh wow" to use, and no question that sends
+someone back to the group chat. P-numbers match `docs/ROADMAP.md`.
+
+| Phase | Items | Lanes |
 |---|---|---|
-| B3 | **Venue photos** (needs O3): run the Places runbook, upload approved photos, then render the per-request Google photo fallback + attributions on cards (`/api/spots/[id]/photo` exists; UI not wired) | M |
-| B6 | Winner reveal: full-bleed photo when present (faces + share: done 2026-09-26) | S |
-| B8 | **Landing that isn't empty** (owner, 2026-09-26): visitor nav with anchors, a Dubai clock and a Start-a-plan CTA; a live looping mini vote in the hero (real components, sample group); How it works with real UI crops; a denser Dubai-right-now wall; real counts; a footer. Frontend lane. The biggest remaining lever is photography (O3 Places key) | M |
-| B7 | **Host controls follow the account, not the device.** Today they need the host token in that browser's localStorage, so a host on a new device sees only "Leave this plan". Proposal: `execute_plan_command` (and edit/reopen/delete) also accept `auth.uid() = plans.created_by_user_id`; migration + `security` review + owner approval to apply | M |
+| 1. Broken and dead ends | **P2 guests can't vote in rounds 2–3 (host picks alone)**; P4 deadlines freeze when the host is offline; P3 "Your plans" rail; P5 deal failure says "raise your budget"; P6 dead budget/radius options; P7 signed-out composer refuses after typing; P8 preview ignores the visitor's settings; P9 place details from cards; P10 Google photo route has no caller; P11 rating before the outing logs a fake visit; P12 direct-plan form; P13 account read/write errors; P14 Settings incl. account deletion; P15 host can cancel a decided plan; P1 B8 landing | frontend, server, backend-sql |
+| 2. Never ask a friend | P16 directions per viewer (drive, metro, walk, Uber); P17 nearest metro + walk; P18 your own distance on cards; P19 coordinates for all 82; P20 "know before you go" facts; P21 "When" at creation; P22 carpool/booking as coordination; P23 time picker + calendar; P24 live routes/hours (key) | frontend, data, backend-sql |
+| 3. Interface wow | P25 content-first composer; P26 reveal the real nine; P27 media band on vote cards; P28 photos + "right now" on landing; P29 payoff before sign-up; P30 honest demo; P31 share-and-return loop | frontend, server |
+| 4. Coverage and hygiene | P32 Places ingestion; P33 E2E for create, lifecycle, last mile; P34 DB tests, retire verify-journey; P35 copy/duplicate cleanup | all |
 
 ## In flight (paused 2026-09-26 evening)
 
