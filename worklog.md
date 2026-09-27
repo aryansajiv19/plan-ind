@@ -394,3 +394,7 @@ control has no UI yet.
   plan visit refused for strangers and before the outing; 071 not bypassable,
   Dubai midnight boundary verified. Low follow-up queued: only members who
   joined before `decided_at` count toward `already_happened`.
+- **P20:** "Know before you go" on the place page and decided screen (only
+  facts that exist, each with its source, "Checked <month>"); "Reopens <date>"
+  on place, vote cards and decided; closure filters in every curated search.
+  **Phase 2 (never ask a friend) done** except P21-P24.
