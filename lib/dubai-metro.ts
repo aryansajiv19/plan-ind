@@ -82,11 +82,35 @@ export function nearestStation(latitude: number | null, longitude: number | null
   return { ...best, walkable: best.km < WALKABLE_KM, walkMin };
 }
 
+type MetroSpot = {
+  latitude: number | null;
+  longitude: number | null;
+  nearest_station?: string | null;
+  station_walk_min?: number | null;
+};
+
+/** 1.5 km straight line is about 24 minutes at the estimate above. */
+const WALKABLE_MIN = 24;
+
+/**
+ * The spot's nearest station and walk: 070's checked columns when present
+ * (curated spots, trams included), else computed from the station list
+ * (custom spots). Null when neither is known.
+ */
+export function metroFor(spot: MetroSpot): { name: string; walkMin: number | null; walkable: boolean } | null {
+  if (spot.nearest_station) {
+    const walkMin = spot.station_walk_min ?? null;
+    return { name: spot.nearest_station, walkMin, walkable: walkMin != null && walkMin <= WALKABLE_MIN };
+  }
+  const near = nearestStation(spot.latitude, spot.longitude);
+  return near ? { name: near.station.name, walkMin: near.walkMin, walkable: near.walkable } : null;
+}
+
 /** "Nearest metro: Business Bay, ≈ 8 min walk (estimate)", or the honest alternative. */
-export function metroLine(latitude: number | null, longitude: number | null): string | null {
-  const near = nearestStation(latitude, longitude);
+export function metroLine(spot: MetroSpot): string | null {
+  const near = metroFor(spot);
   if (!near) return null;
   return near.walkable
-    ? `Nearest metro: ${near.station.name}, ≈ ${near.walkMin} min walk (estimate)`
+    ? `Nearest metro: ${near.name}, ≈ ${near.walkMin} min walk (estimate)`
     : "No metro within walking distance, drive or taxi";
 }

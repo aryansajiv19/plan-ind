@@ -23,7 +23,7 @@ export default function GettingThere({ plan, winner }: { plan: Plan; winner: Spo
   const drive = km != null ? driveMinutesEstimate(km) : null;
   // The estimate is at peak speed: say "in rush hour" only at the peaks (P16).
   const now = useMinuteClock();
-  const metro = metroLine(winner.latitude, winner.longitude); // P17
+  const metro = metroLine(winner); // P17
   const rush = now != null && isDubaiRushHour(now);
 
   return (

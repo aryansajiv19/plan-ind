@@ -215,6 +215,13 @@
              scale(calc(1 + 0.045 * var(--lead, 0)));
   transition: transform 420ms var(--ease-settle);
   will-change: transform;
+  display: flex;
+  flex-direction: column;
+}
+/* The card fills the shell and leaves room for "Details" below it (P9). */
+.vote-option-shell > .vote-option {
+  flex: 1 0 auto;
+  min-height: 0;
 }
 /* The leader's weight costs no colour. §23.4b holds: size is never the only
    signal, and the word "leading" stays in the markup next to it
@@ -257,11 +264,8 @@
   }
 }
 
-/* Desktop: one level row. The scatter reads as charm in a phone deck and as
-   broken on a wide screen — and because it is a transform it reserves no
-   layout, so the lowest card sat on top of "Continue" and "Copy link".
-   Leadership still shows through the solid border and the word "leading";
-   only the offset, the lead scale and the tightening gap go. */
+/* Desktop: one level row. The scatter is a transform, so it reserves no
+   layout and the lowest card sat on top of "Continue". */
 @media (min-width: 641px) {
   .vote-options-grid {
     gap: 1.25rem;
@@ -272,12 +276,8 @@
   }
 }
 
-/* Phone: the round becomes a swipeable deck. scroll-snap is the native
-   platform feature for this — the browser supplies momentum, rubber-banding
-   and the touch physics, so there is no gesture library and no drag maths.
-   The next card peeks so it is obvious there are three, and choosing stays a
-   comparison rather than a blind swipe. The cards remain real buttons in a
-   scroll container, so keyboard and screen-reader behaviour is unchanged. */
+/* Phone: a swipeable deck on native scroll-snap (no gesture library). The
+   next card peeks so it is obvious there are three. */
 @media (max-width: 640px) {
   .vote-options-grid {
     display: grid;

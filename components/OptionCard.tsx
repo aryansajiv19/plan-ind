@@ -7,7 +7,9 @@ import type { Spot } from "@/lib/types";
 import { categoryMeta } from "@/lib/categories";
 import type { DealReason } from "@/lib/deal-reasons";
 import { hoursLabel, openStatus } from "@/lib/open-hours";
-import { nearestStation } from "@/lib/dubai-metro";
+import { metroFor } from "@/lib/dubai-metro";
+import type { Coordinates } from "@/lib/dubai-areas";
+import { driveMinutesEstimate, haversineKm } from "@/lib/directions";
 import { useMinuteClock } from "@/hooks/use-minute-clock";
 
 interface OptionCardProps {
@@ -23,9 +25,17 @@ interface OptionCardProps {
   /** The deadline passed and the plan hasn't moved on yet: look, don't touch. */
   closed?: boolean;
   distanceKm?: number | null;
+  /** P18: this voter's own origin. Replaces the host-based distance. */
+  viewerFrom?: Coordinates | null;
   /** "Why this?" chips from `dealReasons()`. Omitted means none render. */
   reasons?: readonly DealReason[];
   onToggle: () => void;
+}
+
+// "· 9 km · ≈ 25 min drive" from this voter's own origin (P18).
+function yourTrip(km: number): string {
+  const drive = driveMinutesEstimate(km);
+  return ` · ${Math.max(1, Math.round(km))}\u00a0km${drive != null ? ` · ≈\u00a0${drive}\u00a0min drive` : ""}`;
 }
 
 export default function OptionCard({
@@ -38,12 +48,17 @@ export default function OptionCard({
   decided,
   closed = false,
   distanceKm,
-  reasons,
+  viewerFrom = null,
+  reasons: dealtReasons,
   onToggle,
 }: OptionCardProps) {
   const dimmed = decided && !isWinner;
   const cat = categoryMeta(spot.category);
   // The distance chip carries the km itself; saying it twice is clutter.
+  const fromYou = viewerFrom && spot.latitude != null && spot.longitude != null
+    ? haversineKm(viewerFrom.latitude, viewerFrom.longitude, spot.latitude, spot.longitude) : null;
+  // Your own distance wins over the host-based chip, so the card never shows two.
+  const reasons = fromYou != null ? dealtReasons?.filter((reason) => reason.kind !== "distance") : dealtReasons;
   const shownKm = reasons?.some((reason) => reason.kind === "distance") ? null : distanceKm;
   // The vote is for later, so "Closed now" would mislead a card; only the
   // last hour before closing (which also proves it is open) replaces the
@@ -52,7 +67,7 @@ export default function OptionCard({
   const status = now ? openStatus(spot.open_till, now) : null;
   const hours = status?.kind === "closing-soon" ? status.label : hoursLabel(spot.open_till);
   // P17: a walkable metro station is worth a word on the card; none isn't.
-  const near = nearestStation(spot.latitude, spot.longitude);
+  const near = metroFor(spot);
 
   // A vote arriving over realtime is the only "someone else is here" signal
   // this screen has. Acknowledge it once, then clear — a permanent highlight
@@ -121,8 +136,9 @@ export default function OptionCard({
       </p>
 
       <p className="vote-option__meta mt-2 text-xs text-muted">
-        {hours ? `${hours} · ` : ""}from AED {spot.min_spend}pp{shownKm != null ? ` · ${Math.max(1, Math.round(shownKm))} km away` : ""}
-        {near?.walkable ? ` · Metro ≈ ${near.walkMin} min walk` : ""}
+        {hours ? `${hours} · ` : ""}from AED {spot.min_spend}pp
+        {fromYou != null ? yourTrip(fromYou) : shownKm != null ? ` · ${Math.max(1, Math.round(shownKm))} km away` : ""}
+        {near?.walkable ? ` · Metro ≈\u00a0${near.walkMin}\u00a0min walk` : ""}
       </p>
 
       {/* Why the deal picked it. Spans, not a list: this sits inside a
