@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { dealSpotsForCategory } from "@/lib/deal";
+import { dealSpotsForCategory, inRevealOrder } from "@/lib/deal";
 import { DUBAI_ORIGINS } from "@/lib/dubai-areas";
 import { DEAL_BUDGET_OPTIONS, DEAL_RADIUS_OPTIONS_KM } from "@/lib/spots/match";
 import { useDealPreview } from "@/hooks/use-deal-preview";
@@ -78,8 +78,9 @@ export default function StartPlanForm({
   // The deal reveal plays while the request runs; submit resolves this when
   // the sequence has shown, and navigates once both are done.
   const [revealing, setRevealing] = useState(false);
-  // P8, signed out: the nine real places the reveal deals, or null for the sample decks.
-  const [sampleCards, setSampleCards] = useState<readonly RevealCard[] | null>(null);
+  // The nine real cards the reveal deals (P8 signed out, P26 signed in), or
+  // null: face down, or the sample decks in the preview.
+  const [revealCards, setRevealCards] = useState<readonly RevealCard[] | null>(null);
   const revealShown = useRef<(() => void) | null>(null);
   const [smartQuery, setSmartQuery] = useState(prefill?.smartQuery ?? "");
   const [smartIntent, setSmartIntent] = useState<SmartIntent | null>(null);
@@ -115,10 +116,8 @@ export default function StartPlanForm({
   const selectedOrigin = DUBAI_ORIGINS.find((origin) => origin.value === originValue) ?? DUBAI_ORIGINS[0];
   const categoryLabel = CATEGORIES.find((c) => c.key === category)?.label ?? category;
 
-  /** Deal nine, create the plan. Returns the plan id or a message to show. */
-  async function dealAndCreate(clean: string): Promise<{ id: string } | { error: string }> {
-    // Up to three saved places are pinned, one into each pool; the
-    // remainder come from the ranked catalog.
+  /** Deal the nine: pinned places first, one into each round, then the ranked catalogue. */
+  async function deal(): Promise<{ spotIds: string[]; cards: RevealCard[] | null } | { error: string }> {
     const pinned = custom.selectedIds;
     const dealt = await dealSpotsForCategory(category, 9 - pinned.length, pinned, {
       maxBudget,
@@ -132,6 +131,14 @@ export default function StartPlanForm({
     if (!dealt) {
       return { error: `Not enough related ${categoryLabel.toLowerCase()} places match that budget and distance. Raise either limit, add a custom place, or try another type.` };
     }
+    // P26: the real cards when the route sent them and every pin is known; else face down.
+    const all = [...custom.pinnedCards, ...(dealt.cards ?? [])];
+    const complete = dealt.cards != null && all.every(Boolean) && all.length === 9;
+    return { spotIds: [...pinned, ...dealt.ids], cards: complete ? inRevealOrder(all as RevealCard[]) : null };
+  }
+
+  /** Create the plan from a deal. Returns the plan id or a message to show. */
+  async function createPlan(clean: string, spotIds: string[]): Promise<{ id: string } | { error: string }> {
     const response = await secureJsonFetch("/api/plans", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -148,7 +155,7 @@ export default function StartPlanForm({
         smartBrief: smartIntent ? smartQuery.trim() : null,
         vibePreferences: smartIntent?.vibeKeywords ?? [],
         avoidPreferences: smartIntent?.avoidKeywords ?? [],
-        spotIds: [...pinned, ...dealt],
+        spotIds,
       }),
     });
     const result = await response.json().catch(() => ({})) as { id?: string; hostToken?: string; error?: string };
@@ -166,7 +173,7 @@ export default function StartPlanForm({
     // session, then hand over to /demo/vote instead of a sign-in dead end.
     if (demoMode) {
       setCreating(true);
-      setSampleCards(await fetchSampleDeal({
+      setRevealCards(await fetchSampleDeal({
         category, origin: originValue, maxBudget, radiusKm: selectedOrigin.coordinates ? radiusKm : null,
       }));
       setCreating(false);
@@ -180,9 +187,19 @@ export default function StartPlanForm({
       return;
     }
     setCreating(true);
+    // P26: deal first, so a thin pool or a refusal is said on the form, with
+    // no reveal that then bounces back. The plan is created during the reveal.
+    const failed = { error: "Couldn't start the plan. Check your connection and try again." };
+    const dealt = await deal().catch(() => failed);
+    if ("error" in dealt) {
+      setError(dealt.error);
+      setCreating(false);
+      return;
+    }
+    setRevealCards(dealt.cards);
     setRevealing(true);
     const shown = new Promise<void>((resolve) => { revealShown.current = resolve; });
-    const outcome = await dealAndCreate(clean).catch(() => ({ error: "Couldn't start the plan. Check your connection and try again." }));
+    const outcome = await createPlan(clean, dealt.spotIds).catch(() => failed);
     if ("error" in outcome) {
       setRevealing(false);
       setError(outcome.error);
@@ -209,13 +226,13 @@ export default function StartPlanForm({
       <DealReveal
         constraints={constraintChips}
         code={categoryMeta(category).code}
-        cards={demoMode ? (sampleCards ?? SAMPLE_POOLS.flat()) : undefined}
+        cards={revealCards ?? (demoMode ? SAMPLE_POOLS.flat() : undefined)}
         onShown={() => revealShown.current?.()}
       >
         {demoMode ? (
           <>
             <p className="plan-form__demo-note">
-              {sampleCards
+              {revealCards
                 ? "Real places that fit your settings. Sign in to deal them for your own group."
                 : "Sample places shown. Sign in to deal nine for your own group."}
             </p>
