@@ -93,3 +93,61 @@ describe("070 catalogue truth", { skip: SKIP }, () => {
     ].join("|"));
   });
 });
+
+// ── 071: new plans refuse closed places ──────────────────────────────────────
+describe("071 new plans refuse closed places", { skip: SKIP }, () => {
+  const users: string[] = [];
+  const spots: string[] = [];
+  const cleanup = async () => {
+    const ids = (xs: string[]) => xs.map((x) => `'${x}'`).join(",");
+    if (users.length) await sql(`delete from plans where created_by_user_id in (${ids(users)})`);
+    if (users.length) await sql(`delete from auth.users where id in (${ids(users)})`);
+    if (spots.length) await sql(`delete from spots where id in (${ids(spots)})`);
+  };
+  const DUBAI_TODAY = "(now() at time zone 'Asia/Dubai')::date";
+
+  async function adult(): Promise<string> {
+    const uid = randomUUID();
+    await sql(`insert into auth.users (id, aud, role, email, created_at, updated_at)
+        values ('${uid}','authenticated','authenticated','${uid}@qa.invalid', now(), now());
+      insert into member_ages (user_id, date_of_birth) values ('${uid}', '1990-01-01');`);
+    users.push(uid);
+    return uid;
+  }
+  /** Nine open curated dinner spots; `last` sets the ninth's closure columns (SQL). */
+  async function nine(last: { visibility?: string; reopens_on?: string } = {}): Promise<string[]> {
+    const ids = Array.from({ length: 9 }, () => randomUUID());
+    spots.push(...ids);
+    await sql(`insert into spots (id,name,category,area,cuisine,price_band,min_spend,open_till,vibe,visibility,reopens_on) values ${
+      ids.map((id, i) => `('${id}','QA071 ${i}','dinner','Dubai','Test','$$',100,'12am','test',
+        ${i === 8 && last.visibility ? `'${last.visibility}'` : "'community'"},
+        ${i === 8 && last.reopens_on ? last.reopens_on : "null"})`).join(",")}`);
+    return ids;
+  }
+  const as = (uid: string, q: string) =>
+    sql(`set request.jwt.claims to '{"sub":"${uid}","role":"authenticated","is_anonymous":false}'; set role authenticated; ${q}`);
+  const secure = (uid: string, ids: string[]) =>
+    as(uid, `select create_secure_plan('{"title":"QA071","category":"dinner","deadline":"${new Date(Date.now() + 864e5).toISOString()}"}'::jsonb, array[${ids.map((i) => `'${i}'`).join(",")}]::uuid[])`);
+  const direct = (uid: string, id: string) =>
+    as(uid, `select create_direct_plan('{"title":"QA071"}'::jsonb, '${id}')`);
+  const CLOSED = /closed right now/;
+
+  test("a retired place or one closed until a later date is refused; one reopening today is fine", async () => {
+    try {
+      const uid = await adult();
+      await assert.rejects(secure(uid, await nine({ visibility: "private" })), CLOSED);
+      await assert.rejects(secure(uid, await nine({ reopens_on: `${DUBAI_TODAY} + 1` })), CLOSED);
+      await secure(uid, await nine({ reopens_on: DUBAI_TODAY })); // control
+    } finally { await cleanup(); }
+  });
+
+  test("a direct plan refuses a closed place too", async () => {
+    try {
+      const uid = await adult();
+      const [retired] = (await nine({ visibility: "private" })).slice(8);
+      await assert.rejects(direct(uid, retired), CLOSED);
+      const [open] = await nine();
+      await direct(uid, open); // control
+    } finally { await cleanup(); }
+  });
+});
