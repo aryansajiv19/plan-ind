@@ -6,7 +6,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import PhotoCredit from "@/components/PhotoCredit";
 import { categoryMeta } from "@/lib/categories";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, safeNextPath } from "@/lib/auth";
 import PlaceDirectPlanCta from "@/components/PlaceDirectPlanCta";
 import PlaceSaveToBoard from "@/components/account/PlaceSaveToBoard";
 import OpenStatus from "@/components/OpenStatus";
@@ -35,7 +35,7 @@ const getSpot = cache(async (id: string) => {
   const { data } = await supabase
     .from("spots")
     .select(
-      "id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, photo_url, photo_attribution, description, booking_url, address, latitude, longitude",
+      "id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, photo_url, photo_attribution, description, booking_url, address, latitude, longitude, google_place_id, minimum_age",
     )
     .eq("id", id)
     .maybeSingle();
@@ -54,10 +54,14 @@ export async function generateMetadata({
 
 export default async function PlacePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ from?: string }>;
 }) {
   const { id } = await params;
+  const rawFrom = (await searchParams).from;
+  const from = rawFrom ? safeNextPath(rawFrom) : null; // internal paths only
   const [spot, user] = await Promise.all([getSpot(id), getCurrentUser()]);
 
   if (!spot) notFound();
@@ -152,10 +156,16 @@ export default async function PlacePage({
           />
         )}
         {user && <PlaceSaveToBoard spot={spot} />}
+        {/* P9: signed out, planning starts with an account; come back here after. */}
+        {!user && (
+          <Link href={`/login?next=/place/${spot.id}`} className="place-action place-action--secondary">
+            Plan a night here
+          </Link>
+        )}
 
-        <Link href="/home" className="place-back">
-          Back to Discover
-        </Link>
+        {/* P9: back to where the card was (a plan passes ?from=), else Discover
+            signed in or the front door signed out. */}
+        <Link href={from ?? (user ? "/home?view=discover" : "/")} className="place-back">Back</Link>
       </div>
     </main>
   );

@@ -550,3 +550,15 @@
   border-color: var(--color-punch-text);
   background: color-mix(in srgb, var(--vote-metal) 5%, var(--color-card));
 }
+
+/* P9: a way to check a place without voting on it (the card is the vote). */
+.vote-option__details {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding-inline: 0.25rem;
+  color: var(--color-muted);
+  font-size: max(0.78rem, var(--type-floor));
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}

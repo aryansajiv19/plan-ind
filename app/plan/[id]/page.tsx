@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Link from "next/link";
 import UndoBar from "@/components/UndoBar";
 import { useParams } from "next/navigation";
 import { dealReasons, spotDistanceKm } from "@/lib/deal-reasons";
@@ -9,6 +10,7 @@ import { nextUnpickedPool, planView, roundFor, votersFor } from "@/lib/tally";
 import { usePlanData } from "@/hooks/use-plan-data";
 import { useVoterName } from "@/hooks/use-voter-name";
 import { useMinuteClock } from "@/hooks/use-minute-clock";
+import { autoAdvanceAfterPick } from "@/hooks/pool-auto-advance";
 import { usePlanPresence, usePlanRealtime } from "@/hooks/use-plan-realtime";
 import { useHostCommands } from "@/hooks/use-host-commands";
 import { useLastMile } from "@/hooks/use-last-mile";
@@ -81,6 +83,7 @@ export default function VotePage() {
   // ── Tallies + this voter's picks (pure helpers in lib/tally.ts) ──
   const round = roundFor(stage, activePool);
   const { poolNumber: currentPoolNumber } = round;
+  const afterPick = autoAdvanceAfterPick({ isHost, poolCount, votes, mine, setActivePool, setRoundDir });
   const { iVotedYes, toggleVote, voteUndo, setVoteUndo } = useVoteActions({
     id, votes, setVotes, voterName, participantHash, mine, decided, round, spots, refetchVotes, setNotice, reportParticipantFailure, onPicked: afterPick,
   });
@@ -88,19 +91,6 @@ export default function VotePage() {
     id, plan, setLeft, setDeleted, setNotice, presenceChannelRef, dataChannelRef, cancelRefetchesRef,
   });
 
-  // P2: a member other than the host moves through the pool rounds alone.
-  // After a pick saves, go to the next round they haven't picked in (after a
-  // beat, so the face lands first), unless they already moved elsewhere.
-  function afterPick(picked: { phase: string; poolNumber: number }) {
-    if (isHost || picked.phase !== "pool") return;
-    const chosen = new Set(votes.filter((v) => mine.vote(v) && v.value && v.phase === "pool").map((v) => v.pool_number)).add(picked.poolNumber);
-    const next = nextUnpickedPool(chosen, picked.poolNumber, poolCount);
-    if (!next) return;
-    setTimeout(() => {
-      setRoundDir(next > picked.poolNumber ? 1 : -1);
-      setActivePool((current) => (current === picked.poolNumber ? next : current));
-    }, 700);
-  }
 
   // The name is the profile's (F2), so a clash is fixed in Settings, which
   // the notice says; there is no per-plan name to re-enter here.
@@ -193,20 +183,24 @@ export default function VotePage() {
             renderCard={(spot) => {
               const km = spotDistanceKm(plan!.origin_latitude != null && plan!.origin_longitude != null
                 ? { latitude: plan!.origin_latitude, longitude: plan!.origin_longitude } : null, spot);
+              // P9: the card is the vote button, so "Details" sits under it.
               return (
-                <OptionCard
-                  spot={spot}
-                  voters={votersFor(votes, spot.id, round)}
-                  yesCount={countFor(spot.id)}
-                  voted={iVotedYes(spot.id)}
-                  isWinner={winnerId === spot.id}
-                  isLeader={spot.id === leaderId}
-                  decided={decided}
-                  closed={closed}
-                  distanceKm={km}
-                  reasons={dealReasons({ spot, maxBudget: plan!.budget_per_person, radiusKm: plan!.radius_km, distanceKm: km, vibeKeywords: plan!.vibe_preferences, been })}
-                  onToggle={() => toggleVote(spot.id)}
-                />
+                <>
+                  <OptionCard
+                    spot={spot}
+                    voters={votersFor(votes, spot.id, round)}
+                    yesCount={countFor(spot.id)}
+                    voted={iVotedYes(spot.id)}
+                    isWinner={winnerId === spot.id}
+                    isLeader={spot.id === leaderId}
+                    decided={decided}
+                    closed={closed}
+                    distanceKm={km}
+                    reasons={dealReasons({ spot, maxBudget: plan!.budget_per_person, radiusKm: plan!.radius_km, distanceKm: km, vibeKeywords: plan!.vibe_preferences, been })}
+                    onToggle={() => toggleVote(spot.id)}
+                  />
+                  <Link href={`/place/${spot.id}?from=/plan/${id}`} className="vote-option__details">Details</Link>
+                </>
               );
             }}
           />
