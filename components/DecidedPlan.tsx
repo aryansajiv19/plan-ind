@@ -109,6 +109,11 @@ export default function DecidedPlan({
   const viewerOffDubai = startDate != null
     && startDate.getHours() * 60 + startDate.getMinutes() !== dubaiMinuteOfDay(startDate);
 
+  // P11: rating opens once the outing has happened: its time, or three
+  // hours after the decision when no time was set.
+  const rateOpensAt = plan.event_time
+    ?? (plan.decided_at ? new Date(Date.parse(plan.decided_at) + 3 * 3_600_000).toISOString() : null);
+
   return (
     <div className="vote-result mt-6 rounded-2xl border-2 border-punch bg-punch/5 p-4 sm:p-5">
       {/* SPECS.md §14.2: the winner assembling from scattered particles.
@@ -232,7 +237,7 @@ export default function DecidedPlan({
         onUnmarkBooked={onUnmarkBooked}
       />
 
-      <RatingSection planId={plan.id} isMine={mine.rating} ratings={ratings} onRate={onRate} />
+      <RatingSection planId={plan.id} spotId={winner.id} opensAt={rateOpensAt} isMine={mine.rating} ratings={ratings} onRate={onRate} />
     </div>
   );
 }

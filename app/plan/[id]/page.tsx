@@ -63,7 +63,7 @@ export default function VotePage() {
   const winnerId = plan?.winner_spot_id ?? null;
   const stage = plan?.stage ?? (decided ? "decided" : "final");
   const poolCount = plan?.pool_count ?? 1;
-  const { nightMode, been } = usePlanDevice(decided, winnerId);
+  const { nightMode, been } = usePlanDevice();
 
   const host = useHostCommands({ id, plan, setPlan, setPlanSpots, stage, spots, deleted, setDeleted, setNotice });
   const { isHost, deciding, advanceToFinal, decide } = host;

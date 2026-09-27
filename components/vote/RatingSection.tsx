@@ -1,18 +1,25 @@
 import type { Rating } from "@/lib/types";
 import UnrateButton from "@/components/UnrateButton";
+import { useMinuteClock } from "@/hooks/use-minute-clock";
 
 // After the visit: rate the winner, and see how the group rated it.
 export default function RatingSection({
   planId,
+  spotId,
+  opensAt,
   isMine,
   ratings,
   onRate,
 }: {
   planId: string;
+  spotId: string;
+  /** When rating opens (P11); null on legacy plans, which stay open. */
+  opensAt: string | null;
   isMine: (rating: Rating) => boolean;
   ratings: Rating[];
   onRate: (partial: { stars?: number; again?: boolean }) => void;
 }) {
+  const now = useMinuteClock();
   const myRating = ratings.find(isMine);
   const avgStars =
     ratings.length > 0
@@ -24,6 +31,11 @@ export default function RatingSection({
           (ratings.filter((r) => r.again).length / ratings.length) * 100,
         )
       : 0;
+
+  // P11: rate_plan refuses before the outing (22023), so don't offer it yet.
+  if (opensAt && (!now || Date.parse(opensAt) > now.getTime())) {
+    return <p className="mt-4 border-t border-line pt-4 text-sm text-muted">Rate it after you’ve been.</p>;
+  }
 
   return (
     <div className="mt-4 border-t border-line pt-4">
@@ -54,7 +66,7 @@ export default function RatingSection({
         {myRating && (
           <span className="ml-1 text-sm text-muted">your rating</span>
         )}
-        {myRating && <UnrateButton planId={planId} />}
+        {myRating && <UnrateButton planId={planId} spotId={spotId} />}
       </div>
 
       {myRating && (

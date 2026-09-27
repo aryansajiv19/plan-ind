@@ -17,6 +17,7 @@ import PhotoWall, { type WallItem } from "@/components/PhotoWall";
 import HomeHero from "@/components/home/HomeHero";
 import LandingNav from "@/components/landing/LandingNav";
 import HowItWorks from "@/components/landing/HowItWorks";
+import YourPlans, { type PlanSummary } from "@/components/home/YourPlans";
 import { APP_VIEWS, VIEW_LABELS, WALL_SIZE, viewFromParam, type AppView } from "@/lib/home-views";
 import ActionSearchBar from "@/components/kokonutui/action-search-bar";
 
@@ -43,6 +44,8 @@ export default function HomeExperience({
   counts = null,
   visits = [],
   visitsUnavailable = false,
+  myPlans = [],
+  myPlansUnavailable = false,
   plannedWith = [],
   plannedWithUnavailable = false,
   friends = [],
@@ -73,6 +76,9 @@ export default function HomeExperience({
   visits?: ProfileVisit[];
   /** The read FAILED — not "there are none". See lib/social's ListRead. */
   visitsUnavailable?: boolean;
+  /** Signed in: the plans this account is on (P3). */
+  myPlans?: PlanSummary[];
+  myPlansUnavailable?: boolean;
   plannedWith?: PlannedWith[];
   plannedWithUnavailable?: boolean;
   friends?: PersonCard[];
@@ -258,7 +264,7 @@ export default function HomeExperience({
           <h1 id="home-title" className="home-appbar__title">What are we doing?</h1>
         </section>
       )}
-      {demoMode && <HowItWorks />}
+      {demoMode ? <HowItWorks /> : <YourPlans plans={myPlans} unavailable={myPlansUnavailable} />}
 
       {/* Signed in, "What are we doing?" above is already the page's headline;
           a second big heading beside the form said the same thing again. */}

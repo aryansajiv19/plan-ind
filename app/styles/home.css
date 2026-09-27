@@ -747,3 +747,47 @@
   transform: none;
   box-shadow: none;
 }
+
+/* Your plans (P3): the signed-in way back into a plan, a rail above the
+   composer. Scrolls inside itself, never the page. */
+.your-plans {
+  width: min(100% - 2 * var(--page-gutter), 76rem);
+  margin: 1.25rem auto 0;
+}
+.your-plans__title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+.your-plans__rail {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  padding: 0 0 0.5rem;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  list-style: none;
+}
+.your-plans__card {
+  display: grid;
+  gap: 0.35rem;
+  width: 15rem;
+  min-height: 2.75rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-control);
+  background: var(--color-card);
+  color: var(--color-ink);
+  text-decoration: none;
+  scroll-snap-align: start;
+}
+.your-plans__name {
+  overflow: hidden;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.your-plans__state {
+  color: var(--color-muted);
+  font-size: max(0.8rem, var(--type-floor));
+}

@@ -36,6 +36,12 @@ export function addBeen(spotId: string | null): void {
   localStorage.setItem(BEEN_KEY, JSON.stringify([...set]));
 }
 
+/** The server removed the visit (unrate_plan's visit_removed): forget it here too. */
+export function removeBeen(spotId: string): void {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(BEEN_KEY, JSON.stringify(getBeen().filter((id) => id !== spotId)));
+}
+
 // ─── The cached profile ────────────────────────────────────────────
 
 // Exactly the public shape of a `people` row. Kept as an alias so the two

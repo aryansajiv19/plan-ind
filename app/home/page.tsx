@@ -20,6 +20,7 @@ import {
 import type { PlannedWith, VisitCollectionView } from "@/lib/social";
 import type { PersonCard, ProfileVisit, Spot } from "@/lib/types";
 import { viewFromParam } from "@/lib/home-views";
+import type { PlanSummary } from "@/components/home/YourPlans";
 
 const DISCOVER_LIMIT = 120;
 
@@ -60,7 +61,7 @@ export default async function HomePage({
   // of painting Plan and swapping after hydration.
   const initialView = viewFromParam((await searchParams).view);
 
-  const [curatedSpots, ownSpots, visits, friends, wrapped, collections, photos, realFriends] = await Promise.all([
+  const [curatedSpots, ownSpots, visits, friends, wrapped, collections, photos, realFriends, myPlans] = await Promise.all([
     // The grid is "every spot this user may read, by name, first 120" --
     // now in two halves. Curated rows are identical for every caller, so they
     // come from the shared catalogue cache (lib/spots/catalogue.ts); the rest
@@ -86,6 +87,10 @@ export default async function HomePage({
     person ? getVisitCollections(person, supabase) : Promise.resolve(emptyRead<VisitCollectionView>()),
     person ? getVisitPhotos(person, supabase) : Promise.resolve([]),
     person ? getFriends(person, supabase) : Promise.resolve(emptyRead<PersonCard>()),
+    // P3: the way back into a plan. RLS returns only plans this account is a
+    // member of; newest first, bounded.
+    supabase.from("plans").select("id,title,status,stage,deadline,event_time,winner_spot_id,decided_at")
+      .order("created_at", { ascending: false }).limit(8),
   ]);
   // Either half failing renders [] -- what the single query rendered on
   // failure -- rather than half a grid that looks complete.
@@ -110,6 +115,8 @@ export default async function HomePage({
         spots={spots}
         visits={visits.rows}
         visitsUnavailable={visits.failed}
+        myPlans={(myPlans.data ?? []) as PlanSummary[]}
+        myPlansUnavailable={Boolean(myPlans.error)}
         plannedWith={friends.rows}
         plannedWithUnavailable={friends.failed}
         friends={realFriends.rows}
