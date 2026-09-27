@@ -37,3 +37,11 @@ test("the Google link has the same location and description", () => {
   assert.equal(params.get("dates"), "20261002T160000Z/20261002T180000Z");
   assert.equal(googleCalUrl({ ...plan, event_time: null }, spot, url), null);
 });
+
+test("no value can inject an ICS line: a bare CR, CRLF and other controls (RFC 5545)", () => {
+  const evil: CalSpot = { ...spot, address: null, latitude: null, longitude: null, name: "Bu Qtair\rDTSTART:19700101T000000Z\u0000\u001b" };
+  const lines = ics(evil).split("\r\n");
+  assert.equal(lines.filter((line) => line.startsWith("DTSTART")).length, 1, "only the real DTSTART");
+  assert.ok(lines.every((line) => !/[\u0000-\u0008\u000B-\u001F\u007F]/.test(line)), "no control characters survive");
+  assert.match(ics(evil), /^LOCATION:Bu Qtair\\nDTSTART:19700101T000000Z\\, Umm Suqeim$/m);
+});

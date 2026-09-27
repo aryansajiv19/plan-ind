@@ -66,7 +66,11 @@ test("\"Show map\" loads the map on request", async ({ page }) => {
   await page.waitForLoadState("networkidle");
   const map = page.locator('iframe[title="Map of 3Fils, Jumeirah"]');
   await expect(map).toHaveCount(0);
-  await page.getByRole("button", { name: "Show map" }).click();
+  // Not .click(): it scrolls the button into view first, and near the viewport
+  // the placeholder swaps itself for the map by design, so the button was
+  // detached mid-click (the Mobile Chrome flake). A click with no scroll
+  // tests the button alone.
+  await page.getByRole("button", { name: "Show map" }).dispatchEvent("click");
   await expect(map).toHaveCount(1);
   expect(new URL((await map.getAttribute("src"))!).hostname).toBe("www.google.com");
 });

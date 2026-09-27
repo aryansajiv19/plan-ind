@@ -44,8 +44,14 @@ export function googleCalUrl(plan: Pick<Plan, "title" | "event_time">, spot: Cal
 export function icsHref(plan: Pick<Plan, "id" | "title" | "event_time">, spot: CalendarSpot, planUrl: string): string | null {
   if (!plan.event_time) return null;
   const { start, end } = window(plan.event_time);
-  // RFC 5545 TEXT: backslash, comma and semicolon escaped, a newline as \n.
-  const esc = (s: string) => s.replace(/([,;\\])/g, "\\$1").replace(/\r?\n/g, "\\n");
+  // RFC 5545 TEXT (3.3.11): CRLF and a bare CR are line breaks, written as
+  // \n; every other control character is not TEXT and is dropped (a tab is
+  // allowed), so no value can end a line and start a property of its own.
+  const esc = (s: string) => s
+    .replace(/\r\n?/g, "\n")
+    .replace(/[\u0000-\u0008\u000B-\u001F\u007F]/g, "")
+    .replace(/([,;\\])/g, "\\$1")
+    .replace(/\n/g, "\\n");
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",

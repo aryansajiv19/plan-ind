@@ -32,11 +32,22 @@ export function useViewerOrigin() {
     } catch { /* storage blocked: it lasts this visit */ }
   }
 
-  function choose(value: string) {
+  async function choose(value: string) {
     setGeoError(null);
     if (value === "") return save(null);
     if (value !== "device") return save({ value });
     if (!navigator.geolocation) return setGeoError("This browser can’t share its location. Pick an area instead.");
+    // Blocked before any prompt is the page or the browser, not this person
+    // saying no: the site's Permissions-Policy (where the browser exposes it),
+    // then a "denied" the browser remembers for this site.
+    const doc = document as Document & { permissionsPolicy?: { allowsFeature(feature: string): boolean }; featurePolicy?: { allowsFeature(feature: string): boolean } };
+    if ((doc.permissionsPolicy ?? doc.featurePolicy)?.allowsFeature("geolocation") === false) {
+      return setGeoError("This page can’t ask for your location. Pick an area instead.");
+    }
+    const permission = await navigator.permissions?.query({ name: "geolocation" }).catch(() => null);
+    if (permission?.state === "denied") {
+      return setGeoError("Location is blocked in this browser’s settings for this site. Allow it there, or pick an area.");
+    }
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -44,9 +55,13 @@ export function useViewerOrigin() {
         const round = (n: number) => Math.round(n * 1000) / 1000;
         save({ device: { latitude: round(position.coords.latitude), longitude: round(position.coords.longitude) } });
       },
-      () => {
+      (error) => {
         setLocating(false);
-        setGeoError("Location wasn’t shared. Pick an area instead.");
+        setGeoError(
+          error.code === error.PERMISSION_DENIED ? "You didn’t share your location. Pick an area instead."
+            : error.code === error.TIMEOUT ? "Finding your location took too long. Try again, or pick an area."
+              : "Your location couldn’t be found right now. Pick an area instead.",
+        );
       },
       { timeout: 10_000, maximumAge: 600_000 },
     );

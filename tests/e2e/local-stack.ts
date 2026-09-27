@@ -51,6 +51,8 @@ export interface Member {
   userId: string;
   email: string;
   name: string;
+  /** The session's JWT, for acting as this account outside the browser. */
+  accessToken: string;
 }
 
 /**
@@ -115,7 +117,17 @@ export async function signInAsMember(context: BrowserContext, baseURL: string, n
   await context.addCookies([...jar].map(([cookieName, value]) => ({
     name: cookieName, value, url: baseURL, sameSite: "Lax" as const,
   })));
-  return { userId, email, name };
+  return { userId, email, name, accessToken: signedIn.session.access_token };
+}
+
+/** A client acting as `member` (their RLS, their storage folder). */
+export function clientAs(member: Member): SupabaseClient {
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+    ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? LOCAL_ANON_KEY;
+  return createClient(localStackUrl(), anonKey, {
+    auth: { persistSession: false },
+    global: { headers: { Authorization: `Bearer ${member.accessToken}` } },
+  });
 }
 
 /** Removes every account this run created. Best-effort; returns how many went. */

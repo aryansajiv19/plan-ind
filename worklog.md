@@ -450,3 +450,28 @@ control has no UI yet.
 - **P31 client:** "Your plans" badges for stages changed since you last
   looked ("Final round open · 5m ago"); the host gets a one-tap WhatsApp nudge
   when the final round opens. Verified live with two accounts.
+- **P28 prep:** the landing/demo wall is picked per request (open now on the
+  Dubai clock, at most two per category, photos first) from an 80-row cached
+  pool; the greeting is server-side on the Dubai clock; the visual spec masks
+  and pins those regions so baselines do not flake by time of day.
+- **P33 (platform lane):** seven risk-ranked E2E specs (create → deal →
+  reveal → plan, expire from a member tab, delete account, When poll, rate
+  gate, place import, visit photos), each proven to fail on a planted bug;
+  CI 269 passed. `scripts/verify-journey.mjs` retired (its steps are E2E, DB
+  and unit tests now). The place-map-hours Mobile Chrome flake is fixed at its root.
+
+## 2026-09-27 — Lead: pre-launch security review (eb4b1f2..HEAD)
+
+3 reviewers (SQL, server, client) + skeptics, local stack only. Grants, RLS,
+the When poll, the rail, the sample route's rate limit and age gate, source
+links and deep links all clean. 5 confirmed, none high: **medium**, a When
+poll can set `event_time` to a time already past (opens rating and the
+happened gate at once); low, leave/delete-account leave time ticks behind;
+low, `Permissions-Policy geolocation=()` broke "My location" (fixed here:
+`(self)`); low, custom spot text not cleaned server-side plus an .ics bare-CR
+gap; low, the P7 draft skipped the age/category check. SQL fixes to the
+platform lane (in place in 068/070/073), client fixes to the frontend lane.
+- **Pre-launch client fixes (frontend lane):** .ics strips/escapes control
+  characters (tested against an injected DTSTART); every composer prefill
+  (P7 draft, board, place, friend) is checked like remembered settings;
+  location errors distinguish page policy, browser setting, declined, timeout.
