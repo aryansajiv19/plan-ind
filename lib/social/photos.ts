@@ -109,6 +109,14 @@ export async function getVisitPhotos(
  * insert is rolled back with a best-effort delete if it fails, so a photo
  * is never orphaned in storage with nothing pointing at it.
  */
+const UPLOAD_FAILED = "Couldn’t upload that photo. Try again.";
+// Migration 068's storage trigger refuses uploads past the per-account cap
+// with this sentence (42501). Said as-is: "try again" would never work.
+const PHOTO_CAP = /photo storage limit reached/i;
+const capOr = (message: string | undefined) =>
+  message && PHOTO_CAP.test(message) ? "Photo storage limit reached for this account. Delete a photo to add another." : UPLOAD_FAILED;
+
+/** Null once the photo is saved; otherwise what to tell the person. */
 export async function uploadVisitPhoto(
   {
     personId,
@@ -124,17 +132,17 @@ export async function uploadVisitPhoto(
     visibility: SpotVisibility;
   },
   db: Db = getSupabase(),
-): Promise<boolean> {
+): Promise<string | null> {
   const { data: auth } = await db.auth.getUser();
   const uid = auth.user?.id;
-  if (!uid) return false;
+  if (!uid) return "Sign in again to upload a photo.";
 
   const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
   const path = `${uid}/${crypto.randomUUID()}.${ext}`;
   const { error: uploadError } = await db.storage
     .from("visit-photos")
     .upload(path, file, { contentType: file.type });
-  if (uploadError) return false;
+  if (uploadError) return capOr(uploadError.message);
 
   const { error } = await db.from("visit_photos").insert({
     visit_id: visitId,
@@ -145,7 +153,7 @@ export async function uploadVisitPhoto(
   });
   if (error) {
     await db.storage.from("visit-photos").remove([path]);
-    return false;
+    return capOr(error.message);
   }
-  return true;
+  return null;
 }

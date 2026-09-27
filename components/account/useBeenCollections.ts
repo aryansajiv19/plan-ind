@@ -141,14 +141,14 @@ export default function useBeenCollections({
     if (!personId || !uploadFile || !effectiveUploadVisitId) return;
     setUploading(true);
     try {
-      const ok = await uploadVisitPhoto({
+      const failure = await uploadVisitPhoto({
         personId,
         visitId: effectiveUploadVisitId,
         file: uploadFile,
         visibility: uploadVisibility,
       });
-      setUploadError(ok ? null : "Couldn’t upload that photo. Try again.");
-      if (ok) {
+      setUploadError(failure);
+      if (!failure) {
         if (uploadPreview) URL.revokeObjectURL(uploadPreview);
         setUploadFile(null);
         setUploadPreview(null);
