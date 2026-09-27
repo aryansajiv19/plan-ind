@@ -13,6 +13,7 @@ export default function RoundActions({
   onContinue,
   onGoToPool,
   onDecide,
+  nudge,
 }: {
   isHost: boolean;
   stage: PlanStage;
@@ -26,9 +27,20 @@ export default function RoundActions({
   onContinue: () => void;
   onGoToPool: (pool: number) => void;
   onDecide: () => void;
+  /** P31: the host just opened the final round; tell the group. */
+  nudge?: { href: string; dismiss: () => void } | null;
 }) {
   return (
     <>
+      {nudge && stage === "final" && (
+        <p className="mt-5 flex flex-wrap items-center gap-x-3 rounded-xl border border-line bg-card px-4 py-2 text-sm" role="status">
+          <span className="font-medium">The final round is open.</span>
+          <a href={nudge.href} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center font-semibold underline underline-offset-4">
+            Tell the group on WhatsApp
+          </a>
+          <button type="button" onClick={nudge.dismiss} className="ml-auto min-h-11 text-muted underline underline-offset-4">Dismiss</button>
+        </p>
+      )}
       <div className="mt-6 flex flex-col gap-3 sm:flex-row">
         {!isHost && stage === "pool" && !allPoolsChosen ? (
           // P2: moving between pool rounds is local, so every member does it
