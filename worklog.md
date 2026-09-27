@@ -534,3 +534,8 @@ the impeccable skill, standards advisory, on `lane/frontend-exp` only.
 - **Hydration fix (d1c0eb9):** PhotoWall and WeightRise rendered their first frame
   from useReducedMotion(); now server and client agree. First post-go-live
   push; auto-deployed and verified on the live URL.
+- **075 additions (staged) + perf fix 1 (f411aeb):** mark_booked for the claim
+  holder or host, one result shape for claim/release/mark (test:db 108); the
+  landing hero now paints from first paint instead of waiting for hydration
+  (baseline mobile LCP 10.47 s, 92% render delay). Fixes 2 (images), 3 (JS),
+  the Realtime readiness race and a coalesce test flake running as a workflow.
