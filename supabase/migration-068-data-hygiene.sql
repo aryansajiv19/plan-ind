@@ -1,6 +1,7 @@
 -- Migration 068: data hygiene. STAGED -- written, not applied anywhere.
 -- Applies after 064 (independent of 067). Security review 2026-09-26,
--- findings file items R4, R9, R18, C1; batch review F1 (byte ceiling).
+-- findings file items R4, R9, R18, C1; batch review F1 (byte ceiling) and
+-- its confirmation pass (cap enforced by a trigger on the landing write).
 --
 -- Before applying live, check the length caps hold on existing rows (the
 -- CHECK validates, so a violating row makes the whole migration fail cleanly):
@@ -67,25 +68,55 @@ create index if not exists place_collection_items_import_id_idx
   on place_collection_items (import_id) where import_id is not null;
 
 -- ── C1 + F1: a per-account cap on visit-photo files ───────────────────────
--- Nothing bounded how much one account could put in visit-photos, and a
--- file with no visit_photos row shows nowhere and is never cleaned up. Per
--- account: 200 files AND 500 MB (the file cap alone still allowed 200 x 8MB
--- = 1.6 GB, F1). Both are far above real use. Counted by a definer function:
--- the storage read policy hides files with no visit_photos row -- exactly
--- the orphans this cap is for.
--- ponytail: checked per upload against files already stored (a new file's
--- own size is not in its row yet), so one upload or a parallel burst can
--- overshoot by its own size; a hard cap would need a lock.
-create or replace function visit_photo_upload_allowed()
-returns boolean language sql stable security definer set search_path = public, pg_temp as $$
-  select count(*) < 200 and coalesce(sum((o.metadata->>'size')::bigint), 0) < 500 * 1024 * 1024
-  from storage.objects o
-  where o.bucket_id = 'visit-photos' and o.owner_id = (select auth.uid())::text
-$$;
-revoke all on function visit_photo_upload_allowed() from public, anon, authenticated;
-grant execute on function visit_photo_upload_allowed() to authenticated;
+-- Nothing bounded how much one account could put in visit-photos. Per
+-- account: 200 files AND 500 MB, far above real use, counted over every file
+-- the account owns -- orphans with no visit_photos row included, so they
+-- stay bounded too.
+--
+-- Enforced by a trigger on the row write that actually lands, not by an RLS
+-- policy: Storage checks RLS in a probe transaction it rolls back, then
+-- writes the real row as a superuser (no RLS), so a parallel burst of
+-- uploads all passed a policy check (confirmation pass on F1). A BEFORE
+-- trigger fires on both writes; when the real one raises, Storage deletes the
+-- uploaded file. The advisory lock per owner serialises concurrent uploads,
+-- so a burst cannot overshoot. A file's own size is counted when its row
+-- carries it (the real write does).
+--
+-- Permission, checked before choosing this: CREATE TRIGGER needs the TRIGGER
+-- privilege, not ownership, and Storage's own schema migration grants ALL on
+-- storage tables to postgres (supabase/storage
+-- migrations/tenant/0002-storage-schema.sql: "alter default privileges in
+-- schema storage grant all on tables to postgres, ..."). CREATE POLICY needs
+-- ownership, which hosted projects no longer give postgres (supabase#41126),
+-- hence no policy here. Before applying live, confirm:
+--   select has_table_privilege('postgres', 'storage.objects', 'TRIGGER');  -- t
+--
+-- No SQL purge of orphan files: deleting a storage.objects row does not
+-- delete the file (Supabase storage schema docs: it stays in S3 and billed),
+-- and it would free the owner's quota for more. Files are removed through the
+-- Storage API, as delete_my_account (060) does.
+create or replace function enforce_visit_photo_quota()
+returns trigger language plpgsql security definer set search_path = public, pg_temp as $$
+declare
+  files bigint;
+  bytes bigint;
+begin
+  if new.bucket_id is distinct from 'visit-photos' or new.owner_id is null then
+    return new;
+  end if;
+  perform pg_advisory_xact_lock(hashtext('visit-photos/' || new.owner_id));
+  select count(*), coalesce(sum((o.metadata->>'size')::bigint), 0) into files, bytes
+    from storage.objects o
+    where o.bucket_id = 'visit-photos' and o.owner_id = new.owner_id and o.id <> new.id;
+  if files + 1 > 200 or bytes + coalesce((new.metadata->>'size')::bigint, 0) > 500 * 1024 * 1024 then
+    raise exception 'Photo storage limit reached for this account' using errcode = '42501';
+  end if;
+  return new;
+end; $$;
+-- A trigger function is never called directly; it fires without EXECUTE.
+revoke all on function enforce_visit_photo_quota() from public, anon, authenticated;
 
--- Restrictive: ANDed with "upload own visit photos"; other buckets unaffected.
-drop policy if exists "cap visit photo uploads" on storage.objects;
-create policy "cap visit photo uploads" on storage.objects as restrictive for insert to authenticated
-  with check (bucket_id <> 'visit-photos' or public.visit_photo_upload_allowed());
+-- create or replace (not drop + create): dropping a trigger needs ownership.
+create or replace trigger visit_photo_quota
+  before insert or update on storage.objects
+  for each row execute function public.enforce_visit_photo_quota();

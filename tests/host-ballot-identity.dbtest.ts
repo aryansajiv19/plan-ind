@@ -186,27 +186,58 @@ describe("067 rounds (R1)", { skip: SKIP }, () => {
   });
 });
 
-// ── R7: one name, one member ────────────────────────────────────────────────
-describe("067 voter names (R7)", { skip: SKIP }, () => {
-  test("a second account cannot vote under a name another member uses", async () => {
+// ── F2 (and R7): identity is the account; a name is only a label ─────────────
+describe("067 voter names are labels (R7, F2)", { skip: SKIP }, () => {
+  test("two accounts may share a name, and each keeps its own ballot", async () => {
     const p = await plan({ creator: await user() });
     const [a, b] = [await user(), await user()];
     for (const u of [a, b]) await join(p.id, u);
     await vote(a, p.id, p.pools[0][0], "Sam", hash());
-    await assert.rejects(vote(b, p.id, p.pools[0][1], "Sam", hash()), /That participant name is already in use/);
-    assert.equal(await psql(`select count(*) from votes where plan_id='${p.id}'`), "1");
+    await vote(b, p.id, p.pools[0][1], "Sam", hash());
+    assert.equal(await psql(`select count(distinct user_id) from votes where plan_id='${p.id}' and voter_name='Sam'`), "2");
   });
 
-  test("claiming a member's name first does nothing: every ballot carries its own profile name (F2)", async () => {
-    const p = await plan({ creator: await user() });
+  test("B renames to 'Alice', votes, renames back: the real Alice still votes, replies and rates", async () => {
+    const host = await user();
+    const p = await plan({ creator: host });
     const alice = await user("1990-01-01", "Alice");
     const bob = await user("1990-01-01", "Bob");
     for (const u of [alice, bob]) await join(p.id, u);
+    const rename = (uid: string, name: string) => as(uid, `update people set display_name = '${name}' where id = '${uid}'`);
+    await rename(bob, "Alice");
     await vote(bob, p.id, p.pools[0][0], "Alice", hash());
+    await rename(bob, "Bob");
     await vote(alice, p.id, p.pools[0][1], "Alice", hash());
-    const names = await psql(`select string_agg(voter_name, ',' order by voter_name) from votes where plan_id='${p.id}'`);
-    assert.equal(names, "Alice,Bob");
-    assert.equal(await psql(`select voter_name from votes where plan_id='${p.id}' and user_id='${bob}'`), "Bob");
+    await rsvp(alice, p.id, "Alice", hash());
+    await command(host, p.id, p.token, "advance");
+    const finalist = await psql(`select spot_id from plan_spots where plan_id='${p.id}' and advanced`);
+    await vote(alice, p.id, finalist, "Alice", hash(), "final", 0);
+    const { winner_spot_id: w } = JSON.parse(await command(host, p.id, p.token, "decide"));
+    await as(alice, `select rate_plan('${p.id}','${w}','Alice',5,true,'${hash()}')`);
+    const hers = await psql(`select
+      (select count(*) from votes where plan_id='${p.id}' and user_id='${alice}') || ',' ||
+      (select count(*) from rsvps where plan_id='${p.id}' and user_id='${alice}') || ',' ||
+      (select count(*) from ratings where plan_id='${p.id}' and user_id='${alice}')`);
+    assert.equal(hers, "2,1,1");
+  });
+
+  test("my_plan_rows returns only the caller's rows, and refuses a non-member", async () => {
+    const p = await plan({ creator: await user() });
+    const [a, b, outsider] = [await user(), await user(), await user()];
+    for (const u of [a, b]) await join(p.id, u);
+    await vote(a, p.id, p.pools[0][0], "QA-a", hash());
+    await rsvp(a, p.id, "QA-a", hash());
+    await vote(b, p.id, p.pools[0][1], "QA-b", hash());
+    const mine = JSON.parse(await as(a, `select my_plan_rows('${p.id}')`));
+    const aVote = await psql(`select id from votes where plan_id='${p.id}' and user_id='${a}'`);
+    const aRsvp = await psql(`select id from rsvps where plan_id='${p.id}' and user_id='${a}'`);
+    assert.deepEqual(mine.votes, [{ id: aVote, phase: "pool", pool_number: 1, spot_id: p.pools[0][0] }]);
+    assert.equal(mine.rsvp_id, aRsvp);
+    assert.equal(mine.rating_id, null);
+    const theirs = JSON.parse(await as(b, `select my_plan_rows('${p.id}')`));
+    assert.equal(theirs.votes.length, 1);
+    assert.equal(theirs.rsvp_id, null);
+    await assert.rejects(as(outsider, `select my_plan_rows('${p.id}')`), /Plan access required/);
   });
 });
 

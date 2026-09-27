@@ -18,10 +18,13 @@
 --
 -- Ballots (R2/R13, R7): the participant_token_hash ownership checks go (any
 -- co-member can read a hash and squat it), with the unique index that keyed on
--- it; identity is auth.uid(). The name on a ballot, RSVP or rating is the
--- caller's own people.display_name (p_voter_name only when there is no
--- profile), so nobody can claim another member's name first (F2); a clash
--- between two real names is still refused, now in cast_plan_vote too (R7).
+-- it. Identity is the ACCOUNT (auth.uid()) and nothing else (F2): voter_name
+-- is only a label, the caller's own people.display_name (p_voter_name only
+-- with no profile). No name is ever refused -- two friends called Alice, or a
+-- member who renames to 'Alice' and back, cannot lock anyone out -- so the
+-- name-in-use refusals and rsvps/ratings' (plan_id, voter_name) unique keys
+-- go; the per-account keys stay. my_plan_rows(uuid) hands the client the ids
+-- of its own rows, since user_id is not client-readable (049).
 --
 -- booking_owner (R8) goes through clean_app_text like every other shown text.
 --
@@ -375,6 +378,10 @@ grant execute on function delete_plan(uuid, text) to authenticated;
 -- squatted row here still blocked the victim's own vote. One vote per account
 -- per round stays enforced by votes_user_round_key (061).
 drop index if exists votes_participant_round_key;
+-- 067 (F2): a name is a label, not a key. One row per account stays enforced
+-- by rsvps_user_key / ratings_user_key (061).
+alter table rsvps drop constraint if exists rsvps_plan_id_voter_name_key;
+alter table ratings drop constraint if exists ratings_plan_id_voter_name_key;
 
 create or replace function cast_plan_vote(
   p_plan_id uuid, p_spot_id uuid, p_voter_name text, p_value boolean,
@@ -382,7 +389,7 @@ create or replace function cast_plan_vote(
 ) returns jsonb language plpgsql security definer set search_path = public, pg_temp as $$
 declare
   target plans%rowtype;
-  -- 067 (F2): the caller's own profile name; p_voter_name only without one.
+  -- 067 (F2): a label only -- the caller's own profile name; p_voter_name only without one.
   clean_name text := clean_display_name(coalesce(
     (select pe.display_name from people pe where pe.auth_user_id = auth.uid()), p_voter_name));
   caller uuid := auth.uid();
@@ -429,11 +436,6 @@ begin
   end if;
 
   if p_value then
-    -- 067 (R7): a name is one member's, as set_plan_rsvp and rate_plan enforce.
-    if exists (select 1 from votes v where v.plan_id = p_plan_id and v.voter_name = clean_name
-               and v.user_id is distinct from caller) then
-      raise exception 'That participant name is already in use' using errcode = '42501';
-    end if;
     insert into votes (plan_id, spot_id, voter_name, value, phase, pool_number, participant_token_hash, user_id)
     values (p_plan_id, p_spot_id, clean_name, true, p_phase, p_pool_number, p_participant_token_hash, caller)
     on conflict (plan_id, user_id, phase, pool_number) where user_id is not null
@@ -462,7 +464,7 @@ create or replace function set_plan_rsvp(
 declare
   existing rsvps%rowtype;
   target plans%rowtype;
-  -- 067 (F2): the caller's own profile name; p_voter_name only without one.
+  -- 067 (F2): a label only -- the caller's own profile name; p_voter_name only without one.
   clean_name text := clean_display_name(coalesce(
     (select pe.display_name from people pe where pe.auth_user_id = auth.uid()), p_voter_name));
   caller uuid := auth.uid();
@@ -497,10 +499,7 @@ begin
   -- Bounded, so a key collision the re-check cannot see fails instead of spinning.
   for attempt in 1..3 loop
     select * into existing from rsvps where plan_id = p_plan_id and user_id = caller for update;
-    if exists (select 1 from rsvps r where r.plan_id = p_plan_id and r.voter_name = clean_name
-               and r.user_id is distinct from caller) then
-      raise exception 'That participant name is already in use' using errcode = '42501';
-    end if;
+    -- 067 (F2): no name-in-use refusal; the name is a label.
     if existing.id is null then
       begin
         insert into rsvps (plan_id, voter_name, coming, choice, participant_token_hash, transport, seats_available, user_id)
@@ -527,7 +526,7 @@ create or replace function rate_plan(
 declare
   existing ratings%rowtype;
   target plans%rowtype;
-  -- 067 (F2): the caller's own profile name; p_voter_name only without one.
+  -- 067 (F2): a label only -- the caller's own profile name; p_voter_name only without one.
   clean_name text := clean_display_name(coalesce(
     (select pe.display_name from people pe where pe.auth_user_id = auth.uid()), p_voter_name));
   caller uuid := auth.uid();
@@ -556,10 +555,7 @@ begin
 
   for attempt in 1..3 loop
     select * into existing from ratings where plan_id = p_plan_id and user_id = caller for update;
-    if exists (select 1 from ratings r where r.plan_id = p_plan_id and r.voter_name = clean_name
-               and r.user_id is distinct from caller) then
-      raise exception 'That participant name is already in use' using errcode = '42501';
-    end if;
+    -- 067 (F2): no name-in-use refusal; the name is a label.
     if existing.id is null then
       begin
         insert into ratings (plan_id, spot_id, voter_name, stars, again, participant_token_hash, user_id)
@@ -612,6 +608,25 @@ begin
 end; $$;
 revoke all on function claim_plan_access(uuid) from public, anon, authenticated;
 grant execute on function claim_plan_access(uuid) to authenticated;
+
+-- 067 (F2): the caller's own rows on a plan, by id, so the client finds
+-- "mine" by account instead of by name. Members only.
+create or replace function my_plan_rows(p_plan_id uuid)
+returns jsonb language plpgsql stable security definer set search_path = public, pg_temp as $$
+declare uid uuid := auth.uid();
+begin
+  if uid is null or not exists (select 1 from plan_access where plan_id = p_plan_id and user_id = uid) then
+    raise exception 'Plan access required' using errcode = '42501';
+  end if;
+  return jsonb_build_object(
+    'votes', coalesce((select jsonb_agg(jsonb_build_object('id', v.id, 'phase', v.phase,
+                         'pool_number', v.pool_number, 'spot_id', v.spot_id) order by v.phase, v.pool_number)
+                       from votes v where v.plan_id = p_plan_id and v.user_id = uid), '[]'::jsonb),
+    'rsvp_id', (select r.id from rsvps r where r.plan_id = p_plan_id and r.user_id = uid),
+    'rating_id', (select r.id from ratings r where r.plan_id = p_plan_id and r.user_id = uid));
+end; $$;
+revoke all on function my_plan_rows(uuid) from public, anon, authenticated;
+grant execute on function my_plan_rows(uuid) to authenticated;
 
 -- 067 (F3): one-off. Access granted before the gate existed is held to it
 -- too: a non-creator member without a date of birth, or younger than the

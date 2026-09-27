@@ -116,26 +116,54 @@ describe("068 place_collection_items reverse-lookup indexes (R18)", { skip: SKIP
   });
 });
 
-// ── C1 ──────────────────────────────────────────────────────────────────────
+// ── C1 + F1 ─────────────────────────────────────────────────────────────────
+// The cap is a trigger on the row write that lands; Storage writes that row as
+// a superuser after an RLS probe it rolls back, so the superuser cases below
+// are the ones that matter.
 describe("068 visit-photo upload cap (C1, F1)", { skip: SKIP }, () => {
+  const LIMIT = /Photo storage limit reached/;
+  const seed = (uid: string, n: number, bytes = 0) =>
+    psql(`insert into storage.objects (bucket_id, name, owner_id, metadata)
+      select 'visit-photos', '${uid}/seed/' || g || '-' || gen_random_uuid() || '.jpg', '${uid}', jsonb_build_object('size', ${bytes})
+      from generate_series(1, ${n}) g`);
+  const fileAs = (uid: string, name: string, bytes: number, asUser: boolean) => {
+    const sql = `insert into storage.objects (bucket_id, name, owner_id, metadata)
+      values ('visit-photos', '${uid}/x/${name}.jpg', '${uid}', jsonb_build_object('size', ${bytes}))`;
+    return asUser ? as(uid, sql) : psql(sql);
+  };
+
   test("an account's 200th file is accepted and its 201st refused", async () => {
     const uid = await member();
-    await psql(`insert into storage.objects (bucket_id, name, owner_id)
-      select 'visit-photos', '${uid}/seed/' || g || '.jpg', '${uid}' from generate_series(1, 199) g`);
-    const upload = (n: number) =>
-      as(uid, `insert into storage.objects (bucket_id, name, owner_id) values ('visit-photos', '${uid}/x/${n}.jpg', '${uid}')`);
-    await upload(200);
-    await assert.rejects(upload(201), /row-level security/);
+    await seed(uid, 199);
+    await fileAs(uid, "200", 1, true);
+    await assert.rejects(fileAs(uid, "201", 1, true), LIMIT);
   });
 
-  test("500 MB stored refuses the next file, however few files that is (F1)", async () => {
+  test("the superuser write that lands is held to the cap too", async () => {
     const uid = await member();
-    await psql(`insert into storage.objects (bucket_id, name, owner_id, metadata)
-      select 'visit-photos', '${uid}/big/' || g || '.jpg', '${uid}', jsonb_build_object('size', 300 * 1024 * 1024)
-      from generate_series(1, 2) g`);
-    await assert.rejects(
-      as(uid, `insert into storage.objects (bucket_id, name, owner_id) values ('visit-photos', '${uid}/x/3.jpg', '${uid}')`),
-      /row-level security/,
-    );
+    await seed(uid, 200);
+    await assert.rejects(fileAs(uid, "201", 1, false), LIMIT);
+  });
+
+  test("500 MB refuses the next file, however few files that is (F1)", async () => {
+    const uid = await member();
+    await seed(uid, 1, 499 * 1024 * 1024);
+    await fileAs(uid, "small", 1024, false); // positive control, still under 500 MB
+    await assert.rejects(fileAs(uid, "big", 2 * 1024 * 1024, false), LIMIT);
+  });
+
+  test("a parallel pair at 199 files ends at exactly 200: one lands, one is refused", async () => {
+    const uid = await member();
+    await seed(uid, 199);
+    const insert = (n: string) => `insert into storage.objects (bucket_id, name, owner_id, metadata)
+      values ('visit-photos', '${uid}/burst/${n}.jpg', '${uid}', '{"size": 1}');`;
+    // A holds its transaction (and the per-owner lock) open for a second; B,
+    // fired just after, must wait for it and then see A's file.
+    const results = await Promise.allSettled([
+      psql(`begin; ${insert("a")} select pg_sleep(1); commit;`),
+      new Promise((r) => setTimeout(r, 200)).then(() => psql(insert("b"))),
+    ]);
+    assert.equal(results.filter((r) => r.status === "rejected").length, 1);
+    assert.equal(await psql(`select count(*) from storage.objects where bucket_id='visit-photos' and owner_id='${uid}'`), "200");
   });
 });

@@ -4409,6 +4409,10 @@ grant execute on function delete_plan(uuid, text) to authenticated;
 -- squatted row here still blocked the victim's own vote. One vote per account
 -- per round stays enforced by votes_user_round_key (061).
 drop index if exists votes_participant_round_key;
+-- 067 (F2): a name is a label, not a key. One row per account stays enforced
+-- by rsvps_user_key / ratings_user_key (061).
+alter table rsvps drop constraint if exists rsvps_plan_id_voter_name_key;
+alter table ratings drop constraint if exists ratings_plan_id_voter_name_key;
 
 create or replace function cast_plan_vote(
   p_plan_id uuid, p_spot_id uuid, p_voter_name text, p_value boolean,
@@ -4416,7 +4420,7 @@ create or replace function cast_plan_vote(
 ) returns jsonb language plpgsql security definer set search_path = public, pg_temp as $$
 declare
   target plans%rowtype;
-  -- 067 (F2): the caller's own profile name; p_voter_name only without one.
+  -- 067 (F2): a label only -- the caller's own profile name; p_voter_name only without one.
   clean_name text := clean_display_name(coalesce(
     (select pe.display_name from people pe where pe.auth_user_id = auth.uid()), p_voter_name));
   caller uuid := auth.uid();
@@ -4463,11 +4467,6 @@ begin
   end if;
 
   if p_value then
-    -- 067 (R7): a name is one member's, as set_plan_rsvp and rate_plan enforce.
-    if exists (select 1 from votes v where v.plan_id = p_plan_id and v.voter_name = clean_name
-               and v.user_id is distinct from caller) then
-      raise exception 'That participant name is already in use' using errcode = '42501';
-    end if;
     insert into votes (plan_id, spot_id, voter_name, value, phase, pool_number, participant_token_hash, user_id)
     values (p_plan_id, p_spot_id, clean_name, true, p_phase, p_pool_number, p_participant_token_hash, caller)
     on conflict (plan_id, user_id, phase, pool_number) where user_id is not null
@@ -4496,7 +4495,7 @@ create or replace function set_plan_rsvp(
 declare
   existing rsvps%rowtype;
   target plans%rowtype;
-  -- 067 (F2): the caller's own profile name; p_voter_name only without one.
+  -- 067 (F2): a label only -- the caller's own profile name; p_voter_name only without one.
   clean_name text := clean_display_name(coalesce(
     (select pe.display_name from people pe where pe.auth_user_id = auth.uid()), p_voter_name));
   caller uuid := auth.uid();
@@ -4531,10 +4530,7 @@ begin
   -- Bounded, so a key collision the re-check cannot see fails instead of spinning.
   for attempt in 1..3 loop
     select * into existing from rsvps where plan_id = p_plan_id and user_id = caller for update;
-    if exists (select 1 from rsvps r where r.plan_id = p_plan_id and r.voter_name = clean_name
-               and r.user_id is distinct from caller) then
-      raise exception 'That participant name is already in use' using errcode = '42501';
-    end if;
+    -- 067 (F2): no name-in-use refusal; the name is a label.
     if existing.id is null then
       begin
         insert into rsvps (plan_id, voter_name, coming, choice, participant_token_hash, transport, seats_available, user_id)
@@ -4561,7 +4557,7 @@ create or replace function rate_plan(
 declare
   existing ratings%rowtype;
   target plans%rowtype;
-  -- 067 (F2): the caller's own profile name; p_voter_name only without one.
+  -- 067 (F2): a label only -- the caller's own profile name; p_voter_name only without one.
   clean_name text := clean_display_name(coalesce(
     (select pe.display_name from people pe where pe.auth_user_id = auth.uid()), p_voter_name));
   caller uuid := auth.uid();
@@ -4590,10 +4586,7 @@ begin
 
   for attempt in 1..3 loop
     select * into existing from ratings where plan_id = p_plan_id and user_id = caller for update;
-    if exists (select 1 from ratings r where r.plan_id = p_plan_id and r.voter_name = clean_name
-               and r.user_id is distinct from caller) then
-      raise exception 'That participant name is already in use' using errcode = '42501';
-    end if;
+    -- 067 (F2): no name-in-use refusal; the name is a label.
     if existing.id is null then
       begin
         insert into ratings (plan_id, spot_id, voter_name, stars, again, participant_token_hash, user_id)
@@ -4647,6 +4640,25 @@ end; $$;
 revoke all on function claim_plan_access(uuid) from public, anon, authenticated;
 grant execute on function claim_plan_access(uuid) to authenticated;
 
+-- 067 (F2): the caller's own rows on a plan, by id, so the client finds
+-- "mine" by account instead of by name. Members only.
+create or replace function my_plan_rows(p_plan_id uuid)
+returns jsonb language plpgsql stable security definer set search_path = public, pg_temp as $$
+declare uid uuid := auth.uid();
+begin
+  if uid is null or not exists (select 1 from plan_access where plan_id = p_plan_id and user_id = uid) then
+    raise exception 'Plan access required' using errcode = '42501';
+  end if;
+  return jsonb_build_object(
+    'votes', coalesce((select jsonb_agg(jsonb_build_object('id', v.id, 'phase', v.phase,
+                         'pool_number', v.pool_number, 'spot_id', v.spot_id) order by v.phase, v.pool_number)
+                       from votes v where v.plan_id = p_plan_id and v.user_id = uid), '[]'::jsonb),
+    'rsvp_id', (select r.id from rsvps r where r.plan_id = p_plan_id and r.user_id = uid),
+    'rating_id', (select r.id from ratings r where r.plan_id = p_plan_id and r.user_id = uid));
+end; $$;
+revoke all on function my_plan_rows(uuid) from public, anon, authenticated;
+grant execute on function my_plan_rows(uuid) to authenticated;
+
 -- 067 (F3): one-off. Access granted before the gate existed is held to it
 -- too: a non-creator member without a date of birth, or younger than the
 -- plan requires, loses plan_access (and with it every participant RPC).
@@ -4662,7 +4674,7 @@ where p.id = pa.plan_id
 
 -- 068: data hygiene -- custom spots carry no links/photos and bounded text
 -- (R4), 'friends' visit photos correlated to the owner (R9), a per-account
--- visit-photo cap (C1). From migration-068-data-hygiene.sql.
+-- visit-photo cap enforced by a trigger (C1/F1). From migration-068-data-hygiene.sql.
 
 alter table spots drop constraint if exists spots_custom_no_links;
 alter table spots add constraint spots_custom_no_links check (
@@ -4699,25 +4711,55 @@ create policy "read permitted visit photos" on visit_photos for select to authen
 );
 
 -- ── C1 + F1: a per-account cap on visit-photo files ───────────────────────
--- Nothing bounded how much one account could put in visit-photos, and a
--- file with no visit_photos row shows nowhere and is never cleaned up. Per
--- account: 200 files AND 500 MB (the file cap alone still allowed 200 x 8MB
--- = 1.6 GB, F1). Both are far above real use. Counted by a definer function:
--- the storage read policy hides files with no visit_photos row -- exactly
--- the orphans this cap is for.
--- ponytail: checked per upload against files already stored (a new file's
--- own size is not in its row yet), so one upload or a parallel burst can
--- overshoot by its own size; a hard cap would need a lock.
-create or replace function visit_photo_upload_allowed()
-returns boolean language sql stable security definer set search_path = public, pg_temp as $$
-  select count(*) < 200 and coalesce(sum((o.metadata->>'size')::bigint), 0) < 500 * 1024 * 1024
-  from storage.objects o
-  where o.bucket_id = 'visit-photos' and o.owner_id = (select auth.uid())::text
-$$;
-revoke all on function visit_photo_upload_allowed() from public, anon, authenticated;
-grant execute on function visit_photo_upload_allowed() to authenticated;
+-- Nothing bounded how much one account could put in visit-photos. Per
+-- account: 200 files AND 500 MB, far above real use, counted over every file
+-- the account owns -- orphans with no visit_photos row included, so they
+-- stay bounded too.
+--
+-- Enforced by a trigger on the row write that actually lands, not by an RLS
+-- policy: Storage checks RLS in a probe transaction it rolls back, then
+-- writes the real row as a superuser (no RLS), so a parallel burst of
+-- uploads all passed a policy check (confirmation pass on F1). A BEFORE
+-- trigger fires on both writes; when the real one raises, Storage deletes the
+-- uploaded file. The advisory lock per owner serialises concurrent uploads,
+-- so a burst cannot overshoot. A file's own size is counted when its row
+-- carries it (the real write does).
+--
+-- Permission, checked before choosing this: CREATE TRIGGER needs the TRIGGER
+-- privilege, not ownership, and Storage's own schema migration grants ALL on
+-- storage tables to postgres (supabase/storage
+-- migrations/tenant/0002-storage-schema.sql: "alter default privileges in
+-- schema storage grant all on tables to postgres, ..."). CREATE POLICY needs
+-- ownership, which hosted projects no longer give postgres (supabase#41126),
+-- hence no policy here. Before applying live, confirm:
+--   select has_table_privilege('postgres', 'storage.objects', 'TRIGGER');  -- t
+--
+-- No SQL purge of orphan files: deleting a storage.objects row does not
+-- delete the file (Supabase storage schema docs: it stays in S3 and billed),
+-- and it would free the owner's quota for more. Files are removed through the
+-- Storage API, as delete_my_account (060) does.
+create or replace function enforce_visit_photo_quota()
+returns trigger language plpgsql security definer set search_path = public, pg_temp as $$
+declare
+  files bigint;
+  bytes bigint;
+begin
+  if new.bucket_id is distinct from 'visit-photos' or new.owner_id is null then
+    return new;
+  end if;
+  perform pg_advisory_xact_lock(hashtext('visit-photos/' || new.owner_id));
+  select count(*), coalesce(sum((o.metadata->>'size')::bigint), 0) into files, bytes
+    from storage.objects o
+    where o.bucket_id = 'visit-photos' and o.owner_id = new.owner_id and o.id <> new.id;
+  if files + 1 > 200 or bytes + coalesce((new.metadata->>'size')::bigint, 0) > 500 * 1024 * 1024 then
+    raise exception 'Photo storage limit reached for this account' using errcode = '42501';
+  end if;
+  return new;
+end; $$;
+-- A trigger function is never called directly; it fires without EXECUTE.
+revoke all on function enforce_visit_photo_quota() from public, anon, authenticated;
 
--- Restrictive: ANDed with "upload own visit photos"; other buckets unaffected.
-drop policy if exists "cap visit photo uploads" on storage.objects;
-create policy "cap visit photo uploads" on storage.objects as restrictive for insert to authenticated
-  with check (bucket_id <> 'visit-photos' or public.visit_photo_upload_allowed());
+-- create or replace (not drop + create): dropping a trigger needs ownership.
+create or replace trigger visit_photo_quota
+  before insert or update on storage.objects
+  for each row execute function public.enforce_visit_photo_quota();
