@@ -13,11 +13,29 @@ Legend: `S` under a day · `M` a day or two · `L` more.
 docs-only commits skip the build). Migrations through 074 are live; 075 is
 staged. Everyone signs in (064).
 
+## Now: the lead's autonomous plan (owner 2026-09-27: "you plan the next steps")
+
+Goal: solid, secure, scalable, working end to end, and not minimal. In order;
+each step gated (tsc, lint, unit, test:db, E2E), security-reviewed where it
+touches RLS/quotas/writes, pushed, and checked on the live URL with Playwright.
+
+1. **Land what is ready:** booking client + booking E2E (075 is live), P35
+   cleanup, the perf batch numbers.
+2. **Photos everywhere:** apply the approved place ids; open the photo route
+   to signed-out visitors behind a per-IP and a global daily cap (cost stays
+   bounded; a refused photo falls back to the designed no-photo card).
+3. **Redesign, all surfaces** (impeccable direction, code-led): landing and
+   demo, vote, composer, then signed-in pages. Dense, photo-led, Dubai at
+   night. Motion reviewed before merge; visual baselines regenerated.
+4. **End-to-end proof:** a Playwright journey on the local stack (sign up →
+   create → share → vote → decide → book), then a signed-out sweep of live.
+5. **Security + scale pass** on the new surface area; record residuals.
+
 ## Waiting on the owner
 
 | # | Item | Why it matters |
 |---|---|---|
-| O1 | **"Yes, apply 075"** (any member can claim the booking; retires Scoopi Cafe and Garage Dubai, Iris to Lounge). Then merge `lane/frontend-booking` and `lane/platform-booking-e2e` | P22, the last "never ask a friend" gap |
+| O1 | Done 2026-09-27: 075 and 066 applied live. Merge `lane/frontend-booking` + `lane/platform-booking-e2e` next (lead) | |
 | O2 | Supabase Auth: turn **off** anonymous sign-ins, **then** set the Turnstile secret, then the Google provider (OAuth client in progress) | Closes free guest sessions and the Luna quota drain |
 | O3 | Approve the Places matches (dry run: 33 high, 34 review, 15 reject; review file in the lead's scratchpad, delete after) | P32 and P28: real photos on 76 venues; P24 live hours need the stored place ids |
 | O4 | Enable the **Routes API** on the key's Cloud project (it returns SERVICE_DISABLED today) | P24 metro legs and drive time at the event hour |
