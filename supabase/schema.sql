@@ -4790,6 +4790,12 @@ create table if not exists plan_booking_owners (
 );
 alter table plan_booking_owners enable row level security;
 revoke all on plan_booking_owners from anon, authenticated;
+-- Claims made before 069: only the host could set booking_owner (a host
+-- command), so the host is the account behind every existing one.
+insert into plan_booking_owners (plan_id, user_id)
+select id, created_by_user_id from plans
+where booking_owner is not null and created_by_user_id is not null
+on conflict (plan_id) do nothing;
 
 -- ── P4: deadlines fire without the host ────────────────────────────────────
 
@@ -5304,7 +5310,7 @@ set search_path = public, pg_temp
 as $$
 declare
   removed int;
-  removed_visits int;
+  removed_visits int := 0;
 begin
   -- 064: a permanent account is the price of taking part.
   if not is_permanent_user() then
@@ -5316,13 +5322,20 @@ begin
   delete from ratings where plan_id = p_plan_id and user_id = auth.uid();
   get diagnostics removed = row_count;
   -- 069 (P11): the rating is what logged the caller's visit for this plan, so
-  -- take that back too -- unless it has photos (deleting it would orphan the
-  -- files, the same rule logVisit keeps). A leftover visit also blocks reopen.
-  delete from visits v
-  using people pe
-  where v.plan_id = p_plan_id and v.person_id = pe.id and pe.auth_user_id = auth.uid()
-    and not exists (select 1 from visit_photos ph where ph.visit_id = v.id);
-  get diagnostics removed_visits = row_count;
+  -- take that back too -- but only if a rating really was removed, and never a
+  -- visit the person has added to (a note, companions, a collection, photos:
+  -- deleting would lose their content, and orphan photo files). A leftover
+  -- rating-only visit would also block reopen.
+  if removed > 0 then
+    delete from visits v
+    using people pe
+    where v.plan_id = p_plan_id and v.person_id = pe.id and pe.auth_user_id = auth.uid()
+      and v.note is null
+      and not exists (select 1 from visit_photos ph where ph.visit_id = v.id)
+      and not exists (select 1 from visit_companions vc where vc.visit_id = v.id)
+      and not exists (select 1 from visit_collection_items ci where ci.visit_id = v.id);
+    get diagnostics removed_visits = row_count;
+  end if;
   return jsonb_build_object('result', case when removed > 0 then 'removed' else 'not_rated' end,
     'visit_removed', removed_visits > 0);
 end;
@@ -5417,6 +5430,32 @@ end;
 $$;
 revoke all on function delete_plan(uuid, text) from public, anon, authenticated;
 grant execute on function delete_plan(uuid, text) to authenticated;
+
+-- ── Security review: a visit can't be pinned to someone else's plan ──────────
+-- "log own visits" let any account attach a visit to ANY plan_id, and a visit
+-- makes delete_plan and reopen_plan answer already_happened -- so anyone with
+-- the link could stop the host cancelling or reopening. A plan visit now needs
+-- the logger's own plan access, and the plan decided with its outing past
+-- (the same moment rating opens, P11). Refused inserts are RLS 42501. Updates
+-- can't change plan_id (column grants), and no definer function inserts
+-- visits, so the insert policy is the one door.
+create or replace function visit_plan_allowed(p_plan_id uuid)
+returns boolean language sql stable security definer set search_path = public, pg_temp as $$
+  select p_plan_id is null or exists (
+    select 1 from plans p
+    join plan_access a on a.plan_id = p.id and a.user_id = auth.uid()
+    where p.id = p_plan_id and p.status = 'decided'
+      and coalesce(p.event_time, p.decided_at + interval '3 hours') <= now())
+$$;
+revoke all on function visit_plan_allowed(uuid) from public, anon, authenticated;
+grant execute on function visit_plan_allowed(uuid) to authenticated;
+
+drop policy if exists "log own visits" on visits;
+create policy "log own visits" on visits for insert to authenticated
+  with check (
+    exists (select 1 from people p where p.id = person_id and p.auth_user_id = (select auth.uid()))
+    and visit_plan_allowed(plan_id)
+  );
 
 -- 070: catalogue truth -- sourced venue facts, closures (reopens_on; retired =
 -- visibility 'private'). DDL only here: the data half of

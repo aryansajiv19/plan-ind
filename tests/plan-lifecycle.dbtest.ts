@@ -297,3 +297,54 @@ describe("069 the host can cancel a decided plan (P15)", { skip: SKIP }, () => {
     assert.equal(await exists(p.id), "1");
   });
 });
+
+// ── security review follow-ups ───────────────────────────────────────────────
+describe("069 security review: visits, unrate, booking backfill", { skip: SKIP }, () => {
+  async function decidedWith(members: string[]) {
+    const host = await user();
+    const p = await plan(host, "now() + interval '1 day'", members);
+    for (const u of members) await psql(`insert into people (id, display_name, auth_user_id) values ('${u}', 'QA-${u.slice(0, 6)}', '${u}')`);
+    const cmd = (c: string) => as(host, `select execute_plan_command('${p.id}', '${p.token}', '${c}', '{}'::jsonb)`);
+    await cmd("advance");
+    const { winner_spot_id } = JSON.parse(await cmd("decide"));
+    return { host, p, winner: winner_spot_id as string };
+  }
+  const logVisit = (uid: string, spot: string, planId: string | null) =>
+    as(uid, `insert into visits (person_id, spot_id, plan_id) values ('${uid}', '${spot}', ${planId ? `'${planId}'` : "null"})`);
+
+  test("a visit pinned to a plan needs membership and a past outing", async () => {
+    const [member, stranger] = [await user(), await user()];
+    const d = await decidedWith([member]);
+    await psql(`insert into people (id, display_name, auth_user_id) values ('${stranger}', 'S', '${stranger}')`);
+    await assert.rejects(logVisit(stranger, d.winner, d.p.id), /row-level security/); // not a member
+    await assert.rejects(logVisit(member, d.winner, d.p.id), /row-level security/);   // outing not yet
+    await logVisit(member, d.winner, null);                                            // no plan: fine
+    await psql(`update plans set event_time = now() - interval '1 hour' where id = '${d.p.id}'`);
+    await logVisit(member, d.winner, d.p.id);                                          // the real thing
+    assert.equal(await psql(`delete from visits where person_id = '${stranger}' returning 1`), "");
+  });
+
+  test("unrate spares a visit with a note, and removes nothing without a rating", async () => {
+    const [noted, unrated] = [await user(), await user()];
+    const d = await decidedWith([noted, unrated]);
+    await psql(`update plans set event_time = now() - interval '1 hour' where id = '${d.p.id}'`);
+    await psql(`insert into visits (person_id, spot_id, plan_id, note) values ('${noted}', '${d.winner}', '${d.p.id}', 'great night');
+      insert into visits (person_id, spot_id, plan_id) values ('${unrated}', '${d.winner}', '${d.p.id}')`);
+    await as(noted, `select rate_plan('${d.p.id}','${d.winner}','x',5,true,'${hash()}')`);
+    assert.equal(JSON.parse(await as(noted, `select unrate_plan('${d.p.id}')`)).visit_removed, false);
+    assert.equal(JSON.parse(await as(unrated, `select unrate_plan('${d.p.id}')`)).visit_removed, false);
+    assert.equal(await psql(`select count(*) from visits where plan_id = '${d.p.id}'`), "2");
+  });
+
+  test("applying 069 backfills the booking claims hosts already made", async () => {
+    const host = await user();
+    const p = await plan(host, "now() + interval '1 day'");
+    const migration = new URL("../supabase/migration-069-plan-lifecycle.sql", import.meta.url).pathname;
+    const { stdout } = await execFileAsync("psql", [DB_URL, "-X", "-q", "-A", "-t", "--no-psqlrc", "-v", "ON_ERROR_STOP=1",
+      "-c", `begin; update plans set booking_owner = 'Hana' where id = '${p.id}'; delete from plan_booking_owners where plan_id = '${p.id}';`,
+      "-f", migration,
+      "-c", `select user_id from plan_booking_owners where plan_id = '${p.id}'`,
+      "-c", "rollback"], { timeout: 60000 });
+    assert.equal(stdout.trim().split("\n").filter(Boolean).pop(), host);
+  });
+});
