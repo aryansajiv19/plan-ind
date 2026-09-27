@@ -16,6 +16,7 @@ import type { RevealCard } from "@/components/DealReveal";
 import { offerTimes, useWhenPicks } from "@/components/WhenPicker";
 import { fetchSampleDeal } from "@/lib/deal-sample";
 import type { PlanPrefill } from "@/lib/board-plan";
+import { checkedPrefill } from "@/lib/composer-prefill";
 
 export const PRESETS = [
   { label: "In 3 hours", hours: 3 },
@@ -51,7 +52,10 @@ function readRemembered(): Remembered | null {
  * the plan it creates and the reveal in between. StartPlanForm renders it;
  * ComposerDeck and TuneIt each render their part.
  */
-export function useComposer({ age, demoMode, prefill }: { age: number; demoMode: boolean; prefill: PlanPrefill | null }) {
+export function useComposer({ age, demoMode, prefill: rawPrefill }: { age: number; demoMode: boolean; prefill: PlanPrefill | null }) {
+  // Only what this form would offer this account seeds it (security review):
+  // a restored draft is sessionStorage, so the browser can have edited it.
+  const [prefill] = useState(() => checkedPrefill(rawPrefill, age));
   const router = useRouter();
   const [category, setCategory] = useState<CategoryKey>(prefill?.category ?? "dinner");
   const [title, setTitle] = useState<string>(prefill?.title || CATEGORIES[0].title);
