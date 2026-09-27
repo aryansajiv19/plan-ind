@@ -53,7 +53,7 @@ export function usePlanData(id: string) {
   // happens to trigger another refetch. One counter per fetch kind, bumped
   // before the await and checked after, discards a response once a newer
   // request for the same kind has already started.
-  const fetchSeq = useRef({ plan: 0, votes: 0, rsvps: 0, ratings: 0, planSpots: 0 });
+  const fetchSeq = useRef({ plan: 0, votes: 0, rsvps: 0, ratings: 0, planSpots: 0, mine: 0, mineApplied: 0 });
 
   // Every plan write from outside refetchPlan (the initial load, a Realtime
   // UPDATE, a host command's result, an optimistic patch) is fresher than a
@@ -76,19 +76,34 @@ export function usePlanData(id: string) {
   // read and applied in the same tick, so a fresh server row is never shown
   // as someone else's while its id is unknown. A failed read keeps the last
   // good answer; before the RPC exists this stays null (name match).
+  // Each read rides a different refetch, so an older one can land after a
+  // newer one: reads are numbered, and one older than the answer already
+  // applied applies nothing (review F4). The caller applies it in its tick.
   const readMine = useCallback(async () => {
+    const seq = ++fetchSeq.current.mine;
     const { data, error } = await getSupabase().rpc("my_plan_rows", { p_plan_id: id });
-    return error ? null : parseMyRows(data);
+    const rows = error ? null : parseMyRows(data);
+    return () => {
+      if (!rows || seq < fetchSeq.current.mineApplied) return;
+      fetchSeq.current.mineApplied = seq;
+      setMyRows(rows);
+    };
   }, [id]);
+
+  // 075: a booking claim moves with plans.booking_owner, not with any row read
+  // above, so the page re-reads "is it mine" when that name changes.
+  const refetchMine = useCallback(async () => {
+    (await readMine())();
+  }, [readMine]);
 
   const refetchVotes = useCallback(async () => {
     const seq = ++fetchSeq.current.votes;
-    const [{ data, error }, rows] = await Promise.all([
+    const [{ data, error }, applyMine] = await Promise.all([
       getSupabase().from("votes").select("id,plan_id,spot_id,voter_name,value,phase,pool_number,participant_token_hash,seat_key,created_at").eq("plan_id", id),
       readMine(),
     ]);
     if (error) return false;
-    if (data && seq === fetchSeq.current.votes) { setVotes(data as Vote[]); if (rows) setMyRows(rows); }
+    if (data && seq === fetchSeq.current.votes) { setVotes(data as Vote[]); applyMine(); }
     return true;
   }, [id, readMine]);
 
@@ -101,23 +116,23 @@ export function usePlanData(id: string) {
 
   const refetchRsvps = useCallback(async () => {
     const seq = ++fetchSeq.current.rsvps;
-    const [{ data, error }, rows] = await Promise.all([
+    const [{ data, error }, applyMine] = await Promise.all([
       getSupabase().from("rsvps").select("id,plan_id,voter_name,coming,choice,participant_token_hash,seat_key,transport,seats_available,created_at").eq("plan_id", id),
       readMine(),
     ]);
     if (error) return false;
-    if (data && seq === fetchSeq.current.rsvps) { setRsvps(data as Rsvp[]); if (rows) setMyRows(rows); }
+    if (data && seq === fetchSeq.current.rsvps) { setRsvps(data as Rsvp[]); applyMine(); }
     return true;
   }, [id, readMine]);
 
   const refetchRatings = useCallback(async () => {
     const seq = ++fetchSeq.current.ratings;
-    const [{ data, error }, rows] = await Promise.all([
+    const [{ data, error }, applyMine] = await Promise.all([
       getSupabase().from("ratings").select("id,plan_id,spot_id,voter_name,stars,again,participant_token_hash,seat_key,created_at").eq("plan_id", id),
       readMine(),
     ]);
     if (error) return false;
-    if (data && seq === fetchSeq.current.ratings) { setRatings(data as Rating[]); if (rows) setMyRows(rows); }
+    if (data && seq === fetchSeq.current.ratings) { setRatings(data as Rating[]); applyMine(); }
     return true;
   }, [id, readMine]);
 
@@ -240,6 +255,7 @@ export function usePlanData(id: string) {
     ratings,
     setRatings,
     myRows,
+    refetchMine,
     participantHash,
     refetchVotes,
     refetchRsvps,

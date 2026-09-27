@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import type { Plan, Rating, Rsvp, Spot } from "@/lib/types";
 import type { Mine } from "@/lib/my-rows";
+import type { BookingClaim } from "@/hooks/use-booking-claim";
 import type { Seat } from "@/lib/tally";
 import { categoryMeta } from "@/lib/categories";
 import { knownMinSpend } from "@/lib/price";
@@ -25,12 +26,10 @@ import ShareActions from "@/components/ShareActions";
 interface DecidedPlanProps {
   plan: Plan;
   winner: Spot;
-  voterName: string;
   /** Which rows are this account's (lib/my-rows.ts). */
   mine: Mine;
   /**
-   * Whoever created the plan. onSetTime/onClaimBooking/onMarkBooked all
-   * route through patchPlan, which the server (execute_plan_command) rejects
+   * Whoever created the plan. onSetTime routes through patchPlan, which the server (execute_plan_command) rejects
    * for anyone else — this only controls whether the UI *offers* those
    * controls, not whether they'd work if shown to a non-host.
    */
@@ -44,10 +43,8 @@ interface DecidedPlanProps {
   onSetTime: (iso: string) => void;
   onSetRsvp: (choice: "coming" | "maybe" | "no") => void;
   onSetCarpool: (transport: Rsvp["transport"], seats: number | null) => void;
-  onClaimBooking: () => void;
-  onMarkBooked: () => void;
-  /** Host only: take "booked" back off (a wrong tick, or before reopening). */
-  onUnmarkBooked: () => void;
+  /** 075: any member takes or hands back the booking. */
+  booking: BookingClaim;
   onRate: (partial: { stars?: number; again?: boolean }) => void;
 }
 
@@ -67,7 +64,6 @@ function prettyTime(iso: string): string {
 export default function DecidedPlan({
   plan,
   winner,
-  voterName,
   mine,
   isHost,
   rsvps,
@@ -77,9 +73,7 @@ export default function DecidedPlan({
   onSetTime,
   onSetRsvp,
   onSetCarpool,
-  onClaimBooking,
-  onMarkBooked,
-  onUnmarkBooked,
+  booking,
   onRate,
 }: DecidedPlanProps) {
   // P23: the time is a draft until Save; null means not editing. A host
@@ -244,11 +238,8 @@ export default function DecidedPlan({
       <BookingSection
         plan={plan}
         winner={winner}
-        voterName={voterName}
         isHost={isHost}
-        onClaimBooking={onClaimBooking}
-        onMarkBooked={onMarkBooked}
-        onUnmarkBooked={onUnmarkBooked}
+        booking={booking}
       />
 
       <GettingThere plan={plan} winner={winner} />
