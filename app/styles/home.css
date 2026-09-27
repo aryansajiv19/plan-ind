@@ -271,7 +271,7 @@
   .demo-reaction-row button:active {
     transform: scale(.94);
   }
-  .vote-option:active:not(:disabled) {
+  .vote-option:active:not([data-locked]) {
     transform: scale(.985);
   }
   .plan-category-option,

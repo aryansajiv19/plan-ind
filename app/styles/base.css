@@ -47,7 +47,7 @@ h3 {
       background var(--dur-state) ease,
       border-color var(--dur-state) ease;
   }
-  .token:active:not(:disabled) {
+  .token:active:not(:disabled, [data-locked]) {
     transform: scale(0.97);
     transition-duration: var(--dur-press);
   }

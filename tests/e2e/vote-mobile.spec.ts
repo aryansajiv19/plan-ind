@@ -63,7 +63,7 @@ test.describe("the vote screen", () => {
     // test asserted immediately and reported a 6px overhang on Pixel 7 that
     // was gone milliseconds later — a flaky test that looks like a real bug
     // is worse than no test.
-    await page.locator(".vote-options-grid button.token").first().waitFor({ timeout: 15_000 });
+    await page.locator(".vote-options-grid .vote-option").first().waitFor({ timeout: 15_000 });
 
     const measure = () => page.evaluate(() => {
       const vw = document.documentElement.clientWidth;
@@ -121,7 +121,7 @@ test.describe("the vote screen", () => {
     );
 
     await openVoteScreen(page, context, baseURL!);
-    await page.locator(".vote-options-grid button.token").first().waitFor({ timeout: 15_000 });
+    await page.locator(".vote-options-grid .vote-option").first().waitFor({ timeout: 15_000 });
 
     const measure = (floor: number) => page.evaluate((f) => {
       const out: { sel: string; w: number; h: number; text: string }[] = [];

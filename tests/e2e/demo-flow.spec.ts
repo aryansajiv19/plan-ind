@@ -22,12 +22,12 @@ test("/demo: submitting the plan form deals nine sample places, then links to th
   await expect(next).toHaveAttribute("href", "/demo/vote");
   await next.click();
   await expect(page).toHaveURL(/\/demo\/vote$/);
-  await expect(page.locator(".vote-options-grid button.token")).toHaveCount(3, { timeout: 20_000 });
+  await expect(page.locator(".vote-options-grid .vote-option")).toHaveCount(3, { timeout: 20_000 });
 });
 
 test("/demo/vote plays three rounds and a final to the winner reveal", async ({ page }) => {
   await page.goto("/demo/vote");
-  const cards = page.locator(".vote-options-grid button.token");
+  const cards = page.locator(".vote-options-grid .vote-option__choice"); // each card's Select button (P27)
   const primary = page.locator("button.vote-primary-action");
 
   for (const next of ["Continue to round 2", "Continue to round 3", "Build the final shortlist"]) {

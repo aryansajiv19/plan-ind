@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import CountUp from "@/components/CountUp";
+import PhotoCredit from "@/components/PhotoCredit";
 import { avatarStyle, initialsOf } from "@/lib/avatar";
 import type { Spot } from "@/lib/types";
 import { categoryMeta } from "@/lib/categories";
@@ -101,17 +103,19 @@ export default function OptionCard({
     return () => clearTimeout(timer);
   }, [voters]);
 
+  const photo = Boolean(spot.photo_url);
+  // The meta line drops the spend on a typographic band, which already says it.
+  const spendMeta = photo ? `from AED ${spot.min_spend}pp` : "";
+
+  // P27: the card is an article, not one big button. A real Select button
+  // carries the vote (its ::after stretches over the card, so the whole card
+  // still takes the tap) and the name, so its accessible name is short.
   return (
-    <button
-      type="button"
-      onClick={onToggle}
-      disabled={decided || closed}
-      aria-pressed={voted}
+    <article
+      data-selected={voted ? "" : undefined}
+      data-locked={decided || closed ? "" : undefined}
       className={[
-        // `token` is the signature offset shadow — the card sits on the page
-        // and sinks under a press. See the block at the top of globals.css.
-        "opt token vote-option relative flex w-full flex-col bg-card p-4 text-left",
-        "disabled:cursor-default",
+        "opt token vote-option relative flex w-full flex-col bg-card text-left",
         isWinner ? "vote-option--winner z-[3]" : "",
         isLeader && !decided ? "vote-option--leader" : "",
         dimmed ? "opacity-55" : "",
@@ -119,18 +123,42 @@ export default function OptionCard({
     >
       {isWinner && <span className="vote-option__winner-label">Selected</span>}
 
-      {/* Category strip: identity only, one line. The cuisine truncates rather
-          than wrapping ("Coffee & healthy" pushed one card's Select 16px below
-          its neighbours'). No price band: the meta line says the AED figure. */}
-      <span className="vote-option__category inline-flex min-w-0 items-center gap-1.5 self-start px-2.5 py-1 text-xs font-bold">
-        <span aria-hidden="true">{cat.code}</span>
-        <span className="vote-option__cuisine">{spot.cuisine}</span>
-      </span>
+      {/* A fixed 4:3 band so every card in a row starts its text at the same
+          line: the venue photo with its licence credit, or the name set in
+          the display serif on the raised surface. No hue either way. */}
+      <div className="vote-option__media">
+        {photo ? (
+          <>
+            {/* unoptimized: same posture as the place page (no remotePatterns). */}
+            <Image src={spot.photo_url!} alt="" fill sizes="(min-width: 641px) 22rem, 85vw" className="object-cover" unoptimized />
+            <PhotoCredit spot={spot} />
+          </>
+        ) : (
+          <div className="vote-option__type">
+            <span className="vote-option__category inline-flex min-w-0 items-center gap-1.5 self-start px-2.5 py-1 text-xs font-bold">
+              <span aria-hidden="true">{cat.code}</span>
+              <span className="vote-option__cuisine">{spot.cuisine}</span>
+            </span>
+            <h3 className="mt-auto text-balance font-display text-3xl font-extrabold leading-[1.1] tracking-tight">{spot.name}</h3>
+            <p className="mt-1 text-xs font-medium text-muted">{spot.area} · from AED {spot.min_spend}pp</p>
+          </div>
+        )}
+      </div>
 
-      <h3 className="mt-2.5 font-display text-lg font-extrabold leading-tight tracking-tight">
-        {spot.name}
-      </h3>
-      <p className="mt-0.5 text-xs font-medium text-muted">{spot.area}</p>
+      <div className="vote-option__body flex flex-1 flex-col p-4">
+      {photo && (
+        <>
+          {/* Category strip: identity only, one line; the cuisine truncates. */}
+          <span className="vote-option__category inline-flex min-w-0 items-center gap-1.5 self-start px-2.5 py-1 text-xs font-bold">
+            <span aria-hidden="true">{cat.code}</span>
+            <span className="vote-option__cuisine">{spot.cuisine}</span>
+          </span>
+          <h3 className="mt-2.5 font-display text-lg font-extrabold leading-tight tracking-tight">
+            {spot.name}
+          </h3>
+          <p className="mt-0.5 text-xs font-medium text-muted">{spot.area}</p>
+        </>
+      )}
       {/* 070: closed since the deal, until a date. Never dealt again till then. */}
       {reopens && <p className="mt-1 text-xs font-bold">{reopens}</p>}
 
@@ -140,14 +168,13 @@ export default function OptionCard({
       </p>
 
       <p className="vote-option__meta mt-2 text-xs text-muted">
-        {hours ? `${hours} · ` : ""}from AED {spot.min_spend}pp
+        {[hours, spendMeta].filter(Boolean).join(" · ")}
         {fromYou != null ? yourTrip(fromYou) : shownKm != null ? ` · ${Math.max(1, Math.round(shownKm))} km away` : ""}
         {near?.walkable ? ` · Metro ≈\u00a0${near.walkMin}\u00a0min walk` : ""}
       </p>
 
-      {/* Why the deal picked it. Spans, not a list: this sits inside a
-          <button>, which only allows phrasing content. Hairline and muted,
-          no hue: it explains, it is not state. */}
+      {/* Why the deal picked it. Hairline and muted, no hue: it explains,
+          it is not state. */}
       {reasons && reasons.length > 0 && (
         <span className="mt-2 flex flex-wrap gap-1.5">
           <span className="sr-only">Why this: </span>
@@ -207,16 +234,22 @@ export default function OptionCard({
         </span>
 
         {!decided && (
-          <span
+          <button
+            type="button"
+            onClick={onToggle}
+            disabled={closed}
+            aria-pressed={voted}
             className={[
               "vote-option__choice px-3 py-1 text-xs font-bold",
               voted ? "vote-option__choice--selected" : "",
             ].join(" ")}
           >
             {voted ? "Selected" : "Select"}
-          </span>
+            <span className="sr-only"> {spot.name}</span>
+          </button>
         )}
       </div>
-    </button>
+      </div>
+    </article>
   );
 }

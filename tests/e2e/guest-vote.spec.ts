@@ -43,18 +43,17 @@ test("a signed-in friend can open a shared plan and cast a vote", async ({ page,
 
   // The header's "N people voting" was removed in 82145e0; the count now
   // comes from the voted card's own "N yes" (0 -> 1 on this run's plan).
-  const votersLabel = page.locator(".vote-options-grid button.token").first();
+  const votersLabel = page.locator(".vote-options-grid .vote-option").first();
   await expect(votersLabel).toBeVisible({ timeout: 15_000 });
   const votersBefore = await readVoterCount(votersLabel);
 
-  // Each vote card is a single <button aria-pressed> (see OptionCard.tsx) —
-  // its accessible name is the whole card's text, so aria-pressed is the
-  // reliable way to tell "not yet voted" from "voted" apart, not the
+  // Each card's Select button carries aria-pressed (P27, see OptionCard.tsx),
+  // the reliable way to tell "not yet voted" from "voted" apart, not the
   // "Select"/"Selected" label text (the latter is a substring of the former).
   // Located structurally (first card in the grid), not by [aria-pressed=…]:
   // that attribute is what the click changes, so a locator built on its
   // current value re-resolves to a *different* card once it flips.
-  const firstCard = page.locator(".vote-options-grid button.token").first();
+  const firstCard = page.locator(".vote-options-grid .vote-option__choice").first();
   await expect(firstCard).toHaveAttribute("aria-pressed", "false"); // fresh account, nothing voted yet
   await firstCard.click();
   await expect(firstCard).toHaveAttribute("aria-pressed", "true");
@@ -98,7 +97,7 @@ test("a signed-in friend can open a shared plan and cast a vote", async ({ page,
   await page.reload();
   await expect(page.getByText(`Hey ${me.name}`, { exact: true })).toBeVisible({ timeout: 20_000 });
   await expect(page.getByPlaceholder("Your name")).toHaveCount(0);
-  await expect(page.locator(".vote-options-grid button.token").first()).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator(".vote-options-grid .vote-option__choice").first()).toHaveAttribute("aria-pressed", "true");
 });
 
 async function readVoterCount(locator: import("@playwright/test").Locator): Promise<number> {
@@ -124,7 +123,7 @@ test("a signed-in friend picks in all three rounds without the host", async ({ p
   await expect(roundLabel(1)).toBeVisible({ timeout: 20_000 });
   for (const round of [1, 2, 3]) {
     await expect(page.getByText(/waiting for the host/i)).toHaveCount(0);
-    const card = page.locator(".vote-options-grid button.token").first();
+    const card = page.locator(".vote-options-grid .vote-option__choice").first();
     await card.click();
     // Rounds 1 and 2: the saved pick moves the page on by itself, which is
     // the proof (the card locator re-resolves to the next round's card).
