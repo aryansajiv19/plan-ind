@@ -272,3 +272,6 @@ plan-ind's schema into it by mistake; its own data untouched).
 **Local-only, not in git (the repo is public):** full review findings with
 attack scenarios at `~/plan-ind-review-findings.md`; delete it once 067/068
 are live.
+- **F2 client (frontend lane, cherry-picked):** own votes/RSVP/rating found by
+  row id from `my_plan_rows` (name match only as a pre-migration fallback);
+  the voter name is always the profile's (40 chars); NameGate removed.
