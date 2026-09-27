@@ -471,3 +471,7 @@ low, `Permissions-Policy geolocation=()` broke "My location" (fixed here:
 `(self)`); low, custom spot text not cleaned server-side plus an .ics bare-CR
 gap; low, the P7 draft skipped the age/category check. SQL fixes to the
 platform lane (in place in 068/070/073), client fixes to the frontend lane.
+- **Pre-launch client fixes (frontend lane):** .ics strips/escapes control
+  characters (tested against an injected DTSTART); every composer prefill
+  (P7 draft, board, place, friend) is checked like remembered settings;
+  location errors distinguish page policy, browser setting, declined, timeout.
