@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
+import type { RealtimeSystemPayload } from "@supabase/supabase-js";
 import { getSupabase } from "@/lib/supabase";
 import { coalesce } from "@/lib/coalesce";
 import type { Plan } from "@/lib/types";
@@ -54,6 +55,11 @@ export function usePlanRealtime({
     if (access !== "ready" || deleted || left) return;
     const later = [refetchVotes, refetchRsvps, refetchRatings, refetchPlanSpots].map((run) => coalesce(run));
     const [votesLater, rsvpsLater, ratingsLater, planSpotsLater] = later;
+    // Re-read everything an event could have changed.
+    const catchUp = () => {
+      void refetchPlan();
+      later.forEach((refetch) => refetch());
+    };
     const channel = getSupabase()
       .channel(`plan:${id}`)
       .on(
@@ -89,12 +95,17 @@ export function usePlanRealtime({
         { event: "UPDATE", schema: "public", table: "plan_spots", filter: `plan_id=eq.${id}` },
         planSpotsLater,
       )
+      // SUBSCRIBED only means the channel joined. The server attaches the
+      // postgres_changes listeners after that and says so with this system
+      // message ("Subscribed to PostgreSQL"); a row changed in between is never
+      // delivered, so catch up again once changes are actually flowing.
+      .on("system", {}, (payload: RealtimeSystemPayload) => {
+        if (payload.extension === "postgres_changes" && payload.status === "ok") catchUp();
+      })
       // R5: on every (re)join, the first included (it closes the gap after
-      // the initial load), re-read everything an event could have changed.
+      // the initial load).
       .subscribe((status) => {
-        if (status !== "SUBSCRIBED") return;
-        void refetchPlan();
-        later.forEach((refetch) => refetch());
+        if (status === "SUBSCRIBED") catchUp();
       });
     dataChannelRef.current = channel;
     cancelRefetchesRef.current = () => later.forEach((refetch) => refetch.cancel());
