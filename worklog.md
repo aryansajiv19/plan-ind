@@ -383,3 +383,6 @@ control has no UI yet.
 - **P18:** "You're coming from" on the vote screen (device-only, rounded to
   ~100 m); cards show the voter's own km, drive estimate and metro walk; six
   more origins incl. Sharjah; metro prefers the 070 columns.
+- **P15 UI:** "Cancel this plan" on a decided plan (hidden once rated; the
+  server refuses after a logged visit with its own message); the command route
+  maps `already_happened` to 409.
