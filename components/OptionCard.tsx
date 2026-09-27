@@ -8,6 +8,7 @@ import { categoryMeta } from "@/lib/categories";
 import type { DealReason } from "@/lib/deal-reasons";
 import { hoursLabel, openStatus } from "@/lib/open-hours";
 import { metroFor } from "@/lib/dubai-metro";
+import { reopensLabel } from "@/lib/venue-facts";
 import type { Coordinates } from "@/lib/dubai-areas";
 import { driveMinutesEstimate, haversineKm } from "@/lib/directions";
 import { useMinuteClock } from "@/hooks/use-minute-clock";
@@ -68,6 +69,7 @@ export default function OptionCard({
   const hours = status?.kind === "closing-soon" ? status.label : hoursLabel(spot.open_till);
   // P17: a walkable metro station is worth a word on the card; none isn't.
   const near = metroFor(spot);
+  const reopens = reopensLabel(spot.reopens_on);
 
   // A vote arriving over realtime is the only "someone else is here" signal
   // this screen has. Acknowledge it once, then clear — a permanent highlight
@@ -129,6 +131,8 @@ export default function OptionCard({
         {spot.name}
       </h3>
       <p className="mt-0.5 text-xs font-medium text-muted">{spot.area}</p>
+      {/* 070: closed since the deal, until a date. Never dealt again till then. */}
+      {reopens && <p className="mt-1 text-xs font-bold">{reopens}</p>}
 
       {/* The "review" blurb — why you'd go */}
       <p className="mt-2 text-sm leading-snug text-ink/80">
