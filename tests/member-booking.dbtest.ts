@@ -57,6 +57,8 @@ const claim = async (uid: string, planId: string) => JSON.parse(await as(uid, `s
 const release = async (uid: string, planId: string) => JSON.parse(await as(uid, `select release_booking('${planId}')`));
 const holder = (planId: string) => psql(`select coalesce(p.booking_owner, 'none') || '|' || coalesce(b.user_id::text, 'none')
   from plans p left join plan_booking_owners b on b.plan_id = p.id where p.id = '${planId}'`);
+const mark = async (uid: string, planId: string, booked: boolean | null) =>
+  JSON.parse(await as(uid, `select mark_booked('${planId}', ${booked})`));
 const nameOf = (uid: string) => psql(`select display_name from people where id = '${uid}'`);
 
 after(async () => {
@@ -70,9 +72,9 @@ describe("075 any member can claim the booking", { skip: SKIP }, () => {
   test("a member claims it under their profile name; another is told it's taken until it's released", async () => {
     const [host, a, b] = [await user(), await user(), await user()];
     const p = await plan(host, [a, b]);
-    assert.deepEqual(await claim(a, p.id), { result: "claimed", booking_owner: await nameOf(a) });
+    assert.deepEqual(await claim(a, p.id), { result: "claimed", booking_owner: await nameOf(a), booked: false });
     assert.equal(await holder(p.id), `${await nameOf(a)}|${a}`);
-    assert.deepEqual(await claim(b, p.id), { result: "taken", booking_owner: await nameOf(a) });
+    assert.deepEqual(await claim(b, p.id), { result: "taken", booking_owner: await nameOf(a), booked: false });
     // my_plan_rows says whose it is, even when two members share a name.
     await psql(`update people set display_name = '${await nameOf(a)}' where id = '${b}'`);
     const mine = async (uid: string) => JSON.parse(await as(uid, `select my_plan_rows('${p.id}')`)).my_booking;
@@ -117,6 +119,28 @@ describe("075 any member can claim the booking", { skip: SKIP }, () => {
     assert.equal((await claim(a, p.id)).result, "claimed");
     await psql(`update plans set status = 'open', stage = 'final' where id = '${p.id}'`); // reopened
     assert.equal((await release(a, p.id)).result, "released");
+  });
+
+  test("the holder or the host marks it booked and can undo it; another member can't", async () => {
+    const [host, a, b] = [await user(), await user(), await user()];
+    const p = await plan(host, [a, b]);
+    await claim(a, p.id);
+    assert.deepEqual(await mark(b, p.id, true), { result: "not_holder", booking_owner: await nameOf(a), booked: false });
+    assert.deepEqual(await mark(a, p.id, true), { result: "marked", booking_owner: await nameOf(a), booked: true });
+    assert.equal((await claim(b, p.id)).result, "booked");   // frozen while booked
+    assert.equal((await release(a, p.id)).result, "booked");
+    assert.equal((await mark(a, p.id, false)).result, "unmarked"); // it fell through
+    assert.equal((await mark(host, p.id, true)).result, "marked");  // the host, holding no claim
+    assert.equal((await mark(host, p.id, null)).result, "invalid");
+    assert.equal(await psql(`select booked from plans where id = '${p.id}'`), "t");
+
+    const open = await plan(host, [a]);
+    await psql(`update plans set status = 'open', stage = 'final' where id = '${open.id}'`);
+    assert.equal((await mark(host, open.id, true)).result, "not_decided");
+    assert.deepEqual(await mark(await user(), p.id, true), { result: "not_member" }); // outsiders learn nothing
+    assert.deepEqual(await mark(a, randomUUID(), true), { result: "not_found" });
+    await assert.rejects(as(a, `select mark_booked('${p.id}', true)`, true), /Sign in required/);
+    await assert.rejects(psql(`set role anon; select mark_booked('${p.id}', true)`), /permission denied/);
   });
 
   // Security audit: leave_plan keeps a booked claim, so a booking that fell through stranded it.

@@ -9,8 +9,19 @@
 -- plan_booking_owners records the account (069). A member never silently
 -- takes over another member's live claim -- two taps at once get one
 -- "claimed" and one "taken" -- and nothing moves once the plan is booked.
+-- mark_booked lets the claim holder (or the host) record the booking, and
+-- undo it if it falls through.
 
 begin;
+
+-- Every member-facing answer carries the plan's booking state after the call,
+-- so one client mapper covers claim, release and mark. Outsiders (not_found,
+-- not_member) get the result code only. Internal: no client grant.
+create or replace function booking_result(p_result text, p_plan plans)
+returns jsonb language sql immutable set search_path = public, pg_temp as $$
+  select jsonb_build_object('result', p_result, 'booking_owner', p_plan.booking_owner, 'booked', p_plan.booked)
+$$;
+revoke all on function booking_result(text, plans) from public, anon, authenticated;
 
 create or replace function claim_booking(p_plan_id uuid)
 returns jsonb language plpgsql security definer set search_path = public, pg_temp as $$
@@ -33,10 +44,10 @@ begin
   -- Nothing to book before a winner (owner decision 2026-09-27). Releasing
   -- stays open to the holder at any time, e.g. after a reopen.
   if target.status <> 'decided' then
-    return jsonb_build_object('result', 'not_decided');
+    return booking_result('not_decided', target);
   end if;
   if target.booked is true then
-    return jsonb_build_object('result', 'booked', 'booking_owner', target.booking_owner);
+    return booking_result('booked', target);
   end if;
   -- Free to take: no claim, a deleted account's (user_id null), or one whose
   -- holder has left the plan -- else a leaver would hold it for good once a
@@ -44,17 +55,17 @@ begin
   select user_id into holder from plan_booking_owners where plan_id = p_plan_id;
   if holder is not null and holder <> auth.uid()
      and exists (select 1 from plan_access where plan_id = p_plan_id and user_id = holder) then
-    return jsonb_build_object('result', 'taken', 'booking_owner', target.booking_owner);
+    return booking_result('taken', target);
   end if;
   -- The label is the caller's own profile name, never text they send.
   select nullif(clean_display_name(display_name), '') into label from people where auth_user_id = auth.uid();
   if label is null then
-    return jsonb_build_object('result', 'no_profile');
+    return booking_result('no_profile', target);
   end if;
-  update plans set booking_owner = label where id = p_plan_id;
+  update plans set booking_owner = label where id = p_plan_id returning * into target;
   insert into plan_booking_owners (plan_id, user_id) values (p_plan_id, auth.uid())
   on conflict (plan_id) do update set user_id = excluded.user_id;
-  return jsonb_build_object('result', 'claimed', 'booking_owner', label);
+  return booking_result('claimed', target);
 end; $$;
 revoke all on function claim_booking(uuid) from public, anon, authenticated;
 grant execute on function claim_booking(uuid) to authenticated;
@@ -76,17 +87,53 @@ begin
   end if;
   -- Booked means the reservation exists: the name stays, as leave_plan keeps it.
   if target.booked is true then
-    return jsonb_build_object('result', 'booked', 'booking_owner', target.booking_owner);
+    return booking_result('booked', target);
   end if;
   if not exists (select 1 from plan_booking_owners where plan_id = p_plan_id and user_id = auth.uid()) then
-    return jsonb_build_object('result', 'not_yours', 'booking_owner', target.booking_owner);
+    return booking_result('not_yours', target);
   end if;
-  update plans set booking_owner = null where id = p_plan_id;
+  update plans set booking_owner = null where id = p_plan_id returning * into target;
   delete from plan_booking_owners where plan_id = p_plan_id;
-  return jsonb_build_object('result', 'released');
+  return booking_result('released', target);
 end; $$;
 revoke all on function release_booking(uuid) from public, anon, authenticated;
 grant execute on function release_booking(uuid) to authenticated;
+
+-- The claim holder or the host records that it is booked, or undoes it when a
+-- booking falls through. While booked, claim and release refuse ("booked").
+-- The host is the plan's creator on any device (plan_host_authorized, no
+-- token); a creator-less legacy plan keeps execute_plan_command 'patch'.
+-- Success is marked/unmarked: "booked" already means a refusal above.
+create or replace function mark_booked(p_plan_id uuid, p_booked boolean)
+returns jsonb language plpgsql security definer set search_path = public, pg_temp as $$
+declare
+  target plans%rowtype;
+begin
+  if not is_permanent_user() then
+    raise exception 'Sign in required' using errcode = '42501';
+  end if;
+  select * into target from plans where id = p_plan_id for update;
+  if target.id is null then
+    return jsonb_build_object('result', 'not_found');
+  end if;
+  if not exists (select 1 from plan_access where plan_id = p_plan_id and user_id = auth.uid()) then
+    return jsonb_build_object('result', 'not_member');
+  end if;
+  if target.status <> 'decided' then
+    return booking_result('not_decided', target);
+  end if;
+  if p_booked is null then
+    return booking_result('invalid', target);
+  end if;
+  if not plan_host_authorized(p_plan_id, null)
+     and not exists (select 1 from plan_booking_owners where plan_id = p_plan_id and user_id = auth.uid()) then
+    return booking_result('not_holder', target);
+  end if;
+  update plans set booked = p_booked where id = p_plan_id returning * into target;
+  return booking_result(case when p_booked then 'marked' else 'unmarked' end, target);
+end; $$;
+revoke all on function mark_booked(uuid, boolean) from public, anon, authenticated;
+grant execute on function mark_booked(uuid, boolean) to authenticated;
 
 -- my_plan_rows (069 body, copied verbatim, edited where marked 075).
 create or replace function my_plan_rows(p_plan_id uuid)
