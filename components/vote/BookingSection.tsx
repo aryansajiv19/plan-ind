@@ -21,8 +21,10 @@ export default function BookingSection({
   onMarkBooked: () => void;
   onUnmarkBooked: () => void;
 }) {
-  const gcal = googleCalUrl(plan, winner);
-  const ics = icsHref(plan, winner);
+  // Client-only: this renders after the plan loads in the browser.
+  const planUrl = `${typeof window === "undefined" ? "" : window.location.origin}/plan/${plan.id}`;
+  const gcal = googleCalUrl(plan, winner, planUrl);
+  const ics = icsHref(plan, winner, planUrl);
 
   return (
     <>
