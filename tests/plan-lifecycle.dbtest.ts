@@ -146,6 +146,15 @@ describe("069 the booking claim belongs to an account, not a name", { skip: SKIP
     assert.equal(await psql(`select user_id from plan_booking_owners where plan_id = '${p.id}'`), host);
   });
 
+  test("the label is always the claimer's own name, never text naming someone else", async () => {
+    const host = await user();
+    await psql(`insert into people (id, display_name, auth_user_id) values ('${host}', 'Hana', '${host}')`);
+    const p = await plan(host, "now() + interval '1 day'");
+    await command(host, p.id, p.token, '{"booking_owner": "Kim"}');
+    assert.equal(await owner(p.id), "Hana");
+    await psql(`delete from people where id = '${host}'`);
+  });
+
   test("the booker's own account leaving clears it, and deleting renames it (control)", async () => {
     const host = await user();
     const [booker, other] = [await user(), await user()];

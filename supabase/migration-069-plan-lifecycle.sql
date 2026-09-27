@@ -142,7 +142,14 @@ begin
   elsif p_command = 'patch' then
     update plans set
       event_time = case when p_patch ? 'event_time' then nullif(p_patch->>'event_time', '')::timestamptz else event_time end,
-      booking_owner = case when p_patch ? 'booking_owner' then nullif(clean_app_text(p_patch->>'booking_owner', 80), '') else booking_owner end,
+      -- 069: the label is the claimer's own name (profile, else the text sent),
+      -- so it always names the account recorded in plan_booking_owners.
+      booking_owner = case when p_patch ? 'booking_owner' then
+        case when nullif(clean_app_text(p_patch->>'booking_owner', 80), '') is null then null
+             else nullif(clean_display_name(coalesce(
+               (select pe.display_name from people pe where pe.auth_user_id = auth.uid()),
+               p_patch->>'booking_owner')), '') end
+        else booking_owner end,
       booked = case when p_patch ? 'booked' then (p_patch->>'booked')::boolean else booked end
     where id = p_plan_id;
     -- 069: record which account holds the booking claim (the label stays in plans).
