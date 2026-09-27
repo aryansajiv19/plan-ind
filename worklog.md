@@ -425,3 +425,7 @@ control has no UI yet.
   moodboards from real places); "Start a vote with this place" pins it into
   round 1. 070 raises hard age limits (8 venues) and tags every source with
   its field; the deal returns its cards; 073 un-ticks reach members live.
+- **P29:** the sample decided screen shows the real Getting there (address,
+  distance, metro, Drive/Metro/Walk/Apple/Uber, map) and a labelled read-only
+  carpool; sample venues carry real address/coordinates where the research has
+  them. P25 (content-first composer) approved and in progress.
