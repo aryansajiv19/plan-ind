@@ -4,12 +4,13 @@ import { dubaiHour } from "./dubai-phase.ts";
 // P28: the landing's "right now" wall, picked per request from the cached
 // curated pool: open now in Dubai first, photographed first, and at most two
 // of any one category, so it isn't the A-to-B slice of the catalogue.
-type WallRow = { category: string; name: string; open_till?: string | null; photo_url?: string | null };
+type WallRow = { category: string; name: string; open_till?: string | null; photo_url?: string | null; google_place_id?: string | null };
 
 export function pickRightNow<T extends WallRow>(rows: readonly T[], now: Date, size: number): T[] {
   const rank = (row: T) => [
     openStatus(row.open_till, now)?.kind === "closed" ? 1 : 0,
-    row.photo_url ? 0 : 1,
+    // Our own photo (free, optimised) before Google's (billed per view).
+    row.photo_url ? 0 : row.google_place_id ? 1 : 2,
   ];
   const ordered = [...rows].sort((a, b) => {
     const [ra, rb] = [rank(a), rank(b)];

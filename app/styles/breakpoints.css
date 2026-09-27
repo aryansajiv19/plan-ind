@@ -31,22 +31,11 @@
 }
 
 @media (max-width: 850px) {
-  .home-hero {
-    min-height: auto;
-    padding-top: 1.75rem;
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
+  .cover__mosaic {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(4, minmax(0, 1fr));
   }
-  .home-stage {
-    width: min(100%, 31rem);
-    height: 29rem;
-    margin: 0 auto;
-  }
-  /* §22: the stage owns the rhythm here, so the deck's floor yields to the
-     stage height (the fixed 440px shell ran past it under 768). */
-  .home-stage > button {
-    min-height: 24rem;
-  }
+  .cover__tile:nth-child(n + 13) { display: none; }
   .home-plan-section {
     grid-template-columns: 1fr;
   }
@@ -124,13 +113,6 @@
     padding: 0.7rem 0.18rem;
     font-size: max(0.62rem, var(--type-floor));
   }
-  .home-hero {
-    width: min(100% - 1.5rem, 76rem);
-    padding-top: 1.15rem;
-  }
-  .home-title {
-    letter-spacing: -0.08em;
-  }
   .home-title__line {
     white-space: normal;
   }
@@ -147,13 +129,6 @@
   }
   .home-secondary-cta {
     text-align: center;
-  }
-  .home-stage {
-    height: 27rem;
-    transform: none;
-  }
-  .home-stage > button {
-    min-height: 22.5rem;
   }
   .home-plan-section {
     width: min(100% - 1.5rem, 68rem);

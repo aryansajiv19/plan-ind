@@ -1,66 +1,68 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef } from "react";
 import WeightRise from "@/components/WeightRise";
-import CardStackExample from "@/components/kokonutui/card-stack";
+import VenuePhoto, { hasVenuePhoto } from "@/components/VenuePhoto";
+import type { CuratedCounts } from "@/lib/spots/catalogue";
 import type { Spot } from "@/lib/types";
 
-// The signed-out pitch (/ and /demo): the headline, and beside it the deck,
-// nine real places that fan out on a tap (owner's pick), photographed spots
-// first. A signed-in account opens onto the composer instead.
-export default function HomeHero({ greeting, name, fixtures, spots }: { greeting: string; name: string; fixtures: boolean; spots: Spot[] }) {
-  // SPECS.md §14.3: scroll-based depth drift on the front-door hero. A single
-  // scroll-position custom property, not a JS animation loop: this effect
-  // only computes the number and writes it via setProperty; the motion is
-  // plain CSS (.home-hero__copy / .home-stage).
-  const heroRef = useRef<HTMLElement>(null);
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const hero = heroRef.current;
-    if (!hero) return;
-    let ticking = false;
-    function applyHeroScroll() {
-      // 0 until the hero's top scrolls past the viewport top, then ramps up,
-      // capped at the hero's own height: depth within the hero, not parallax.
-      const rect = hero!.getBoundingClientRect();
-      hero!.style.setProperty("--hero-scroll", `${Math.min(Math.max(0, -rect.top), rect.height)}px`);
-    }
-    function onScroll() {
-      if (ticking) return;
-      ticking = true;
-      window.requestAnimationFrame(() => {
-        applyHeroScroll();
-        ticking = false;
-      });
-    }
-    applyHeroScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+const MOSAIC_TILES = 12;
+
+/**
+ * The cover: real venue photography in a dense mosaic behind the cover line,
+ * a gold issue band on top, the action bottom-left. A venue without a photo
+ * still takes its tile, set as type, so the cover is never a hole.
+ */
+export default function HomeHero({
+  greeting,
+  name,
+  fixtures,
+  spots,
+  counts,
+}: {
+  greeting: string;
+  name: string;
+  fixtures: boolean;
+  spots: Spot[];
+  counts?: CuratedCounts | null;
+}) {
+  // Photographed venues first; the wall already ranks them that way.
+  const tiles = [...spots.filter(hasVenuePhoto), ...spots.filter((spot) => !hasVenuePhoto(spot))].slice(0, MOSAIC_TILES);
 
   return (
-    <section id="top" ref={heroRef} className="home-hero" aria-labelledby="home-title">
+    <section id="top" className="home-hero" aria-labelledby="home-title">
+      <p className="cover__band">
+        <strong>Tonight in Dubai</strong>
+        {counts ? <span>{counts.places} places{counts.categories ? ` · ${counts.categories} kinds of night` : ""}</span> : null}
+        <span>Nine dealt · three rounds · one winner</span>
+      </p>
+
+      <div className="cover__mosaic" aria-hidden="true">
+        {tiles.map((spot, index) => (
+          <div key={spot.id} className="cover__tile">
+            <span className="cover__tile-name">{spot.name}</span>
+            <VenuePhoto spot={spot} sizes="(min-width: 720px) 34vw, 67vw" preload={index < 2} />
+          </div>
+        ))}
+      </div>
+
       <div className="home-hero__copy">
-        <p className="home-hello home-reveal" style={{ "--delay": "80ms" } as React.CSSProperties}>
-          {greeting}{name ? `, ${name}` : ""}.
-        </p>
+        <p className="home-hello">{greeting}{name ? `, ${name}` : ""}.</p>
 
         <h1 id="home-title" className="home-title" aria-label="Dubai plans without the group chat.">
           <span className="home-title__line home-title__line--one">Dubai plans,</span>
           <span className="home-title__line home-title__line--two">without the</span>
           <span className="home-title__line home-title__line--three">
-            {/* Only the last line rises: the weight change is the emphasis,
-                so spending it on every line would spend it on nothing. */}
+            {/* Only the last line rises: the weight change is the emphasis. */}
             <strong><WeightRise delay={0.51}>group chat.</WeightRise></strong>
           </span>
         </h1>
 
-        <p className="home-deck home-reveal" style={{ "--delay": "680ms" } as React.CSSProperties}>
+        <p className="home-deck">
           Dinner in DIFC or padel in Al Quoz. Set a budget, and the group picks from nine places in three quick rounds.
         </p>
 
-        <div className="home-actions home-reveal" style={{ "--delay": "780ms" } as React.CSSProperties}>
+        <div className="home-actions">
           <a href="#plan-lab" className="home-primary-cta">Start a plan</a>
           {/* The product without an email: /demo/vote plays a whole sample
               decision from fixtures. */}
@@ -68,11 +70,6 @@ export default function HomeHero({ greeting, name, fixtures, spots }: { greeting
             {fixtures ? "See a sample vote" : "Try the demo"}
           </Link>
         </div>
-      </div>
-
-      {/* Not aria-hidden: the deck is a real button (expand / collapse). */}
-      <div className="home-stage home-reveal" style={{ "--delay": "420ms" } as React.CSSProperties}>
-        <CardStackExample spots={spots} />
       </div>
     </section>
   );

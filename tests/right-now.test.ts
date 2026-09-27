@@ -17,6 +17,15 @@ test("open now comes first, photographed first, at most two per category", () =>
   assert.deepEqual(pickRightNow(rows, evening, 4).map((r) => r.name), ["Cc Dinner", "Bb Dinner", "Ee Bar", "Aa Cafe"]);
 });
 
+test("our own photo beats a Google-matched one, which beats none", () => {
+  const rows = [
+    { name: "Aa None", category: "a", open_till: "3am", photo_url: null, google_place_id: null },
+    { name: "Bb Google", category: "b", open_till: "3am", photo_url: null, google_place_id: "ChIJ1234567890" },
+    { name: "Cc Own", category: "c", open_till: "3am", photo_url: "/venues/c.webp", google_place_id: null },
+  ];
+  assert.deepEqual(pickRightNow(rows, evening, 3).map((r) => r.name), ["Cc Own", "Bb Google", "Aa None"]);
+});
+
 test("the greeting follows the Dubai clock, whoever is asking", () => {
   assert.equal(greetingFor(new Date("2026-09-27T03:30:00Z")), "Good morning"); // 07:30 Dubai
   assert.equal(greetingFor(new Date("2026-09-27T17:00:00Z")), "Good evening"); // 21:00

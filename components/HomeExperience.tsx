@@ -271,7 +271,7 @@ export default function HomeExperience({
           scrolling past a marketing headline to reach your own tool is a
           website habit, and on a phone it costs the whole first screen. */}
       {demoMode ? (
-      <HomeHero greeting={greeting} name={name} fixtures={fixtures} spots={spots} />
+      <HomeHero greeting={greeting} name={name} fixtures={fixtures} spots={spots} counts={counts} />
       ) : (
         <section id="top" className="home-appbar" aria-labelledby="home-title">
           <p className="home-appbar__hello">{greeting}{name ? `, ${name}` : ""}.</p>
