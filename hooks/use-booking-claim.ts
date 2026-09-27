@@ -14,11 +14,14 @@ export type BookingClaim = {
   note: BookingOutcome["note"];
   claim: () => void;
   release: () => void;
+  /** The holder or the host records it booked, or undoes that. */
+  mark: () => void;
+  unmark: () => void;
 };
 
 /**
- * 075: any member takes or hands back a decided plan's booking. The server
- * settles races (two taps at once get one "claimed", one "taken"); its answer
+ * 075: any member takes or hands back a decided plan's booking, and the
+ * holder or the host marks it booked. The server settles races (two taps at once get one "claimed", one "taken"); its answer
  * shows at once, and Realtime brings everyone else's screen along.
  */
 export function useBookingClaim({ id, plan, setPlan, voterName, myRows, refetchMine }: {
@@ -45,7 +48,9 @@ export function useBookingClaim({ id, plan, setPlan, voterName, myRows, refetchM
 
   async function run(action: BookingAction) {
     setBusy(true);
-    const { data, error } = await getSupabase().rpc(action === "claim" ? "claim_booking" : "release_booking", { p_plan_id: id });
+    const { data, error } = action === "mark" || action === "unmark"
+      ? await getSupabase().rpc("mark_booked", { p_plan_id: id, p_booked: action === "mark" })
+      : await getSupabase().rpc(action === "claim" ? "claim_booking" : "release_booking", { p_plan_id: id });
     const outcome = bookingOutcome(action, error ? null : data);
     const patch = outcome.patch;
     if (patch) setPlan((current) => current && { ...current, ...patch });
@@ -60,5 +65,7 @@ export function useBookingClaim({ id, plan, setPlan, voterName, myRows, refetchM
     note: answer && answer.owner === owner ? answer.note : null,
     claim: () => void run("claim"),
     release: () => void run("release"),
+    mark: () => void run("mark"),
+    unmark: () => void run("unmark"),
   };
 }

@@ -3,24 +3,19 @@ import type { Plan, Spot } from "@/lib/types";
 import type { BookingClaim } from "@/hooks/use-booking-claim";
 import { googleCalUrl, icsHref } from "@/lib/calendar";
 
-// The decided plan's booking and calendar links. Taking and handing back the
-// booking is any member's (075: claim_booking / release_booking). Marking it
-// booked stays the host's (patchPlan, which the server rejects for anyone
-// else), so only the host is offered it.
+// The decided plan's booking and calendar links (075). Any member takes or
+// hands back the booking; whoever holds it, or the host, marks it booked
+// (mark_booked checks both; the offer here only mirrors that).
 export default function BookingSection({
   plan,
   winner,
   isHost,
   booking,
-  onMarkBooked,
-  onUnmarkBooked,
 }: {
   plan: Plan;
   winner: Spot;
   isHost: boolean;
   booking: BookingClaim;
-  onMarkBooked: () => void;
-  onUnmarkBooked: () => void;
 }) {
   // Client-only: this renders after the plan loads in the browser.
   const planUrl = `${typeof window === "undefined" ? "" : window.location.origin}/plan/${plan.id}`;
@@ -41,8 +36,8 @@ export default function BookingSection({
               </span>
               {/* "Mark as booked" had no way back: a mis-tap was permanent, and
                   reopening a plan requires it untaken. */}
-              {isHost && (
-                <button type="button" onClick={onUnmarkBooked} className="vote-result__button px-4 py-2 text-sm font-display">
+              {(isHost || booking.mine) && (
+                <button type="button" onClick={booking.unmark} disabled={booking.busy} className="vote-result__button px-4 py-2 text-sm font-display disabled:opacity-50">
                   Unmark booked
                 </button>
               )}
@@ -52,8 +47,8 @@ export default function BookingSection({
               <span className="text-sm font-medium">
                 {booking.mine ? "You’re booking it." : `${plan.booking_owner}’s booking it.`}
               </span>
-              {isHost && (
-                <button type="button" onClick={onMarkBooked} className="vote-result__button px-4 py-2 text-sm font-display">
+              {(isHost || booking.mine) && (
+                <button type="button" onClick={booking.mark} disabled={booking.busy} className="vote-result__button px-4 py-2 text-sm font-display disabled:opacity-50">
                   Mark as booked
                 </button>
               )}
@@ -62,7 +57,6 @@ export default function BookingSection({
                   I can’t book after all
                 </button>
               )}
-              {booking.mine && !isHost && <span className="text-sm text-muted">Once it’s booked, the host marks it here.</span>}
             </>
           ) : (
             <button type="button" onClick={booking.claim} disabled={booking.busy} className="vote-result__button px-4 py-2 text-sm font-display disabled:opacity-50">
