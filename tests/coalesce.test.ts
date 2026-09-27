@@ -31,12 +31,21 @@ test("events during an in-flight run trigger exactly one follow-up, never overla
   assert.equal(maxConcurrent, 1);
 });
 
-test("later events do not reset the window, so a busy room cannot starve the refetch", async () => {
+// Mocked clock: on real timers a descheduled process let the loop's short sleep
+// expire before the window's timer, so the wall-clock loop ended and asserted
+// before the due run fired.
+test("later events do not reset the window, so a busy room cannot starve the refetch", async (t) => {
+  t.mock.timers.enable({ apis: ["setTimeout"] });
   let runs = 0;
   const later = coalesce(async () => { runs++; }, WAIT * 2);
-  const stop = Date.now() + WAIT * 5;
-  while (Date.now() < stop) { later(); await sleep(WAIT / 4); }
-  assert.ok(runs >= 1, `expected a run during continuous events, got ${runs}`);
+  for (let elapsed = 0; elapsed < WAIT * 10; elapsed += WAIT / 4) {
+    later();
+    t.mock.timers.tick(WAIT / 4);
+    await new Promise(setImmediate); // let a fired run settle
+  }
+  later.cancel();
+  // A debounce would still be waiting for a quiet gap: 0 runs.
+  assert.equal(runs, 5, "one run per window across continuous events");
 });
 
 test("cancel drops a pending run and any follow-up", async () => {
