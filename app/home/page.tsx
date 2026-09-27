@@ -117,6 +117,7 @@ export default async function HomePage({
         visitsUnavailable={visits.failed}
         myPlans={(myPlans.data ?? []) as PlanSummary[]}
         myPlansUnavailable={Boolean(myPlans.error)}
+        smartSearchAvailable={Boolean(process.env.OPENAI_API_KEY)}
         plannedWith={friends.rows}
         plannedWithUnavailable={friends.failed}
         friends={realFriends.rows}

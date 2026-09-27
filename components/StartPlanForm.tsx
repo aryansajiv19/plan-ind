@@ -8,6 +8,8 @@ import { DUBAI_ORIGINS } from "@/lib/dubai-areas";
 import { minimumAgeForCategory } from "@/lib/age-policy";
 import { categoryMeta } from "@/lib/categories";
 import { secureJsonFetch } from "@/lib/security/csrf-client";
+import { saveDraft } from "@/lib/plan-draft";
+import SmartSearchBox, { type SmartIntent } from "@/components/SmartSearchBox";
 import { CATEGORIES, CATEGORY_GROUPS, type Category, type GroupKey } from "@/components/categoryGroups";
 import DirectPlanSearch from "@/components/DirectPlanSearch";
 import CustomPlaceSection, { useCustomPlaces } from "@/components/CustomPlaces";
@@ -38,25 +40,17 @@ const RADII = [
 
 type CategoryKey = Category["key"];
 
-interface SmartIntent {
-  category: string;
-  title: string;
-  summary: string;
-  maxBudget: number | null;
-  origin: string;
-  radiusKm: number | null;
-  vibeKeywords: string[];
-  avoidKeywords: string[];
-  occasion: string | null;
-}
 
 export default function StartPlanForm({
   age = 21,
   demoMode = false,
   prefill = null,
+  smartSearchAvailable = false,
 }: {
   age?: number;
   demoMode?: boolean;
+  /** The server has a model key; without one the box is hidden (P7). */
+  smartSearchAvailable?: boolean;
   /** "Plan from this board": initial values only. The form remounts per board. */
   prefill?: PlanPrefill | null;
 }) {
@@ -76,9 +70,9 @@ export default function StartPlanForm({
   );
   const [titleEdited, setTitleEdited] = useState(Boolean(prefill?.title));
   const [presetIdx, setPresetIdx] = useState(0);
-  const [maxBudget, setMaxBudget] = useState<number | null>(null);
+  const [maxBudget, setMaxBudget] = useState<number | null>(prefill?.maxBudget ?? null);
   const [originValue, setOriginValue] = useState(prefill?.origin ?? "anywhere");
-  const [radiusKm, setRadiusKm] = useState<number | null>(20);
+  const [radiusKm, setRadiusKm] = useState<number | null>(prefill?.radiusKm !== undefined ? prefill.radiusKm : 20);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const custom = useCustomPlaces(category, setError);
@@ -86,10 +80,8 @@ export default function StartPlanForm({
   // the sequence has shown, and navigates once both are done.
   const [revealing, setRevealing] = useState(false);
   const revealShown = useRef<(() => void) | null>(null);
-  const [smartQuery, setSmartQuery] = useState("");
+  const [smartQuery, setSmartQuery] = useState(prefill?.smartQuery ?? "");
   const [smartIntent, setSmartIntent] = useState<SmartIntent | null>(null);
-  const [smartLoading, setSmartLoading] = useState(false);
-  const [smartError, setSmartError] = useState<string | null>(null);
 
   // Picking a type swaps in its default prompt — unless you've written your own.
   function pickCategory(cat: Category) {
@@ -98,48 +90,25 @@ export default function StartPlanForm({
     if (!titleEdited) setTitle(cat.title);
   }
 
-  async function interpretSmartSearch() {
-    const query = smartQuery.trim();
-    if (query.length < 8) {
-      setSmartError("Describe the atmosphere, occasion or kind of place you want.");
-      return;
-    }
-    setSmartLoading(true);
-    setSmartError(null);
-    try {
-      const response = await secureJsonFetch("/api/smart-search", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query }),
-      });
-      const result = await response.json() as { intent?: SmartIntent; error?: string };
-      if (!response.ok || !result.intent) throw new Error(result.error ?? "Smart search failed.");
+  function applyIntent(intent: SmartIntent) {
+    const matchedCategory = CATEGORIES.find((item) => item.key === intent.category);
+    const matchedGroup = CATEGORY_GROUPS.find((group) => group.categories.some((item) => item.key === intent.category));
+    const matchedOrigin = DUBAI_ORIGINS.find((origin) => origin.value === intent.origin);
+    if (matchedCategory && age >= minimumAgeForCategory(matchedCategory.key)) setCategory(matchedCategory.key);
+    if (matchedGroup) setActiveGroup(matchedGroup.key);
+    if (matchedOrigin) setOriginValue(matchedOrigin.value);
+    setMaxBudget(intent.maxBudget);
+    setRadiusKm(intent.origin === "anywhere" ? null : (intent.radiusKm ?? 20));
+    setTitle(intent.title);
+    setTitleEdited(true);
+    setSmartIntent(intent);
+  }
 
-      const matchedCategory = CATEGORIES.find((item) => item.key === result.intent!.category);
-      const matchedGroup = CATEGORY_GROUPS.find((group) => group.categories.some((item) => item.key === result.intent!.category));
-      const matchedOrigin = DUBAI_ORIGINS.find((origin) => origin.value === result.intent!.origin);
-      // Same age gate pickCategory() enforces for the manual buttons — without
-      // it a query that resolves to an 18+/21+ category (e.g. "nightlife")
-      // could set `category` to one no button in the age-filtered list shows
-      // as selected. The server re-validates age independently either way
-      // (no restricted plan can actually be created), but the form shouldn't
-      // silently point at a category the person can't use. Skips quietly,
-      // same as clicking a category that isn't rendered for your age.
-      if (matchedCategory && age >= minimumAgeForCategory(matchedCategory.key)) {
-        setCategory(matchedCategory.key);
-      }
-      if (matchedGroup) setActiveGroup(matchedGroup.key);
-      if (matchedOrigin) setOriginValue(matchedOrigin.value);
-      setMaxBudget(result.intent.maxBudget);
-      setRadiusKm(result.intent.origin === "anywhere" ? null : (result.intent.radiusKm ?? 20));
-      setTitle(result.intent.title);
-      setTitleEdited(true);
-      setSmartIntent(result.intent);
-    } catch (smartSearchError) {
-      setSmartError(smartSearchError instanceof Error ? smartSearchError.message : "Smart search failed.");
-    } finally {
-      setSmartLoading(false);
-    }
+  // P7: signing in keeps what the visitor has set up; /home restores it.
+  const stashDraft = () => saveDraft({ category, maxBudget, origin: originValue, radiusKm, title, smartQuery });
+  function signIn() {
+    stashDraft();
+    router.push("/login?next=/home");
   }
 
   const selectedOrigin = DUBAI_ORIGINS.find((origin) => origin.value === originValue) ?? DUBAI_ORIGINS[0];
@@ -280,38 +249,21 @@ export default function StartPlanForm({
       {modeToggle}
       {prefill && (
         <p className="plan-form__demo-note" role="status">
-          Set up from your board {prefill.boardName}, leaning the way its places do. Check the type and area, then deal nine from the catalogue.
+          {prefill.boardName
+            ? `Set up from your board ${prefill.boardName}, leaning the way its places do. Check the type and area, then deal nine from the catalogue.`
+            : "Picked up where you left off before signing in. Check it, then deal nine."}
         </p>
       )}
-      <section className="plan-smart-search" aria-labelledby="smart-search-heading">
-        <div className="plan-smart-search__heading">
-          <div><p id="smart-search-heading" className="plan-form__label">Describe the place in your head</p><small>Atmosphere, occasion, budget, area. Write it naturally.</small></div>
-        </div>
-        <textarea
-          id="smart-search-input"
-          value={smartQuery}
-          onChange={(event) => {
-            setSmartQuery(event.target.value);
-            setSmartIntent(null);
-            setSmartError(null);
-          }}
-          placeholder="A quiet terrace near Jumeirah for a date, dim lighting, around AED 250 each, somewhere we can actually talk."
-          maxLength={600}
-          aria-describedby="smart-search-help smart-search-count"
+      {smartSearchAvailable && (
+        <SmartSearchBox
+          query={smartQuery}
+          onQueryChange={(query) => { setSmartQuery(query); setSmartIntent(null); }}
+          intent={smartIntent}
+          onIntent={applyIntent}
+          demoMode={demoMode}
+          onSignIn={signIn}
         />
-        <div className="plan-smart-search__meta">
-          <small id="smart-search-help">Use a real plan, place or activity. Include an area, mood, occasion or budget if you know it.</small>
-          <small id="smart-search-count" aria-live="polite">{smartQuery.length}/600</small>
-        </div>
-        <button type="button" onClick={interpretSmartSearch} disabled={smartLoading || smartQuery.trim().length < 8}>{smartLoading ? "Understanding your plan…" : "Build my search"}</button>
-        {smartError && <p className="plan-smart-search__error" role="alert">{smartError}</p>}
-        {smartIntent && (
-          <div className="plan-smart-result" aria-live="polite">
-            <div><strong>{smartIntent.summary}</strong></div>
-            <div>{smartIntent.occasion && <span>{smartIntent.occasion}</span>}{smartIntent.vibeKeywords.map((keyword) => <span key={keyword}>{keyword}</span>)}{smartIntent.maxBudget != null && <span>≤ AED {smartIntent.maxBudget} pp</span>}</div>
-          </div>
-        )}
-      </section>
+      )}
 
       <fieldset>
         <legend className="plan-form__label">What kind of hangout?</legend>
@@ -344,7 +296,7 @@ export default function StartPlanForm({
         </div>
       </fieldset>
 
-      <CustomPlaceSection places={custom} />
+      <CustomPlaceSection places={custom} onSignIn={demoMode ? signIn : undefined} />
 
       <div className="plan-round-summary" aria-label="Plan voting format">
         <span><strong>9</strong> places</span>
@@ -425,7 +377,7 @@ export default function StartPlanForm({
 
       {demoMode && (
         <p className="plan-form__demo-note">
-          Exploring the preview? <Link href="/login">Sign in</Link> to save, share and vote on a real plan.
+          Exploring the preview? <Link href="/login?next=/home" onClick={stashDraft}>Sign in</Link> to save, share and vote on a real plan.
         </p>
       )}
 

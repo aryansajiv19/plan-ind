@@ -23,5 +23,5 @@ export default async function DemoPage({ searchParams }: { searchParams: Promise
   const { data } = await curatedWall(WALL_SIZE);
   // The landing's tabs link here (?view=been): open that tab on first paint.
   const initialView = viewFromParam((await searchParams).view);
-  return <HomeExperience name="Aryan" demoMode fixtures initialView={initialView} spots={(data ?? []) as Spot[]} />;
+  return <HomeExperience name="Aryan" demoMode fixtures initialView={initialView} spots={(data ?? []) as Spot[]} smartSearchAvailable={Boolean(process.env.OPENAI_API_KEY)} />;
 }

@@ -22,5 +22,5 @@ export default async function IndexPage() {
 
   const [wall, counts] = await Promise.all([curatedWall(WALL_SIZE), curatedCounts()]);
 
-  return <HomeExperience name="Dubai" demoMode spots={(wall.data ?? []) as Spot[]} counts={counts.data} />;
+  return <HomeExperience name="Dubai" demoMode spots={(wall.data ?? []) as Spot[]} counts={counts.data} smartSearchAvailable={Boolean(process.env.OPENAI_API_KEY)} />;
 }

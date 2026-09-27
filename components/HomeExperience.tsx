@@ -10,6 +10,7 @@ import type { PersonCard, ProfileVisit, Spot, WrappedSummary, WrappedSummaryErro
 import type { PlannedWith, VisitCollectionView, VisitPhotoView } from "@/lib/social";
 import StartPlanForm from "@/components/StartPlanForm";
 import type { PlanPrefill } from "@/lib/board-plan";
+import { takeDraft } from "@/lib/plan-draft";
 import type { CuratedCounts } from "@/lib/spots/catalogue";
 import { haptic } from "@/lib/interaction";
 import { dubaiHour } from "@/lib/dubai-phase";
@@ -45,6 +46,7 @@ export default function HomeExperience({
   visits = [],
   visitsUnavailable = false,
   myPlans = [],
+  smartSearchAvailable = false,
   myPlansUnavailable = false,
   plannedWith = [],
   plannedWithUnavailable = false,
@@ -79,6 +81,8 @@ export default function HomeExperience({
   /** Signed in: the plans this account is on (P3). */
   myPlans?: PlanSummary[];
   myPlansUnavailable?: boolean;
+  /** The server has a model key (a boolean, never the key itself). */
+  smartSearchAvailable?: boolean;
   plannedWith?: PlannedWith[];
   plannedWithUnavailable?: boolean;
   friends?: PersonCard[];
@@ -96,6 +100,15 @@ export default function HomeExperience({
   const [selectedView, setSelectedView] = useState<AppView>(initialView);
   // Set by "Plan from this board"; keyed so the composer remounts with it.
   const [planPrefill, setPlanPrefill] = useState<PlanPrefill | null>(null);
+  // P7: what a visitor set up before signing in comes back once, here.
+  useEffect(() => {
+    if (demoMode) return;
+    const frame = window.requestAnimationFrame(() => {
+      const draft = takeDraft();
+      if (draft) setPlanPrefill({ key: "draft", boardName: "", ...draft });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [demoMode]);
 
   // The account tabs need an account behind them. Signed out there is only the
   // pitch and the composer, so the tab bar, the avatar and every account view
@@ -246,7 +259,7 @@ export default function HomeExperience({
       {fixtures && (
         <p className="home-demo-banner" role="note">
           <strong>Sample data.</strong> This is a demo account. The people, visits and photos are made up, and nothing here saves.{" "}
-          <Link href="/login">Start your own plan →</Link>
+          <Link href="/login?next=/home">Start your own plan →</Link>
         </p>
       )}
 
@@ -287,7 +300,7 @@ export default function HomeExperience({
 
         <div className="home-plan-card">
           <div className="home-plan-card__tape" aria-hidden="true">New plan</div>
-          <StartPlanForm key={planPrefill?.key} age={age} demoMode={demoMode} prefill={planPrefill} />
+          <StartPlanForm key={planPrefill?.key} age={age} demoMode={demoMode} prefill={planPrefill} smartSearchAvailable={smartSearchAvailable} />
         </div>
       </section>
 
