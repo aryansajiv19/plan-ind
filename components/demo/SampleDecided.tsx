@@ -4,14 +4,28 @@ import { avatarStyle, initialsOf } from "@/lib/avatar";
 import { categoryMeta } from "@/lib/categories";
 import { votersFor, yesCount, type Round } from "@/lib/tally";
 import type { Spot, Vote } from "@/lib/types";
-import { SAMPLE_FRIENDS, SAMPLE_POOLS } from "@/components/demo/sampleDecision";
+import { SAMPLE_FRIENDS, SAMPLE_PLAN, SAMPLE_POOLS, SAMPLE_VOTER } from "@/components/demo/sampleDecision";
+import GettingThere from "@/components/vote/GettingThere";
+import { coordinatesForArea } from "@/lib/dubai-areas";
 
 const GROUP_SIZE = SAMPLE_FRIENDS.length + 1;
 const FINAL: Round = { phase: "final", poolNumber: 0 };
+const START = coordinatesForArea(SAMPLE_PLAN.originLabel);
+const SAMPLE_START = { origin_label: SAMPLE_PLAN.originLabel, origin_latitude: START?.latitude ?? null, origin_longitude: START?.longitude ?? null };
+
+// P29: what the group sorts out after the decision, shown read-only. On a
+// real plan each person sets their own; these controls would pretend to save.
+const SAMPLE_WHOS_IN = [
+  { name: SAMPLE_VOTER, rsvp: "Coming", ride: "Lift with Omar" },
+  { name: "Omar Khalid", rsvp: "Coming", ride: "Driving, 3 seats" },
+  { name: "Priya Nair", rsvp: "Coming", ride: "Needs a ride" },
+  { name: "Maya Haddad", rsvp: "Coming", ride: "Own way" },
+  { name: "Sam Carter", rsvp: "Maybe", ride: null },
+] as const;
 
 /**
- * The sample's decided screen: the real WinnerReveal, then a compact recap of
- * how the group got there. DecidedPlan itself is not reused: its RSVP,
+ * The sample's decided screen: the real WinnerReveal, a compact recap of how
+ * the group got there, then the real GettingThere and a read-only who's in. DecidedPlan itself is not reused: its RSVP,
  * carpool, booking and rating controls all write to the server, and offering
  * them here would be controls that pretend to save.
  */
@@ -79,8 +93,25 @@ export default function SampleDecided({
               <span className="shrink-0 tabular-nums">{finalVoters.length} of {GROUP_SIZE}</span>
             </li>
           </ol>
+        </div>
+
+        <GettingThere plan={SAMPLE_START} winner={winner} />
+
+        <div className="mt-4 border-t border-line pt-4">
+          <p className="text-xs font-bold uppercase tracking-wide text-muted">Who’s in and how they’re getting there · sample</p>
+          <ul className="mt-2 grid gap-2 text-sm">
+            {SAMPLE_WHOS_IN.map((person) => (
+              <li key={person.name} className="flex items-center gap-3">
+                <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-[0.65rem] font-medium" style={avatarStyle(person.name)} aria-hidden="true">
+                  {initialsOf(person.name)}
+                </span>
+                <span className="font-medium">{person.name}</span>
+                <span className="text-muted">{person.rsvp}{person.ride ? ` · ${person.ride}` : ""}</span>
+              </li>
+            ))}
+          </ul>
           <p className="mt-3 text-sm text-muted">
-            On a real plan this is where everyone RSVPs, sorts out a carpool, claims the booking and adds it to their calendar.
+            On a real plan everyone sets their own, the host claims the booking, and it goes in your calendar.
           </p>
         </div>
       </div>

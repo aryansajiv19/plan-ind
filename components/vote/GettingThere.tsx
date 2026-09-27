@@ -13,7 +13,7 @@ import VenueMap from "@/components/VenueMap";
 // created before an origin was picked has nothing honest to say about it.
 // The drive time is a labelled rush-hour estimate (lib/directions.ts).
 
-export default function GettingThere({ plan, winner }: { plan: Plan; winner: Spot }) {
+export default function GettingThere({ plan, winner }: { plan: Pick<Plan, "origin_latitude" | "origin_longitude" | "origin_label">; winner: Spot }) {
   const route =
     plan.origin_latitude != null && plan.origin_longitude != null
     && winner.latitude != null && winner.longitude != null
