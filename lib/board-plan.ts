@@ -19,7 +19,7 @@ export interface PlanPrefill {
   /** What set the form up, for the note it shows. Absent means a board, or a restored draft. */
   source?: "place" | "like" | "friend";
   /** P30: a catalogue place the vote starts with, dealt into round 1. */
-  pinned?: { id: string; name: string; area: string; photo_url: string | null; photo_attribution: string | null };
+  pinned?: { id: string; name: string; area: string; photo_url: string | null; photo_attribution: string | null; from?: "shelf" };
   /** A signed-out draft restored after sign-in (P7) also carries these. */
   maxBudget?: number | null;
   radiusKm?: number | null;

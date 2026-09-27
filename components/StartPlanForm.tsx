@@ -8,6 +8,7 @@ import DirectPlanSearch from "@/components/DirectPlanSearch";
 import DealReveal from "@/components/DealReveal";
 import ComposerDeck from "@/components/composer/ComposerDeck";
 import TuneIt from "@/components/composer/TuneIt";
+import MyPlacesShelf from "@/components/composer/MyPlacesShelf";
 import { SAMPLE_POOLS } from "@/components/demo/sampleDecision";
 import { useComposer } from "@/hooks/use-composer";
 import type { PlanPrefill } from "@/lib/board-plan";
@@ -17,11 +18,14 @@ export default function StartPlanForm({
   demoMode = false,
   prefill = null,
   smartSearchAvailable = false,
+  sampleShelf = false,
 }: {
   age?: number;
   demoMode?: boolean;
   /** The server has a model key; without one the box is hidden (P7). */
   smartSearchAvailable?: boolean;
+  /** /demo: My places shows labelled sample places (the landing shows none). */
+  sampleShelf?: boolean;
   /** "Plan from this board": initial values only. The form remounts per board. */
   prefill?: PlanPrefill | null;
 }) {
@@ -98,7 +102,13 @@ export default function StartPlanForm({
       )}
       {/* P25: reward before effort. The places, then the deal; every setting
           past that has a valid default and folds away under "Tune it". */}
-      <ComposerDeck composer={composer} age={age} demoMode={demoMode} />
+      <ComposerDeck
+        composer={composer}
+        age={age}
+        demoMode={demoMode}
+        // Signed out there is no one's shelf to show, except /demo's labelled samples.
+        shelf={(!demoMode || sampleShelf) && <MyPlacesShelf composer={composer} age={age} sample={demoMode} />}
+      />
 
       <TuneIt
         composer={composer}
