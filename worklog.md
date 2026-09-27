@@ -323,3 +323,20 @@ are live.
 - **P7:** signed-out composer controls say "Sign in to …" before any work;
   the draft survives sign-in (sessionStorage → prefill on /home); smart search
   hidden when the server has no model key, key checked before the quota.
+- **P9:** vote cards and the winner link to place details; Back returns to
+  the plan (explicit `from`, server-rendered); signed-out visitors get "Plan a
+  night here".
+
+## 2026-09-27 — Lead: venue research; the live catalogue lists closed places
+
+Research workflow (8 batches + metro list, a fact-checker per batch, merge
+with nearest-station math) wrote `data/venue-facts.json`: all 82 curated
+venues, 66 metro/tram stations; 78 addresses, 65 coordinates, ~21–25 venues
+each with a sourced licence/dress/parking/reservation fact, 27 within a
+15-min walk of a station. Sources are venue sites, Visit Dubai, Time Out,
+What's On; never Google content; unknowns null. **Found: 4 permanently closed
+venues still dealt live** (SKY2.0, Terra Solis, Anantara World Islands, O
+Beach), 4 temporarily closed (Museum of the Future, Twiggy, Dubai Safari
+Park, Hatta Dome Park), 2 moved (Cove Beach → JBR, Iris → Dubai Harbour).
+Migration 070 "catalogue truth" briefed to the platform lane; the facts UI
+(P16–P20) to the frontend lane. The owner should spot-check a sample.
