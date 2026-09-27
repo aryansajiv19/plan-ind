@@ -340,3 +340,6 @@ Beach), 4 temporarily closed (Museum of the Future, Twiggy, Dubai Safari
 Park, Hatta Dome Park), 2 moved (Cove Beach → JBR, Iris → Dubai Harbour).
 Migration 070 "catalogue truth" briefed to the platform lane; the facts UI
 (P16–P20) to the frontend lane. The owner should spot-check a sample.
+- **P12:** direct-plan form has no dead budget/radius controls; submit recovers
+  from network errors; search matches name/area/cuisine on a sanitised query,
+  with a real error state and 12 curated tiles before typing.
