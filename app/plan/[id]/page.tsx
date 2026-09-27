@@ -80,7 +80,7 @@ export default function VotePage() {
   });
   const { presentNames, presenceChannelRef } = usePlanPresence({ id, access, voterName, left });
   const { visitSaved, patchPlan, setRsvp, setCarpool, rateWinner, booking } = useLastMile({
-    id, plan, setPlan, isHost: host.isHost, runHostCommand: host.runHostCommand, voterName, participantHash, isMine: mine, myRows, refetchMine, winnerId,
+    id, plan, setPlan, isHost: host.isHost, runHostCommand: host.runHostCommand, voterName, participantHash, isMine: mine, myRows, refetchMine, refetchPlan, winnerId,
     rsvps, setRsvps, ratings, setRatings, refetchRsvps, refetchRatings, setNotice, reportParticipantFailure,
   });
 

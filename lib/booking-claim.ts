@@ -8,6 +8,8 @@ export type BookingOutcome = {
   patch: Partial<Pick<Plan, "booking_owner" | "booked">> | null;
   /** Why nothing changed, in words; null when it did what was asked. */
   note: { text: string; profileLink?: true } | null;
+  /** The screen's plan is stale (reopened, deleted, or left elsewhere): re-read it. */
+  resync?: true;
 };
 
 const FAILED: Record<BookingAction, string> = {
@@ -48,13 +50,13 @@ export function bookingOutcome(action: BookingAction, data: unknown): BookingOut
     case "not_holder":
       return say("Only whoever’s booking it, or the host, can mark it booked.");
     case "not_decided":
-      return say("Nothing to book until the group picks a place.");
+      return { ...say("Nothing to book until the group picks a place."), resync: true };
     case "no_profile":
       return say("Add your name first, so the group knows who’s booking.", true);
     case "not_member":
-      return { patch: null, note: { text: "You’re not in this plan any more." } };
+      return { patch: null, note: { text: "You’re not in this plan any more." }, resync: true };
     case "not_found":
-      return { patch: null, note: { text: "This plan doesn’t exist any more." } };
+      return { patch: null, note: { text: "This plan doesn’t exist any more." }, resync: true };
     default:
       return { patch: null, note: { text: FAILED[action] } };
   }

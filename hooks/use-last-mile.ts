@@ -32,6 +32,7 @@ export function useLastMile({
   isMine,
   myRows,
   refetchMine,
+  refetchPlan,
   winnerId,
   rsvps,
   setRsvps,
@@ -52,6 +53,7 @@ export function useLastMile({
   isMine: Mine;
   myRows: MyRows | null;
   refetchMine: () => Promise<void>;
+  refetchPlan: () => Promise<boolean>;
   winnerId: string | null;
   rsvps: Rsvp[];
   setRsvps: Dispatch<SetStateAction<Rsvp[]>>;
@@ -63,7 +65,7 @@ export function useLastMile({
   reportParticipantFailure: (error: { code?: string; message?: string } | null, fallback: string) => void;
 }) {
   const [visitSaved, setVisitSaved] = useState<"saved" | "failed" | null>(null);
-  const booking = useBookingClaim({ id, plan, setPlan, voterName, myRows, refetchMine });
+  const booking = useBookingClaim({ id, plan, setPlan, myRows, refetchMine, refetchPlan });
 
   // ── The last mile: set time, RSVP, claim/mark booking ────────────
   async function patchPlan(fields: Partial<Plan>) {

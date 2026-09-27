@@ -7,7 +7,7 @@ import type { MyRows } from "@/lib/my-rows";
 import type { Plan } from "@/lib/types";
 
 export type BookingClaim = {
-  /** The claim is this account's: by account (075), by name before my_plan_rows has it. */
+  /** The claim is this account's (075, my_plan_rows); false until that has answered. */
   mine: boolean;
   busy: boolean;
   /** Why the last tap changed nothing, while the booking still stands as it answered. */
@@ -24,13 +24,13 @@ export type BookingClaim = {
  * holder or the host marks it booked. The server settles races (two taps at once get one "claimed", one "taken"); its answer
  * shows at once, and Realtime brings everyone else's screen along.
  */
-export function useBookingClaim({ id, plan, setPlan, voterName, myRows, refetchMine }: {
+export function useBookingClaim({ id, plan, setPlan, myRows, refetchMine, refetchPlan }: {
   id: string;
   plan: Plan | null;
   setPlan: Dispatch<SetStateAction<Plan | null>>;
-  voterName: string | null;
   myRows: MyRows | null;
   refetchMine: () => Promise<void>;
+  refetchPlan: () => Promise<boolean>;
 }): BookingClaim {
   const owner = plan?.booking_owner ?? null;
   const [busy, setBusy] = useState(false);
@@ -56,11 +56,15 @@ export function useBookingClaim({ id, plan, setPlan, voterName, myRows, refetchM
     if (patch) setPlan((current) => current && { ...current, ...patch });
     setAnswer({ note: outcome.note, owner: patch && "booking_owner" in patch ? patch.booking_owner ?? null : owner });
     setBusy(false);
+    // A screen that missed a reopen (or a delete) must not keep the old winner.
+    if (outcome.resync) void refetchPlan();
     void refetchMine();
   }
 
   return {
-    mine: myRows ? myRows.myBooking : owner != null && owner === voterName,
+    // By account only: names repeat on a plan, so until my_plan_rows has
+    // answered nobody is shown the holder's controls (review F3).
+    mine: myRows?.myBooking ?? false,
     busy,
     note: answer && answer.owner === owner ? answer.note : null,
     claim: () => void run("claim"),

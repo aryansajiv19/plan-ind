@@ -42,3 +42,8 @@ test("a missing or unknown result is a failure, never a silent success", () => {
   }
   assert.match(bookingOutcome("mark", null).note!.text, /Couldn’t mark it booked/);
 });
+
+test("a stale screen is told to re-read the plan; a normal answer is not", () => {
+  for (const result of ["not_decided", "not_member", "not_found"]) assert.equal(bookingOutcome("claim", { result, booking_owner: null, booked: false }).resync, true, result);
+  for (const result of ["claimed", "taken", "booked", "no_profile"]) assert.equal(bookingOutcome("claim", { result, booking_owner: "Sara", booked: false }).resync, undefined, result);
+});
