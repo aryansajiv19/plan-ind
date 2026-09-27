@@ -87,6 +87,14 @@
   color: var(--color-ink);
   text-wrap: balance;
 }
+.wall-tile__code {
+  margin-bottom: auto;
+  color: var(--color-punch-text);
+  font-size: max(0.66rem, var(--type-floor));
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
 .wall-tile--typographic .wall-tile__meta {
   color: var(--color-muted);
 }

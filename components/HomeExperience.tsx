@@ -10,34 +10,26 @@ import type { PersonCard, ProfileVisit, Spot, WrappedSummary, WrappedSummaryErro
 import type { PlannedWith, VisitCollectionView, VisitPhotoView } from "@/lib/social";
 import StartPlanForm from "@/components/StartPlanForm";
 import type { PlanPrefill } from "@/lib/board-plan";
+import type { CuratedCounts } from "@/lib/spots/catalogue";
 import { haptic } from "@/lib/interaction";
-import WeightRise from "@/components/WeightRise";
+import { dubaiHour } from "@/lib/dubai-phase";
 import PhotoWall, { type WallItem } from "@/components/PhotoWall";
-import CardStackExample from "@/components/kokonutui/card-stack";
+import HomeHero from "@/components/home/HomeHero";
+import LandingNav from "@/components/landing/LandingNav";
+import HowItWorks from "@/components/landing/HowItWorks";
+import { APP_VIEWS, VIEW_LABELS, WALL_SIZE, viewFromParam, type AppView } from "@/lib/home-views";
 import ActionSearchBar from "@/components/kokonutui/action-search-bar";
 
-const APP_VIEWS = ["plan", "discover", "been", "friends", "profile"] as const;
-type AppView = (typeof APP_VIEWS)[number];
 
-const VIEW_LABELS: Record<AppView, string> = {
-  plan: "Plan",
-  discover: "Discover",
-  been: "Been",
-  friends: "Friends",
-  profile: "Profile",
-};
-
+// On the Dubai clock, like everything else here (the landing's clock chip).
 function greetingFor(now: Date): string {
-  const hour = now.getHours();
+  const hour = dubaiHour(now);
   if (hour < 5) return "Still up";
   if (hour < 12) return "Good morning";
   if (hour < 17) return "Good afternoon";
   return "Good evening";
 }
 
-function viewFromParam(value: string | null | undefined): AppView {
-  return APP_VIEWS.includes(value as AppView) ? (value as AppView) : "plan";
-}
 
 export default function HomeExperience({
   name,
@@ -48,6 +40,7 @@ export default function HomeExperience({
   initialView = "plan",
   personId = null,
   spots = [],
+  counts = null,
   visits = [],
   visitsUnavailable = false,
   plannedWith = [],
@@ -75,6 +68,8 @@ export default function HomeExperience({
   initialView?: AppView;
   personId?: string | null;
   spots?: Spot[];
+  /** Landing only: real curated counts, or null (then no counts line). */
+  counts?: CuratedCounts | null;
   visits?: ProfileVisit[];
   /** The read FAILED — not "there are none". See lib/social's ListRead. */
   visitsUnavailable?: boolean;
@@ -107,7 +102,7 @@ export default function HomeExperience({
   // typographic tile rather than a placeholder image.
   const wallItems: WallItem[] = useMemo(
     () =>
-      spots.slice(0, 12).map((spot) => ({
+      spots.slice(0, WALL_SIZE).map((spot) => ({
         id: spot.id,
         kind: "photo" as const,
         spot,
@@ -193,94 +188,51 @@ export default function HomeExperience({
     if (nextIndex >= 0 && nextIndex < APP_VIEWS.length) showView(APP_VIEWS[nextIndex]);
   }
 
-  // SPECS.md §14.3: scroll-based depth drift on the front-door hero.
-  // For anyone not hovering with a mouse, i.e. most real usage. A single
-  // scroll-position custom property, not a JS animation loop: this effect
-  // only computes the number and writes it via setProperty; the actual
-  // motion is plain CSS (.home-hero__copy / .home-stage in globals.css).
-  const heroRef = useRef<HTMLElement>(null);
-  useEffect(() => {
-    if (!demoMode) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const hero = heroRef.current;
-    if (!hero) return;
-    let ticking = false;
-    function applyHeroScroll() {
-      const rect = hero!.getBoundingClientRect();
-      // 0 while the hero's top hasn't scrolled past the viewport top, then
-      // ramps up as it does, capped at the hero's own height — a small
-      // range scoped to depth within the hero, not full-page parallax.
-      const clamped = Math.min(Math.max(0, -rect.top), rect.height);
-      hero!.style.setProperty("--hero-scroll", `${clamped}px`);
-    }
-    function onScroll() {
-      if (ticking) return;
-      ticking = true;
-      window.requestAnimationFrame(() => {
-        applyHeroScroll();
-        ticking = false;
-      });
-    }
-    applyHeroScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [demoMode]);
 
   return (
     <main onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} className={`home-experience ${ready ? "home-experience--ready" : ""}`}>
       <div className="home-grid-field" aria-hidden="true" />
 
+      {accountTabs ? (
       <header className="home-nav">
         <a href="#top" className="home-logo" aria-label="Deal three home">
           <span>D/</span>
           <span className="home-logo__three">03</span>
         </a>
 
-        {accountTabs && (
-          <nav className="home-app-tabs" aria-label="Main app navigation">
-            {APP_VIEWS.map((view) => (
-              <button
-                key={view}
-                type="button"
-                onClick={() => showView(view)}
-                aria-current={activeView === view ? "page" : undefined}
-                className="home-app-tab"
-              >
-                {VIEW_LABELS[view]}
-              </button>
-            ))}
-          </nav>
-        )}
+        <nav className="home-app-tabs" aria-label="Main app navigation">
+          {APP_VIEWS.map((view) => (
+            <button
+              key={view}
+              type="button"
+              onClick={() => showView(view)}
+              aria-current={activeView === view ? "page" : undefined}
+              className="home-app-tab"
+            >
+              {VIEW_LABELS[view]}
+            </button>
+          ))}
+        </nav>
 
         <div className="home-nav__right">
-          {accountTabs && (
-            <div className="home-nav__search" style={{ maxWidth: "18rem" }}>
-              <ActionSearchBar age={age} onQuickAction={showView} />
-            </div>
-          )}
-          {accountTabs && (
-            <button type="button" className="home-nav__link" onClick={() => showView("plan")}>Make a plan</button>
-          )}
-          {/* PARKED 2026-09-04 (owner: "no dark mode, or at least hold
-              dark back now, we'll see later"). Machinery intact and
-              correct; only the path that selects it is disabled. To
-              restore: re-enable the ground selection in app/layout.tsx
-              and bring this toggle back. See SPECS.md §19.2. */}
-          {accountTabs ? (
-            <button
-              type="button"
-              className="home-avatar"
-              aria-label="Open profile"
-              title="Profile"
-              onClick={() => showView("profile")}
-            >
-              {name.slice(0, 1).toUpperCase()}
-            </button>
-          ) : (
-            <Link href="/login" className="home-nav__signin">Sign in</Link>
-          )}
+          <div className="home-nav__search" style={{ maxWidth: "18rem" }}>
+            <ActionSearchBar age={age} onQuickAction={showView} />
+          </div>
+          <button type="button" className="home-nav__link" onClick={() => showView("plan")}>Make a plan</button>
+          <button
+            type="button"
+            className="home-avatar"
+            aria-label="Open profile"
+            title="Profile"
+            onClick={() => showView("profile")}
+          >
+            {name.slice(0, 1).toUpperCase()}
+          </button>
         </div>
       </header>
+      ) : (
+        <LandingNav />
+      )}
 
       {/* Every screen in the demo is invented people and history, so the label
           rides above the tabs on all of them and cannot be dismissed. House
@@ -299,56 +251,14 @@ export default function HomeExperience({
           scrolling past a marketing headline to reach your own tool is a
           website habit, and on a phone it costs the whole first screen. */}
       {demoMode ? (
-      <section id="top" ref={heroRef} className="home-hero" aria-labelledby="home-title">
-        <div className="home-hero__copy">
-          <p className="home-hello home-reveal" style={{ "--delay": "80ms" } as React.CSSProperties}>
-            {greeting}, {name}.
-          </p>
-
-          <h1 id="home-title" className="home-title" aria-label="Dubai plans without the group chat.">
-            <span className="home-title__line home-title__line--one">
-              Dubai plans,
-            </span>
-            <span className="home-title__line home-title__line--two">
-              without the
-            </span>
-            <span className="home-title__line home-title__line--three">
-              {/* Only the last line rises: the weight change is the emphasis,
-                  so spending it on every line would spend it on nothing. */}
-              <strong><WeightRise delay={0.51}>group chat.</WeightRise></strong>
-            </span>
-          </h1>
-
-          <p className="home-deck home-reveal" style={{ "--delay": "680ms" } as React.CSSProperties}>
-            Dinner in DIFC or padel in Al Quoz. Set a budget, and the group picks from nine places in three quick rounds.
-          </p>
-
-          <div className="home-actions home-reveal" style={{ "--delay": "780ms" } as React.CSSProperties}>
-            <a href="#plan-lab" className="home-primary-cta">
-              Open a decision
-            </a>
-            {/* The product without an email: /demo/vote plays a whole sample
-                decision from fixtures. Sign in already sits in the nav. */}
-            <Link href="/demo/vote" className="home-secondary-cta">
-              See a sample vote
-            </Link>
-          </div>
-        </div>
-
-        <div className="home-stage home-reveal" style={{ "--delay": "420ms" } as React.CSSProperties} aria-hidden="true">
-          {/* SPECS.md §5: the deck, nine places across three rounds — the
-              product's real mechanic, replacing the illustrative "Tonight
-              in Dubai" panel entirely. Illustrative content (not a signed-in
-              account's real data): see card-stack.tsx's own note. */}
-          <CardStackExample spots={spots} />
-        </div>
-      </section>
+      <HomeHero greeting={greeting} name={name} fixtures={fixtures} spots={spots} />
       ) : (
         <section id="top" className="home-appbar" aria-labelledby="home-title">
           <p className="home-appbar__hello">{greeting}, {name}.</p>
           <h1 id="home-title" className="home-appbar__title">What are we doing?</h1>
         </section>
       )}
+      {demoMode && <HowItWorks />}
 
       {/* Signed in, "What are we doing?" above is already the page's headline;
           a second big heading beside the form said the same thing again. */}
@@ -356,15 +266,17 @@ export default function HomeExperience({
         <div className="home-plan-section__intro">
           <p className="home-section-kicker">Create a plan</p>
           {demoMode && <h2>What does the group feel like doing?</h2>}
-          <p className="home-plan-steps__lede">Choose the category, budget and travel radius. We’ll deal nine relevant places across three quick rounds.</p>
-          {/* Desktop: the same sentence as the mechanic it describes, so a
-              first-time visitor sees what the form produces before filling
-              it in — and the column beside a long form isn't empty. */}
-          <ol className="home-plan-steps">
-            <li><strong>9 places</strong><span>Dealt to fit the category, budget and travel radius you choose.</span></li>
-            <li><strong>3 quick rounds</strong><span>Everyone picks one place from each.</span></li>
-            <li><strong>1 decision</strong><span>The group’s pick, with who’s coming and how they’re getting there.</span></li>
-          </ol>
+          <p className={`home-plan-steps__lede${demoMode ? " home-plan-steps__lede--pitch" : ""}`}>Choose the category, budget and travel radius. We’ll deal nine relevant places across three quick rounds.</p>
+          {/* Signed in, desktop: the mechanic beside the form, so the column
+              next to a long form isn't empty. The pitch pages have How it
+              works above instead, and show the one-line lede here. */}
+          {!demoMode && (
+            <ol className="home-plan-steps">
+              <li><strong>9 places</strong><span>Dealt to fit the category, budget and travel radius you choose.</span></li>
+              <li><strong>3 quick rounds</strong><span>Everyone picks one place from each.</span></li>
+              <li><strong>1 decision</strong><span>The group’s pick, with who’s coming and how they’re getting there.</span></li>
+            </ol>
+          )}
         </div>
 
         <div className="home-plan-card">
@@ -381,6 +293,11 @@ export default function HomeExperience({
         <div className="home-plan-section__intro">
           <p className="home-section-kicker">Dubai, right now</p>
           <h2 id="right-now-title">Somewhere to put on the list</h2>
+          {counts && (
+            <p className="home-wall-counts">
+              {counts.places} curated places{counts.categories ? ` across ${counts.categories} categories` : ""}, all in Dubai.
+            </p>
+          )}
         </div>
         <PhotoWall
           items={wallItems}
@@ -432,8 +349,13 @@ export default function HomeExperience({
       )}
 
       <footer className="home-footer">
-        <span>Deal three © 2026 · Dubai</span>
-        <a href="#top">Back to top</a>
+        <span>Deal three · Made by Aryan Sajiv in Dubai</span>
+        <nav className="home-footer__links" aria-label="About Deal three">
+          <a href="https://github.com/aryansajiv19/plan-ind" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <Link href="/privacy">Privacy</Link>
+          <Link href="/terms">Terms</Link>
+          <a href="#top">Back to top</a>
+        </nav>
       </footer>
     </main>
   );

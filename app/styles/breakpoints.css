@@ -16,6 +16,19 @@
 .home-footer a {
   color: var(--color-grape);
 }
+.home-footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.25rem;
+}
+/* Short words ("Terms") still get a full 44px target. */
+.home-footer__links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+}
 
 @media (max-width: 850px) {
   .home-hero {

@@ -88,6 +88,21 @@ const readWall = cached("curated-wall", async (size: number): Promise<WallSpotRo
   return data as WallSpotRow[];
 });
 
+// ── Landing counts line ──────────────────────────────────────────────────
+// The place count is PostgREST's exact count. The category count is only
+// claimed when every row came back: a capped read would undercount it.
+export interface CuratedCounts { places: number; categories: number | null }
+
+const readCounts = cached("curated-counts", async (): Promise<CuratedCounts> => {
+  const { data, error, count } = await anon()
+    .from("spots")
+    .select("category", { count: "exact" })
+    .eq("source", "curated")
+    .range(0, 999);
+  if (error || !count || !data) throw new CatalogueReadError("counts", error);
+  return { places: count, categories: data.length === count ? new Set(data.map((row) => row.category)).size : null };
+});
+
 // ── /home Discover: the curated half ─────────────────────────────────────
 
 /** Columns the Discover grid reads (see app/home/page.tsx). */
@@ -148,6 +163,11 @@ async function settle<T>(which: string, read: () => Promise<T>): Promise<{ data:
 /** The front-door wall: `size` curated rows, photos first, by name. */
 export function curatedWall(size: number) {
   return settle("wall", () => readWall(size));
+}
+
+/** How many curated places and categories there are, for the landing. */
+export function curatedCounts() {
+  return settle("counts", () => readCounts());
 }
 
 /** Curated top-`limit` by name, for merging with the user's own rows. */
