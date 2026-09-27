@@ -21,7 +21,10 @@ export const SAMPLE_VOTER = "You";
 
 export const SAMPLE_FRIENDS = ["Maya Haddad", "Omar Khalid", "Priya Nair", "Sam Carter"] as const;
 
-type SpotSeed = Pick<Spot, "id" | "name" | "area" | "cuisine" | "price_band" | "min_spend" | "open_till" | "vibe" | "booking_url">;
+type SpotSeed = Pick<Spot, "id" | "name" | "area" | "cuisine" | "price_band" | "min_spend" | "open_till" | "vibe" | "booking_url">
+  // P29: where the catalogue knows it (data/venue-facts.json), so the sample
+  // winner's directions are real. Unknown stays null, never invented.
+  & Partial<Pick<Spot, "address" | "latitude" | "longitude">>;
 
 function dinner(seed: SpotSeed): Spot {
   return {
@@ -34,21 +37,21 @@ function dinner(seed: SpotSeed): Spot {
     description: null,
     source: "curated",
     visibility: "community",
-    address: null,
-    latitude: null,
-    longitude: null,
+    address: seed.address ?? null,
+    latitude: seed.latitude ?? null,
+    longitude: seed.longitude ?? null,
   };
 }
 
 /** Nine spots, dealt three per round, in deal order. */
 export const SAMPLE_POOLS: readonly (readonly Spot[])[] = [
   [
-    dinner({ id: "sample-reif", name: "Reif Japanese Kushiyaki", area: "Dubai Hills", cuisine: "Japanese", price_band: "$$$", min_spend: 250, open_till: "12am", vibe: "Smoky skewers, tight room, always buzzing", booking_url: "https://www.reifother.com" }),
-    dinner({ id: "sample-ravi", name: "Ravi Restaurant", area: "Al Satwa", cuisine: "Pakistani", price_band: "$", min_spend: 45, open_till: "3am", vibe: "Legendary cheap eats, plastic chairs, no bookings", booking_url: null }),
-    dinner({ id: "sample-3fils", name: "3Fils", area: "Jumeirah", cuisine: "Seafood", price_band: "$$", min_spend: 180, open_till: "11pm", vibe: "Marina side, no reservations, quietly excellent", booking_url: null }),
+    dinner({ id: "sample-reif", name: "Reif Japanese Kushiyaki", area: "Dubai Hills", cuisine: "Japanese", price_band: "$$$", min_spend: 250, open_till: "12am", vibe: "Smoky skewers, tight room, always buzzing", booking_url: "https://www.reifother.com", address: "Dubai Hills Business Park, Building 3, Dubai" }),
+    dinner({ id: "sample-ravi", name: "Ravi Restaurant", area: "Al Satwa", cuisine: "Pakistani", price_band: "$", min_spend: 45, open_till: "3am", vibe: "Legendary cheap eats, plastic chairs, no bookings", booking_url: null, address: "Shop 245, Al Dhiyafa Road, opposite Union Co-operative Society, Al Satwa, Dubai", latitude: 25.2336615, longitude: 55.2790297 }),
+    dinner({ id: "sample-3fils", name: "3Fils", area: "Jumeirah", cuisine: "Seafood", price_band: "$$", min_spend: 180, open_till: "11pm", vibe: "Marina side, no reservations, quietly excellent", booking_url: null, address: "Shop 02, Jumeirah Fishing Harbour 1, Al Urouba Street, Jumeirah 1, Dubai", latitude: 25.2103004, longitude: 55.2433123 }),
   ],
   [
-    dinner({ id: "sample-buqtair", name: "Bu Qtair", area: "Umm Suqeim", cuisine: "Seafood", price_band: "$", min_spend: 60, open_till: "11:30pm", vibe: "Fry shack by the beach, catch of the day", booking_url: null }),
+    dinner({ id: "sample-buqtair", name: "Bu Qtair", area: "Umm Suqeim", cuisine: "Seafood", price_band: "$", min_spend: 60, open_till: "11:30pm", vibe: "Fry shack by the beach, catch of the day", booking_url: null, address: "Old 32B Street, Fishing Harbour 2, Dubai", latitude: 25.1515093, longitude: 55.1971669 }),
     dinner({ id: "sample-orfali", name: "Orfali Bros Bistro", area: "Jumeirah", cuisine: "Middle Eastern", price_band: "$$", min_spend: 160, open_till: "11pm", vibe: "Three brothers, inventive small plates, worth the queue", booking_url: null }),
     dinner({ id: "sample-baitmaryam", name: "Bait Maryam", area: "JLT", cuisine: "Levantine", price_band: "$$", min_spend: 110, open_till: "11pm", vibe: "Home style Levantine, like dinner at an aunt's", booking_url: null }),
   ],
