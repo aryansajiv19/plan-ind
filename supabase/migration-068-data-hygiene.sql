@@ -68,6 +68,9 @@ create index if not exists place_collection_items_import_id_idx
   on place_collection_items (import_id) where import_id is not null;
 
 -- ── C1 + F1: a per-account cap on visit-photo files ───────────────────────
+-- Every visit-photos file must sit in its owner's folder (<uid>/...), on
+-- insert and on move (confirmation pass follow-up).
+--
 -- Nothing bounded how much one account could put in visit-photos. Per
 -- account: 200 files AND 500 MB, far above real use, counted over every file
 -- the account owns -- orphans with no visit_photos row included, so they
@@ -101,8 +104,14 @@ declare
   files bigint;
   bytes bigint;
 begin
-  if new.bucket_id is distinct from 'visit-photos' or new.owner_id is null then
+  if new.bucket_id is distinct from 'visit-photos' then
     return new;
+  end if;
+  -- A visit photo lives in its owner's own folder, on insert and on every
+  -- move: "manage own visit photo files" (UPDATE) has no folder check, and a
+  -- policy can't be changed without owning the table on hosted projects.
+  if new.owner_id is null or (storage.foldername(new.name))[1] is distinct from new.owner_id then
+    raise exception 'Visit photos belong in your own folder' using errcode = '42501';
   end if;
   perform pg_advisory_xact_lock(hashtext('visit-photos/' || new.owner_id));
   select count(*), coalesce(sum((o.metadata->>'size')::bigint), 0) into files, bytes

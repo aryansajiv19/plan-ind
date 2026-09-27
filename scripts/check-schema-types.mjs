@@ -23,7 +23,7 @@ const NOISE = new Set(["id", "created_at", "updated_at"]);
 // security-definer RPCs, with RLS on and no select policy (see migration 020).
 // lib/types.ts deliberately has no interface for these.
 const SERVER_ONLY = new Set([
-  "plan_host_tokens", "member_ages", "plan_access",
+  "plan_host_tokens", "member_ages", "plan_access", "plan_booking_owners",
   "app_control_secrets", "app_rate_limits", "security_events", "friend_invites",
 ]);
 

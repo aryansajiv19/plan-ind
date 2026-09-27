@@ -167,3 +167,25 @@ describe("068 visit-photo upload cap (C1, F1)", { skip: SKIP }, () => {
     assert.equal(await psql(`select count(*) from storage.objects where bucket_id='visit-photos' and owner_id='${uid}'`), "200");
   });
 });
+
+describe("068 visit photos stay in their owner's folder", { skip: SKIP }, () => {
+  test("a move into another user's folder is refused; an own-folder rename is fine", async () => {
+    const [a, b] = [await member(), await member()];
+    const id = await psql(`insert into storage.objects (bucket_id, name, owner_id, metadata)
+      values ('visit-photos', '${a}/v/1.jpg', '${a}', '{"size": 1}') returning id`);
+    await as(a, `update storage.objects set name = '${a}/v/renamed.jpg' where id = '${id}'`);
+    await assert.rejects(
+      as(a, `update storage.objects set name = '${b}/v/1.jpg' where id = '${id}'`),
+      /Visit photos belong in your own folder/,
+    );
+    assert.equal(await psql(`select name from storage.objects where id = '${id}'`), `${a}/v/renamed.jpg`);
+  });
+
+  test("a file with no owner is refused, even on the superuser write", async () => {
+    const a = await member();
+    await assert.rejects(
+      psql(`insert into storage.objects (bucket_id, name, owner_id) values ('visit-photos', '${a}/v/x.jpg', null)`),
+      /Visit photos belong in your own folder/,
+    );
+  });
+});
