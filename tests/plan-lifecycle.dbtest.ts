@@ -324,16 +324,22 @@ describe("069 security review: visits, unrate, booking backfill", { skip: SKIP }
     assert.equal(await psql(`delete from visits where person_id = '${stranger}' returning 1`), "");
   });
 
-  test("unrate spares a visit with a note, and removes nothing without a rating", async () => {
-    const [noted, unrated] = [await user(), await user()];
-    const d = await decidedWith([noted, unrated]);
+  test("unrate spares a visit with a note, companions or a collection, and removes nothing without a rating", async () => {
+    const [noted, withFriend, collected, unrated] = [await user(), await user(), await user(), await user()];
+    const d = await decidedWith([noted, withFriend, collected, unrated]);
     await psql(`update plans set event_time = now() - interval '1 hour' where id = '${d.p.id}'`);
-    await psql(`insert into visits (person_id, spot_id, plan_id, note) values ('${noted}', '${d.winner}', '${d.p.id}', 'great night');
-      insert into visits (person_id, spot_id, plan_id) values ('${unrated}', '${d.winner}', '${d.p.id}')`);
-    await as(noted, `select rate_plan('${d.p.id}','${d.winner}','x',5,true,'${hash()}')`);
-    assert.equal(JSON.parse(await as(noted, `select unrate_plan('${d.p.id}')`)).visit_removed, false);
+    const visit = (u: string) => psql(`insert into visits (person_id, spot_id, plan_id) values ('${u}', '${d.winner}', '${d.p.id}') returning id`);
+    await psql(`update visits set note = 'great night' where id = '${await visit(noted)}'`);
+    await psql(`insert into visit_companions (visit_id, companion_name) values ('${await visit(withFriend)}', 'Sam')`);
+    const faves = await psql(`insert into visit_collections (person_id, name) values ('${collected}', 'Faves') returning id`);
+    await psql(`insert into visit_collection_items (collection_id, visit_id) values ('${faves}', '${await visit(collected)}')`);
+    await visit(unrated);
+    for (const u of [noted, withFriend, collected]) {
+      await as(u, `select rate_plan('${d.p.id}','${d.winner}','x',5,true,'${hash()}')`);
+      assert.equal(JSON.parse(await as(u, `select unrate_plan('${d.p.id}')`)).visit_removed, false);
+    }
     assert.equal(JSON.parse(await as(unrated, `select unrate_plan('${d.p.id}')`)).visit_removed, false);
-    assert.equal(await psql(`select count(*) from visits where plan_id = '${d.p.id}'`), "2");
+    assert.equal(await psql(`select count(*) from visits where plan_id = '${d.p.id}'`), "4");
   });
 
   test("applying 069 backfills the booking claims hosts already made", async () => {
@@ -397,5 +403,62 @@ describe("069 a late link-holder can't lock the host out", { skip: SKIP }, () =>
       "-c", `select (decided_at = (select max(created_at) from votes where plan_id = '${p.id}'))::text from plans where id = '${p.id}'`,
       "-c", "rollback"], { timeout: 60000 });
     assert.equal(stdout.trim().split("\n").filter(Boolean).pop(), "true");
+  });
+});
+
+// ── reopen (067 host rule, 069 happened/decided_at) ─────────────────────────
+describe("069 the host reopens a decided plan into the final round", { skip: SKIP }, () => {
+  /** Two finalists, the first wins; the outing is past so members can rate. */
+  const decide = (p: Plan) => psql(`
+    update plan_spots set advanced = true where plan_id = '${p.id}' and spot_id in ('${p.spots[0]}','${p.spots[1]}');
+    update plans set status = 'decided', stage = 'decided', winner_spot_id = '${p.spots[0]}',
+      event_time = now() - interval '1 hour' where id = '${p.id}'`);
+  const reopen = async (uid: string, p: Plan, deadline = "null") =>
+    JSON.parse(await as(uid, `select reopen_plan('${p.id}', '${p.token}', ${deadline})`)).result;
+  const rate = async (uid: string, p: Plan) => {
+    await psql(`insert into people (id, display_name, auth_user_id) values ('${uid}', 'R', '${uid}')`);
+    await as(uid, `select rate_plan('${p.id}','${p.spots[0]}','x',4,true,'${hash()}')`);
+  };
+
+  test("it clears the winner and decided_at, and drops the vote of someone who has left", async () => {
+    const [host, stays, left] = [await user(), await user(), await user()];
+    const p = await plan(host, "now() + interval '1 day'", [stays, left]);
+    for (const u of [stays, left]) await as(u, `select cast_plan_vote('${p.id}','${p.spots[0]}','V',true,'pool',1::smallint,'${hash()}')`);
+    await decide(p);
+    await psql(`delete from plan_access where plan_id = '${p.id}' and user_id = '${left}'`);
+    assert.equal(await reopen(host, p), "reopened");
+    assert.equal(await psql(`select concat_ws('/', status, stage, winner_spot_id, decided_at, deadline) from plans where id = '${p.id}'`), "open/final");
+    assert.equal(await psql(`select string_agg(user_id::text, ',') from votes where plan_id = '${p.id}'`), stays);
+  });
+
+  test("refused for another account holding the link, an open plan, one finalist, a booking, a bad deadline", async () => {
+    const host = await user();
+    const p = await plan(host, "now() + interval '1 day'");
+    assert.equal(await reopen(host, p), "not_decided");
+    await decide(p);
+    assert.equal(await reopen(await user(), p), "not_host");
+    await psql(`update plan_spots set advanced = false where plan_id = '${p.id}' and spot_id = '${p.spots[1]}'`);
+    assert.equal(await reopen(host, p), "no_rounds"); // a direct plan's single spot
+    await psql(`update plan_spots set advanced = true where plan_id = '${p.id}';
+      update plans set booked = true where id = '${p.id}'`);
+    assert.equal(await reopen(host, p), "booked");
+    await psql(`update plans set booked = false where id = '${p.id}'`);
+    assert.equal(await reopen(host, p, "now() - interval '1 minute'"), "invalid_deadline");
+    assert.equal(await reopen(host, p, "now() + interval '2 years'"), "invalid_deadline");
+    assert.equal(await reopen(host, p, "now() + interval '1 day'"), "reopened"); // control
+  });
+
+  test("a rating from a member there before the decision blocks it; a late link-holder's doesn't", async () => {
+    const [host, early, late] = [await user(), await user(), await user()];
+    const blocked = await plan(host, "now() + interval '1 day'", [early]);
+    await decide(blocked);
+    await rate(early, blocked);
+    assert.equal(await reopen(host, blocked), "already_happened");
+
+    const open = await plan(host, "now() + interval '1 day'");
+    await decide(open);
+    await psql(`insert into plan_access (plan_id, user_id) values ('${open.id}', '${late}')`);
+    await rate(late, open);
+    assert.equal(await reopen(host, open), "reopened");
   });
 });
