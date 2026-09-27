@@ -104,7 +104,20 @@ describe("075 any member can claim the booking", { skip: SKIP }, () => {
     await assert.rejects(psql(`set role anon; select release_booking('${q.id}')`), /permission denied/);
   });
 
-  test("a claim whose account was deleted is free to take, and the host can still reassign it", async () => {
+  // Security audit: leave_plan keeps a booked claim, so a booking that fell through stranded it.
+  test("a claim held by someone who has left is free once the booking falls through", async () => {
+    const [host, a, b] = [await user(), await user(), await user()];
+    const p = await plan(host, [a, b]);
+    const patch = (json: string) => as(host, `select execute_plan_command('${p.id}', '${p.token}', 'patch', '${json}'::jsonb)`);
+    await claim(a, p.id);
+    await patch('{"booked": true}');
+    assert.equal(JSON.parse(await as(a, `select leave_plan('${p.id}')`)).result, "left");
+    assert.equal(await holder(p.id), `${await nameOf(a)}|${a}`); // kept: the reservation existed
+    await patch('{"booked": false}');
+    assert.equal((await claim(b, p.id)).result, "claimed");
+  });
+
+  test("a claim whose account was deleted is free to take, and the host can still take it over", async () => {
     const [host, a, b] = [await user(), await user(), await user()];
     const p = await plan(host, [a, b]);
     await claim(a, p.id);

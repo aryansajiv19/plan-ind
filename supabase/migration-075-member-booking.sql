@@ -4,8 +4,8 @@
 --
 -- Booking (owner decision 2026-09-27): claim_booking / release_booking let any
 -- member of a plan take or give back the booking, as the host already could
--- through execute_plan_command 'patch' (unchanged: the host can still set or
--- clear it for anyone). plans.booking_owner stays the label everyone reads;
+-- through execute_plan_command 'patch' (unchanged: the host can still take it
+-- themselves or clear anyone's). plans.booking_owner stays the label everyone reads;
 -- plan_booking_owners records the account (069). A member never silently
 -- takes over another member's live claim -- two taps at once get one
 -- "claimed" and one "taken" -- and nothing moves once the plan is booked.
@@ -33,9 +33,12 @@ begin
   if target.booked is true then
     return jsonb_build_object('result', 'booked', 'booking_owner', target.booking_owner);
   end if;
-  -- A claim whose account was deleted (user_id set null) is free to take.
+  -- Free to take: no claim, a deleted account's (user_id null), or one whose
+  -- holder has left the plan -- else a leaver would hold it for good once a
+  -- booking fell through, with nobody able to release it but the host.
   select user_id into holder from plan_booking_owners where plan_id = p_plan_id;
-  if holder is not null and holder <> auth.uid() then
+  if holder is not null and holder <> auth.uid()
+     and exists (select 1 from plan_access where plan_id = p_plan_id and user_id = holder) then
     return jsonb_build_object('result', 'taken', 'booking_owner', target.booking_owner);
   end if;
   -- The label is the caller's own profile name, never text they send.
