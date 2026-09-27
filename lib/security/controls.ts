@@ -70,13 +70,13 @@ export async function consumeQuota(
 // recordSecurityEvent's subject_hash.
 async function consumeOtpLimit(
   supabase: SupabaseClient,
-  scope: "otp-request" | "otp-verify",
-  email: string,
+  scope: "otp-request" | "otp-verify" | "deal-preview",
+  subject: string,
 ): Promise<ControlResult> {
   const { data, error } = await supabase.rpc("consume_otp_limit", {
     p_secret: controlSecret(),
     p_scope: scope,
-    p_subject: privateSubject(email),
+    p_subject: privateSubject(subject),
   });
   return controlResult(data, error, scope);
 }
@@ -90,6 +90,22 @@ export function consumeOtpRequestLimit(supabase: SupabaseClient, email: string):
 // keyed on the target email instead, which a guesser can't route around.
 export function consumeOtpVerifyLimit(supabase: SupabaseClient, email: string): Promise<ControlResult> {
   return consumeOtpLimit(supabase, "otp-verify", email);
+}
+
+/**
+ * The caller's IP for a per-visitor limit when there is no account yet. On
+ * Vercel both headers are set by the platform, not the client. Falls back to
+ * one shared bucket, so a missing header limits more, never less.
+ */
+export function clientIp(request: Request): string {
+  return request.headers.get("x-real-ip")?.trim()
+    || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+    || "unknown";
+}
+
+// Migration 072: the signed-out sample deal, keyed on the HMAC'd client IP.
+export function consumeDealPreviewLimit(supabase: SupabaseClient, request: Request): Promise<ControlResult> {
+  return consumeOtpLimit(supabase, "deal-preview", `ip:${clientIp(request)}`);
 }
 
 export async function recordSecurityEvent(

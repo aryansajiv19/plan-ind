@@ -192,6 +192,7 @@ export function dealFromPool(input: {
   constraints?: DealConstraints;
   rng?: () => number;
   embed?: SpotAffinity;
+  today?: string;
 }): string[] | null {
   const eligible = eligibleDealSpots(input);
   if (!eligible) return null;
