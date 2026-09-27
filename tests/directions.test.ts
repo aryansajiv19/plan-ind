@@ -1,8 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  appleDirectionsUrl,
   appleMapsUrl,
+  directionsUrl,
   driveMinutesEstimate,
+  isDubaiRushHour,
+  uberUrl,
   googleMapsUrl,
   haversineKm,
   mapEmbedUrl,
@@ -54,4 +58,39 @@ test("a stored Google place id pins the Maps link once migration 063 lands", () 
   assert.equal(url.searchParams.get("query_place_id"), "ChIJAbCdEfGhIjKlMnOp");
   // A malformed id is ignored, never passed through.
   assert.equal(new URL(googleMapsUrl({ ...zuma, google_place_id: "x y" })).searchParams.get("query"), "25.2136,55.2821");
+});
+
+// P16: directions from wherever the viewer is, no API key.
+test("Google directions: no origin (device location), the mode, and the place id when stored", () => {
+  const url = new URL(directionsUrl({ ...zuma, google_place_id: "ChIJ-zuma" }, "transit"));
+  assert.equal(url.host, "www.google.com");
+  assert.equal(url.searchParams.get("destination"), "25.2136,55.2821");
+  assert.equal(url.searchParams.get("travelmode"), "transit");
+  assert.equal(url.searchParams.get("destination_place_id"), "ChIJ-zuma");
+  assert.equal(url.searchParams.has("origin"), false);
+  assert.equal(new URL(directionsUrl(zuma, "driving", { latitude: 25.1, longitude: 55.2 })).searchParams.get("origin"), "25.1,55.2");
+  assert.equal(new URL(directionsUrl(noCoords, "walking")).searchParams.get("destination"), "Ravi Restaurant, Al Satwa, Dubai");
+});
+
+test("Apple directions: daddr and the mode flag, starting from the current location", () => {
+  const url = new URL(appleDirectionsUrl(zuma, "walking"));
+  assert.equal(url.host, "maps.apple.com");
+  assert.equal(url.searchParams.get("daddr"), "25.2136,55.2821");
+  assert.equal(url.searchParams.get("dirflg"), "w");
+  assert.equal(url.searchParams.has("saddr"), false);
+});
+
+test("Uber: the documented /looking link with a JSON drop[0]; none without coordinates", () => {
+  const url = new URL(uberUrl(zuma)!);
+  assert.equal(url.origin + url.pathname, "https://m.uber.com/looking");
+  assert.equal(url.searchParams.get("pickup"), "my_location");
+  assert.deepEqual(JSON.parse(url.searchParams.get("drop[0]")!), { latitude: 25.2136, longitude: 55.2821, addressLine1: "Zuma" });
+  assert.equal(uberUrl(noCoords), null);
+});
+
+test("rush hour is 7-10 and 17-20 on the Dubai clock only", () => {
+  assert.equal(isDubaiRushHour(new Date("2026-09-27T04:00:00Z")), true);  // 08:00 Dubai
+  assert.equal(isDubaiRushHour(new Date("2026-09-27T06:30:00Z")), false); // 10:30
+  assert.equal(isDubaiRushHour(new Date("2026-09-27T13:30:00Z")), true);  // 17:30
+  assert.equal(isDubaiRushHour(new Date("2026-09-27T16:00:00Z")), false); // 20:00
 });

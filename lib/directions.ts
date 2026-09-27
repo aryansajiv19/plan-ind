@@ -10,6 +10,7 @@
 // mirror is stale since 2021). Not building toward transit timings here.
 
 import { googleMapsPlaceUrl } from "./places/maps-url.ts";
+import { dubaiHour } from "./dubai-phase.ts";
 
 const EARTH_RADIUS_KM = 6371;
 
@@ -29,37 +30,6 @@ export function haversineKm(
   return EARTH_RADIUS_KM * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-/**
- * A Google Maps directions deep link, transit-mode by default — no API key.
- * Tapping through lands on Maps' own live RTA-sourced metro/bus/taxi
- * options for the route, which is the actual feature here.
- */
-export function directionsUrl(
-  originLat: number,
-  originLng: number,
-  destLat: number,
-  destLng: number,
-): string {
-  const params = new URLSearchParams({
-    api: "1",
-    origin: `${originLat},${originLng}`,
-    destination: `${destLat},${destLng}`,
-    travelmode: "transit",
-  });
-  return `https://www.google.com/maps/dir/?${params.toString()}`;
-}
-
-// ── Rough drive time ─────────────────────────────────────────────────────
-// Straight-line km is not road km, and there is no routing API here, so this
-// is a labelled estimate, never a promise. Two documented assumptions:
-//   - Road distance ≈ 1.3 × straight line: the usual urban circuity factor
-//     (studies of real road networks land around 1.2 to 1.4).
-//   - 26.3 km/h: TomTom Traffic Index 2025, Dubai's average rush-hour speed
-//     (reported by Khaleej Times). Pessimistic for a late dinner, which is the
-//     honest direction to be wrong in; the UI says "in rush hour".
-// Under 1 km a drive estimate is noise; past 40 km the trip is mostly
-// highway, where a city rush-hour speed would badly overstate it. Both
-// return null and nothing is shown.
 export const ROAD_CIRCUITY = 1.3;
 export const DUBAI_RUSH_HOUR_KMH = 26.3;
 const DRIVE_ESTIMATE_KM = { min: 1, max: 40 } as const;
@@ -114,4 +84,49 @@ export function appleMapsUrl(venue: MappableVenue): string {
 export function mapEmbedUrl(venue: MappableVenue): string {
   const query = hasCoords(venue) ? `${venue.latitude},${venue.longitude}` : `${venue.name}, ${venue.area}, Dubai`;
   return `https://www.google.com/maps?${new URLSearchParams({ q: query, z: "15", output: "embed" })}`;
+}
+
+// ── Get there (P16): one tap from wherever the viewer is ─────────────────
+
+export type TravelMode = "driving" | "transit" | "walking";
+
+const destinationOf = (v: MappableVenue) => (hasCoords(v) ? `${v.latitude},${v.longitude}` : searchText(v));
+
+/**
+ * Google Maps directions, keyless. With no origin Maps starts from the
+ * device's own location, which is what most viewers want (most plans keep
+ * the default "anywhere" origin). The stored place id pins the exact venue.
+ */
+export function directionsUrl(
+  venue: MappableVenue,
+  mode: TravelMode,
+  origin: { latitude: number; longitude: number } | null = null,
+): string {
+  const params = new URLSearchParams({ api: "1", destination: destinationOf(venue), travelmode: mode });
+  if (venue.google_place_id) params.set("destination_place_id", venue.google_place_id);
+  if (origin) params.set("origin", `${origin.latitude},${origin.longitude}`);
+  return `https://www.google.com/maps/dir/?${params}`;
+}
+
+/** Apple Maps directions from the current location (no saddr). */
+export function appleDirectionsUrl(venue: MappableVenue, mode: TravelMode): string {
+  const dirflg = mode === "driving" ? "d" : mode === "walking" ? "w" : "r";
+  return `https://maps.apple.com/?${new URLSearchParams({ daddr: destinationOf(venue), dirflg })}`;
+}
+
+/**
+ * Uber's documented universal link (developer.uber.com, deep links:
+ * m.uber.com/looking with a JSON drop[0]), pickup at the rider's location.
+ * Null without coordinates: Uber needs a point, not a name.
+ */
+export function uberUrl(venue: MappableVenue): string | null {
+  if (!hasCoords(venue)) return null;
+  const drop = JSON.stringify({ latitude: venue.latitude, longitude: venue.longitude, addressLine1: venue.name });
+  return `https://m.uber.com/looking?${new URLSearchParams({ pickup: "my_location", "drop[0]": drop })}`;
+}
+
+/** Dubai's peaks, 7-10 and 17-20 on the Dubai clock: when "rush hour" is true. */
+export function isDubaiRushHour(now: Date): boolean {
+  const hour = dubaiHour(now);
+  return (hour >= 7 && hour < 10) || (hour >= 17 && hour < 20);
 }
