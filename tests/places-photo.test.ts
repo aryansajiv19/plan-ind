@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import { firstPhotoRef, parsePhotoUri } from "../lib/places/client.ts";
-import { eligiblePlaceId, parseSpotId, resolvePlacePhoto } from "../lib/places/photo.ts";
+import { PHOTO_CACHE, eligiblePlaceId, parseSpotId, photoQuotaFor, resolvePlacePhoto } from "../lib/places/photo.ts";
 import { googleMapsPlaceUrl } from "../lib/places/maps-url.ts";
 
 const KEY = "AIzaFixtureKey_photo_0123456789";
@@ -88,4 +88,20 @@ test("a Maps link is built from the stored id, with no key and no stored Google 
   assert.equal(googleMapsPlaceUrl("Bu Qtair", PLACE), `https://www.google.com/maps/search/?api=1&query=Bu+Qtair&query_place_id=${PLACE}`);
   assert.equal(googleMapsPlaceUrl("x", null), null);
   assert.equal(googleMapsPlaceUrl("x", "not a place id"), null);
+});
+
+// 077: signed-out visitors get photos through a per-IP limit; a guest session
+// is free to mint, so it is a visitor too, never an account.
+test("an account spends its own photo quota; a signed-out caller or a guest session the visitor limit", () => {
+  assert.equal(photoQuotaFor({ is_anonymous: false }), "account");
+  assert.equal(photoQuotaFor({}), "account");
+  assert.equal(photoQuotaFor({ is_anonymous: true }), "visitor");
+  assert.equal(photoQuotaFor("signed-out"), "visitor");
+});
+
+test("a found photo is cached by the browser only, for an hour", () => {
+  const value = PHOTO_CACHE["Cache-Control"];
+  assert.match(value, /^private,/);             // never a shared cache: Google's terms forbid us caching photo refs
+  assert.match(value, /max-age=3600/);
+  assert.doesNotMatch(value, /s-maxage|public/);
 });

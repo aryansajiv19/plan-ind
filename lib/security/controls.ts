@@ -70,7 +70,7 @@ export async function consumeQuota(
 // recordSecurityEvent's subject_hash.
 async function consumeOtpLimit(
   supabase: SupabaseClient,
-  scope: "otp-request" | "otp-verify" | "deal-preview",
+  scope: "otp-request" | "otp-verify" | "deal-preview" | "place-photo-anon",
   subject: string,
 ): Promise<ControlResult> {
   const { data, error } = await supabase.rpc("consume_otp_limit", {
@@ -101,6 +101,12 @@ export function clientIp(request: Request): string {
   return request.headers.get("x-real-ip")?.trim()
     || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
     || "unknown";
+}
+
+// Migration 077: Google venue photos for a caller without an account, keyed
+// on the HMAC'd client IP; it also counts against the global photo budget.
+export function consumePhotoVisitorLimit(supabase: SupabaseClient, request: Request): Promise<ControlResult> {
+  return consumeOtpLimit(supabase, "place-photo-anon", `ip:${clientIp(request)}`);
 }
 
 // Migration 072: the signed-out sample deal, keyed on the HMAC'd client IP.

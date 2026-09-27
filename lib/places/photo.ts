@@ -42,6 +42,17 @@ export function eligiblePlaceId(row: PhotoSpotRow | null): string | null {
   return row.google_place_id && PLACE_ID_PATTERN.test(row.google_place_id) ? row.google_place_id : null;
 }
 
+/**
+ * 077: whose photo quota a call spends -- a permanent account's own (063), or
+ * the per-IP visitor limit for anyone else (signed out, or a guest session).
+ */
+export function photoQuotaFor(user: { is_anonymous?: boolean } | "signed-out"): "account" | "visitor" {
+  return user === "signed-out" || user.is_anonymous ? "visitor" : "account";
+}
+
+/** A found photo: the browser may keep it an hour; "private" keeps every shared cache (ours included) out. */
+export const PHOTO_CACHE = { "Cache-Control": "private, max-age=3600" } as const;
+
 export interface PlacePhoto {
   photoUri: string;
   widthPx: number | null;

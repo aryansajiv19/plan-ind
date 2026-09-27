@@ -1,8 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { AUTH_UNAVAILABLE_MESSAGE, sessionUser } from "@/lib/auth";
-import { CONTROL_UNAVAILABLE_MESSAGE, consumeQuota, reportControlUnavailable } from "@/lib/security/controls";
+import { CONTROL_UNAVAILABLE_MESSAGE, consumePhotoVisitorLimit, consumeQuota, reportControlUnavailable } from "@/lib/security/controls";
 import { placesApiKey } from "@/lib/places/config";
-import { eligiblePlaceId, parseSpotId, resolvePlacePhoto, type PhotoSpotRow } from "@/lib/places/photo";
+import { PHOTO_CACHE, eligiblePlaceId, parseSpotId, photoQuotaFor, resolvePlacePhoto, type PhotoSpotRow } from "@/lib/places/photo";
 
 export const runtime = "nodejs";
 
@@ -12,17 +12,20 @@ export const runtime = "nodejs";
 // a short-lived Google URL, and the response carries the author attributions
 // the UI must render beside the image.
 //
-// Every call is billable (Place Photos), so: a session is required (guests
-// included -- share-link cards need it), a per-user and a global daily quota
-// apply (migration 063), and only spot ids -- never photo refs or place ids --
-// are accepted from the client.
+// Every call is billable (Place Photos), so it is always rate-limited: a
+// permanent account spends its own daily quota (migration 063); anyone else
+// -- signed out, or a guest session -- a per-hashed-IP limit (077), because
+// the owner wants venue photos on the signed-out pages too. Both count
+// against one global daily cap. Only spot ids -- never photo refs or place
+// ids -- are accepted from the client. A found photo may be kept by the
+// browser for an hour (private: never by a shared cache, ours included).
 //
 // 200 { photoUri, widthPx, heightPx, attributions: [{ displayName, uri }] }
-// 400 bad id · 401 no session · 404 no fallback photo for this spot
+// 400 bad id · 404 no fallback photo for this spot
 // 429 quota · 502 Google failed · 503 no key configured / controls down
 const NO_STORE = { "Cache-Control": "private, no-store" };
 
-export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const spotId = parseSpotId((await params).id);
   if (!spotId) return Response.json({ error: "Not a spot." }, { status: 400, headers: NO_STORE });
 
@@ -31,10 +34,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
 
   const supabase = await createClient();
   const user = await sessionUser(supabase);
-  // Permanent accounts only: a throwaway guest session is free to mint, so a
-  // guest-reachable route could drain the shared daily photo budget.
   if (user === "unavailable") return Response.json({ error: AUTH_UNAVAILABLE_MESSAGE }, { status: 503, headers: NO_STORE });
-  if (user === "signed-out" || user.is_anonymous) return Response.json({ error: "Sign in to see photos." }, { status: 401, headers: NO_STORE });
 
   // Read the row BEFORE spending quota: a spot with its own photo, or
   // without a place id, costs nothing and should not count. RLS applies --
@@ -45,7 +45,10 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   const placeId = eligiblePlaceId(data as PhotoSpotRow | null);
   if (!placeId) return Response.json({ error: "No photo for this spot." }, { status: 404, headers: NO_STORE });
 
-  const quota = await consumeQuota(supabase, "place-photo");
+  // A guest session is free to mint, so it gets the visitor limit, not an account's.
+  const quota = photoQuotaFor(user) === "account"
+    ? await consumeQuota(supabase, "place-photo")
+    : await consumePhotoVisitorLimit(supabase, request);
   if (quota === "unavailable") {
     reportControlUnavailable("place-photo");
     return Response.json({ error: CONTROL_UNAVAILABLE_MESSAGE }, { status: 503, headers: NO_STORE });
@@ -55,7 +58,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   try {
     const photo = await resolvePlacePhoto(placeId, apiKey);
     if (!photo) return Response.json({ error: "No photo for this spot." }, { status: 404, headers: NO_STORE });
-    return Response.json(photo, { headers: NO_STORE });
+    return Response.json(photo, { headers: PHOTO_CACHE });
   } catch (failure) {
     // The message is already key-free (placesFetchJson redacts); log the
     // class of failure, return a generic one.
