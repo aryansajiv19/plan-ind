@@ -285,8 +285,7 @@ export interface MoodboardItem {
   kind: "place" | "link" | "photo";
   label: string;
   note: string | null;
-  // Real image bytes live in Storage, same pattern as VisitPhoto.storage_path
-  // -- not lib/planning.ts's demo-only inline base64 imageDataUrl.
+  // Image bytes live in Storage, same pattern as VisitPhoto.storage_path.
   storage_path: string | null;
   source_url: string | null;
   created_at: string;
