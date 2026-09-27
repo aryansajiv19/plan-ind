@@ -1,0 +1,4103 @@
+{
+  "generated": "2026-09-27",
+  "method": "Nearest station = minimum haversine (great-circle) distance, mean Earth radius 6,371,008.8 m, from each venue lat/lng to every station below (Dubai Metro Red incl. Route 2020, Green, Dubai Tram; OSM via Overpass, snapshot 2026-09-27T02:12Z, ODbL). straight_m is that distance rounded to the metre. walk_min = round(straight_m * 1.3 / 80): an estimate assuming a 1.3 street-detour factor and 80 m/min walking pace, not a routed walk. If that estimate exceeds 25 min, walk_min is null and note = \"taxi from station\". Venues without coordinates get no nearest_station. Stations shared by two lines (Union, BurJuman) report both lines.",
+  "stations": [
+    {
+      "name": "Centrepoint",
+      "line": "Red Line",
+      "lat": 25.2303111,
+      "lng": 55.3911232
+    },
+    {
+      "name": "Emirates",
+      "line": "Red Line",
+      "lat": 25.2410612,
+      "lng": 55.36568
+    },
+    {
+      "name": "Airport Terminal 3",
+      "line": "Red Line",
+      "lat": 25.245027,
+      "lng": 55.3594972
+    },
+    {
+      "name": "Airport Terminal 1",
+      "line": "Red Line",
+      "lat": 25.2484769,
+      "lng": 55.3523558
+    },
+    {
+      "name": "Al Garhoud",
+      "line": "Red Line",
+      "lat": 25.2494824,
+      "lng": 55.3399801
+    },
+    {
+      "name": "Deira City Centre",
+      "line": "Red Line",
+      "lat": 25.2546811,
+      "lng": 55.3302605
+    },
+    {
+      "name": "Al Rigga",
+      "line": "Red Line",
+      "lat": 25.2633466,
+      "lng": 55.3238862
+    },
+    {
+      "name": "Union",
+      "line": "Red Line",
+      "lat": 25.2661816,
+      "lng": 55.3137508
+    },
+    {
+      "name": "BurJuman",
+      "line": "Red Line",
+      "lat": 25.2543976,
+      "lng": 55.30412
+    },
+    {
+      "name": "ADCB",
+      "line": "Red Line",
+      "lat": 25.2445099,
+      "lng": 55.2981834
+    },
+    {
+      "name": "Max",
+      "line": "Red Line",
+      "lat": 25.2335944,
+      "lng": 55.2921844
+    },
+    {
+      "name": "World Trade Centre",
+      "line": "Red Line",
+      "lat": 25.2248353,
+      "lng": 55.2851186
+    },
+    {
+      "name": "Emirates Towers",
+      "line": "Red Line",
+      "lat": 25.217231,
+      "lng": 55.279881
+    },
+    {
+      "name": "Financial Centre",
+      "line": "Red Line",
+      "lat": 25.2108215,
+      "lng": 55.2755321
+    },
+    {
+      "name": "Burj Khalifa / Dubai Mall",
+      "line": "Red Line",
+      "lat": 25.2014367,
+      "lng": 55.2695451
+    },
+    {
+      "name": "Business Bay",
+      "line": "Red Line",
+      "lat": 25.1913122,
+      "lng": 55.2603981
+    },
+    {
+      "name": "Garmin",
+      "line": "Red Line",
+      "lat": 25.15563,
+      "lng": 55.2285156
+    },
+    {
+      "name": "Equiti",
+      "line": "Red Line",
+      "lat": 25.1266839,
+      "lng": 55.2079196
+    },
+    {
+      "name": "Mall of the Emirates",
+      "line": "Red Line",
+      "lat": 25.1212029,
+      "lng": 55.2004469
+    },
+    {
+      "name": "InsuranceMarket",
+      "line": "Red Line",
+      "lat": 25.1147739,
+      "lng": 55.1908862
+    },
+    {
+      "name": "Dubai Internet City",
+      "line": "Red Line",
+      "lat": 25.1021654,
+      "lng": 55.1739012
+    },
+    {
+      "name": "Al Fardan Exchange",
+      "line": "Red Line",
+      "lat": 25.0889162,
+      "lng": 55.1581735
+    },
+    {
+      "name": "Sobha Realty",
+      "line": "Red Line",
+      "lat": 25.0799429,
+      "lng": 55.1475417
+    },
+    {
+      "name": "DMCC",
+      "line": "Red Line",
+      "lat": 25.0708766,
+      "lng": 55.1387113
+    },
+    {
+      "name": "National Paints",
+      "line": "Red Line",
+      "lat": 25.0578769,
+      "lng": 55.1273617
+    },
+    {
+      "name": "Ibn Battuta",
+      "line": "Red Line",
+      "lat": 25.0466788,
+      "lng": 55.1174939
+    },
+    {
+      "name": "Energy",
+      "line": "Red Line",
+      "lat": 25.0263116,
+      "lng": 55.1012953
+    },
+    {
+      "name": "Danube",
+      "line": "Red Line",
+      "lat": 25.0012905,
+      "lng": 55.0957087
+    },
+    {
+      "name": "Life Pharmacy",
+      "line": "Red Line",
+      "lat": 24.9775987,
+      "lng": 55.0910742
+    },
+    {
+      "name": "The Gardens",
+      "line": "Red Line (Route 2020)",
+      "lat": 25.0435023,
+      "lng": 55.1350461
+    },
+    {
+      "name": "Discovery Gardens",
+      "line": "Red Line (Route 2020)",
+      "lat": 25.0352571,
+      "lng": 55.1454134
+    },
+    {
+      "name": "Al Furjan",
+      "line": "Red Line (Route 2020)",
+      "lat": 25.0304736,
+      "lng": 55.1522307
+    },
+    {
+      "name": "Jumeirah Golf Estates",
+      "line": "Red Line (Route 2020)",
+      "lat": 25.0177925,
+      "lng": 55.1633352
+    },
+    {
+      "name": "Dubai Investment Park",
+      "line": "Red Line (Route 2020)",
+      "lat": 25.0052466,
+      "lng": 55.1556654
+    },
+    {
+      "name": "Expo City Dubai",
+      "line": "Red Line (Route 2020)",
+      "lat": 24.9634934,
+      "lng": 55.1460846
+    },
+    {
+      "name": "e&",
+      "line": "Green Line",
+      "lat": 25.2547338,
+      "lng": 55.4012781
+    },
+    {
+      "name": "Al Qusais",
+      "line": "Green Line",
+      "lat": 25.2627427,
+      "lng": 55.3872735
+    },
+    {
+      "name": "Dubai Airport Free Zone",
+      "line": "Green Line",
+      "lat": 25.2698284,
+      "lng": 55.3751502
+    },
+    {
+      "name": "Al Nahda",
+      "line": "Green Line",
+      "lat": 25.2732083,
+      "lng": 55.3694757
+    },
+    {
+      "name": "Stadium",
+      "line": "Green Line",
+      "lat": 25.27791,
+      "lng": 55.361466
+    },
+    {
+      "name": "Al Qiyadah",
+      "line": "Green Line",
+      "lat": 25.2775853,
+      "lng": 55.3526309
+    },
+    {
+      "name": "Abu Hail",
+      "line": "Green Line",
+      "lat": 25.2754161,
+      "lng": 55.3464499
+    },
+    {
+      "name": "Abu Baker Al Siddique",
+      "line": "Green Line",
+      "lat": 25.2708929,
+      "lng": 55.3327545
+    },
+    {
+      "name": "Salah Al Din",
+      "line": "Green Line",
+      "lat": 25.2703152,
+      "lng": 55.3208284
+    },
+    {
+      "name": "Union",
+      "line": "Green Line",
+      "lat": 25.2661816,
+      "lng": 55.3137508
+    },
+    {
+      "name": "Baniyas Square",
+      "line": "Green Line",
+      "lat": 25.2691743,
+      "lng": 55.3076094
+    },
+    {
+      "name": "Gold Souq",
+      "line": "Green Line",
+      "lat": 25.2761408,
+      "lng": 55.3016752
+    },
+    {
+      "name": "Al Ras",
+      "line": "Green Line",
+      "lat": 25.2687742,
+      "lng": 55.2936231
+    },
+    {
+      "name": "Al Ghubaiba",
+      "line": "Green Line",
+      "lat": 25.2650351,
+      "lng": 55.2889404
+    },
+    {
+      "name": "Sharaf DG",
+      "line": "Green Line",
+      "lat": 25.2582139,
+      "lng": 55.2974781
+    },
+    {
+      "name": "BurJuman",
+      "line": "Green Line",
+      "lat": 25.25499,
+      "lng": 55.303941
+    },
+    {
+      "name": "Oud Metha",
+      "line": "Green Line",
+      "lat": 25.2439301,
+      "lng": 55.3158939
+    },
+    {
+      "name": "Dubai Healthcare City",
+      "line": "Green Line",
+      "lat": 25.2309528,
+      "lng": 55.322619
+    },
+    {
+      "name": "Al Jadaf",
+      "line": "Green Line",
+      "lat": 25.2249103,
+      "lng": 55.3337479
+    },
+    {
+      "name": "Creek",
+      "line": "Green Line",
+      "lat": 25.2188806,
+      "lng": 55.3390384
+    },
+    {
+      "name": "Al Sufouh",
+      "line": "Dubai Tram",
+      "lat": 25.107995,
+      "lng": 55.1650019
+    },
+    {
+      "name": "Knowledge Village",
+      "line": "Dubai Tram",
+      "lat": 25.1041419,
+      "lng": 55.1615155
+    },
+    {
+      "name": "Palm Jumeirah",
+      "line": "Dubai Tram",
+      "lat": 25.0982366,
+      "lng": 55.1555606
+    },
+    {
+      "name": "Dubai Media City",
+      "line": "Dubai Tram",
+      "lat": 25.0944006,
+      "lng": 55.1518761
+    },
+    {
+      "name": "Mina Seyahi",
+      "line": "Dubai Tram",
+      "lat": 25.0909521,
+      "lng": 55.1484818
+    },
+    {
+      "name": "Marina Towers",
+      "line": "Dubai Tram",
+      "lat": 25.0864817,
+      "lng": 55.1501642
+    },
+    {
+      "name": "Dubai Marina",
+      "line": "Dubai Tram",
+      "lat": 25.0807279,
+      "lng": 55.1468026
+    },
+    {
+      "name": "Jumeirah Beach Residence 1",
+      "line": "Dubai Tram",
+      "lat": 25.0797444,
+      "lng": 55.1382393
+    },
+    {
+      "name": "Jumeirah Beach Residence 2",
+      "line": "Dubai Tram",
+      "lat": 25.0738531,
+      "lng": 55.1322284
+    },
+    {
+      "name": "Jumeirah Lakes Towers",
+      "line": "Dubai Tram",
+      "lat": 25.071518,
+      "lng": 55.1378436
+    },
+    {
+      "name": "Dubai Marina Mall",
+      "line": "Dubai Tram",
+      "lat": 25.0762979,
+      "lng": 55.1420513
+    }
+  ],
+  "venues": [
+    {
+      "id": "86000000-0000-0000-0000-000000000002",
+      "name": "Aventura Parks",
+      "address": "Aventura Parks, inside Mushrif Park (Gate 1), Mushrif, Dubai",
+      "lat": 25.2231194,
+      "lng": 55.4481273,
+      "coords_source": "TSV coords match OpenStreetMap way 561277691 (Aventura Parks, Mushrif) exactly; kept",
+      "phone": "+971 4 584 5374",
+      "website": "https://www.aventuraparks.com/",
+      "spend_pp_aed": "195-395",
+      "age_limit": "6+ and min height 1.15m; Extreme circuit 16+ and 1.6m+",
+      "dress_code": "Comfortable clothes you don't mind getting dirty, closed-toe flat shoes; long hair tied back",
+      "parking": "Ample parking inside Mushrif Park; park entry AED 10 per car",
+      "reservations": "recommended",
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "good_to_know": "The website still shows an old summer-break banner saying the park 'reopens on September 15, 2024', so it has not been updated. Call +971 4 584 5374 to confirm it is open before you go.",
+      "sources": [
+        {
+          "fact": "Ticket prices: children (1.15-1.4m) AED 195, adults (1.4m+) AED 275, all-day harness AED 395",
+          "url": "https://www.aventuraparks.com/adventure-park/"
+        },
+        {
+          "fact": "Minimum age 6 and minimum height 1.15m; Extreme circuit needs 16+ and over 1.6m",
+          "url": "https://www.aventuraparks.com/adventure-park/"
+        },
+        {
+          "fact": "Wear comfortable clothes you don't mind getting dirty, with closed-toe flat shoes",
+          "url": "https://www.aventuraparks.com/adventure-park/"
+        },
+        {
+          "fact": "Long hair must be tied back; closed-toe footwear with good grip",
+          "url": "https://www.aventuraparks.com/plan-your-visit/"
+        },
+        {
+          "fact": "Ample parking inside Mushrif Park; booking online in advance recommended, especially at weekends",
+          "url": "https://www.aventuraparks.com/adventure-park/"
+        },
+        {
+          "fact": "Mushrif Park entry fee is 10 dirhams per car",
+          "url": "https://en.wikipedia.org/wiki/Mushrif_Park"
+        },
+        {
+          "fact": "Location Mushrif Park, Dubai; phone +971 4 5845374",
+          "url": "https://www.aventuraparks.com/plan-your-visit/"
+        },
+        {
+          "fact": "Site banner: 'We're taking a summer break... the adventure park is temporarily closed'",
+          "url": "https://www.aventuraparks.com/"
+        },
+        {
+          "fact": "On-site restaurant The Ghafé: Mon-Thu 12pm-6pm, Fri-Sun 12pm-9pm",
+          "url": "https://www.aventuraparks.com/the-ghafe/"
+        },
+        {
+          "fact": "Coordinates 25.2231194, 55.4481273 (theme_park, fee=yes)",
+          "url": "https://www.openstreetmap.org/way/561277691"
+        }
+      ],
+      "checker_notes": [
+        "good_to_know: Misleading. The homepage banner is still there, but it reads 'The adventure park reopens on September 15, 2024'. It is a leftover from 2024, not evidence of a 2026 closure. The adventure-park page carries the same 2024 note. Source: https://www.aventuraparks.com/"
+      ],
+      "nearest_station": {
+        "name": "Centrepoint",
+        "line": "Red Line",
+        "straight_m": 5790,
+        "walk_min": null,
+        "note": "taxi from station"
+      }
+    },
+    {
+      "id": "86000000-0000-0000-0000-000000000001",
+      "name": "Deep Dive Dubai",
+      "address": "Deep Dive Dubai, Nad Al Sheba 1, Dubai",
+      "lat": 25.1277269,
+      "lng": 55.2949039,
+      "coords_source": "TSV coords match OpenStreetMap node 8938101090 (Deep Dive Dubai dive centre) exactly; kept",
+      "phone": "+971 4 501 9444",
+      "website": "https://www.deepdivedubai.com/",
+      "spend_pp_aed": "400-1800",
+      "age_limit": "Snorkelling 6+; kids' scuba 8-9; non-certified scuba 10+; freediving 13+",
+      "dress_code": "Bring a swimsuit and slippers; all dive gear is included",
+      "parking": "Plenty of on-site parking near the main entrance",
+      "reservations": "recommended",
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "good_to_know": "Everyone fills in a 'Fit to Dive' health form, and you should wait 12 hours after diving before flying.",
+      "sources": [
+        {
+          "fact": "Located in Nad Al Sheba 1, about 20 minutes from downtown; limited availability, so booking ahead is strongly suggested",
+          "url": "https://www.deepdivedubai.com/faqs"
+        },
+        {
+          "fact": "Phone +971 45019444, answered 9am-6pm",
+          "url": "https://www.deepdivedubai.com/faqs"
+        },
+        {
+          "fact": "Plenty of parking near the main entrance",
+          "url": "https://www.deepdivedubai.com/faqs"
+        },
+        {
+          "fact": "All you need is a swimsuit and slippers; equipment is included",
+          "url": "https://www.deepdivedubai.com/faqs"
+        },
+        {
+          "fact": "Cafe on level B2 serves juices, coffee, snacks and sandwiches",
+          "url": "https://www.deepdivedubai.com/faqs"
+        },
+        {
+          "fact": "'Fit to Dive' health assessment required; wait 12 hours after diving before flying",
+          "url": "https://www.deepdivedubai.com/faqs"
+        },
+        {
+          "fact": "Snorkelling costs AED 400; minimum age 6",
+          "url": "https://www.deepdivedubai.com/experience/snorkelling/snorkelling"
+        },
+        {
+          "fact": "Non-certified scuba packages from AED 1,800 (Standard) to AED 3,000; age 10+",
+          "url": "https://www.deepdivedubai.com/experience/scuba-diving/non-certified-scuba-divers"
+        },
+        {
+          "fact": "60m deep pool with 14 million litres of fresh water; opened July 2021",
+          "url": "https://en.wikipedia.org/wiki/Deep_Dive_Dubai"
+        },
+        {
+          "fact": "Coordinates 25.1277269, 55.2949039 (amenity=dive_centre)",
+          "url": "https://www.openstreetmap.org/node/8938101090"
+        }
+      ],
+      "checker_notes": [
+        "age_limit: Incomplete. The FAQ lists a kids' scuba programme for ages 8-9, with non-certified scuba at 10+ and non-certified freediving at 13+. 'Scuba 10+' understates who can dive. Source: https://www.deepdivedubai.com/faqs",
+        "parking: Unsupported detail. The FAQ says only 'We have plenty of parking near the main entrance' and never says it is free. Source: https://www.deepdivedubai.com/faqs"
+      ],
+      "nearest_station": {
+        "name": "Garmin",
+        "line": "Red Line",
+        "straight_m": 7368,
+        "walk_min": null,
+        "note": "taxi from station"
+      }
+    },
+    {
+      "id": "86000000-0000-0000-0000-000000000003",
+      "name": "Sky Views Edge Walk",
+      "address": "Sky Views Dubai, The Address Sky View Tower 1, Downtown Dubai",
+      "lat": 25.2014703,
+      "lng": 55.270658,
+      "coords_source": "OpenStreetMap node 9689612205 (Sky Views Dubai viewpoint); the TSV had no coords",
+      "phone": "800 28843867",
+      "website": "https://www.skyviewsdubai.com/edge-walk/",
+      "spend_pp_aed": "499",
+      "age_limit": null,
+      "dress_code": null,
+      "parking": null,
+      "reservations": "recommended",
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "good_to_know": "Arrive 30 minutes before your slot. Edge Walk runs 10:30am-8pm and the last slot is 6:30pm.",
+      "sources": [
+        {
+          "fact": "Edge Walk from AED 499 (adult, aged 12+)",
+          "url": "https://experiences.visitdubai.com/productDetail/42124"
+        },
+        {
+          "fact": "Address: The Address Sky View Tower 1, Dubai",
+          "url": "https://experiences.visitdubai.com/productDetail/42124"
+        },
+        {
+          "fact": "Hours 10:30am-8pm, last slot 6:30pm; arrive 30 minutes before your booked time",
+          "url": "https://experiences.visitdubai.com/productDetail/42124"
+        },
+        {
+          "fact": "Hands-free ledge walk 219.5m above ground, with helmet and harness",
+          "url": "https://whatson.ae/2021/11/thrilling-new-attraction-sky-views-dubai-opens-to-the-public/"
+        },
+        {
+          "fact": "Coordinates 25.2014703, 55.2706580; phone 800 28843867; website skyviewsdubai.com; nearest metro Burj Khalifa/Dubai Mall",
+          "url": "https://www.openstreetmap.org/node/9689612205"
+        }
+      ],
+      "checker_notes": [
+        "age_limit: Misread. '12+' is the adult price band on Visit Dubai ('From 499 AED for adults (aged 12+)'), not a minimum age. The same page says children up to 11 must be with an adult (18+). No cited source gives a minimum age for the Edge Walk, and the official edge-walk page returns 403. Source: https://experiences.visitdubai.com/productDetail/42124",
+        "sources[4] (nearest metro): Unsupported. OSM node 9689612205 has no metro or station tag. Its tags are only description, email, image, level, name, phone, tourism and website. The coordinates, phone and website in that citation do check out. Source: https://www.openstreetmap.org/node/9689612205"
+      ],
+      "sources[4] (nearest metro)": "Coordinates 25.2014703, 55.2706580; phone 800 28843867; website skyviewsdubai.com",
+      "nearest_station": {
+        "name": "Burj Khalifa / Dubai Mall",
+        "line": "Red Line",
+        "straight_m": 112,
+        "walk_min": 2
+      }
+    },
+    {
+      "id": "40000000-0000-0000-0000-000000000003",
+      "name": "Cove Beach",
+      "address": "COVEBEACH, La Vie, Jumeirah Beach Residence (JBR), Dubai",
+      "lat": 25.0797349,
+      "lng": 55.1343655,
+      "coords_source": "OpenStreetMap way 1242101373 (La Vie Residences, JBR), the venue's current building; the TSV had no coords and its 'Caesars Palace' area is out of date",
+      "phone": "+971 50 454 6920",
+      "website": "https://www.covebeach.com/",
+      "spend_pp_aed": null,
+      "age_limit": "Under-21s need parental supervision; pool open to teens 12+",
+      "dress_code": "Beach chic",
+      "parking": "Valet: AED 50 regular, AED 100 VIP, AED 150 VVIP",
+      "reservations": "recommended",
+      "licensed": true,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "good_to_know": "It moved from Caesars Palace, Bluewaters to La Vie, JBR in 2024, so send people to JBR. It was due to reopen for the season on 7 Sep 2026.",
+      "sources": [
+        {
+          "fact": "Location: La Vie, Jumeirah Beach Residence, Dubai; phone/WhatsApp +971 50 454 6920",
+          "url": "https://www.covebeach.com/"
+        },
+        {
+          "fact": "Door policy: under-21s need parental supervision; pool allows teens over 12",
+          "url": "https://www.covebeach.com/terms-conditions"
+        },
+        {
+          "fact": "Dress code at the beach club is beach chic",
+          "url": "https://www.covebeach.com/terms-conditions"
+        },
+        {
+          "fact": "Alcohol and shisha served from 12pm",
+          "url": "https://www.covebeach.com/terms-conditions"
+        },
+        {
+          "fact": "Valet parking AED 50 regular / AED 100 VIP / AED 150 VVIP",
+          "url": "https://www.covebeach.com/terms-conditions"
+        },
+        {
+          "fact": "Latest booking time 12pm; bookings and walk-ins are subject to a couples/mixed-groups policy",
+          "url": "https://www.covebeach.com/terms-conditions"
+        },
+        {
+          "fact": "Sunbeds from Dhs200 (Mon, Tue, Thu, Fri) and Dhs300 (Wed, Sat, Sun), fully redeemable (July 2024)",
+          "url": "https://whatson.ae/2024/07/inside-the-gorgeous-new-covebeach-on-jbr/"
+        },
+        {
+          "fact": "Moved from Caesars Palace, Bluewaters (closed March 2024) to La Vie residences on JBR",
+          "url": "https://whatson.ae/2024/03/inside-the-stunning-new-cove-beach-on-jbr/"
+        },
+        {
+          "fact": "Reopened for the season on 7 September 2026",
+          "url": "https://whatson.ae/2026/09/restaurants-reopening-in-dubai-this-september/"
+        },
+        {
+          "fact": "La Vie Residences coordinates 25.0797349, 55.1343655",
+          "url": "https://www.openstreetmap.org/way/1242101373"
+        }
+      ],
+      "checker_notes": [
+        "spend_pp_aed: Stale. The only source is the What's On opening article from July 2024 (sunbeds Dhs200/Dhs300, fully redeemable). The official site and T&Cs list no current prices, and the 2026 reopening articles give none.",
+        "good_to_know: Overstated, and the sources conflict. The 1 Sep 2026 What's On article says Cove Beach 'Reopens September 7', which is a forward-looking schedule. The 19 Aug 2026 article said it would reopen on 1 September. No source confirms it actually reopened. The move from Caesars Palace/Bluewaters to La Vie, JBR in 2024 is supported. Sources: https://whatson.ae/2026/09/restaurants-reopening-in-dubai-this-september/ and https://whatson.ae/2026/08/the-dubai-beach-clubs-that-are-open-and-closed-this-summer/"
+      ],
+      "nearest_station": {
+        "name": "Jumeirah Beach Residence 1",
+        "line": "Dubai Tram",
+        "straight_m": 390,
+        "walk_min": 6
+      }
+    },
+    {
+      "id": "40000000-0000-0000-0000-000000000001",
+      "name": "Kite Beach",
+      "address": "Kite Beach, Umm Suqeim 1, Dubai",
+      "lat": 25.1630042,
+      "lng": 55.2067193,
+      "coords_source": "TSV coords match OpenStreetMap way 89658654 (Kite Beach) exactly; kept",
+      "phone": null,
+      "website": null,
+      "spend_pp_aed": "0",
+      "age_limit": null,
+      "dress_code": null,
+      "parking": null,
+      "reservations": "walk-in",
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": true,
+      "good_to_know": "Free public beach, good at sunset. Beach showers and the kite club toilets can be used.",
+      "sources": [
+        {
+          "fact": "Listed among free sunset spots; beach with a boardwalk",
+          "url": "https://whatson.ae/2026/09/the-best-places-to-watch-the-sunset-in-dubai-for-free/"
+        },
+        {
+          "fact": "Location Kite Beach, Umm Suqeim; open daily",
+          "url": "https://whatson.ae/2026/08/things-to-do-dubai-under-dhs50/"
+        },
+        {
+          "fact": "Good Life cafe on the sand serves salads, wraps, smoothies and vegan desserts",
+          "url": "https://whatson.ae/2026/09/8-gorgeous-beach-cafes-in-dubai-for-coffee-with-a-view/"
+        },
+        {
+          "fact": "14km running track, volleyball courts, food trucks and eateries",
+          "url": "https://en.wikipedia.org/wiki/Meraas"
+        },
+        {
+          "fact": "Kite club toilets and beach showers can be used; coordinates 25.1630042, 55.2067193",
+          "url": "https://www.openstreetmap.org/way/89658654"
+        }
+      ],
+      "checker_notes": [
+        "good_to_know: 'Open daily' is weakly sourced. In the Under-Dhs50 article, 'Open daily' belongs to the Careem bike-hire listing at Kite Beach, not to the beach. 'Free', 'good at sunset' and the showers and kite-club toilets are supported by the sunset article and the OSM description. Source: https://whatson.ae/2026/08/things-to-do-dubai-under-dhs50/"
+      ],
+      "nearest_station": {
+        "name": "Garmin",
+        "line": "Red Line",
+        "straight_m": 2342,
+        "walk_min": null,
+        "note": "taxi from station"
+      }
+    },
+    {
+      "id": "40000000-0000-0000-0000-000000000002",
+      "name": "La Mer",
+      "address": "La Mer, Jumeirah 1, Dubai",
+      "lat": 25.2270926,
+      "lng": 55.256325,
+      "coords_source": "TSV coords match OpenStreetMap way 509577656 (La Mer beach) exactly; kept",
+      "phone": null,
+      "website": null,
+      "spend_pp_aed": null,
+      "age_limit": null,
+      "dress_code": null,
+      "parking": null,
+      "reservations": null,
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "good_to_know": "Mostly redeveloped since 2022-23: the south end is now J1 Beach and the centre is becoming Solaya homes, so check what is open first.",
+      "sources": [
+        {
+          "fact": "Family-friendly La Mer closed at the end of 2022; La Mer South is now J1 Beach, and La Mer Central (former waterpark and Roxy) is becoming Solaya residences",
+          "url": "https://whatson.ae/2026/05/whats-happening-at-la-mer-all-the-new-developments-to-know-about/"
+        },
+        {
+          "fact": "Laguna Waterpark and Roxy closed in 2023; the public beach at La Mer North was still open then",
+          "url": "https://whatson.ae/2023/06/update-it-looks-like-la-mer-central-and-north-are-also-going-to-be-redeveloped/"
+        },
+        {
+          "fact": "La Mer beach in Jumeirah 1; coordinates 25.2270926, 55.2563250",
+          "url": "https://www.openstreetmap.org/way/509577656"
+        }
+      ],
+      "nearest_station": {
+        "name": "Emirates Towers",
+        "line": "Red Line",
+        "straight_m": 2611,
+        "walk_min": null,
+        "note": "taxi from station"
+      }
+    },
+    {
+      "id": "40000000-0000-0000-0000-000000000004",
+      "name": "Nikki Beach",
+      "address": "Nikki Beach Resort & Spa Dubai, Pearl Jumeira, Dubai",
+      "lat": 25.2474766,
+      "lng": 55.2556055,
+      "coords_source": "TSV coords match OpenStreetMap way 509577639 (Nikki Beach) and sit within about 150m of the official boat coordinates 25°14'46\"N 55°15'19\"E; kept",
+      "phone": "+971 54 791 0049",
+      "website": "https://nikkibeach.com/dubai/dine-drink/nikki-beach-restaurant-beach-club/",
+      "spend_pp_aed": "150-300",
+      "age_limit": "Under-21s cannot drink or use the pool or bars; families welcome in the restaurant and on the beach",
+      "dress_code": "Beach chic and elegant; no sportswear or tight sleeveless shirts",
+      "parking": null,
+      "reservations": "recommended",
+      "licensed": true,
+      "halal_friendly": null,
+      "vegetarian_options": true,
+      "good_to_know": "Beach club is open Tue-Sun 11am-7pm and closed Mondays.",
+      "sources": [
+        {
+          "fact": "Beach club on Pearl Jumeira; hours Tue-Sun 11am-7pm; phone +971 54 791 0049",
+          "url": "https://nikkibeach.com/dubai/dine-drink/nikki-beach-restaurant-beach-club/"
+        },
+        {
+          "fact": "Age policy: under-21s cannot drink alcohol or use the pool or bars; families welcome in the restaurant and on the beach",
+          "url": "https://nikkibeach.com/dubai/booking-reservation-policy/"
+        },
+        {
+          "fact": "Dress code: beach chic and elegant, no sportswear or tight sleeveless shirts",
+          "url": "https://nikkibeach.com/dubai/booking-reservation-policy/"
+        },
+        {
+          "fact": "Menu lists signature cocktails and sangria, and marks items (VE) Vegetarian and (VG) Vegan",
+          "url": "https://nikkibeach.com/dubai/dine-drink/nikki-beach-restaurant-beach-club/menus/"
+        },
+        {
+          "fact": "Beach and pool pass: weekday AED 150 per adult, weekend AED 300 per adult (non-redeemable)",
+          "url": "https://nikkibeach.com/dubai/fitness-wellbeing/resort-beach-pool/"
+        },
+        {
+          "fact": "Address PO Box 8286 Pearl Jumeira; boat coordinates 25°14'46.0\"N 55°15'19.0\"E",
+          "url": "https://nikkibeach.com/dubai/contact/"
+        },
+        {
+          "fact": "Coordinates 25.2474766, 55.2556055",
+          "url": "https://www.openstreetmap.org/way/509577639"
+        }
+      ],
+      "nearest_station": {
+        "name": "Al Ghubaiba",
+        "line": "Green Line",
+        "straight_m": 3879,
+        "walk_min": null,
+        "note": "taxi from station"
+      }
+    },
+    {
+      "id": "83000000-0000-0000-0000-000000000001",
+      "name": "DRIFT Beach Dubai",
+      "address": "DRIFT Beach, One&Only Royal Mirage, Al Sufouh, Dubai",
+      "lat": 25.095009,
+      "lng": 55.150372,
+      "coords_source": "TSV coords match the OpenStreetMap node for the host hotel (Royal Mirage, node 5488845421); kept",
+      "phone": "+971 4 315 2200",
+      "website": "https://www.driftbeachdubai.com/",
+      "spend_pp_aed": "150-200 (September 2026 pricing)",
+      "age_limit": "21+ for pool and beach; 16-20 only with a parent; no under-16s",
+      "dress_code": null,
+      "parking": null,
+      "reservations": "recommended",
+      "licensed": true,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "good_to_know": "Sun loungers are first-come, first-served, so book a cabana (from AED 600 for two) for a guaranteed spot.",
+      "sources": [
+        {
+          "fact": "Location One&Only Royal Mirage; reservations +971 4 315 2200; pool and beach open 10am-7pm daily",
+          "url": "https://www.driftbeachdubai.com/"
+        },
+        {
+          "fact": "Adults-only: pool and beach for 21+; ages 16-20 must be with a parent",
+          "url": "https://www.driftbeachdubai.com/"
+        },
+        {
+          "fact": "French cuisine with a cocktail and wine menu",
+          "url": "https://www.driftbeachdubai.com/"
+        },
+        {
+          "fact": "September 2026: sun loungers AED 150 Mon-Thu and AED 200 Fri-Sun, fully redeemable; first-come, first-served",
+          "url": "https://www.driftbeachdubai.com/beach-club.html"
+        },
+        {
+          "fact": "No children under 16 in the restaurant or beach club; cabanas from AED 600 for 2 guests",
+          "url": "https://www.driftbeachdubai.com/beach-club.html"
+        },
+        {
+          "fact": "Reopened for the new season at One&Only Royal Mirage, Al Safouh",
+          "url": "https://whatson.ae/2026/09/11-beach-clubs-in-dubai-reopening-for-the-new-season/"
+        },
+        {
+          "fact": "Royal Mirage coordinates 25.0950093, 55.1503723",
+          "url": "https://www.openstreetmap.org/node/5488845421"
+        }
+      ],
+      "checker_notes": [
+        "spend_pp_aed: About to go stale. The official beach-club page labels AED 150 Mon-Thu / AED 200 Fri-Sun (fully redeemable) as 'September' special pricing. It needs rechecking in October. The 19 Aug 2026 What's On article gave the same figures but with different terms: non-redeemable for men, 50% redeemable for women. Source: https://www.driftbeachdubai.com/beach-club.html"
+      ],
+      "nearest_station": {
+        "name": "Dubai Media City",
+        "line": "Dubai Tram",
+        "straight_m": 166,
+        "walk_min": 3
+      }
+    },
+    {
+      "id": "83000000-0000-0000-0000-000000000003",
+      "name": "O Beach Dubai",
+      "address": "Habtoor Grand Hotel Beach Front, Al Seyahi Street, Dubai Marina (venue now closed)",
+      "lat": 25.0859102,
+      "lng": 55.1412937,
+      "coords_source": "OpenStreetMap node 12480115865 (Habtoor Grand Resort & Spa, the host hotel), an approximation; the TSV had no coords",
+      "phone": "+971 52 858 0464",
+      "website": "https://obeachdubai.com/",
+      "spend_pp_aed": null,
+      "age_limit": "21+ (physical ID required)",
+      "dress_code": "No body paint, novelty shoes, hen/stag accessories or sports team tops; proper swimwear in the pool",
+      "parking": null,
+      "reservations": null,
+      "licensed": true,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "good_to_know": "Closed: its Dubai Marina venue shut in September 2026 and no new location has been announced. Remove it from the deck.",
+      "sources": [
+        {
+          "fact": "O Beach Dubai closed its Dubai Marina venue on 16 Sep 2026; no new location announced",
+          "url": "https://whatson.ae/2026/09/o-beach-dubai-has-closed-its-venue-in-dubai-marina/"
+        },
+        {
+          "fact": "Address: Habtoor Grand Hotel Beach Front, Al Seyahi Street, Dubai Marina; contact 00971528580464",
+          "url": "https://obeachdubai.com/"
+        },
+        {
+          "fact": "Door policy: no entry for anyone under 21; Emirates ID, passport or driving licence required",
+          "url": "https://obeachdubai.com/terms-and-conditions/"
+        },
+        {
+          "fact": "Dress code rules and swimwear requirement; bed prices include a Champagne package at Ibiza Spray events",
+          "url": "https://obeachdubai.com/faqs/"
+        },
+        {
+          "fact": "Habtoor Grand Resort & Spa coordinates 25.0859102, 55.1412937",
+          "url": "https://www.openstreetmap.org/node/12480115865"
+        }
+      ],
+      "sources[0] (closure date)": "O Beach Dubai has closed its Dubai Marina venue (reported 16 Sep 2026); no new location announced",
+      "checker_notes": [
+        "sources[0] (closure date): Unsupported date. The What's On article is dated 16 Sep 2026 but gives no closure date. It says only that the club has closed its Dubai Marina venue and has not said where or when it will reopen. Separately, obeachdubai.com still shows 'Opening 24th October' under a 2025 copyright. That is stale, so it does not contradict the closure. Source: https://whatson.ae/2026/09/o-beach-dubai-has-closed-its-venue-in-dubai-marina/"
+      ],
+      "nearest_station": {
+        "name": "Jumeirah Beach Residence 1",
+        "line": "Dubai Tram",
+        "straight_m": 751,
+        "walk_min": 12
+      }
+    },
+    {
+      "id": "83000000-0000-0000-0000-000000000002",
+      "name": "Twiggy by La Cantine",
+      "address": "Park Hyatt Dubai, Dubai Creek Club Street, Dubai (venue closed)",
+      "lat": 25.244137,
+      "lng": 55.332819,
+      "coords_source": "TSV coords match OpenStreetMap relation 5829240 (Park Hyatt Dubai, the host hotel); kept",
+      "phone": "+971 4 602 1105",
+      "website": "https://twiggy.ae/",
+      "spend_pp_aed": "365",
+      "age_limit": "Adults only",
+      "dress_code": null,
+      "parking": null,
+      "reservations": "recommended",
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "good_to_know": "Closed: Twiggy became The Lagoon, which shut with Park Hyatt's renovation (closed 1 May 2026, due back late 2026). Remove it from the deck.",
+      "sources": [
+        {
+          "fact": "Twiggy closed, and the Park Hyatt beach club relaunched as The Lagoon, then closed for the hotel's renovation, set to reopen by end of year",
+          "url": "https://whatson.ae/2026/08/the-dubai-beach-clubs-that-are-open-and-closed-this-summer/"
+        },
+        {
+          "fact": "Park Hyatt Dubai closed on 1 May 2026; expected to reopen late 2026",
+          "url": "https://whatson.ae/2026/04/the-dubai-hotel-closures-and-renovations-to-know-about/"
+        },
+        {
+          "fact": "Location: Twiggy, Park Hyatt, Dubai Creek Club Street; bookings (0)4 602 1105; Lagoon Daycation Dhs365 per person",
+          "url": "https://whatson.ae/2025/09/twiggy-launches-weekday-lagoon-daycation/"
+        },
+        {
+          "fact": "Pre-booking recommended; restaurant open 12pm-1am",
+          "url": "https://whatson.ae/2025/11/make-it-a-midweek-mediterranean-escape-at-twiggys-lagoon/"
+        },
+        {
+          "fact": "Twiggy is marked 'Adults only' (Twiggy Family is the kids-friendly option)",
+          "url": "https://twiggy.ae/"
+        },
+        {
+          "fact": "Park Hyatt Dubai coordinates 25.2441369, 55.3328192",
+          "url": "https://www.openstreetmap.org/relation/5829240"
+        }
+      ],
+      "nearest_station": {
+        "name": "Al Garhoud",
+        "line": "Red Line",
+        "straight_m": 934,
+        "walk_min": 15
+      }
+    },
+    {
+      "id": "10000000-0000-0000-0000-000000000002",
+      "name": "Brasserie 2.0",
+      "address": "Le Royal Méridien Beach Resort & Spa, JBR, Dubai Marina",
+      "lat": 25.0842869,
+      "lng": 55.1404317,
+      "coords_source": "OpenStreetMap node 12480115864 (Le Royal Méridien Beach Resort & Spa, the host hotel); the TSV had no coords",
+      "phone": "+971 4 316 5555",
+      "website": null,
+      "spend_pp_aed": "395-795",
+      "age_limit": null,
+      "dress_code": null,
+      "parking": null,
+      "reservations": "recommended",
+      "licensed": true,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "good_to_know": "Saturday brunch runs 1:30-4:30pm. Book and pay by Thursday for 20% off, and ask for an alfresco table.",
+      "sources": [
+        {
+          "fact": "Saturday brunch 1:30-4:30pm; Dhs395 soft, Dhs545 sparkling, Dhs795 Champagne; book and pay by Thursday for 20% off",
+          "url": "https://whatson.ae/2026/04/best-saturday-brunches-dubai-2026/"
+        },
+        {
+          "fact": "Where: Le Royal Méridien Beach Resort & Spa, JBR; tel (0)4 316 5555",
+          "url": "https://whatson.ae/2026/04/best-saturday-brunches-dubai-2026/"
+        },
+        {
+          "fact": "Alfresco tables sit next to the bar and the BBQ station; live 'Voyage' entertainment",
+          "url": "https://whatson.ae/2025/12/best-outdoor-brunch-dubai/"
+        },
+        {
+          "fact": "Hotel coordinates 25.0842869, 55.1404317",
+          "url": "https://www.openstreetmap.org/node/12480115864"
+        }
+      ],
+      "nearest_station": {
+        "name": "Jumeirah Beach Residence 1",
+        "line": "Dubai Tram",
+        "straight_m": 551,
+        "walk_min": 9
+      }
+    },
+    {
+      "id": "10000000-0000-0000-0000-000000000003",
+      "name": "Ninive",
+      "address": "Jumeirah Emirates Towers, Sheikh Zayed Road, Dubai",
+      "lat": 25.2175,
+      "lng": 55.28194444,
+      "coords_source": "Wikipedia coordinates for the host building, Jumeirah Emirates Towers Hotel (approximate: Ninive itself is not mapped in OSM)",
+      "phone": "+971 4 326 6105",
+      "website": "https://ninive.ae/",
+      "licensed": true,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "age_limit": "18+ (valid ID required)",
+      "dress_code": "Smart elegant, no shorts",
+      "parking": "Valet parking for all guests",
+      "reservations": null,
+      "spend_pp_aed": null,
+      "good_to_know": "Seasonal outdoor venue on the Jumeirah Emirates Towers terrace, open evenings only (from 6pm). It reopens for the season on 1 Oct 2026.",
+      "sources": [
+        {
+          "fact": "Address Jumeirah Emirates Towers; phone 04 326 6105; open Sun-Thu 6pm-2am, Fri-Sat 6pm-3am; no brunch listed",
+          "url": "https://ninive.ae/"
+        },
+        {
+          "fact": "Licensed: cocktail list and wine menu",
+          "url": "https://ninive.ae/"
+        },
+        {
+          "fact": "Dress code smart elegant (no shorts); age policy 18+ with valid ID; valet parking available to all guests",
+          "url": "https://ninive.ae/"
+        },
+        {
+          "fact": "Phone +971 4 326 6105; dress code elegant",
+          "url": "https://www.jumeirah.com/en/stay/dubai/jumeirah-emirates-towers/dining/emirates-ninive"
+        },
+        {
+          "fact": "Minimum spend AED 250 per person on the a la carte menu",
+          "url": "https://whatson.ae/2024/10/theres-only-one-month-left-to-experience-the-magic-of-ninives-urban-majlis/"
+        },
+        {
+          "fact": "Reopens October 1 (2026 season) at Jumeirah Emirates Towers, Sheikh Zayed Road",
+          "url": "https://whatson.ae/2026/09/9-much-loved-dubai-restaurants-reopening-for-the-new-season/"
+        },
+        {
+          "fact": "Coordinates of Jumeirah Emirates Towers Hotel 25.2175, 55.28194",
+          "url": "https://en.wikipedia.org/wiki/Jumeirah_Emirates_Towers_Hotel"
+        }
+      ],
+      "checker_notes": [
+        "good_to_know: Partly unsupported. 'has no brunch service' is inferred only from the site not listing a brunch; no source says it. 'Garden venue' is not what the sources say: What's On 2026 calls it an outdoor dining spot and the 2024 article places it on the Emirates Towers terrace. The evening hours (from 6pm, ninive.ae) and the 1 Oct reopening (whatson.ae/2026/09/...) are supported.",
+        "spend_pp_aed: Stale. The AED 250 per person minimum spend is from an Oct 2024 What's On article about that season's Urban Majlis setup. What's On (Sept 2026) says the new season has a refreshed space and new dishes, and no current source gives a 2026 minimum spend or price."
+      ],
+      "nearest_station": {
+        "name": "Emirates Towers",
+        "line": "Red Line",
+        "straight_m": 210,
+        "walk_min": 3
+      }
+    },
+    {
+      "id": "10000000-0000-0000-0000-000000000001",
+      "name": "Reform Social & Grill",
+      "address": "The Lakes Club, Al Thanyah Third (The Lakes, Emirates Living), Dubai",
+      "lat": 25.0788963,
+      "lng": 55.1676834,
+      "coords_source": "OpenStreetMap node 4698938097 (matches TSV)",
+      "phone": "+971 4 454 2638",
+      "website": "https://www.reformsocialgrill.ae/",
+      "licensed": true,
+      "halal_friendly": false,
+      "vegetarian_options": true,
+      "age_limit": "All ages (family-friendly)",
+      "dress_code": null,
+      "parking": null,
+      "reservations": null,
+      "spend_pp_aed": "255-375",
+      "good_to_know": "A daily brunch costs AED 255 with soft drinks or AED 375 with house spirits and cocktails. Kids aged 6-12 are AED 99.",
+      "sources": [
+        {
+          "fact": "Address: The Lakes Club, Al Thaniya Third; phone +971 4 454 2638; breakfast 8am-12pm, restaurant 12pm-11pm, bar 11am-midnight",
+          "url": "https://www.reformsocialgrill.ae/contact/"
+        },
+        {
+          "fact": "Licensed: happy hour Mon-Fri 4pm-8pm on select beers, wines, spirits and cocktails (AED 37)",
+          "url": "https://www.reformsocialgrill.ae/happy-hour/"
+        },
+        {
+          "fact": "Menu includes pork dishes; vegetarian nut roast AED 115 on the Sunday roast menu; family gastropub with garden",
+          "url": "https://www.reformsocialgrill.ae/"
+        },
+        {
+          "fact": "Family-friendly lounge and garden serving British food",
+          "url": "https://www.visitdubai.com/en/restaurants/reform-social-grill"
+        },
+        {
+          "fact": "Saturday BBQ brunch: AED 225 soft drinks, AED 399 house beverages, AED 99 kids aged 6-12, under-6s free",
+          "url": "https://www.timeoutdubai.com/restaurants/brunch-review-reform-social-grill"
+        },
+        {
+          "fact": "Coordinates 25.0788963, 55.1676834",
+          "url": "https://www.openstreetmap.org/node/4698938097"
+        }
+      ],
+      "checker_notes": [
+        "spend_pp_aed: Stale. The AED 225/399 Saturday BBQ brunch figures come from a Time Out review that returns 403, so it can't be checked. Reform's own current brunch menu (dated Mar 2026, on https://www.reformsocialgrill.ae/brunch-menu/, image reform_daily-brunch-menu-mar2026.jpeg) lists a DAILY brunch at AED 255 non-alcoholic, AED 375 house spirits and cocktails, and AED 99 for kids aged 6-12.",
+        "good_to_know: Stale or unsupported. The Time Out source can't be fetched (403). The official Mar 2026 menu shows a daily brunch, not a Saturday garden BBQ brunch, and says nothing about under-6s eating free. Source: https://www.reformsocialgrill.ae/brunch-menu/"
+      ],
+      "nearest_station": {
+        "name": "Al Fardan Exchange",
+        "line": "Red Line",
+        "straight_m": 1469,
+        "walk_min": 24
+      }
+    },
+    {
+      "id": "10000000-0000-0000-0000-000000000004",
+      "name": "Saffron",
+      "address": "Atlantis, The Palm, Palm Jumeirah, Dubai",
+      "lat": 25.1304902,
+      "lng": 55.1171288,
+      "coords_source": "OpenStreetMap way 89790675, the Atlantis The Palm hotel building (approximate: the restaurant is inside it)",
+      "phone": "+971 4 426 2626",
+      "website": "https://www.atlantis.com/dubai/atlantis-the-palm/dining/saffron",
+      "licensed": true,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "age_limit": "21+ for brunch",
+      "dress_code": null,
+      "parking": null,
+      "reservations": null,
+      "spend_pp_aed": "525-775",
+      "good_to_know": "The Saturday party brunch runs 1-4pm and is strictly for over-21s.",
+      "sources": [
+        {
+          "fact": "Saturday brunch 1pm-4pm at Atlantis The Palm: AED 525 house, AED 575 sparkling, AED 775 Champagne; strictly over 21s",
+          "url": "https://whatson.ae/2026/04/best-saturday-brunches-dubai-2026/"
+        },
+        {
+          "fact": "Booking phone +971 4 426 0800; brunch for 21 and above; more than 220 dishes",
+          "url": "https://whatson.ae/2021/08/saffron-brunch-2-0-brunch-atlantis-the-palm-dubai/"
+        },
+        {
+          "fact": "Atlantis, The Palm sits at the apex of Palm Jumeirah",
+          "url": "https://en.wikipedia.org/wiki/Atlantis,_The_Palm"
+        },
+        {
+          "fact": "Atlantis hotel building coordinates 25.1304902, 55.1171288",
+          "url": "https://www.openstreetmap.org/way/89790675"
+        }
+      ],
+      "checker_notes": [
+        "phone: Stale. +971 4 426 0800 comes from a 2021 What's On article. The April 2026 What's On Saturday-brunch listing (https://whatson.ae/2026/04/best-saturday-brunches-dubai-2026/) gives Saffron's number as (0)4 426 2626."
+      ],
+      "nearest_station": {
+        "name": "Palm Jumeirah",
+        "line": "Dubai Tram",
+        "straight_m": 5276,
+        "walk_min": null,
+        "note": "taxi from station"
+      }
+    },
+    {
+      "id": "c0000000-0000-0000-0000-000000000002",
+      "name": "%Arabica JBR",
+      "address": "Al Mamsha Street, Jumeirah Beach Residence (JBR), Dubai",
+      "lat": 25.0787775,
+      "lng": 55.1339221,
+      "coords_source": "OpenStreetMap node 11438574382 (matches TSV)",
+      "phone": "+971 56 515 6483",
+      "website": "https://arabica.ae/store/arabica-dubai-marina-jbr-trailer/",
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "age_limit": null,
+      "dress_code": null,
+      "parking": null,
+      "reservations": null,
+      "spend_pp_aed": null,
+      "good_to_know": "This is a % Arabica coffee trailer by the beach, made for grabbing a coffee on the go.",
+      "sources": [
+        {
+          "fact": "Official store listing: '% ARABICA Dubai Marina JBR (Trailer)', a trailer-format stop for beachgoers to grab a coffee",
+          "url": "https://arabica.ae/store/arabica-dubai-marina-jbr-trailer/"
+        },
+        {
+          "fact": "Location 25.0787775, 55.1339221; phone +971 56 515 6483; website arabicacoffee.ae",
+          "url": "https://www.openstreetmap.org/node/11438574382"
+        }
+      ],
+      "checker_notes": [
+        "good_to_know: Overreach. The official store page (arabica.ae/store/arabica-dubai-marina-jbr-trailer/) says it is a % Trailer that lets customers 'easily stop by and grab a coffee' and addresses beachgoers. It says nothing about seating, so 'not a sit-down cafe' is unsupported.",
+        "reservations: Unsupported. Neither cited source (the arabica.ae store page and OSM node 11438574382) says anything about reservations or walk-in; the value is inferred from the trailer format."
+      ],
+      "nearest_station": {
+        "name": "Jumeirah Beach Residence 1",
+        "line": "Dubai Tram",
+        "straight_m": 448,
+        "walk_min": 7
+      }
+    },
+    {
+      "id": "c0000000-0000-0000-0000-000000000003",
+      "name": "Common Grounds",
+      "address": "Ground Floor, Almas Tower, Jumeirah Lakes Towers (JLT), Dubai",
+      "lat": 25.0689,
+      "lng": 55.1412,
+      "coords_source": "Wikipedia coordinates for Almas Tower, the host building (the cafe is not mapped in OSM)",
+      "phone": "800 3289",
+      "website": "https://eatx.com/common-grounds/",
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": true,
+      "age_limit": null,
+      "dress_code": null,
+      "parking": null,
+      "reservations": null,
+      "spend_pp_aed": null,
+      "good_to_know": "It closes at 5pm on weekends and 8pm on weekdays.",
+      "sources": [
+        {
+          "fact": "Almas Tower (JLT), ground level; 8AM-8PM weekdays, 8AM-5PM weekends",
+          "url": "https://eatx.com/common-grounds/"
+        },
+        {
+          "fact": "Almas Towers ground floor, JLT; phone 056 511 8733; plenty of dishes for vegetarians",
+          "url": "https://whatson.ae/2019/04/a-new-common-grounds-jlt-opens-in-almas-towers/"
+        },
+        {
+          "fact": "Almas Tower coordinates 25.0689, 55.1412",
+          "url": "https://en.wikipedia.org/wiki/Almas_Tower"
+        }
+      ],
+      "checker_notes": [
+        "phone: Stale. 056 511 8733 comes only from a What's On article at the April 2019 opening. The current official page (eatx.com/common-grounds/) gives no number for the Almas Tower branch; its only contact number is EATX's central line, 800 EATX (3289)."
+      ],
+      "nearest_station": {
+        "name": "DMCC",
+        "line": "Red Line",
+        "straight_m": 333,
+        "walk_min": 5
+      }
+    },
+    {
+      "id": "c0000000-0000-0000-0000-000000000004",
+      "name": "One Life Kitchen",
+      "address": "Unit R04, Building 5, Dubai Design District (d3), Dubai",
+      "lat": 25.1882164,
+      "lng": 55.2980663,
+      "coords_source": "OpenStreetMap node 4068644074 (matches TSV; the venue site lists 25.188279, 55.298004)",
+      "phone": "+971 4 513 4727",
+      "website": "https://www.onelifedxb.com/d3",
+      "licensed": true,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "age_limit": null,
+      "dress_code": null,
+      "parking": null,
+      "reservations": null,
+      "spend_pp_aed": null,
+      "good_to_know": "It closes at 6pm on weekends and public holidays (11pm on weekdays).",
+      "sources": [
+        {
+          "fact": "Building 5, Dubai Design District; tel 04 513 4727; weekdays 8AM-11PM, weekends and public holidays 10AM-6PM; reservations via WhatsApp",
+          "url": "https://www.onelifedxb.com/d3"
+        },
+        {
+          "fact": "Licensed: happy hour gives 20% off all alcoholic beverages",
+          "url": "https://www.onelifedxb.com/d3"
+        },
+        {
+          "fact": "'Wall-to-wall views of the D3 parking lot'; site coordinates 25.188279, 55.298004",
+          "url": "https://www.onelifedxb.com/d3"
+        },
+        {
+          "fact": "Unit R04, Building 5, Dubai Design District; 25.1882164, 55.2980663",
+          "url": "https://www.openstreetmap.org/node/4068644074"
+        }
+      ],
+      "checker_notes": [
+        "parking: Misread source. The line 'wall-to-wall views of the D3 parking lot' on onelifedxb.com/d3 is a joke about the view, not information about parking, and no source says anything about parking."
+      ],
+      "nearest_station": {
+        "name": "Burj Khalifa / Dubai Mall",
+        "line": "Red Line",
+        "straight_m": 3224,
+        "walk_min": null,
+        "note": "taxi from station"
+      }
+    },
+    {
+      "id": "c0000000-0000-0000-0000-000000000001",
+      "name": "Tom & Serg",
+      "address": "15A Street, Al Joud Center, Al Quoz, Dubai (near ACE Hardware)",
+      "lat": 25.1459715,
+      "lng": 55.2232999,
+      "coords_source": "OpenStreetMap node 3793737357 (matches TSV)",
+      "phone": "+971 56 474 6812",
+      "website": "https://eatx.com/tom-serg/",
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "age_limit": null,
+      "dress_code": null,
+      "parking": null,
+      "reservations": null,
+      "spend_pp_aed": null,
+      "good_to_know": "Daytime only: it closes at 5pm on weekdays and 6pm on weekends.",
+      "sources": [
+        {
+          "fact": "Location 15A Street, Al-Joud Center, Al Quoz, near ACE Hardware; open 8AM-5PM weekdays, 8AM-6PM weekends; phone +971 56 474 6812",
+          "url": "https://eatx.com/tom-serg/"
+        },
+        {
+          "fact": "Tom & Serg cafe at 25.1459715, 55.2232999; phone +971 56 474 6812",
+          "url": "https://www.openstreetmap.org/node/3793737357"
+        }
+      ],
+      "nearest_station": {
+        "name": "Garmin",
+        "line": "Red Line",
+        "straight_m": 1195,
+        "walk_min": 19
+      }
+    },
+    {
+      "id": "87000000-0000-0000-0000-000000000002",
+      "name": "Al Shindagha Museum",
+      "address": "Al Khaleej Street, Al Shindagha, Bur Dubai, Dubai",
+      "lat": 25.2664738,
+      "lng": 55.2889645,
+      "coords_source": "OpenStreetMap node 11927748577 (matches TSV)",
+      "phone": "800 33222",
+      "website": "https://alshindagha.dubaiculture.gov.ae/",
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "age_limit": null,
+      "dress_code": null,
+      "parking": null,
+      "reservations": null,
+      "spend_pp_aed": "20-50",
+      "good_to_know": "What's On reported free entry in 2024 with an abra, ferry or water-taxi receipt. Check that the offer still runs.",
+      "sources": [
+        {
+          "fact": "Tickets AED 50 adults, AED 20 young adults/children; free entry with an abra, ferry or water-taxi receipt (2024)",
+          "url": "https://whatson.ae/2024/03/heres-how-you-can-visit-al-shindagha-museum-for-free/"
+        },
+        {
+          "fact": "Contact 800 33222; website alshindagha.dubaiculture.gov.ae; entry includes The Perfume House",
+          "url": "https://whatson.ae/2022/04/museums-in-dubai/"
+        },
+        {
+          "fact": "Tickets sold through the Dubai Culture ticket portal",
+          "url": "https://www.visitdubai.com/en/places-to-visit/al-shindagha-museum"
+        },
+        {
+          "fact": "Al Shindagha Museum, 57 Al Khaleej Street, Al Shindagha; 25.2664738, 55.2889645",
+          "url": "https://www.openstreetmap.org/node/11927748577"
+        }
+      ],
+      "nearest_station": {
+        "name": "Al Ghubaiba",
+        "line": "Green Line",
+        "straight_m": 160,
+        "walk_min": 3
+      }
+    },
+    {
+      "id": "87000000-0000-0000-0000-000000000001",
+      "name": "Jameel Arts Centre",
+      "address": "Jaddaf Waterfront, Al Jaddaf, Dubai",
+      "lat": 25.2289912,
+      "lng": 55.3405048,
+      "coords_source": "OpenStreetMap relation 10547409 (matches TSV)",
+      "phone": "+971 4 873 9800",
+      "website": "https://jameelartscentre.org/",
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "age_limit": null,
+      "dress_code": null,
+      "parking": "Parking available outside, next to the Art Jameel Shop",
+      "reservations": "walk-in",
+      "spend_pp_aed": "0",
+      "good_to_know": "Entry is free and it is closed on Tuesdays. Al Jaddaf metro (Green Line) is a 12-minute walk.",
+      "sources": [
+        {
+          "fact": "Open-access and free for all; register at the Welcome Desk on arrival; Mon-Sun 10am-8pm, Tuesday closed",
+          "url": "https://jameelartscentre.org/visit/"
+        },
+        {
+          "fact": "12-minute walk from Al Jaddaf metro (Green Line); parking outside, next to the Art Jameel Shop; phone 04 8739 800",
+          "url": "https://jameelartscentre.org/visit/"
+        },
+        {
+          "fact": "Free entry at Jaddaf Waterfront; the adjacent Teible restaurant holds a Green Michelin Star",
+          "url": "https://whatson.ae/2026/03/indoor-activities-in-dubai-2025/"
+        },
+        {
+          "fact": "Jameel Arts Centre at 25.2289912, 55.3405048",
+          "url": "https://www.openstreetmap.org/relation/10547409"
+        }
+      ],
+      "checker_notes": [
+        "parking: 'Free-standing' is not in the source and could be read as 'free parking'. jameelartscentre.org/visit says only that parking is 'available outside the Jameel, adjacent to Art Jameel Shop'."
+      ],
+      "nearest_station": {
+        "name": "Al Jadaf",
+        "line": "Green Line",
+        "straight_m": 817,
+        "walk_min": 13
+      }
+    },
+    {
+      "id": "87000000-0000-0000-0000-000000000003",
+      "name": "Museum of the Future",
+      "address": "Sheikh Zayed Road, Trade Centre 2, Dubai (in front of Emirates Towers)",
+      "lat": 25.2191545,
+      "lng": 55.2818746,
+      "coords_source": "OpenStreetMap way 1054289435 (matches TSV and Wikipedia 25.21912, 55.2821)",
+      "phone": "800 2071",
+      "website": "https://museumofthefuture.ae/",
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "age_limit": null,
+      "dress_code": null,
+      "parking": null,
+      "reservations": null,
+      "spend_pp_aed": "169+",
+      "good_to_know": "Closed for a refresh since mid-Sept 2026, with reopening expected in Q1 2027. Don't deal it until then.",
+      "sources": [
+        {
+          "fact": "'The Museum of the Future is temporarily closed as we prepare for our next chapter.'",
+          "url": "https://www.museumofthefuture.ae/en"
+        },
+        {
+          "fact": "Closing mid September 2026 for new exhibitions; expected to reopen in the first quarter of 2027",
+          "url": "https://whatson.ae/2026/07/dubais-museum-of-the-future-is-closing-for-a-major-refresh/"
+        },
+        {
+          "fact": "Admission from AED 169 (before closure); Sheikh Zayed Road",
+          "url": "https://whatson.ae/2026/03/indoor-activities-in-dubai-2025/"
+        },
+        {
+          "fact": "Contact 800 2071; Sheikh Zayed Road in front of Emirates Towers",
+          "url": "https://whatson.ae/2022/04/museums-in-dubai/"
+        },
+        {
+          "fact": "Address Sheikh Zayed Road, Trade Centre 2; coordinates 25.21912, 55.2821",
+          "url": "https://en.wikipedia.org/wiki/Museum_of_the_Future"
+        },
+        {
+          "fact": "Building outline at 25.2191545, 55.2818746",
+          "url": "https://www.openstreetmap.org/way/1054289435"
+        }
+      ],
+      "nearest_station": {
+        "name": "Emirates Towers",
+        "line": "Red Line",
+        "straight_m": 293,
+        "walk_min": 5
+      }
+    },
+    {
+      "id": "20000000-0000-0000-0000-000000000003",
+      "name": "Black Tap",
+      "address": "Rixos Premium Dubai, The Walk, Jumeirah Beach Residence (JBR), Dubai",
+      "lat": 25.0802779,
+      "lng": 55.1360939,
+      "coords_source": "OpenStreetMap node 6404126485 (matches TSV; next to Rixos Premium Dubai, node 5602910622)",
+      "phone": "+971 4 399 9076",
+      "website": "https://blacktap.com/location/rixos-premium-jbr/",
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "age_limit": null,
+      "dress_code": null,
+      "parking": null,
+      "reservations": null,
+      "spend_pp_aed": null,
+      "good_to_know": "Go for the CrazyShake milkshakes. There are DJ nights on Tuesdays and Thursdays.",
+      "sources": [
+        {
+          "fact": "Rixos Premium JBR, The Walk, JBR; +971 4 399 9076; open 12pm-12am every day; CrazyShake; DJ nights Tuesdays and Thursdays; screens matches",
+          "url": "https://blacktap.com/location/rixos-premium-jbr/"
+        },
+        {
+          "fact": "Dubai locations: Dubai Mall and Rixos Premium JBR (The Walk)",
+          "url": "https://blacktap.com/locations/"
+        },
+        {
+          "fact": "Black Tap Craft Burgers & Shakes at 25.0802779, 55.1360939",
+          "url": "https://www.openstreetmap.org/node/6404126485"
+        },
+        {
+          "fact": "Rixos Premium Dubai at 25.0800854, 55.1358929",
+          "url": "https://www.openstreetmap.org/node/5602910622"
+        }
+      ],
+      "nearest_station": {
+        "name": "Jumeirah Beach Residence 1",
+        "line": "Dubai Tram",
+        "straight_m": 224,
+        "walk_min": 4
+      }
+    },
+    {
+      "id": "20000000-0000-0000-0000-000000000001",
+      "name": "Brix Dessert Bar",
+      "address": "Jumeirah Fishing Harbour, Shop 1, Al Urouba St, Jumeirah 2, Dubai",
+      "lat": 25.2101918,
+      "lng": 55.2435344,
+      "coords_source": "OpenStreetMap node 2626995575 'Brix Desserts', Jumeirah Fishing Harbour. The TSV had no coordinates. Note: sources put Brix at Jumeirah Fishing Harbour, not Al Wasl as the TSV says.",
+      "phone": "+971 54 515 7861",
+      "website": "https://www.brixtable.com",
+      "reservations": null,
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": true,
+      "spend_pp_aed": null,
+      "dress_code": null,
+      "age_limit": null,
+      "parking": null,
+      "good_to_know": "Details are for BRIX Café (Shop 1, next to 3Fils; daily 7am-11:30pm; all-day breakfast, plated desserts, specialty coffee). The dessert-bar experience is now BRIX Journey, multi-course dessert tastings at a 12-seat chef's table. The café menu lists no alcoholic drinks.",
+      "sources": [
+        {
+          "fact": "Address 'Jumeirah Fishing Harbour - Shop 1 - Al Urouba St - Jumeirah 2 - Dubai', phone +971 54 515 7861, open daily 7AM-11:30PM",
+          "url": "https://www.brixtable.com/cafe"
+        },
+        {
+          "fact": "Menu prices: desserts AED 31-90 (plated 39-65, fine-dining desserts 75-90), drinks AED 10-85. No alcohol listed. Vegetarian items include Avocado Toast (39) and Roasted Veggie sandwich (38)",
+          "url": "https://www.brixtable.com/menu"
+        },
+        {
+          "fact": "Brix is the dessert bar from the 3Fils team at Shop 2, Jumeirah Fishing Harbour. Five-course tasting menu with matched drinks was Dhs240 with 48 hours' notice (2020 review)",
+          "url": "https://whatson.ae/2020/11/brix-dessert-bar-dubai-five-course-tasting-menu/"
+        },
+        {
+          "fact": "Brix Café opened in November 2023 at Jumeirah Fishing Harbour 1 and has an outdoor terrace",
+          "url": "https://whatson.ae/2023/11/inside-jumeirahs-stunning-new-seaside-spot-brix-cafe/"
+        },
+        {
+          "fact": "Listed as 'The only fine dining dessert bar in Dubai', price band $$-$$$",
+          "url": "https://www.visitdubai.com/en/restaurants/brix"
+        },
+        {
+          "fact": "Coordinates: OSM node 'Brix Desserts' at 25.2101918, 55.2435344",
+          "url": "https://www.openstreetmap.org/node/2626995575"
+        }
+      ],
+      "checker_notes": [
+        "good_to_know: The record merges two venues. The address, phone, hours (brixtable.com/cafe) and menu (brixtable.com/menu, linked as 'View The Café Menu') all belong to BRIX Café. The original dessert bar (What's On 2020: 'Shop 2', a five-course tasting with matched drinks) is now 'BRIX Journey', which brixtable.com describes as 'two curated multi course dessert tasting experiences served at our exclusive 12-seat chef's table'. The claim 'official menu lists no alcoholic drinks' applies only to the café menu."
+      ],
+      "nearest_station": {
+        "name": "Business Bay",
+        "line": "Red Line",
+        "straight_m": 2699,
+        "walk_min": null,
+        "note": "taxi from station"
+      }
+    },
+    {
+      "id": "20000000-0000-0000-0000-000000000004",
+      "name": "Cocoa Room",
+      "address": "G Floor, Galleria Mall, Al Wasl Road, Jumeirah 1, Dubai",
+      "lat": 25.2071225,
+      "lng": 55.2544833,
+      "coords_source": "OpenStreetMap way 448542508 'Galleria' mall on Al Wasl St. This is the mall's centroid, not the café's own point. The TSV had no coordinates. No JLT branch was found in any source; the TSV area 'JLT' looks wrong.",
+      "phone": "600 544005",
+      "website": "https://www.cocoaroomdxb.co/",
+      "reservations": "walk-in",
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "spend_pp_aed": null,
+      "dress_code": null,
+      "age_limit": null,
+      "parking": null,
+      "good_to_know": "No reservations, first come first served. Sources place it in Galleria Mall on Al Wasl Road, not JLT.",
+      "sources": [
+        {
+          "fact": "Address 'G Floor, Galleria Mall, Al Wasl Road, Jumeirah 1 - Dubai', Tel 600 544005, open 7 days. 'We do not take reservations. Guests are seated based on our first come, first served policy.'",
+          "url": "https://www.cocoaroomdxb.co/"
+        },
+        {
+          "fact": "Listed as a breakfast/brunch restaurant, price band $$-$$$",
+          "url": "https://www.visitdubai.com/en/restaurants/cocoa-room"
+        },
+        {
+          "fact": "Known for its burnt marshmallow hot chocolate made with Valrhona chocolate",
+          "url": "https://www.timeoutdubai.com/food-drink/most-indulgent-hot-chocolate-in-dubai"
+        },
+        {
+          "fact": "Mall location: OSM way 'Galleria', Al Wasl St, centroid 25.2071225, 55.2544833",
+          "url": "https://www.openstreetmap.org/way/448542508"
+        }
+      ],
+      "nearest_station": {
+        "name": "Burj Khalifa / Dubai Mall",
+        "line": "Red Line",
+        "straight_m": 1642,
+        "walk_min": null,
+        "note": "taxi from station"
+      }
+    },
+    {
+      "id": "20000000-0000-0000-0000-000000000002",
+      "name": "Scoopi Cafe",
+      "address": "Jumeirah Beach Road, Umm Suqeim 2, Dubai",
+      "lat": null,
+      "lng": null,
+      "coords_source": "unknown. OpenStreetMap has no Scoopi node, and the TSV had no coordinates.",
+      "phone": null,
+      "website": null,
+      "reservations": null,
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "spend_pp_aed": null,
+      "dress_code": null,
+      "age_limit": null,
+      "parking": null,
+      "good_to_know": "Liquid-nitrogen ice cream café (What's On, 2015). Operating status unverified: the newest sources are 2019-2022 and its own domain has lapsed, so confirm it is open before dealing it. Do not link scoopicafe.com.",
+      "sources": [
+        {
+          "fact": "Dubai-born, family-owned ice cream café. Flagship store on Jumeirah Beach Road, Jumeirah 3",
+          "url": "https://www.timeoutdubai.com/restaurants/scoopi"
+        },
+        {
+          "fact": "Flagship store re-opened with a new menu",
+          "url": "https://www.timeoutdubai.com/food-drink/food-news/400216-scoopi-cafe-re-opens-new-flagship-store-with-brand-new-menu"
+        },
+        {
+          "fact": "Signature 'Black Diamond' scoop priced at Dhs2,999",
+          "url": "https://whatson.ae/2015/02/scoopi-cafe-unveils-dhs3000-ice-cream-in-dubai/"
+        }
+      ],
+      "checker_notes": [
+        "address: Wrong area. The Time Out Scoopi listing (archived May 2022) gives 'Address: Jumeirah Rd, Umm Suqeim 2 - Dubai', Area: Umm Suqeim. It does not say Jumeirah 3. The live Time Out URL returns 403, and the listing no longer appears in Time Out's own search API.",
+        "good_to_know: Stale. The newest Scoopi coverage from an allowed source is from 2019 to 2022 (Time Out re-opening 2019, listing archived 2022, What's On 2015). The Time Out restaurant listing no longer shows up in Time Out's own search, and the venue's own domain has lapsed to gambling content. No source confirms it is still trading in 2026. The liquid-nitrogen claim itself is supported by What's On (2015). Small note on the sources: What's On gives the Black Diamond price as Dhs3,000, not Dhs2,999."
+      ]
+    },
+    {
+      "id": "a0000000-0000-0000-0000-000000000003",
+      "name": "3Fils",
+      "address": "Shop 02, Jumeirah Fishing Harbour 1, Al Urouba Street, Jumeirah 1, Dubai",
+      "lat": 25.2103004,
+      "lng": 55.2433123,
+      "coords_source": "OpenStreetMap node 11806278571 '3 Fils', Jumeirah Fishing Harbour. The TSV had no coordinates.",
+      "phone": "+971 56 273 0030",
+      "website": "https://www.3fils.com/",
+      "reservations": "walk-in",
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "spend_pp_aed": null,
+      "dress_code": null,
+      "age_limit": null,
+      "parking": null,
+      "good_to_know": "Walk-ins only, so arrive early. The official menu lists only non-alcoholic beer.",
+      "sources": [
+        {
+          "fact": "Dubai address 'Shop 02, Jumeirah Fishing Harbor 1, Al Urouba Street, Jumeirah 1, Dubai', phone +971 56 273 0030, email info@3fils.com, hours 12PM-11:30PM, 'Walk-ins only'",
+          "url": "https://www.3fils.com/"
+        },
+        {
+          "fact": "Menu items range from AED 15 (San Pellegrino small) to AED 385 (Wagyu Sando). No alcohol listed; Biere des Amis and Corona Cero are listed as non-alcoholic beer. Vegetable dishes (shroom tempura, asparagus tempura, seaweed salad) exist but none are marked vegetarian",
+          "url": "https://www.3fils.com/menu"
+        },
+        {
+          "fact": "Modern Asian cuisine recognised by the 2025 Michelin Guide; price band $$-$$$",
+          "url": "https://www.visitdubai.com/en/restaurants/3-fils"
+        },
+        {
+          "fact": "Coordinates: OSM node '3 Fils' at 25.2103004, 55.2433123",
+          "url": "https://www.openstreetmap.org/node/11806278571"
+        }
+      ],
+      "nearest_station": {
+        "name": "Business Bay",
+        "line": "Red Line",
+        "straight_m": 2723,
+        "walk_min": null,
+        "note": "taxi from station"
+      }
+    },
+    {
+      "id": "a0000000-0000-0000-0000-000000000004",
+      "name": "Bu Qtair",
+      "address": "Old 32B Street, Fishing Harbour 2, Dubai",
+      "lat": 25.1515093,
+      "lng": 55.1971669,
+      "coords_source": "OpenStreetMap node 4219382992 'Bu Qtair Fish Restaurant' (25.1515093, 55.1971669); the node has no street tags.",
+      "phone": "+971 55 705 2130",
+      "website": "https://www.buqtairrestaurant.com/",
+      "reservations": null,
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "spend_pp_aed": null,
+      "dress_code": null,
+      "age_limit": null,
+      "parking": null,
+      "good_to_know": "Budget seafood institution at the fishing harbour near Burj Al Arab and Kite Beach. No menu: the day's catch and prawns are priced by weight. Cash only (official site). Expect a queue.",
+      "sources": [
+        {
+          "fact": "Family-run since the early 1980s, just off Umm Suqeim Fishing Harbour. Fishing Harbour 2, Umm Suqeim; open daily 11.30am-11.30pm; phone 055 705 2130; known for queues",
+          "url": "https://www.timeoutdubai.com/uncategorized-content/407186-queue-for-seafood-at-bu-qtair"
+        },
+        {
+          "fact": "'A popular beachfront restaurant serving celebrated seafood', price band $",
+          "url": "https://www.visitdubai.com/en/restaurants/bu-qtair"
+        },
+        {
+          "fact": "Coordinates: OSM node 'Bu Qtair Fish Restaurant', Al Soon Street, 25.1515093, 55.1971669",
+          "url": "https://www.openstreetmap.org/node/4219382992"
+        }
+      ],
+      "checker_notes": [
+        "address: 'Al Soon Street, Umm Suqeim 2' is unsupported. The official site (buqtairrestaurant.com, from its JS bundle) says 'Old 32B Street, Fishing Harbour 2 - Dubai'. OSM node 4219382992 has no address tags at all, and the cited Time Out article (407186) has an empty body when fetched through Time Out's API.",
+        "coords_source: It credits the street name 'Al Soon Street, Umm Suqeim 2' to the OSM node, but node 4219382992 carries only amenity, cuisine, name, seating and wheelchair tags. The lat/lng values do match the node exactly.",
+        "good_to_know: 'Family-run' could not be verified, because the Time Out article text is not retrievable. The official site leaves out a useful fact: 'it's a card-free spot so make sure you visit with a pocket full of cash', with 'a filling meal for under Dhs150 for two'. It also says the wait is worth it, which supports the queue."
+      ],
+      "nearest_station": {
+        "name": "Equiti",
+        "line": "Red Line",
+        "straight_m": 2965,
+        "walk_min": null,
+        "note": "taxi from station"
+      }
+    },
+    {
+      "id": "a0000000-0000-0000-0000-000000000002",
+      "name": "Ravi Restaurant",
+      "address": "Shop 245, Al Dhiyafa Road, opposite Union Co-operative Society, Al Satwa, Dubai",
+      "lat": 25.2336615,
+      "lng": 55.2790297,
+      "coords_source": "OpenStreetMap node 2639079550 'Ravi' (cuisine pakistani), 25.2336615, 55.2790297; the node has no street tag.",
+      "phone": null,
+      "website": null,
+      "reservations": null,
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": true,
+      "spend_pp_aed": "<40",
+      "dress_code": null,
+      "age_limit": null,
+      "parking": null,
+      "good_to_know": "Legendary budget Pakistani spot in Satwa (a second branch is in Karama). Time Out: a group of four would be hard-pushed to spend more than Dhs150. Try the chicken jalfrezi and dhal fry.",
+      "sources": "https://www.timeoutdubai.com/restaurants/ravi-restaurant",
+      "checker_notes": [
+        "good_to_know: '1978' and 'open 5am-2am' are unsupported. The Time Out listing that is retrievable (review dated Sept 2018, through Time Out's API and the 2022 archive) gives neither: the archived hours read '5:00 AM TO 5:30 AM' daily, and there is no founding year. Visit Dubai gives neither. The live Time Out page returns 403.",
+        "sources: Wrong attribution. The 'group of four ... Dhs150' quote and the Shop #245 Al Dhiyafa Rd address are on the Time Out listing /restaurants/ravi-restaurant (review dated 10 Sept 2018). The feature article 407419 returns an empty body. That review is from 2018, so spend_pp_aed '<40' rests on 2018 prices, though Time Out still publishes it (modified 2026-04-22). The same listing gives phone 04 331 5353 (archived 2022).",
+        "coords_source: It says the OSM node is on 'Al Satwa Road', but node 2639079550 has no street tag, only amenity=restaurant, cuisine=pakistani, name=Ravi. The coordinates do match exactly."
+      ],
+      "nearest_station": {
+        "name": "World Trade Centre",
+        "line": "Red Line",
+        "straight_m": 1157,
+        "walk_min": 19
+      }
+    },
+    {
+      "id": "a0000000-0000-0000-0000-000000000001",
+      "name": "Reif Japanese Kushiyaki",
+      "address": "Dubai Hills Business Park, Building 3, Dubai",
+      "lat": null,
+      "lng": null,
+      "coords_source": "unknown. The only OSM 'Reif' node (10741172694) is the Al Wasl branch, not Dubai Hills, and the business-park centroid is too coarse to use.",
+      "phone": "+971 4 255 5142",
+      "website": "https://www.reifkushiyaki.com/dubai-hills",
+      "reservations": null,
+      "licensed": true,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "spend_pp_aed": null,
+      "dress_code": "Dress code enforced (posted at the door); smart, no flip-flops. Source: https://www.timeoutdubai.com/restaurants/reif-japanese-kushiyaki-dubai-hills",
+      "age_limit": null,
+      "parking": "Valet parking available",
+      "good_to_know": "Dubai Hills is the fuller-menu branch with a licensed bar. Book online.",
+      "sources": [
+        {
+          "fact": "Address 'Dubai Hills Business Park, Building 3'; phone +971 (0)4 255 5142; reservations@reifkushiyaki.com; a fully licensed bar; 'Valet parking available'; hours Mon-Thu 12pm-11pm, Fri 12pm-12am, Sat 10am-12am, Sun 10am-11pm; Denka private room seats up to 12",
+          "url": "https://www.reifkushiyaki.com/dubai-hills"
+        },
+        {
+          "fact": "Branches listed include Dar Wasl, Dubai Hills, City Centre Mirdif and Time Out Market in Dubai",
+          "url": "https://www.reifkushiyaki.com/"
+        }
+      ],
+      "checker_notes": [
+        "dress_code: Null, but a source states it. Time Out's Dubai Hills review (2023, modified 2025-05) says: 'you'll need to look the part – which is further clarified by a note at the door that makes the dress code rules clear. Definitely not somewhere to rock up in your oldest pair of flip-flops.'"
+      ]
+    },
+    {
+      "id": "a0000000-0000-0000-0000-000000000005",
+      "name": "Tresind Studio",
+      "address": "St. Regis Gardens, The Palm Jumeirah, Dubai",
+      "lat": null,
+      "lng": null,
+      "coords_source": "unknown. OpenStreetMap has no Trèsind Studio node; the OSM 'Tresind' node is the old Sheikh Zayed Road site. The venue is now on Palm Jumeirah, not DIFC as the TSV says.",
+      "phone": "+971 4 242 1666",
+      "website": "https://tresindstudio.com/",
+      "reservations": "required",
+      "licensed": true,
+      "halal_friendly": null,
+      "vegetarian_options": true,
+      "spend_pp_aed": "1350+",
+      "dress_code": "Smart-elegant: long trousers or jeans, jackets recommended for men, closed shoes. No beachwear, trainers or runners; traditional attire welcome",
+      "age_limit": "No children under 14",
+      "parking": "Complimentary valet",
+      "good_to_know": "Three Michelin stars. You pay AED 1,350 per person in advance, refundable only if you cancel 48 hours before.",
+      "sources": [
+        {
+          "fact": "Address 'St. Regis Gardens, The Palm Jumeirah - Dubai'; phone +971 4 242 1666; open Mon-Sat 6pm-11pm; tasting menu AED 1350; Papadom bar serves cocktails and premium wine labels; 60% vegetarian and fully vegetarian menus offered as standard",
+          "url": "https://tresindstudio.com/"
+        },
+        {
+          "fact": "Advance payment of AED 1350 per person (food only). Full refund only if cancelled 48+ hours ahead. Smart-elegant dress code. No children under 14. Seatings 6:00-9:00pm and 9:15pm-midnight Mon-Sat. Complimentary valet parking",
+          "url": "https://tresindstudio.com/reservation-policy/"
+        },
+        {
+          "fact": "In May 2025 it became the first Indian restaurant in the world to get three Michelin stars",
+          "url": "https://en.wikipedia.org/wiki/Tr%C3%A8sind_Studio"
+        }
+      ]
+    },
+    {
+      "id": "8b000000-0000-0000-0000-000000000003",
+      "name": "Anantara World Islands Dubai",
+      "address": "South America island, World Islands, Dubai (plus code 55VG+QWX)",
+      "lat": 25.194487,
+      "lng": 55.177359,
+      "coords_source": "Decoded from plus code 55VG+QWX (7HQQ55VG+QWX) on the official website. The TSV had no coordinates.",
+      "phone": null,
+      "website": "https://anantaraworldislands.com/",
+      "reservations": null,
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "spend_pp_aed": null,
+      "dress_code": null,
+      "age_limit": null,
+      "parking": null,
+      "good_to_know": "CLOSED: the resort stopped operating on 10 April 2026. Remove it from the deck.",
+      "sources": "Add https://whatson.ae/2026/04/it-looks-like-the-anantara-world-islands-hotel-in-dubai-has-closed-heres-what-we-know/ (15 Apr 2026: bookings removed, no longer on the Anantara website)",
+      "checker_notes": [
+        "sources: The closure is cited only from sources outside the allowed list (Khaleej Times confirms the Minor Hotels statement that it 'ceased operations on April 10, 2026'). An allowed source says the same. The official site still shows 'Reserve your island stay', so it is stale. The plus-code decode to 25.194487, 55.177359 checks out."
+      ],
+      "nearest_station": {
+        "name": "Garmin",
+        "line": "Red Line",
+        "straight_m": 6721,
+        "walk_min": null,
+        "note": "taxi from station"
+      }
+    },
+    {
+      "id": "8b000000-0000-0000-0000-000000000001",
+      "name": "Bab Al Shams",
+      "address": "Al Qudra Road (near Al Qudra Lakes), Dubai. Phone +971 4 809 6100. Source: https://whatson.ae/2024/12/staycation-review-bab-al-shams-new-desert-pool-villas-are-the-perfect-winter-getaway/",
+      "lat": null,
+      "lng": null,
+      "coords_source": "unknown. OpenStreetMap has no resort node (the 'Bab Al Shams Farm' features are a different place), and the official site did not load during research.",
+      "phone": null,
+      "website": "https://www.babalshams.com/",
+      "reservations": null,
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "spend_pp_aed": null,
+      "dress_code": null,
+      "age_limit": null,
+      "parking": null,
+      "good_to_know": "Luxury desert resort. Details are unverified because the official site timed out, so confirm directly.",
+      "sources": [
+        {
+          "fact": "Listed as 'a dream-like desert resort' where guests can retreat and rejuvenate, under Hotels & Accommodation, price band $$$$",
+          "url": "https://www.visitdubai.com/en/places-to-visit/bab-al-shams-desert-resort-spa"
+        }
+      ],
+      "checker_notes": [
+        "address: Null, but an allowed source gives it. What's On (Dec 2024 staycation review) lists 'Bab Al Shams, Al Qudra Road, Dubai ... Tel: (0)4 809 6100', near Al Qudra Lakes. The resort still appears in What's On coverage in 2026."
+      ]
+    },
+    {
+      "id": "8b000000-0000-0000-0000-000000000002",
+      "name": "Hatta Dome Park",
+      "address": "Hatta Wadi Hub, off the Dubai-Hatta road, Hatta, Dubai",
+      "lat": null,
+      "lng": null,
+      "coords_source": "unknown. OpenStreetMap has no dome-park node; the nearest mapped feature is Hatta Wadi Hub (OSM node 6216720123, 24.8139804, 56.1598617), which is not the domes' own location.",
+      "phone": "+971 4 820 5555",
+      "website": "https://www.visithatta.com/en/stays/hatta-dome-park",
+      "reservations": null,
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "spend_pp_aed": null,
+      "dress_code": null,
+      "age_limit": null,
+      "parking": null,
+      "good_to_know": "Seasonal: closed over summer; Season 9 opens 28 September 2026. Each dome sleeps 2 adults and 2 children (12 and under), about a 90-minute drive from the city.",
+      "sources": [
+        {
+          "fact": "Location 'Hatta Wadi Hub, located off the Dubai-Hatta road'. Phone +97148205555 / +97148205500 (9am-7pm daily). Book via hotelreservation@hattaresorts.com. Each dome takes 2 adults and 2 children (12 and under). Includes firewood and charcoal, unlimited adventure activities, AC and mini bar. 'SEASON 9 OPENS 28 SEPTEMBER'",
+          "url": "https://www.visithatta.com/en/stays/hatta-dome-park"
+        },
+        {
+          "fact": "Rates from Dhs765 per night on weekdays and Dhs1,350 on weekends for a family of four. Breakfast delivered to the dome, 20% off hub activities, Hatta Wild Café and food trucks on site (Oct 2024 review)",
+          "url": "https://whatson.ae/2024/10/glamping-review-hatta-dome-park/"
+        },
+        {
+          "fact": "Glamping in stylish dome tents in Hatta",
+          "url": "https://www.visitdubai.com/en/places-to-visit/hatta-dome-park"
+        }
+      ],
+      "checker_notes": [
+        "good_to_know: This goes stale tomorrow and has no year. The visithatta.com page says 'SEASON 9 OPENS 28 SEPTEMBER'. What's On says Hatta Wadi Hub and its glamping closed on 3 May 2026 (Season 8 reopened on 15 Sept 2025), so the date is 28 Sept 2026. Today is 27 Sept 2026. The '2 adults & 2 children (12 years and below)' and '90-minute drive' claims are supported."
+      ]
+    },
+    {
+      "id": "8a000000-0000-0000-0000-000000000002",
+      "name": "Dubai Safari Park",
+      "address": "Al Warqa 5, Dubai (E44 / Hatta Road, opposite Dragon Mart)",
+      "lat": 25.1793246,
+      "lng": 55.4515731,
+      "coords_source": "OpenStreetMap way 551627055 (Dubai Safari Park, Al Warqa); matches TSV",
+      "phone": "+971 800 900",
+      "website": "https://www.dubaisafari.ae/",
+      "spend_pp_aed": "50-117",
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "age_limit": null,
+      "dress_code": null,
+      "parking": "Free on-site parking, including People of Determination spaces and EV charging",
+      "reservations": null,
+      "good_to_know": "Closed for the season right now; Season 8 opens in October 2026, so check it has reopened before you plan",
+      "sources": [
+        {
+          "fact": "Address Al Warqa 5, Dubai (E44/Hatta Road, opposite Dragon Mart); phone +971 800 900",
+          "url": "https://www.dubaisafari.ae/"
+        },
+        {
+          "fact": "\"Dubai Safari Park is currently closed for the season. Tickets for Season 8 will be available from October 2026.\"",
+          "url": "https://www.dubaisafari.ae/"
+        },
+        {
+          "fact": "Safari Park Pass AED 50; Safari Bundle AED 117 (online, includes Explorer Safari Tour); children under 3 free",
+          "url": "https://www.dubaisafari.ae/"
+        },
+        {
+          "fact": "Free Parking: available on-site including spaces for People of Determination and EV charging stations",
+          "url": "https://www.dubaisafari.ae/"
+        },
+        {
+          "fact": "Winter hours (Nov-Mar) 9am-8pm; summer (Apr-Oct) 9am-6pm; last entry one hour before closing",
+          "url": "https://www.dubaisafari.ae/"
+        },
+        {
+          "fact": "Coordinates 25.1793246, 55.4515731",
+          "url": "https://www.openstreetmap.org/way/551627055"
+        }
+      ],
+      "checker_notes": [
+        "age_limit: Wrong field. 'Children under 3 years old' appears under FREE ENTRY on dubaisafari.ae, so it is a pricing rule, not an age restriction. No source gives a minimum or maximum age. Move the under-3 fact to pricing or good_to_know.",
+        "sources (parking): Wrong citation. The homepage only lists 'free parking' as part of the Safari Park Pass. The People of Determination spaces and EV charging text ('ample free parking available on-site, including spaces for People of Determination and EV charging stations') is on the FAQ page, and /plan-your-visit/ says '3 available parking areas, EV Charging available at P1'. The parking value itself is correct."
+      ],
+      "sources (parking)": "https://www.dubaisafari.ae/faq",
+      "nearest_station": {
+        "name": "Centrepoint",
+        "line": "Red Line",
+        "straight_m": 8314,
+        "walk_min": null,
+        "note": "taxi from station"
+      }
+    },
+    {
+      "id": "8a000000-0000-0000-0000-000000000003",
+      "name": "KidZania Dubai",
+      "address": "Level 2, The Dubai Mall, Dubai",
+      "lat": 25.1950306,
+      "lng": 55.279989,
+      "coords_source": "OpenStreetMap node 4521783461 (KidZania, website tag dubai.kidzania.com); matches TSV",
+      "phone": "800 38224 6255 (800-DUBAI-MALL)",
+      "website": "https://dubai.kidzania.com/en-ae",
+      "spend_pp_aed": "90-260",
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "age_limit": "Activities suit ages 4-16; adults must come with a child; under-120cm must be accompanied",
+      "dress_code": null,
+      "parking": null,
+      "reservations": null,
+      "good_to_know": "No outside food; eat at McDonald's, Pizza Express or Reel Cinemas Cafe inside",
+      "sources": [
+        {
+          "fact": "Economy (4-16) AED 195, Premium (4-16) AED 260, Adult (17+) AED 90, Toddler (2-3) AED 130, Baby free",
+          "url": "https://dubai.kidzania.com/en-ae/pages/ticket-prices"
+        },
+        {
+          "fact": "Sun-Thu 10am-10pm (last entry 9pm); Fri-Sat 10am-11pm (last entry 10pm)",
+          "url": "https://dubai.kidzania.com/en-ae/pages/ticket-prices"
+        },
+        {
+          "fact": "\"Adults must be accompanied by a toddler or a kid to access KidZania\"",
+          "url": "https://dubai.kidzania.com/en-ae/pages/ticket-prices"
+        },
+        {
+          "fact": "Located at Level 2, The Dubai Mall; phone 800-DUBAI-MALL (800 38224 6255)",
+          "url": "https://dubai.kidzania.com/en-ae/pages/we-care-contact-us"
+        },
+        {
+          "fact": "Most activities suited to ages 4-16; children below 120cm must be accompanied; no outside food, outlets inside are McDonalds, Pizza Express, Reel Cinemas Cafe",
+          "url": "https://dubai.kidzania.com/en-ae/faq"
+        },
+        {
+          "fact": "Coordinates 25.1950306, 55.279989",
+          "url": "https://www.openstreetmap.org/node/4521783461"
+        }
+      ],
+      "nearest_station": {
+        "name": "Burj Khalifa / Dubai Mall",
+        "line": "Red Line",
+        "straight_m": 1269,
+        "walk_min": 21
+      }
+    },
+    {
+      "id": "8a000000-0000-0000-0000-000000000001",
+      "name": "OliOli",
+      "address": "62 4A St, Al Quoz 1, Dubai",
+      "lat": null,
+      "lng": null,
+      "coords_source": "unknown: not found in OpenStreetMap",
+      "phone": "+971 4 702 7300",
+      "website": "https://olioli.ae/",
+      "spend_pp_aed": "149-189",
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "age_limit": "Children 12 months-16 years; adults must come with a child",
+      "dress_code": null,
+      "parking": "Free parking for OliOli visitors",
+      "reservations": null,
+      "good_to_know": "Each child ticket includes one free adult; bring socks for the sock-only zones",
+      "sources": [
+        {
+          "fact": "Discovery child (2-16) AED 149 (2h) / AED 179 (3h); Full Access child AED 179 (2h) / AED 189 (3h); toddler (12-23 months) AED 74-94",
+          "url": "https://olioli.ae/book-tickets/"
+        },
+        {
+          "fact": "\"1 Child ticket includes 1 free adult!\"; adults must be accompanied by a child to enter",
+          "url": "https://olioli.ae/book-tickets/"
+        },
+        {
+          "fact": "Address 62 4 A St, Al Quoz; phone +971 4 702 7300",
+          "url": "https://olioli.ae/book-tickets/"
+        },
+        {
+          "fact": "\"Free parking is available for OliOli visitors\"; cafe on site; socks required in sock-only zones (sold at reception)",
+          "url": "https://olioli.ae/book-tickets/"
+        },
+        {
+          "fact": "Hours Mon-Thu 9am-6pm, Fri 9am-7pm, Sat 9am-8pm, Sun 9am-7pm",
+          "url": "https://olioli.ae/book-tickets/"
+        }
+      ]
+    },
+    {
+      "id": "f0000000-0000-0000-0000-000000000002",
+      "name": "Bounce",
+      "address": "Building #32, 4B Street, Al Quoz 1, Dubai",
+      "lat": null,
+      "lng": null,
+      "coords_source": "unknown: Al Quoz branch not found in OpenStreetMap",
+      "phone": "+971 4 304 9333",
+      "website": "https://bounce.ae/locations/alquoz-dubai/",
+      "spend_pp_aed": "150",
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "age_limit": null,
+      "dress_code": null,
+      "parking": "Parking behind the building; RTA paid parking in front",
+      "reservations": null,
+      "good_to_know": "Current 2-hour packages are AED 150 and include a treat (ice cream, ICEE or kids meal)",
+      "sources": [
+        {
+          "fact": "Address Building #32, 4B Street, Al Quoz 1; phone +971 4 304 9333",
+          "url": "https://bounce.ae/locations/alquoz-dubai/"
+        },
+        {
+          "fact": "Hours Mon-Fri 12pm-9pm, Sat-Sun 10am-8pm",
+          "url": "https://bounce.ae/locations/alquoz-dubai/"
+        },
+        {
+          "fact": "\"Parking available in the back of the building. RTA parking available in the front.\"",
+          "url": "https://bounce.ae/locations/alquoz-dubai/"
+        },
+        {
+          "fact": "Offers: 2 hours + ice cream AED 150; 2 hours + free kids meal + 25% off F&B AED 150; 2 hours + ICEE AED 150",
+          "url": "https://bounce.ae/locations/alquoz-dubai/"
+        }
+      ]
+    },
+    {
+      "id": "f0000000-0000-0000-0000-000000000003",
+      "name": "Dubai Bowling Centre",
+      "address": "Al Quoz 1, Meydan Road, Dubai",
+      "lat": 25.1751126,
+      "lng": 55.2559282,
+      "coords_source": "OpenStreetMap node 988933691 (Dubai Bowling Centre, Al Quoz 1); matches TSV and building way 244910524",
+      "phone": "+971 4 339 1010",
+      "website": "https://bowlingdubai.com/",
+      "spend_pp_aed": "26-55",
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "age_limit": null,
+      "dress_code": null,
+      "parking": null,
+      "reservations": null,
+      "good_to_know": "Weekday games before 6pm are cheapest (AED 26 a game); no more than 5 players per lane",
+      "sources": [
+        {
+          "fact": "Address Al Quoz 1, Meydan Rd; phone 04 339 1010 / 04 349 9916; call to reserve a lane; YAMU restaurant on site",
+          "url": "https://bowlingdubai.com/"
+        },
+        {
+          "fact": "Game per person: Mon-Thu AED 26 (10am-6pm) / AED 35 (after 6pm); Fri-Sun AED 45 (10am-6pm) / AED 55 (after 6pm). Lane per hour AED 122-225. Max 5 players per lane",
+          "url": "https://bowlingdubai.com/wp-content/uploads/2024/07/rates.jpg"
+        },
+        {
+          "fact": "Coordinates 25.1751126, 55.2559282",
+          "url": "https://www.openstreetmap.org/node/988933691"
+        }
+      ],
+      "nearest_station": {
+        "name": "Business Bay",
+        "line": "Red Line",
+        "straight_m": 1857,
+        "walk_min": null,
+        "note": "taxi from station"
+      }
+    },
+    {
+      "id": "f0000000-0000-0000-0000-000000000001",
+      "name": "Hub Zero",
+      "address": null,
+      "lat": null,
+      "lng": null,
+      "coords_source": "unknown: no City Walk venue could be verified",
+      "phone": null,
+      "website": null,
+      "spend_pp_aed": null,
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "age_limit": null,
+      "dress_code": null,
+      "parking": null,
+      "reservations": null,
+      "good_to_know": "Could not confirm it still runs at City Walk. The only live Hub Zero venue found is The Arcade by Hub Zero at Al Khawaneej Walk (tel 800 7699), so check before you list it",
+      "sources": [
+        {
+          "fact": "The Arcade by Hub Zero is at Al Khawaneej Walk; hours Mon-Thu 10am-10pm, Fri-Sun 10am-12am; phone 800 7699",
+          "url": "https://alkhawaneejwalk.ae/en/discover/unwind/the-arcade-by-hub-zero"
+        }
+      ]
+    },
+    {
+      "id": "f0000000-0000-0000-0000-000000000004",
+      "name": "The Smash Room",
+      "address": "Al Quoz, Dubai (source: https://experiences.visitdubai.com/productDetail/61212)",
+      "lat": 25.1101216,
+      "lng": 55.2224471,
+      "coords_source": "OpenStreetMap node 9047304484 (The Smash Room, Al Quoz); node last edited 2023-01-13 and its website tag is dead, so the location may be stale",
+      "phone": null,
+      "website": null,
+      "spend_pp_aed": "199-299",
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "age_limit": "5+",
+      "dress_code": "Comfortable clothes you can move in; shoes that protect feet from glass recommended",
+      "parking": null,
+      "reservations": null,
+      "good_to_know": "Wear closed, sturdy shoes because there is broken glass; the old thesmashroom.com domain no longer resolves",
+      "sources": [
+        {
+          "fact": "Packages from AED 99 up to AED 299; include entry, safety gear, weapons, waiver",
+          "url": "https://experiences.visitdubai.com/productDetail/61212"
+        },
+        {
+          "fact": "\"Minimum age to participate is five years old.\"",
+          "url": "https://experiences.visitdubai.com/productDetail/61212"
+        },
+        {
+          "fact": "Wear comfortable clothing; \"Shoes that protect your feet from glass shards are also highly recommended.\"",
+          "url": "https://experiences.visitdubai.com/productDetail/61212"
+        },
+        {
+          "fact": "Hours Mon-Thu 12:30pm-10pm, Fri-Sun 12:30pm-11pm",
+          "url": "https://experiences.visitdubai.com/productDetail/61212"
+        },
+        {
+          "fact": "Location Street 31, Al Quoz Industrial Area 4; coordinates 25.1101216, 55.2224471",
+          "url": "https://www.openstreetmap.org/node/9047304484"
+        }
+      ],
+      "checker_notes": [
+        "address: Unsupported. The cited OSM node 9047304484 has no addr:* tags, and Visit Dubai says only that it is 'Set up in the back of an old tire shop in Al Quoz'. Neither source names 'Street 31, Al Quoz Industrial Area 4'. Reverse-geocoding the node's own coordinates on OSM Nominatim gives Al Quoz Industrial Area 3, not 4.",
+        "coords_source: Wrong claim. The OSM opening_hours tag is 'Mo-We,Su 12:30-22:00;Th-Sa 12:30-23:00' and Visit Dubai says Mon-Thu 12:30pm-10pm, Fri-Sun 12:30pm-11pm, so they do not match. The node was last edited 2023-01-13 and its contact:website (thesmashroom.com) is NXDOMAIN, so the location may be stale. The coordinates themselves do match the node (25.1101216, 55.2224471).",
+        "spend_pp_aed: Misleading low end. On Visit Dubai, AED 99 is the 'Whoopee Kids Package (5-13 years)'. Adult packages are Ecstasy from AED 199 and Euphoria from AED 299. An adult group cannot spend AED 99 per person."
+      ],
+      "nearest_station": {
+        "name": "Equiti",
+        "line": "Red Line",
+        "straight_m": 2352,
+        "walk_min": null,
+        "note": "taxi from station"
+      }
+    },
+    {
+      "id": "70000000-0000-0000-0000-000000000002",
+      "name": "Bla Bla",
+      "address": "5101 Messer Street, The Beach, JBR, Dubai",
+      "lat": 25.0745906,
+      "lng": 55.129171,
+      "coords_source": "OpenStreetMap way 1128074467 (Bla Bla, The Beach, JBR); matches TSV",
+      "phone": "+971 4 584 4111",
+      "website": "https://blabladubai.ae/",
+      "spend_pp_aed": "45-55",
+      "licensed": true,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "age_limit": null,
+      "dress_code": "Smart casual encouraged (Replay karaoke)",
+      "parking": null,
+      "reservations": null,
+      "good_to_know": "Karaoke is in Replay, which has 7 private rooms at AED 55 pp/hour (AED 45 for 2+ hours) with a minimum of 3 people. Open Sun-Fri 8pm-3am, Sat 5pm-3am",
+      "sources": [
+        {
+          "fact": "Address 5101, Messer Street, The Beach, JBR; phone 04 584 4111 / +971 58 606 3535",
+          "url": "https://blabladubai.ae/"
+        },
+        {
+          "fact": "Opening hours include REPLAY Sun-Fri 8pm-3am, Sat 5pm-3am; Rooftop 9am-2am daily",
+          "url": "https://blabladubai.ae/"
+        },
+        {
+          "fact": "Serves alcohol: 'Wine & Unwind | Rooftop Bar' offer and a '2-hour unlimited drinks package' listed",
+          "url": "https://blabladubai.ae/whatson/"
+        },
+        {
+          "fact": "Replay karaoke at The Beach, JBR (same phone 04 584 4111): 7 private rooms; AED 55 per person per hour (min 3 people), AED 45 per hour if booked 2+ hours; smart casual dress code encouraged",
+          "url": "https://replay.ae/"
+        },
+        {
+          "fact": "Coordinates 25.0745906, 55.129171",
+          "url": "https://www.openstreetmap.org/way/1128074467"
+        }
+      ],
+      "nearest_station": {
+        "name": "Jumeirah Beach Residence 2",
+        "line": "Dubai Tram",
+        "straight_m": 319,
+        "walk_min": 5
+      }
+    },
+    {
+      "id": "70000000-0000-0000-0000-000000000003",
+      "name": "Hummingbird",
+      "address": null,
+      "lat": null,
+      "lng": null,
+      "coords_source": "unknown: venue not verified",
+      "phone": null,
+      "website": null,
+      "spend_pp_aed": null,
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "age_limit": null,
+      "dress_code": null,
+      "parking": null,
+      "reservations": null,
+      "good_to_know": "Could not verify: no Hummingbird appears among JW Marriott Marquis's official outlets, so check the name and location",
+      "sources": [
+        {
+          "fact": "JW Marriott Marquis Dubai official dining outlets listed (Aqua, Aurom, Bridgewater Tavern, Izakaya, Kitchen6, La Farine, Lush Burger, Neo Temaki, Nomadia, Positano, Prime68, Rang Mahal, Tong Thai, VNTG, Vault); no Hummingbird",
+          "url": "https://www.marriott.com/en-us/hotels/dxbjw-jw-marriott-marquis-hotel-dubai/dining/"
+        }
+      ]
+    },
+    {
+      "id": "70000000-0000-0000-0000-000000000001",
+      "name": "Lucky Voice",
+      "address": "Grand Millennium Hotel, Barsha Heights, Dubai",
+      "lat": null,
+      "lng": null,
+      "coords_source": "unknown: Grand Millennium Dubai not found in OpenStreetMap",
+      "phone": "800 58259",
+      "website": "https://www.luckyvoice.ae/",
+      "spend_pp_aed": "50-100",
+      "licensed": true,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "age_limit": "21+ (original ID at the door)",
+      "dress_code": "Smart casual",
+      "parking": null,
+      "reservations": null,
+      "good_to_know": "Private pods cost AED 50-60 pp for 1 hour or AED 90-100 for 2 hours; bring original ID because entry is 21+",
+      "sources": [
+        {
+          "fact": "Pods Tue-Thu & Sun AED 50 pp 1 hour / AED 90 2 hours; Fri-Sat AED 60 pp 1 hour / AED 100 2 hours; happy hour and 'unlimited selected house beverages' packages",
+          "url": "https://www.luckyvoice.ae/promotions"
+        },
+        {
+          "fact": "Lucky Voice Dubai: 'The age policy at the entrance is 21 years old above, original IDs are to be presented at the door. Dress code: Smart casual'; phone 800-58259; Grand Millennium Hotel, Barsha Heights",
+          "url": "https://www.luckyvoice.ae/terms-and-conditions"
+        },
+        {
+          "fact": "Terms: 'Lucky Voice reserves the right to deny entry to any of our bars, or serve alcohol to anyone deemed to be intoxicated'; no outside alcohol permitted",
+          "url": "https://www.luckyvoice.ae/terms-and-conditions"
+        },
+        {
+          "fact": "Address Grand Millennium Hotel, Barsha Heights, Dubai; site bills it as a 'late night cocktail bar'",
+          "url": "https://www.luckyvoice.com/bars/dubai"
+        }
+      ],
+      "sources (licensed evidence)": "Cite https://www.luckyvoice.com/bars/dubai ('buzzing bar experience', 'signature cocktails') and https://www.luckyvoice.ae/promotions ('3 hours of unlimited selected house beverages'); licensed stays true",
+      "checker_notes": [
+        "sources (licensed evidence): Misquoted sources. luckyvoice.com/bars/dubai does not contain the phrase 'late night cocktail bar'. It says 'late-night events, all centred around a buzzing bar experience' and 'signature cocktails'. The terms page has no 'no outside alcohol permitted' text, and its 'serve alcohol' clause is chain-wide boilerplate that mostly covers the UK venues. licensed=true still holds: 21+ entry with original ID, 'signature cocktails', and the '3 hours of unlimited selected house beverages' and happy-hour packages on /promotions. Fix the quotes, not the value. Separately, the terms page still lists older pod rates of AED 42-84; /promotions and luckyvoice.com agree on the AED 50-100 used here."
+      ]
+    },
+    {
+      "id": "70000000-0000-0000-0000-000000000004",
+      "name": "McGettigan's",
+      "address": "Cluster J, Jumeirah Lakes Towers (JLT), Dubai",
+      "lat": null,
+      "lng": null,
+      "coords_source": "unknown: JLT branch not found in OpenStreetMap",
+      "phone": "+971 54 998 4152",
+      "website": "https://www.mcgettigans.com/jlt-dubai.html",
+      "spend_pp_aed": "146-280",
+      "licensed": true,
+      "halal_friendly": false,
+      "vegetarian_options": true,
+      "age_limit": null,
+      "dress_code": null,
+      "parking": null,
+      "reservations": null,
+      "good_to_know": "The official site lists no karaoke night, only quiz night on Tuesdays from 8pm, so confirm before picking it for karaoke",
+      "sources": [
+        {
+          "fact": "Address Cluster J, Jumeirah Lakes Towers; phone +971 54 998 4152; hours Mon-Fri 12pm-2am, Sat 10am-3am, Sun 10am-2am; Quiz Night every Tuesday from 8pm",
+          "url": "https://www.mcgettigans.com/jlt-dubai.html"
+        },
+        {
+          "fact": "Beverage menu lists draught beer (AED 56-70), wines, spirits; prices in AED",
+          "url": "https://www.mcgettigans.com/media/menus/jlt/beverage/cache/v41_beverage-menu_a4_jlt-01-1920x9999,q=85.jpg"
+        },
+        {
+          "fact": "Dinner menu marks vegetarian (V) and vegan (VG) dishes and pork (P) dishes; mains AED 85-210. Spend estimate = one main plus one draught",
+          "url": "https://www.mcgettigans.com/media/menus/jlt/dinner-menu/cache/v12_dinnerbbq_jlt-03-1920x9999,q=85.jpg"
+        }
+      ],
+      "checker_notes": [
+        "spend_pp_aed: Doesn't match the stated method (one main plus one draught). The dinner menu's MAINS section runs AED 90-210 (the AED 85 dishes are under Favourites/Breads, not Mains) and draught runs AED 56-70 (Murphy's 56 to Brewdog Punk IPA 70), so the sum is 146-280. '140-200' is not supported, and the source note 'mains AED 85-210' is also off."
+      ]
+    },
+    {
+      "id": "82000000-0000-0000-0000-000000000003",
+      "name": "Hard Rock Cafe Dubai",
+      "address": "Festival Centre, Dubai Festival City (entrance outside the mall, next to Marks & Spencer), Dubai",
+      "lat": 25.2239285,
+      "lng": 55.351529,
+      "coords_source": "TSV coords match OpenStreetMap node 3432366992 exactly",
+      "phone": "+971 4 232 8900",
+      "website": "https://cafe.hardrock.com/dubai/",
+      "licensed": true,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "age_limit": null,
+      "dress_code": null,
+      "reservations": null,
+      "spend_pp_aed": null,
+      "parking": "Paid valet at the Hard Rock entrance, or free mall parking underneath (signposted Robinson's parking)",
+      "good_to_know": "Entrance is outside Festival City mall next to Marks & Spencer; happy hour Mon-Fri 4-8pm, drinks from AED 40",
+      "sources": [
+        {
+          "fact": "Located just off the Business Bay Crossing at Festival Centre, Dubai Festival City; entrance outside the mall next to Marks & Spencer",
+          "url": "https://cafe.hardrock.com/dubai/"
+        },
+        {
+          "fact": "Happy hour Mon-Fri 4-8pm: selected spirits, wines, bottled beers and cocktails AED 40, premium spirits AED 50 (licensed)",
+          "url": "https://cafe.hardrock.com/dubai/"
+        },
+        {
+          "fact": "Valet parking at entrance (charges apply); free mall parking underneath, signposted Robinson's parking",
+          "url": "https://cafe.hardrock.com/dubai/"
+        },
+        {
+          "fact": "Restaurant hours Sun-Thu 12pm-1am, Fri-Sat 12pm-2am",
+          "url": "https://cafe.hardrock.com/dubai/"
+        },
+        {
+          "fact": "Phone +971 4 232 8900; coordinates 25.2239285, 55.3515290",
+          "url": "https://www.openstreetmap.org/node/3432366992"
+        }
+      ],
+      "checker_notes": [
+        "address: Unsupported: 'Crescent Drive' is not in any cited source. The official site says 'just off the Business Bay Crossing at Festival Centre, Dubai Festival City' with the entrance 'outside of the mall next to Marks & Spencer', and the OSM node has no street tag. Everything else in this record checks out: the phone and coordinates match OSM node 3432366992, and licensed=true is supported by the AED 40 happy hour for spirits, wines, beers and cocktails."
+      ],
+      "nearest_station": {
+        "name": "Creek",
+        "line": "Green Line",
+        "straight_m": 1376,
+        "walk_min": 22
+      }
+    },
+    {
+      "id": "82000000-0000-0000-0000-000000000002",
+      "name": "Q's Bar and Lounge",
+      "address": "Lobby level, West Wing, Palazzo Versace Dubai, Jaddaf Waterfront, Al Jaddaf, Dubai (not Al Habtoor City as the TSV area says)",
+      "lat": 25.2274394,
+      "lng": 55.3419137,
+      "coords_source": "OpenStreetMap way 386161424 (Palazzo Versace hotel building, which houses the bar)",
+      "phone": "+971 4 556 8865",
+      "website": "https://www.palazzoversace.ae/restaurants-and-bars/q-s-bar-and-lounge",
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "age_limit": "21+",
+      "dress_code": "Smart casual",
+      "reservations": "recommended",
+      "spend_pp_aed": "350+",
+      "parking": null,
+      "good_to_know": "Open only Fri and Sat, 7pm-1am; AED 350 per person minimum spend; smoking allowed indoors",
+      "sources": [
+        {
+          "fact": "Location: Lobby level, West Wing, Palazzo Versace Dubai",
+          "url": "https://www.palazzoversace.ae/restaurants-and-bars/q-s-bar-and-lounge"
+        },
+        {
+          "fact": "Minimum spend of AED 350 per person Friday to Sunday",
+          "url": "https://www.palazzoversace.ae/restaurants-and-bars/q-s-bar-and-lounge"
+        },
+        {
+          "fact": "Hours: Friday and Saturday, 7pm to 1am",
+          "url": "https://www.palazzoversace.ae/restaurants-and-bars/q-s-bar-and-lounge"
+        },
+        {
+          "fact": "Dress code smart casual; under-21s not allowed; reservations recommended; smoking permitted indoors",
+          "url": "https://www.palazzoversace.ae/restaurants-and-bars/q-s-bar-and-lounge"
+        },
+        {
+          "fact": "Call Us link tel:+97145568865; hotel address Jaddaf Waterfront, Al Jaddaf",
+          "url": "https://www.palazzoversace.ae/restaurants-and-bars/q-s-bar-and-lounge"
+        },
+        {
+          "fact": "Palazzo Versace hotel coordinates 25.2274394, 55.3419137",
+          "url": "https://www.openstreetmap.org/way/386161424"
+        }
+      ],
+      "nearest_station": {
+        "name": "Al Jadaf",
+        "line": "Green Line",
+        "straight_m": 868,
+        "walk_min": 14
+      }
+    },
+    {
+      "id": "82000000-0000-0000-0000-000000000001",
+      "name": "The Fridge",
+      "address": "Warehouse 5, Street 17, Alserkal Avenue, Al Quoz 1, Dubai",
+      "lat": 25.1420625,
+      "lng": 55.2266869,
+      "coords_source": "TSV coords match OpenStreetMap node 2195294948 exactly",
+      "phone": null,
+      "website": "https://www.thefridgewarehouse.com/",
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "age_limit": null,
+      "dress_code": null,
+      "reservations": null,
+      "spend_pp_aed": "70",
+      "parking": "Parking is restricted inside Alserkal Avenue; 500+ paid RTA spaces in the immediate vicinity, including a large parking area off 6A Street (pay with parking code 364C)",
+      "good_to_know": "Hosts The Fridge Concert Series of original music in seasons (Season 49 tickets AED 70); the warehouse holds up to 300 standing / 180 seated",
+      "sources": [
+        {
+          "fact": "Address Warehouse 5, Street 17, Alserkal Avenue, Al Quoz 1; holds up to 300 standing / 180 seated",
+          "url": "https://www.thefridgewarehouse.com/"
+        },
+        {
+          "fact": "Concert Series Season 39: tickets Student AED 50, Early Bird AED 65, General AED 80; doors 7:30pm, show 8pm, Tuesdays",
+          "url": "https://alserkal.online/event/the-fridge-concert-series-season-39/"
+        },
+        {
+          "fact": "Concert Series Season 49 ticket price AED 70",
+          "url": "https://www.visitdubai.com/en/festivals-and-events/dubai-events-calendar/fridge-concert-series"
+        },
+        {
+          "fact": "Parking restricted inside the Avenue; 500+ RTA spaces nearby; parking code 364C; nearest metro Onpassive (M1) plus bus 110",
+          "url": "https://alserkal.online/plan-your-visit"
+        },
+        {
+          "fact": "The Fridge coordinates 25.1420625, 55.2266869",
+          "url": "https://www.openstreetmap.org/node/2195294948"
+        }
+      ],
+      "checker_notes": [
+        "parking: Wrong: alserkal.online/plan-your-visit says the Avenue has three ENTRANCES on 17th St, 6A St and First Al Khail St. It puts the 500+ RTA spaces 'in the immediate vicinity' and says 'turn left onto 6A Street for a large parking area'. It does not say the spaces are on all three streets.",
+        "spend_pp_aed: Stale: the 50-80 range comes from Concert Series Season 39 prices (January to February 2023, alserkal.online). The latest season cited, Season 49 on visitdubai.com, has a single ticket price of AED 70.",
+        "good_to_know: Stale: 'Tuesday nights; doors 7:30pm, show 8pm' comes only from the Season 39 page (Tuesdays, 17 Jan to 7 Feb 2023). The current Season 49 listing on Visit Dubai gives only 'this May' and AED 70, with no day or time. The official site confirms capacity (300 standing / 180 seated) but gives no schedule."
+      ],
+      "nearest_station": {
+        "name": "Garmin",
+        "line": "Red Line",
+        "straight_m": 1520,
+        "walk_min": 25
+      }
+    },
+    {
+      "id": "e0000000-0000-0000-0000-000000000001",
+      "name": "Cinema Akil",
+      "address": "Warehouse 68, Alserkal Avenue, Al Quoz Industrial Area 1, Dubai",
+      "lat": 25.1422119,
+      "lng": 55.2241957,
+      "coords_source": "TSV coords match OpenStreetMap node 13624918050 exactly; Wikipedia gives 25.1421548, 55.2241697",
+      "phone": "+971 58 909 7798",
+      "website": "https://www.cinemaakil.com/",
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "age_limit": null,
+      "dress_code": null,
+      "reservations": null,
+      "spend_pp_aed": null,
+      "parking": "Parking is restricted inside Alserkal Avenue; 500+ paid RTA spaces in the immediate vicinity, including a large parking area off 6A Street (pay with parking code 364C)",
+      "good_to_know": "133-seat arthouse cinema with the Project Chaiwala tea bar; the nearest metro is Onpassive (M1), then RTA bus 110",
+      "sources": [
+        {
+          "fact": "Address Warehouse 68, Alserkal Avenue, Al Quoz Industrial District; working hours 11am-11pm; Chai Diner by Project Chaiwala",
+          "url": "https://www.cinemaakil.com/"
+        },
+        {
+          "fact": "WhatsApp contact +971 58 909 7798 linked from official site",
+          "url": "https://www.cinemaakil.com/"
+        },
+        {
+          "fact": "Alserkal Avenue seats 133; first arthouse cinema in the GCC; coordinates 25.1421548N 55.2241697E",
+          "url": "https://en.wikipedia.org/wiki/Cinema_Akil"
+        },
+        {
+          "fact": "Alserkal listing: WH 68; opening daily 10am-12am; alt phone +971 56 995 1225",
+          "url": "https://alserkal.online/community/cinema-akil/"
+        },
+        {
+          "fact": "Parking restricted inside Alserkal Avenue; RTA parking code 364C; Onpassive metro station and bus 110",
+          "url": "https://alserkal.online/plan-your-visit"
+        },
+        {
+          "fact": "OSM node coordinates 25.1422119, 55.2241957",
+          "url": "https://www.openstreetmap.org/node/13624918050"
+        }
+      ],
+      "checker_notes": [
+        "parking: Wrong, for the same reason as The Fridge: 17th St, 6A St and First Al Khail St are the Avenue's entrances, not where the 500+ RTA spaces are (alserkal.online/plan-your-visit)."
+      ],
+      "nearest_station": {
+        "name": "Garmin",
+        "line": "Red Line",
+        "straight_m": 1554,
+        "walk_min": 25
+      }
+    },
+    {
+      "id": "e0000000-0000-0000-0000-000000000003",
+      "name": "Reel Cinemas",
+      "address": "The Dubai Mall, Second Floor, Downtown Dubai",
+      "lat": 25.1969706,
+      "lng": 55.281304,
+      "coords_source": "TSV coords match OpenStreetMap node 4521753889 exactly (level 2)",
+      "phone": "800 38224 6255",
+      "website": "https://reelcinemas.com/en-ae/locations/the-dubai-mall/",
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "age_limit": null,
+      "dress_code": null,
+      "reservations": null,
+      "spend_pp_aed": null,
+      "parking": "Dubai Mall P7, Cinema Parking",
+      "good_to_know": "Park in P7 (Cinema Parking); open daily from 10am or 11am until 3am",
+      "sources": [
+        {
+          "fact": "Level: Second Floor; Parking: P7, Cinema Parking",
+          "url": "https://thedubaimall.com/en/entertain-detail/reel-cinemas"
+        },
+        {
+          "fact": "Contact 800(38224)-6255, enquiries@reelcinemas.ae",
+          "url": "https://thedubaimall.com/en/entertain-detail/reel-cinemas"
+        },
+        {
+          "fact": "Hours: Cinema Level 7, 8 and Platinum 10am-3am; levels 10 and 11 11am-3am",
+          "url": "https://thedubaimall.com/en/entertain-detail/reel-cinemas"
+        },
+        {
+          "fact": "Official Reel Cinemas Dubai Mall location page",
+          "url": "https://reelcinemas.com/en-ae/locations/the-dubai-mall/"
+        },
+        {
+          "fact": "Coordinates 25.1969706, 55.281304, level 2",
+          "url": "https://www.openstreetmap.org/node/4521753889"
+        }
+      ],
+      "checker_notes": [
+        "good_to_know: Unsupported interpretation: thedubaimall.com lists 'Cinema Level 7, 8 and Platinum: 10 AM - 3 AM; Cinema levels 10 & 11: 11 AM - 3 AM', and the same page puts the cinema on the 'Second Floor'. Presenting these labels as floors the screens are spread across contradicts that source. P7 Cinema Parking and the 3am close are supported."
+      ],
+      "nearest_station": {
+        "name": "Burj Khalifa / Dubai Mall",
+        "line": "Red Line",
+        "straight_m": 1283,
+        "walk_min": 21
+      }
+    },
+    {
+      "id": "e0000000-0000-0000-0000-000000000002",
+      "name": "Roxy Cinemas",
+      "address": "The Hub, City Walk, Al Wasl Road and Al Safa Road junction, Al Wasl, Dubai",
+      "lat": 25.2072147,
+      "lng": 55.2629762,
+      "coords_source": "TSV coords match OpenStreetMap node 5038577994 exactly",
+      "phone": "+971 800 7699",
+      "website": "https://www.theroxycinemas.com/en/cinemas/citywalk",
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "age_limit": null,
+      "dress_code": null,
+      "reservations": null,
+      "spend_pp_aed": null,
+      "parking": "City Walk basement parking, Blue zone",
+      "good_to_know": "ROXY Platinum has reclining leather seats and a lounge, with food delivered to your seat; ROXY Silver is standard stadium-style seating",
+      "sources": [
+        {
+          "fact": "Zone: The Hub; nearest parking: Basement parking - Blue; phone +971 800 7699; timings 8am-11pm",
+          "url": "https://www.citywalk.ae/en/outlets/roxy-cinemas"
+        },
+        {
+          "fact": "Three classes of seating: Platinum Plus, Gold Plus and Silver Plus",
+          "url": "https://www.citywalk.ae/en/outlets/roxy-cinemas"
+        },
+        {
+          "fact": "City Walk at Al Wasl and Al Safa Road junction, via Sheikh Zayed Road Exit D71",
+          "url": "https://www.citywalk.ae/en/outlets/roxy-cinemas"
+        },
+        {
+          "fact": "Platinum: reclining leather seats, gourmet dining, food delivered to your seat; phone 800 ROXY (800-7699)",
+          "url": "https://www.theroxycinemas.com/en/cinemas/citywalk"
+        },
+        {
+          "fact": "Coordinates 25.2072147, 55.2629762",
+          "url": "https://www.openstreetmap.org/node/5038577994"
+        }
+      ],
+      "checker_notes": [
+        "good_to_know: Conflicting and possibly stale: citywalk.ae lists Platinum Plus, Gold Plus and Silver Plus. The official theroxycinemas.com City Walk page names only ROXY Platinum and ROXY Silver, and says 'Dine in the lounge or have your food delivered to you at your seat while you enjoy your movie in ROXY Platinum'. The venue's own site should win."
+      ],
+      "nearest_station": {
+        "name": "Burj Khalifa / Dubai Mall",
+        "line": "Red Line",
+        "straight_m": 922,
+        "walk_min": 15
+      }
+    },
+    {
+      "id": "e0000000-0000-0000-0000-000000000004",
+      "name": "VOX Cinemas",
+      "address": "Mall of the Emirates, Level 2 (expansion area), Al Barsha 1, Dubai",
+      "lat": 25.1193156,
+      "lng": 55.2020343,
+      "coords_source": "OpenStreetMap node 4967560871 (amenity=cinema, level 2, inside Mall of the Emirates); TSV had none",
+      "phone": null,
+      "website": "https://uae.voxcinemas.com/cinemas/mall-of-the-emirates",
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "age_limit": null,
+      "dress_code": null,
+      "reservations": null,
+      "spend_pp_aed": null,
+      "parking": null,
+      "good_to_know": "Flagship 24-screen complex with IMAX with Laser, 4DX, THEATRE by Rhodes and VOX Kids",
+      "sources": [
+        {
+          "fact": "Flagship at Mall of the Emirates: 24 screens incl. IMAX with Laser, 4DX, THEATRE by Rhodes and VOX Kids; level 2 of the expansion area",
+          "url": "https://en.wikipedia.org/wiki/VOX_Cinemas"
+        },
+        {
+          "fact": "Official VOX Mall of the Emirates cinema page",
+          "url": "https://uae.voxcinemas.com/cinemas/mall-of-the-emirates"
+        },
+        {
+          "fact": "Coordinates 25.1193156, 55.2020343, level 2",
+          "url": "https://www.openstreetmap.org/node/4967560871"
+        }
+      ],
+      "nearest_station": {
+        "name": "Mall of the Emirates",
+        "line": "Red Line",
+        "straight_m": 264,
+        "walk_min": 4
+      }
+    },
+    {
+      "id": "81000000-0000-0000-0000-000000000002",
+      "name": "BLU Dubai",
+      "address": "32nd floor, V Hotel Dubai, Al Habtoor City, 260 Sheikh Zayed Road, Business Bay, Dubai",
+      "lat": 25.1843122,
+      "lng": 55.2546747,
+      "coords_source": "OpenStreetMap way 618247811 (V Hotel Dubai, Curio Collection by Hilton building, which houses the club); TSV had none",
+      "phone": "+971 52 132 7981",
+      "website": "https://bludubai.ae/",
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "age_limit": "21+ (valid physical ID mandatory)",
+      "dress_code": "Casual chic; no flip-flops, beachwear, kandura, scarves or face coverings",
+      "reservations": "recommended",
+      "spend_pp_aed": null,
+      "parking": "Valet, or public lot across the street under Sheikh Zayed Road",
+      "good_to_know": "Open 10pm-4am; most nights charge a small entry fee, often redeemable at the bar; tell the taxi \"V Hotel, Habtoor City\"",
+      "sources": [
+        {
+          "fact": "Located on the 32nd floor of V Hotel, Al Habtoor City; opening hours 10pm-4am",
+          "url": "https://bludubai.ae/faq"
+        },
+        {
+          "fact": "Guests must be 21+; valid physical ID mandatory",
+          "url": "https://bludubai.ae/faq"
+        },
+        {
+          "fact": "Casual chic dress code; no flip-flops/beachwear, kandura/scarves or face coverings",
+          "url": "https://bludubai.ae/faq"
+        },
+        {
+          "fact": "Small entry fee most nights, often redeemable at the bar; highly recommend reserving a VIP table in advance",
+          "url": "https://bludubai.ae/faq"
+        },
+        {
+          "fact": "Parking: valet, or public lot under Sheikh Zayed Road",
+          "url": "https://bludubai.ae/faq"
+        },
+        {
+          "fact": "Address V Hotel Dubai, Al Habtoor City - 260 Sheikh Zayed Rd - Business Bay; phone +971 52 132 7981",
+          "url": "https://bludubai.ae/"
+        },
+        {
+          "fact": "V Hotel building coordinates 25.1843122, 55.2546747",
+          "url": "https://www.openstreetmap.org/way/618247811"
+        }
+      ],
+      "nearest_station": {
+        "name": "Business Bay",
+        "line": "Red Line",
+        "straight_m": 968,
+        "walk_min": 16
+      }
+    },
+    {
+      "id": "81000000-0000-0000-0000-000000000003",
+      "name": "SKY2.0 Dubai",
+      "address": "Dubai Design District (d3), Dubai (former site)",
+      "lat": 25.1874015,
+      "lng": 55.3022997,
+      "coords_source": "OpenStreetMap way 906991306 (still tagged nightclub; reflects the former site)",
+      "phone": null,
+      "website": null,
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "age_limit": null,
+      "dress_code": null,
+      "reservations": null,
+      "spend_pp_aed": null,
+      "parking": null,
+      "good_to_know": "Reported permanently closed in mid-2025 and later demolished; remove or verify before listing",
+      "sources": [
+        {
+          "fact": "SKY2.0 nightclub in Dubai Design District, open Thu-Sat 9.30pm-4am (2024 listing)",
+          "url": "https://whatson.ae/2024/04/these-are-the-best-nightclubs-in-dubai-right-now/"
+        },
+        {
+          "fact": "Closure announcement (2 June 2025): 'Sky 2.0 is shutting its door for good' (source outside the approved list)",
+          "url": "https://dubainight.com/news/sky20-closing-down"
+        },
+        {
+          "fact": "27 Oct 2025: partner shared clip of the rubble that once was the club (source outside the approved list)",
+          "url": "https://dubai.lovin.co/p/palm-jebel-ali-update-sky-2-0-demolished-reckless-driving"
+        },
+        {
+          "fact": "Former site coordinates 25.1874015, 55.3022997",
+          "url": "https://www.openstreetmap.org/way/906991306"
+        }
+      ],
+      "lat/lng": null,
+      "checker_notes": [
+        "lat/lng: Stale: the venue no longer exists. The closure (2 June 2025, 'Sky 2.0 is shutting it's door for good') and the demolition (27 Oct 2025, 'the rubble that once was the club') are confirmed only by dubainight.com and dubai.lovin.co, both outside the approved source list. No approved source was reachable to confirm it: timeoutdubai returned 403 and the search budget was used up. The 2024 What's On listing and the OSM nightclub tag (way 906991306) are out of date, so the coordinates point to a demolished building."
+      ],
+      "nearest_station": {
+        "name": "Burj Khalifa / Dubai Mall",
+        "line": "Red Line",
+        "straight_m": 3647,
+        "walk_min": null,
+        "note": "taxi from station"
+      }
+    },
+    {
+      "id": "81000000-0000-0000-0000-000000000001",
+      "name": "Soho Garden Meydan",
+      "address": "Meydan Racecourse Grandstand, Nad Al Sheba, Dubai",
+      "lat": 25.1581391,
+      "lng": 55.3001114,
+      "coords_source": "TSV coords match OpenStreetMap way 1126015425 exactly",
+      "phone": "+971 56 793 3366",
+      "website": "https://sohogardendxb.com/",
+      "licensed": true,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "age_limit": null,
+      "dress_code": null,
+      "reservations": null,
+      "spend_pp_aed": null,
+      "parking": null,
+      "good_to_know": "Several clubs in one complex: CODE DXB (house/techno), Black (urban/afrobeats), Playroom and The Soho Club",
+      "sources": [
+        {
+          "fact": "Soho Garden, Racecourse, Meydan Grandstand, Nad Al Sheba, open daily 7pm-4am, closed Sun and Tue; Black for afrobeats/urban, The Code and The Hive for techno",
+          "url": "https://whatson.ae/2024/04/these-are-the-best-nightclubs-in-dubai-right-now/"
+        },
+        {
+          "fact": "Black at Soho Garden serves signature spirits, wine and beer (licensed)",
+          "url": "https://whatson.ae/2021/06/black-club-soho-garden/"
+        },
+        {
+          "fact": "Venues include CODE DXB, Playroom, Black and The Soho Club; WhatsApp booking 971567933366",
+          "url": "https://sohogardendxb.com/"
+        },
+        {
+          "fact": "Coordinates 25.1581391, 55.3001114",
+          "url": "https://www.openstreetmap.org/way/1126015425"
+        }
+      ],
+      "checker_notes": [
+        "good_to_know: Stale: 'Hive' comes from the April 2024 What's On list. The current official site (sohogardendxb.com) lists the venues as CODE DXB, Playroom, Black and The Soho Club, with no Hive. 'Closed Sun and Tue' also comes only from the 2024 What's On listing, and no current source confirms it. licensed=true is supported (What's On 2021: Black serves 'signature spirits, wine, and beer', and Black is still listed), and the coordinates sit inside OSM way 1126015425."
+      ],
+      "nearest_station": {
+        "name": "Business Bay",
+        "line": "Red Line",
+        "straight_m": 5439,
+        "walk_min": null,
+        "note": "taxi from station"
+      }
+    },
+    {
+      "id": "50000000-0000-0000-0000-000000000001",
+      "name": "Al Qudra Lakes",
+      "address": "Seih Al Salam, Al Qudra, Al Marmoom Desert Conservation Reserve, Dubai",
+      "lat": 24.8347634,
+      "lng": 55.3759762,
+      "coords_source": "TSV coords kept; they sit within the OSM Al Qudra Lake cluster (Lake 2 relation 5627844 at 24.8368, 55.3758) and near What's On's 24.837586, 55.376922",
+      "phone": null,
+      "website": null,
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "age_limit": null,
+      "dress_code": null,
+      "reservations": "walk-in",
+      "spend_pp_aed": "0",
+      "parking": null,
+      "good_to_know": "Free and open 24/7; barbecue and camping are permitted; next to the 84km Al Qudra cycle track",
+      "sources": [
+        {
+          "fact": "Al Qudra Lakes tagged fee=no, opening_hours 24/7",
+          "url": "https://www.openstreetmap.org/way/1173211144"
+        },
+        {
+          "fact": "Part of Al Marmoom Desert Conservation Reserve, managed by Dubai Municipality; barbecue and camping permitted; 84 km cycling track",
+          "url": "https://en.wikipedia.org/wiki/Al_Marmoom_Desert_Conservation_Reserve"
+        },
+        {
+          "fact": "Location Seih Al Salam, Al Qudra; coordinate 24.837586, 55.376922; next to Al Qudra cycling track",
+          "url": "https://whatson.ae/dubai/2015/04/al-qudra-lakes-quick-guide/"
+        },
+        {
+          "fact": "Al Qudra Lake 2 centre around 24.8368, 55.3758",
+          "url": "https://www.openstreetmap.org/relation/5627844"
+        }
+      ],
+      "checker_notes": [
+        "good_to_know: Unsupported: 'so bring your own supplies' is not stated by any cited source. The only related source (What's On 2015) says the opposite: Zad Food Store sells coffee, snacks and camping supplies including firewood, though that 2015 detail is stale too. The rest is supported: fee=no and 24/7 (OSM way 1173211144, whose centroid matches the coordinates exactly), barbecue and camping permitted, and the 84 km cycle track (Wikipedia)."
+      ],
+      "nearest_station": {
+        "name": "Expo City Dubai",
+        "line": "Red Line (Route 2020)",
+        "straight_m": 27249,
+        "walk_min": null,
+        "note": "taxi from station"
+      }
+    },
+    {
+      "id": "50000000-0000-0000-0000-000000000003",
+      "name": "Dubai Marina Walk",
+      "address": "Dubai Marina Walk (waterfront promenade), Dubai Marina, Dubai",
+      "lat": 25.0855573,
+      "lng": 55.1476077,
+      "coords_source": "Approximate. OpenStreetMap way 498031754 is the Reem Al Bawadi restaurant building (addr:housename 'Dubai Marina Walk') on the Marina Walk waterfront; the TSV coordinates match its centroid. It stands in for the promenade, which has no single point. Kept.",
+      "phone": null,
+      "website": "https://www.visitdubai.com/en/places-to-visit/marina-walk",
+      "spend_pp_aed": null,
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "dress_code": null,
+      "age_limit": null,
+      "parking": null,
+      "reservations": null,
+      "good_to_know": "Dubai Tram stops at Dubai Marina (change for Sobha Realty metro), Marina Towers and Dubai Marina Mall.",
+      "sources": [
+        {
+          "fact": "Visit Dubai lists Marina Walk as a sight: 'Dine and mingle along the Dubai Marina promenade'",
+          "url": "https://www.visitdubai.com/en/places-to-visit/marina-walk"
+        },
+        {
+          "fact": "The Dubai Marina development includes almost 8 km of landscaped public walkways; Dubai Marina Walk runs along the shoreline",
+          "url": "https://en.wikipedia.org/wiki/Dubai_Marina"
+        },
+        {
+          "fact": "Dubai Tram stops include Dubai Marina Mall, Dubai Marina (interchange with Sobha Realty station on the Metro Red Line) and Marina Towers",
+          "url": "https://en.wikipedia.org/wiki/Dubai_Tram"
+        },
+        {
+          "fact": "Coordinates 25.0855573, 55.1476077 are on Marina Walk",
+          "url": "https://www.openstreetmap.org/way/498031754"
+        }
+      ],
+      "checker_notes": [
+        "coords_source: This describes the OSM feature wrongly. OSM way 498031754 is not the Marina Walk promenade. It is the building of the restaurant 'Reem Al Bawadi (Dubai Marina Walk Branch)' (amenity=restaurant, addr:housename 'Dubai Marina Walk'). The lat/lng (25.0855573, 55.1476077) is that building's centroid (25.08555, 55.14762), which does sit on the Marina Walk waterfront, so the coordinates are acceptable as a proxy. Only the description is wrong."
+      ],
+      "nearest_station": {
+        "name": "Marina Towers",
+        "line": "Dubai Tram",
+        "straight_m": 277,
+        "walk_min": 5
+      }
+    },
+    {
+      "id": "50000000-0000-0000-0000-000000000002",
+      "name": "Hatta Wadi Hub",
+      "address": "Hatta Wadi Hub, off the Dubai-Hatta road, Hatta, Dubai",
+      "lat": 24.8139804,
+      "lng": 56.1598617,
+      "coords_source": "OpenStreetMap node 6216720123 'Hatta Wadi Hub', which matches the TSV exactly. Kept.",
+      "phone": "+971 4 820 5555",
+      "website": "https://www.visithatta.com/en/offer/hatta-wadi-hub",
+      "spend_pp_aed": null,
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "dress_code": null,
+      "age_limit": "Most activities 6+, some thrill activities 16+",
+      "parking": null,
+      "reservations": null,
+      "good_to_know": "About 90 minutes from Dubai. The RTA H02 Hatta Express bus runs from Dubai Mall for AED 25. Each activity keeps its own hours, so check before you go.",
+      "sources": [
+        {
+          "fact": "Location 'Hatta Wadi Hub, located off the Dubai-Hatta road'; phones +97148205555 / +97148205500 (9am-7pm daily)",
+          "url": "https://www.visithatta.com/en/offer/hatta-wadi-hub"
+        },
+        {
+          "fact": "Official page says 'Hatta Wadi Hub - open all year round'; operator hours differ, e.g. Hubbers daily 6:00 AM-6:00 PM; Hatta Outdoor Wed-Sun 4:00 PM-10:00 PM; Hatta Wild Cafe Mon-Fri 6 AM-10 PM, Sat-Sun 6 AM-11 PM; 'Season 9 opens 28 September'",
+          "url": "https://www.visithatta.com/en/offer/hatta-wadi-hub"
+        },
+        {
+          "fact": "'Most of the activities are open for ages 6+ however some of the more thrilling activities are restricted to ages 16+'",
+          "url": "https://www.visithatta.com/en/explore-hatta/plan-your-visit"
+        },
+        {
+          "fact": "RTA Hatta Express Bus H02 runs from Dubai Mall to Hatta Main Bus Station in about 1.5 hours for an AED 25 fare; about 90 minutes by car via E102",
+          "url": "https://www.visithatta.com/en/explore-hatta/plan-your-visit"
+        },
+        {
+          "fact": "The plan-your-visit page gives Wadi Hub hours as Oct 1 to May 5, 8am-7pm daily, which conflicts with the offer page's 'open all year round'",
+          "url": "https://www.visithatta.com/en/explore-hatta/plan-your-visit"
+        },
+        {
+          "fact": "The coordinates match the OSM node 'Hatta Wadi Hub'",
+          "url": "https://www.openstreetmap.org/node/6216720123"
+        }
+      ],
+      "nearest_station": {
+        "name": "Centrepoint",
+        "line": "Red Line",
+        "straight_m": 90237,
+        "walk_min": null,
+        "note": "taxi from station"
+      }
+    },
+    {
+      "id": "50000000-0000-0000-0000-000000000004",
+      "name": "The Green Planet",
+      "address": "The Green Planet, City Walk, Al Wasl, Dubai",
+      "lat": 25.2060627,
+      "lng": 55.2603991,
+      "coords_source": "OpenStreetMap way 495448048 'The Green Planet' (City Walk, Al Wasl), which matches the TSV exactly. Kept.",
+      "phone": "800 2629464 (800 AMAZING); +971 4 820 0000 from abroad",
+      "website": "https://www.thegreenplanetdubai.com/en",
+      "spend_pp_aed": null,
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "dress_code": null,
+      "age_limit": null,
+      "parking": "City Walk underground: 4 hours free with a minimum AED 100 spend at The Green Planet, then AED 20 per extra hour (validate your token before exit)",
+      "reservations": null,
+      "good_to_know": "Open 10am-6pm. The last tickets are sold online at 3:30pm and at the gate by 5pm, so arrive early.",
+      "sources": [
+        {
+          "fact": "'conveniently located at the City Walk, Al Wasl - Dubai'; last tickets sold online at 3:30 pm and at the gate by 5:00 pm",
+          "url": "https://www.thegreenplanetdubai.com/en/information/information-and-faqs"
+        },
+        {
+          "fact": "'The Green Planet opens everyday from 10 AM - 6 PM.'",
+          "url": "https://www.thegreenplanetdubai.com/en/parks-opening-hours"
+        },
+        {
+          "fact": "Phone 800 AMAZING (2629464), international +971 4 820 0000",
+          "url": "https://www.thegreenplanetdubai.com/en/information/information-and-faqs"
+        },
+        {
+          "fact": "4 hours free parking at City Walk underground with a minimum spend of AED 100; each additional hour AED 20",
+          "url": "https://www.thegreenplanetdubai.com/en/information/information-and-faqs"
+        },
+        {
+          "fact": "On-site food: JNGL. Restaurant and Cafe and The Green Planet Cafe",
+          "url": "https://www.thegreenplanetdubai.com/en/information/information-and-faqs"
+        },
+        {
+          "fact": "The coordinates match the OSM way 'The Green Planet'",
+          "url": "https://www.openstreetmap.org/way/495448048"
+        }
+      ],
+      "nearest_station": {
+        "name": "Burj Khalifa / Dubai Mall",
+        "line": "Red Line",
+        "straight_m": 1054,
+        "walk_min": 17
+      }
+    },
+    {
+      "id": "85000000-0000-0000-0000-000000000002",
+      "name": "Padel Art",
+      "address": "18th St, Al Quoz, Dubai",
+      "lat": null,
+      "lng": null,
+      "coords_source": "unknown: no OpenStreetMap feature found for Padel Art, and the official site gives only a street address",
+      "phone": "+971 50 674 3166",
+      "website": "https://www.padelart.ae/",
+      "spend_pp_aed": null,
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "dress_code": null,
+      "age_limit": null,
+      "parking": null,
+      "reservations": "required",
+      "good_to_know": "Eight indoor courts plus a VIP court. Book through the club's PadelOS page or on WhatsApp. Hours and prices are not published.",
+      "sources": [
+        {
+          "fact": "Address 'Padel Art 18th St - Al Quoz - Dubai', email info@padelart.ae, phone 050 674 3166",
+          "url": "https://www.padelart.ae/contact"
+        },
+        {
+          "fact": "'eight premium indoor courts and an exclusive VIP court'; curated cafe, co-working space, Padel Outlet store and outdoor tennis courts",
+          "url": "https://www.padelart.ae/about-us"
+        },
+        {
+          "fact": "Courts booked via 'Book your match' (player.padelos.co/club/216857) or WhatsApp +971506743166",
+          "url": "https://www.padelart.ae/"
+        }
+      ]
+    },
+    {
+      "id": "85000000-0000-0000-0000-000000000001",
+      "name": "Padel Pro One Central",
+      "address": "One Central, Dubai World Trade Centre (DWTC), Dubai",
+      "lat": 25.219484,
+      "lng": 55.283981,
+      "coords_source": "TSV coordinates kept. They fall inside the One Central complex: OSM relation 14604314 (25hours Hotel Dubai One Central, 25.219466, 55.2844569) is about 50 m away, and the official site says the courts are a 2-5 minute walk from 25hours Hotel One Central. No OSM feature exists for the courts themselves.",
+      "phone": "+971 4 327 7762",
+      "website": "https://padelpro.ae/court-booking/dwtc-outdoor-courts/",
+      "spend_pp_aed": "90-95",
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "dress_code": null,
+      "age_limit": null,
+      "parking": "Free parking",
+      "reservations": "required",
+      "good_to_know": "The five courts are outdoors, so play in the cooler months or evenings. The matchmaking service finds a fourth player if you are short.",
+      "sources": [
+        {
+          "fact": "'Open daily from 6 am to midnight'; located steps from the DWTC exhibition halls; 500 Calorie Project Cafe on site; book via Playtomic or WhatsApp",
+          "url": "https://padelpro.ae/court-booking/dwtc-outdoor-courts/"
+        },
+        {
+          "fact": "'five panoramic outdoor Padel courts'; Pro Shop and Cafe, outdoor lounge, viewing deck, 'free parking, changing facilities'; 'Reserve your court through Playtomic or WhatsApp'; phone +971 4 327 7762, hello@padelpro.ae",
+          "url": "https://padelpro.ae/court-booking/"
+        },
+        {
+          "fact": "Outdoor full-court booking (90-minute match) AED 360, which is AED 90 each for four players; a matchmaking spot for one 90-minute match costs AED 95",
+          "url": "https://padelpro.ae/outdoor-prices/"
+        },
+        {
+          "fact": "25hours Hotel Dubai One Central sits at 25.219466, 55.2844569, which puts the TSV point inside One Central",
+          "url": "https://www.openstreetmap.org/relation/14604314"
+        }
+      ],
+      "nearest_station": {
+        "name": "Emirates Towers",
+        "line": "Red Line",
+        "straight_m": 483,
+        "walk_min": 8
+      }
+    },
+    {
+      "id": "85000000-0000-0000-0000-000000000003",
+      "name": "World Padel Academy Dubai",
+      "address": "WPA Al Quoz, Al Quoz 1, Dubai",
+      "lat": null,
+      "lng": null,
+      "coords_source": "unknown: no OpenStreetMap feature found, and the official site gives no street address or map point",
+      "phone": null,
+      "website": "https://worldpadelacademy.com/uae/al-quoz-dubai/",
+      "spend_pp_aed": null,
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "dress_code": null,
+      "age_limit": null,
+      "parking": null,
+      "reservations": "required",
+      "good_to_know": "Ten air-conditioned courts you can book for 60, 90 or 120 minutes. Courts from about AED 240 per booking.",
+      "sources": [
+        {
+          "fact": "WPA Al Quoz: '10 air-conditioned, professional-standard courts are available to book privately with flexible 60, 90, and 120-minute slots'; changing facilities and showers; coaching and 14-week academies",
+          "url": "https://worldpadelacademy.com/uae/al-quoz-dubai/"
+        },
+        {
+          "fact": "World Padel Academy is in Al Quoz 1 with 'Court bookings from Dhs240'; seven indoor and three outdoor courts, coffee bar and merch store",
+          "url": "https://whatson.ae/2026/02/where-to-play-padel-the-biggest-sporting-craze-in-dubai/"
+        }
+      ]
+    },
+    {
+      "id": "d0000000-0000-0000-0000-000000000004",
+      "name": "Iris",
+      "address": "Iris Harbour, Dubai Harbour (next to Bar du Port), Dubai",
+      "lat": 25.0970328,
+      "lng": 55.1435729,
+      "coords_source": "Approximate. OpenStreetMap node 9835541049 'Bar Du Port Dubai'; the official Iris site gives the address as 'Dubai Harbour (Next to Bar du Port)'. The TSV had no coordinates.",
+      "phone": "+971 4 334 3736",
+      "website": "https://irisharbour.com/",
+      "spend_pp_aed": "360-935",
+      "licensed": true,
+      "halal_friendly": null,
+      "vegetarian_options": true,
+      "dress_code": "Smart casual 4-7:30pm, smart elegant after 7:30pm; no flip-flops, sportswear, gym wear or men's shorts",
+      "age_limit": "21+",
+      "parking": "Valet AED 40 for 3 hours, AED 10 per extra hour",
+      "reservations": "recommended",
+      "good_to_know": "No longer at The Oberoi. Iris left in 2019 for Meydan and now runs as Iris Harbour at Dubai Harbour. No source mentions shisha.",
+      "sources": [
+        {
+          "fact": "Official site: 'Set against the water at Dubai Harbour, Iris is a refined lounge bar and restaurant'; address 'Dubai Harbour (Next to Bar du Port)'; phones +971 4 334 3736 / +971 56 951 1442; reservations@irisharbour.com; irisdubai.com now redirects here",
+          "url": "https://irisharbour.com/"
+        },
+        {
+          "fact": "Hours: Wed & Sun 4PM-2AM, Thu & Fri 4PM-3AM, Sat 1PM-3AM; 'IRIS Harbour welcomes guests aged 21 and above'; dress code as listed; valet AED 40 for 3 hours plus AED 10 per extra hour; 'Booking is the easiest way in', walk-ins welcome where space allows; smoking allowed at the bar and outdoors, cigars only after 12AM",
+          "url": "https://irisharbour.com/faqs/"
+        },
+        {
+          "fact": "Saturday brunch packages: AED 360 (soft drinks), 560 (house wine, beer, spirits), 690 (premium), 935 (with champagne). Prices include VAT and municipality fees",
+          "url": "https://irisharbour.com/wp-content/uploads/2026/08/IRIS_BRUNCH-A5.pdf"
+        },
+        {
+          "fact": "The food menu marks vegetarian (V) and vegan (VG) dishes, such as vegetable tempura and guacamole amarillo",
+          "url": "https://irisharbour.com/wp-content/uploads/2026/08/Iris_Food_Menu_Inside.pdf"
+        },
+        {
+          "fact": "Iris closed its rooftop at The Oberoi, Business Bay, to relocate to Meydan (Oct 2019); La Mezcaleria took over the Oberoi rooftop",
+          "url": "https://whatson.ae/2019/10/popular-dubai-bar-iris-dubai-is-relocating-to-meydan/"
+        },
+        {
+          "fact": "What's On reported Iris opening a new venue at Dubai Harbour (March 2026)",
+          "url": "https://whatson.ae/2026/03/dubai-favourite-iris-is-opening-a-new-venue-at-dubai-harbour-soon/"
+        },
+        {
+          "fact": "Bar Du Port Dubai, the venue Iris sits next to, is at 25.0970328, 55.1435729",
+          "url": "https://www.openstreetmap.org/node/9835541049"
+        }
+      ],
+      "nearest_station": {
+        "name": "Mina Seyahi",
+        "line": "Dubai Tram",
+        "straight_m": 838,
+        "walk_min": 14
+      }
+    },
+    {
+      "id": "d0000000-0000-0000-0000-000000000001",
+      "name": "QDs",
+      "address": "QD's Bar & Grill, Dubai Creek Resort (Dubai Creek Golf & Yacht Club), Port Saeed, Deira, Dubai",
+      "lat": 25.2461756,
+      "lng": 55.3310965,
+      "coords_source": "OpenStreetMap node 5183028421 \"Q D's\" (bar) at Dubai Creek Golf & Yacht Club. The TSV had no coordinates.",
+      "phone": "+971 4 602 1587",
+      "website": "https://dubaicreekresort.com/qds-bar-grill/",
+      "spend_pp_aed": "99-199",
+      "licensed": true,
+      "halal_friendly": null,
+      "vegetarian_options": true,
+      "dress_code": null,
+      "age_limit": null,
+      "parking": null,
+      "reservations": null,
+      "good_to_know": "Open-air terrace on the Creek. Golden hours run Mon-Fri 5-8pm, with spirits and wine at AED 35 and beer at AED 40.",
+      "sources": [
+        {
+          "fact": "Hours: Sunday-Thursday 5pm-2am (last order 12:30am), Friday & Saturday 5pm-3am (last order 1:30am); phone +971 4 6021587; bookable via OpenTable",
+          "url": "https://dubaicreekresort.com/qds-bar-grill/"
+        },
+        {
+          "fact": "'big screens, great food and drinks, shisha, and a lively vibe'; golden hours Mon-Fri 5-8pm: AED 35 selected spirits, AED 40 selected beers, AED 35 selected wines",
+          "url": "https://dubaicreekresort.com/qds-bar-grill/"
+        },
+        {
+          "fact": "Friday Layali Brunch, 7-10pm: AED 199 per person with 2 hours of unlimited house wine, spirits, beer and cocktails, or AED 99 per person for food only",
+          "url": "https://dubaicreekresort.com/qds-bar-grill/"
+        },
+        {
+          "fact": "The menu marks vegetarian (V) dishes such as falafel, fattoush and mutabal. Prices in AED include municipality fees, service charge and VAT",
+          "url": "https://dubaicreekresort.com/wp-content/uploads/2026/07/QDs_FOOD-AND-BEVERAGE_MENU_WEB_06JULY2026.pdf"
+        },
+        {
+          "fact": "Address: 'Dubai Creek Resort - Port Saeed - Dubai'; shisha available",
+          "url": "https://www.hyattrestaurants.com/en/dubai/restaurant/qds"
+        },
+        {
+          "fact": "OSM bar node \"Q D's\" is at 25.2461756, 55.3310965",
+          "url": "https://www.openstreetmap.org/node/5183028421"
+        }
+      ],
+      "nearest_station": {
+        "name": "Deira City Centre",
+        "line": "Red Line",
+        "straight_m": 949,
+        "walk_min": 15
+      }
+    },
+    {
+      "id": "d0000000-0000-0000-0000-000000000003",
+      "name": "Shimmers",
+      "address": "Shimmers, Jumeirah Mina Al Salam, Madinat Jumeirah, Dubai",
+      "lat": 25.1350737,
+      "lng": 55.1842402,
+      "coords_source": "OpenStreetMap node 5274771826 'Shimmers' on the Madinat Jumeirah beach, which matches the TSV exactly. Kept.",
+      "phone": "+971 800 323 232",
+      "website": "https://www.jumeirah.com/en/stay/dubai/jumeirah-mina-a-salam/dining/mina-a-salam-shimmers",
+      "spend_pp_aed": null,
+      "licensed": true,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "dress_code": "Casual",
+      "age_limit": "12+",
+      "parking": null,
+      "reservations": null,
+      "good_to_know": "Greek food on the beach with Burj Al Arab views. Dinner runs 5pm-1am daily; lunch returns from October 1.",
+      "sources": [
+        {
+          "fact": "Official page: Greek and Mediterranean beachside dining; 'Open daily 17:00 to 01:00'; phone +971 800 323 232; 'Dress Code: Casual'; 'Age Policy: 12 years and above'; menus include a Shisha menu",
+          "url": "https://www.jumeirah.com/en/stay/dubai/jumeirah-mina-a-salam/dining/mina-a-salam-shimmers"
+        },
+        {
+          "fact": "New oceanfront bar serving cocktails such as the Yamas and the Bloody-Shimmers (a Bloody Mary twist)",
+          "url": "https://whatson.ae/2024/12/experience-a-greek-mediterranean-oasis-at-the-newly-refreshed-shimmers/"
+        },
+        {
+          "fact": "Open for the 2026 season: 'Dinner daily, 5pm-1am; lunch from October 1'",
+          "url": "https://whatson.ae/2026/09/9-much-loved-dubai-restaurants-reopening-for-the-new-season/"
+        },
+        {
+          "fact": "The coordinates match the OSM node 'Shimmers'",
+          "url": "https://www.openstreetmap.org/node/5274771826"
+        }
+      ],
+      "nearest_station": {
+        "name": "Mall of the Emirates",
+        "line": "Red Line",
+        "straight_m": 2245,
+        "walk_min": null,
+        "note": "taxi from station"
+      }
+    },
+    {
+      "id": "d0000000-0000-0000-0000-000000000002",
+      "name": "SoBe",
+      "address": "SoBe Rooftop Lounge, W Dubai - The Palm, West Crescent, Palm Jumeirah, Dubai",
+      "lat": 25.1074668,
+      "lng": 55.1112671,
+      "coords_source": "OpenStreetMap way 682208138 'W Dubai - The Palm', the host hotel (SoBe is on its rooftop). The TSV had no coordinates.",
+      "phone": "+971 4 245 5800",
+      "website": "https://www.marriott.com/en-us/hotels/dxbtp-w-dubai-the-palm/dining/",
+      "spend_pp_aed": null,
+      "licensed": true,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "dress_code": "Smart casual",
+      "age_limit": "Kids welcome 5-8pm Sun-Fri; after 8pm children only on the Sunset Terrace",
+      "parking": null,
+      "reservations": null,
+      "good_to_know": "Rooftop sunset spot. Happy hour drinks start at AED 39. No allowed source confirms shisha.",
+      "sources": [
+        {
+          "fact": "Hours: Mon-Thu & Sun 5:00 PM-1:00 AM, Fri 5:00 PM-2:00 AM, Sat 4:00 PM-2:00 AM; phone +971 4-245 5800; dress code 'Smart Casual'; kids welcome 5-8PM Sun-Fri, after 8PM only on the Sunset Terrace; bookings via SevenRooms or phone",
+          "url": "https://www.marriott.com/en-us/hotels/dxbtp-w-dubai-the-palm/dining/"
+        },
+        {
+          "fact": "Location 'W Dubai - The Palm, West Crescent, Palm Jumeirah'; creative mixology, happy hour prices from Dhs39, classic cocktails on Thursdays; Wednesday ladies' night Dhs120 (gents Dhs250) for unlimited beverages",
+          "url": "https://whatson.ae/2025/01/sobe-at-w-dubai-palm-jumeirah/"
+        },
+        {
+          "fact": "What's On reviewed SoBe as a rooftop bar reached by private elevator, with house drinks from Dhs39",
+          "url": "https://whatson.ae/2019/04/review-sobe-w-dubai-the-palm/"
+        },
+        {
+          "fact": "OSM places W Dubai - The Palm at 25.1074668, 55.1112671",
+          "url": "https://www.openstreetmap.org/way/682208138"
+        }
+      ],
+      "nearest_station": {
+        "name": "Jumeirah Beach Residence 1",
+        "line": "Dubai Tram",
+        "straight_m": 4108,
+        "walk_min": null,
+        "note": "taxi from station"
+      }
+    },
+    {
+      "id": "89000000-0000-0000-0000-000000000003",
+      "name": "Dubai Design District",
+      "address": "Dubai Design District (d3), next to Business Bay, Dubai",
+      "lat": 25.1913379,
+      "lng": 55.2985124,
+      "coords_source": "Approximate. OpenStreetMap way 490578458 is the 'Dubai Design District' ferry pier on the d3 waterfront; the TSV coordinates match its centroid. Kept.",
+      "phone": "+971 4 433 3000",
+      "website": "https://dubaidesigndistrict.com/",
+      "spend_pp_aed": null,
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "dress_code": null,
+      "age_limit": null,
+      "parking": "Free public parking (for now) in four large public car parks, about 2,800 spaces; underground parking is for registered d3 businesses only; valet available for visitors (source: https://dubaidesigndistrict.com/connect/faqs)",
+      "reservations": null,
+      "good_to_know": "The Block park on the d3 Waterfront has a skatepark, basketball and volleyball courts, climbing walls and an urban beach. The nearest metro is Dubai Mall.",
+      "sources": [
+        {
+          "fact": "'The nearest Metro station to d3 is the Dubai Mall Metro Station'; 'RTA Bus Route D03 will take you in and out of d3'; 'numerous convenient parking options in and around d3'; valet for all visitors; phone +971 4 433 3000 / 800 iamd3 (42633)",
+          "url": "https://dubaidesigndistrict.com/connect/contact-us"
+        },
+        {
+          "fact": "'Yes, valet services are available for visitors and staff operating from Dubai Design District'",
+          "url": "https://dubaidesigndistrict.com/connect/faqs"
+        },
+        {
+          "fact": "The Block Park at d3 Waterfront: skatepark, open-air basketball and volleyball courts, climbing walls, urban beach",
+          "url": "https://dubaidesigndistrict.com/the-community/the-block"
+        },
+        {
+          "fact": "d3 is adjacent to Business Bay and hosts Dubai Design Week in November",
+          "url": "https://en.wikipedia.org/wiki/Dubai_Design_District"
+        },
+        {
+          "fact": "The coordinates match the OSM way 'Dubai Design District'",
+          "url": "https://www.openstreetmap.org/way/490578458"
+        }
+      ],
+      "checker_notes": [
+        "coords_source: This describes the OSM feature wrongly. OSM way 490578458 is not the Dubai Design District outline and has no 'Zabeel 2' tag. It is a small floating pier and ferry mooring named 'Dubai Design District' (man_made=pier, mooring=ferry, floating=yes) on the d3 waterfront. The coordinates match its centroid (25.19129, 55.29855), which is on d3's canal edge in Dubai, so the coordinates are acceptable. Only the description is wrong.",
+        "parking: Incomplete. The official d3 FAQ (https://dubaidesigndistrict.com/connect/faqs) says: 'At this time we are not charging for public parking. Underground parking is reserved for registered business partners only. We have four large public car parks ... approximately 2800 vehicles.' It also confirms valet for visitors. That public parking is free is the useful fact, and the current value leaves it out."
+      ],
+      "nearest_station": {
+        "name": "Burj Khalifa / Dubai Mall",
+        "line": "Red Line",
+        "straight_m": 3123,
+        "walk_min": null,
+        "note": "taxi from station"
+      }
+    },
+    {
+      "id": "89000000-0000-0000-0000-000000000002",
+      "name": "Mall of the Emirates",
+      "address": "Interchange 4, Sheikh Zayed Road, Al Barsha 1, Dubai",
+      "lat": 25.1179818,
+      "lng": 55.2003754,
+      "coords_source": "TSV coords kept; checked against Wikipedia (25.11806, 55.20056), about 20 m apart",
+      "phone": null,
+      "website": "https://www.malloftheemirates.com",
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "dress_code": null,
+      "age_limit": null,
+      "reservations": null,
+      "spend_pp_aed": null,
+      "parking": "Over 7,000 covered spaces. Weekdays: first 4 hours free, then AED 20 for 4-5 h rising to AED 100 for 7-8 h (barrier-free Parkin system). Weekends: free",
+      "good_to_know": "Red Line Mall of the Emirates Metro links straight in by a covered walkway (1st floor). Open Mon-Thu 10:00-23:00, Fri-Sun 10:00-00:00",
+      "sources": [
+        {
+          "fact": "Located at interchange four on Sheikh Zayed Road; coordinates 25.11806N 55.20056E",
+          "url": "https://en.wikipedia.org/wiki/Mall_of_the_Emirates"
+        },
+        {
+          "fact": "Over 7,000 covered parking spaces on four levels; Red Line metro station connects directly by an enclosed overhead walkway, entered from the 1st floor",
+          "url": "https://www.malloftheemirates.com/en/plan-your-visit"
+        },
+        {
+          "fact": "Four hours of free parking on weekdays (AED 20 for 4-5 h, 40 for 5-6 h, 60 for 6-7 h, 100 for 7-8 h); weekend parking remains free",
+          "url": "https://whatson.ae/2025/02/heres-how-to-pay-for-barrier-free-parking-starting-today-at-mall-of-the-emirates/"
+        },
+        {
+          "fact": "Mall timings: weekdays (Mon-Thu) 10:00-23:00, weekends (Fri-Sun) 10:00-00:00",
+          "url": "https://www.malloftheemirates.com/en/moe/mall_opening_hours"
+        }
+      ],
+      "nearest_station": {
+        "name": "Mall of the Emirates",
+        "line": "Red Line",
+        "straight_m": 358,
+        "walk_min": 6
+      }
+    },
+    {
+      "id": "89000000-0000-0000-0000-000000000001",
+      "name": "The Dubai Mall",
+      "address": "Downtown Dubai, Dubai",
+      "lat": 25.197044,
+      "lng": 55.2789516,
+      "coords_source": "TSV coords kept; checked against Wikipedia (25.19750, 55.27917), about 60 m apart",
+      "phone": "800 38224 6255 (800 DUBAI MALL, UAE only)",
+      "website": "https://thedubaimall.com",
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "dress_code": null,
+      "age_limit": null,
+      "reservations": null,
+      "spend_pp_aed": null,
+      "parking": "14,000+ spaces. First 4 hours free on weekdays and first 6 hours free on weekends, then paid in the designated zones",
+      "good_to_know": "Shops open Mon-Thu 10am-11pm, Fri-Sun 10am-midnight; restaurants stay open an hour later. Nearest Metro is Burj Khalifa/Dubai Mall (Red Line)",
+      "sources": [
+        {
+          "fact": "Retail hours Mon-Thu 10:00-23:00 and Fri-Sun 10:00-00:00; restaurants Mon-Thu 10:00-00:00 and Fri-Sun 10:00-01:00; phone 800 DUBAI MALL (800 38224 6255)",
+          "url": "https://thedubaimall.com/en/plan-your-visit/opening-hours"
+        },
+        {
+          "fact": "First four hours of parking free on weekdays and first six hours on weekends; charges apply after that in designated areas",
+          "url": "https://thedubaimall.com/en/plan-your-visit/paid-parking"
+        },
+        {
+          "fact": "Downtown Dubai; 14,000+ parking spaces; served by Burj Khalifa/Dubai Mall Metro (Red Line); coordinates 25.19750N 55.27917E",
+          "url": "https://en.wikipedia.org/wiki/Dubai_Mall"
+        }
+      ],
+      "nearest_station": {
+        "name": "Burj Khalifa / Dubai Mall",
+        "line": "Red Line",
+        "straight_m": 1065,
+        "walk_min": 17
+      }
+    },
+    {
+      "id": "60000000-0000-0000-0000-000000000002",
+      "name": "Garage Dubai",
+      "address": null,
+      "lat": null,
+      "lng": null,
+      "coords_source": "unknown",
+      "phone": null,
+      "website": null,
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "dress_code": null,
+      "age_limit": null,
+      "reservations": null,
+      "spend_pp_aed": null,
+      "parking": null,
+      "good_to_know": "UNVERIFIED: no public source found listing a sports bar called Garage Dubai in Jumeirah. OpenStreetMap's only Dubai bar with 'Garage' in its name is Bodega Garage in Al Barsha, which does not fit. Consider removing it",
+      "sources": [
+        {
+          "fact": "Closest name match on Time Out is 'Garage Club' in Deira, not a Jumeirah sports bar",
+          "url": "https://www.timeoutdubai.com/bars/garage-club-in-deira"
+        },
+        {
+          "fact": "OpenStreetMap's only Dubai bar with 'Garage' in its name is 'Bodega Garage' in Al Barsha (25.1159, 55.1945), not in Jumeirah",
+          "url": "https://www.openstreetmap.org/node/8585102460"
+        }
+      ],
+      "checker_notes": [
+        "good_to_know: The Time Out source for 'Garage Club (Deira)' (https://www.timeoutdubai.com/bars/garage-club-in-deira) returns HTTP 403 and has no archive snapshot, so that part is unverified. The OSM part checks out: node 8585102460 is 'Bodega Garage', amenity=bar, at 25.1159, 55.1945. The recommendation to remove the entry still stands."
+      ]
+    },
+    {
+      "id": "60000000-0000-0000-0000-000000000004",
+      "name": "InSportz Club",
+      "address": "Al Quoz Industrial Area 3, Dubai",
+      "lat": 25.1284097,
+      "lng": 55.2131729,
+      "coords_source": "TSV coords kept; exact match with OpenStreetMap node 4641742293 (Insportz Club)",
+      "phone": "+971 4 347 5833",
+      "website": "https://insportzclub.com",
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "dress_code": null,
+      "age_limit": null,
+      "reservations": null,
+      "spend_pp_aed": null,
+      "parking": "Ample parking on site",
+      "good_to_know": "Indoor cricket, football, padel, badminton, volleyball and table tennis. Book courts through Playo; WhatsApp 058 645 0292 is for leagues and corporate events",
+      "sources": [
+        {
+          "fact": "Address Al Quoz Industrial Area 3, Dubai; phone 04 347 5833 / 058 645 0292; sports: indoor cricket, football, badminton, table tennis, padel, volleyball; 'Ample parking and easy access'; 'Changing rooms, showers & refreshments'; Book Now links go to Playo",
+          "url": "https://insportzclub.com/"
+        },
+        {
+          "fact": "Time Out gives the address as Street 17a, Al Quoz 3, phone (04) 347 5833",
+          "url": "https://www.timeoutdubai.com/sports-wellbeing/sport-wellbeing-features/63845-indoor-sport-in-dubai"
+        },
+        {
+          "fact": "OSM node 'Insportz Club' at 25.1284097, 55.2131729",
+          "url": "https://www.openstreetmap.org/node/4641742293"
+        }
+      ],
+      "checker_notes": [
+        "address: 'Street 17A' rests only on the Time Out page, which returns HTTP 403 and has no Wayback snapshot, so it could not be verified. The official site (https://insportzclub.com/) gives only 'Al Quoz Industrial Area 3 - Dubai'.",
+        "good_to_know: The official site says courts are booked online through Playo. The WhatsApp number (058 645 0292) is offered for leagues and corporate events, not for court booking. The sports list is correct."
+      ],
+      "nearest_station": {
+        "name": "Equiti",
+        "line": "Red Line",
+        "straight_m": 563,
+        "walk_min": 9
+      }
+    },
+    {
+      "id": "60000000-0000-0000-0000-000000000003",
+      "name": "Kickers Indoor Football",
+      "address": null,
+      "lat": null,
+      "lng": null,
+      "coords_source": "unknown",
+      "phone": null,
+      "website": null,
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "dress_code": null,
+      "age_limit": null,
+      "reservations": null,
+      "spend_pp_aed": null,
+      "parking": null,
+      "good_to_know": "MISMATCH: no indoor 5-a-side venue called Kickers found in Al Quoz. The only 'Kickers' is a sports bar at ISD, Dubai Sports City, that overlooks an outdoor pitch. Fix or remove the entry",
+      "sources": [
+        {
+          "fact": "Kickers is a restaurant and sports bar at ISD Dubai Sports City (+971 52 894 6917), overlooking a modern football field; Mon-Thu 4pm-2am, Fri-Sun 12pm-2am",
+          "url": "https://kickerssportsbar.ae/"
+        },
+        {
+          "fact": "OSM has 'Kickers Sports Bar' (amenity=pub) at The Dome, Dubai Sports City, 25.0388, 55.2264, not in Al Quoz",
+          "url": "https://www.openstreetmap.org/node/4008939525"
+        }
+      ]
+    },
+    {
+      "id": "60000000-0000-0000-0000-000000000001",
+      "name": "The Huddle Sports Bar",
+      "address": "Ground floor, Citymax Hotel Al Barsha at the Mall, behind Mall of the Emirates, Al Barsha 1, Dubai",
+      "lat": 25.1153863,
+      "lng": 55.2037334,
+      "coords_source": "TSV coords kept; exact match with OpenStreetMap node 8593474380 (The Huddle Sports Bar & Grill), next to the Citymax Hotel Al Barsha At The Mall building",
+      "phone": "+971 50 100 7046",
+      "website": "https://www.instagram.com/thehuddleuae/",
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "dress_code": null,
+      "age_limit": null,
+      "reservations": null,
+      "spend_pp_aed": null,
+      "parking": null,
+      "good_to_know": "Open daily 12pm-3am, with screens showing football, rugby and cricket. The Citymax hotel site has no page for the bar any more, so check Instagram before going",
+      "sources": [
+        {
+          "fact": "The Huddle Al Barsha: classic sports bar with multiple screens showing football, rugby and cricket; ground floor, Citymax Hotel Al Barsha at the Mall, behind Mall of the Emirates; daily 12pm to 3am",
+          "url": "https://whatson.ae/2026/08/sports-bars-to-watch-the-english-premier-league-in-dubai/"
+        },
+        {
+          "fact": "The Huddle, Citymax Hotel, Al Barsha: Tel (0)50 100 7046, Instagram @thehuddleuae",
+          "url": "https://whatson.ae/2025/06/these-are-the-ladies-nights-where-you-can-get-free-drinks-in-dubai/"
+        },
+        {
+          "fact": "OSM node 'The Huddle Sports Bar & Grill' at 25.1153863, 55.2037334",
+          "url": "https://www.openstreetmap.org/node/8593474380"
+        }
+      ],
+      "nearest_station": {
+        "name": "Mall of the Emirates",
+        "line": "Red Line",
+        "straight_m": 727,
+        "walk_min": 12
+      }
+    },
+    {
+      "id": "30000000-0000-0000-0000-000000000001",
+      "name": "CÉ LA VI",
+      "address": "Level 54, Address Sky View Hotel, Tower 2, Sheikh Mohammed Bin Rashid Boulevard, Downtown Dubai",
+      "lat": 25.2020318,
+      "lng": 55.2708363,
+      "coords_source": "TSV coords kept; checked against OpenStreetMap relation 12623980 (The Address Sky View Tower 2, centre 25.20171, 55.27103), about 40 m apart",
+      "phone": "+971 4 582 6111",
+      "website": "https://dxb.celavi.com",
+      "licensed": true,
+      "halal_friendly": null,
+      "vegetarian_options": true,
+      "dress_code": "Elegant. Shorts are fine at lunch; no sportswear, beachwear, baseball caps, shorts or flip-flops in the evening. Local attire is welcome in the restaurant",
+      "age_limit": "SkyBar and Club Lounge 21+. Restaurant: all ages at lunch; at dinner, children 7+ until 11pm (non-alcoholic drinks only)",
+      "reservations": "required for Club Lounge only (not stated for Restaurant or SkyBar)",
+      "spend_pp_aed": "500+",
+      "parking": "Free valet at the entrance with a minimum spend of AED 150",
+      "good_to_know": "Bookings carry an AED 500 per person minimum spend and need a credit card; groups of 7-14 pay a 20% deposit. Guests may be asked to show ID (local ID, driving licence or passport; no photocopies)",
+      "sources": [
+        {
+          "fact": "Address Level 54, Address Sky View Hotel, Tower 2, Sheikh Mohammed Bin Rashid Boulevard, Downtown Dubai; restaurant 12pm-12:30am, Club Lounge 6pm-3am, SkyBar 12pm-3am; reservations required for the Club Lounge; phone +971 4 582 6111",
+          "url": "https://dxb.celavi.com/faq"
+        },
+        {
+          "fact": "Minimum spend of AED 500 per person for bookings every day; 20% deposit for groups of 7-14",
+          "url": "https://dxb.celavi.com/faq"
+        },
+        {
+          "fact": "Dress code: elegant, no sportswear/beachwear/caps/shorts/flip-flops in the evenings. Age: SkyBar and Club Lounge 21+; children at dinner 7+ for food and non-alcoholic drinks until 11pm (implies alcohol is served)",
+          "url": "https://dxb.celavi.com/faq"
+        },
+        {
+          "fact": "Vegetarian, gluten-free, nut-free and shellfish-free menus available; complimentary valet with AED 150 minimum spend",
+          "url": "https://dxb.celavi.com/faq"
+        },
+        {
+          "fact": "OSM building 'The Address Sky View Tower 2' centre 25.201714, 55.2710339",
+          "url": "https://www.openstreetmap.org/relation/12623980"
+        }
+      ],
+      "checker_notes": [
+        "reservations: Too broad. The FAQ at https://dxb.celavi.com/faq says reservations are required only for the Club Lounge ('Are reservations required to enter CÉ LA VI Club Lounge? Reservations are required to enter'). It says nothing about requiring them for the Restaurant or SkyBar. The AED 500 minimum spend applies to bookings, not to entry.",
+        "good_to_know: 'Photo ID is checked' goes further than the source. The FAQ says 'Guests might be required to display local ID, driving license or passport for verification' and that photos or photocopies of ID are not accepted. The rest of the note is correct (AED 500 pp minimum spend, credit card to secure the booking, 20% deposit for groups of 7-14).",
+        "licensed: The value is right, but the cited FAQ only implies it (children get 'non-alcoholic drinks'). The official SkyBar page says it outright: 'unlimited champagne brunch' and 'Our expansive spirit and wine selection'. Cite https://dxb.celavi.com/skybar for this fact."
+      ],
+      "nearest_station": {
+        "name": "Burj Khalifa / Dubai Mall",
+        "line": "Red Line",
+        "straight_m": 146,
+        "walk_min": 2
+      }
+    },
+    {
+      "id": "30000000-0000-0000-0000-000000000003",
+      "name": "Koko Bay",
+      "address": "Palm West Beach, Palm Jumeirah, Dubai",
+      "lat": 25.1068724,
+      "lng": 55.1432548,
+      "coords_source": "TSV coords kept; exact match with OpenStreetMap node 8883912947 (Koko Bay)",
+      "phone": "+971 4 572 3444",
+      "website": "https://www.westbeach.ae/en/restaurants/koko-bay",
+      "licensed": true,
+      "halal_friendly": null,
+      "vegetarian_options": true,
+      "dress_code": "Beachwear for beach access; smart casual for dining",
+      "age_limit": "All ages welcome; ages 16-21 must be with an adult; alcohol served only to 21+",
+      "reservations": null,
+      "spend_pp_aed": null,
+      "parking": null,
+      "good_to_know": "Business lunch mains AED 79 (Mon-Fri 12-4pm); Monday all-day happy hour with drinks from AED 30. Open until 1am (2am Fri-Sat), about a 6-minute walk from the Palm Monorail",
+      "sources": [
+        {
+          "fact": "Phone +971 4 5723444; Mon-Thu and Sun 10am-1am, Fri-Sat 10am-2am; dress code beachwear for beach access, smart casual for dining; age 16-21 with guardian, alcohol only to 21+",
+          "url": "https://www.westbeach.ae/en/restaurants/koko-bay"
+        },
+        {
+          "fact": "Bottled and draught beer, wines, spirits and cocktails from AED 30 all day; business lunch AED 79 for mains; 6-minute walk from the Palm Monorail",
+          "url": "https://www.westbeach.ae/en/restaurants/koko-bay"
+        },
+        {
+          "fact": "OSM node 'Koko Bay' (West Beach) at 25.1068724, 55.1432548, tagged diet:halal=yes and diet:vegetarian=yes (crowd-sourced tags)",
+          "url": "https://www.openstreetmap.org/node/8883912947"
+        }
+      ],
+      "checker_notes": [
+        "good_to_know: 'Drinks from AED 30' is presented as an all-week price, but the official page lists it only under 'All Day Happy Hours Mondays' (beer, wine, spirits and selected cocktails from AED 30 all day long). The AED 79 business lunch runs Monday-Friday, 12-4pm. Hours and the 6-minute Monorail walk are correct.",
+        "halal_friendly: The only support is a crowd-sourced OSM tag (diet:halal=yes on node 8883912947). The official westbeach.ae page makes no halal claim, and the venue serves alcohol. That is not 'clearly stated' by an authoritative source."
+      ],
+      "nearest_station": {
+        "name": "Palm Jumeirah",
+        "line": "Dubai Tram",
+        "straight_m": 1568,
+        "walk_min": 25
+      }
+    },
+    {
+      "id": "30000000-0000-0000-0000-000000000002",
+      "name": "Terra Solis",
+      "address": "Jebel Ali-Lehbab Road, Dubai desert",
+      "lat": 24.9911027,
+      "lng": 55.4186758,
+      "coords_source": "TSV coords kept; exact match with OpenStreetMap node 12085340669 (Terra solis)",
+      "phone": null,
+      "website": "https://www.terrasolisdubai.com",
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "dress_code": null,
+      "age_limit": null,
+      "reservations": null,
+      "spend_pp_aed": null,
+      "parking": null,
+      "good_to_know": "PERMANENTLY CLOSED: the last event was 31 Jan 2026 and the official site now shows a farewell message. Remove it from the deck",
+      "sources": [
+        {
+          "fact": "Official site now shows only a farewell: 'Now, a beautiful chapter comes to an end... For four unforgettable years'",
+          "url": "https://www.terrasolisdubai.com/"
+        },
+        {
+          "fact": "What's On (7 Feb 2026): Terra Solis Dubai has closed down; last scheduled event was 31 January 2026",
+          "url": "https://whatson.ae/2026/02/dubai-hotspot-terra-solis-has-closed-down/"
+        },
+        {
+          "fact": "OSM node 'Terra solis' on Jebel Ali-Lehbab Road at 24.9911027, 55.4186758",
+          "url": "https://www.openstreetmap.org/node/12085340669"
+        }
+      ],
+      "nearest_station": {
+        "name": "Jumeirah Golf Estates",
+        "line": "Red Line (Route 2020)",
+        "straight_m": 25902,
+        "walk_min": null,
+        "note": "taxi from station"
+      }
+    },
+    {
+      "id": "30000000-0000-0000-0000-000000000004",
+      "name": "The Nine",
+      "address": "Ground floor (lobby), Sofitel Dubai The Obelisk, WAFI, Sheikh Rashid Road, Umm Hurair 2, Dubai",
+      "lat": 25.2310024,
+      "lng": 55.3184179,
+      "coords_source": "OpenStreetMap way 1084655122 (Sofitel Dubai The Obelisk building centre); the TSV had no coords",
+      "phone": "+971 4 281 4111",
+      "website": "https://www.sofitel-dubai-theobelisk.com/restaurants-bars/the-nine/",
+      "licensed": true,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "dress_code": "Casual",
+      "age_limit": null,
+      "reservations": null,
+      "spend_pp_aed": null,
+      "parking": null,
+      "good_to_know": "LOCATION FIX: no 'The Nine' found at Address Dubai Mall. The Nine gastropub is at Sofitel The Obelisk, WAFI, so update the area. Happy hour 4-7pm daily",
+      "sources": [
+        {
+          "fact": "The Nine: British gastropub with big sports screens and 'an impressive hops and beverage menu'; bar daily 11:30am-1am; restaurant Sun-Fri 11:30am-1am, Sat 11am-11pm; happy hour (L'Apero Chic) 4-7pm daily; dress code casual",
+          "url": "https://www.sofitel-dubai-theobelisk.com/restaurants-bars/the-nine/"
+        },
+        {
+          "fact": "Location: Ground floor - lobby, Sofitel Dubai The Obelisk, WAFI, Dubai; Tel +971 4 281 4111; hotel address Wafi City, Sheikh Rashid Road, Umm Hurair 2",
+          "url": "https://www.sofitel-dubai-theobelisk.com/restaurants-bars/the-nine/"
+        },
+        {
+          "fact": "OSM way 'Sofitel Dubai The Obelisk' on Sheikh Rashid Rd, centre 25.2310024, 55.3184179",
+          "url": "https://www.openstreetmap.org/way/1084655122"
+        }
+      ],
+      "nearest_station": {
+        "name": "Dubai Healthcare City",
+        "line": "Green Line",
+        "straight_m": 423,
+        "walk_min": 7
+      }
+    },
+    {
+      "id": "84000000-0000-0000-0000-000000000003",
+      "name": "AquaFun Dubai",
+      "address": "Marina Beach, opposite The Beach JBR, Dubai",
+      "lat": 25.0778342,
+      "lng": 55.1299712,
+      "coords_source": "OpenStreetMap way 1075332708 (AquaFun Water Park, area centre); the TSV had no coords",
+      "phone": "+971 54 522 6663",
+      "website": "https://aquafun.ae",
+      "licensed": null,
+      "halal_friendly": null,
+      "vegetarian_options": null,
+      "dress_code": "Swimwear (bring a towel; socks or water shoes advised)",
+      "age_limit": "6+ and at least 110 cm tall; ages 6-12 with an adult; basic swimming skills required",
+      "reservations": "recommended",
+      "spend_pp_aed": "225 + 5% VAT",
+      "parking": "No private parking; use The Beach JBR car park or nearby public paid parking",
+      "good_to_know": "Open 9am to sunset (Jun 15-Sep 15 it closes 12-3pm and a session is AED 159). Third-party tickets are refused, so buy on aquafun.ae or at the counter",
+      "sources": [
+        {
+          "fact": "Ticket AED 225 + 5% VAT; summer single session AED 159 + VAT, flex day pass AED 199 + VAT; open 9am until sunset, summer split sessions 9am-12pm and 3pm-sunset",
+          "url": "https://aquafun.ae/"
+        },
+        {
+          "fact": "Open to guests 6+ with no upper limit, min 110 cm; basic swimming required; buy tickets on AquaFun.ae or at the counter, third-party tickets not accepted",
+          "url": "https://aquafun.ae/"
+        },
+        {
+          "fact": "No private parking; guests use The Beach JBR parking, public JBR parking or nearby paid parking; located on JBR Beach (Marina Beach); phone +971 54 522 6663",
+          "url": "https://aquafun.ae/"
+        },
+        {
+          "fact": "OSM area 'AquaFun Water Park', centre 25.0778342, 55.1299712",
+          "url": "https://www.openstreetmap.org/way/1075332708"
+        }
+      ],
+      "checker_notes": [
+        "reservations: 'walk-in' leaves out the site's caveat. https://aquafun.ae/ says 'Guaranteed entry only when purchased on AquaFun.ae'. Tickets are also sold at the counter, but entry is only guaranteed with an online ticket."
+      ],
+      "nearest_station": {
+        "name": "Jumeirah Beach Residence 2",
+        "line": "Dubai Tram",
+        "straight_m": 498,
+        "walk_min": 8
+      }
+    },
+    {
+      "id": "84000000-0000-0000-0000-000000000001",
+      "name": "Aquaventure World",
+      "address": "Atlantis The Palm, East Crescent Road, Palm Jumeirah, Dubai",
+      "lat": 25.134599,
+      "lng": 55.1220701,
+      "coords_source": "OpenStreetMap way 94404600 (leisure=water_park, name:en Atlantis-Aquaventure), via Nominatim",
+      "age_limit": null,
+      "dress_code": null,
+      "halal_friendly": null,
+      "licensed": null,
+      "vegetarian_options": null,
+      "parking": null,
+      "phone": null,
+      "reservations": null,
+      "spend_pp_aed": "285-305",
+      "website": "https://www.aquaventureworld.com/",
+      "good_to_know": "The Palm Monorail has a stop called Atlantis Aquaventure station. The Super Pass adds aquarium access.",
+      "sources": [
+        {
+          "fact": "Coordinates and location on East Crescent Road, Palm Jumeirah (OSM way 94404600, leisure=water_park)",
+          "url": "https://nominatim.openstreetmap.org/search?q=Aquaventure&countrycodes=ae&format=json"
+        },
+        {
+          "fact": "OSM tags: leisure=water_park, name:en Atlantis-Aquaventure, website on atlantis.com",
+          "url": "https://www.openstreetmap.org/api/0.6/way/94404600"
+        },
+        {
+          "fact": "Atlantis Aquaventure Day Pass from AED 285; 1 Day Super Pass (waterpark + aquarium + marine animal encounters) from AED 305",
+          "url": "https://experiences.visitdubai.com/atlantis-the-palm-get-your-tickets"
+        },
+        {
+          "fact": "Palm Monorail station named Atlantis Aquaventure (OSM way 1126642448)",
+          "url": "https://www.openstreetmap.org/api/0.6/way/1126642448"
+        },
+        {
+          "fact": "Visit Dubai lists Aquaventure World as Dubai's biggest waterpark",
+          "url": "https://www.visitdubai.com/en/places-to-visit/aquaventure"
+        }
+      ],
+      "nearest_station": {
+        "name": "Knowledge Village",
+        "line": "Dubai Tram",
+        "straight_m": 5219,
+        "walk_min": null,
+        "note": "taxi from station"
+      }
+    },
+    {
+      "id": "84000000-0000-0000-0000-000000000002",
+      "name": "Wild Wadi Waterpark",
+      "address": "Jumeira St, opposite Burj Al Arab, Umm Suqeim 3, Dubai",
+      "lat": 25.1396485,
+      "lng": 55.189428,
+      "coords_source": "TSV coordinates kept; they match OpenStreetMap way 182920461 (Wild Wadi Waterpark) exactly, and Wikipedia gives 25°08′22″N 55°11′21″E",
+      "age_limit": "Children 13 and under must be with an adult (18+); visitors 14+ may enter alone",
+      "dress_code": "Proper swimwear only (no jeans, long pants or see-through clothing); swim diapers for babies and toddlers",
+      "halal_friendly": null,
+      "licensed": null,
+      "vegetarian_options": null,
+      "parking": null,
+      "phone": "+971 4 820 0000",
+      "reservations": null,
+      "spend_pp_aed": "149-199",
+      "website": "https://www.wildwadi.com/en",
+      "good_to_know": "Outside food and drink are not allowed. Open 10:00-18:00 daily, and until 22:00 on Saturday Splash Nights.",
+      "sources": [
+        {
+          "fact": "Address: Jumeira St, opp. Burj Al Arab, Umm Suqeim 3, Dubai; phone +971 4 820 0000 (800 2629464 within UAE)",
+          "url": "https://www.wildwadi.com/en/contact-us"
+        },
+        {
+          "fact": "Day pass from AED 149 (UAE residents, adult) and from AED 199 (non-residents, adult); open Mon-Sun 10:00-18:00",
+          "url": "https://www.wildwadi.com/en"
+        },
+        {
+          "fact": "Only proper swimwear is allowed; children 0-13 must be accompanied by an adult 18+; outside food and beverages not permitted; Saturday Splash Nights until 22:00",
+          "url": "https://www.wildwadi.com/en/before-you-visit"
+        },
+        {
+          "fact": "Coordinates match OSM way 182920461 (Wild Wadi Waterpark, Umm Suqeim 3)",
+          "url": "https://nominatim.openstreetmap.org/search?q=Wild+Wadi&countrycodes=ae&format=json"
+        },
+        {
+          "fact": "Coordinates 25°08′22″N 55°11′21″E; opened 12 February 1998; owned by Jumeirah",
+          "url": "https://en.wikipedia.org/wiki/Wild_Wadi_Water_Park"
+        }
+      ],
+      "nearest_station": {
+        "name": "Mall of the Emirates",
+        "line": "Red Line",
+        "straight_m": 2332,
+        "walk_min": null,
+        "note": "taxi from station"
+      }
+    },
+    {
+      "id": "88000000-0000-0000-0000-000000000003",
+      "name": "SEVEN Wellness Club",
+      "address": "Al Manara Road, Exit 43, Al Quoz, Dubai",
+      "lat": null,
+      "lng": null,
+      "coords_source": "unknown: not found in OpenStreetMap (Nominatim/Overpass returned nothing), and the official site gives no map coordinates",
+      "age_limit": null,
+      "dress_code": null,
+      "halal_friendly": null,
+      "licensed": null,
+      "vegetarian_options": null,
+      "parking": null,
+      "phone": "+971 4 232 3737",
+      "reservations": null,
+      "spend_pp_aed": null,
+      "website": "https://seven.club",
+      "good_to_know": "This is a private members' club. Non-members can only book a complimentary tour for prospective members through visit.seven.club; there is no day pass for groups.",
+      "sources": [
+        {
+          "fact": "Address: Al Manara Road, Exit 43, Dubai, in the heart of Al Quoz; phone +971 4 232 3737; email hello@seven.club",
+          "url": "https://seven.club/location"
+        },
+        {
+          "fact": "SEVEN is a wellness brand with private members' clubs in Dubai and Ibiza, founded in 2019",
+          "url": "https://seven.club/about"
+        },
+        {
+          "fact": "In-house restaurant The Dose, led by chef Silvena Rowe, serving organic, protein-rich superfoods",
+          "url": "https://seven.club/dose"
+        },
+        {
+          "fact": "Complimentary visit booking form for non-members",
+          "url": "https://visit.seven.club"
+        }
+      ],
+      "checker_notes": [
+        "good_to_know: This is too loose for a hangout app. visit.seven.club is a sign-up form for prospective members: 'Book a complimentary visit and see exactly what you'd be joining', 'No commitment required'. The visitor picks a club, date and time for a tour. /about says SEVEN is 'a wellness brand with private members' clubs'. No source says a non-member group can use the club as a day visit."
+      ]
+    },
+    {
+      "id": "88000000-0000-0000-0000-000000000001",
+      "name": "Talise Spa Madinat Jumeirah",
+      "address": "Madinat Jumeirah, King Salman bin Abdulaziz Al Saud Street, Umm Suqeim, Dubai",
+      "lat": 25.133375,
+      "lng": 55.187379,
+      "coords_source": "TSV coordinates kept; they match OpenStreetMap way 103674328 (25.1333783, 55.1874023). That way is the 'Madinat Jumeirah' access road (highway=unclassified) by the Souk Madinat car park, not the spa building, so this is a resort-entrance pin only. The spa itself is not mapped in OSM",
+      "age_limit": null,
+      "dress_code": null,
+      "halal_friendly": null,
+      "licensed": null,
+      "vegetarian_options": null,
+      "parking": null,
+      "phone": "+971 4 366 6818",
+      "reservations": null,
+      "spend_pp_aed": null,
+      "website": "https://www.jumeirah.com/en/stay/dubai/madinat-jumeirah/wellbeing/talise-signature-spa",
+      "good_to_know": "The spa is open 11:00-21:00 daily. The outdoor spa pool is open 11:00-18:00.",
+      "sources": [
+        {
+          "fact": "Open daily 11:00-21:00; phone +971 4 366 6818; email mjtalise@jumeirah.com; outdoor pool accessible daily 11:00-18:00; couples massage, hammam, LED therapy, VIP couple suite; online booking",
+          "url": "https://www.jumeirah.com/en/stay/dubai/madinat-jumeirah/wellbeing/talise-signature-spa"
+        },
+        {
+          "fact": "Madinat Jumeirah address: King Salman bin Abdulaziz Al Saud Street, Umm Suqeim St, Dubai",
+          "url": "https://www.jumeirah.com/en/stay/dubai/madinat-jumeirah"
+        },
+        {
+          "fact": "OSM Madinat Jumeirah way 103674328 at 25.1333783, 55.1874023 (Umm Suqeim 3), consistent with the TSV coordinates",
+          "url": "https://nominatim.openstreetmap.org/search?q=Madinat+Jumeirah&countrycodes=ae&format=json"
+        }
+      ],
+      "checker_notes": [
+        "coords_source: This misdescribes the OSM feature. Way 103674328 has class=highway, type=unclassified. It is the resort's access road named 'Madinat Jumeirah', not the resort complex. Overpass puts the point on that road next to the Souk Madinat car-park entrance (node 2429425565) and the Big Bus stop (node 6358621686). That is the east entrance of the resort, roughly 300-400 m from Al Qasr (node 1155135639 at 25.1318382, 55.1844829). The lat/lng are in Dubai and at Madinat Jumeirah, so they can stay as a resort-level pin. No allowed source gives the spa building's own location, and 'Talise Spa' has no OSM entry (Nominatim returned nothing)."
+      ],
+      "nearest_station": {
+        "name": "Mall of the Emirates",
+        "line": "Red Line",
+        "straight_m": 1887,
+        "walk_min": null,
+        "note": "taxi from station"
+      }
+    },
+    {
+      "id": "88000000-0000-0000-0000-000000000002",
+      "name": "The Hundred Wellness Centre",
+      "address": "Street 53b, Jumeirah 1, Dubai",
+      "lat": null,
+      "lng": null,
+      "coords_source": "unknown: not found in OpenStreetMap (Nominatim/Overpass returned nothing), and the official contact page gives no coordinates",
+      "age_limit": null,
+      "dress_code": null,
+      "halal_friendly": null,
+      "licensed": null,
+      "vegetarian_options": true,
+      "parking": null,
+      "phone": "+971 4 344 7333",
+      "reservations": null,
+      "spend_pp_aed": "140-600",
+      "website": "https://thehundred.ae",
+      "good_to_know": "Closed on Fridays. The 100 Café is open 8am-6pm, with vegan and gluten-free dishes.",
+      "sources": [
+        {
+          "fact": "Address Street 53b Jumeirah 1, Dubai; phone +971 4 344 7333; open Sat-Thu 7am-8pm, closed Friday; 100 Café 8am-6pm",
+          "url": "https://thehundred.ae/contact-us/"
+        },
+        {
+          "fact": "Pilates group class (55 min) AED 140; lymphatic drainage massage (60 min) AED 600; infrared sauna AED 142; chiropractic initial AED 500",
+          "url": "https://thehundred.ae/price-list/"
+        },
+        {
+          "fact": "100 Café menu labels vegetarian, vegan and gluten-free items; most mains AED 44-49",
+          "url": "https://thehundred.ae/100-cafe/"
+        },
+        {
+          "fact": "Visit Dubai lists it as a peaceful place to enhance physical, mental and emotional health, with an onsite cafe",
+          "url": "https://www.visitdubai.com/en/places-to-visit/the-hundred-wellness-centre"
+        }
+      ],
+      "sources[2].fact": "100 Café menu labels vegetarian, vegan and gluten-free items; mains AED 44-59",
+      "checker_notes": [
+        "sources[2].fact: The cited 100 Café page gives mains at AED 44-59, not 44-49. The field values (vegetarian_options=true, and the good_to_know about vegan and gluten-free dishes) are still supported: the menu labels items VEGAN, VEGETARIAN and GF."
+      ]
+    }
+  ]
+}
