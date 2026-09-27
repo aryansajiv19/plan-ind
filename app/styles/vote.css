@@ -509,6 +509,7 @@
 /* Credits move to the top-right corner here: the name owns the foot. */
 .vote-option__media .photo-credit {
   inset: 0.55rem 0.55rem auto auto;
+  max-width: 48%;
 }
 /* The winner's hairline, repeated over the band that covers the card's edge. */
 .vote-option--winner .vote-option__media::after {
