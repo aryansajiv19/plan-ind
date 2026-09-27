@@ -370,3 +370,20 @@ export type WrappedSummaryError = "plans" | "visits" | "ratings";
 export type WrappedSummaryResult =
   | { data: WrappedSummary; error: null }
   | { data: null; error: WrappedSummaryError };
+
+// 073: "When" -- the host's time options and members' availability ticks.
+// plan_time_votes carries no user id (Realtime sends whole rows): seat_key is
+// the member (069), and my_plan_rows returns the caller's own.
+export interface PlanTimeOption {
+  id: string;
+  plan_id: string;
+  starts_at: string;
+  created_at: string;
+}
+
+export interface PlanTimeVote {
+  option_id: string;
+  plan_id: string;
+  seat_key: string;
+  created_at: string;
+}
