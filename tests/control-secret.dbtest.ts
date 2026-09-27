@@ -90,3 +90,18 @@ describe("valid_control_secret (migration 066)", { skip: SKIP }, () => {
     assert.equal(grants, "anon=false,authenticated=false");
   });
 });
+
+describe("consume_otp_limit 'deal-preview' (migration 072)", { skip: SKIP }, () => {
+  test("a visitor's IP gets 30 sample deals a minute, then is refused", async () => {
+    const subject = `ip-test-${Date.now()}`;
+    const out = await psql(`
+      begin;
+      delete from app_control_secrets where name = 'server-control';
+      insert into app_control_secrets(name, secret_hash) values ('server-control', '${sha256(SECRET)}');
+      select count(*) filter (where ok) || '/' || count(*) from (
+        select consume_otp_limit('${SECRET}', 'deal-preview', '${subject}') as ok from generate_series(1, 31)
+      ) t;
+      rollback;`);
+    assert.equal(out, "30/31");
+  });
+});
