@@ -475,3 +475,18 @@ platform lane (in place in 068/070/073), client fixes to the frontend lane.
   characters (tested against an injected DTSTART); every composer prefill
   (P7 draft, board, place, friend) is checked like remembered settings;
   location errors distinguish page policy, browser setting, declined, timeout.
+- **Pre-launch SQL fixes (platform lane, in 068/073):** a past poll time can't
+  win or be ticked (and a re-decided plan drops a stale past time); leaving
+  or deleting an account removes the member's ticks; custom spot text is
+  cleaned by trigger (refused, not truncated, when too long; invisible
+  characters dropped). Re-audited by the security subagent. test:db 100/100.
+
+## 2026-09-27 — Lead: go-live pre-flight on the live DB (read-only)
+
+`has_table_privilege('postgres','storage.objects','TRIGGER')` = true (068's
+trigger can be created). Live: 6 plans (the fixtures, no creator), 3 votes,
+0 rsvps/ratings/visits, 82 curated spots, 0 custom spots (068's cleanup and
+caps have nothing to touch). plan_access = 104 rows, **all anonymous guest
+sessions** (0 permanent, 0 creators): inert after 064, removed by 067's
+no-DOB cleanup; no real account is affected. None of 064–074 is applied.
+Everything on `main` is reviewed; go-live waits only on the owner.
