@@ -401,7 +401,7 @@
    follower drops its top edge and the previous block's bottom edge is the
    single divider. */
 :is(.demo-profile-stats, .demo-city-pattern, .demo-wrapped, .place-link-importer, .demo-discover-tools, .plan-custom-place)
-  + :is(.demo-city-pattern, .demo-wrapped, .legal-links, .demo-discover-tools, .plan-round-summary) {
+  + :is(.demo-city-pattern, .demo-wrapped, .legal-links, .demo-discover-tools) {
   border-top: 0;
 }
 

@@ -285,17 +285,7 @@ export default function HomeExperience({
         <div className="home-plan-section__intro">
           <p className="home-section-kicker">Create a plan</p>
           {demoMode && <h2>What does the group feel like doing?</h2>}
-          <p className={`home-plan-steps__lede${demoMode ? " home-plan-steps__lede--pitch" : ""}`}>Choose the category, budget and travel radius. We’ll deal nine relevant places across three quick rounds.</p>
-          {/* Signed in, desktop: the mechanic beside the form, so the column
-              next to a long form isn't empty. The pitch pages have How it
-              works above instead, and show the one-line lede here. */}
-          {!demoMode && (
-            <ol className="home-plan-steps">
-              <li><strong>9 places</strong><span>Dealt to fit the category, budget and travel radius you choose.</span></li>
-              <li><strong>3 quick rounds</strong><span>Everyone picks one place from each.</span></li>
-              <li><strong>1 decision</strong><span>The group’s pick, with who’s coming and how they’re getting there.</span></li>
-            </ol>
-          )}
+          <p className={`home-plan-steps__lede${demoMode ? " home-plan-steps__lede--pitch" : ""}`}>Pick a kind of night, pin a place if one is calling, and deal nine across three quick rounds.</p>
         </div>
 
         <div className="home-plan-card">

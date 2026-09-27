@@ -1,6 +1,8 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { DUBAI_ORIGINS } from "@/lib/dubai-areas";
+import CustomPlaceSection from "@/components/CustomPlaces";
 import { DEAL_BUDGET_OPTIONS, DEAL_RADIUS_OPTIONS_KM } from "@/lib/spots/match";
 import WhenPicker from "@/components/WhenPicker";
 import { PRESETS, type Composer } from "@/hooks/use-composer";
@@ -13,11 +15,31 @@ const countChip = (n: number | null) => n != null && (
   <><span className="sr-only"> · </span><span className="block font-medium">{n} {n === 1 ? "place" : "places"}</span></>
 );
 
-/** The limits, times, title and deadline: every one has a valid default. */
-export default function TuneIt({ composer, demoMode }: { composer: Composer; demoMode: boolean }) {
-  const { preview, need, maxBudget, setMaxBudget, originValue, setOriginValue, radiusKm, setRadiusKm, when, title, setTitle, setTitleEdited, presetIdx, setPresetIdx } = composer;
+/**
+ * P25: everything past the deal, folded. Every setting has a valid default,
+ * so the summary says what they are as real text (read by screen readers),
+ * and it opens below the Deal button, so nothing above it moves.
+ */
+export default function TuneIt({ composer, demoMode, luna }: { composer: Composer; demoMode: boolean; luna: ReactNode }) {
+  const { preview, need, maxBudget, setMaxBudget, originValue, setOriginValue, radiusKm, setRadiusKm, when, title, setTitle, setTitleEdited, presetIdx, setPresetIdx, custom, signIn } = composer;
+  const origin = DUBAI_ORIGINS.find((option) => option.value === originValue);
+  const summary = [
+    title.trim() ? `“${title.trim()}”` : "No title yet",
+    budgetLabel(maxBudget),
+    origin?.coordinates ? (radiusKm != null ? `Within ${radiusKm} km of ${origin.label}` : `From ${origin.label}`) : "Anywhere in Dubai",
+    `Voting closes ${PRESETS[presetIdx].label.toLowerCase()}`,
+    ...(when.picks.length > 0 ? [`${when.picks.length} times offered`] : []),
+    ...(custom.selectedIds.length > 0 ? [`${custom.selectedIds.length} of your places`] : []),
+  ];
   return (
-    <>
+    <details className="plan-tune">
+      <summary>
+        <span className="mr-1 text-sm font-semibold">Tune it</span>
+        {summary.map((chip) => <span key={chip} className="plan-tune__chip">{chip}</span>)}
+      </summary>
+      {luna}
+      <CustomPlaceSection places={custom} onSignIn={demoMode ? signIn : undefined} />
+
       <section className="plan-constraints" aria-labelledby="recommendation-heading">
         <div className="plan-constraints__heading">
           <p id="recommendation-heading" className="plan-form__label">Recommendation limits</p>
@@ -91,6 +113,6 @@ export default function TuneIt({ composer, demoMode }: { composer: Composer; dem
           </button>
         ))}
       </div>
-    </>
+    </details>
   );
 }

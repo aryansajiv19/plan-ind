@@ -5,7 +5,6 @@ import Link from "next/link";
 import { categoryMeta } from "@/lib/categories";
 import SmartSearchBox from "@/components/SmartSearchBox";
 import DirectPlanSearch from "@/components/DirectPlanSearch";
-import CustomPlaceSection from "@/components/CustomPlaces";
 import DealReveal from "@/components/DealReveal";
 import ComposerDeck from "@/components/composer/ComposerDeck";
 import TuneIt from "@/components/composer/TuneIt";
@@ -35,7 +34,7 @@ export default function StartPlanForm({
   // reasoning as gating PlaceDirectPlanCta on a real user.
   const [mode, setMode] = useState<"deal" | "direct">("deal");
   const composer = useComposer({ age, demoMode, prefill });
-  const { category, title, creating, error, custom, revealing, setRevealing, revealCards, revealShown, smartQuery, setSmartQuery, smartIntent, setSmartIntent, applyIntent, stashDraft, signIn, start, constraintChips } = composer;
+  const { category, title, creating, error, revealing, setRevealing, revealCards, revealShown, smartQuery, setSmartQuery, smartIntent, setSmartIntent, applyIntent, stashDraft, signIn, start, constraintChips } = composer;
 
   if (revealing) {
     return (
@@ -99,47 +98,42 @@ export default function StartPlanForm({
                 : "Picked up where you left off before signing in. Check it, then deal nine."}
         </p>
       )}
-      {smartSearchAvailable && (
-        <SmartSearchBox
-          query={smartQuery}
-          onQueryChange={(query) => { setSmartQuery(query); setSmartIntent(null); }}
-          intent={smartIntent}
-          onIntent={applyIntent}
-          demoMode={demoMode}
-          onSignIn={signIn}
-        />
-      )}
-
-      <ComposerDeck composer={composer} />
-
-      <CustomPlaceSection places={custom} onSignIn={demoMode ? signIn : undefined} />
-
-      <div className="plan-round-summary" aria-label="Plan voting format">
-        <span><strong>9</strong> places</span>
-        <span><strong>3</strong> pools</span>
-        <span><strong>3</strong> finalists</span>
-        <span><strong>1</strong> plan</span>
-      </div>
-
-      <TuneIt composer={composer} demoMode={demoMode} />
+      {/* P25: reward before effort. The places, then the deal; every setting
+          past that has a valid default and folds away under "Tune it". */}
+      <ComposerDeck composer={composer} age={age} demoMode={demoMode} />
 
       <button
         type="submit"
         disabled={creating || !title.trim()}
         className="plan-submit"
       >
-        {creating ? (demoMode ? "Dealing…" : "Building three rounds…") : demoMode ? "Preview the deal" : "Deal 9 places in 3 rounds"}
+        {creating ? (demoMode ? "Dealing…" : "Dealing nine…") : demoMode ? "Preview the deal" : "Deal nine"}
       </button>
-
-      {demoMode && (
-        <p className="plan-form__demo-note">
-          Exploring the preview? <Link href="/login?next=/home" onClick={stashDraft}>Sign in</Link> to save, share and vote on a real plan.
-        </p>
-      )}
 
       {error && (
         <p role="alert" className="plan-form__error">
           {error}
+        </p>
+      )}
+
+      <TuneIt
+        composer={composer}
+        demoMode={demoMode}
+        luna={smartSearchAvailable && (
+          <SmartSearchBox
+            query={smartQuery}
+            onQueryChange={(query) => { setSmartQuery(query); setSmartIntent(null); }}
+            intent={smartIntent}
+            onIntent={applyIntent}
+            demoMode={demoMode}
+            onSignIn={signIn}
+          />
+        )}
+      />
+
+      {demoMode && (
+        <p className="plan-form__demo-note">
+          Exploring the preview? <Link href="/login?next=/home" onClick={stashDraft}>Sign in</Link> to save, share and vote on a real plan.
         </p>
       )}
     </form>

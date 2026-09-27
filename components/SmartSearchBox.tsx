@@ -62,30 +62,33 @@ export default function SmartSearchBox({
   }
 
   return (
+    // P25: one line inside "Tune it". Enter builds the search here; it must
+    // never submit the deal form this sits in.
     <section className="plan-smart-search" aria-labelledby="smart-search-heading">
-      <div className="plan-smart-search__heading">
-        <div><p id="smart-search-heading" className="plan-form__label">Describe the place in your head</p><small>Atmosphere, occasion, budget, area. Write it naturally.</small></div>
+      <label id="smart-search-heading" htmlFor="smart-search-input" className="plan-form__label">Or describe it to Luna</label>
+      <div className="plan-smart-search__bar">
+        <input
+          id="smart-search-input"
+          value={query}
+          onChange={(event) => {
+            onQueryChange(event.target.value);
+            setError(null);
+          }}
+          onKeyDown={(event) => {
+            if (event.key !== "Enter") return;
+            event.preventDefault();
+            if (demoMode) onSignIn();
+            else if (!loading) void interpret();
+          }}
+          placeholder="A quiet terrace near Jumeirah, about AED 250 each"
+          maxLength={600}
+        />
+        {demoMode ? (
+          <button type="button" onClick={onSignIn}>Sign in to build this</button>
+        ) : (
+          <button type="button" onClick={interpret} disabled={loading || query.trim().length < 8}>{loading ? "Understanding…" : "Build it"}</button>
+        )}
       </div>
-      <textarea
-        id="smart-search-input"
-        value={query}
-        onChange={(event) => {
-          onQueryChange(event.target.value);
-          setError(null);
-        }}
-        placeholder="A quiet terrace near Jumeirah for a date, dim lighting, around AED 250 each, somewhere we can actually talk."
-        maxLength={600}
-        aria-describedby="smart-search-help smart-search-count"
-      />
-      <div className="plan-smart-search__meta">
-        <small id="smart-search-help">Use a real plan, place or activity. Include an area, mood, occasion or budget if you know it.</small>
-        <small id="smart-search-count" aria-live="polite">{query.length}/600</small>
-      </div>
-      {demoMode ? (
-        <button type="button" onClick={onSignIn}>Sign in to build this</button>
-      ) : (
-        <button type="button" onClick={interpret} disabled={loading || query.trim().length < 8}>{loading ? "Understanding your plan…" : "Build my search"}</button>
-      )}
       {error && <p className="plan-smart-search__error" role="alert">{error}</p>}
       {intent && (
         <div className="plan-smart-result" aria-live="polite">

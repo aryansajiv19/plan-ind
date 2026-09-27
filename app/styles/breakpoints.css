@@ -177,16 +177,15 @@
   .plan-category-group {
     padding-inline: 0.68rem;
   }
-  /* height: touch-target block */
-  .plan-smart-search {
-    padding: 0.85rem;
+  /* One scrolling row of types on a phone keeps "Deal nine" in view. */
+  .plan-category-options {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
   }
-  .plan-smart-search__heading,
+  /* height: touch-target block */
   .plan-smart-result > div:first-child {
     display: block;
-  }
-  .plan-category-options {
-    min-height: 9rem;
   }
   .plan-custom-place__saved,
   .plan-custom-place__editor {
@@ -194,10 +193,6 @@
   }
   .plan-custom-place__wide {
     grid-column: auto;
-  }
-  .plan-round-summary span {
-    padding-inline: 0.2rem;
-    font-size: max(0.5rem, var(--type-floor));
   }
   .plan-constraints__heading {
     display: block;
