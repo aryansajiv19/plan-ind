@@ -3,6 +3,7 @@
 import { useState, type Dispatch, type SetStateAction } from "react";
 import { getSupabase } from "@/lib/supabase";
 import { logVisit } from "@/lib/social";
+import { addBeen } from "@/lib/device";
 import { haptic } from "@/lib/interaction";
 import type { Plan, Rating, Rsvp } from "@/lib/types";
 import type { HostCommands } from "@/hooks/use-host-commands";
@@ -166,6 +167,7 @@ export function useLastMile({
   // just have nowhere personal to file it.
   async function rememberVisit() {
     if (!winnerId || !plan) return;
+    addBeen(winnerId); // this device's "New to you" memory, only once you've been
     const { data: { user } } = await getSupabase().auth.getUser();
     if (!user) return;
     // A guest arriving straight from a share link may have no profile row yet.

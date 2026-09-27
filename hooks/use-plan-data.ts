@@ -13,7 +13,7 @@ export type Access = "checking" | "ready" | PlanAccessDenial;
 
 // The vote page's data layer: access bootstrap, the first load, and the
 // sequence-guarded refetches that Realtime (use-plan-realtime.ts) calls.
-const PLAN_COLUMNS = "id,title,category,area,deadline,status,stage,pool_count,budget_per_person,origin_label,origin_latitude,origin_longitude,radius_km,smart_brief,vibe_preferences,avoid_preferences,intelligence_model,winner_spot_id,event_time,booking_owner,booked,created_at,reopened_at";
+const PLAN_COLUMNS = "id,title,category,area,deadline,status,stage,pool_count,budget_per_person,origin_label,origin_latitude,origin_longitude,radius_km,smart_brief,vibe_preferences,avoid_preferences,intelligence_model,winner_spot_id,event_time,booking_owner,booked,created_at,reopened_at,decided_at";
 
 export function usePlanData(id: string) {
   const [load, setLoad] = useState<Load>("loading");

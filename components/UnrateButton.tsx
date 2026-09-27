@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getSupabase } from "@/lib/supabase";
+import { removeBeen } from "@/lib/device";
 
 /**
  * Take back your own rating (052's `unrate_plan`). Lives here rather than as
@@ -15,7 +16,7 @@ import { getSupabase } from "@/lib/supabase";
  * auth.uid() and answers `not_rated` when it wasn't yours, which is the one
  * case this component has to explain rather than silently do nothing.
  */
-export default function UnrateButton({ planId }: { planId: string }) {
+export default function UnrateButton({ planId, spotId }: { planId: string; spotId: string }) {
   const [signedIn, setSignedIn] = useState(false);
   const [armed, setArmed] = useState(false);
   const [pending, setPending] = useState(false);
@@ -35,8 +36,9 @@ export default function UnrateButton({ planId }: { planId: string }) {
     const { data, error } = await getSupabase().rpc("unrate_plan", { p_plan_id: planId });
     setPending(false);
     setArmed(false);
-    const result = (data as { result?: string } | null)?.result;
+    const { result, visit_removed: visitRemoved } = (data as { result?: string; visit_removed?: boolean } | null) ?? {};
     if (error || !result) { setMessage("Couldn’t remove your rating. Try again."); return; }
+    if (visitRemoved) removeBeen(spotId);
     // Removed: the Realtime ratings event re-reads the list, so there is
     // nothing to say. not_rated: the row belongs to a guest session on this
     // device, not to this account, and saying nothing would look broken.
