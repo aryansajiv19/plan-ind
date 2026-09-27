@@ -346,3 +346,8 @@ Migration 070 "catalogue truth" briefed to the platform lane; the facts UI
 - **P5 + P15 (platform lane):** a failed deal read is a 503 "Couldn't deal places
   right now", never "raise your budget"; the host can cancel (delete) a decided
   plan until someone rates or logs a visit, even when booked. test:db 59/59.
+- **P13:** Discover shows what RLS allows (curated + community + own), a
+  failed search says so, all category chips show; collection, photo and
+  saved-link failures each have their own message. Note: community custom
+  spots from other accounts are now visible in Discover (068 caps their text
+  and forbids links/photos).
