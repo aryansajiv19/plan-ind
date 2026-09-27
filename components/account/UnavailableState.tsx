@@ -12,7 +12,7 @@ export default function UnavailableState({ what }: { what: string }) {
     <div className="demo-collection-empty" role="status">
       <strong>Couldn’t load your {what}.</strong>
       <p>
-        The connection dropped on the way. Nothing has been lost — refresh to
+        The connection dropped on the way. Nothing has been lost. Refresh to
         try again.
       </p>
       <button type="button" onClick={() => window.location.reload()}>
