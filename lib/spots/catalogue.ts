@@ -71,17 +71,18 @@ function cached<A extends unknown[], R>(name: string, fn: (...args: A) => Promis
 export interface WallSpotRow {
   id: string; name: string; area: string; min_spend: number; vibe: string;
   photo_url: string | null; photo_attribution: string | null; category: string; price_band: string;
-  open_till: string | null;
+  open_till: string | null; google_place_id: string | null;
 }
 
 const readWall = cached("curated-wall", async (size: number): Promise<WallSpotRow[]> => {
   const { data, error } = await anon()
     .from("spots")
-    .select("id, name, area, min_spend, vibe, photo_url, photo_attribution, category, price_band, open_till")
+    .select("id, name, area, min_spend, vibe, photo_url, photo_attribution, category, price_band, open_till, google_place_id")
     .eq("source", "curated")
     .neq("visibility", "private") // 070: retired
     .or(`reopens_on.is.null,reopens_on.lte.${dubaiToday()}`) // 070: closed until a later date
     .order("photo_url", { nullsFirst: false })
+    .order("google_place_id", { nullsFirst: false })
     .order("name")
     .order("id")
     .limit(size);

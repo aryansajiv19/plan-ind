@@ -1,10 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { canOptimiseImage } from "@/lib/image-src";
 import type { Spot } from "@/lib/types";
-import PhotoCredit from "@/components/PhotoCredit";
+import VenuePhoto, { hasVenuePhoto } from "@/components/VenuePhoto";
 import { categoryLabel, categoryMeta } from "@/lib/categories";
 
 export interface WallNote {
@@ -19,11 +17,9 @@ export interface WallNote {
  *
  * The design handoff is emphatic that photography carries the aesthetic, and
  * equally emphatic about what to do when there isn't any: "say so and show
- * what exists. Do not pad the page." `Spot.photo_url` is a single nullable
- * column today and it is null for most rows, so the photo-less tile is not a
- * fallback here — it is the common case, and it is designed rather than
- * apologised for: the venue set in the display serif on a raised surface,
- * which reads as editorial rather than as a broken image.
+ * what exists. Do not pad the page." Most venues now have a photo (our own or
+ * Google's, see VenuePhoto); the rest get a designed tile, the venue set in
+ * the display face, never a broken image.
  *
  * Overlay chips describe what happened, never what type of place it is. The
  * category rainbow was retired; a chip saying "Dinner" would be reintroducing
@@ -38,7 +34,7 @@ export default function PhotoTile({
   note?: WallNote;
   height: number;
 }) {
-  const hasPhoto = Boolean(spot.photo_url);
+  const hasPhoto = hasVenuePhoto(spot);
   const meta = [spot.area, spot.min_spend ? `AED ${spot.min_spend}` : null]
     .filter(Boolean)
     .join(" · ");
@@ -48,16 +44,7 @@ export default function PhotoTile({
       className={`wall-tile ${hasPhoto ? "" : "wall-tile--typographic"}`}
       style={{ height }}
     >
-      {hasPhoto ? (
-        <Image
-          src={spot.photo_url as string}
-          alt=""
-          fill
-          sizes="(max-width: 720px) 50vw, 25vw"
-          className="wall-tile__img"
-          unoptimized={!canOptimiseImage(spot.photo_url as string)}
-        />
-      ) : null}
+      <VenuePhoto spot={spot} sizes="(max-width: 720px) 50vw, 25vw" className="wall-tile__img" />
 
       <div className="wall-tile__body">
         {/* Photo-less tiles carry the category code as texture (no hue: the
@@ -71,9 +58,6 @@ export default function PhotoTile({
           <p className="wall-tile__vibe">{spot.vibe}</p>
         ) : null}
       </div>
-
-      {/* Licence obligation, not decoration — see PhotoCredit. */}
-      <PhotoCredit spot={spot} />
 
       {note ? (
         <p className={`wall-tile__note ${note.live ? "wall-tile__note--live" : ""}`}>

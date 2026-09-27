@@ -1,6 +1,4 @@
-import Image from "next/image";
-import PhotoCredit from "@/components/PhotoCredit";
-import { canOptimiseImage } from "@/lib/image-src";
+import VenuePhoto, { hasVenuePhoto } from "@/components/VenuePhoto";
 import SaveToBoard from "@/components/account/SaveToBoard";
 import type { MoodboardsState } from "@/components/account/useMoodboards";
 import { categoryLabel, categoryMeta } from "@/lib/categories";
@@ -27,12 +25,11 @@ export default function PlaceCard({
   const hours = hoursLabel(spot.open_till);
   return (
     <article
-      className={`demo-place-card ${spot.photo_url ? "" : "demo-place-card--flat"}`}
+      className={`demo-place-card ${hasVenuePhoto(spot) ? "" : "demo-place-card--flat"}`}
     >
-      {spot.photo_url ? (
+      {hasVenuePhoto(spot) ? (
         <div className="demo-place-card__image">
-          <Image src={spot.photo_url} alt={`${spot.name}, ${spot.area}`} fill sizes="(max-width: 700px) 100vw, 50vw" unoptimized={!canOptimiseImage(spot.photo_url)} />
-          <PhotoCredit spot={spot} />
+          <VenuePhoto spot={spot} sizes="(max-width: 700px) 100vw, 50vw" />
         </div>
       ) : (
         <div className="demo-place-card__code" aria-hidden="true">{meta.code}</div>

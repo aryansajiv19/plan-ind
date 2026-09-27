@@ -20,7 +20,7 @@ export type DeckPlace = {
 };
 export type DeckState = { state: "loading" } | { state: "failed" } | { state: "ready"; places: DeckPlace[] };
 
-const COLUMNS = "id, name, area, category, cuisine, min_spend, photo_url, photo_attribution, minimum_age";
+const COLUMNS = "id, name, area, category, cuisine, min_spend, photo_url, photo_attribution, minimum_age, google_place_id";
 // One read per family for the life of the page: switching Dinner to Cafes
 // and back costs nothing. A failed read is dropped so the next visit retries.
 const cache = new Map<string, Promise<DeckPlace[] | null>>();

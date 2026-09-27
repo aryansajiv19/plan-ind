@@ -23,12 +23,12 @@ export type MoodboardView = Moodboard & { items: MoodboardItem[] };
  *  are what people decide on, so they ride along with every place item. */
 export type BoardSpot = Pick<
   Spot,
-  "id" | "name" | "category" | "area" | "cuisine" | "price_band" | "min_spend" | "open_till" | "vibe" | "photo_url" | "photo_attribution"
+  "id" | "name" | "category" | "area" | "cuisine" | "price_band" | "min_spend" | "open_till" | "vibe" | "photo_url" | "photo_attribution" | "google_place_id"
 >;
 
 const BOARD_FIELDS = "id, person_id, name, theme, visibility, created_at";
 const ITEM_FIELDS = "id, moodboard_id, kind, label, note, storage_path, source_url, created_at";
-const SPOT_FIELDS = "id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, photo_url, photo_attribution";
+const SPOT_FIELDS = "id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, photo_url, photo_attribution, google_place_id";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 

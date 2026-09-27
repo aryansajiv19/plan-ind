@@ -16,7 +16,6 @@ import BookingSection from "@/components/vote/BookingSection";
 import RatingSection from "@/components/vote/RatingSection";
 import WhosInSection from "@/components/vote/WhosInSection";
 import WinnerReveal from "@/components/WinnerReveal";
-import PhotoCredit from "@/components/PhotoCredit";
 import PlanWeather from "@/components/PlanWeather";
 import { avatarStyle, initialsOf } from "@/lib/avatar";
 import { shareMessage, type ShareWinner } from "@/lib/share-preview";
@@ -125,14 +124,7 @@ export default function DecidedPlan({
           Ungated — it reconstructs the NAME, which every plan has, so it
           runs on every decided plan rather than the 7% with a photo. When
           there is a photo it still settles onto it. */}
-      <WinnerReveal
-        name={winner.name}
-        photoUrl={winner.photo_url}
-        alt={`${winner.name}, ${winner.area}`}
-      />
-      {/* Licence obligation — see PhotoCredit. Renders nothing without both
-          a photo and an attribution. */}
-      <PhotoCredit spot={winner} />
+      <WinnerReveal name={winner.name} spot={winner} />
 
       {/* Decision summary */}
       <div className="flex items-center gap-3">

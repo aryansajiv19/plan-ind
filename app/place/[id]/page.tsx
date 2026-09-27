@@ -1,11 +1,9 @@
 import { cache } from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import Image from "next/image";
-import { canOptimiseImage } from "@/lib/image-src";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import PhotoCredit from "@/components/PhotoCredit";
+import VenuePhoto, { hasVenuePhoto } from "@/components/VenuePhoto";
 import { categoryMeta } from "@/lib/categories";
 import { getCurrentUser, safeNextPath } from "@/lib/auth";
 import PlaceDirectPlanCta from "@/components/PlaceDirectPlanCta";
@@ -21,7 +19,7 @@ import { googleMapsUrl } from "@/lib/directions";
 // The venue detail page — SPECS.md §6, previously unbuilt (12a). Scoped down
 // from the full original brief: this design system references a "four-source
 // photo priority" and a Photos/360-tour/Your-friends/Menu tab row, but this
-// schema has exactly one photo source (spots.photo_url) and no 360-tour,
+// schema has one photo per venue (ours, else Google's) and no 360-tour,
 // menu, or friend-photo data anywhere. Building those tabs empty would be a
 // dead control (ui-implementation skill's non-negotiable #1); building them
 // with invented content would be fabricated data. Both are out. What ships
@@ -72,27 +70,13 @@ export default async function PlacePage({
   if (!spot) notFound();
 
   const cat = categoryMeta(spot.category);
-  const hasPhoto = Boolean(spot.photo_url);
+  const hasPhoto = hasVenuePhoto(spot);
   const reopens = reopensLabel(spot.reopens_on); // 070: closed until a date
 
   return (
     <main className="place-page">
       <div className={`place-hero ${hasPhoto ? "" : "place-hero--typographic"}`}>
-        {hasPhoto ? (
-          <>
-            <Image
-              src={spot.photo_url as string}
-              alt=""
-              fill
-              sizes="100vw"
-              preload
-              className="place-hero__img"
-              unoptimized={!canOptimiseImage(spot.photo_url as string)}
-            />
-            {/* Licence obligation — see PhotoCredit. */}
-            <PhotoCredit spot={spot} />
-          </>
-        ) : null}
+        <VenuePhoto spot={spot} sizes="100vw" preload className="place-hero__img" />
         <div className="place-hero__scrim" aria-hidden="true" />
         <div className="place-hero__body">
           <p className="place-hero__category">{cat.code}</p>

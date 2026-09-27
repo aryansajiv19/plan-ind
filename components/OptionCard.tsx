@@ -1,10 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import CountUp from "@/components/CountUp";
-import PhotoCredit from "@/components/PhotoCredit";
-import { canOptimiseImage } from "@/lib/image-src";
+import VenuePhoto, { hasVenuePhoto } from "@/components/VenuePhoto";
 import { avatarStyle, initialsOf } from "@/lib/avatar";
 import type { Spot } from "@/lib/types";
 import { categoryMeta } from "@/lib/categories";
@@ -105,7 +103,7 @@ export default function OptionCard({
     return () => clearTimeout(timer);
   }, [voters]);
 
-  const photo = Boolean(spot.photo_url);
+  const photo = hasVenuePhoto(spot);
   // The meta line drops the spend on a typographic band, which already says it.
   const spendMeta = photo ? `from AED ${spot.min_spend}pp` : "";
 
@@ -130,10 +128,7 @@ export default function OptionCard({
           the display serif on the raised surface. No hue either way. */}
       <div className="vote-option__media">
         {photo ? (
-          <>
-            <Image src={spot.photo_url!} alt="" fill sizes="(min-width: 641px) 22rem, 85vw" className="object-cover" unoptimized={!canOptimiseImage(spot.photo_url!)} />
-            <PhotoCredit spot={spot} />
-          </>
+          <VenuePhoto spot={spot} sizes="(min-width: 641px) 22rem, 85vw" />
         ) : (
           <div className="vote-option__type">
             <span className="vote-option__category inline-flex min-w-0 items-center gap-1.5 self-start px-2.5 py-1 text-xs font-bold">

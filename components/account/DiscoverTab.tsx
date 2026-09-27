@@ -66,7 +66,7 @@ export function useDiscoverSearch(spots: Spot[], age: number) {
       .from("spots")
       // Every spot this account may read (RLS: curated, community, its own),
       // as the grid shows, not only curated (P13), less 070's closed ones.
-      .select("id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, photo_url, photo_attribution, description, minimum_age"));
+      .select("id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, photo_url, photo_attribution, description, minimum_age, google_place_id"));
     if (filter !== "All") request = request.eq("category", filter);
     if (q) {
       // Quote the value and escape what the quoting cares about. PostgREST's
