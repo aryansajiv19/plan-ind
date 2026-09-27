@@ -490,3 +490,7 @@ caps have nothing to touch). plan_access = 104 rows, **all anonymous guest
 sessions** (0 permanent, 0 creators): inert after 064, removed by 067's
 no-DOB cleanup; no real account is affected. None of 064–074 is applied.
 Everything on `main` is reviewed; go-live waits only on the owner.
+- **My places shelf:** the composer shows your custom and link-saved places as
+  pin-able cards (shared cap of three), an empty state with Add a place /
+  Import from a link, labelled samples in the demo; PlaceRow shared with the
+  deck.
