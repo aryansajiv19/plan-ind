@@ -66,7 +66,10 @@ describe("077 venue photos for signed-out visitors", { skip: SKIP }, () => {
     assert.equal(await rolledBack(
       `insert into app_rate_limits values ('place-photo-global', 'global', ${DAY}, 199);`,
       `select ${visitor(`ip:${randomUUID()}`)}::text`, `select ${visitor(`ip:${randomUUID()}`)}::text`, // the 200th, then the 201st
-    ), "true,false");
+      `select ${visitor(`ip:${randomUUID()}`)}::text`,
+      "select request_count from app_rate_limits where scope = 'place-photo-global'", // refusals don't count
+      asMember, `select consume_app_quota('${SECRET}', 'place-photo')::text`,
+    ), "true,false,false,200,true");
     assert.equal(await rolledBack(
       `insert into app_rate_limits values ('place-photo-global', 'global', ${DAY}, 250);`, asMember,
       `select consume_app_quota('${SECRET}', 'place-photo')::text`, `select ${visitor(`ip:${randomUUID()}`)}::text`,

@@ -54,11 +54,15 @@ begin
   -- 077: every photo draws on the one global daily counter 063 keeps for
   -- signed-in callers (cap 300, the cost ceiling). Visitors may take it to
   -- 200 only, so the last 100 stay for members however busy the front door.
+  -- A refused visitor must not count (the update's WHERE), or refusals alone
+  -- would push the counter past 300 and shut members out.
   if p_scope = 'place-photo-anon' then
+    current_count := null;
     insert into app_rate_limits values('place-photo-global', 'global', day_start, 1)
       on conflict(scope,subject,window_start) do update set request_count = app_rate_limits.request_count+1
+        where app_rate_limits.request_count < 200
       returning request_count into current_count;
-    return current_count <= 200;
+    return current_count is not null;
   end if;
   return true;
 end; $$;
