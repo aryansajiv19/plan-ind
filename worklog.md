@@ -285,3 +285,10 @@ are live.
   only: name refusals and the voter_name unique keys dropped;
   `my_plan_rows(uuid)` gives the client its own row ids. test:db 43/43, CI
   green. Both applied on the local stack; re-confirmation running.
+- **F1/F2 re-confirmed closed:** a two-session probe showed the advisory lock
+  serialises Storage's superuser landing writes; the 201st file and
+  500 MB + 1 byte are refused; `create or replace trigger` works as the
+  non-owner `postgres`. Identity is by account; `my_plan_rows` returns only
+  the caller's rows. Two Low follow-ups queued: the visit-photos folder check
+  (enforced in the trigger, not a policy) and name-grouped seats/booking-owner
+  now that names repeat. **Go-live is no longer blocked by the review.**
