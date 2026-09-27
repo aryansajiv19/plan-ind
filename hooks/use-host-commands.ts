@@ -4,13 +4,7 @@ import { useCallback, useEffect, useRef, useState, type Dispatch, type SetStateA
 import { getSupabase } from "@/lib/supabase";
 import { secureJsonFetch } from "@/lib/security/csrf-client";
 import type { Plan, PlanSpot, PlanStage, Spot } from "@/lib/types";
-
-// ISO instant -> the value a datetime-local input expects (local wall time).
-export function toLocalInput(iso: string | null): string {
-  if (!iso) return "";
-  const d = new Date(iso);
-  return new Date(d.getTime() - d.getTimezoneOffset() * 60_000).toISOString().slice(0, 16);
-}
+import { fromDubaiInput, toDubaiInput } from "@/lib/dubai-phase";
 
 // B7: is the signed-in account this plan's creator? Null when the answer is
 // unknown (am_plan_host is migration 067, not on every stack yet, or the
@@ -106,10 +100,11 @@ export function useHostCommands({
     const body: { command: "edit"; hostToken: string | null; title?: string; deadline?: string } = { command: "edit", hostToken };
     const title = editing.title.trim();
     if (title !== plan.title) body.title = title;
-    if (editing.deadline && editing.deadline !== toLocalInput(plan.deadline)) {
-      const at = new Date(editing.deadline);
-      if (Number.isNaN(at.getTime())) { setEditError("Pick a valid closing time."); return; }
-      body.deadline = at.toISOString(); // a full instant with offset, as the route requires
+    // Dubai wall time wherever the host is (P23), sent as a full instant.
+    if (editing.deadline && editing.deadline !== (plan.deadline ? toDubaiInput(plan.deadline) : "")) {
+      const at = fromDubaiInput(editing.deadline);
+      if (!at) { setEditError("Pick a valid closing time."); return; }
+      body.deadline = at;
     }
     if (body.title === undefined && body.deadline === undefined) { setEditing(null); return; }
     setEditPending(true);
