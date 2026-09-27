@@ -39,7 +39,9 @@ test.describe("visual regression", () => {
   test.skip(process.platform !== "linux", "baselines are Linux (CI) only -- see the header comment");
   // Entrance animations respect prefers-reduced-motion; set it before load so
   // the page never starts the animated branch at all.
-  test.use({ reducedMotion: "reduce" });
+  // A context option, not a test option: `reducedMotion` at the top level of
+  // test.use() is silently ignored (tsc -p tests/e2e flags it).
+  test.use({ contextOptions: { reducedMotion: "reduce" } });
 
   for (const page_ of PAGES) {
     for (const vp of VIEWPORTS) {
