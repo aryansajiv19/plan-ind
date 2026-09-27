@@ -18,6 +18,10 @@ export default async function OnboardingPage({
   // Date of birth is write-once, so this form has nothing left to do once it
   // is on file. Without this the page stays reachable forever.
   if (await readMemberAge(await createClient(), user.id) !== null) redirect(next);
+  // P14: a starting name to confirm, so email sign-ups don't vote under
+  // their email prefix without being asked.
+  const meta = user.user_metadata.full_name ?? user.user_metadata.name;
+  const suggestedName = (typeof meta === "string" && meta.trim()) || user.email?.split("@")[0] || "";
 
   return (
     <main className="auth-shell">
@@ -30,7 +34,7 @@ export default async function OnboardingPage({
         </section>
         <section className="auth-panel" aria-label="Add your date of birth">
           <div className="auth-panel__heading"><p>Almost there</p><h2>When were you born?</h2></div>
-          <AgeForm next={next} />
+          <AgeForm next={next} suggestedName={suggestedName} />
         </section>
       </div>
     </main>

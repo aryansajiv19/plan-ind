@@ -896,3 +896,65 @@
   font-weight: 500;
   cursor: pointer;
 }
+
+/* P14: Settings, anchored at the top of Profile. */
+.settings-block {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--color-line);
+}
+.settings-block h2 {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 500;
+}
+.settings-block__account {
+  display: grid;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-line);
+}
+.settings-danger {
+  justify-self: start;
+  min-height: 2.75rem;
+  padding: 0 1rem;
+  border: 1px solid var(--color-error);
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--color-error);
+  font-weight: 500;
+}
+.settings-danger:disabled {
+  opacity: 0.45;
+}
+.settings-delete {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 34rem;
+}
+.settings-delete label {
+  display: grid;
+  gap: 0.35rem;
+}
+.settings-delete input {
+  min-height: 2.75rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-control);
+  background: var(--color-card);
+  color: var(--color-ink);
+}
+.settings-delete__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.settings-delete__actions button:not(.settings-danger) {
+  min-height: 2.75rem;
+  padding: 0 0.75rem;
+}
+.settings-delete__error {
+  color: var(--color-error);
+}
