@@ -351,3 +351,7 @@ Migration 070 "catalogue truth" briefed to the platform lane; the facts UI
   saved-link failures each have their own message. Note: community custom
   spots from other accounts are now visible in Discover (068 caps their text
   and forbids links/photos).
+- **P14:** Settings block at the top of Profile (name, emoji, birthday
+  correction, sign out, delete account with a typed DELETE); onboarding asks
+  "What should friends call you?"; the header avatar shows the chosen emoji.
+  Phase 1 of the roadmap is complete except P6/P8 (platform lane).
