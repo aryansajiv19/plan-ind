@@ -108,7 +108,7 @@ export async function POST(request: Request) {
   // The pool comes from the shared curated-catalogue cache (sessionless, the
   // same for every caller); age and every other filter still run per request
   // inside dealSpotIds, and the ratings read stays under this user's session.
-  const ids = await dealSpotIds(supabase, {
+  const deal = await dealSpotIds(supabase, {
     category,
     count,
     excludeIds: idList(raw.excludeIds, MAX_DEAL),
@@ -123,5 +123,11 @@ export async function POST(request: Request) {
     },
   }, curatedDealPool);
 
-  return Response.json({ ids }, { headers: { "Cache-Control": "no-store" } });
+  // A failed read is not a thin pool: say so, instead of telling the host to
+  // widen a budget that was never the problem. { ids: null } stays reserved
+  // for a pool that genuinely can't fill the deal.
+  if ("unavailable" in deal) {
+    return Response.json({ error: "Couldn't deal places right now. Try again in a moment." }, { status: 503 });
+  }
+  return Response.json({ ids: "ids" in deal ? deal.ids : null }, { headers: { "Cache-Control": "no-store" } });
 }

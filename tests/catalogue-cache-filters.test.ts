@@ -6,9 +6,15 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { dealSpotIds, type DealSpotRow } from "../lib/spots/match.ts";
+import { dealSpotIds, type DealOutcome, type DealSpotRow } from "../lib/spots/match.ts";
 import { mergeDiscoverSpots } from "../lib/spots/discover.ts";
 import { ensureOwnProfile } from "../lib/own-profile.ts";
+
+/** The dealt ids, or a failed assertion naming what came back instead. */
+function idsOf(outcome: DealOutcome): string[] {
+  assert.ok("ids" in outcome, `expected a deal, got ${JSON.stringify(outcome)}`);
+  return outcome.ids;
+}
 
 function spot(id: string, overrides: Partial<DealSpotRow> = {}): DealSpotRow {
   return {
@@ -63,23 +69,23 @@ function ratingsDb() {
 test("the same cached pool deals by each caller's own age, never the first caller's", async () => {
   const loader = async () => SHARED_POOL;
   const adult = ratingsDb();
-  const adultIds = await dealSpotIds(adult.db, { category: "dinner", count: 5, constraints: { age: 25 }, rng: () => 0.5 }, loader);
+  const adultIds = idsOf(await dealSpotIds(adult.db, { category: "dinner", count: 5, constraints: { age: 25 }, rng: () => 0.5 }, loader));
   assert.deepEqual(new Set(adultIds), new Set(["a", "b", "c", "bar", "pricey"]));
 
   const teen = ratingsDb();
   // 18 cannot fill five without the 21+ venue: refused, not padded with it.
-  assert.equal(await dealSpotIds(teen.db, { category: "dinner", count: 5, constraints: { age: 18 } }, loader), null);
-  const teenIds = await dealSpotIds(teen.db, { category: "dinner", count: 4, constraints: { age: 18 }, rng: () => 0.5 }, loader);
+  assert.deepEqual(await dealSpotIds(teen.db, { category: "dinner", count: 5, constraints: { age: 18 } }, loader), { tooFew: true });
+  const teenIds = idsOf(await dealSpotIds(teen.db, { category: "dinner", count: 4, constraints: { age: 18 }, rng: () => 0.5 }, loader));
   assert.ok(teenIds && !teenIds.includes("bar"), "a 21+ venue reached an 18-year-old from the shared pool");
   assert.equal(teenIds.length, 4);
 });
 
 test("budget, exclusions and 'been' are applied per request on the shared pool", async () => {
   const loader = async () => SHARED_POOL;
-  const ids = await dealSpotIds(ratingsDb().db, {
+  const ids = idsOf(await dealSpotIds(ratingsDb().db, {
     category: "dinner", count: 2, excludeIds: ["a"], been: ["b"],
     constraints: { age: 25, maxBudget: 200 },
-  }, loader);
+  }, loader));
   assert.ok(ids);
   assert.ok(!ids.includes("a") && !ids.includes("pricey"));
   assert.ok(!ids.includes("b"), "'been' should be honoured when the rest can fill the deal");
@@ -101,14 +107,22 @@ test("the ratings read stays on the caller's client and only covers eligible spo
   assert.ok(!(inCall[1][1] as string[]).includes("bar"), "ratings were read for an ineligible spot");
 });
 
-test("a failed pool load is no deal, never an empty or partial one", async () => {
-  assert.equal(await dealSpotIds(ratingsDb().db, { category: "dinner", count: 1 }, async () => null), null);
+test("a failed pool load is 'unavailable', never an empty, partial or 'too few' deal", async () => {
+  assert.deepEqual(await dealSpotIds(ratingsDb().db, { category: "dinner", count: 1 }, async () => null), { unavailable: true });
+});
+
+test("a failed ratings read is 'unavailable', not 'too few' (P5)", async () => {
+  const failing = fakeDb(() => ({ data: null, error: { message: "boom" } }));
+  assert.deepEqual(
+    await dealSpotIds(failing.db, { category: "dinner", count: 2, constraints: { age: 25 } }, async () => SHARED_POOL),
+    { unavailable: true },
+  );
 });
 
 test("without a loader, dealSpotIds still reads the pool live through the caller's client", async () => {
   const f = fakeDb((table) => ({ data: table === "spots" ? [...SHARED_POOL] : [], error: null }));
-  const ids = await dealSpotIds(f.db, { category: "dinner", count: 1, constraints: { age: 25 } });
-  assert.equal(ids?.length, 1);
+  const ids = idsOf(await dealSpotIds(f.db, { category: "dinner", count: 1, constraints: { age: 25 } }));
+  assert.equal(ids.length, 1);
   assert.equal(f.log[0].table, "spots");
   assert.ok(f.log[0].calls.some(([m, a]) => m === "eq" && a[0] === "source" && a[1] === "curated"));
 });
