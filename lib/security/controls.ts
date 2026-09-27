@@ -3,6 +3,7 @@ import "server-only";
 import { createHmac } from "node:crypto";
 import { headers } from "next/headers";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { rateLimitKey } from "@/lib/security/request";
 
 // The Vercel-assigned id for the current request, for correlating a
 // security_events row back to a specific request/log line. null off Vercel
@@ -70,7 +71,7 @@ export async function consumeQuota(
 // recordSecurityEvent's subject_hash.
 async function consumeOtpLimit(
   supabase: SupabaseClient,
-  scope: "otp-request" | "otp-verify" | "deal-preview",
+  scope: "otp-request" | "otp-verify" | "deal-preview" | "place-photo-anon",
   subject: string,
 ): Promise<ControlResult> {
   const { data, error } = await supabase.rpc("consume_otp_limit", {
@@ -103,9 +104,15 @@ export function clientIp(request: Request): string {
     || "unknown";
 }
 
+// Migration 077: Google venue photos for a caller without an account, keyed
+// on the HMAC'd client IP; it also counts against the global photo budget.
+export function consumePhotoVisitorLimit(supabase: SupabaseClient, request: Request): Promise<ControlResult> {
+  return consumeOtpLimit(supabase, "place-photo-anon", `ip:${rateLimitKey(clientIp(request))}`);
+}
+
 // Migration 072: the signed-out sample deal, keyed on the HMAC'd client IP.
 export function consumeDealPreviewLimit(supabase: SupabaseClient, request: Request): Promise<ControlResult> {
-  return consumeOtpLimit(supabase, "deal-preview", `ip:${clientIp(request)}`);
+  return consumeOtpLimit(supabase, "deal-preview", `ip:${rateLimitKey(clientIp(request))}`);
 }
 
 export async function recordSecurityEvent(

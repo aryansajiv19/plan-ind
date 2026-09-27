@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   RequestValidationError,
   plainText,
+  rateLimitKey,
   readJsonBody,
   validateMutationRequest,
 } from "../lib/security/request.ts";
@@ -65,3 +66,18 @@ test("JSON reader rejects wrong types, malformed JSON, and oversized streams", a
     (error) => error instanceof RequestValidationError && error.status === 413,
   );
 });
+
+test("a per-IP limit counts IPv4 whole and IPv6 by its /64", () => {
+  assert.equal(rateLimitKey("203.0.113.7"), "203.0.113.7");
+  // One /64, however the address is written, is one key.
+  const home = "2001:db8:85a3:12::/64";
+  for (const ip of ["2001:db8:85a3:12::1", "2001:0DB8:85a3:0012:ffff:1:2:3", "2001:db8:85a3:12:0:0:0:9%eth0"]) {
+    assert.equal(rateLimitKey(ip), home, ip);
+  }
+  assert.notEqual(rateLimitKey("2001:db8:85a3:13::1"), home); // the next /64 is someone else
+  assert.equal(rateLimitKey("::1"), "0:0:0:0::/64");
+  assert.equal(rateLimitKey("::ffff:198.51.100.4"), "198.51.100.4");
+  assert.equal(rateLimitKey("unknown"), "unknown");
+  assert.equal(rateLimitKey("1::2::3"), "1::2::3"); // unparseable stays whole
+});
+
