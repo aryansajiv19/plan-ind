@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { dealSpotsForCategory } from "@/lib/deal";
 import { DUBAI_ORIGINS } from "@/lib/dubai-areas";
+import { DEAL_BUDGET_OPTIONS, DEAL_RADIUS_OPTIONS_KM } from "@/lib/spots/match";
+import { useDealPreview } from "@/hooks/use-deal-preview";
 import { minimumAgeForCategory } from "@/lib/age-policy";
 import { categoryMeta } from "@/lib/categories";
 import { secureJsonFetch } from "@/lib/security/csrf-client";
@@ -23,20 +25,9 @@ const PRESETS = [
   { label: "Tomorrow", hours: 24 },
 ] as const;
 
-const BUDGETS = [
-  { label: "Any budget", value: null },
-  { label: "Up to AED 100", value: 100 },
-  { label: "Up to AED 200", value: 200 },
-  { label: "Up to AED 350", value: 350 },
-  { label: "Up to AED 500", value: 500 },
-] as const;
-
-const RADII = [
-  { label: "10 km", value: 10 },
-  { label: "20 km", value: 20 },
-  { label: "35 km", value: 35 },
-  { label: "Anywhere", value: null },
-] as const;
+// The options the deal and its preview share (P6).
+const budgetLabel = (value: number | null) => (value == null ? "Any budget" : `Up to AED ${value}`);
+const radiusLabel = (value: number | null) => (value == null ? "Anywhere" : `${value} km`);
 
 type CategoryKey = Category["key"];
 
@@ -76,6 +67,13 @@ export default function StartPlanForm({
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const custom = useCustomPlaces(category, setError);
+  // P6: label each limit with what it can deal from, and switch off what
+  // can't fill the nine left after pinned places. Needs a session, so not in the demo.
+  const preview = useDealPreview(category, originValue, !demoMode);
+  const need = 9 - custom.selectedIds.length;
+  const countChip = (n: number | null) => n != null && (
+    <><span className="sr-only"> · </span><span className="block font-medium">{n} {n === 1 ? "place" : "places"}</span></>
+  );
   // The deal reveal plays while the request runs; submit resolves this when
   // the sequence has shown, and navigates once both are done.
   const [revealing, setRevealing] = useState(false);
@@ -218,9 +216,13 @@ export default function StartPlanForm({
     );
   }
 
-  const visibleCategories = CATEGORY_GROUPS.find(
-    (group) => group.key === activeGroup,
-  )?.categories.filter((item) => age >= minimumAgeForCategory(item.key)) as readonly Category[] | undefined;
+  // Offered: old enough for it, and (P6) able to fill nine. The picked one always shows.
+  const offered = (item: Category) => item.key === category || (age >= minimumAgeForCategory(item.key) && preview.canFill(item.key));
+  const groups = CATEGORY_GROUPS.filter((group) => (group.categories as readonly Category[]).some(offered));
+  // A group emptied by the counts gives way to the one holding the pick.
+  const shownGroup = groups.find((group) => group.key === activeGroup)
+    ?? groups.find((group) => group.categories.some((c) => c.key === category));
+  const visibleCategories = shownGroup?.categories.filter(offered) as readonly Category[] | undefined;
 
   const modeToggle = !demoMode && (
     <div className="plan-mode-toggle" role="group" aria-label="How do you want to plan?">
@@ -268,12 +270,12 @@ export default function StartPlanForm({
       <fieldset>
         <legend className="plan-form__label">What kind of hangout?</legend>
         <div className="plan-category-groups" aria-label="Category groups">
-          {CATEGORY_GROUPS.map((group) => (
+          {groups.map((group) => (
             <button
               key={group.key}
               type="button"
               onClick={() => setActiveGroup(group.key)}
-              aria-pressed={activeGroup === group.key}
+              aria-pressed={shownGroup?.key === group.key}
               className="plan-category-group"
             >
               {group.label}
@@ -314,9 +316,14 @@ export default function StartPlanForm({
         <fieldset>
           <legend>Budget per person</legend>
           <div className="plan-choice-strip plan-choice-strip--budget">
-            {BUDGETS.map((budget) => (
-              <button key={budget.label} type="button" onClick={() => setMaxBudget(budget.value)} aria-pressed={maxBudget === budget.value}>{budget.label}</button>
-            ))}
+            {DEAL_BUDGET_OPTIONS.map((value) => {
+              const n = preview.count(value, radiusKm);
+              return (
+                <button key={budgetLabel(value)} type="button" onClick={() => setMaxBudget(value)} aria-pressed={maxBudget === value} disabled={n != null && n < need} className="disabled:opacity-50">
+                  {budgetLabel(value)}{countChip(n)}
+                </button>
+              );
+            })}
           </div>
         </fieldset>
 
@@ -330,9 +337,14 @@ export default function StartPlanForm({
           <fieldset disabled={originValue === "anywhere"}>
             <legend>Travel radius</legend>
             <div className="plan-choice-strip">
-              {RADII.map((radius) => (
-                <button key={radius.label} type="button" onClick={() => setRadiusKm(radius.value)} aria-pressed={radiusKm === radius.value}>{radius.label}</button>
-              ))}
+              {DEAL_RADIUS_OPTIONS_KM.map((value) => {
+                const n = originValue === "anywhere" ? null : preview.count(maxBudget, value);
+                return (
+                  <button key={radiusLabel(value)} type="button" onClick={() => setRadiusKm(value)} aria-pressed={radiusKm === value} disabled={n != null && n < need} className="disabled:opacity-50">
+                    {radiusLabel(value)}{countChip(n)}
+                  </button>
+                );
+              })}
             </div>
           </fieldset>
         </div>
