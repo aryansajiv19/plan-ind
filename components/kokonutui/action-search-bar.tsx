@@ -25,6 +25,7 @@ import { Input } from "@/components/ui/input";
 import useDebounce from "@/hooks/use-debounce";
 import { getSupabase } from "@/lib/supabase";
 import { minimumAgeForCategory } from "@/lib/age-policy";
+import { listableToday } from "@/lib/venue-facts";
 
 export type SearchTab = "plan" | "discover" | "been" | "friends" | "profile";
 
@@ -108,10 +109,10 @@ function ActionSearchBar({
     const q = trimmed;
     if (q.length < MIN_QUERY) return;
     let cancelled = false;
-    getSupabase()
+    listableToday(getSupabase()
       .from("spots")
       .select("id,name,area,category,minimum_age")
-      .eq("source", "curated")
+      .eq("source", "curated"))
       .ilike("name", `%${q}%`)
       .order("name")
       .limit(6)

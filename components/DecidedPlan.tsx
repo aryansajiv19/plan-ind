@@ -9,6 +9,8 @@ import { categoryMeta } from "@/lib/categories";
 import { fitForEvent, hoursLabel } from "@/lib/open-hours";
 import { dubaiMinuteOfDay } from "@/lib/dubai-phase";
 import GettingThere from "@/components/vote/GettingThere";
+import KnowBeforeYouGo from "@/components/KnowBeforeYouGo";
+import { reopensLabel } from "@/lib/venue-facts";
 import BookingSection from "@/components/vote/BookingSection";
 import RatingSection from "@/components/vote/RatingSection";
 import WhosInSection from "@/components/vote/WhosInSection";
@@ -104,6 +106,7 @@ export default function DecidedPlan({
 
   // The listed closing time against the plan's start (Dubai clock). Only a
   // verdict is worth a line; a bare listing already sits in the details.
+  const reopens = reopensLabel(winner.reopens_on);
   const fit = plan.event_time ? fitForEvent(winner.open_till, new Date(plan.event_time)) : null;
   const fitWarns = fit?.kind === "tight" || fit?.kind === "after-close";
   const startDate = plan.event_time ? new Date(plan.event_time) : null;
@@ -159,6 +162,8 @@ export default function DecidedPlan({
       <p className="mt-2 text-sm text-muted">
         The group’s headed to {winner.area}. Now let’s make it happen.
       </p>
+      {/* 070: a spot that closed after the plan dealt it. */}
+      {reopens && <p className="mt-2 text-sm font-medium">Heads up: closed now. {reopens}.</p>}
       {/* What the winner card used to carry, now that it no longer renders
           beside the reveal. */}
       <p className="vote-result__details mt-2 text-sm">
@@ -228,6 +233,7 @@ export default function DecidedPlan({
       <WhosInSection rsvps={rsvps} roster={roster} isMine={mine.rsvp} onSetRsvp={onSetRsvp} onSetCarpool={onSetCarpool} />
 
       <GettingThere plan={plan} winner={winner} />
+      <KnowBeforeYouGo spot={winner} className="mt-4 border-t border-line pt-4" />
 
       <BookingSection
         plan={plan}
