@@ -45,6 +45,7 @@ export default function HomeExperience({
   counts = null,
   visits = [],
   visitsUnavailable = false,
+  photosUnavailable = false,
   myPlans = [],
   smartSearchAvailable = false,
   myPlansUnavailable = false,
@@ -78,6 +79,7 @@ export default function HomeExperience({
   visits?: ProfileVisit[];
   /** The read FAILED — not "there are none". See lib/social's ListRead. */
   visitsUnavailable?: boolean;
+  photosUnavailable?: boolean;
   /** Signed in: the plans this account is on (P3). */
   myPlans?: PlanSummary[];
   myPlansUnavailable?: boolean;
@@ -346,6 +348,7 @@ export default function HomeExperience({
               wrappedUnavailable={wrappedUnavailable}
               collections={collections}
               visitsUnavailable={visitsUnavailable}
+              photosUnavailable={photosUnavailable}
               plannedWithUnavailable={plannedWithUnavailable}
               friends={friends}
               friendsUnavailable={friendsUnavailable}

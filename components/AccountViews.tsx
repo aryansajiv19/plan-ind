@@ -41,6 +41,7 @@ export default function AccountViews({
   wrappedUnavailable,
   collections: initialCollections,
   visitsUnavailable,
+  photosUnavailable,
   plannedWithUnavailable,
   friends,
   friendsUnavailable,
@@ -71,6 +72,7 @@ export default function AccountViews({
    *  not — so the honest thing is no state rather than plumbing nothing
    *  through to nowhere. */
   visitsUnavailable: boolean;
+  photosUnavailable: boolean;
   plannedWithUnavailable: boolean;
   friends: PersonCard[];
   friendsUnavailable: boolean;
@@ -107,6 +109,7 @@ export default function AccountViews({
         visits={visits}
         photos={photos}
         visitsUnavailable={visitsUnavailable}
+        photosUnavailable={photosUnavailable}
         stats={stats}
         been={been}
         onStartPlan={onStartPlan}

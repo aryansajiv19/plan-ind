@@ -17,7 +17,7 @@ import {
   getVisitPhotos,
   getWrappedSummary,
 } from "@/lib/social";
-import type { PlannedWith, VisitCollectionView } from "@/lib/social";
+import type { PlannedWith, VisitCollectionView, VisitPhotoView } from "@/lib/social";
 import type { PersonCard, ProfileVisit, Spot } from "@/lib/types";
 import { viewFromParam } from "@/lib/home-views";
 import type { PlanSummary } from "@/components/home/YourPlans";
@@ -85,7 +85,7 @@ export default async function HomePage({
       ? getWrappedSummary(user.id, person, supabase)
       : Promise.resolve({ data: null, error: "visits" as const }),
     person ? getVisitCollections(person, supabase) : Promise.resolve(emptyRead<VisitCollectionView>()),
-    person ? getVisitPhotos(person, supabase) : Promise.resolve([]),
+    person ? getVisitPhotos(person, supabase) : Promise.resolve(emptyRead<VisitPhotoView>()),
     person ? getFriends(person, supabase) : Promise.resolve(emptyRead<PersonCard>()),
     // P3: the way back into a plan. RLS returns only plans this account is a
     // member of; newest first, bounded.
@@ -125,7 +125,8 @@ export default async function HomePage({
         wrappedSummary={wrapped.data}
         wrappedUnavailable={wrapped.error}
         collections={collections.rows}
-        photos={photos}
+        photos={photos.rows}
+        photosUnavailable={photos.failed}
       />
     </>
   );

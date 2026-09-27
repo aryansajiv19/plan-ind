@@ -76,7 +76,8 @@ export default function useBeenCollections({
   async function createCollection() {
     if (!personId) return;
     const created = await createVisitCollection(personId, newCollectionName);
-    if (!created) return;
+    if (!created) { setCollectionError("Couldn’t create that collection. Try again."); return; }
+    setCollectionError(null);
     setCollections((current) => [...current, created]);
     setActiveCollection(created.id);
     setNewCollectionName("");
@@ -85,7 +86,8 @@ export default function useBeenCollections({
   async function addToCollection(visitId: string, collectionId: string) {
     if (!collectionId) return;
     const ok = await addVisitToCollection(collectionId, visitId);
-    if (!ok) return;
+    if (!ok) { setCollectionError("Couldn’t add that visit to the collection. Try again."); return; }
+    setCollectionError(null);
     setCollections((current) => current.map((c) => c.id === collectionId
       ? { ...c, visitIds: Array.from(new Set([...c.visitIds, visitId])) }
       : c));

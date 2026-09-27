@@ -16,6 +16,7 @@ export default function BeenTab({
   visits,
   photos,
   visitsUnavailable,
+  photosUnavailable,
   stats,
   been,
   onStartPlan,
@@ -24,6 +25,8 @@ export default function BeenTab({
   visits: ProfileVisit[];
   photos: VisitPhotoView[];
   visitsUnavailable: boolean;
+  /** The photos read failed (visits may still be fine): said, not hidden. */
+  photosUnavailable: boolean;
   stats: VisitStats;
   been: ReturnType<typeof useBeenCollections>;
   onStartPlan: () => void;
@@ -75,6 +78,7 @@ export default function BeenTab({
         )}
       </header>
 
+      {photosUnavailable && !visitsUnavailable && <UnavailableState what="photos" />}
       {visitsUnavailable ? (
         <UnavailableState what="visits" />
       ) : visits.length === 0 ? (

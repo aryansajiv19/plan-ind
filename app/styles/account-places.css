@@ -187,6 +187,18 @@
   color: var(--color-muted);
   font-size: max(.58rem, var(--type-floor));
 }
+/* P13: past eight saved links, a way to see the rest. */
+.place-link-importer__more {
+  min-height: 2.75rem;
+  padding: 0 0.25rem;
+  border: 0;
+  background: none;
+  color: var(--color-ink);
+  font-size: max(0.78rem, var(--type-floor));
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
 .place-link-importer__filters {
   display: flex;
   gap: .3rem;
