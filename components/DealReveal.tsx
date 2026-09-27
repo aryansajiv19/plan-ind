@@ -25,8 +25,8 @@ export interface RevealCard {
  * animates; nothing loops.
  *
  * The real flow has ids only until the plan page loads, so its cards are
- * face down, marked with the category code. `cards` is for /demo, which
- * deals labelled sample places.
+ * face down, marked with the category code. `cards` is for the signed-out
+ * preview: nine real places for its settings (P8), or the sample decks.
  */
 export default function DealReveal({
   constraints,
