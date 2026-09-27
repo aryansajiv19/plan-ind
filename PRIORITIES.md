@@ -19,9 +19,10 @@ staged. Everyone signs in (064).
 |---|---|---|
 | O1 | **"Yes, apply 075"** (any member can claim the booking; retires Scoopi Cafe and Garage Dubai, Iris to Lounge). Then merge `lane/frontend-booking` and `lane/platform-booking-e2e` | P22, the last "never ask a friend" gap |
 | O2 | Supabase Auth: turn **off** anonymous sign-ins, **then** set the Turnstile secret, then the Google provider (OAuth client in progress) | Closes free guest sessions and the Luna quota drain |
-| O3 | Approve the Places matches (dry run: 33 high, 34 review, 15 reject; review file in the lead's scratchpad, delete after) | P32 and P28: real photos on 76 venues |
-| O4 | Keep or change the sign-street design experiment (`lane/frontend-exp`) | Direction for the rest of phase 3 |
-| O5 | Housekeeping: delete merged `lane/*` branches; 13 photos for `spot-photos` (O8, may be superseded by Places) | One branch that is always true |
+| O3 | Approve the Places matches (dry run: 33 high, 34 review, 15 reject; review file in the lead's scratchpad, delete after) | P32 and P28: real photos on 76 venues; P24 live hours need the stored place ids |
+| O4 | Enable the **Routes API** on the key's Cloud project (it returns SERVICE_DISABLED today) | P24 metro legs and drive time at the event hour |
+| O5 | Keep or change the sign-street design experiment (`lane/frontend-exp`) | Direction for the rest of phase 3 |
+| O6 | Housekeeping: delete merged `lane/*` branches; 13 photos for `spot-photos` (O8, may be superseded by Places) | One branch that is always true |
 
 ## Roadmap (product audit 2026-09-27, detail in `docs/ROADMAP.md`)
 
@@ -31,7 +32,7 @@ someone back to the group chat. P-numbers match `docs/ROADMAP.md`.
 | Phase | Items | Lanes |
 |---|---|---|
 | 1. Broken and dead ends | DONE (all but P10, photos) | frontend, server, backend-sql |
-| 2. Never ask a friend | DONE but P22 (075 staged, client on `lane/frontend-booking`) and P24 live routes/hours (the key is in; not started) | frontend, backend-sql |
+| 2. Never ask a friend | DONE but P22 (075 staged, client on `lane/frontend-booking`) and P24 live routes/hours (blocked on O3 and O4) | frontend, backend-sql |
 | 3. Interface wow | DONE: P25, P26, P27, P29, P30, P31, B8. Left: P28 photos + "right now" on the landing (prep merged, waits on O3) | frontend, server |
 | 4. Coverage and hygiene | DONE: P33, P34. Left: P32 Places ingestion (O3), P35 copy/duplicate cleanup | all |
 
