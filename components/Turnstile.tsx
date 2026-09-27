@@ -129,9 +129,12 @@ export default function Turnstile({
   if (!siteKey) {
     // Report once, asynchronously, so a caller that explains the dead button
     // is told even when the widget never mounts at all.
-    if (process.env.NODE_ENV === "production") queueMicrotask(() => onStatus?.("failed"));
+    if (process.env.NODE_ENV === "production") queueMicrotask(() => {
+      console.error("Turnstile: NEXT_PUBLIC_TURNSTILE_SITE_KEY is not set");
+      onStatus?.("failed");
+    });
     return process.env.NODE_ENV === "production"
-      ? <p role="alert" className="auth-error">Bot protection is not configured.</p>
+      ? <p role="alert" className="auth-error">Sign-in isn’t available right now. Please try again later.</p>
       : null;
   }
 

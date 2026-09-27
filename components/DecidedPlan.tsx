@@ -6,6 +6,7 @@ import type { Plan, Rating, Rsvp, Spot } from "@/lib/types";
 import type { Mine } from "@/lib/my-rows";
 import type { Seat } from "@/lib/tally";
 import { categoryMeta } from "@/lib/categories";
+import { knownMinSpend } from "@/lib/price";
 import { fitForEvent, hoursLabel } from "@/lib/open-hours";
 import { dubaiMinuteOfDay, fromDubaiInput, toDubaiInput } from "@/lib/dubai-phase";
 import GettingThere from "@/components/vote/GettingThere";
@@ -161,7 +162,7 @@ export default function DecidedPlan({
           beside the reveal. */}
       <p className="vote-result__details mt-2 text-sm">
         {winner.description ?? winner.vibe}
-        <span className="text-muted"> · {hoursLabel(winner.open_till) ?? "Hours not listed"} · from AED {winner.min_spend}pp · </span>
+        <span className="text-muted"> · {hoursLabel(winner.open_till) ?? "Hours not listed"}{knownMinSpend(winner) != null ? ` · from AED ${winner.min_spend}pp` : ""} · </span>
         <Link href={`/place/${winner.id}?from=/plan/${plan.id}`}>Place details</Link>
       </p>
 

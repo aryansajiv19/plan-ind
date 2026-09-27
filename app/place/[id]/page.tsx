@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import VenuePhoto, { hasVenuePhoto } from "@/components/VenuePhoto";
 import { categoryMeta } from "@/lib/categories";
+import { knownMinSpend, knownPriceBand } from "@/lib/price";
 import { getCurrentUser, safeNextPath } from "@/lib/auth";
 import PlaceDirectPlanCta from "@/components/PlaceDirectPlanCta";
 import GetThere from "@/components/GetThere";
@@ -38,7 +39,7 @@ const getSpot = cache(async (id: string) => {
   const { data } = await supabase
     .from("spots")
     .select(
-      `id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, photo_url, photo_attribution, description, booking_url, address, latitude, longitude, google_place_id, minimum_age, nearest_station, station_line, station_walk_min, reopens_on, ${FACT_COLUMNS}`,
+      `id, name, category, area, cuisine, price_band, min_spend, source, open_till, vibe, photo_url, photo_attribution, description, booking_url, address, latitude, longitude, google_place_id, minimum_age, nearest_station, station_line, station_walk_min, reopens_on, ${FACT_COLUMNS}`,
     )
     .eq("id", id)
     .maybeSingle();
@@ -87,8 +88,8 @@ export default async function PlacePage({
 
       <div className="place-content">
         <div className="place-meta">
-          <span>{spot.price_band}</span>
-          <span>From AED {spot.min_spend}pp</span>
+          {knownPriceBand(spot) && <span>{spot.price_band}</span>}
+          {knownMinSpend(spot) != null && <span>From AED {spot.min_spend}pp</span>}
           <OpenStatus openTill={spot.open_till} />
           {reopens && <span>{reopens}</span>}
         </div>

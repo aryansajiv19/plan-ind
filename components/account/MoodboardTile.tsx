@@ -4,6 +4,7 @@ import Link from "next/link";
 import VenuePhoto, { hasVenuePhoto } from "@/components/VenuePhoto";
 import { categoryLabel } from "@/lib/categories";
 import { hoursLabel } from "@/lib/open-hours";
+import { priceLabel } from "@/lib/price";
 import { safeExternalUrl, type BoardSpot } from "@/lib/social";
 import type { MoodboardItem } from "@/lib/types";
 
@@ -49,7 +50,7 @@ export default function MoodboardTile({
         <h3>{name}</h3>
         {spot && (
           <p>
-            {[spot.area, spot.min_spend > 0 ? `AED ${spot.min_spend} pp` : spot.price_band, hoursLabel(spot.open_till)].filter(Boolean).join(" · ")}
+            {[spot.area, priceLabel(spot), hoursLabel(spot.open_till)].filter(Boolean).join(" · ")}
           </p>
         )}
         {spot?.vibe && <p>{spot.vibe}</p>}

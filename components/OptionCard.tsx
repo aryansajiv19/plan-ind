@@ -6,6 +6,7 @@ import VenuePhoto, { hasVenuePhoto } from "@/components/VenuePhoto";
 import { avatarStyle, initialsOf } from "@/lib/avatar";
 import type { Spot } from "@/lib/types";
 import { categoryMeta } from "@/lib/categories";
+import { knownMinSpend } from "@/lib/price";
 import type { DealReason } from "@/lib/deal-reasons";
 import { hoursLabel, openStatus } from "@/lib/open-hours";
 import { metroFor } from "@/lib/dubai-metro";
@@ -104,8 +105,10 @@ export default function OptionCard({
   }, [voters]);
 
   const photo = hasVenuePhoto(spot);
-  // The meta line drops the spend on a typographic band, which already says it.
-  const spendMeta = photo ? `from AED ${spot.min_spend}pp` : "";
+  // The meta line drops the spend on a typographic band, which already says
+  // it. No spend to state (a custom place), no spend shown.
+  const spend = knownMinSpend(spot);
+  const spendMeta = photo && spend != null ? `from AED ${spend}pp` : "";
 
   // P27: the card is an article, not one big button. A real Select button
   // carries the vote (its ::after stretches over the card, so the whole card
@@ -136,7 +139,7 @@ export default function OptionCard({
               <span className="vote-option__cuisine">{spot.cuisine}</span>
             </span>
             <h3 className="mt-auto text-balance font-display text-3xl font-extrabold leading-[1.1] tracking-tight">{spot.name}</h3>
-            <p className="mt-1 text-xs font-medium text-muted">{spot.area} · from AED {spot.min_spend}pp</p>
+            <p className="mt-1 text-xs font-medium text-muted">{spot.area}{spend != null ? ` · from AED ${spend}pp` : ""}</p>
           </div>
         )}
       </div>
