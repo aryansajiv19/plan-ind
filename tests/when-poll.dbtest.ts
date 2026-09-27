@@ -181,6 +181,21 @@ describe("073 \"When\" time poll", { skip: SKIP }, () => {
     assert.equal(await decide(host, onlyPast), "none"); // a's tick is on a past time: decided_at + 3h stands
   });
 
+  // Re-audit: reopen keeps event_time, so a re-decision after it had passed kept a past time.
+  test("a time that passed before a re-decision is replaced by one still ahead, or by none", async () => {
+    const [host, a] = [await user(), await user()];
+    const stale = (planId: string) => psql(`update plans set event_time = now() - interval '1 hour' where id = '${planId}'`);
+    const p = await plan(host, [a]);
+    const [, ahead] = (await setWhen(host, p, [inDays(1), inDays(2)])).options;
+    await tick(a, p.id, ahead.id);
+    await stale(p.id); // what a reopen leaves once the first decision's time has gone by
+    assert.equal(await decide(host, p), await startsAt(p.id, ahead.id));
+
+    const quiet = await plan(host, [a]);
+    await stale(quiet.id);
+    assert.equal(await decide(host, quiet), "none");
+  });
+
   test("leaving an open plan or deleting the account takes the member's ticks, and nobody else's", async () => {
     const [host, leaver, deleter, stays] = [await user(), await user(), await user(), await user()];
     const p = await plan(host, [leaver, deleter, stays]);

@@ -89,13 +89,14 @@ describe("068 custom spots carry no links or photos, and bounded text (R4)", { s
   // Security review: a CR or a bidi override (U+202E) survived a direct insert.
   test("control characters and bidi overrides are cleaned out; a name of nothing else is refused", async () => {
     const uid = await member();
-    await insertSpot(uid, { name: "E'QA068\\r\\u202E place'", vibe: "E'a\\nnote'", description: "E'\\u202E'" });
+    await insertSpot(uid, { name: "E'QA068\\r\\u202E\\u061C place\\u200B'", vibe: "E'a\\nnote'", description: "E'\\u202E'" });
     const id = made.spots.at(-1)!;
     assert.equal(await psql(`select name || '|' || vibe || '|' || coalesce(description, 'null') from spots where id = '${id}'`),
       "QA068 place|anote|null");
     await psql(`update spots set area = E'Dubai\\u202E' where id = '${id}'`); // an edit is cleaned too
     assert.equal(await psql(`select area from spots where id = '${id}'`), "Dubai");
     await assert.rejects(insertSpot(uid, { name: "E'\\r\\n'" }), /A place name is required/);
+    await assert.rejects(insertSpot(uid, { name: "E'\\u200B\\u00A0'" }), /A place name is required/); // invisible is empty too
   });
 
   test("applying 068 cleans custom rows written before it, and a name that cleans to nothing doesn't stop it", async () => {
@@ -107,7 +108,7 @@ describe("068 custom spots carry no links or photos, and bounded text (R4)", { s
       "-c", `begin; set session_replication_role = replica;
         insert into spots (id,name,category,area,cuisine,price_band,min_spend,open_till,vibe,source,visibility,created_by_user_id)
           values ('${id}',E'QA068\\u202E old','dinner','Dubai','Custom place','$$',0,'Flexible','note','custom','community','${uid}'),
-                 ('${blank}',E'\\u202E\\r','dinner','Dubai','Custom place','$$',0,'Flexible','note','custom','community','${uid}');
+                 ('${blank}',E'\\u00A0\\u202E\\r','dinner','Dubai','Custom place','$$',0,'Flexible','note','custom','community','${uid}');
         set session_replication_role = origin;`,
       "-f", migration,
       "-c", `select string_agg(name, '|' order by id = '${blank}') from spots where id in ('${id}', '${blank}')`,

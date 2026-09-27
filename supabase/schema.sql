@@ -4701,12 +4701,28 @@ alter table spots add constraint spots_custom_text_caps check (
 -- out, trimmed), but capped at the value's own length on purpose: over-long
 -- text is still refused by spots_custom_text_caps, never silently cut. An
 -- optional field that cleans to nothing becomes null; a name can't.
+-- clean_app_text (020) also drops the invisible characters it missed: U+061C
+-- (the one bidi mark not listed; it reorders like U+200F), U+200B, U+2060 and
+-- U+FEFF. ZWNJ/ZWJ stay: Persian text and emoji need them. No index or CHECK
+-- uses it, so every caller simply gets stricter.
+create or replace function clean_app_text(value text, maximum integer)
+returns text language sql immutable set search_path = pg_catalog as $$
+  select left(trim(regexp_replace(translate(coalesce(value, ''),
+    chr(8206)||chr(8207)||chr(8234)||chr(8235)||chr(8236)||chr(8237)||chr(8238)||chr(8294)||chr(8295)||chr(8296)||chr(8297)
+    ||chr(1564)||chr(8203)||chr(8288)||chr(65279),
+    ''), '[[:cntrl:]]', '', 'g')), maximum)
+$$;
+
 create or replace function sanitize_custom_spot_text()
 returns trigger language plpgsql set search_path = public, pg_temp as $$
 begin
   if new.source <> 'curated' then
     new.name := clean_app_text(new.name, char_length(new.name));
-    if new.name = '' then raise exception 'A place name is required' using errcode = '22023'; end if;
+    -- clean_display_name's wider invisible set decides "empty" (it caps at 40,
+    -- so it only judges): a name of zero-width or no-break spaces is none.
+    if coalesce(clean_display_name(new.name), '') = '' then
+      raise exception 'A place name is required' using errcode = '22023';
+    end if;
     new.area := clean_app_text(new.area, char_length(new.area));
     new.cuisine := clean_app_text(new.cuisine, char_length(new.cuisine));
     new.open_till := clean_app_text(new.open_till, char_length(new.open_till));
@@ -4724,7 +4740,7 @@ create trigger spots_sanitize_custom_text before insert or update on spots
 -- name that cleans to nothing would make that update raise and stop the
 -- whole migration, so it gets a visible placeholder first.
 update spots set name = 'Unnamed place'
-where source <> 'curated' and clean_app_text(name, char_length(name)) = '';
+where source <> 'curated' and coalesce(clean_display_name(name), '') = '';
 update spots set name = name where source <> 'curated';
 
 -- ── R9: a 'friends' photo is visible to the owner's friends ────────────────
@@ -6061,9 +6077,11 @@ begin
     update plans set status = 'decided', stage = 'decided', winner_spot_id = winner where id = p_plan_id;
     -- 073 (P21): with no time set yet, the "When" option most members can make
     -- becomes the time (a tie goes to the earliest). No ticks: no time. A time
-    -- the host set by hand is never overwritten. Only a time still ahead
-    -- counts: a past one would open rating and plan_has_happened at once, so
-    -- with none ahead there is no time and decided_at + 3h stands.
+    -- the host set by hand is never overwritten while it is still ahead. Only
+    -- a time still ahead counts: a past one would open rating and
+    -- plan_has_happened at once, so with none ahead there is no time and
+    -- decided_at + 3h stands. That includes a reopened plan re-decided after
+    -- its first decision's time.
     update plans set event_time = (
       select o.starts_at from plan_time_options o
       join plan_time_votes t on t.option_id = o.id
@@ -6071,7 +6089,7 @@ begin
       group by o.id, o.starts_at
       order by count(*) desc, o.starts_at
       limit 1)
-    where id = p_plan_id and event_time is null;
+    where id = p_plan_id and (event_time is null or event_time <= now());
   else
     raise exception 'Unsupported plan command';
   end if;

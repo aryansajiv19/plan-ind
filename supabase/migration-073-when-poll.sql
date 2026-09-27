@@ -209,9 +209,11 @@ begin
     update plans set status = 'decided', stage = 'decided', winner_spot_id = winner where id = p_plan_id;
     -- 073 (P21): with no time set yet, the "When" option most members can make
     -- becomes the time (a tie goes to the earliest). No ticks: no time. A time
-    -- the host set by hand is never overwritten. Only a time still ahead
-    -- counts: a past one would open rating and plan_has_happened at once, so
-    -- with none ahead there is no time and decided_at + 3h stands.
+    -- the host set by hand is never overwritten while it is still ahead. Only
+    -- a time still ahead counts: a past one would open rating and
+    -- plan_has_happened at once, so with none ahead there is no time and
+    -- decided_at + 3h stands. That includes a reopened plan re-decided after
+    -- its first decision's time.
     update plans set event_time = (
       select o.starts_at from plan_time_options o
       join plan_time_votes t on t.option_id = o.id
@@ -219,7 +221,7 @@ begin
       group by o.id, o.starts_at
       order by count(*) desc, o.starts_at
       limit 1)
-    where id = p_plan_id and event_time is null;
+    where id = p_plan_id and (event_time is null or event_time <= now());
   else
     raise exception 'Unsupported plan command';
   end if;
