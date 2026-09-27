@@ -41,9 +41,9 @@ someone back to the group chat. P-numbers match `docs/ROADMAP.md`.
 
 | Phase | Items | Lanes |
 |---|---|---|
-| 1. Broken and dead ends | DONE: P1–P5, P7, P9, P11–P15. Left: P6 (merging), P8 signed-out preview deal, P10 Google photo route caller (needs the Places key) | frontend, server, backend-sql |
-| 2. Never ask a friend | DONE: 070 catalogue truth, 071 closed-place guard, P16–P18, P20. Left: P21 "When" at creation; P22 carpool/booking as coordination; P23 time picker + calendar; P24 live routes/hours (needs a key) | frontend, backend-sql |
-| 3. Interface wow | P25 content-first composer; P26 reveal the real nine; P27 media band on vote cards; P28 photos + "right now" on landing; P29 payoff before sign-up; P30 honest demo; P31 share-and-return loop | frontend, server |
+| 1. Broken and dead ends | DONE (all but P10, which needs the Places key) | frontend, server, backend-sql |
+| 2. Never ask a friend | DONE: 070/071 catalogue truth, P16–P18, P20, P21 "When" poll (073), P23. Left: P22 carpool/booking as coordination (needs the owner's "any member can book" call); P24 live routes/hours (needs a key) | frontend, backend-sql |
+| 3. Interface wow | DONE: P26 real nine in the reveal, P27 media band, P29 payoff before sign-up, P30 honest demo, B8 landing. In progress: P25 content-first composer; P31 share-and-return loop (approved). Left: P28 photos + "right now" on the landing (key) | frontend, server |
 | 4. Coverage and hygiene | P32 Places ingestion; P33 E2E for create, lifecycle, last mile; P34 DB tests, retire verify-journey; P35 copy/duplicate cleanup | all |
 
 ## In flight (paused 2026-09-26 evening)
