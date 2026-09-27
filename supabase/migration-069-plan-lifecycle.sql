@@ -4,6 +4,8 @@
 --   P11 rating only after the outing; unrating removes the visit it logged
 --   seat_key: one stable, member-readable seat per account per plan
 --   P15 the host can cancel (delete) a decided plan that hasn't happened
+--   late joiners: only the host and members from before the decision count
+--       as "it happened" for cancel and reopen
 --   security review: a visit can only be tied to a plan the logger belongs
 --       to, once it has been decided and the outing has happened
 --   booking_owner by identity (confirmation-pass follow-up): who claimed the
@@ -472,7 +474,11 @@ create trigger plans_stamp_decided_at before insert or update of status on plans
   for each row execute function stamp_plan_decided_at();
 
 -- Plans decided before this migration: the earliest honest bound.
-update plans set decided_at = created_at where status = 'decided' and decided_at is null;
+-- The plan's last vote is the best bound the data has (a decide follows the
+-- votes), and every member who voted had joined by then -- which is what
+-- plan_has_happened() compares against. created_at only when nobody voted.
+update plans p set decided_at = coalesce((select max(v.created_at) from votes v where v.plan_id = p.id), p.created_at)
+where p.status = 'decided' and p.decided_at is null;
 
 create or replace function rate_plan(
   p_plan_id uuid, p_spot_id uuid, p_voter_name text, p_stars integer, p_again boolean, p_participant_token_hash text
@@ -609,6 +615,26 @@ revoke all on function my_plan_rows(uuid) from public, anon, authenticated;
 grant execute on function my_plan_rows(uuid) to authenticated;
 
 -- ── P15: cancel a decided plan ─────────────────────────────────────────────────
+-- Whether a decided plan's outing happened, for delete_plan and reopen_plan:
+-- a rating or a visit from the host or from a member who joined BEFORE the
+-- plan was decided. Anyone can join from the link afterwards and, once the
+-- outing time passes, log a visit; counting those would let a late
+-- link-holder lock the host out of cancelling or reopening. They still see
+-- the result and can still rate.
+create or replace function plan_has_happened(p_plan_id uuid)
+returns boolean language sql stable security definer set search_path = public, pg_temp as $$
+  with t as (select id, created_by_user_id, decided_at from plans where id = p_plan_id),
+  counted as (
+    select a.user_id from plan_access a, t where a.plan_id = t.id and a.created_at < t.decided_at
+    union select created_by_user_id from t
+  )
+  select exists (select 1 from ratings r where r.plan_id = p_plan_id and r.user_id in (select user_id from counted))
+      or exists (select 1 from visits v join people pe on pe.id = v.person_id
+                 where v.plan_id = p_plan_id and pe.auth_user_id in (select user_id from counted))
+$$;
+-- Internal: only delete_plan and reopen_plan call it.
+revoke all on function plan_has_happened(uuid) from public, anon, authenticated;
+
 -- status stays 'open' | 'decided'; cancelling is deleting, as for an open plan.
 create or replace function delete_plan(p_plan_id uuid, p_host_token text)
 returns jsonb
@@ -639,9 +665,7 @@ begin
   -- 069 (P15): a decided plan can be cancelled (deleted) while the outing
   -- hasn't happened -- no rating and no visit. After that it is history.
   -- Booked is allowed: the reservation lives outside the app.
-  if target.status = 'decided' and (
-       exists (select 1 from ratings where plan_id = p_plan_id)
-       or exists (select 1 from visits where plan_id = p_plan_id)) then
+  if target.status = 'decided' and plan_has_happened(p_plan_id) then
     return jsonb_build_object('result', 'already_happened');
   end if;
 
@@ -689,3 +713,72 @@ create policy "log own visits" on visits for insert to authenticated
     exists (select 1 from people p where p.id = person_id and p.auth_user_id = (select auth.uid()))
     and visit_plan_allowed(plan_id)
   );
+
+-- ── Late joiners can't lock the host out of reopening either ─────────────────
+create or replace function reopen_plan(
+  p_plan_id uuid,
+  p_host_token text,
+  p_deadline timestamptz default null
+) returns jsonb
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+as $$
+declare
+  target plans%rowtype;
+begin
+  if auth.uid() is null or coalesce(auth.jwt()->>'is_anonymous', 'false') = 'true' then
+    raise exception 'Sign in required' using errcode = '42501';
+  end if;
+
+  select * into target from plans where id = p_plan_id for update;
+  if target.id is null then
+    return jsonb_build_object('result', 'not_found');
+  end if;
+
+  -- 067: the one host rule (plan_host_authorized).
+  if not plan_host_authorized(p_plan_id, p_host_token) then
+    return jsonb_build_object('result', 'not_host');
+  end if;
+
+  if target.status <> 'decided' then
+    return jsonb_build_object('result', 'not_decided');
+  end if;
+  -- Direct plans insert their single spot with advanced = true: fewer than two
+  -- advanced finalists means there is nothing to re-vote on.
+  if (select count(*) from plan_spots where plan_id = p_plan_id and advanced) < 2 then
+    return jsonb_build_object('result', 'no_rounds');
+  end if;
+  if target.booked is true then
+    return jsonb_build_object('result', 'booked');
+  end if;
+  -- 069: counted only from the host and members who joined before the plan
+  -- was decided (plan_has_happened), so a late link-holder can't lock it.
+  if plan_has_happened(p_plan_id) then
+    return jsonb_build_object('result', 'already_happened');
+  end if;
+  if p_deadline is not null and (p_deadline <= now() or p_deadline > now() + interval '1 year') then
+    return jsonb_build_object('result', 'invalid_deadline');
+  end if;
+
+  delete from votes v
+  where v.plan_id = p_plan_id and v.user_id is not null
+    and not exists (select 1 from plan_access a where a.plan_id = p_plan_id and a.user_id = v.user_id);
+
+  update plans set
+    status = 'open',
+    stage = 'final',
+    winner_spot_id = null,
+    deadline = p_deadline,
+    reopened_at = now()
+  where id = p_plan_id;
+
+  insert into security_events (event_type, outcome, actor_user_id, metadata)
+  values ('plan_command', 'success', auth.uid(),
+    jsonb_build_object('command', 'reopen', 'plan_id', p_plan_id));
+
+  return jsonb_build_object('result', 'reopened', 'deadline', p_deadline);
+end;
+$$;
+revoke all on function reopen_plan(uuid, text, timestamptz) from public, anon, authenticated;
+grant execute on function reopen_plan(uuid, text, timestamptz) to authenticated;

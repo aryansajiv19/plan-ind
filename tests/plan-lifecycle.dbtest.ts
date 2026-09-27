@@ -282,8 +282,8 @@ describe("069 the host can cancel a decided plan (P15)", { skip: SKIP }, () => {
     await as(rater, `select rate_plan('${rated.p.id}','${rated.winner}','R',5,true,'${hash()}')`);
     assert.equal(await del(rated.host, rated.p.id, rated.p.token), "already_happened");
 
-    const visitor = await user();
-    const visited = await decidedPlan();
+    const visitor = await user(); // a member from before the decision (only those count, 069)
+    const visited = await decidedPlan([visitor]);
     await psql(`insert into people (id, display_name, auth_user_id) values ('${visitor}', 'V', '${visitor}');
       insert into visits (person_id, spot_id, plan_id) values ('${visitor}', '${visited.winner}', '${visited.p.id}')`);
     assert.equal(await del(visited.host, visited.p.id, visited.p.token), "already_happened");
@@ -346,5 +346,55 @@ describe("069 security review: visits, unrate, booking backfill", { skip: SKIP }
       "-c", `select user_id from plan_booking_owners where plan_id = '${p.id}'`,
       "-c", "rollback"], { timeout: 60000 });
     assert.equal(stdout.trim().split("\n").filter(Boolean).pop(), host);
+  });
+});
+
+// ── late joiners (069 follow-up) ─────────────────────────────────────────────
+describe("069 a late link-holder can't lock the host out", { skip: SKIP }, () => {
+  async function decidedPlan(members: string[]) {
+    const host = await user();
+    const p = await plan(host, "now() + interval '1 day'", members);
+    const cmd = (c: string) => as(host, `select execute_plan_command('${p.id}', '${p.token}', '${c}', '{}'::jsonb)`);
+    await cmd("advance");
+    const { winner_spot_id } = JSON.parse(await cmd("decide"));
+    return { host, p, winner: winner_spot_id as string };
+  }
+  const visit = async (uid: string, planId: string, spot: string) => {
+    await psql(`insert into people (id, display_name, auth_user_id) values ('${uid}', 'V', '${uid}') on conflict do nothing`);
+    await as(uid, `insert into visits (person_id, spot_id, plan_id) values ('${uid}', '${spot}', '${planId}')`);
+  };
+  const cancel = async (d: { host: string; p: Plan }) =>
+    JSON.parse(await as(d.host, `select delete_plan('${d.p.id}', '${d.p.token}')`)).result;
+
+  test("a visit from someone who joined after the decision doesn't block cancelling", async () => {
+    const d = await decidedPlan([]);
+    const late = await user();
+    await psql(`insert into plan_access (plan_id, user_id) values ('${d.p.id}', '${late}');
+      update plans set event_time = now() - interval '1 hour' where id = '${d.p.id}'`);
+    await visit(late, d.p.id, d.winner);
+    assert.equal(await cancel(d), "deleted");
+  });
+
+  test("a visit from a member who was there before the decision does (control)", async () => {
+    const early = await user();
+    const d = await decidedPlan([early]);
+    await psql(`update plans set event_time = now() - interval '1 hour' where id = '${d.p.id}'`);
+    await visit(early, d.p.id, d.winner);
+    assert.equal(await cancel(d), "already_happened");
+  });
+
+  test("legacy decided plans get decided_at from their last vote, not their creation", async () => {
+    const voter = await user();
+    const p = await plan(await user(), "now() + interval '1 day'", [voter]);
+    await as(voter, `select cast_plan_vote('${p.id}','${p.spots[0]}','V',true,'pool',1::smallint,'${hash()}')`);
+    const migration = new URL("../supabase/migration-069-plan-lifecycle.sql", import.meta.url).pathname;
+    const { stdout } = await execFileAsync("psql", [DB_URL, "-X", "-q", "-A", "-t", "--no-psqlrc", "-v", "ON_ERROR_STOP=1",
+      "-c", `begin; alter table plans disable trigger plans_stamp_decided_at;
+             update plans set status = 'decided', stage = 'decided', decided_at = null, winner_spot_id = '${p.spots[0]}' where id = '${p.id}';
+             alter table plans enable trigger plans_stamp_decided_at;`,
+      "-f", migration,
+      "-c", `select (decided_at = (select max(created_at) from votes where plan_id = '${p.id}'))::text from plans where id = '${p.id}'`,
+      "-c", "rollback"], { timeout: 60000 });
+    assert.equal(stdout.trim().split("\n").filter(Boolean).pop(), "true");
   });
 });
