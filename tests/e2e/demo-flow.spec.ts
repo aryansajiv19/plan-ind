@@ -5,18 +5,36 @@ import { test, expect } from "@playwright/test";
 // final to the winner reveal. Fixture driven end to end (no database), so
 // this runs against any target.
 
-test("/demo: submitting the plan form deals nine sample places, then links to the sample vote", async ({ page }) => {
+// Padel deals from its family (lib/spots/match.ts CATEGORY_FAMILIES).
+const PADEL_FAMILY = ["sports", "padel", "adventure", "outdoors", "games"];
+
+test("/demo: the reveal deals nine places of the picked type, then links to the sample vote", async ({ page }) => {
   await page.goto("/demo");
+  await page.getByRole("button", { name: "Move and play", exact: true }).click();
+  await page.getByRole("button", { name: "Padel", exact: true }).click();
   const submit = page.getByRole("button", { name: "Preview the deal" });
   await submit.scrollIntoViewIfNeeded();
+  const sample = page.waitForResponse((response) => response.url().includes("/api/spots/deal/sample"));
   await submit.click();
+  const response = await sample;
+  const body = response.ok() ? await response.json() as { cards: { name: string; category: string }[] | null } : { cards: null };
 
   // The reveal's status line changes when the sequence has played.
   const status = page.locator("#deal-reveal-heading [role=status]");
   await expect(status).toHaveText("Nine places, three rounds.", { timeout: 10_000 });
   const dealt = page.getByRole("list", { name: "Nine places in three rounds" });
-  await expect(dealt.getByText("Reif Japanese Kushiyaki")).toBeVisible();
   await expect(dealt.locator(":scope > li > ul > li")).toHaveCount(9);
+  if (body.cards) {
+    // P8: real places of the picked type, never the sample dinner deck.
+    for (const card of body.cards) expect(PADEL_FAMILY).toContain(card.category);
+    await expect(dealt.getByText(body.cards[0].name, { exact: true })).toBeVisible();
+    await expect(dealt.getByText("Reif Japanese Kushiyaki")).toHaveCount(0);
+    await expect(page.getByText(/Real places that fit your settings/)).toBeVisible();
+  } else {
+    // tooFew, 429 or 503: the sample decks, said out loud.
+    await expect(dealt.getByText("Reif Japanese Kushiyaki")).toBeVisible();
+    await expect(page.getByText(/Sample places shown/)).toBeVisible();
+  }
 
   const next = page.getByRole("link", { name: "See how the group votes" });
   await expect(next).toHaveAttribute("href", "/demo/vote");

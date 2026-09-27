@@ -124,6 +124,9 @@ export function useCustomPlaces(category: string, setError: (message: string | n
   return {
     open, setOpen, name, setName, area, setArea, address, setAddress, note, setNote,
     visibility, setVisibility, saving, saved, loadFailed, selectedIds, toggle, restrictedFor, save,
+    // P26: the pinned places as the reveal shows them, in pin order.
+    pinnedCards: selectedIds.map((id) => saved.find((place) => place.id === id))
+      .map((place) => place && { name: place.name, area: place.area, photo_url: null, photo_attribution: null }),
   };
 }
 
