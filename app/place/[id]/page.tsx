@@ -37,7 +37,7 @@ const getSpot = cache(async (id: string) => {
   const { data } = await supabase
     .from("spots")
     .select(
-      "id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, photo_url, photo_attribution, description, booking_url, address, latitude, longitude, google_place_id, minimum_age",
+      "id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, photo_url, photo_attribution, description, booking_url, address, latitude, longitude, google_place_id, minimum_age, nearest_station, station_line, station_walk_min, reopens_on",
     )
     .eq("id", id)
     .maybeSingle();
@@ -139,7 +139,7 @@ export default async function PlacePage({
           </a>
         </div>
         <GetThere venue={spot} />
-        {metroLine(spot.latitude, spot.longitude) && <p className="place-metro">{metroLine(spot.latitude, spot.longitude)}</p>}
+        {metroLine(spot) && <p className="place-metro">{metroLine(spot)}</p>}
 
         {/* The in-app map sits under the deep links, which stay the primary
             way to get there. It loads only when scrolled to or asked for. */}

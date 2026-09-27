@@ -62,7 +62,8 @@ test("one nearby place does not narrow the whole deal to its area", () => {
 
 test("an area maps to a starting point only when it is close to one", () => {
   assert.equal(originForArea("Dubai Marina"), "marina");
-  assert.equal(originForArea("Al Khawaneej"), null, "far from every named origin");
+  assert.equal(originForArea("Al Khawaneej"), "mirdif", "Mirdif is next door (P18)");
+  assert.equal(originForArea("Hatta"), null, "far from every named origin");
   assert.equal(originForArea("Somewhere unmapped"), null);
 });
 

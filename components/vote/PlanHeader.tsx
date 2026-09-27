@@ -3,6 +3,8 @@ import type { Seat } from "@/lib/tally";
 import VoteSeats from "@/components/vote/VoteSeats";
 import { RoundLabel } from "@/components/vote/RoundProgress";
 import { useMinuteClock } from "@/hooks/use-minute-clock";
+import ComingFrom from "@/components/vote/ComingFrom";
+import type { ViewerOrigin } from "@/hooks/use-viewer-origin";
 
 function closesLabel(deadline: string | null): string {
   if (!deadline) return "Open";
@@ -26,6 +28,7 @@ export default function PlanHeader({
   roster,
   pickedThisRound,
   othersHere,
+  viewer,
 }: {
   plan: Plan;
   voterName: string;
@@ -37,6 +40,7 @@ export default function PlanHeader({
   roster: Seat[];
   pickedThisRound: Set<string>;
   othersHere: string[];
+  viewer: ViewerOrigin;
 }) {
   useMinuteClock(); // re-render each minute, so the "Closes in" chip counts down
   return (
@@ -61,6 +65,7 @@ export default function PlanHeader({
         <RoundLabel stage={stage === "pool" ? "pool" : "final"} activePool={activePool} poolCount={poolCount} nightMode={nightMode} />
       )}
       {/* §26.1: the group, not just the people who acted. */}
+      {!decided && <ComingFrom viewer={viewer} />}
       {!decided && roster.length > 1 && (
         <VoteSeats roster={roster} picked={pickedThisRound} othersHere={othersHere} />
       )}

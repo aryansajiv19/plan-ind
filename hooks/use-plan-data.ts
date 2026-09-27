@@ -174,7 +174,7 @@ export function usePlanData(id: string) {
       // full shape, so don't start reading a dropped field here without
       // adding it back to this list.
       const { data: spotRows, error: spotsErr } = spotIds.length
-        ? await getSupabase().from("spots").select("id, name, category, cuisine, price_band, area, description, vibe, open_till, min_spend, latitude, longitude, photo_url, photo_attribution, booking_url, source, address, google_place_id, minimum_age").in("id", spotIds)
+        ? await getSupabase().from("spots").select("id, name, category, cuisine, price_band, area, description, vibe, open_till, min_spend, latitude, longitude, photo_url, photo_attribution, booking_url, source, address, google_place_id, minimum_age, nearest_station, station_line, station_walk_min, reopens_on").in("id", spotIds)
         : { data: [], error: null };
       // Preserve the dealt order.
       const ordered = spotIds

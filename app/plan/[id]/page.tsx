@@ -10,6 +10,7 @@ import { nextUnpickedPool, planView, roundFor, votersFor } from "@/lib/tally";
 import { usePlanData } from "@/hooks/use-plan-data";
 import { useVoterName } from "@/hooks/use-voter-name";
 import { useMinuteClock } from "@/hooks/use-minute-clock";
+import { useViewerOrigin } from "@/hooks/use-viewer-origin";
 import { autoAdvanceAfterPick } from "@/hooks/pool-auto-advance";
 import { usePlanPresence, usePlanRealtime } from "@/hooks/use-plan-realtime";
 import { useHostCommands } from "@/hooks/use-host-commands";
@@ -61,6 +62,7 @@ export default function VotePage() {
   const decided = plan?.status === "decided";
   // P4: past the deadline the cards lock until expire_plan moves the plan on.
   const now = useMinuteClock();
+  const viewer = useViewerOrigin(); // P18: this voter's own origin, never sent
   const closed = !decided && Boolean(plan?.deadline && now && Date.parse(plan.deadline) <= now.getTime());
   const winnerId = plan?.winner_spot_id ?? null;
   const stage = plan?.stage ?? (decided ? "decided" : "final");
@@ -145,6 +147,7 @@ export default function VotePage() {
           roster={roster}
           pickedThisRound={pickedThisRound}
           othersHere={othersHere}
+          viewer={viewer}
         />
 
         {stage === "pool" && !decided && (
@@ -197,6 +200,7 @@ export default function VotePage() {
                     closed={closed}
                     distanceKm={km}
                     reasons={dealReasons({ spot, maxBudget: plan!.budget_per_person, radiusKm: plan!.radius_km, distanceKm: km, vibeKeywords: plan!.vibe_preferences, been })}
+                    viewerFrom={viewer.origin}
                     onToggle={() => toggleVote(spot.id)}
                   />
                   <Link href={`/place/${spot.id}?from=/plan/${id}`} className="vote-option__details">Details</Link>

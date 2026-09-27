@@ -139,27 +139,20 @@
     min-height: 2.75rem;
     min-width: 2.75rem;
   }
-  /* The plan form is the longest control run in the app and every one of
-     these sat just under the floor — the strips and the region select at
-     40.8px, the smart-search submit at 42.4px. Close enough to look right
-     and still wrong under a thumb. Listed here rather than raised on each
-     base rule so desktop keeps its density, which is what this block is
-     for. .plan-category-group used to be raised in the 520px block; it is
-     the same concern as these, so it lives with them and there is one
-     place to look when the floor changes. */
+  /* The plan form's strips and selects sat at 40.8px, just under the floor. */
   .plan-choice-strip button,
   .plan-location-fields select,
+  .coming-from select,
   .plan-category-group,
   .plan-smart-search > button {
     min-height: 2.75rem;
   }
   /* Paired with the height above, for the same WebKit reason. */
-  .plan-location-fields select {
+  .plan-location-fields select,
+  .coming-from select {
     height: 2.75rem;
   }
-  /* The app's global search, and the back link on a venue page — both are
-     standalone controls that were never in this block: the search input
-     carried a 36px utility height, the venue back link measured 20px. */
+  /* Global search (was 36px) and the venue back link (was 20px). */
   .action-search__input,
   .place-back {
     min-height: 2.75rem;
@@ -267,8 +260,20 @@
    — drawn, countable, not an absence. Names only, never a token.
    The dashed edge is a UI boundary (SC 1.4.11): --color-line is 3.63:1 on
    the canvas, so it must not be softened toward a hint. */
-.vote-seats {
+.vote-seats,
+.coming-from {
   margin-top: 0.7rem;
+}
+.coming-from {
+  max-width: 20rem;
+}
+.coming-from label,
+.coming-from p {
+  display: grid;
+  gap: 0.3rem;
+  color: var(--color-muted);
+  font-size: max(0.68rem, var(--type-floor));
+  font-weight: 500;
 }
 .vote-seats__row {
   display: flex;
