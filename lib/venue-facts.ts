@@ -77,7 +77,8 @@ export function venueFacts(spot: FactSpot): VenueFacts {
   };
 
   const age = Math.max(spot.minimum_age ?? 0, minimumAgeForCategory(spot.category));
-  if (age > 0) add("Age", `${age}+, bring ID`);
+  // "Bring ID" is the 18+ and 21+ door check; a 14+ venue asks for no ID.
+  if (age > 0) add("Age", age >= 18 ? `${age}+, bring ID` : `${age} and over`);
   if (spot.licensed != null) add("Alcohol", spot.licensed ? "Serves alcohol" : "No alcohol");
   add("Dress code", spot.dress_code);
   add("Booking", spot.reservations ? BOOKING[spot.reservations] ?? spot.reservations : null);

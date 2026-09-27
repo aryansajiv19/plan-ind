@@ -15,7 +15,7 @@ import { FACT_COLUMNS, reopensLabel } from "@/lib/venue-facts";
 import PlaceSaveToBoard from "@/components/account/PlaceSaveToBoard";
 import OpenStatus from "@/components/OpenStatus";
 import VenueMap from "@/components/VenueMap";
-import { appleMapsUrl, googleMapsUrl } from "@/lib/directions";
+import { googleMapsUrl } from "@/lib/directions";
 
 // The venue detail page — SPECS.md §6, previously unbuilt (12a). Scoped down
 // from the full original brief: this design system references a "four-source
@@ -133,14 +133,6 @@ export default async function PlacePage({
           >
             Open in Google Maps
           </a>
-          <a
-            href={appleMapsUrl(spot)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="place-action place-action--secondary"
-          >
-            Apple Maps
-          </a>
         </div>
         <GetThere venue={spot} />
         {metroLine(spot) && <p className="place-metro">{metroLine(spot)}</p>}
@@ -159,18 +151,20 @@ export default async function PlacePage({
             server-side either way, but showing the CTA to someone who can't
             use it would mean building a whole form that fails at the end
             rather than not showing it. */}
-        {user && (
-          <PlaceDirectPlanCta
-            spot={{ id: spot.id, name: spot.name, area: spot.area, category: spot.category }}
-          />
-        )}
-        {user && <PlaceSaveToBoard spot={spot} />}
-        {/* P9: signed out, planning starts with an account; come back here after. */}
-        {!user && (
-          <Link href={`/login?next=/place/${spot.id}`} className="place-action place-action--secondary">
-            Plan a night here
-          </Link>
-        )}
+        <div className="mt-6 grid justify-items-start gap-3">
+          {user && (
+            <PlaceDirectPlanCta
+              spot={{ id: spot.id, name: spot.name, area: spot.area, category: spot.category }}
+            />
+          )}
+          {user && <PlaceSaveToBoard spot={spot} />}
+          {/* P9: signed out, planning starts with an account; come back here after. */}
+          {!user && (
+            <Link href={`/login?next=/place/${spot.id}`} className="place-action place-action--secondary">
+              Plan a night here
+            </Link>
+          )}
+        </div>
 
         {/* P9: back to where the card was (a plan passes ?from=), else Discover
             signed in or the front door signed out. */}

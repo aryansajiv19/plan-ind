@@ -37,6 +37,7 @@ test("only known facts become rows, each linked to the source that says it", () 
 
 test("an age rule shows even without sourced facts", () => {
   assert.deepEqual(venueFacts({ ...bare, minimum_age: 21 }).rows.map((row) => row.value), ["21+, bring ID"]);
+  assert.deepEqual(venueFacts({ ...bare, minimum_age: 14 }).rows.map((row) => row.value), ["14 and over"]);
 });
 
 test("spend reads in words, never a dash", () => {
