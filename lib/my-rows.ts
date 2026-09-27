@@ -12,6 +12,8 @@ export type MyRows = {
   ratingId: string | null;
   /** 069: this account's seat on the plan, as every row it writes carries it. */
   seatKey: string | null;
+  /** 075: the booking claim is this account's (booking_owner is only a name). */
+  myBooking: boolean;
 };
 
 export type Mine = {
@@ -23,13 +25,14 @@ export type Mine = {
 /** my_plan_rows' payload, or null when it is missing or malformed. */
 export function parseMyRows(data: unknown): MyRows | null {
   if (!data || typeof data !== "object") return null;
-  const raw = data as { votes?: unknown; rsvp_id?: unknown; rating_id?: unknown; seat_key?: unknown };
+  const raw = data as { votes?: unknown; rsvp_id?: unknown; rating_id?: unknown; seat_key?: unknown; my_booking?: unknown };
   if (!Array.isArray(raw.votes)) return null;
   return {
     voteIds: new Set(raw.votes.map((vote: { id?: unknown }) => vote.id).filter((id): id is string => typeof id === "string")),
     rsvpId: typeof raw.rsvp_id === "string" ? raw.rsvp_id : null,
     ratingId: typeof raw.rating_id === "string" ? raw.rating_id : null,
     seatKey: typeof raw.seat_key === "string" ? raw.seat_key : null,
+    myBooking: raw.my_booking === true,
   };
 }
 

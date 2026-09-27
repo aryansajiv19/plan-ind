@@ -1,6 +1,10 @@
-// Generates supabase/migration-070-catalogue-truth.sql from data/venue-facts.json.
-// Never hand-edit the migration: change the data or this script and re-run
+// Generates supabase/migration-070-catalogue-truth.sql from data/venue-facts.json,
+// and the marked catalogue block of migration 075. Never hand-edit either:
+// change the data or the lists below and re-run
 //   node scripts/gen-catalogue-truth.mjs
+// 070 is applied live, so it is frozen: its output must not change (CI can
+// check with `git diff --exit-code` after a run). Decisions made after it go
+// in the lists below tagged "075".
 // Rules (owner/lead decisions, 2026-09-27):
 //   - only non-null values are written; unknown stays as it is (null)
 //   - a field any checker note names is NOT written (it didn't survive the
@@ -14,6 +18,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 const root = new URL("..", import.meta.url);
 const facts = JSON.parse(readFileSync(new URL("data/venue-facts.json", root), "utf8"));
 const OUT = new URL("supabase/migration-070-catalogue-truth.sql", root);
+const OUT_075 = new URL("supabase/migration-075-member-booking.sql", root);
 
 const PERMANENTLY_CLOSED = {
   "81000000-0000-0000-0000-000000000003": "SKY2.0 Dubai",
@@ -29,9 +34,42 @@ const REOPENS_ON = {
 };
 // good_to_know here is a research note, not guest-facing text.
 const UNVERIFIED = { "Scoopi Cafe": true, "Garage Dubai": true };
+// Retired after 070 (owner decision 2026-09-27): emitted into 075.
+const RETIRED_075 = {
+  "20000000-0000-0000-0000-000000000002": "Scoopi Cafe",
+  "60000000-0000-0000-0000-000000000002": "Garage Dubai",
+};
+// Corrections that aren't facts-file fields, each in the migration that ships it.
+const CORRECTIONS = [
+  { migration: "070", sql: `-- Cove Beach moved from Caesars Palace, Bluewaters to La Vie, JBR (2024).
+update spots set area = 'La Vie, JBR' where id = '40000000-0000-0000-0000-000000000003' and source = 'curated';` },
+  { migration: "070", sql: `-- Iris left The Oberoi (2019) and now runs as Iris Harbour at Dubai Harbour.
+-- Category kept as 'shisha' although no source mentions shisha (flagged).
+update spots set name = 'Iris Harbour', area = 'Dubai Harbour'
+  where id = 'd0000000-0000-0000-0000-000000000004' and source = 'curated';` },
+  { migration: "075", sql: `-- Iris Harbour is a lounge: vibes, not shisha (owner decision 2026-09-27).
+update spots set category = 'vibes', cuisine = 'Lounge'
+  where id = 'd0000000-0000-0000-0000-000000000004' and source = 'curated';` },
+  { migration: "075", backedBy: { id: "a0000000-0000-0000-0000-000000000005", address: /Palm Jumeirah/ },
+    sql: `-- Tresind Studio is at St. Regis Gardens, Palm Jumeirah, not DIFC (its sourced
+-- address, written by 070). Coordinates unchanged: the facts file has none for
+-- the new site.
+update spots set area = 'Palm Jumeirah'
+  where id = 'a0000000-0000-0000-0000-000000000005' and source = 'curated';` },
+];
+const corrections = (migration) => CORRECTIONS.filter((c) => c.migration === migration).map((c) => c.sql).join("\n");
 
 const byId = new Map(facts.venues.map((v) => [v.id, v]));
-for (const [id, name] of [...Object.entries(PERMANENTLY_CLOSED), ...Object.entries(REOPENS_ON).map(([id, [n]]) => [id, n])]) {
+// A correction that restates the facts file must still agree with it, unflagged.
+for (const { backedBy } of CORRECTIONS.filter((c) => c.backedBy)) {
+  const v = byId.get(backedBy.id);
+  // Same field rule as the facts loop below: a note is "<field>: ...".
+  const flagged = (v?.checker_notes ?? []).some((note) => note.slice(0, note.indexOf(":")).match(/^[a-z_/]+/)?.[0] === "address");
+  if (!v || !backedBy.address.test(v.address ?? "") || flagged) {
+    throw new Error(`correction for ${backedBy.id}: the facts file no longer backs it (address or a checker note)`);
+  }
+}
+for (const [id, name] of [...Object.entries(PERMANENTLY_CLOSED), ...Object.entries(RETIRED_075), ...Object.entries(REOPENS_ON).map(([id, [n]]) => [id, n])]) {
   if (byId.get(id)?.name !== name) throw new Error(`closure list: ${id} is not ${name} in the facts file`);
 }
 
@@ -96,7 +134,7 @@ for (const v of facts.venues) {
     if (blocked.has(field)) { counts.skippedByChecker += 1; return; }
     set.push(`${column} = ${sql}`);
   };
-  const internalNote = PERMANENTLY_CLOSED[v.id] || REOPENS_ON[v.id] || UNVERIFIED[v.name];
+  const internalNote = PERMANENTLY_CLOSED[v.id] || RETIRED_075[v.id] || REOPENS_ON[v.id] || UNVERIFIED[v.name];
 
   put("address", "address", v.address);
   if (v.lat != null && v.lng != null) {
@@ -218,17 +256,27 @@ grant select (reopens_on, phone, website, licensed, dress_code, parking, reserva
 ${closures.join("\n")}
 
 -- ── Corrections ──────────────────────────────────────────────────────────────
--- Cove Beach moved from Caesars Palace, Bluewaters to La Vie, JBR (2024).
-update spots set area = 'La Vie, JBR' where id = '40000000-0000-0000-0000-000000000003' and source = 'curated';
--- Iris left The Oberoi (2019) and now runs as Iris Harbour at Dubai Harbour.
--- Category kept as 'shisha' although no source mentions shisha (flagged).
-update spots set name = 'Iris Harbour', area = 'Dubai Harbour'
-  where id = 'd0000000-0000-0000-0000-000000000004' and source = 'curated';
+${corrections("070")}
 
 -- ── Facts ────────────────────────────────────────────────────────────────────
 ${updates.join("\n\n")}
 `;
 
 writeFileSync(OUT, sql);
+
+// 075's catalogue block, between its markers; the rest of 075 is hand-written.
+const BEGIN = "-- BEGIN GENERATED by scripts/gen-catalogue-truth.mjs -- edit its lists, not this block\n";
+const END = "-- END GENERATED\n";
+const m075 = readFileSync(OUT_075, "utf8");
+if (!m075.includes(BEGIN) || !m075.includes(END)) throw new Error("075: generated-block markers not found");
+const [head, rest] = [m075.slice(0, m075.indexOf(BEGIN)), m075.slice(m075.indexOf(END) + END.length)];
+const block = `-- Catalogue decisions made after 070 was applied (070 is frozen). A retired
+-- curated row leaves the deal pool, the wall and Discover; plans that already
+-- hold it still read it.
+${Object.entries(RETIRED_075).map(([id, name]) =>
+  `update spots set visibility = 'private' where id = '${id}' and source = 'curated'; -- ${name}: retired (owner decision 2026-09-27)`).join("\n")}
+${corrections("075")}
+`;
+writeFileSync(OUT_075, head + BEGIN + block + END + rest);
 console.log(JSON.stringify(counts));
 for (const f of flagged) console.log("flag:", f);
