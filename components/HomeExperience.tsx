@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import DemoAccountViews from "@/components/DemoAccountViews";
-import AccountViews from "@/components/AccountViews";
 import type { PersonCard, ProfileVisit, Spot, WrappedSummary, WrappedSummaryError } from "@/lib/types";
 import type { PlannedWith, VisitCollectionView, VisitPhotoView } from "@/lib/social";
 import StartPlanForm from "@/components/StartPlanForm";
@@ -20,8 +19,14 @@ import { APP_VIEWS, VIEW_LABELS, WALL_SIZE, viewFromParam, type AppView } from "
 import ActionSearchBar from "@/components/kokonutui/action-search-bar";
 import { greetingFor } from "@/lib/right-now";
 
-
-
+// The account tabs are most of this component's weight and the signed-out
+// landing never renders them, so they load as their own chunks. Still
+// server-rendered, so a deep link (?view=profile) paints complete; the
+// placeholder only shows during an in-app tab switch, and holds a screen's
+// height so the footer doesn't jump up and back.
+const viewLoading = () => <div aria-busy="true" style={{ minHeight: "100dvh" }} />;
+const AccountViews = dynamic(() => import("@/components/AccountViews"), { loading: viewLoading });
+const DemoAccountViews = dynamic(() => import("@/components/DemoAccountViews"), { loading: viewLoading });
 
 export default function HomeExperience({
   name,
