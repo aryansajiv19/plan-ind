@@ -16,7 +16,9 @@ import { motion, useReducedMotion } from "motion/react";
  * carrying state. This is a one-shot entrance, so it costs nothing against
  * that budget.
  *
- * Under reduced motion it renders at the final weight immediately.
+ * Under reduced motion it lands on the final weight at once. The initial
+ * state is the same either way: the server can't read the preference, so
+ * branching the markup on it was a hydration mismatch.
  *
  * Always a <span>. It used to take an `as` prop and build the element with
  * motion.create(), which returns a new component type per call — that
@@ -45,20 +47,12 @@ export default function WeightRise({
   className?: string;
 }) {
   const reduced = useReducedMotion();
-  if (reduced) {
-    return (
-      <span className={className} style={{ fontVariationSettings: `"wght" ${to}` }}>
-        {children}
-      </span>
-    );
-  }
-
   return (
     <motion.span
       className={className}
       initial={{ fontVariationSettings: `"wght" ${from}` }}
       animate={{ fontVariationSettings: `"wght" ${to}` }}
-      transition={{ duration, delay, ease: [0.16, 1, 0.3, 1] }}
+      transition={reduced ? { duration: 0 } : { duration, delay, ease: [0.16, 1, 0.3, 1] }}
     >
       {children}
     </motion.span>
