@@ -18,3 +18,5 @@ export function viewFromParam(value: string | null | undefined): AppView {
 
 /** Tiles on the "Dubai, right now" wall (landing and /demo). */
 export const WALL_SIZE = 18;
+/** P28: the cached curated pool the landing picks its wall from, per request. */
+export const WALL_POOL = 80;

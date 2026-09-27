@@ -1,7 +1,8 @@
 import HomeExperience from "@/components/HomeExperience";
 import { curatedWall } from "@/lib/spots/catalogue";
 import type { Spot } from "@/lib/types";
-import { viewFromParam, WALL_SIZE } from "@/lib/home-views";
+import { viewFromParam, WALL_POOL, WALL_SIZE } from "@/lib/home-views";
+import { greetingFor, pickRightNow } from "@/lib/right-now";
 
 // The public demo: the account tabs filled with DemoAccountViews' fixtures,
 // so someone can see a finished plan, a visit log and a friends list without
@@ -20,8 +21,9 @@ export const dynamic = "force-dynamic";
 export default async function DemoPage({ searchParams }: { searchParams: Promise<{ view?: string }> }) {
   // The same bounded, cached catalogue sample as the landing page
   // (app/page.tsx). Without it the wall showed "no places in the catalog".
-  const { data } = await curatedWall(WALL_SIZE);
+  const { data } = await curatedWall(WALL_POOL);
+  const now = new Date();
   // The landing's tabs link here (?view=been): open that tab on first paint.
   const initialView = viewFromParam((await searchParams).view);
-  return <HomeExperience name="Aryan" demoMode fixtures initialView={initialView} spots={(data ?? []) as Spot[]} smartSearchAvailable={Boolean(process.env.OPENAI_API_KEY)} />;
+  return <HomeExperience name="Aryan" greeting={greetingFor(now)} demoMode fixtures initialView={initialView} spots={pickRightNow(data ?? [], now, WALL_SIZE) as unknown as Spot[]} smartSearchAvailable={Boolean(process.env.OPENAI_API_KEY)} />;
 }

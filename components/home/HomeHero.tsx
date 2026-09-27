@@ -43,7 +43,7 @@ export default function HomeHero({ greeting, name, fixtures, spots }: { greeting
     <section id="top" ref={heroRef} className="home-hero" aria-labelledby="home-title">
       <div className="home-hero__copy">
         <p className="home-hello home-reveal" style={{ "--delay": "80ms" } as React.CSSProperties}>
-          {greeting}, {name}.
+          {greeting}{name ? `, ${name}` : ""}.
         </p>
 
         <h1 id="home-title" className="home-title" aria-label="Dubai plans without the group chat.">

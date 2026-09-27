@@ -11,7 +11,6 @@ import type { PlanPrefill } from "@/lib/board-plan";
 import { takeDraft } from "@/lib/plan-draft";
 import type { CuratedCounts } from "@/lib/spots/catalogue";
 import { haptic } from "@/lib/interaction";
-import { dubaiHour } from "@/lib/dubai-phase";
 import PhotoWall, { type WallItem } from "@/components/PhotoWall";
 import HomeHero from "@/components/home/HomeHero";
 import LandingNav from "@/components/landing/LandingNav";
@@ -19,20 +18,14 @@ import HowItWorks from "@/components/landing/HowItWorks";
 import YourPlans, { type PlanSummary } from "@/components/home/YourPlans";
 import { APP_VIEWS, VIEW_LABELS, WALL_SIZE, viewFromParam, type AppView } from "@/lib/home-views";
 import ActionSearchBar from "@/components/kokonutui/action-search-bar";
+import { greetingFor } from "@/lib/right-now";
 
 
-// On the Dubai clock, like everything else here (the landing's clock chip).
-function greetingFor(now: Date): string {
-  const hour = dubaiHour(now);
-  if (hour < 5) return "Still up";
-  if (hour < 12) return "Good morning";
-  if (hour < 17) return "Good afternoon";
-  return "Good evening";
-}
 
 
 export default function HomeExperience({
   name,
+  greeting: serverGreeting,
   emoji = null,
   age = 21,
   demoMode = false,
@@ -57,6 +50,8 @@ export default function HomeExperience({
   photos = [],
 }: {
   name: string;
+  /** P28: computed on the server on the Dubai clock, so the first paint says it. */
+  greeting?: string;
   /** The account's chosen emoji, or null when none is chosen. */
   emoji?: string | null;
   age?: number;
@@ -96,7 +91,7 @@ export default function HomeExperience({
   // Resolved after mount so it matches the reader's clock rather than the
   // server's, and so the markup is stable for hydration. The hero has always
   // said "Good evening" regardless of the hour.
-  const greeting = ready ? greetingFor(new Date()) : "Hello";
+  const greeting = serverGreeting ?? (ready ? greetingFor(new Date()) : "Hello");
   const [selectedView, setSelectedView] = useState<AppView>(initialView);
   // Set by "Plan from this board"; keyed so the composer remounts with it.
   const [planPrefill, setPlanPrefill] = useState<PlanPrefill | null>(null);
@@ -273,7 +268,7 @@ export default function HomeExperience({
       <HomeHero greeting={greeting} name={name} fixtures={fixtures} spots={spots} />
       ) : (
         <section id="top" className="home-appbar" aria-labelledby="home-title">
-          <p className="home-appbar__hello">{greeting}, {name}.</p>
+          <p className="home-appbar__hello">{greeting}{name ? `, ${name}` : ""}.</p>
           <h1 id="home-title" className="home-appbar__title">What are we doing?</h1>
         </section>
       )}
