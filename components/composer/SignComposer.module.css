@@ -5,6 +5,20 @@
    dark until the plan has a title. Scoped by .lab on #plan-lab; the global
    classes it restyles keep their old look elsewhere. Plates carry their own
    ground, so they read on the day and the night card. Palette: SignWorld. */
+/* One column at every width: the intro heads the section and the counter
+   takes the full width, so the deck shows most of its nine places at once
+   instead of a narrow form beside an empty column. */
+.lab.lab {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.5rem;
+}
+.lab.lab :global(.home-plan-section__intro) {
+  position: static;
+}
+.lab.lab :global(.home-plan-section__intro) h2,
+.lab.lab :global(.home-plan-section__intro) > :global(.home-plan-steps__lede) {
+  max-width: 44rem;
+}
 .lab :global(.home-section-kicker) {
   font-family: var(--font-sign), system-ui, sans-serif;
   font-size: 1.05rem;
