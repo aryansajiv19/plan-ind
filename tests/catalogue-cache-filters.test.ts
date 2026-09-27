@@ -250,3 +250,23 @@ test("eligibleCount counts what a deal could draw for each budget, radius and ag
   assert.ok(eligibleDealSpots({ pool, count: 3, constraints: c, today }));
   assert.equal(eligibleDealSpots({ pool, count: 4, constraints: c, today }), null);
 });
+
+// ── P26: the deal carries its cards ──────────────────────────────────────────
+test("a deal's spots line up with its ids, and a photo never travels without its credit", async () => {
+  const { dealCard } = await import("../lib/spots/match.ts");
+  const pool = [
+    spot("a", { photo_url: "https://img.example/a.jpg", photo_attribution: "Photo: A Venue" }),
+    spot("b"),
+    spot("c", { min_spend: 250 }),
+  ];
+  const outcome = await dealSpotIds(ratingsDb().db, { category: "dinner", count: 3, constraints: { age: 25 }, rng: () => 0.3 }, async () => pool);
+  assert.ok("ids" in outcome);
+  assert.deepEqual(outcome.spots.map((s) => s.id), outcome.ids);
+  const cards = outcome.spots.map(dealCard);
+  const a = cards.find((c) => c.id === "a")!;
+  assert.deepEqual([a.photo_url, a.photo_attribution], ["https://img.example/a.jpg", "Photo: A Venue"]);
+  const b = cards.find((c) => c.id === "b")!;
+  assert.deepEqual([b.photo_url, b.photo_attribution], [null, null]);
+  assert.equal(cards.find((c) => c.id === "c")!.min_spend, 250);
+  assert.deepEqual(Object.keys(a).sort(), ["area", "id", "min_spend", "name", "photo_attribution", "photo_url"]);
+});

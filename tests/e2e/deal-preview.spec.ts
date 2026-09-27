@@ -44,3 +44,28 @@ test("an unknown category or area is a 400, not a guess", async ({ context, base
   expect((await page.request.get("/api/spots/deal/preview?category=nope")).status()).toBe(400);
   expect((await page.request.get("/api/spots/deal/preview?category=dinner&origin=mars")).status()).toBe(400);
 });
+
+// P26: POST /api/spots/deal returns cards alongside ids, same order.
+test("a deal returns its cards, one per id and in the same order", async ({ context, baseURL, page }) => {
+  test.skip(!canProvision(), "needs the local stack to mint an account");
+  await signInAsMember(context, baseURL!, "Dealer");
+  // The route's double-submit CSRF check, as the app's own fetch does it.
+  const csrf = "e2e-csrf-" + Date.now();
+  await context.addCookies([{ name: "__Host-csrf", value: csrf, url: baseURL!, secure: true, sameSite: "Lax" }]);
+  const res = await page.request.post("/api/spots/deal", {
+    headers: { origin: new URL(baseURL!).origin, "x-csrf-token": csrf, "sec-fetch-site": "same-origin", "content-type": "application/json" },
+    data: { category: "dinner", count: 3 },
+  });
+  expect(res.status(), await res.text()).toBe(200);
+  const body = await res.json() as {
+    ids: string[] | null;
+    cards?: { id: string; name: string; area: string; min_spend: number; photo_url: string | null; photo_attribution: string | null }[];
+  };
+  expect(body.ids).toHaveLength(3);
+  expect(body.cards!.map((c) => c.id)).toEqual(body.ids);
+  for (const card of body.cards!) {
+    expect(card.name.length).toBeGreaterThan(0);
+    expect(typeof card.min_spend).toBe("number");
+    expect(card).toHaveProperty("photo_attribution"); // the credit travels with the photo, even when null
+  }
+});

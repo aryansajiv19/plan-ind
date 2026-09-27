@@ -29,6 +29,9 @@ export interface DealSpotRow {
   // one has reopens_on. Optional so hand-built pools (tests) stay valid.
   visibility?: string | null;
   reopens_on?: string | null;
+  // P26: the deal can show real cards. Optional so hand-built pools stay valid.
+  photo_url?: string | null;
+  photo_attribution?: string | null;
 }
 
 export interface DealRatingRow {
@@ -51,7 +54,7 @@ export type SpotAffinity = (spot: DealSpotRow) => number | null;
 const noAffinity: SpotAffinity = () => null;
 
 export const DEAL_SPOT_COLUMNS =
-  "id,name,category,area,cuisine,min_spend,vibe,description,latitude,longitude,minimum_age,visibility,reopens_on";
+  "id,name,category,area,cuisine,min_spend,vibe,description,latitude,longitude,minimum_age,visibility,reopens_on,photo_url,photo_attribution";
 
 /** Today's calendar date in Dubai, as YYYY-MM-DD (reopens_on is a Dubai date). */
 export function dubaiToday(now: Date = new Date()): string {
@@ -294,7 +297,23 @@ export function livePoolLoader(db: Db): DealPoolLoader {
  * nothing is known about the pool -- never report that as `tooFew`, or a
  * database blip tells the host to raise their budget.
  */
-export type DealOutcome = { ids: string[] } | { tooFew: true } | { unavailable: true };
+export type DealOutcome = { ids: string[]; spots: DealSpotRow[] } | { tooFew: true } | { unavailable: true };
+
+/** What the deal reveal shows per card (P26). A photo always travels with its credit (licence). */
+export interface DealCard {
+  id: string;
+  name: string;
+  area: string;
+  min_spend: number;
+  photo_url: string | null;
+  photo_attribution: string | null;
+}
+export function dealCard(spot: DealSpotRow): DealCard {
+  return {
+    id: spot.id, name: spot.name, area: spot.area, min_spend: spot.min_spend,
+    photo_url: spot.photo_url ?? null, photo_attribution: spot.photo_attribution ?? null,
+  };
+}
 
 export async function dealSpotIds(db: Db, input: {
   category: string;
@@ -339,5 +358,7 @@ export async function dealSpotIds(db: Db, input: {
   }
 
   const dealt = dealFromPool({ ...input, pool, ratings });
-  return dealt ? { ids: dealt } : { tooFew: true };
+  if (!dealt) return { tooFew: true };
+  const byId = new Map(pool.map((spot) => [spot.id, spot]));
+  return { ids: dealt, spots: dealt.map((id) => byId.get(id)!) }; // spots[i] is ids[i]
 }
