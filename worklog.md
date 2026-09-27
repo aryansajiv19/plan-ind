@@ -447,3 +447,6 @@ control has no UI yet.
   above the fold at 1440 and 390, "Tune it" as native details with a text
   summary; a 390px sideways-scroll bug fixed; impeccable critique run and its
   P1/P2 items fixed. ui-implementation skill: stale "restraint block" removed.
+- **P31 client:** "Your plans" badges for stages changed since you last
+  looked ("Final round open · 5m ago"); the host gets a one-tap WhatsApp nudge
+  when the final round opens. Verified live with two accounts.
