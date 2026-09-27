@@ -1,5 +1,6 @@
 import type { Plan, Spot } from "@/lib/types";
-import { driveMinutesEstimate, googleMapsUrl, haversineKm, isDubaiRushHour } from "@/lib/directions";
+import { driveMinutesEstimate, googleMapsUrl, isDubaiRushHour } from "@/lib/directions";
+import { distanceKm } from "@/lib/dubai-areas";
 import { useMinuteClock } from "@/hooks/use-minute-clock";
 import GetThere from "@/components/GetThere";
 import { metroLine } from "@/lib/dubai-metro";
@@ -14,12 +15,14 @@ import VenueMap from "@/components/VenueMap";
 // The drive time is a labelled rush-hour estimate (lib/directions.ts).
 
 export default function GettingThere({ plan, winner }: { plan: Pick<Plan, "origin_latitude" | "origin_longitude" | "origin_label">; winner: Spot }) {
-  const route =
+  const km =
     plan.origin_latitude != null && plan.origin_longitude != null
     && winner.latitude != null && winner.longitude != null
-      ? [plan.origin_latitude, plan.origin_longitude, winner.latitude, winner.longitude] as const
+      ? distanceKm(
+        { latitude: plan.origin_latitude, longitude: plan.origin_longitude },
+        { latitude: winner.latitude, longitude: winner.longitude },
+      )
       : null;
-  const km = route ? haversineKm(...route) : null;
   const drive = km != null ? driveMinutesEstimate(km) : null;
   // The estimate is at peak speed: say "in rush hour" only at the peaks (P16).
   const now = useMinuteClock();

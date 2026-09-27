@@ -129,10 +129,18 @@ function shuffle<T>(arr: T[], rng: () => number): T[] {
 }
 
 /**
- * Hard filters, then the soft "been" filter. Returns null when the catalog
- * cannot fill the deal. Pure.
+ * Whole words only, so avoiding "bar" skips a wine bar but not "Barbecue" or
+ * "Al Barsha". A letter or digit in any script counts as part of a word: \b
+ * is ASCII-only and would misread "café" or Arabic.
  */
-/** A spot passes every hard filter (not "been", which is soft). Pure. */
+function avoidMatcher(keywords: readonly string[] = []): (spot: DealSpotRow) => boolean {
+  if (keywords.length === 0) return () => false;
+  const words = keywords.map((keyword) => keyword.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const pattern = new RegExp(`(?<![\\p{L}\\p{N}])(?:${words.join("|")})(?![\\p{L}\\p{N}])`, "u");
+  return (spot) => pattern.test(searchText(spot));
+}
+
+/** A spot passes every hard filter (not avoid or "been", which are soft). Pure. */
 function passesHardFilters(spot: DealSpotRow, constraints: DealConstraints, today: string): boolean {
   // Evaluated per deal, not in the cached pool read: the cache isn't keyed by
   // date, so a query filter there could hide a place for an hour after it reopens.
@@ -147,8 +155,6 @@ function passesHardFilters(spot: DealSpotRow, constraints: DealConstraints, toda
       : coordinatesForArea(spot.area);
     if (!destination || distanceKm(constraints.origin, destination) > constraints.radiusKm) return false;
   }
-  const text = searchText(spot);
-  if (constraints.avoidKeywords?.some((keyword) => text.includes(keyword.toLowerCase()))) return false;
   return true;
 }
 
@@ -162,6 +168,11 @@ export function eligibleCount(pool: readonly DealSpotRow[], constraints: DealCon
   return pool.filter((spot) => passesHardFilters(spot, constraints, today)).length;
 }
 
+/**
+ * Hard filters, then the soft avoid and "been" filters, each dropping spots
+ * only while the rest can still fill the deal. Returns null when the catalog
+ * cannot fill the deal. Pure.
+ */
 export function eligibleDealSpots(input: {
   pool: readonly DealSpotRow[];
   count: number;
@@ -176,9 +187,15 @@ export function eligibleDealSpots(input: {
   const available = input.pool.filter((spot) => !excluded.has(spot.id) && passesHardFilters(spot, constraints, today));
   if (available.length < input.count) return null;
 
+  // Too few left without the avoided spots: keep them, and dealFromPool
+  // draws them last. An avoid word must never turn a full deal into none.
+  const avoided = avoidMatcher(constraints.avoidKeywords);
+  const wanted = available.filter((spot) => !avoided(spot));
+  const candidates = wanted.length < input.count ? available : wanted;
+
   const been = new Set(input.been ?? []);
-  const eligible = available.filter((spot) => !been.has(spot.id));
-  return eligible.length < input.count ? available : eligible; // never block on "been"
+  const eligible = candidates.filter((spot) => !been.has(spot.id));
+  return eligible.length < input.count ? candidates : eligible; // never block on "been"
 }
 
 /**
@@ -230,9 +247,12 @@ export function dealFromPool(input: {
   // the usual shortlist-and-shuffle inside the tier that crosses the count.
   // The old single sort gave the exact category a +2 bias and then shuffled
   // the top 2x count, which on a family of ~20 spots erased the bias entirely.
+  // An avoided spot (only here when the rest can't fill the deal) sits in a
+  // tier past every category, so it fills only what is left.
+  const avoided = avoidMatcher(constraints.avoidKeywords);
   const tiers = new Map<number, DealSpotRow[]>();
   for (const spot of ranked) {
-    const d = categoryDistance(input.category, spot.category);
+    const d = categoryDistance(input.category, spot.category) + (avoided(spot) ? 100 : 0);
     tiers.set(d, [...(tiers.get(d) ?? []), spot]);
   }
   const picked: DealSpotRow[] = [];

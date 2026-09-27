@@ -12,24 +12,6 @@
 import { googleMapsPlaceUrl } from "./places/maps-url.ts";
 import { dubaiHour } from "./dubai-phase.ts";
 
-const EARTH_RADIUS_KM = 6371;
-
-/** Straight-line distance in km between two points — pure math, no API. */
-export function haversineKm(
-  originLat: number,
-  originLng: number,
-  destLat: number,
-  destLng: number,
-): number {
-  const toRad = (deg: number) => (deg * Math.PI) / 180;
-  const dLat = toRad(destLat - originLat);
-  const dLng = toRad(destLng - originLng);
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(originLat)) * Math.cos(toRad(destLat)) * Math.sin(dLng / 2) ** 2;
-  return EARTH_RADIUS_KM * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
-
 export const ROAD_CIRCUITY = 1.3;
 export const DUBAI_RUSH_HOUR_KMH = 26.3;
 const DRIVE_ESTIMATE_KM = { min: 1, max: 40 } as const;

@@ -8,9 +8,9 @@ import {
   isDubaiRushHour,
   uberUrl,
   googleMapsUrl,
-  haversineKm,
   mapEmbedUrl,
 } from "../lib/directions.ts";
+import { distanceKm } from "../lib/dubai-areas.ts";
 
 const zuma = { name: "Zuma", area: "DIFC", latitude: 25.2136, longitude: 55.2821 };
 const noCoords = { name: "Ravi Restaurant", area: "Al Satwa", latitude: null, longitude: null };
@@ -28,8 +28,8 @@ test("drive estimate stays out where it would mislead", () => {
   assert.equal(driveMinutesEstimate(Number.NaN), null);
 });
 
-test("haversine: Marina to DIFC is about 20 km straight line", () => {
-  const km = haversineKm(25.0805, 55.1403, 25.2136, 55.2821);
+test("distanceKm: Marina to DIFC is about 20 km straight line", () => {
+  const km = distanceKm({ latitude: 25.0805, longitude: 55.1403 }, { latitude: 25.2136, longitude: 55.2821 });
   assert.ok(km > 19 && km < 21, String(km));
 });
 

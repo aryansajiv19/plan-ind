@@ -34,7 +34,7 @@ export default function ProfileTab({
       <div className="demo-profile-stats">
         <span><strong>{stats.places}</strong> places</span>
         <span><strong>{stats.total}</strong> visits</span>
-        <span><strong>{plannedWith.length}</strong> people</span>
+        <span><strong>{plannedWith.length}</strong> went out with</span>
       </div>
 
       {stats.areas.length > 0 ? (

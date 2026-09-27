@@ -2,7 +2,7 @@
 // the metro?" without a transit API (P17). From OpenStreetMap via Overpass,
 // snapshot 2026-09-27 (data/venue-facts.json), © OpenStreetMap contributors,
 // ODbL. Stations on both lines (Union, BurJuman) carry both.
-import { haversineKm } from "./directions.ts";
+import { distanceKm } from "./dubai-areas.ts";
 
 export interface MetroStation { name: string; lines: ("Red" | "Green")[]; lat: number; lng: number }
 
@@ -74,7 +74,7 @@ export function nearestStation(latitude: number | null, longitude: number | null
   if (latitude == null || longitude == null) return null;
   let best: { station: MetroStation; km: number } | null = null;
   for (const station of METRO_STATIONS) {
-    const km = haversineKm(latitude, longitude, station.lat, station.lng);
+    const km = distanceKm({ latitude, longitude }, { latitude: station.lat, longitude: station.lng });
     if (!best || km < best.km) best = { station, km };
   }
   if (!best) return null;

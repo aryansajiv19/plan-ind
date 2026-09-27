@@ -45,14 +45,14 @@ export default function WrappedRecap({
       summary.topGroup ? `${summary.topGroup} was my most active group` : null,
       summary.topCategory ? `${summary.topCategory} was my most visited category` : null,
     ].filter((detail): detail is string => detail !== null);
-    const text = `My Planind Wrapped for ${summary.periodLabel}: ${details.join(", ")}.`;
+    const text = `My Deal three Wrapped for ${summary.periodLabel}: ${details.join(", ")}.`;
 
     sharingInFlight.current = true;
     setSharing(true);
     try {
       if (navigator.share) {
         try {
-          await navigator.share({ title: "My Planind Wrapped", text });
+          await navigator.share({ title: "My Deal three Wrapped", text });
           announce("Wrapped shared.");
           return;
         } catch (error) {
@@ -90,7 +90,7 @@ export default function WrappedRecap({
     <section className="demo-wrapped" aria-labelledby="wrapped-title">
       <div>
         <p className="home-section-kicker">Your month in plans</p>
-        <h2 id="wrapped-title">Planind Wrapped</h2>
+        <h2 id="wrapped-title">Deal three Wrapped</h2>
         <p>A small recap of the places, people and decisions that shaped your month.</p>
       </div>
 

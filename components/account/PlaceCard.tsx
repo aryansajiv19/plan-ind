@@ -4,6 +4,7 @@ import { canOptimiseImage } from "@/lib/image-src";
 import SaveToBoard from "@/components/account/SaveToBoard";
 import type { MoodboardsState } from "@/components/account/useMoodboards";
 import { categoryLabel, categoryMeta } from "@/lib/categories";
+import { hoursLabel } from "@/lib/open-hours";
 import type { Spot } from "@/lib/types";
 
 function priceLabel(spot: Spot): string {
@@ -23,6 +24,7 @@ export default function PlaceCard({
   boards?: MoodboardsState;
 }) {
   const meta = categoryMeta(spot.category);
+  const hours = hoursLabel(spot.open_till);
   return (
     <article
       className={`demo-place-card ${spot.photo_url ? "" : "demo-place-card--flat"}`}
@@ -38,7 +40,7 @@ export default function PlaceCard({
       <div className="demo-place-card__body">
         <div className="demo-place-card__meta">
           <span>{spot.cuisine || categoryLabel(spot.category)}</span>
-          <span>Open till {spot.open_till}</span>
+          {hours && <span>{hours}</span>}
         </div>
         <h2>{spot.name}</h2>
         <p className="demo-place-card__area">{spot.area} · {priceLabel(spot)}</p>
