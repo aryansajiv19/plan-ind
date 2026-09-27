@@ -168,8 +168,9 @@ export default function HomeExperience({
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
-      // The theme is applied by ThemeSync against <html>; this effect only
-      // opens the entrance now.
+      // Hydrated: the greeting may follow this device's clock, and the class
+      // marks it for tests (theme-park). The hero's entrance no longer waits
+      // for this; it is CSS from first paint.
       setReady(true);
     });
     return () => window.cancelAnimationFrame(frame);

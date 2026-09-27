@@ -308,28 +308,24 @@
   font-weight: 500;
 }
 
+/* The hero's entrance runs from first paint, in CSS. It used to wait for a
+   class set after hydration, which kept the whole hero, the page's LCP, at
+   opacity 0 until the JS had booted (LCP 9.6s on Lighthouse mobile). */
 .home-title__line {
   display: block;
   white-space: nowrap;
-  transform: translateY(1.15em);
-  opacity: 0;
-  transition: transform 850ms cubic-bezier(0.16, 1, 0.3, 1), opacity 500ms ease;
 }
-
-.home-experience--ready .home-title__line {
-  transform: translateY(0);
-  opacity: 1;
+@media (prefers-reduced-motion: no-preference) {
+  .home-title__line { animation: home-rise-line 850ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .home-title__line--one { animation-delay: 260ms; }
+  .home-title__line--two { animation-delay: 390ms; }
+  .home-title__line--three { animation-delay: 510ms; }
+  .home-reveal { animation: home-rise-reveal 750ms cubic-bezier(0.16, 1, 0.3, 1) var(--delay, 0ms) both; }
+  .home-title strong::after { animation: home-underline 650ms cubic-bezier(0.16, 1, 0.3, 1) 900ms both; }
 }
-
-.home-title__line--one {
-  transition-delay: 260ms;
-}
-.home-title__line--two {
-  transition-delay: 390ms;
-}
-.home-title__line--three {
-  transition-delay: 510ms;
-}
+@keyframes home-rise-line { from { transform: translateY(1.15em); opacity: 0; } 60% { opacity: 1; } }
+@keyframes home-rise-reveal { from { transform: translateY(1.5rem); opacity: 0; } 80% { opacity: 1; } }
+@keyframes home-underline { from { transform: scaleX(0) rotate(-1deg); } }
 
 .home-title em {
   color: var(--color-grape);
@@ -356,13 +352,8 @@
   height: 0.055em;
   border-radius: 99px;
   background: var(--home-metal);
-  transform: scaleX(0) rotate(-1deg);
-  transform-origin: left;
-  transition: transform 650ms cubic-bezier(0.16, 1, 0.3, 1) 900ms;
-}
-
-.home-experience--ready .home-title strong::after {
   transform: scaleX(1) rotate(-1deg);
+  transform-origin: left;
 }
 
 .home-deck {
@@ -417,13 +408,6 @@
   text-underline-offset: 5px;
 }
 
-.home-reveal {
-  --delay: 0ms;
-  opacity: 0;
-  transform: translateY(1.5rem);
-  transition: opacity 600ms ease var(--delay), transform 750ms cubic-bezier(0.16, 1, 0.3, 1) var(--delay);
-}
-
 /* Real vote UI outside the vote page (LiveVoteLoop, HowItWorks): the vote
    theme applies, its fixed page backdrop must not. Two classes, because
    vote.css loads later and would otherwise win, painting that backdrop over
@@ -447,11 +431,6 @@
 /* An illustration, not a ballot: your pick shows as the "Y" face. */
 .live-vote .vote-option__choice {
   display: none;
-}
-
-.home-experience--ready .home-reveal {
-  opacity: 1;
-  transform: translateY(0);
 }
 
 .home-stage {
