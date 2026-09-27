@@ -389,9 +389,10 @@ describe("069 a late link-holder can't lock the host out", { skip: SKIP }, () =>
     await as(voter, `select cast_plan_vote('${p.id}','${p.spots[0]}','V',true,'pool',1::smallint,'${hash()}')`);
     const migration = new URL("../supabase/migration-069-plan-lifecycle.sql", import.meta.url).pathname;
     const { stdout } = await execFileAsync("psql", [DB_URL, "-X", "-q", "-A", "-t", "--no-psqlrc", "-v", "ON_ERROR_STOP=1",
-      "-c", `begin; alter table plans disable trigger plans_stamp_decided_at;
-             update plans set status = 'decided', stage = 'decided', decided_at = null, winner_spot_id = '${p.spots[0]}' where id = '${p.id}';
-             alter table plans enable trigger plans_stamp_decided_at;`,
+      // No DDL (it deadlocked parallel test files): the stamp trigger only fires
+      // on a status update, so a second, decided_at-only update can clear it.
+      "-c", `begin; update plans set status = 'decided', stage = 'decided', winner_spot_id = '${p.spots[0]}' where id = '${p.id}';
+             update plans set decided_at = null where id = '${p.id}';`,
       "-f", migration,
       "-c", `select (decided_at = (select max(created_at) from votes where plan_id = '${p.id}'))::text from plans where id = '${p.id}'`,
       "-c", "rollback"], { timeout: 60000 });

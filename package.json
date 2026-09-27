@@ -12,7 +12,7 @@
     "test": "node --experimental-strip-types --import ./tests/register-aliases.mjs --test \"tests/*.test.ts\"",
     "test:smoke": "node scripts/smoke-test.mjs",
     "test:smoke:020": "node scripts/smoke-test.mjs --020",
-    "test:db": "node --experimental-strip-types --test \"tests/*.dbtest.ts\"",
+    "test:db": "node --experimental-strip-types --test --test-concurrency=1 \"tests/*.dbtest.ts\"",
     "eval:ai": "node --env-file=.env.local --experimental-strip-types scripts/eval-smart-search.ts",
     "places:backfill": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./tests/register-aliases.mjs scripts/places-backfill.ts",
     "test:e2e": "playwright test",
