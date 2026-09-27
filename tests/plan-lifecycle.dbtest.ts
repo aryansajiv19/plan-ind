@@ -227,3 +227,29 @@ describe("069 rating only after the outing (P11)", { skip: SKIP }, () => {
     assert.equal(await psql(`select count(*) from visits where id = '${va}'`), "0");
   });
 });
+
+// ── seat_key ────────────────────────────────────────────────────────────────
+describe("069 one seat per account per plan (seat_key)", { skip: SKIP }, () => {
+  test("two devices of one account share a seat; another account has its own; members can read it", async () => {
+    const [a, b] = [await user(), await user()];
+    const p = await plan(await user(), "now() + interval '1 day'", [a, b]);
+    // Device 1 votes, device 2 replies: two different participant hashes.
+    await as(a, `select cast_plan_vote('${p.id}','${p.spots[0]}','A',true,'pool',1::smallint,'${hash()}')`);
+    await as(a, `select set_plan_rsvp('${p.id}','A',true,'coming','${hash()}')`);
+    await as(b, `select cast_plan_vote('${p.id}','${p.spots[1]}','B',true,'pool',1::smallint,'${hash()}')`);
+
+    // Read as member B: the column is granted, user_id is not needed.
+    const seats = await as(b, `select
+      (select count(distinct participant_token_hash) from (
+         select participant_token_hash from votes where plan_id='${p.id}' and voter_name='A'
+         union all select participant_token_hash from rsvps where plan_id='${p.id}' and voter_name='A') d) || ',' ||
+      (select count(distinct seat_key) from (
+         select seat_key from votes where plan_id='${p.id}' and voter_name='A'
+         union all select seat_key from rsvps where plan_id='${p.id}' and voter_name='A') s) || ',' ||
+      (select count(distinct seat_key) from votes where plan_id='${p.id}')`);
+    assert.equal(seats, "2,1,2"); // two devices, one seat; two accounts, two seats
+
+    const mine = JSON.parse(await as(a, `select my_plan_rows('${p.id}')`));
+    assert.equal(mine.seat_key, await psql(`select seat_key from votes where plan_id='${p.id}' and user_id='${a}'`));
+  });
+});
