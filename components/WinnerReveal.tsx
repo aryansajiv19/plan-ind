@@ -2,6 +2,9 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
+import signStyles from "@/components/vote/SignVote.module.css";
+import { signLatin } from "@/components/landing/sign-fonts";
+import { signColourFor, type SignColour } from "@/components/landing/sign-palette";
 
 // Read via useSyncExternalStore, not a plain useEffect + setState: the
 // server has no matchMedia, so the client's first render must match its
@@ -105,10 +108,13 @@ export default function WinnerReveal({
   name,
   photoUrl,
   alt,
+  colour,
 }: {
   name: string;
   photoUrl?: string | null;
   alt: string;
+  /** Experimental track: the winner's sign colour (by place id where known). */
+  colour?: SignColour;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -278,7 +284,12 @@ export default function WinnerReveal({
   const showCanvas = !reducedMotion && phase === "particles";
 
   return (
-    <div className="winner-reveal" data-photo={photoUrl ? "true" : undefined}>
+    <div
+      className={`winner-reveal ${signStyles.winner} ${signLatin.variable}`}
+      data-photo={photoUrl ? "true" : undefined}
+      // Experimental track: the winner's own sign, powering on.
+      data-colour={colour ?? signColourFor(name)}
+    >
       {photoUrl && (
         <>
           <Image
@@ -303,7 +314,7 @@ export default function WinnerReveal({
           Hidden from view — not from layout — while the particles run. */}
       <h2
         ref={headingRef}
-        className="winner-reveal__name"
+        className={`winner-reveal__name ${signStyles.winnerName}`}
         data-hidden={showCanvas || undefined}
         style={settledPx ? { fontSize: `${settledPx}px` } : undefined}
       >

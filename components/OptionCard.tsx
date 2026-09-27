@@ -4,6 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import CountUp from "@/components/CountUp";
 import PhotoCredit from "@/components/PhotoCredit";
+import signStyles from "@/components/vote/SignVote.module.css";
+import { signArabic, signLatin } from "@/components/landing/sign-fonts";
+import { SIGN_ARABIC, signColourFor } from "@/components/landing/sign-palette";
 import { avatarStyle, initialsOf } from "@/lib/avatar";
 import type { Spot } from "@/lib/types";
 import { categoryMeta } from "@/lib/categories";
@@ -114,8 +117,11 @@ export default function OptionCard({
     <article
       data-selected={voted ? "" : undefined}
       data-locked={decided || closed ? "" : undefined}
+      // Experimental track: the place's sign colour, the same on every screen.
+      data-colour={signColourFor(spot.id)}
       className={[
         "opt token vote-option relative flex w-full flex-col bg-card text-left",
+        signStyles.card, signLatin.variable, signArabic.variable,
         isWinner ? "vote-option--winner z-[3]" : "",
         isLeader && !decided ? "vote-option--leader" : "",
         dimmed ? "opacity-55" : "",
@@ -126,7 +132,7 @@ export default function OptionCard({
       {/* A fixed 4:3 band so every card in a row starts its text at the same
           line: the venue photo with its licence credit, or the name set in
           the display serif on the raised surface. No hue either way. */}
-      <div className="vote-option__media">
+      <div className={`vote-option__media ${signStyles.band}`}>
         {photo ? (
           <>
             {/* unoptimized: same posture as the place page (no remotePatterns). */}
@@ -134,13 +140,16 @@ export default function OptionCard({
             <PhotoCredit spot={spot} />
           </>
         ) : (
-          <div className="vote-option__type">
-            <span className="vote-option__category inline-flex min-w-0 items-center gap-1.5 self-start px-2.5 py-1 text-xs font-bold">
-              <span aria-hidden="true">{cat.code}</span>
-              <span className="vote-option__cuisine">{spot.cuisine}</span>
+          <div className={`vote-option__type ${signStyles.type}`}>
+            <span className="flex items-baseline gap-2">
+              <span className={`vote-option__category ${signStyles.catline} inline-flex min-w-0 items-center gap-1.5 self-start px-2.5 py-1 text-xs font-bold`}>
+                <span aria-hidden="true">{cat.code}</span>
+                <span className="vote-option__cuisine">{spot.cuisine}</span>
+              </span>
+              {SIGN_ARABIC[spot.category] && <span className={signStyles.arabic} lang="ar" dir="rtl">{SIGN_ARABIC[spot.category]}</span>}
             </span>
-            <h3 className="mt-auto text-balance font-display text-3xl font-extrabold leading-[1.1] tracking-tight">{spot.name}</h3>
-            <p className="mt-1 text-xs font-medium text-muted">{spot.area} · from AED {spot.min_spend}pp</p>
+            <h3 className={`mt-auto text-balance font-display text-3xl font-extrabold leading-[1.1] tracking-tight ${signStyles.signName}`}>{spot.name}</h3>
+            <p className={`mt-2 text-xs font-medium ${signStyles.typeArea}`}>{spot.area} · from AED {spot.min_spend}pp</p>
           </div>
         )}
       </div>
@@ -153,7 +162,7 @@ export default function OptionCard({
             <span aria-hidden="true">{cat.code}</span>
             <span className="vote-option__cuisine">{spot.cuisine}</span>
           </span>
-          <h3 className="mt-2.5 font-display text-lg font-extrabold leading-tight tracking-tight">
+          <h3 className={`mt-2.5 font-display text-lg font-extrabold leading-tight tracking-tight ${signStyles.signName}`}>
             {spot.name}
           </h3>
           <p className="mt-0.5 text-xs font-medium text-muted">{spot.area}</p>

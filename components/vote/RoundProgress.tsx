@@ -1,3 +1,5 @@
+import signStyles from "@/components/vote/SignVote.module.css";
+import { signLatin } from "@/components/landing/sign-fonts";
 // Roman round markers are After Dark's, and night-only — "III" does not fit
 // the 2.1rem day dot. Always paired with the arabic original for assistive
 // tech, which reads "Round 3" properly and "Round III" as "Round eye-eye-eye".
@@ -37,18 +39,18 @@ export function RoundDots({
   poolCount,
   activePool,
   chosen,
-  nightMode,
   onSelect,
 }: {
   poolCount: number;
   activePool: number;
   /** Pool numbers this voter has already picked in. */
   chosen: ReadonlySet<number>;
-  nightMode: boolean;
+  /** Kept for callers; the sign strip reads the same by day and night. */
+  nightMode?: boolean;
   onSelect: (poolNumber: number) => void;
 }) {
   return (
-    <nav className="vote-pool-progress" aria-label="Voting pools">
+    <nav className={`vote-pool-progress ${signStyles.rounds} ${signLatin.variable}`} aria-label="Voting pools">
       {Array.from({ length: poolCount }, (_, index) => index + 1).map((poolNumber) => (
         <button
           key={poolNumber}
@@ -58,7 +60,8 @@ export function RoundDots({
           data-complete={chosen.has(poolNumber) || undefined}
           aria-label={`Round ${poolNumber} of ${poolCount}${chosen.has(poolNumber) ? ", chosen" : ""}`}
         >
-          <span aria-hidden="true">{nightMode ? roman(poolNumber) : poolNumber}</span>
+          {/* Experimental track: the rounds read as a sign strip. */}
+          <span aria-hidden="true">Round {poolNumber}</span>
         </button>
       ))}
     </nav>

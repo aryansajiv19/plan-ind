@@ -6,19 +6,13 @@ import type { Spot } from "@/lib/types";
 import { categoryMeta } from "@/lib/categories";
 import { signArabic, signLatin } from "@/components/landing/sign-fonts";
 import styles from "@/components/landing/SignStreet.module.css";
+import { SIGN_ARABIC } from "@/components/landing/sign-palette";
 
 // Experimental track: the landing as a street of lit shop signs. The deal
 // lights nine real places; each round switches two of three off, one beat per
 // round, until one sign stays lit. The places are real catalogue rows; the
 // rounds are a demonstration, and the caption says so.
 
-// Kufi category words, only where the Arabic is plain and certain; others
-// carry the code alone rather than a guessed translation.
-const ARABIC: Record<string, string> = {
-  dinner: "عشاء", cafe: "مقهى", dessert: "حلويات", shisha: "شيشة", beach: "شاطئ", beach_club: "نادي شاطئ",
-  sports: "رياضة", padel: "بادل", games: "ألعاب", movie: "سينما", culture: "ثقافة", karaoke: "كاريوكي",
-  nightlife: "سهرة", vibes: "سهرة", family: "عائلة", shopping: "تسوق",
-};
 
 // The locked sign palette cycles across the facade; no tints.
 const COLOURS = ["red", "yellow", "cobalt", "white", "green", "red", "cobalt", "yellow", "green"] as const;
@@ -76,7 +70,7 @@ export default function HomeHero({ greeting, name, fixtures, spots }: { greeting
           <ul className={styles.wall} aria-label="Nine real places a deal can draw from">
             {nine.map((spot, index) => {
               const { role: r, row } = role(index);
-              const arabic = ARABIC[spot.category];
+              const arabic = SIGN_ARABIC[spot.category];
               return (
                 <li
                   key={spot.id}

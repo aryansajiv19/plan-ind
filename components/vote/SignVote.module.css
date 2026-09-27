@@ -1,0 +1,170 @@
+/* Experimental track: the vote screen in the sign street's world. Cards are
+   lightboxes in the locked palette (colour fixed per place, so a place keeps
+   its sign from the landing to the winner), rounds are a sign strip, and the
+   winner powers on. Selectors are doubled where they must outrank vote.css,
+   whose order against a module is not guaranteed. Contrast as on the landing:
+   white on red 4.95, green 5.3, cobalt 7.3; ink on yellow and acrylic 13+. */
+.card,
+.rounds,
+.winner {
+  --sign-red: #d6282f;
+  --sign-green: #0e7c3a;
+  --sign-yellow: #ffd400;
+  --sign-cobalt: #1f46c8;
+  --sign-white: #f6f4ee;
+  --sign-ink: #141210;
+  --frame: #3b362e;
+  --off: #26221c;
+}
+.card[data-colour="red"], .winner[data-colour="red"] { --lit: radial-gradient(120% 100% at 50% 35%, #ea3a40, var(--sign-red) 70%); --ink: #fff; --strip: #8f1418; }
+.card[data-colour="green"], .winner[data-colour="green"] { --lit: radial-gradient(120% 100% at 50% 35%, #179a4a, var(--sign-green) 70%); --ink: #fff; --strip: #07501f; }
+.card[data-colour="yellow"], .winner[data-colour="yellow"] { --lit: radial-gradient(120% 100% at 50% 35%, #ffe45c, var(--sign-yellow) 70%); --ink: var(--sign-ink); --strip: var(--sign-ink); }
+.card[data-colour="cobalt"], .winner[data-colour="cobalt"] { --lit: radial-gradient(120% 100% at 50% 35%, #3a62e6, var(--sign-cobalt) 70%); --ink: #fff; --strip: #122a80; }
+.card[data-colour="white"], .winner[data-colour="white"] { --lit: radial-gradient(120% 100% at 50% 35%, #fff, var(--sign-white) 70%); --ink: var(--sign-ink); --strip: var(--sign-ink); }
+
+/* ── The card: a lightbox over its details ─────────────────────────── */
+.card.card {
+  border: 3px solid var(--frame);
+  border-radius: 0;
+}
+.card .band.band {
+  border-radius: 0;
+  border-bottom: 3px solid var(--frame);
+  background: var(--lit);
+}
+.card .type {
+  color: var(--ink);
+}
+.card .catline.catline {
+  border-left: 0;
+  padding-left: 0;
+  color: var(--ink);
+  font-family: var(--font-sign), system-ui, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+.card .arabic {
+  margin-left: auto;
+  font-family: var(--font-sign-arabic), system-ui, sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.card .signName.signName {
+  font-family: var(--font-sign), system-ui, sans-serif;
+  font-weight: 800;
+  line-height: 0.92;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+.card .typeArea.typeArea {
+  margin-inline: -1rem;
+  margin-bottom: -1rem;
+  padding: 0.35rem 1rem;
+  background: var(--strip);
+  color: #fff;
+}
+/* Your pick: a lit frame and a plate on the sign, beside the word on the button.
+   The frame replaces the old live-accent bar and tint. */
+.card.card[data-selected] {
+  border-color: #fff;
+  background: var(--color-card);
+  box-shadow: none;
+}
+.card.card[data-selected] .band::after {
+  content: none;
+}
+.card[data-selected] .band::before {
+  content: "Your pick";
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  z-index: 2;
+  padding: 0.2rem 0.5rem;
+  border: 2px solid var(--sign-ink);
+  background: var(--sign-white);
+  color: var(--sign-ink);
+  font-family: var(--font-sign), system-ui, sans-serif;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ── Rounds: a sign strip, still real buttons ──────────────────────── */
+.rounds.rounds {
+  gap: 0.4rem;
+}
+.rounds.rounds button {
+  min-width: 6.5rem;
+  min-height: 2.75rem;
+  padding: 0 0.9rem;
+  border: 2px solid var(--frame);
+  border-radius: 0;
+  background: var(--off);
+  color: #8e8676;
+  font-family: var(--font-sign), system-ui, sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.rounds.rounds button[data-complete="true"] {
+  background: var(--sign-white);
+  color: var(--sign-ink);
+}
+.rounds.rounds button[aria-current="step"] {
+  border-color: #fff;
+  background: var(--sign-yellow);
+  color: var(--sign-ink);
+}
+.rounds.rounds button:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+}
+
+/* ── The winner: its sign powers on ───────────────────────────────── */
+.winner.winner {
+  border: 4px solid var(--frame);
+  border-radius: 0;
+  background: var(--lit);
+  color: var(--ink);
+}
+.winner.winner[data-photo] {
+  background: #000;
+  color: #fff;
+}
+.winner.winner[data-photo] .winnerName {
+  color: #fff;
+}
+.winner .winnerName.winnerName {
+  color: var(--ink);
+  font-family: var(--font-sign), system-ui, sans-serif;
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .winner.winner {
+    animation: power-on 1.6s cubic-bezier(0.23, 1, 0.32, 1) both;
+  }
+}
+@keyframes power-on {
+  0% { filter: brightness(0.15); }
+  18% { filter: brightness(1.15); }
+  24% { filter: brightness(0.35); }
+  34% { filter: brightness(1.1); }
+  40% { filter: brightness(0.6); }
+  60%, 100% { filter: brightness(1); }
+}
+
+@media (max-width: 640px) {
+  .rounds.rounds button {
+    min-width: 0;
+    flex: 1;
+    padding: 0 0.4rem;
+    font-size: 0.85rem;
+  }
+}
