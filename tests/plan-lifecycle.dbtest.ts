@@ -253,3 +253,47 @@ describe("069 one seat per account per plan (seat_key)", { skip: SKIP }, () => {
     assert.equal(mine.seat_key, await psql(`select seat_key from votes where plan_id='${p.id}' and user_id='${a}'`));
   });
 });
+
+// ── P15 ─────────────────────────────────────────────────────────────────────
+describe("069 the host can cancel a decided plan (P15)", { skip: SKIP }, () => {
+  async function decidedPlan(members: string[] = []) {
+    const host = await user();
+    const p = await plan(host, "now() + interval '1 day'", members);
+    const cmd = (c: string) => as(host, `select execute_plan_command('${p.id}', '${p.token}', '${c}', '{}'::jsonb)`);
+    await cmd("advance");
+    const { winner_spot_id } = JSON.parse(await cmd("decide"));
+    return { host, p, winner: winner_spot_id as string };
+  }
+  const del = async (uid: string, planId: string, token: string) =>
+    JSON.parse(await as(uid, `select delete_plan('${planId}', '${token}')`)).result;
+  const exists = (planId: string) => psql(`select count(*) from plans where id = '${planId}'`);
+
+  test("a decided plan that hasn't happened can be cancelled, even when booked", async () => {
+    const { host, p } = await decidedPlan();
+    await psql(`update plans set booked = true where id = '${p.id}'`);
+    assert.equal(await del(host, p.id, p.token), "deleted");
+    assert.equal(await exists(p.id), "0");
+  });
+
+  test("once rated or visited it is history: already_happened", async () => {
+    const rater = await user();
+    const rated = await decidedPlan([rater]);
+    await psql(`update plans set event_time = now() - interval '1 hour' where id = '${rated.p.id}'`);
+    await as(rater, `select rate_plan('${rated.p.id}','${rated.winner}','R',5,true,'${hash()}')`);
+    assert.equal(await del(rated.host, rated.p.id, rated.p.token), "already_happened");
+
+    const visitor = await user();
+    const visited = await decidedPlan();
+    await psql(`insert into people (id, display_name, auth_user_id) values ('${visitor}', 'V', '${visitor}');
+      insert into visits (person_id, spot_id, plan_id) values ('${visitor}', '${visited.winner}', '${visited.p.id}')`);
+    assert.equal(await del(visited.host, visited.p.id, visited.p.token), "already_happened");
+    assert.equal(await exists(visited.p.id), "1");
+  });
+
+  test("only the host can cancel it", async () => {
+    const member = await user();
+    const { p } = await decidedPlan([member]);
+    assert.equal(await del(member, p.id, p.token), "not_host");
+    assert.equal(await exists(p.id), "1");
+  });
+});
