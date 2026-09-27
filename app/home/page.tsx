@@ -88,9 +88,9 @@ export default async function HomePage({
     person ? getVisitPhotos(person, supabase) : Promise.resolve(emptyRead<VisitPhotoView>()),
     person ? getFriends(person, supabase) : Promise.resolve(emptyRead<PersonCard>()),
     // P3: the way back into a plan. RLS returns only plans this account is a
-    // member of; newest first, bounded.
-    supabase.from("plans").select("id,title,status,stage,deadline,event_time,winner_spot_id,decided_at")
-      .order("created_at", { ascending: false }).limit(8),
+    // member of. P31 (074): those that moved on since it last opened them
+    // first (`changed`), then most recently changed; bounded.
+    supabase.rpc("my_plan_rail", { p_limit: 8 }),
   ]);
   // Either half failing renders [] -- what the single query rendered on
   // failure -- rather than half a grid that looks complete.

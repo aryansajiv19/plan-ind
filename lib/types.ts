@@ -87,6 +87,7 @@ export interface Plan {
    *  status is "open" and this is set; it stays as history after a re-decide. */
   reopened_at?: string | null;
   decided_at?: string | null; // 069: when status became decided
+  stage_changed_at?: string; // 074: when stage last changed (trigger-stamped)
   stage: PlanStage;
   pool_count: number;
   budget_per_person: number | null;
