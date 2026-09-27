@@ -42,6 +42,7 @@ const IDS = {
   sky: "81000000-0000-0000-0000-000000000003",
   soho: "81000000-0000-0000-0000-000000000001",
   iris: "d0000000-0000-0000-0000-000000000004",
+  tresind: "a0000000-0000-0000-0000-000000000005",
 };
 
 describe("070 catalogue truth", { skip: SKIP }, () => {
@@ -67,8 +68,9 @@ describe("070 catalogue truth", { skip: SKIP }, () => {
   });
 
   test("applying 070: closures, corrections and checked facts land; flagged values don't", async () => {
+    // Tresind starts at 18 so "No children under 14" must not lower it.
     const rows = Object.values(IDS).map((id, i) =>
-      `('${id}','QA070 ${i}','dinner','Old area','Test','$$',100,'12am','test')`).join(",");
+      `('${id}','QA070 ${i}','dinner','Old area','Test','$$',100,'12am','test',${id === IDS.tresind ? 18 : "default"})`).join(",");
     const check = `select
       (select visibility from spots where id='${IDS.sky}') || '|' ||
       coalesce((select latitude::text from spots where id='${IDS.sky}'), 'no-coords') || '|' ||
@@ -77,9 +79,13 @@ describe("070 catalogue truth", { skip: SKIP }, () => {
       (select name || ' @ ' || area from spots where id='${IDS.iris}') || '|' ||
       (select phone || ' ' || website || ' ' || facts_checked_on::text from spots where id='${IDS.soho}') || '|' ||
       (select (jsonb_array_length(facts_sources) > 0)::text from spots where id='${IDS.soho}') || '|' ||
-      coalesce((select good_to_know from spots where id='${IDS.museum}'), 'no-note')`;
+      coalesce((select good_to_know from spots where id='${IDS.museum}'), 'no-note') || '|' ||
+      (select minimum_age::text from spots where id='${IDS.iris}') || '|' ||
+      (select minimum_age::text from spots where id='${IDS.tresind}') || '|' ||
+      (select bool_and(e ? 'field' and e ? 'fact' and e ? 'url')::text
+         from spots, jsonb_array_elements(facts_sources) e where id='${IDS.soho}')`;
     const out = await psql(
-      "-c", `begin; insert into spots (id,name,category,area,cuisine,price_band,min_spend,open_till,vibe) values ${rows};`,
+      "-c", `begin; insert into spots (id,name,category,area,cuisine,price_band,min_spend,open_till,vibe,minimum_age) values ${rows};`,
       "-f", MIGRATION, "-c", check, "-c", "rollback;");
     assert.equal(out.split("\n").filter(Boolean).pop(), [
       "private",                       // SKY2.0: retired
@@ -90,6 +96,9 @@ describe("070 catalogue truth", { skip: SKIP }, () => {
       "+971 56 793 3366 https://sohogardendxb.com/ 2026-09-27",
       "true",
       "no-note",                       // a research note is never shown to guests
+      "21",                            // a hard 21+ raises minimum_age
+      "18",                            // ... and never lowers one ("under 14" vs 18)
+      "true",                          // every source says which field it backs
     ].join("|"));
   });
 });

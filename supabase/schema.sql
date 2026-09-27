@@ -5851,6 +5851,10 @@ create table if not exists plan_time_votes (
 );
 create index if not exists plan_time_options_plan_idx on plan_time_options (plan_id);
 create index if not exists plan_time_votes_plan_idx on plan_time_votes (plan_id);
+-- As 045 did for votes/rsvps/ratings: a DELETE (an un-tick) must carry
+-- plan_id, or a Realtime subscription filtered on it never hears about it.
+-- The columns are option_id, plan_id, seat_key, created_at -- nothing hidden.
+alter table plan_time_votes replica identity full;
 
 alter table plan_time_options enable row level security;
 alter table plan_time_votes enable row level security;

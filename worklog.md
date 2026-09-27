@@ -413,3 +413,15 @@ control has no UI yet.
   button; the signed-out preview deals nine real places; the "When" poll is
   staged (073). Baselines regenerated after P27.
 
+- **P26 client:** the composer deals before the reveal (no reveal-then-bounce);
+  when the deal sends cards, the reveal flips the real nine into their real
+  rounds (photo + credit, or the serif name); face down otherwise.
+- **P21 client:** "When?" row in the composer (none, or 2–4 Dubai times),
+  live "Which times work for you?" tick chips with faces on the vote screen,
+  and the poll count under the decided time. Verified live with two accounts.
+  Open: un-ticks need replica identity full on plan_time_votes (in 073).
+- **P30 + platform batch:** the demo is honest (fake planning tools, taste
+  match, circles and privacy block deleted; 288 CSS lines pruned; sample
+  moodboards from real places); "Start a vote with this place" pins it into
+  round 1. 070 raises hard age limits (8 venues) and tags every source with
+  its field; the deal returns its cards; 073 un-ticks reach members live.

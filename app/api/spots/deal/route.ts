@@ -8,7 +8,7 @@ import {
   requestError,
   validateMutationRequest,
 } from "@/lib/security/request";
-import { dealSpotIds, type DealConstraints } from "@/lib/spots/match";
+import { dealCard, dealSpotIds, type DealConstraints } from "@/lib/spots/match";
 import { curatedDealPool } from "@/lib/spots/catalogue";
 
 export const runtime = "nodejs";
@@ -129,5 +129,7 @@ export async function POST(request: Request) {
   if ("unavailable" in deal) {
     return Response.json({ error: "Couldn't deal places right now. Try again in a moment." }, { status: 503 });
   }
-  return Response.json({ ids: "ids" in deal ? deal.ids : null }, { headers: { "Cache-Control": "no-store" } });
+  // P26: cards[i] is ids[i], from the rows the deal already read (no extra query).
+  const dealt = "ids" in deal ? { ids: deal.ids, cards: deal.spots.map(dealCard) } : { ids: null };
+  return Response.json(dealt, { headers: { "Cache-Control": "no-store" } });
 }

@@ -1,5 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import { canProvision, SEEDED } from "./plan-factory";
+import { localAdmin } from "./local-stack";
 
 // /place/[id]: the venue map is LAZY (VenueMap.tsx) -- no Google iframe until
 // the section nears the viewport or "Show map" is pressed -- and the hours
@@ -14,7 +15,7 @@ import { canProvision, SEEDED } from "./plan-factory";
 
 test.skip(!canProvision(), "skipped: reads a seed.sql spot id that exists only on a local stack.");
 
-const PLACE = `/place/${SEEDED.threeFils}`; // 3Fils, Jumeirah, open till 11pm, no coordinates
+const PLACE = `/place/${SEEDED.threeFils}`; // 3Fils, Jumeirah, open till 11pm
 const dubai = (hhmm: string) => new Date(`2026-09-25T${hhmm}:00+04:00`);
 
 async function shortViewport(page: Page) {
@@ -48,8 +49,15 @@ test("the map is not loaded until scrolled to, then embeds this place from www.g
   expect(src.protocol).toBe("https:");
   expect(src.hostname).toBe("www.google.com");
   expect(src.searchParams.get("output")).toBe("embed");
-  // No coordinates in the seed row, so the query is the name and area.
-  expect(src.searchParams.get("q")).toBe("3Fils, Jumeirah, Dubai");
+  // Coordinates when the row has them (070 fills them on a stack with its data
+  // applied; the seed has none), else the name and area -- mapEmbedUrl's rule.
+  const { data: row, error } = await localAdmin().from("spots")
+    .select("latitude, longitude").eq("id", SEEDED.threeFils).single();
+  expect(error).toBeNull();
+  const expected = row!.latitude != null && row!.longitude != null
+    ? `${row!.latitude},${row!.longitude}`
+    : "3Fils, Jumeirah, Dubai";
+  expect(src.searchParams.get("q")).toBe(expected);
 });
 
 test("\"Show map\" loads the map on request", async ({ page }) => {
