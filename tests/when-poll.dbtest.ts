@@ -133,7 +133,7 @@ describe("073 \"When\" time poll", { skip: SKIP }, () => {
     assert.equal(await decide(host, quiet), "none");
   });
 
-  test("a time the host set by hand wins, and ticking stops once decided", async () => {
+  test("a time the host set by hand wins, and ticking and re-offering stop once decided", async () => {
     const [host, member] = [await user(), await user()];
     const p = await plan(host, [member]);
     const [o1] = (await setWhen(host, p, [inDays(1), inDays(2)])).options;
@@ -143,6 +143,7 @@ describe("073 \"When\" time poll", { skip: SKIP }, () => {
     await decide(host, p);
     assert.equal(await psql(`select event_time = '${manual}'::timestamptz from plans where id = '${p.id}'`), "t");
     await assert.rejects(tick(member, p.id, o1.id, false), /decided/);
+    assert.equal((await setWhen(host, p, [inDays(3), inDays(4)])).result, "already_decided");
   });
 
   test("ticks carry no account id, and only members can read them", async () => {
