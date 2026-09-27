@@ -124,3 +124,41 @@ describe("069 deadlines fire without the host (P4)", { skip: SKIP }, () => {
     assert.equal(await stage(p.id), "open/final");
   });
 });
+
+// ── booking_owner by identity ───────────────────────────────────────────────
+describe("069 the booking claim belongs to an account, not a name", { skip: SKIP }, () => {
+  const command = (uid: string, planId: string, token: string, patch: string) =>
+    as(uid, `select execute_plan_command('${planId}', '${token}', 'patch', '${patch}'::jsonb)`);
+  const rsvpAs = (uid: string, planId: string, name: string) =>
+    as(uid, `select set_plan_rsvp('${planId}','${name}',true,'coming','${hash()}')`);
+  const owner = (planId: string) => psql(`select coalesce(booking_owner, '<none>') from plans where id = '${planId}'`);
+
+  test("a member who shares the booker's name leaves or deletes the account: the claim stays", async () => {
+    const host = await user();
+    const [leaver, deleter] = [await user(), await user()];
+    const p = await plan(host, "now() + interval '1 day'", [leaver, deleter]);
+    await command(host, p.id, p.token, '{"booking_owner": "Sam"}');
+    for (const u of [leaver, deleter]) await rsvpAs(u, p.id, "Sam");
+    await as(leaver, `select leave_plan('${p.id}')`);
+    assert.equal(await owner(p.id), "Sam");
+    await as(deleter, "select delete_my_account(false)");
+    assert.equal(await owner(p.id), "Sam");
+    assert.equal(await psql(`select user_id from plan_booking_owners where plan_id = '${p.id}'`), host);
+  });
+
+  test("the booker's own account leaving clears it, and deleting renames it (control)", async () => {
+    const host = await user();
+    const [booker, other] = [await user(), await user()];
+    const p = await plan(host, "now() + interval '1 day'", [booker]);
+    const q = await plan(host, "now() + interval '1 day'", [other]);
+    // What a member claim will write: the label plus the account behind it.
+    for (const [plan_, who] of [[p, booker], [q, other]] as const) {
+      await psql(`update plans set booking_owner = 'Kim' where id = '${plan_.id}';
+        insert into plan_booking_owners (plan_id, user_id) values ('${plan_.id}', '${who}')`);
+    }
+    await as(booker, `select leave_plan('${p.id}')`);
+    assert.equal(await owner(p.id), "<none>");
+    await as(other, "select delete_my_account(false)");
+    assert.equal(await owner(q.id), "Former member");
+  });
+});
