@@ -85,7 +85,7 @@ export default async function PlacePage({
               alt=""
               fill
               sizes="100vw"
-              priority
+              preload
               className="place-hero__img"
               unoptimized={!canOptimiseImage(spot.photo_url as string)}
             />
