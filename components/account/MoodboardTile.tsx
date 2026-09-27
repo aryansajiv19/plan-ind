@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import PhotoCredit from "@/components/PhotoCredit";
+import { canOptimiseImage } from "@/lib/image-src";
 import { categoryLabel } from "@/lib/categories";
 import { safeExternalUrl, type BoardSpot } from "@/lib/social";
 import type { MoodboardItem } from "@/lib/types";
@@ -39,9 +40,7 @@ export default function MoodboardTile({
     <article className={`wall-tile board-tile ${photo ? "" : "wall-tile--typographic"}`}>
       {photo && spot && (
         <div className="board-tile__photo" style={{ aspectRatio: RATIOS[index % RATIOS.length] }}>
-          {/* Unoptimised for the same reason as PhotoTile: photo_url hosts
-              are not allowlisted for the image optimiser. */}
-          <Image src={photo} alt="" fill sizes="(max-width: 760px) 50vw, 25vw" unoptimized />
+          <Image src={photo} alt="" fill sizes="(max-width: 760px) 50vw, 25vw" unoptimized={!canOptimiseImage(photo)} />
           <PhotoCredit spot={spot} />
         </div>
       )}

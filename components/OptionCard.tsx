@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import CountUp from "@/components/CountUp";
 import PhotoCredit from "@/components/PhotoCredit";
+import { canOptimiseImage } from "@/lib/image-src";
 import { avatarStyle, initialsOf } from "@/lib/avatar";
 import type { Spot } from "@/lib/types";
 import { categoryMeta } from "@/lib/categories";
@@ -129,8 +130,7 @@ export default function OptionCard({
       <div className="vote-option__media">
         {photo ? (
           <>
-            {/* unoptimized: same posture as the place page (no remotePatterns). */}
-            <Image src={spot.photo_url!} alt="" fill sizes="(min-width: 641px) 22rem, 85vw" className="object-cover" unoptimized />
+            <Image src={spot.photo_url!} alt="" fill sizes="(min-width: 641px) 22rem, 85vw" className="object-cover" unoptimized={!canOptimiseImage(spot.photo_url!)} />
             <PhotoCredit spot={spot} />
           </>
         ) : (
