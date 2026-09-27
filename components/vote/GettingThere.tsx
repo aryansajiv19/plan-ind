@@ -1,5 +1,7 @@
 import type { Plan, Spot } from "@/lib/types";
-import { appleMapsUrl, directionsUrl, driveMinutesEstimate, googleMapsUrl, haversineKm } from "@/lib/directions";
+import { appleMapsUrl, driveMinutesEstimate, googleMapsUrl, haversineKm, isDubaiRushHour } from "@/lib/directions";
+import { useMinuteClock } from "@/hooks/use-minute-clock";
+import GetThere from "@/components/GetThere";
 import VenueMap from "@/components/VenueMap";
 
 // The decided plan's "Where": the address, how far it is from the plan's
@@ -18,6 +20,9 @@ export default function GettingThere({ plan, winner }: { plan: Plan; winner: Spo
       : null;
   const km = route ? haversineKm(...route) : null;
   const drive = km != null ? driveMinutesEstimate(km) : null;
+  // The estimate is at peak speed: say "in rush hour" only at the peaks (P16).
+  const now = useMinuteClock();
+  const rush = now != null && isDubaiRushHour(now);
 
   return (
     <div className="mt-4 border-t border-line pt-4">
@@ -26,7 +31,7 @@ export default function GettingThere({ plan, winner }: { plan: Plan; winner: Spo
       {km != null && (
         <p className="mt-1 text-sm font-medium">
           {Math.round(km * 10) / 10} km from {plan.origin_label ?? "your start point"}
-          {drive != null && <span className="text-muted"> · ≈ {drive} min drive in rush hour</span>}
+          {drive != null && <span className="text-muted"> · ≈ {drive} min drive {rush ? "in rush hour" : "(estimate)"}</span>}
         </p>
       )}
       <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2 text-sm font-medium">
@@ -36,12 +41,8 @@ export default function GettingThere({ plan, winner }: { plan: Plan; winner: Spo
         <a href={appleMapsUrl(winner)} target="_blank" rel="noopener noreferrer" className="text-grape underline">
           Apple Maps
         </a>
-        {route && (
-          <a href={directionsUrl(...route)} target="_blank" rel="noopener noreferrer" className="text-grape underline">
-            Live transit options
-          </a>
-        )}
       </div>
+      <GetThere venue={winner} className="mt-2" />
       <VenueMap venue={winner} />
     </div>
   );
