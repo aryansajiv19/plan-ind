@@ -126,12 +126,24 @@ export default function OptionCard({
     >
       {isWinner && <span className="vote-option__winner-label">Selected</span>}
 
-      {/* A fixed 4:3 band so every card in a row starts its text at the same
-          line: the venue photo with its licence credit, or the name set in
-          the display serif on the raised surface. No hue either way. */}
+      {/* A fixed band so every card in a row starts its text at the same
+          line: the venue photo with the name set over it like a listing, or
+          the name alone on the raised surface. */}
       <div className="vote-option__media">
         {photo ? (
-          <VenuePhoto spot={spot} sizes="(min-width: 641px) 22rem, 85vw" />
+          <>
+            <VenuePhoto spot={spot} sizes="(min-width: 641px) 22rem, 85vw" />
+            <div className="vote-option__overlay">
+              <span className="vote-option__category inline-flex min-w-0 items-center gap-1.5 self-start px-2 py-0.5 text-xs font-bold">
+                <span aria-hidden="true">{cat.code}</span>
+                <span className="vote-option__cuisine">{spot.cuisine}</span>
+              </span>
+              <div>
+                <h3 className="vote-option__name">{spot.name}</h3>
+                <p className="vote-option__where">{spot.area}</p>
+              </div>
+            </div>
+          </>
         ) : (
           <div className="vote-option__type">
             <span className="vote-option__category inline-flex min-w-0 items-center gap-1.5 self-start px-2.5 py-1 text-xs font-bold">
@@ -145,19 +157,6 @@ export default function OptionCard({
       </div>
 
       <div className="vote-option__body flex flex-1 flex-col p-4">
-      {photo && (
-        <>
-          {/* Category strip: identity only, one line; the cuisine truncates. */}
-          <span className="vote-option__category inline-flex min-w-0 items-center gap-1.5 self-start px-2.5 py-1 text-xs font-bold">
-            <span aria-hidden="true">{cat.code}</span>
-            <span className="vote-option__cuisine">{spot.cuisine}</span>
-          </span>
-          <h3 className="mt-2.5 font-display text-lg font-extrabold leading-tight tracking-tight">
-            {spot.name}
-          </h3>
-          <p className="mt-0.5 text-xs font-medium text-muted">{spot.area}</p>
-        </>
-      )}
       {/* 070: closed since the deal, until a date. Never dealt again till then. */}
       {reopens && <p className="mt-1 text-xs font-bold">{reopens}</p>}
 

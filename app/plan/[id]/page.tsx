@@ -158,7 +158,6 @@ export default function VotePage() {
             poolCount={poolCount}
             activePool={activePool}
             chosen={poolsChosenByMe}
-            nightMode={nightMode}
             onSelect={(poolNumber) => {
               setRoundDir(poolNumber >= activePool ? 1 : -1);
               setActivePool(poolNumber);

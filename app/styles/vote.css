@@ -35,9 +35,13 @@
   background: color-mix(in srgb, var(--color-card) 96%, transparent);
 }
 
+/* The plan's title is the page's cover line. */
 .vote-shell h1 {
-  font-weight: 600;
-  letter-spacing: -0.045em;
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  font-weight: 900;
+  line-height: 0.92;
+  letter-spacing: 0;
+  text-transform: uppercase;
 }
 
 .vote-deadline {
@@ -146,46 +150,102 @@
   font-weight: 600;
 }
 
-/* Round progress. Dots rather than a segmented bar: three rounds is a short
-   journey and the shape of it should be readable in one glance. They stay
-   real buttons so a round can still be revisited by keyboard. */
+/* The bracket: the rounds wired down into the final. Each round's wire
+   lights gold once you have picked in it; the trunk lights when all have.
+   The rounds stay real buttons so any round can be revisited. */
 .vote-pool-progress {
-  display: flex;
-  justify-content: center;
-  gap: 0.55rem;
-  margin-top: 1.5rem;
+  --gap: 0.75rem;
+  display: grid;
+  justify-items: center;
+  width: min(100%, 34rem);
+  margin: 1.5rem auto 0;
 }
-
-.vote-pool-progress button {
+.vote-pool-progress__rounds {
   position: relative;
   display: grid;
-  place-items: center;
-  width: 2.1rem;
-  height: 2.1rem;
+  grid-template-columns: repeat(var(--rounds, 3), minmax(0, 1fr));
+  gap: var(--gap);
+  width: 100%;
+  padding-bottom: 1rem;
+}
+/* The bus joining each round's drop, centre of the first to centre of the last. */
+.vote-pool-progress__rounds::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  inset-inline: calc((100% - (var(--rounds, 3) - 1) * var(--gap)) / (2 * var(--rounds, 3)));
+  border-top: 2px solid var(--color-line);
+}
+.vote-pool-progress button {
+  position: relative;
+  min-height: 2.75rem;
   border: 1px solid var(--color-line);
-  border-radius: 50%;
-  background: transparent;
+  border-radius: var(--radius-control);
+  background: var(--color-card);
   color: var(--color-muted);
-  font-size: max(0.7rem, var(--type-floor));
-  font-weight: 500;
+  font-stretch: 75%;
+  font-size: max(0.85rem, var(--type-floor));
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   cursor: pointer;
   transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
 }
-
-/* A round you have already chosen in — your state, so the live accent. */
-.vote-pool-progress button[data-complete="true"] {
-  border-color: var(--color-live);
-  background: color-mix(in srgb, var(--color-live) 12%, transparent);
-  color: var(--color-live);
+.vote-pool-progress button::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  height: calc(1rem + 1px);
+  border-left: 2px solid var(--color-line);
+  transition: border-color 400ms var(--ease-settle);
 }
-
 /* The round you are looking at now. */
 .vote-pool-progress button[aria-current="step"] {
   border-color: var(--color-ink);
+  background: var(--color-ink);
+  color: var(--color-card);
+}
+/* A round you have picked in: its wire is live. */
+.vote-pool-progress button[data-complete="true"] {
+  border-color: var(--color-punch);
   color: var(--color-ink);
 }
+.vote-pool-progress button[data-complete="true"]::after,
+.vote-pool-progress[data-all] .vote-pool-progress__rounds::after,
+.vote-pool-progress[data-all] .vote-pool-progress__final::before {
+  border-color: var(--color-punch);
+}
 .vote-pool-progress button[aria-current="step"][data-complete="true"] {
-  border-color: var(--color-live);
+  border-color: var(--color-punch);
+  color: var(--color-card);
+}
+.vote-pool-progress__final {
+  position: relative;
+  margin-top: 0.9rem;
+  padding: 0.3rem 1rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-control);
+  color: var(--color-muted);
+  font-stretch: 70%;
+  font-size: max(0.85rem, var(--type-floor));
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: background 400ms var(--ease-settle), color 400ms var(--ease-settle);
+}
+.vote-pool-progress__final::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  height: calc(0.9rem + 1px);
+  border-left: 2px solid var(--color-line);
+}
+.vote-pool-progress[data-all] .vote-pool-progress__final {
+  border-color: var(--color-punch);
+  background: var(--color-punch);
+  color: #0c0c10;
 }
 
 /* ── SPECS.md §25.2: plan gravity ──────────────────────────────────
@@ -309,7 +369,7 @@
 .vote-option[data-selected] {
   border-color: var(--color-live);
   background: color-mix(in srgb, var(--color-live) 8%, var(--color-card));
-  box-shadow: inset 3px 0 0 var(--color-live);
+  box-shadow: 0 0 0 1px var(--color-live);
 }
 
 /* The pick, with weight: a transition, so a saved pick doesn't replay on
@@ -380,8 +440,9 @@
   white-space: nowrap;
 }
 .vote-option h3 {
-  font-weight: 600;
-  letter-spacing: -0.025em;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
 }
 .vote-option__votes {
   color: var(--color-punch-text);
@@ -400,10 +461,11 @@
   inset: 0;
   z-index: 4;
 }
-/* A fixed 4:3 band: the photo, or the name on a quiet raised panel. */
+/* A fixed 5:4 band: the photo with the name over it, or the name on a quiet
+   raised panel. */
 .vote-option__media {
   position: relative;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 5 / 4;
   overflow: hidden;
   border-bottom: 1px solid var(--color-line);
   border-radius: calc(var(--radius-control) - 1px) calc(var(--radius-control) - 1px) 0 0;
@@ -415,22 +477,47 @@
   height: 100%;
   padding: 1rem;
 }
-/* The band covers the card's inset accents, so it repeats them, clipped to
-   its own corner: your pick's bar, and the winner's hairline. */
-.vote-option[data-selected] .vote-option__media::after,
+/* The listing over the photo: category chip on top, the name set in the
+   cover voice at the foot, on a scrim so it reads on any photo. */
+.vote-option__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0.85rem;
+  background: linear-gradient(0deg, rgba(12, 12, 16, 0.9) 0%, rgba(12, 12, 16, 0.3) 48%, transparent 72%);
+  color: var(--photo-ink);
+  pointer-events: none;
+}
+.vote-option__overlay .vote-option__category {
+  border: 0;
+  background: var(--color-punch);
+  color: #0c0c10;
+}
+.vote-option__name {
+  font-size: clamp(1.55rem, 2.3vw, 2rem);
+  line-height: 0.92;
+}
+.vote-option__where {
+  margin-top: 0.3rem;
+  color: var(--photo-body);
+  font-size: max(0.8rem, var(--type-floor));
+  font-weight: 600;
+}
+/* Credits move to the top-right corner here: the name owns the foot. */
+.vote-option__media .photo-credit {
+  inset: 0.55rem 0.55rem auto auto;
+}
+/* The winner's hairline, repeated over the band that covers the card's edge. */
 .vote-option--winner .vote-option__media::after {
   content: "";
   position: absolute;
-  inset: 0 auto 0 0;
-  width: 3px;
-  z-index: 3;
-  background: var(--color-live);
-}
-.vote-option.vote-option--winner .vote-option__media::after {
   inset: 0 0 auto;
-  width: auto;
-  height: 2px;
-  background: var(--color-punch-text);
+  height: 3px;
+  z-index: 3;
+  background: var(--color-punch);
 }
 /* "Selected" is your state, so it takes the live accent, not the outcome
    colour. White on cobalt is 6.0:1; on the night tint the ink reads. */
@@ -485,9 +572,9 @@
 
 .vote-primary-action,
 .vote-result__primary {
-  border-color: var(--color-ink);
-  background: var(--color-ink);
-  color: var(--color-card);
+  border-color: var(--color-punch);
+  background: var(--primary-fill);
+  color: var(--primary-ink);
 }
 .vote-secondary-action,
 .vote-result__button {

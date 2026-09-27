@@ -281,14 +281,6 @@
   .vote-pool-progress {
     margin-top: 1.1rem;
   }
-  .vote-pool-progress button {
-    min-height: 2.5rem;
-    font-size: max(0.61rem, var(--type-floor));
-  }
-  .vote-pool-progress button[data-complete="true"]::before {
-    content: "Set · ";
-    color: var(--color-punch-text);
-  }
   .vote-options-grid {
     margin-top: 1.1rem !important;
     gap: 0.65rem;
@@ -347,12 +339,6 @@
   transition-property: transform, border-color, background-color, color;
   transition-duration: 300ms, 160ms, 160ms, 160ms;
   transition-timing-function: var(--ease-settle), ease, ease, ease;
-}
-
-/* The round you are on lifts slightly, so moving between rounds is a
-   visible handoff rather than two borders swapping colour. */
-.vote-pool-progress button[aria-current="step"] {
-  transform: scale(1.06);
 }
 
 @media (prefers-reduced-motion: no-preference) {

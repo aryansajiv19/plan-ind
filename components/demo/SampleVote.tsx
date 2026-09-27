@@ -190,7 +190,6 @@ function SampleRun({ onReplay }: { onReplay: () => void }) {
           poolCount={SAMPLE_PLAN.poolCount}
           activePool={activePool}
           chosen={poolsChosen}
-          nightMode={false}
           onSelect={(pool) => { enterPool(pool); haptic(6); }}
         />
       )}
