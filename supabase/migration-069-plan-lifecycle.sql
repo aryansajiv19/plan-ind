@@ -2,6 +2,7 @@
 -- applied anywhere. Applies after 068, at go-live. docs/ROADMAP.md items:
 --   P4  deadlines fire without the host (expire_plan)
 --   P11 rating only after the outing; unrating removes the visit it logged
+--   seat_key: one stable, member-readable seat per account per plan
 --   booking_owner by identity (confirmation-pass follow-up): who claimed the
 --       booking is recorded per account in plan_booking_owners, and only that
 --       account's leaving or deletion clears it -- not a same-named member.
@@ -558,3 +559,35 @@ end;
 $$;
 revoke all on function unrate_plan(uuid) from public, anon, authenticated;
 grant execute on function unrate_plan(uuid) to authenticated;
+
+-- ── seat_key: one seat per account per plan ─────────────────────────────────
+-- participant_token_hash is per device, so one account on two devices showed
+-- as two seats. seat_key is derived from the account and the plan, readable by
+-- members while user_id itself stays hidden (049). Salting with plan_id keeps
+-- it from linking one person across plans; null on anonymised rows (no
+-- user_id). Generated, so every write path and every old row carries it.
+alter table votes   add column if not exists seat_key text generated always as (md5(plan_id::text || ':' || user_id::text)) stored;
+alter table rsvps   add column if not exists seat_key text generated always as (md5(plan_id::text || ':' || user_id::text)) stored;
+alter table ratings add column if not exists seat_key text generated always as (md5(plan_id::text || ':' || user_id::text)) stored;
+grant select (seat_key) on votes to authenticated;
+grant select (seat_key) on rsvps to authenticated;
+grant select (seat_key) on ratings to authenticated;
+
+create or replace function my_plan_rows(p_plan_id uuid)
+returns jsonb language plpgsql stable security definer set search_path = public, pg_temp as $$
+declare uid uuid := auth.uid();
+begin
+  if uid is null or not exists (select 1 from plan_access where plan_id = p_plan_id and user_id = uid) then
+    raise exception 'Plan access required' using errcode = '42501';
+  end if;
+  return jsonb_build_object(
+    'votes', coalesce((select jsonb_agg(jsonb_build_object('id', v.id, 'phase', v.phase,
+                         'pool_number', v.pool_number, 'spot_id', v.spot_id) order by v.phase, v.pool_number)
+                       from votes v where v.plan_id = p_plan_id and v.user_id = uid), '[]'::jsonb),
+    'rsvp_id', (select r.id from rsvps r where r.plan_id = p_plan_id and r.user_id = uid),
+    'rating_id', (select r.id from ratings r where r.plan_id = p_plan_id and r.user_id = uid),
+    -- 069: the caller's own seat, as it appears on every row they write.
+    'seat_key', md5(p_plan_id::text || ':' || uid::text));
+end; $$;
+revoke all on function my_plan_rows(uuid) from public, anon, authenticated;
+grant execute on function my_plan_rows(uuid) to authenticated;

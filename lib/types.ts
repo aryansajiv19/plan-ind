@@ -102,6 +102,7 @@ export interface Vote {
   phase: "pool" | "final";
   pool_number: number;
   participant_token_hash?: string | null;
+  seat_key?: string | null; // 069: one per account per plan (md5 of plan + user)
   /** 043: the auth uid that actually wrote this row. The hash above is an
    *  identity marker, NOT a credential -- the RPCs check this, not it. */
   user_id?: string | null;
@@ -141,6 +142,7 @@ export interface Rsvp {
   coming: boolean;
   choice?: "coming" | "maybe" | "no";
   participant_token_hash?: string | null;
+  seat_key?: string | null; // 069: one per account per plan (md5 of plan + user)
   /** 043: the auth uid that actually wrote this row. The hash above is an
    *  identity marker, NOT a credential -- the RPCs check this, not it. */
   user_id?: string | null;
@@ -160,6 +162,7 @@ export interface Rating {
   stars: number; // 1–5
   again: boolean; // would you go again?
   participant_token_hash?: string | null;
+  seat_key?: string | null; // 069: one per account per plan (md5 of plan + user)
   /** 043: the auth uid that actually wrote this row. The hash above is an
    *  identity marker, NOT a credential -- the RPCs check this, not it. */
   user_id?: string | null;
