@@ -4,7 +4,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { log, serializeError } from "@/lib/observability/log";
 import { getSupabaseConfig } from "@/lib/supabase/config";
 import { fetchAllRows } from "@/lib/supabase/paginate";
-import { categoryFamily, DEAL_SPOT_COLUMNS, isKnownCategory, type DealSpotRow } from "./match";
+import { categoryFamily, DEAL_SPOT_COLUMNS, dubaiToday, isKnownCategory, type DealSpotRow } from "./match";
 
 // ── The curated catalogue, cached across requests ────────────────────────
 //
@@ -78,6 +78,8 @@ const readWall = cached("curated-wall", async (size: number): Promise<WallSpotRo
     .from("spots")
     .select("id, name, area, min_spend, vibe, photo_url, photo_attribution, category, price_band")
     .eq("source", "curated")
+    .neq("visibility", "private") // 070: retired
+    .or(`reopens_on.is.null,reopens_on.lte.${dubaiToday()}`) // 070: closed until a later date
     .order("photo_url", { nullsFirst: false })
     .order("name")
     .order("id")
@@ -98,6 +100,8 @@ const readCounts = cached("curated-counts", async (): Promise<CuratedCounts> => 
     .from("spots")
     .select("category", { count: "exact" })
     .eq("source", "curated")
+    .neq("visibility", "private")
+    .or(`reopens_on.is.null,reopens_on.lte.${dubaiToday()}`)
     .range(0, 999);
   if (error || !count || !data) throw new CatalogueReadError("counts", error);
   return { places: count, categories: data.length === count ? new Set(data.map((row) => row.category)).size : null };
@@ -121,6 +125,8 @@ const readDiscover = cached("curated-discover", async (limit: number): Promise<D
     .from("spots")
     .select(DISCOVER_COLUMNS)
     .eq("source", "curated")
+    .neq("visibility", "private")
+    .or(`reopens_on.is.null,reopens_on.lte.${dubaiToday()}`)
     .order("name")
     .order("id")
     .limit(limit);
