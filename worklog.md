@@ -413,3 +413,6 @@ control has no UI yet.
   button; the signed-out preview deals nine real places; the "When" poll is
   staged (073). Baselines regenerated after P27.
 
+- **P26 client:** the composer deals before the reveal (no reveal-then-bounce);
+  when the deal sends cards, the reveal flips the real nine into their real
+  rounds (photo + credit, or the serif name); face down otherwise.
