@@ -35,16 +35,9 @@
   background: color-mix(in srgb, var(--color-card) 96%, transparent);
 }
 
-.vote-shell h1,
-.vote-name-gate h1 {
+.vote-shell h1 {
   font-weight: 600;
   letter-spacing: -0.045em;
-}
-.vote-name-help {
-  margin-top: 0.55rem;
-  color: var(--color-muted);
-  font-size: max(0.72rem, var(--type-floor));
-  line-height: 1.45;
 }
 
 .vote-deadline {
@@ -104,9 +97,8 @@
 }
 /* SPECS.md §13.2: un-scoped from .vote-state__actions so all four
    .vote-primary-action/.vote-secondary-action call sites share one size,
-   not two independent sizing systems (this rule vs. NameGate.tsx/
-   app/plan/[id]/page.tsx's own px-6 py-3.5 Tailwind utilities, now
-   removed). */
+   not two independent sizing systems (this rule vs. the old per-page
+   px-6 py-3.5 Tailwind utilities, now removed). */
 .vote-primary-action,
 .vote-secondary-action {
   display: inline-flex;
