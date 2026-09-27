@@ -175,8 +175,11 @@
   .plan-deck__row {
     grid-auto-columns: 8rem;
   }
-  .plan-submit--deal {
-    bottom: calc(4.25rem + env(safe-area-inset-bottom)); /* clear of the tab bar */
+  .plan-deal-bar {
+    bottom: calc(3.75rem + env(safe-area-inset-bottom)); /* clear of the tab bar */
+  }
+  .plan-deck__paging {
+    display: none; /* a thumb swipes the row */
   }
   /* §19.3: same soft lift as desktop; the old rgba(36,27,46) drop was heavier and cool-tinted, off the warm ramp */
   .plan-category-group {

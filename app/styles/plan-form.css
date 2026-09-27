@@ -224,9 +224,7 @@
   cursor: pointer;
 }
 
-/* The underline is the group's own hue, so the five tabs read as five
-   different things rather than five words. It is never the only signal:
-   aria-pressed carries it, and the label darkens to full ink as well. */
+/* The open tab: an underline in the metal, with aria-pressed and full ink. */
 .plan-category-group::after {
   content: "";
   position: absolute;
@@ -279,9 +277,8 @@
 }
 /* was a hardcoded cool rgba(36,27,46,.42) off the warm ramp */
 
-/* The chosen category fills with the open group's hue. A 3px inset bar on
-   the leading edge means the selection is still legible as a shape when the
-   colour is not — this is the one control where colour does real work. */
+/* The chosen type: a metal tint plus a 3px inset bar, legible as a shape
+   when the colour is not. */
 .plan-category-option[aria-pressed="true"] {
   border-color: var(--color-punch-text);
   background: color-mix(in srgb, var(--home-metal) 12%, transparent);
@@ -341,6 +338,7 @@
   color: var(--color-ink);
   font-size: max(0.72rem, var(--type-floor));
   font-weight: 500;
+  white-space: nowrap;
   cursor: pointer;
 }
 /* 19px of text is a small target for a thumb AND for a mouse. The hit area
@@ -514,14 +512,49 @@
   aspect-ratio: 4 / 3;
   background: color-mix(in srgb, var(--color-ink) 5%, var(--color-card));
 }
-.plan-deck__name {
+.plan-deck__type {
   position: absolute;
-  inset: auto 0 0;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   padding: 0.6rem;
+}
+.plan-deck__code {
+  color: var(--color-punch-text);
+  font-size: max(0.62rem, var(--type-floor));
+  font-weight: 600;
+}
+.plan-deck__name {
   font-family: var(--font-display);
   font-size: 1.05rem;
   font-weight: 600;
   line-height: 1.15;
+}
+.plan-deck__paging {
+  display: flex;
+  gap: 0.25rem;
+}
+.plan-deck__paging button {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-control);
+  background: transparent;
+  cursor: pointer;
+}
+.plan-deck__paging button::before {
+  content: "";
+  width: 0.45rem;
+  height: 0.45rem;
+  border-right: 1.5px solid var(--color-ink);
+  border-bottom: 1.5px solid var(--color-ink);
+  transform: translateX(-0.1rem) rotate(-45deg);
+}
+.plan-deck__paging button[data-dir="back"]::before {
+  transform: translateX(0.1rem) rotate(135deg);
 }
 .plan-deck__caption {
   display: grid;
@@ -677,13 +710,18 @@
   transition: transform 260ms var(--ease-settle), box-shadow 150ms ease, opacity 150ms ease;
 }
 
-/* P25: the composer's primary action never leaves the screen while the
-   form is on it; the card-coloured fade lets the deck pass under it. */
-.plan-submit--deal {
+/* P25: the deal stays on screen anywhere in the form, on the card's surface. */
+.plan-deal-bar {
   position: sticky;
-  bottom: 1rem;
+  bottom: 0;
   z-index: 5;
-  box-shadow: 0 -0.75rem 1rem -0.5rem var(--color-card);
+  margin-top: 0.5rem;
+  padding-block: 0.75rem;
+  background: var(--color-card);
+  box-shadow: 0 -1px 0 var(--color-line); /* reads as floating when it covers the form */
+}
+.plan-deal-bar .plan-submit {
+  margin-top: 0.5rem;
 }
 .plan-submit:hover:not(:disabled) {
   transform: translateY(-1px);
@@ -694,7 +732,7 @@
 }
 .plan-form__error {
   margin-top: 0.8rem;
-  color: var(--color-punch-text);
+  color: var(--color-error);
   font-size: 0.78rem;
   font-weight: 600;
 }

@@ -18,10 +18,10 @@ const countChip = (n: number | null) => n != null && (
 /**
  * P25: everything past the deal, folded. Every setting has a valid default,
  * so the summary says what they are as real text (read by screen readers),
- * and it opens below the Deal button, so nothing above it moves.
+ * and it opens downward, so nothing above it moves.
  */
 export default function TuneIt({ composer, demoMode, luna }: { composer: Composer; demoMode: boolean; luna: ReactNode }) {
-  const { preview, need, maxBudget, setMaxBudget, originValue, setOriginValue, radiusKm, setRadiusKm, when, title, setTitle, setTitleEdited, presetIdx, setPresetIdx, custom, signIn } = composer;
+  const { preview, need, maxBudget, setMaxBudget, originValue, setOriginValue, radiusKm, setRadiusKm, when, title, setTitle, setTitleEdited, presetIdx, setPresetIdx, custom, signIn, tuneOpen, setTuneOpen } = composer;
   const origin = DUBAI_ORIGINS.find((option) => option.value === originValue);
   const summary = [
     title.trim() ? `“${title.trim()}”` : "No title yet",
@@ -32,10 +32,11 @@ export default function TuneIt({ composer, demoMode, luna }: { composer: Compose
     ...(custom.selectedIds.length > 0 ? [`${custom.selectedIds.length} of your places`] : []),
   ];
   return (
-    <details className="plan-tune">
+    <details className="plan-tune" open={tuneOpen} onToggle={(event) => setTuneOpen(event.currentTarget.open)}>
       <summary>
         <span className="mr-1 text-sm font-semibold">Tune it</span>
-        {summary.map((chip) => <span key={chip} className="plan-tune__chip">{chip}</span>)}
+        {/* sr-only commas, so a screen reader pauses between the settings. */}
+        {summary.map((chip) => <span key={chip} className="plan-tune__chip">{chip}<span className="sr-only">,</span></span>)}
       </summary>
       {luna}
       <CustomPlaceSection places={custom} onSignIn={demoMode ? signIn : undefined} />

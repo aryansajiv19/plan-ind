@@ -84,8 +84,6 @@ export default function StartPlanForm({
   }
 
   return (
-    // The composer takes the hue of whichever group is open, so switching
-    // tabs visibly recolours the form. Each tab overrides it with its own.
     <form onSubmit={start} className="plan-form">
       {modeToggle}
       {/* A pinned place explains itself in its own line below. */}
@@ -102,20 +100,6 @@ export default function StartPlanForm({
           past that has a valid default and folds away under "Tune it". */}
       <ComposerDeck composer={composer} age={age} demoMode={demoMode} />
 
-      <button
-        type="submit"
-        disabled={creating || !title.trim()}
-        className="plan-submit plan-submit--deal"
-      >
-        {creating ? (demoMode ? "Dealing…" : "Dealing nine…") : demoMode ? "Preview the deal" : "Deal nine"}
-      </button>
-
-      {error && (
-        <p role="alert" className="plan-form__error">
-          {error}
-        </p>
-      )}
-
       <TuneIt
         composer={composer}
         demoMode={demoMode}
@@ -130,6 +114,24 @@ export default function StartPlanForm({
           />
         )}
       />
+
+      {/* The deal stays in reach from anywhere in the form, Tune it included:
+          sticky at the bottom edge, on the card's own surface. */}
+      <div className="plan-deal-bar">
+        {error && (
+          <p role="alert" className="plan-form__error">
+            {error}
+          </p>
+        )}
+        {!title.trim() && <p className="plan-form__demo-note">Give it a title under Tune it to deal.</p>}
+        <button
+          type="submit"
+          disabled={creating || !title.trim()}
+          className="plan-submit"
+        >
+          {creating ? (demoMode ? "Dealing…" : "Dealing nine…") : demoMode ? "Preview the deal" : "Deal nine"}
+        </button>
+      </div>
 
       {demoMode && (
         <p className="plan-form__demo-note">

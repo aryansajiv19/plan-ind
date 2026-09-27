@@ -65,11 +65,13 @@ export function useComposer({ age, demoMode, prefill }: { age: number; demoMode:
   const [radiusKm, setRadiusKm] = useState<number | null>(prefill?.radiusKm !== undefined ? prefill.radiusKm : 20);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const custom = useCustomPlaces(category, setError);
   // Catalogue places the vote starts with (P30 prefill, P25 deck), one per round in pin order.
   const [pins, setPins] = useState<PinnedPlace[]>(prefill?.pinned ? [prefill.pinned] : []);
-  // ponytail: one pin per round, so a fourth pin (places + saved) drops the last saved one.
+  // Saved places share the cap of three with catalogue pins, so none is ever dropped.
+  const custom = useCustomPlaces(category, setError, pins.length);
   const pinnedIds = [...pins.map((pin) => pin.id), ...custom.selectedIds].slice(0, 3);
+  // "Tune it" opens itself when an error is about a field inside it.
+  const [tuneOpen, setTuneOpen] = useState(false);
   const togglePin = (place: PinnedPlace) => setPins((current) => (
     current.some((pin) => pin.id === place.id) ? current.filter((pin) => pin.id !== place.id)
       : pinnedIds.length < 3 ? [...current, place] : current
@@ -228,10 +230,11 @@ export function useComposer({ age, demoMode, prefill }: { age: number; demoMode:
       return;
     }
 
-    if (!when.valid) { setError("Offer two to four times, or none."); return; }
+    if (!when.valid) { setError("Offer two to four times, or none."); setTuneOpen(true); return; }
     const restricted = custom.restrictedFor(age);
     if (restricted) {
       setError(`${restricted.name} has an age requirement that does not match this account.`);
+      setTuneOpen(true);
       return;
     }
     setCreating(true);
@@ -285,7 +288,7 @@ export function useComposer({ age, demoMode, prefill }: { age: number; demoMode:
     category, pickCategory, setActiveGroup, groups, shownGroup, visibleCategories,
     title, setTitle, setTitleEdited, presetIdx, setPresetIdx,
     maxBudget, setMaxBudget, originValue, setOriginValue, radiusKm, setRadiusKm,
-    creating, error, custom, pins, togglePin, roundOf, pinnedIds, when, preview, need,
+    creating, error, custom, pins, togglePin, roundOf, pinnedIds, when, preview, need, tuneOpen, setTuneOpen,
     revealing, setRevealing, revealCards, revealShown,
     smartQuery, setSmartQuery, smartIntent, setSmartIntent, applyIntent,
     stashDraft, signIn, start, constraintChips,

@@ -1,21 +1,24 @@
 "use client";
 
-import type { KeyboardEvent } from "react";
+import { useRef, type KeyboardEvent } from "react";
 import Image from "next/image";
 import PhotoCredit from "@/components/PhotoCredit";
+import { categoryMeta } from "@/lib/categories";
 import { useDeckPlaces } from "@/hooks/use-deck-places";
 import type { Composer, PinnedPlace } from "@/hooks/use-composer";
 
-type Card = PinnedPlace & { min_spend?: number };
+type Card = PinnedPlace & { min_spend?: number; category?: string; cuisine?: string };
 
-// Arrow keys walk the deck; the browser's own scroll-snap keeps a card in view.
+// The deck is one Tab stop (roving tabindex): arrows, Home and End walk the
+// cards, so a keyboard reaches "Deal nine" without stepping through 20 places.
 function walk(event: KeyboardEvent<HTMLUListElement>) {
-  if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
-  const cards = [...event.currentTarget.querySelectorAll<HTMLElement>("[data-deck-card]")];
+  const cards = [...event.currentTarget.querySelectorAll<HTMLElement>("[data-deck-card]:not(:disabled)")];
   const at = cards.indexOf(document.activeElement as HTMLElement);
-  if (at < 0) return;
+  const to = { ArrowRight: at + 1, ArrowLeft: at - 1, Home: 0, End: cards.length - 1 }[event.key];
+  if (at < 0 || to === undefined) return;
   event.preventDefault();
-  const next = cards[Math.min(cards.length - 1, Math.max(0, at + (event.key === "ArrowRight" ? 1 : -1)))];
+  const next = cards[Math.min(cards.length - 1, Math.max(0, to))];
+  cards.forEach((card) => { card.tabIndex = card === next ? 0 : -1; });
   next.focus();
   next.scrollIntoView({ block: "nearest", inline: "nearest" });
 }
@@ -28,12 +31,20 @@ function walk(event: KeyboardEvent<HTMLUListElement>) {
 export default function ComposerDeck({ composer, age, demoMode }: { composer: Composer; age: number; demoMode: boolean }) {
   const { groups, shownGroup, visibleCategories, category, pickCategory, setActiveGroup, pins, togglePin, roundOf, pinnedIds } = composer;
   const deck = useDeckPlaces(category, age, true);
+  const row = useRef<HTMLUListElement>(null);
+  // A mouse has no sideways swipe: these page the row by most of its width.
+  const page = (direction: 1 | -1) => row.current?.scrollBy({
+    left: direction * row.current.clientWidth * 0.8,
+    behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+  });
   const full = pinnedIds.length >= 3;
+  const focusable = (card: Card) => !full || roundOf(card.id) != null;
   // A pinned place from elsewhere (a board, a place page) leads the deck.
   const cards: Card[] = [
     ...pins.filter((pin) => deck.state !== "ready" || !deck.places.some((place) => place.id === pin.id)),
     ...(deck.state === "ready" ? deck.places : []),
   ];
+  const tabStop = Math.max(0, cards.findIndex(focusable)); // the deck's one Tab stop
 
   const face = (card: Card) => (
     <>
@@ -43,7 +54,13 @@ export default function ComposerDeck({ composer, age, demoMode }: { composer: Co
             <Image src={card.photo_url} alt="" fill sizes="10rem" className="object-cover" unoptimized />
             <PhotoCredit spot={card} />
           </>
-        ) : <span className="plan-deck__name">{card.name}</span>}
+        ) : (
+          // No photo: the vote card's typographic band (P27), not an empty frame.
+          <span className="plan-deck__type">
+            {card.category && <span className="plan-deck__code">{categoryMeta(card.category).code}{card.cuisine ? ` · ${card.cuisine}` : ""}</span>}
+            <span className="plan-deck__name">{card.name}</span>
+          </span>
+        )}
       </span>
       <span className="plan-deck__caption">
         {card.photo_url && <strong className="font-semibold text-ink">{card.name}</strong>}
@@ -86,21 +103,33 @@ export default function ComposerDeck({ composer, age, demoMode }: { composer: Co
       </fieldset>
 
       <section className="mt-4" aria-labelledby="plan-deck-title">
-        <p id="plan-deck-title" className="text-xs text-muted">
-          {demoMode ? "Real places a deal like this draws from" : full ? "Three pinned, one per round. Undo one to pin another." : "Tap a place to put it in the vote"}
-        </p>
-        {deck.state === "failed" && cards.length === 0 ? (
-          <p className="mt-2 text-xs text-muted">These places didn’t load. Dealing nine still works.</p>
+        <div className="flex items-center justify-between gap-2">
+          <p id="plan-deck-title" className="text-xs text-muted">
+            {demoMode ? "Real places a deal like this draws from"
+              : full ? "Three pinned, one per round. Undo one to pin another."
+                : "Nine places, three rounds. Tap one to make sure it’s in."}
+          </p>
+          {cards.length > 3 && (
+            <span className="plan-deck__paging">
+              <button type="button" onClick={() => page(-1)} aria-label="Earlier places" data-dir="back" />
+              <button type="button" onClick={() => page(1)} aria-label="More places" />
+            </span>
+          )}
+        </div>
+        {deck.state !== "loading" && cards.length === 0 ? (
+          <p className="mt-2 text-xs text-muted">
+            {deck.state === "failed" ? "These places didn’t load. Dealing nine still works." : "No places to show for this type yet. Dealing nine still works."}
+          </p>
         ) : (
-          <ul className="plan-deck__row" onKeyDown={walk} aria-busy={deck.state === "loading"}>
-            {cards.map((card) => {
+          <ul ref={row} className="plan-deck__row" onKeyDown={walk} aria-busy={deck.state === "loading"}>
+            {cards.map((card, index) => {
               const round = roundOf(card.id);
               return (
                 <li key={card.id} className="grid snap-start content-start gap-0.5">
                   {demoMode ? (
-                    <div className="plan-deck__card" tabIndex={0} data-deck-card>{face(card)}</div>
+                    <div className="plan-deck__card">{face(card)}</div>
                   ) : (
-                    <button type="button" className="plan-deck__card" data-deck-card aria-pressed={round != null} disabled={round == null && full} onClick={() => togglePin(card)}>
+                    <button type="button" className="plan-deck__card" data-deck-card tabIndex={index === tabStop ? 0 : -1} aria-pressed={round != null} disabled={round == null && full} onClick={() => togglePin(card)}>
                       {face(card)}
                       <span className="sr-only">{round != null ? `, pinned in round ${round}` : ", pin into the vote"}</span>
                     </button>
