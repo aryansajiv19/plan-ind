@@ -6,21 +6,6 @@ import { DUBAI_ORIGINS } from "@/lib/dubai-areas";
 import { secureJsonFetch } from "@/lib/security/csrf-client";
 import { categoryMeta } from "@/lib/categories";
 
-const BUDGETS = [
-  { label: "Any budget", value: null },
-  { label: "Up to AED 100", value: 100 },
-  { label: "Up to AED 200", value: 200 },
-  { label: "Up to AED 350", value: 350 },
-  { label: "Up to AED 500", value: 500 },
-] as const;
-
-const RADII = [
-  { label: "10 km", value: 10 },
-  { label: "20 km", value: 20 },
-  { label: "35 km", value: 35 },
-  { label: "Anywhere", value: null },
-] as const;
-
 export interface DirectPlanSpot {
   id: string;
   name: string;
@@ -44,9 +29,7 @@ export interface DirectPlanSpot {
 export default function DirectPlanForm({ spot, onCancel }: { spot: DirectPlanSpot; onCancel?: () => void }) {
   const router = useRouter();
   const [title, setTitle] = useState(`${spot.name}`);
-  const [maxBudget, setMaxBudget] = useState<number | null>(null);
   const [originValue, setOriginValue] = useState("anywhere");
-  const [radiusKm, setRadiusKm] = useState<number | null>(20);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const cat = categoryMeta(spot.category);
@@ -58,28 +41,30 @@ export default function DirectPlanForm({ spot, onCancel }: { spot: DirectPlanSpo
     setCreating(true);
     setError(null);
     const selectedOrigin = DUBAI_ORIGINS.find((origin) => origin.value === originValue) ?? DUBAI_ORIGINS[0];
-    const response = await secureJsonFetch("/api/plans/direct", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: clean,
-        spotId: spot.id,
-        area: spot.area,
-        budgetPerPerson: maxBudget,
-        originLabel: selectedOrigin.label,
-        originLatitude: selectedOrigin.coordinates?.latitude ?? null,
-        originLongitude: selectedOrigin.coordinates?.longitude ?? null,
-        radiusKm: selectedOrigin.coordinates ? radiusKm : null,
-      }),
-    });
-    const result = await response.json() as { id?: string; hostToken?: string; error?: string };
-    if (!response.ok || !result.id) {
-      setError(result.error ?? "Couldn't start the plan. Try again in a moment.");
+    // P12: a dropped connection used to leave "Locking it in…" spinning.
+    try {
+      const response = await secureJsonFetch("/api/plans/direct", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: clean,
+          spotId: spot.id,
+          area: spot.area,
+          originLabel: selectedOrigin.label,
+          originLatitude: selectedOrigin.coordinates?.latitude ?? null,
+          originLongitude: selectedOrigin.coordinates?.longitude ?? null,
+        }),
+      });
+      const result = await response.json().catch(() => ({})) as { id?: string; hostToken?: string; error?: string };
+      if (!response.ok || !result.id) throw new Error(result.error ?? "Couldn't start the plan. Try again in a moment.");
+      if (result.hostToken) localStorage.setItem(`plan-host:${result.id}`, result.hostToken);
+      router.push(`/plan/${result.id}`);
+    } catch (submitError) {
+      setError(submitError instanceof Error && submitError.message !== "Failed to fetch"
+        ? submitError.message
+        : "Couldn't reach the server. Check your connection and try again.");
       setCreating(false);
-      return;
     }
-    if (result.hostToken) localStorage.setItem(`plan-host:${result.id}`, result.hostToken);
-    router.push(`/plan/${result.id}`);
   }
 
   return (
@@ -103,15 +88,9 @@ export default function DirectPlanForm({ spot, onCancel }: { spot: DirectPlanSpo
         className="plan-form__input"
       />
 
-      <fieldset>
-        <legend className="plan-form__label">Budget per person</legend>
-        <div className="plan-choice-strip plan-choice-strip--budget">
-          {BUDGETS.map((budget) => (
-            <button key={budget.label} type="button" onClick={() => setMaxBudget(budget.value)} aria-pressed={maxBudget === budget.value}>{budget.label}</button>
-          ))}
-        </div>
-      </fieldset>
-
+      {/* P12: no budget or radius here. The place is already chosen, so they
+          filtered nothing and could contradict it in the plan header. The
+          starting point stays: the plan's travel estimate reads it. */}
       <div className="plan-location-fields">
         <label>
           <span>Starting around</span>
@@ -119,14 +98,6 @@ export default function DirectPlanForm({ spot, onCancel }: { spot: DirectPlanSpo
             {DUBAI_ORIGINS.map((origin) => <option key={origin.value} value={origin.value}>{origin.label}</option>)}
           </select>
         </label>
-        <fieldset disabled={originValue === "anywhere"}>
-          <legend>Travel radius</legend>
-          <div className="plan-choice-strip">
-            {RADII.map((radius) => (
-              <button key={radius.label} type="button" onClick={() => setRadiusKm(radius.value)} aria-pressed={radiusKm === radius.value}>{radius.label}</button>
-            ))}
-          </div>
-        </fieldset>
       </div>
 
       <div className="direct-plan-form__actions">
