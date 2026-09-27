@@ -22,6 +22,9 @@ export const SAMPLE_VOTER = "You";
 export const SAMPLE_FRIENDS = ["Maya Haddad", "Omar Khalid", "Priya Nair", "Sam Carter"] as const;
 
 type SpotSeed = Pick<Spot, "id" | "name" | "area" | "cuisine" | "price_band" | "min_spend" | "open_till" | "vibe" | "booking_url">
+  // The five real catalogue venues keep their real ids and Google place ids,
+  // so the sample shows their real photos; the other four stay sample-only.
+  & Partial<Pick<Spot, "google_place_id">>
   // P29: where the catalogue knows it (data/venue-facts.json), so the sample
   // winner's directions are real. Unknown stays null, never invented.
   & Partial<Pick<Spot, "address" | "latitude" | "longitude">>;
@@ -46,17 +49,17 @@ function dinner(seed: SpotSeed): Spot {
 /** Nine spots, dealt three per round, in deal order. */
 export const SAMPLE_POOLS: readonly (readonly Spot[])[] = [
   [
-    dinner({ id: "sample-reif", name: "Reif Japanese Kushiyaki", area: "Dubai Hills", cuisine: "Japanese", price_band: "$$$", min_spend: 250, open_till: "12am", vibe: "Smoky skewers, tight room, always buzzing", booking_url: "https://www.reifother.com", address: "Dubai Hills Business Park, Building 3, Dubai" }),
-    dinner({ id: "sample-ravi", name: "Ravi Restaurant", area: "Al Satwa", cuisine: "Pakistani", price_band: "$", min_spend: 45, open_till: "3am", vibe: "Legendary cheap eats, plastic chairs, no bookings", booking_url: null, address: "Shop 245, Al Dhiyafa Road, opposite Union Co-operative Society, Al Satwa, Dubai", latitude: 25.2336615, longitude: 55.2790297 }),
-    dinner({ id: "sample-3fils", name: "3Fils", area: "Jumeirah", cuisine: "Seafood", price_band: "$$", min_spend: 180, open_till: "11pm", vibe: "Marina side, no reservations, quietly excellent", booking_url: null, address: "Shop 02, Jumeirah Fishing Harbour 1, Al Urouba Street, Jumeirah 1, Dubai", latitude: 25.2103004, longitude: 55.2433123 }),
+    dinner({ id: "a0000000-0000-0000-0000-000000000001", google_place_id: "ChIJN0PuVXJpXz4RTi-IEGAvito", name: "Reif Japanese Kushiyaki", area: "Dubai Hills", cuisine: "Japanese", price_band: "$$$", min_spend: 250, open_till: "12am", vibe: "Smoky skewers, tight room, always buzzing", booking_url: "https://www.reifother.com", address: "Dubai Hills Business Park, Building 3, Dubai" }),
+    dinner({ id: "a0000000-0000-0000-0000-000000000002", google_place_id: "ChIJN81uvipDXz4RH_4cyTocRMI", name: "Ravi Restaurant", area: "Al Satwa", cuisine: "Pakistani", price_band: "$", min_spend: 45, open_till: "3am", vibe: "Legendary cheap eats, plastic chairs, no bookings", booking_url: null, address: "Shop 245, Al Dhiyafa Road, opposite Union Co-operative Society, Al Satwa, Dubai", latitude: 25.2336615, longitude: 55.2790297 }),
+    dinner({ id: "a0000000-0000-0000-0000-000000000003", google_place_id: "ChIJc_qkbD5CXz4RjckbjFAB3eM", name: "3Fils", area: "Jumeirah", cuisine: "Seafood", price_band: "$$", min_spend: 180, open_till: "11pm", vibe: "Marina side, no reservations, quietly excellent", booking_url: null, address: "Shop 02, Jumeirah Fishing Harbour 1, Al Urouba Street, Jumeirah 1, Dubai", latitude: 25.2103004, longitude: 55.2433123 }),
   ],
   [
-    dinner({ id: "sample-buqtair", name: "Bu Qtair", area: "Umm Suqeim", cuisine: "Seafood", price_band: "$", min_spend: 60, open_till: "11:30pm", vibe: "Fry shack by the beach, catch of the day", booking_url: null, address: "Old 32B Street, Fishing Harbour 2, Dubai", latitude: 25.1515093, longitude: 55.1971669 }),
+    dinner({ id: "a0000000-0000-0000-0000-000000000004", google_place_id: "ChIJlbbiwENqXz4RYs-mK1C-G8o", name: "Bu Qtair", area: "Umm Suqeim", cuisine: "Seafood", price_band: "$", min_spend: 60, open_till: "11:30pm", vibe: "Fry shack by the beach, catch of the day", booking_url: null, address: "Old 32B Street, Fishing Harbour 2, Dubai", latitude: 25.1515093, longitude: 55.1971669 }),
     dinner({ id: "sample-orfali", name: "Orfali Bros Bistro", area: "Jumeirah", cuisine: "Middle Eastern", price_band: "$$", min_spend: 160, open_till: "11pm", vibe: "Three brothers, inventive small plates, worth the queue", booking_url: null }),
     dinner({ id: "sample-baitmaryam", name: "Bait Maryam", area: "JLT", cuisine: "Levantine", price_band: "$$", min_spend: 110, open_till: "11pm", vibe: "Home style Levantine, like dinner at an aunt's", booking_url: null }),
   ],
   [
-    dinner({ id: "sample-tresind", name: "Tresind Studio", area: "DIFC", cuisine: "Indian", price_band: "$$$", min_spend: 550, open_till: "11pm", vibe: "Theatrical tasting menu, book weeks ahead", booking_url: "https://www.tresindstudio.com" }),
+    dinner({ id: "a0000000-0000-0000-0000-000000000005", google_place_id: "ChIJcfzwzo0TXz4RyQpaHkMBWsE", name: "Tresind Studio", area: "DIFC", cuisine: "Indian", price_band: "$$$", min_spend: 550, open_till: "11pm", vibe: "Theatrical tasting menu, book weeks ahead", booking_url: "https://www.tresindstudio.com" }),
     dinner({ id: "sample-zuma", name: "Zuma", area: "DIFC", cuisine: "Japanese izakaya", price_band: "$$$", min_spend: 400, open_till: "1am", vibe: "Robata grill, loud room, see and be seen", booking_url: null }),
     dinner({ id: "sample-almallah", name: "Al Mallah", area: "Al Satwa", cuisine: "Lebanese", price_band: "$", min_spend: 40, open_till: "3am", vibe: "Shawarma institution, pavement tables, open late", booking_url: null }),
   ],

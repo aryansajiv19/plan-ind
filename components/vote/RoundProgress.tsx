@@ -1,6 +1,6 @@
-// Roman round markers are After Dark's, and night-only — "III" does not fit
-// the 2.1rem day dot. Always paired with the arabic original for assistive
-// tech, which reads "Round 3" properly and "Round III" as "Round eye-eye-eye".
+// Roman round numbers are After Dark's, night-only, in the round label.
+// Always paired with the arabic original for assistive tech, which reads
+// "Round 3" properly and "Round III" as "Round eye-eye-eye".
 const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
 const roman = (n: number) => ROMAN[n - 1] ?? String(n);
 
@@ -32,35 +32,46 @@ export function RoundLabel({
   );
 }
 
-/** The round dots: one button per pool, marked once this voter has chosen in it. */
+/**
+ * The bracket: one button per round, each wired down into the final. A wire
+ * lights once this voter has chosen in its round, and the trunk into the
+ * final lights when every round has a pick.
+ */
 export function RoundDots({
   poolCount,
   activePool,
   chosen,
-  nightMode,
   onSelect,
 }: {
   poolCount: number;
   activePool: number;
   /** Pool numbers this voter has already picked in. */
   chosen: ReadonlySet<number>;
-  nightMode: boolean;
   onSelect: (poolNumber: number) => void;
 }) {
+  const rounds = Array.from({ length: poolCount }, (_, index) => index + 1);
   return (
-    <nav className="vote-pool-progress" aria-label="Voting pools">
-      {Array.from({ length: poolCount }, (_, index) => index + 1).map((poolNumber) => (
-        <button
-          key={poolNumber}
-          type="button"
-          onClick={() => onSelect(poolNumber)}
-          aria-current={activePool === poolNumber ? "step" : undefined}
-          data-complete={chosen.has(poolNumber) || undefined}
-          aria-label={`Round ${poolNumber} of ${poolCount}${chosen.has(poolNumber) ? ", chosen" : ""}`}
-        >
-          <span aria-hidden="true">{nightMode ? roman(poolNumber) : poolNumber}</span>
-        </button>
-      ))}
+    <nav
+      className="vote-pool-progress"
+      aria-label="Voting pools"
+      data-all={rounds.every((poolNumber) => chosen.has(poolNumber)) || undefined}
+      style={{ "--rounds": poolCount } as React.CSSProperties}
+    >
+      <div className="vote-pool-progress__rounds">
+        {rounds.map((poolNumber) => (
+          <button
+            key={poolNumber}
+            type="button"
+            onClick={() => onSelect(poolNumber)}
+            aria-current={activePool === poolNumber ? "step" : undefined}
+            data-complete={chosen.has(poolNumber) || undefined}
+            aria-label={`Round ${poolNumber} of ${poolCount}${chosen.has(poolNumber) ? ", chosen" : ""}`}
+          >
+            <span aria-hidden="true">Round {poolNumber}</span>
+          </button>
+        ))}
+      </div>
+      <span className="vote-pool-progress__final" aria-hidden="true">Final</span>
     </nav>
   );
 }

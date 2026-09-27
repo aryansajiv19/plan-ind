@@ -96,7 +96,15 @@ function GooglePhoto({ spotId, className }: { spotId: string; className: string 
         <>
           {/* A plain img: the optimiser would store Google's image on our server. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={photo.photoUri} alt="" decoding="async" referrerPolicy="no-referrer" className={className} />
+          <img
+            src={photo.photoUri}
+            alt=""
+            decoding="async"
+            referrerPolicy="no-referrer"
+            className={className}
+            // A browser-cached answer can outlive Google's short-lived URL.
+            onError={() => setPhoto(null)}
+          />
           {/* Google's terms: show the photo's authors wherever it appears. */}
           <span className="photo-credit">{authors ? `${authors} · ` : ""}Google Maps</span>
         </>

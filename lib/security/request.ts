@@ -110,3 +110,26 @@ export function requestError(error: unknown, fallback: string): Response {
   console.error("Request handling failed", error instanceof Error ? error.message : String(error));
   return Response.json({ error: fallback }, { status: 500 });
 }
+
+/**
+ * The key a per-IP limit counts on. IPv4 as it is; IPv6 by its /64, since one
+ * home or phone holds a whole /64 and could otherwise mint a fresh bucket per
+ * address. An IPv4-mapped address counts as its IPv4. Anything unparseable is
+ * kept whole (it can only be stricter than the truth, never looser).
+ */
+export function rateLimitKey(ip: string): string {
+  const bare = ip.trim().toLowerCase().replace(/%.*$/, ""); // drop a zone id
+  if (!bare.includes(":")) return bare;
+  const mapped = bare.match(/^::ffff:(\d{1,3}(?:\.\d{1,3}){3})$/);
+  if (mapped) return mapped[1];
+  const [head, tail, extra] = bare.split("::");
+  if (extra !== undefined) return bare;
+  const left = head ? head.split(":") : [];
+  const right = tail ? tail.split(":") : [];
+  const missing = 8 - left.length - right.length;
+  if (bare.includes("::") ? missing < 1 : missing !== 0) return bare;
+  const groups = [...left, ...Array(missing).fill("0"), ...right];
+  if (!groups.every((g) => /^[0-9a-f]{1,4}$/.test(g))) return bare;
+  return `${groups.slice(0, 4).map((g) => g.replace(/^0+(?=.)/, "")).join(":")}::/64`;
+}
+

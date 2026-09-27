@@ -77,6 +77,7 @@ Apply in order. Every migration is additive and re-run safe unless noted.
 | 074 | `migration-074-plan-seen.sql` | **yes — applied live 2026-09-27 via Supabase MCP (lead, owner-approved go-live); verified by function fingerprints against the local stack.** `plans.stage_changed_at` (trigger-stamped), `plan_access.last_seen_at` (default now()), `touch_plan_seen(uuid)` (own row), `my_plan_rail(int)` (security invoker, changed-first). Own security review: no C/H/M; two Lows fixed. test:db 95/95. Applied on the local stack. |
 | 075 | `migration-075-member-booking.sql` | **yes — applied live 2026-09-27 via Supabase MCP (lead; owner: "apply any migrations").** Verified: claim/release/mark_booked security definer, execute for authenticated only (anon false), booking_result no client grant, my_plan_rows returns my_booking; Scoopi Cafe and Garage Dubai private, Iris Harbour vibes/Lounge, Tresind Palm Jumeirah. |
 | 076 | `migration-076-places-backfill-ids.sql` | **yes — applied live 2026-09-27 via Supabase MCP (lead; owner approved "high + likely" place ids).** 62 curated spots (32 high, 27 reviewed, 3 hand-checked: Cove Beach, QDs, AquaFun); rejected: O Beach, Sky Views Edge Walk, Cocoa Room, Scoopi Cafe, Anantara, Bla Bla, Garage Dubai, Terra Solis. Verified: 62 ids, 62 distinct, 0 on non-curated rows. Review file deleted (Google content). |
+| 077 | `migration-077-visitor-photos.sql` | **yes — applied live 2026-09-28 via Supabase MCP (lead; owner: "apply any migrations").** consume_otp_limit gains 'place-photo-anon' (40/min, 120/day per hashed IP; visitors take the shared 'place-photo-global' counter to 200 of 300). Verified: body has the scope, security definer, execute anon+authenticated (as 072). Security review (B): Medium + Low fixed. |
 | 049 / 051 | `migration-049-hide-voter-user-id.sql`, `migration-051-hide-creator-user-id.sql` | **yes — applied live 2026-09-19 13:20Z via Supabase MCP (T0), owner-approved.** Confirmed 2026-09-26 by `list_migrations` (`migration_049_hide_voter_user_id`, `migration_051_hide_creator_user_id`). This row said "NOT applied" for a week because the entry recording it lived only on the unpushed `ai-engineering`. |
 
 `npm run test:smoke` asserts the 019 guards against the live project. All ten
@@ -556,3 +557,22 @@ the impeccable skill, standards advisory, on `lane/frontend-exp` only.
   alternating local run (5 reps) confirms the JS drop and demo-mobile LCP -7%;
   it cannot show the image fix, whose photos point at the live host.
 - **075, 066, 076 applied live** (ledger above); P35 merged (8d2277f).
+
+## 2026-09-28 — Lead: redesign "night-listings magazine" (owner: "go all out")
+
+Impeccable direction (seed 571d077f, code-led; contract in the local-only
+.impeccable/surfaces brief; PRODUCT.md local-only). Owner answers: audience
+everyone, all screens, nothing off limits, place ids approved.
+- **Photos everywhere:** VenuePhoto (own photo first, else the matched
+  Google place's, fetched per card near the viewport); 076 ids + 077 visitor
+  quota live. Verified live signed-out: 12/12 photo calls 200, 0 errors.
+- **1/5 tokens + type (f08b0e0):** Archivo variable replaces Cormorant +
+  Hanken (90 KB vs ~240 KB); paper/ink, souk-gold fill, coral live; every
+  text pair re-measured; tokens.css 26 -> 12 KB.
+- **2/5 landing cover (6581478):** photo mosaic behind a poster-scale cover
+  line, gold issue band with real counts; card-stack deleted.
+- **3/5 vote (2f588e1):** name over the photo, the bracket wired into the
+  final, gold primary; fixed the current round's label vanishing once picked.
+- **Lanes:** A on 4/5 (signed-in pages); B on 078 (booking F1/F2/F6); an
+  agent is sourcing CC-licensed venue photos for 079 (own photos cost nothing
+  per view; Google's are capped at 300/day).

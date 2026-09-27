@@ -1,5 +1,6 @@
-// The one image source next/image may optimise: our own public spot-photos
-// bucket over https (next.config.ts allows exactly this in remotePatterns).
+// The image sources next/image may optimise: our own licensed venue photos in
+// public/venues, and our own public spot-photos bucket over https
+// (next.config.ts allows exactly this in remotePatterns).
 // Everything else stays unoptimized: Google Places photo URIs may not be
 // cached under the Maps terms (docs/PLACES_INGESTION_SCOPE.md), and Next 16
 // refuses to optimise a private IP, which is what the local stack serves from.
@@ -14,10 +15,13 @@ export function spotPhotoHost(supabaseUrl: string | undefined): string | null {
   }
 }
 
+const VENUE_PHOTO = /^\/venues\/[a-z0-9-]+\.webp$/;
+
 export function canOptimiseImage(
   src: string,
   supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL,
 ): boolean {
+  if (VENUE_PHOTO.test(src)) return true;
   const host = spotPhotoHost(supabaseUrl);
   if (!host) return false;
   try {

@@ -308,8 +308,4 @@
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
   }
-
-  .home-stage {
-    transform: none !important;
-  }
 }
