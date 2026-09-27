@@ -5,6 +5,7 @@ import Image from "next/image";
 import CountUp from "@/components/CountUp";
 import PhotoCredit from "@/components/PhotoCredit";
 import signStyles from "@/components/vote/SignVote.module.css";
+import world from "@/components/landing/SignWorld.module.css";
 import { signArabic, signLatin } from "@/components/landing/sign-fonts";
 import { SIGN_ARABIC, signColourFor } from "@/components/landing/sign-palette";
 import { avatarStyle, initialsOf } from "@/lib/avatar";
@@ -121,7 +122,7 @@ export default function OptionCard({
       data-colour={signColourFor(spot.id)}
       className={[
         "opt token vote-option relative flex w-full flex-col bg-card text-left",
-        signStyles.card, signLatin.variable, signArabic.variable,
+        signStyles.card, world.world, signLatin.variable, signArabic.variable,
         isWinner ? "vote-option--winner z-[3]" : "",
         isLeader && !decided ? "vote-option--leader" : "",
         dimmed ? "opacity-55" : "",
@@ -158,7 +159,7 @@ export default function OptionCard({
       {photo && (
         <>
           {/* Category strip: identity only, one line; the cuisine truncates. */}
-          <span className="vote-option__category inline-flex min-w-0 items-center gap-1.5 self-start px-2.5 py-1 text-xs font-bold">
+          <span className={`vote-option__category ${signStyles.bodyCat} inline-flex min-w-0 items-center gap-1.5 self-start px-2.5 py-1 text-xs font-bold`}>
             <span aria-hidden="true">{cat.code}</span>
             <span className="vote-option__cuisine">{spot.cuisine}</span>
           </span>

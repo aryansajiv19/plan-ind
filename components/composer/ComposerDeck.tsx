@@ -4,6 +4,8 @@ import { useDeckPlaces } from "@/hooks/use-deck-places";
 import PlaceRow, { type RowCard } from "@/components/composer/PlaceRow";
 import type { ReactNode } from "react";
 import type { Composer } from "@/hooks/use-composer";
+import { SIGN_ARABIC, signColourFor } from "@/components/landing/sign-palette";
+import lab from "@/components/composer/SignComposer.module.css";
 
 /**
  * P25: what kind of hangout, then the real places its deal draws from. A tap
@@ -45,8 +47,10 @@ export default function ComposerDeck({ composer, age, demoMode, shelf }: { compo
             onClick={() => pickCategory(c)}
             aria-pressed={category === c.key}
             className="plan-category-option"
+            data-colour={signColourFor(c.key)}
           >
             {c.label}
+            {SIGN_ARABIC[c.key] && <span className={lab.kufi} lang="ar" dir="rtl" aria-hidden="true">{SIGN_ARABIC[c.key]}</span>}
           </button>
           ))}
         </div>

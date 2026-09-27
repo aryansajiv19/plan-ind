@@ -1,0 +1,28 @@
+/* Experimental track: the sign street's palette and lit material, shared by
+   the vote screen, its shell and the composer. Put .world on any element
+   that paints signs; [data-colour] on it or inside it picks the sign.
+   The highlight stops are cut so small white type clears AA across the
+   whole gradient, not just on the flat colour: white on the red highlight
+   #dc2d34 4.70 (flat 5.00), green #0f863e 4.67 (5.30), cobalt #3a62e6 5.16;
+   ink on yellow 13.05+ and on acrylic 17+. Off text #9a9282 on off 5.13. */
+.world {
+  --sign-red: #d6282f;
+  --sign-green: #0e7c3a;
+  --sign-yellow: #ffd400;
+  --sign-cobalt: #1f46c8;
+  --sign-white: #f6f4ee;
+  --sign-ink: #141210;
+  --frame: #3b362e;
+  --off: #26221c;
+  --off-text: #9a9282;
+  --lit-red: radial-gradient(120% 100% at 50% 35%, #dc2d34, var(--sign-red) 70%);
+  --lit-green: radial-gradient(120% 100% at 50% 35%, #0f863e, var(--sign-green) 70%);
+  --lit-yellow: radial-gradient(120% 100% at 50% 35%, #ffe45c, var(--sign-yellow) 70%);
+  --lit-cobalt: radial-gradient(120% 100% at 50% 35%, #3a62e6, var(--sign-cobalt) 70%);
+  --lit-white: radial-gradient(120% 100% at 50% 35%, #fff, var(--sign-white) 70%);
+}
+.world[data-colour="red"], .world [data-colour="red"] { --lit: var(--lit-red); --ink: #fff; --strip: #8f1418; }
+.world[data-colour="green"], .world [data-colour="green"] { --lit: var(--lit-green); --ink: #fff; --strip: #07501f; }
+.world[data-colour="yellow"], .world [data-colour="yellow"] { --lit: var(--lit-yellow); --ink: var(--sign-ink); --strip: var(--sign-ink); }
+.world[data-colour="cobalt"], .world [data-colour="cobalt"] { --lit: var(--lit-cobalt); --ink: #fff; --strip: #122a80; }
+.world[data-colour="white"], .world [data-colour="white"] { --lit: var(--lit-white); --ink: var(--sign-ink); --strip: var(--sign-ink); }

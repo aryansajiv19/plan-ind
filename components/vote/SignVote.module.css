@@ -2,25 +2,8 @@
    lightboxes in the locked palette (colour fixed per place, so a place keeps
    its sign from the landing to the winner), rounds are a sign strip, and the
    winner powers on. Selectors are doubled where they must outrank vote.css,
-   whose order against a module is not guaranteed. Contrast as on the landing:
-   white on red 4.95, green 5.3, cobalt 7.3; ink on yellow and acrylic 13+. */
-.card,
-.rounds,
-.winner {
-  --sign-red: #d6282f;
-  --sign-green: #0e7c3a;
-  --sign-yellow: #ffd400;
-  --sign-cobalt: #1f46c8;
-  --sign-white: #f6f4ee;
-  --sign-ink: #141210;
-  --frame: #3b362e;
-  --off: #26221c;
-}
-.card[data-colour="red"], .winner[data-colour="red"] { --lit: radial-gradient(120% 100% at 50% 35%, #ea3a40, var(--sign-red) 70%); --ink: #fff; --strip: #8f1418; }
-.card[data-colour="green"], .winner[data-colour="green"] { --lit: radial-gradient(120% 100% at 50% 35%, #179a4a, var(--sign-green) 70%); --ink: #fff; --strip: #07501f; }
-.card[data-colour="yellow"], .winner[data-colour="yellow"] { --lit: radial-gradient(120% 100% at 50% 35%, #ffe45c, var(--sign-yellow) 70%); --ink: var(--sign-ink); --strip: var(--sign-ink); }
-.card[data-colour="cobalt"], .winner[data-colour="cobalt"] { --lit: radial-gradient(120% 100% at 50% 35%, #3a62e6, var(--sign-cobalt) 70%); --ink: #fff; --strip: #122a80; }
-.card[data-colour="white"], .winner[data-colour="white"] { --lit: radial-gradient(120% 100% at 50% 35%, #fff, var(--sign-white) 70%); --ink: var(--sign-ink); --strip: var(--sign-ink); }
+   whose order against a module is not guaranteed. The palette, the lit
+   material and their measured contrast live in SignWorld.module.css. */
 
 /* ── The card: a lightbox over its details ─────────────────────────── */
 .card.card {
@@ -65,31 +48,52 @@
   background: var(--strip);
   color: #fff;
 }
-/* Your pick: a lit frame and a plate on the sign, beside the word on the button.
-   The frame replaces the old live-accent bar and tint. */
+/* Your pick: a lit frame and a plate, beside the word on the button. The
+   frame replaces the old live-accent bar and tint; it is the theme's ink so
+   it reads on the day card too. On a typographic sign the plate rides the
+   strip's right end, clear of the Kufi word; on a photo it takes the corner. */
 .card.card[data-selected] {
-  border-color: #fff;
+  border-color: var(--color-ink);
   background: var(--color-card);
   box-shadow: none;
 }
 .card.card[data-selected] .band::after {
   content: none;
 }
-.card[data-selected] .band::before {
+.card[data-selected] .band:has(img)::before,
+.card[data-selected] .typeArea::after {
   content: "Your pick";
-  position: absolute;
-  top: 0.6rem;
-  right: 0.6rem;
-  z-index: 2;
-  padding: 0.2rem 0.5rem;
+  padding: 0.1rem 0.45rem;
   border: 2px solid var(--sign-ink);
   background: var(--sign-white);
   color: var(--sign-ink);
   font-family: var(--font-sign), system-ui, sans-serif;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  white-space: nowrap;
+}
+.card[data-selected] .band:has(img)::before {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  z-index: 2;
+}
+.card[data-selected] .typeArea.typeArea {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+/* The photo card's category line: sign lettering, no old accent bar. */
+.card .bodyCat.bodyCat {
+  border-left: 0;
+  padding-left: 0;
+  font-family: var(--font-sign), system-ui, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
 }
 
 /* ── Rounds: a sign strip, still real buttons ──────────────────────── */
@@ -103,7 +107,7 @@
   border: 2px solid var(--frame);
   border-radius: 0;
   background: var(--off);
-  color: #8e8676;
+  color: var(--off-text);
   font-family: var(--font-sign), system-ui, sans-serif;
   font-size: 1rem;
   font-weight: 800;
@@ -114,14 +118,15 @@
   background: var(--sign-white);
   color: var(--sign-ink);
 }
+/* vote-result.css marks a set round "Set · " in champagne on phones; on a lit
+   plate it takes the plate's own ink. */
+.rounds.rounds button[data-complete="true"]::before {
+  color: inherit;
+}
 .rounds.rounds button[aria-current="step"] {
   border-color: #fff;
   background: var(--sign-yellow);
   color: var(--sign-ink);
-}
-.rounds.rounds button:focus-visible {
-  outline: 3px solid #fff;
-  outline-offset: 2px;
 }
 
 /* ── The winner: its sign powers on ───────────────────────────────── */

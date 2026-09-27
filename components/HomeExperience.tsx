@@ -19,6 +19,9 @@ import YourPlans, { type PlanSummary } from "@/components/home/YourPlans";
 import { APP_VIEWS, VIEW_LABELS, WALL_SIZE, viewFromParam, type AppView } from "@/lib/home-views";
 import ActionSearchBar from "@/components/kokonutui/action-search-bar";
 import { greetingFor } from "@/lib/right-now";
+import lab from "@/components/composer/SignComposer.module.css";
+import world from "@/components/landing/SignWorld.module.css";
+import { signArabic, signLatin } from "@/components/landing/sign-fonts";
 
 
 
@@ -276,7 +279,7 @@ export default function HomeExperience({
 
       {/* Signed in, "What are we doing?" above is already the page's headline;
           a second big heading beside the form said the same thing again. */}
-      <section id="plan-lab" className={`home-plan-section${demoMode ? "" : " home-plan-section--app"}`}>
+      <section id="plan-lab" className={`home-plan-section${demoMode ? "" : " home-plan-section--app"} ${lab.lab} ${world.world} ${signLatin.variable} ${signArabic.variable}`}>
         <div className="home-plan-section__intro">
           <p className="home-section-kicker">Create a plan</p>
           {demoMode && <h2>What does the group feel like doing?</h2>}

@@ -1,7 +1,7 @@
 /* Experimental track: the landing as a street of lit shop signs (Satwa and
    Karama lightboxes). A locked five-colour sign palette, no tints: an off
-   sign goes dark, it never goes pale. Contrast (AA): white on red 4.95,
-   white on green 5.3, white on cobalt 7.3, ink on yellow and on acrylic 13+. */
+   sign goes dark, it never goes pale. Contrast (AA), at the highlight: white
+   on red 4.70, green 4.67, cobalt 5.16; ink on yellow and on acrylic 13+. */
 .street {
   --sign-red: #d6282f;
   --sign-green: #0e7c3a;
@@ -84,7 +84,7 @@
   min-height: 3.5rem;
   padding: 0 1.8rem;
   border: 4px solid var(--frame);
-  background: radial-gradient(120% 110% at 50% 35%, #ea3a40 0%, var(--sign-red) 70%);
+  background: radial-gradient(120% 110% at 50% 35%, #dc2d34 0%, var(--sign-red) 70%);
   color: #fff;
   font-family: var(--font-sign), system-ui, sans-serif;
   font-size: 1.5rem;
@@ -158,8 +158,8 @@
 /* Staggered like a real street: no two rows line up. */
 .sign[data-row="2"] { translate: 0.7rem 0; }
 .sign[data-row="3"] { translate: -0.4rem 0; }
-.sign[data-colour="red"] { --lit: radial-gradient(120% 100% at 50% 35%, #ea3a40, var(--sign-red) 70%); --ink: #fff; --strip: #8f1418; }
-.sign[data-colour="green"] { --lit: radial-gradient(120% 100% at 50% 35%, #179a4a, var(--sign-green) 70%); --ink: #fff; --strip: #07501f; }
+.sign[data-colour="red"] { --lit: radial-gradient(120% 100% at 50% 35%, #dc2d34, var(--sign-red) 70%); --ink: #fff; --strip: #8f1418; }
+.sign[data-colour="green"] { --lit: radial-gradient(120% 100% at 50% 35%, #0f863e, var(--sign-green) 70%); --ink: #fff; --strip: #07501f; }
 .sign[data-colour="yellow"] { --lit: radial-gradient(120% 100% at 50% 35%, #ffe45c, var(--sign-yellow) 70%); --ink: var(--sign-ink); --strip: var(--sign-ink); }
 .sign[data-colour="cobalt"] { --lit: radial-gradient(120% 100% at 50% 35%, #3a62e6, var(--sign-cobalt) 70%); --ink: #fff; --strip: #122a80; }
 .sign[data-colour="white"] { --lit: radial-gradient(120% 100% at 50% 35%, #fff, var(--sign-white) 70%); --ink: var(--sign-ink); --strip: var(--sign-ink); }

@@ -1,0 +1,171 @@
+/* Experimental track: the plan form as the sign-maker's counter. Every
+   choice is a sign that is off until you pick it, then lit; a kind of night
+   lights in its own colour; each place in the deck is the same lightbox it
+   will be in the vote (colour keyed by id), and "Deal nine" is the red sign,
+   dark until the plan has a title. Scoped by .lab on #plan-lab; the global
+   classes it restyles keep their old look elsewhere. Plates carry their own
+   ground, so they read on the day and the night card. Palette: SignWorld. */
+.lab :global(.home-section-kicker) {
+  font-family: var(--font-sign), system-ui, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+.lab :global(.home-plan-section__intro) h2 {
+  font-family: var(--font-sign), system-ui, sans-serif;
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+.lab.lab :global(.home-plan-card) {
+  border: 3px solid var(--frame);
+  border-radius: 0;
+}
+.lab.lab :global(.home-plan-card__tape) {
+  border: 2px solid var(--frame);
+  border-radius: 0;
+  background: var(--lit-red);
+  color: #fff;
+  font-family: var(--font-sign), system-ui, sans-serif;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.lab :global(.plan-form__label),
+.lab :global(.plan-form) legend,
+.lab :global(.plan-location-fields) span,
+.lab :global(.plan-tune) summary > span:first-child,
+.lab :global(.plan-category-group) {
+  font-family: var(--font-sign), system-ui, sans-serif;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.lab :global(.plan-tune) summary > span:first-child {
+  font-size: 1.05rem;
+}
+.lab :global(.plan-form__input),
+.lab :global(.plan-form) select,
+.lab :global(.plan-tune) input {
+  border-radius: 0;
+}
+
+/* ── Off until picked, then lit ───────────────────────────────────── */
+.lab.lab :global(.plan-mode-toggle) button,
+.lab.lab :global(.plan-tune) button[aria-pressed],
+.lab.lab :global(.plan-category-option) {
+  border: 2px solid var(--frame);
+  border-radius: 0;
+  background: var(--off);
+  box-shadow: none;
+  color: var(--off-text);
+  font-family: var(--font-sign), system-ui, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transform: none;
+}
+.lab.lab :global(.plan-choice-strip) {
+  gap: 0.3rem;
+}
+.lab.lab :global(.plan-mode-toggle) button[aria-pressed="true"],
+.lab.lab :global(.plan-tune) button[aria-pressed="true"] {
+  border-color: var(--color-ink);
+  background: var(--lit-yellow);
+  color: var(--sign-ink);
+}
+/* A switched-off setting (no starting point, so no radius) shows no lit pick. */
+.lab.lab :global(.plan-tune) fieldset:disabled button[aria-pressed="true"] {
+  border-color: var(--frame);
+  background: var(--off);
+  color: var(--off-text);
+}
+/* A kind of night lights in its own colour, with its Kufi word. */
+.lab.lab :global(.plan-category-option) {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.lab.lab :global(.plan-category-option)[aria-pressed="true"] {
+  border-color: var(--color-ink);
+  background: var(--lit);
+  color: var(--ink);
+}
+.kufi {
+  font-family: var(--font-sign-arabic), system-ui, sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+/* ── The deck: each place is its vote lightbox ──────────────────────── */
+.lab.lab :global(.plan-deck__card) {
+  border: 3px solid var(--frame);
+  border-radius: 0;
+}
+.lab.lab :global(.plan-deck__card)[aria-pressed="true"] {
+  border-color: var(--color-ink);
+  box-shadow: none;
+}
+.lab [data-colour] :global(.plan-deck__band) {
+  background: var(--lit);
+}
+.lab [data-colour] :global(.plan-deck__type) {
+  color: var(--ink);
+}
+.lab :global(.plan-deck__code) {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: inherit;
+  font-family: var(--font-sign), system-ui, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+.lab :global(.plan-deck__code) .kufi {
+  margin-left: auto;
+}
+.lab :global(.plan-deck__name) {
+  font-family: var(--font-sign), system-ui, sans-serif;
+  font-size: 1.45rem;
+  font-weight: 800;
+  line-height: 0.92;
+  text-transform: uppercase;
+}
+/* The caption is the phone strip at the sign's foot. */
+.lab [data-colour] :global(.plan-deck__caption) {
+  background: var(--strip);
+  color: #fff;
+}
+.lab [data-colour] :global(.plan-deck__caption) strong {
+  color: #fff;
+}
+
+.lab :global(.plan-tune__chip) {
+  border: 1px solid var(--frame);
+  border-radius: 0;
+  background: var(--sign-ink);
+  color: var(--sign-white);
+}
+
+/* ── Deal nine: the red sign, dark until there's a title ──────────────── */
+.lab.lab :global(.plan-submit) {
+  border: 3px solid var(--frame);
+  border-radius: 0;
+  background: var(--lit-red);
+  color: #fff;
+  font-family: var(--font-sign), system-ui, sans-serif;
+  font-size: 1.7rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.lab.lab :global(.plan-submit):disabled {
+  background: var(--off);
+  color: var(--off-text);
+  opacity: 1;
+}

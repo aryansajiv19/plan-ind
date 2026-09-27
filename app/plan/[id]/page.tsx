@@ -28,6 +28,9 @@ import PlanHeader from "@/components/vote/PlanHeader";
 import RoundActions from "@/components/vote/RoundActions";
 import VoteOptionsGrid from "@/components/vote/VoteOptionsGrid";
 import { RoundDots } from "@/components/vote/RoundProgress";
+import shell from "@/components/vote/SignShell.module.css";
+import world from "@/components/landing/SignWorld.module.css";
+import { signLatin } from "@/components/landing/sign-fonts";
 import { useFaceFlight } from "@/components/vote/useFaceFlight";
 import { planStateScreen } from "@/components/vote/PlanStates";
 import { HostPlanControls, LeaveControl, ReopenControl } from "@/components/vote/PlanControls";
@@ -130,7 +133,7 @@ export default function VotePage() {
   });
 
   return (
-    <main className={"vote-experience mx-auto w-full max-w-4xl px-4 py-6 sm:py-10"}>
+    <main className={`vote-experience mx-auto w-full max-w-4xl px-4 py-6 sm:py-10 ${shell.shell} ${world.world} ${signLatin.variable}`}>
       <div
         ref={stageRef}
         className={[

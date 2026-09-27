@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import SampleVote from "@/components/demo/SampleVote";
+import shell from "@/components/vote/SignShell.module.css";
+import world from "@/components/landing/SignWorld.module.css";
+import { signLatin } from "@/components/landing/sign-fonts";
 
 // The playable sample decision: deal, three rounds, a final, the reveal.
 // Fixture driven (components/demo/sampleDecision.ts) with no account and no
@@ -21,7 +24,7 @@ export default function DemoVotePage() {
   return (
     // The banner sits inside <main>: .vote-experience isolates and paints a
     // fixed backdrop, which would cover a sibling rendered before it.
-    <main className="vote-experience mx-auto w-full max-w-4xl px-4 py-6 sm:py-10">
+    <main className={`vote-experience mx-auto w-full max-w-4xl px-4 py-6 sm:py-10 ${shell.shell} ${world.world} ${signLatin.variable}`}>
       <p className="home-demo-banner mb-4 rounded-2xl border border-line" role="note">
         <strong>Sample data.</strong> A made up group deciding dinner. Your votes stay on this screen and nothing saves.{" "}
         <Link href="/login" className="inline-flex min-h-11 items-center">Start your own plan →</Link>

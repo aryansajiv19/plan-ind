@@ -1,0 +1,117 @@
+/* Experimental track: the vote screen's frame in the sign street's world, so
+   the whole screen is one street and not sign cards in the old frame. Scoped
+   by .shell on the page's <main>; the global classes it restyles keep their
+   old look everywhere else. Plates carry their own ground, so they read on
+   the day and the night card alike. Palette and contrast: SignWorld. */
+.shell :global(.vote-shell) {
+  border: 3px solid var(--frame);
+  border-radius: 0;
+}
+
+/* The plan's title is its shop sign. */
+.shell :global(.vote-header) h1 {
+  display: inline-block;
+  padding: 0.4rem 0.8rem 0.3rem;
+  border: 3px solid var(--frame);
+  background: var(--lit-yellow);
+  color: var(--sign-ink);
+  font-family: var(--font-sign), system-ui, sans-serif;
+  font-size: clamp(1.9rem, 4.6vw, 3rem);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+/* Deadline and round: the black strip under a sign, yellow lettering. */
+.shell.shell :global(.vote-deadline),
+.shell.shell :global(.vote-round-label) {
+  display: inline-block;
+  padding: 0.3rem 0.6rem;
+  border: 2px solid var(--frame);
+  background: var(--sign-ink);
+  color: var(--sign-yellow);
+  font-family: var(--font-sign), system-ui, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+.shell :global(.vote-round-label)::before,
+.shell :global(.vote-round-label)::after {
+  content: none;
+}
+.shell :global(.coming-from) span {
+  font-family: var(--font-sign), system-ui, sans-serif;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.shell :global(.coming-from) select {
+  border-radius: 0;
+}
+
+/* The one primary is the red sign; it stays unlit until there's a pick. */
+.shell.shell :global(.vote-primary-action),
+.shell.shell :global(.vote-result__primary) {
+  border: 3px solid var(--frame);
+  border-radius: 0;
+  background: var(--lit-red);
+  color: #fff;
+  font-family: var(--font-sign), system-ui, sans-serif;
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.shell.shell :global(.vote-primary-action):disabled {
+  background: var(--off);
+  color: var(--off-text);
+  opacity: 1;
+}
+
+/* Sharing: WhatsApp's own green, and white acrylic for the rest. */
+.shell.shell :global(.vote-secondary-action) {
+  border: 3px solid var(--frame);
+  border-radius: 0;
+  background: var(--lit-white);
+  color: var(--sign-ink);
+  font-family: var(--font-sign), system-ui, sans-serif;
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.shell.shell a:global(.vote-secondary-action) {
+  background: var(--lit-green);
+  color: #fff;
+}
+
+/* The decided panel: a sign frame, not a champagne card. */
+.shell.shell :global(.vote-result) {
+  border: 3px solid var(--frame);
+  border-radius: 0;
+  background: transparent;
+}
+.shell :global(.vote-result__category) {
+  border-radius: 0;
+  font-family: var(--font-sign), system-ui, sans-serif;
+  font-weight: 800;
+}
+
+/* Phones: the deadline pins to the top corner and only the title sign makes
+   room for it (stacking onto two lines), so it stays beside the title and
+   the rest of the header keeps the full width. */
+@media (max-width: 640px) {
+  .shell :global(.vote-header) {
+    position: relative;
+  }
+  .shell.shell :global(.vote-deadline) {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+  .shell :global(.vote-header) h1 {
+    max-width: calc(100% - 8.5rem);
+    font-size: 1.75rem;
+  }
+}

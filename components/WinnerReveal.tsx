@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import signStyles from "@/components/vote/SignVote.module.css";
+import world from "@/components/landing/SignWorld.module.css";
 import { signLatin } from "@/components/landing/sign-fonts";
 import { signColourFor, type SignColour } from "@/components/landing/sign-palette";
 
@@ -285,7 +286,7 @@ export default function WinnerReveal({
 
   return (
     <div
-      className={`winner-reveal ${signStyles.winner} ${signLatin.variable}`}
+      className={`winner-reveal ${signStyles.winner} ${world.world} ${signLatin.variable}`}
       data-photo={photoUrl ? "true" : undefined}
       // Experimental track: the winner's own sign, powering on.
       data-colour={colour ?? signColourFor(name)}

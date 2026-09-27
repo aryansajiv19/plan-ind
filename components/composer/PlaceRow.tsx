@@ -4,6 +4,8 @@ import { useRef, type KeyboardEvent, type ReactNode } from "react";
 import Image from "next/image";
 import PhotoCredit from "@/components/PhotoCredit";
 import { categoryMeta } from "@/lib/categories";
+import { SIGN_ARABIC, signColourFor } from "@/components/landing/sign-palette";
+import lab from "@/components/composer/SignComposer.module.css";
 
 /** A place as a composer row shows it: the deck (P25) and My places. */
 export type RowCard = {
@@ -43,7 +45,12 @@ function Face({ card }: { card: RowCard }) {
         ) : (
           // No photo: the vote card's typographic band (P27), not an empty frame.
           <span className="plan-deck__type">
-            {card.category && <span className="plan-deck__code">{categoryMeta(card.category).code}{card.cuisine ? ` · ${card.cuisine}` : ""}</span>}
+            {card.category && (
+              <span className="plan-deck__code">
+                {categoryMeta(card.category).code}{card.cuisine ? ` · ${card.cuisine}` : ""}
+                {SIGN_ARABIC[card.category] && <span className={lab.kufi} lang="ar" dir="rtl" aria-hidden="true">{SIGN_ARABIC[card.category]}</span>}
+              </span>
+            )}
             <span className="plan-deck__name">{card.name}</span>
           </span>
         )}
@@ -102,12 +109,12 @@ export default function PlaceRow({
             return (
               <li key={card.id} className="grid snap-start content-start gap-0.5">
                 {interactive ? (
-                  <button type="button" className="plan-deck__card" data-deck-card tabIndex={index === tabStop ? 0 : -1} aria-pressed={round != null} disabled={round == null && full} onClick={() => onToggle(card)}>
+                  <button type="button" className="plan-deck__card" data-colour={signColourFor(card.id)} data-deck-card tabIndex={index === tabStop ? 0 : -1} aria-pressed={round != null} disabled={round == null && full} onClick={() => onToggle(card)}>
                     <Face card={card} />
                     <span className="sr-only">{round != null ? `, pinned in round ${round}` : ", pin into the vote"}</span>
                   </button>
                 ) : (
-                  <div className="plan-deck__card"><Face card={card} /></div>
+                  <div className="plan-deck__card" data-colour={signColourFor(card.id)}><Face card={card} /></div>
                 )}
                 {round != null && (
                   <p className="flex items-center justify-between text-xs font-semibold text-[var(--color-punch-text)]">

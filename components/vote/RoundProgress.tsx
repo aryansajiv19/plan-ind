@@ -1,4 +1,5 @@
 import signStyles from "@/components/vote/SignVote.module.css";
+import world from "@/components/landing/SignWorld.module.css";
 import { signLatin } from "@/components/landing/sign-fonts";
 // Roman round markers are After Dark's, and night-only — "III" does not fit
 // the 2.1rem day dot. Always paired with the arabic original for assistive
@@ -50,7 +51,7 @@ export function RoundDots({
   onSelect: (poolNumber: number) => void;
 }) {
   return (
-    <nav className={`vote-pool-progress ${signStyles.rounds} ${signLatin.variable}`} aria-label="Voting pools">
+    <nav className={`vote-pool-progress ${signStyles.rounds} ${world.world} ${signLatin.variable}`} aria-label="Voting pools">
       {Array.from({ length: poolCount }, (_, index) => index + 1).map((poolNumber) => (
         <button
           key={poolNumber}
