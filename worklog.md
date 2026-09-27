@@ -539,3 +539,12 @@ the impeccable skill, standards advisory, on `lane/frontend-exp` only.
   landing hero now paints from first paint instead of waiting for hydration
   (baseline mobile LCP 10.47 s, 92% render delay). Fixes 2 (images), 3 (JS),
   the Realtime readiness race and a coalesce test flake running as a workflow.
+- **Workflow batch merged (b610d98):** our own Supabase spot photos go through
+  the image optimiser (remotePatterns pinned to the project host and the
+  spot-photos path; Google photos stay unoptimised per ToS), the wall no
+  longer preloads every tile; account views are lazy off the signed-out
+  landing (-81 KB raw, -21 KB gzip); Realtime refetches once postgres_changes
+  reports ok, closing the subscribe-then-miss race; the coalesce test runs on
+  mocked timers. Gate: tsc, 299 unit, lint, build green. A "winner photo has
+  no credit" finding was false (DecidedPlan renders PhotoCredit after the
+  reveal) and was dropped. Merged worktrees removed.
