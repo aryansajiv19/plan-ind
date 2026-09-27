@@ -3,6 +3,7 @@
 --   P4  deadlines fire without the host (expire_plan)
 --   P11 rating only after the outing; unrating removes the visit it logged
 --   seat_key: one stable, member-readable seat per account per plan
+--   P15 the host can cancel (delete) a decided plan that hasn't happened
 --   booking_owner by identity (confirmation-pass follow-up): who claimed the
 --       booking is recorded per account in plan_booking_owners, and only that
 --       account's leaving or deletion clears it -- not a same-named member.
@@ -591,3 +592,59 @@ begin
 end; $$;
 revoke all on function my_plan_rows(uuid) from public, anon, authenticated;
 grant execute on function my_plan_rows(uuid) to authenticated;
+
+-- ── P15: cancel a decided plan ─────────────────────────────────────────────────
+-- status stays 'open' | 'decided'; cancelling is deleting, as for an open plan.
+create or replace function delete_plan(p_plan_id uuid, p_host_token text)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+as $$
+declare
+  target plans%rowtype;
+  participants int;
+begin
+  -- Same permanent-account gate as create_secure_plan: the route refuses
+  -- anonymous sessions, and this holds for a direct PostgREST call too.
+  if auth.uid() is null or coalesce(auth.jwt()->>'is_anonymous', 'false') = 'true' then
+    raise exception 'Sign in required' using errcode = '42501';
+  end if;
+
+  select * into target from plans where id = p_plan_id for update;
+  if target.id is null then
+    return jsonb_build_object('result', 'not_found');
+  end if;
+
+  -- 067: the one host rule (plan_host_authorized).
+  if not plan_host_authorized(p_plan_id, p_host_token) then
+    return jsonb_build_object('result', 'not_host');
+  end if;
+
+  -- 069 (P15): a decided plan can be cancelled (deleted) while the outing
+  -- hasn't happened -- no rating and no visit. After that it is history.
+  -- Booked is allowed: the reservation lives outside the app.
+  if target.status = 'decided' and (
+       exists (select 1 from ratings where plan_id = p_plan_id)
+       or exists (select 1 from visits where plan_id = p_plan_id)) then
+    return jsonb_build_object('result', 'already_happened');
+  end if;
+
+  select count(distinct who) into participants from (
+    select coalesce(user_id::text, participant_token_hash, voter_name) as who from votes where plan_id = p_plan_id
+    union
+    select coalesce(user_id::text, participant_token_hash, voter_name) from rsvps where plan_id = p_plan_id
+  ) p;
+
+  delete from plans where id = p_plan_id;
+
+  insert into security_events (event_type, outcome, actor_user_id, metadata)
+  values ('plan_command', 'success', auth.uid(),
+    jsonb_build_object('command', 'delete', 'plan_id', p_plan_id, 'participants', participants,
+                       'status', target.status));
+
+  return jsonb_build_object('result', 'deleted', 'participants', participants);
+end;
+$$;
+revoke all on function delete_plan(uuid, text) from public, anon, authenticated;
+grant execute on function delete_plan(uuid, text) to authenticated;

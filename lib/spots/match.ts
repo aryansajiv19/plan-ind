@@ -248,6 +248,14 @@ export function livePoolLoader(db: Db): DealPoolLoader {
  * so a shared cached pool cannot carry one caller's eligibility to another.
  * The ratings read is scoped to the spots that survived filtering.
  */
+/**
+ * Why a deal did or didn't happen. `tooFew`: the pool honestly can't fill the
+ * count (the host should widen a limit). `unavailable`: a read failed, so
+ * nothing is known about the pool -- never report that as `tooFew`, or a
+ * database blip tells the host to raise their budget.
+ */
+export type DealOutcome = { ids: string[] } | { tooFew: true } | { unavailable: true };
+
 export async function dealSpotIds(db: Db, input: {
   category: string;
   count: number;
@@ -256,13 +264,13 @@ export async function dealSpotIds(db: Db, input: {
   constraints?: DealConstraints;
   rng?: () => number;
   embed?: SpotAffinity;
-}, loadPool: DealPoolLoader = livePoolLoader(db)): Promise<string[] | null> {
+}, loadPool: DealPoolLoader = livePoolLoader(db)): Promise<DealOutcome> {
   const data = await loadPool(input.category);
-  if (!data) return null;
+  if (!data) return { unavailable: true };
 
   const pool = data;
   const eligible = eligibleDealSpots({ ...input, pool });
-  if (!eligible) return null;
+  if (!eligible) return { tooFew: true };
 
   // Chunked, paged, and fails hard -- none of which is fussiness here.
   //
@@ -286,9 +294,10 @@ export async function dealSpotIds(db: Db, input: {
         .in("spot_id", slice).order("spot_id").range(from, to) as unknown as PromiseLike<{ data: DealRatingRow[] | null; error: unknown }>,
       "dealSpotIds.ratings",
     );
-    if (!rows) return null; // ranking on a partial read is worse than no deal
+    if (!rows) return { unavailable: true }; // ranking on a partial read is worse than no deal
     ratings.push(...rows);
   }
 
-  return dealFromPool({ ...input, pool, ratings });
+  const dealt = dealFromPool({ ...input, pool, ratings });
+  return dealt ? { ids: dealt } : { tooFew: true };
 }
