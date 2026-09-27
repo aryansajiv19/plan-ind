@@ -124,8 +124,9 @@ async function createDecidedPlan(): Promise<{ planId: string; spotId: string }> 
   await psql(`
     insert into spots (id, name, category, area, cuisine, price_band, min_spend, open_till, vibe)
       values ('${spotId}', 'QA025 spot', 'dinner', 'Dubai', 'Test', '$$', 100, '12am', 'test');
-    insert into plans (id, title, category, area, status, stage, winner_spot_id)
-      values ('${planId}', 'QA025 plan', 'dinner', 'Dubai', 'decided', 'decided', '${spotId}');
+    insert into plans (id, title, category, area, status, stage, winner_spot_id, event_time)
+      values ('${planId}', 'QA025 plan', 'dinner', 'Dubai', 'decided', 'decided', '${spotId}',
+              now() - interval '1 hour'); -- the outing happened: rating is open (069 P11)
   `);
   madePlans.push(planId);
   madeSpots.push(spotId);

@@ -213,6 +213,7 @@ describe("067 voter names are labels (R7, F2)", { skip: SKIP }, () => {
     const finalist = await psql(`select spot_id from plan_spots where plan_id='${p.id}' and advanced`);
     await vote(alice, p.id, finalist, "Alice", hash(), "final", 0);
     const { winner_spot_id: w } = JSON.parse(await command(host, p.id, p.token, "decide"));
+    await psql(`update plans set event_time = now() - interval '1 hour' where id = '${p.id}'`); // 069 P11
     await as(alice, `select rate_plan('${p.id}','${w}','Alice',5,true,'${hash()}')`);
     const hers = await psql(`select
       (select count(*) from votes where plan_id='${p.id}' and user_id='${alice}') || ',' ||
@@ -257,6 +258,7 @@ describe("067 participant hashes (R2, R13)", { skip: SKIP }, () => {
     await command(host, p.id, p.token, "advance");
     await vote(a, p.id, p.pools[0][0], "QA-a", hA, "final", 0);
     const { winner_spot_id: w } = JSON.parse(await command(host, p.id, p.token, "decide"));
+    await psql(`update plans set event_time = now() - interval '1 hour' where id = '${p.id}'`); // 069 P11
     await as(b, `select rate_plan('${p.id}','${w}','QA-b',4,true,'${hA}')`);
     await as(a, `select rate_plan('${p.id}','${w}','QA-a',5,true,'${hA}')`);
     const mine = await psql(`select
