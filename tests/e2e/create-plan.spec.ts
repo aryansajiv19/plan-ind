@@ -15,6 +15,7 @@ test("a host deals nine, sees the reveal, and lands on a plan holding exactly th
   let planId = "";
   try {
     await page.goto("/home");
+    await page.locator("summary", { hasText: "Tune it" }).click(); // P25: title and times live under "Tune it"
     await page.locator("#plan-title").fill(title);
     // Two of the suggested times (they appear once the client clock is known).
     const times = page.getByRole("group", { name: /When\?/ }).locator("button[aria-pressed]");
@@ -24,7 +25,7 @@ test("a host deals nine, sees the reveal, and lands on a plan holding exactly th
     await expect(times.nth(1)).toHaveAttribute("aria-pressed", "true");
 
     const dealt = page.waitForResponse((r) => r.url().endsWith("/api/spots/deal") && r.request().method() === "POST");
-    await page.getByRole("button", { name: "Deal 9 places in 3 rounds" }).click();
+    await page.getByRole("button", { name: "Deal nine", exact: true }).click();
     const deal = await (await dealt).json() as { ids: string[] | null };
     expect(deal.ids).toHaveLength(9);
     await expect(page.getByRole("list", { name: "Nine places in three rounds" })).toBeVisible();
