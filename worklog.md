@@ -550,3 +550,9 @@ the impeccable skill, standards advisory, on `lane/frontend-exp` only.
   mocked timers. Gate: tsc, 299 unit, lint, build green. A "winner photo has
   no credit" finding was false (DecidedPlan renders PhotoCredit after the
   reveal) and was dropped. Merged worktrees removed.
+- **Perf batch measured (live, Lighthouse 12, median of 3, same runner as the
+  baseline):** home mobile perf 72→81, LCP 10.47→4.60 s, TBT 202→64 ms; home
+  desktop 91→98, LCP 2.07→1.14 s; demo desktop 91→98; JS 323→300 KB. A paired
+  alternating local run (5 reps) confirms the JS drop and demo-mobile LCP -7%;
+  it cannot show the image fix, whose photos point at the live host.
+- **075, 066, 076 applied live** (ledger above); P35 merged (8d2277f).
