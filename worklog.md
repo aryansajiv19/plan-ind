@@ -365,3 +365,18 @@ Migration 070 "catalogue truth" briefed to the platform lane; the facts UI
   Owner calls: Iris's shisha category is unsupported; Scoopi Cafe and Garage
   Dubai are unverified (retire?).
 
+- **P17 + baselines:** nearest metro and a walk estimate (stored 070 value
+  first, computed for custom spots); visual baselines regenerated after the
+  P13/P14 composer changes (a dispatch run is cancelled by any later push to
+  `main`, so hold pushes until it finishes).
+
+## 2026-09-27 — Lead: security review of Phase 1 (a7c6d26..HEAD)
+
+2 reviewers + skeptics, local stack only: grants, locking, leaks, sanitiser,
+redirects and account deletion all clean. 4 confirmed, all fixed before
+go-live: **medium**, the visits insert policy lets anyone attach a visit to
+any plan_id, which blocks the host from cancelling or reopening (proven
+locally); low, unrate_plan deletes visits with user content; low, pre-069
+booking claims not backfilled into plan_booking_owners; low, delete_plan's
+`already_happened` unmapped in the command route (500). Plus: the P15 cancel
+control has no UI yet.
