@@ -26,6 +26,10 @@ export interface PlanShape {
   origin?: { label: string; latitude: number; longitude: number } | null;
   winnerSpotId?: string | null;
   eventTime?: string | null;
+  /** ISO; voting closes then. None when unset. */
+  deadline?: string | null;
+  /** The host's account; unset is a legacy plan with no creator. */
+  createdBy?: string | null;
 }
 
 export async function withPlan(shape: PlanShape, run: (planId: string) => Promise<void>): Promise<void> {
@@ -46,6 +50,8 @@ export async function withPlan(shape: PlanShape, run: (planId: string) => Promis
     origin_longitude: shape.origin?.longitude ?? null,
     winner_spot_id: shape.winnerSpotId ?? null,
     event_time: shape.eventTime ?? null,
+    deadline: shape.deadline ?? null,
+    created_by_user_id: shape.createdBy ?? null,
   });
   if (error) throw new Error(`plan-factory: creating the plan failed -- ${error.message}`);
   try {
