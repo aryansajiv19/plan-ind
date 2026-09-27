@@ -207,3 +207,24 @@ test("a refused RPC (guest / no permanent account) is null, not an invented prof
   f.setRpc({ data: null, error: { code: "42501" } });
   assert.equal(await ensureOwnProfile(f.db, "u1", "ann"), null);
 });
+
+// ── 070: closed places ───────────────────────────────────────────────────────
+test("a closed spot never reaches a deal: retired, or closed until a later date", async () => {
+  const today = "2026-09-27";
+  const pool = [
+    spot("open"),
+    spot("reopened", { reopens_on: "2026-09-27" }), // reopens today: dealable
+    spot("retired", { visibility: "private" }),
+    spot("closed", { reopens_on: "2026-09-28" }),
+  ];
+  const { eligibleDealSpots } = await import("../lib/spots/match.ts");
+  const eligible = eligibleDealSpots({ pool, count: 2, constraints: { age: 25 }, today });
+  assert.deepEqual(eligible?.map((s) => s.id).sort(), ["open", "reopened"]);
+  assert.equal(eligibleDealSpots({ pool, count: 3, constraints: { age: 25 }, today }), null, "closed spots padded a deal");
+});
+
+test("the closure date is Dubai's calendar day, not UTC's", async () => {
+  const { dubaiToday } = await import("../lib/spots/match.ts");
+  assert.equal(dubaiToday(new Date("2026-09-27T21:00:00Z")), "2026-09-28"); // 01:00 in Dubai
+  assert.equal(dubaiToday(new Date("2026-09-27T19:59:00Z")), "2026-09-27");
+});

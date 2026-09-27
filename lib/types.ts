@@ -33,6 +33,24 @@ export interface Spot {
   photo_attribution: string | null;
   description: string | null; // a review blurb to help people decide
   booking_url: string | null;
+  // 070: sourced venue facts (scripts/gen-catalogue-truth.mjs). Curated rows only;
+  // unknown is null. reopens_on: closed until that Dubai date.
+  reopens_on?: string | null;
+  phone?: string | null;
+  website?: string | null;
+  licensed?: boolean | null;
+  dress_code?: string | null;
+  parking?: string | null;
+  reservations?: string | null;
+  halal_friendly?: boolean | null;
+  vegetarian_options?: boolean | null;
+  spend_pp_aed?: string | null;
+  good_to_know?: string | null;
+  nearest_station?: string | null;
+  station_line?: string | null;
+  station_walk_min?: number | null;
+  facts_checked_on?: string | null;
+  facts_sources?: { fact: string; url: string }[] | null;
   source: SpotSource;
   visibility: SpotVisibility;
   /** 051: withheld from client SELECT, so always undefined in the browser.

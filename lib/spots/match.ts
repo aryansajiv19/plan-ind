@@ -25,6 +25,10 @@ export interface DealSpotRow {
   latitude: number | null;
   longitude: number | null;
   minimum_age: number | null;
+  // 070: a retired curated spot is visibility 'private'; a temporarily closed
+  // one has reopens_on. Optional so hand-built pools (tests) stay valid.
+  visibility?: string | null;
+  reopens_on?: string | null;
 }
 
 export interface DealRatingRow {
@@ -47,7 +51,25 @@ export type SpotAffinity = (spot: DealSpotRow) => number | null;
 const noAffinity: SpotAffinity = () => null;
 
 export const DEAL_SPOT_COLUMNS =
-  "id,name,category,area,cuisine,min_spend,vibe,description,latitude,longitude,minimum_age";
+  "id,name,category,area,cuisine,min_spend,vibe,description,latitude,longitude,minimum_age,visibility,reopens_on";
+
+/** Today's calendar date in Dubai, as YYYY-MM-DD (reopens_on is a Dubai date). */
+export function dubaiToday(now: Date = new Date()): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Dubai" }).format(now);
+}
+
+/**
+ * Whether a curated spot may be dealt or listed today: not retired
+ * (visibility 'private') and not closed until a later date (070). Plans that
+ * already hold a closed spot still read it; this only keeps it out of new ones.
+ */
+export function isDealableToday(
+  spot: { visibility?: string | null; reopens_on?: string | null },
+  today: string = dubaiToday(),
+): boolean {
+  if (spot.visibility === "private") return false;
+  return !spot.reopens_on || spot.reopens_on <= today;
+}
 
 // Deal curated spot ids for a category. Saved custom places are pinned by the
 // creator explicitly and never leak into the random catalog draw.
@@ -113,11 +135,16 @@ export function eligibleDealSpots(input: {
   excludeIds?: readonly string[];
   been?: readonly string[];
   constraints?: DealConstraints;
+  today?: string;
 }): DealSpotRow[] | null {
   const constraints = input.constraints ?? {};
   const excluded = new Set(input.excludeIds ?? []);
+  const today = input.today ?? dubaiToday();
   const available = input.pool.filter((spot) => {
     if (excluded.has(spot.id)) return false;
+    // Evaluated per deal, not in the cached pool read: the cache isn't keyed by
+    // date, so a query filter there could hide a place for an hour after it reopens.
+    if (!isDealableToday(spot, today)) return false;
     const minimumAge = Math.max(minimumAgeForCategory(spot.category), Number(spot.minimum_age ?? 0));
     if (constraints.age != null && constraints.age < minimumAge) return false;
     if (prohibitedVenueReason(spot.name, spot.cuisine, spot.vibe, spot.description)) return false;
