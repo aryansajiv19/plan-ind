@@ -531,3 +531,6 @@ CSP and Permissions-Policy (geolocation=(self)) present. 075 being applied.
 Owner still to do: turn off anonymous sign-ins, then set the Turnstile
 secret; Google OAuth in progress. Owner direction: bold UI experiments with
 the impeccable skill, standards advisory, on `lane/frontend-exp` only.
+- **Hydration fix (d1c0eb9):** PhotoWall and WeightRise rendered their first frame
+  from useReducedMotion(); now server and client agree. First post-go-live
+  push; auto-deployed and verified on the live URL.
