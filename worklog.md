@@ -380,3 +380,6 @@ locally); low, unrate_plan deletes visits with user content; low, pre-069
 booking claims not backfilled into plan_booking_owners; low, delete_plan's
 `already_happened` unmapped in the command route (500). Plus: the P15 cancel
 control has no UI yet.
+- **P18:** "You're coming from" on the vote screen (device-only, rounded to
+  ~100 m); cards show the voter's own km, drive estimate and metro walk; six
+  more origins incl. Sharjah; metro prefers the 070 columns.
