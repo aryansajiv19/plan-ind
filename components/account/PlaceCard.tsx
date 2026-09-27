@@ -5,11 +5,8 @@ import SaveToBoard from "@/components/account/SaveToBoard";
 import type { MoodboardsState } from "@/components/account/useMoodboards";
 import { categoryLabel, categoryMeta } from "@/lib/categories";
 import { hoursLabel } from "@/lib/open-hours";
+import { priceLabel } from "@/lib/price";
 import type { Spot } from "@/lib/types";
-
-function priceLabel(spot: Spot): string {
-  return spot.min_spend > 0 ? `AED ${spot.min_spend} pp` : spot.price_band;
-}
 
 /** A place card. Curated spots often have no photo yet, so the typographic
  *  category code stands in rather than a stock image. */
@@ -43,7 +40,7 @@ export default function PlaceCard({
           {hours && <span>{hours}</span>}
         </div>
         <h2>{spot.name}</h2>
-        <p className="demo-place-card__area">{spot.area} · {priceLabel(spot)}</p>
+        <p className="demo-place-card__area">{[spot.area, priceLabel(spot)].filter(Boolean).join(" · ")}</p>
         {spot.description && <p>{spot.description}</p>}
         {spot.vibe && <p className="demo-place-card__context">{spot.vibe}</p>}
         <button type="button" onClick={onStartPlan}>Start a vote with this place</button>

@@ -51,7 +51,7 @@ function Face({ card }: { card: RowCard }) {
       </span>
       <span className="plan-deck__caption">
         {card.photo_url && <strong className="font-semibold text-ink">{card.name}</strong>}
-        <span>{card.area}{card.min_spend != null ? ` · from AED ${card.min_spend}` : ""}</span>
+        <span>{card.area}{card.min_spend ? ` · from AED ${card.min_spend}` : ""}</span>
       </span>
     </>
   );

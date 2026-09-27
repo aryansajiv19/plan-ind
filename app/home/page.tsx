@@ -78,7 +78,9 @@ export default async function HomePage({
     // dropped field from this particular query without adding it back.
     // minimum_age was added back 2026-09-07: the Discover grid now applies
     // the same age gate as StartPlanForm and ActionSearchBar, and it cannot
-    // do that on rows that do not carry the column.
+    // do that on rows that do not carry the column. source was added back
+    // 2026-09-27: a custom place's price_band is a placeholder, and PlaceCard
+    // must know not to show it (lib/price.ts).
     supabase.from("spots").select(DISCOVER_COLUMNS).neq("source", "curated").order("name").order("id").limit(DISCOVER_LIMIT),
     person ? getProfileVisits(person, 50, supabase) : Promise.resolve(emptyRead<ProfileVisit>()),
     person ? getPlannedWith(person, supabase) : Promise.resolve(emptyRead<PlannedWith>()),
