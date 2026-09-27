@@ -1,4 +1,20 @@
 import type { Plan, Spot } from "./types";
+import { googleMapsUrl } from "./directions.ts";
+
+type CalendarSpot = Pick<Spot, "name" | "area" | "address" | "latitude" | "longitude" | "google_place_id">;
+
+// Where the event is, in a form a maps app can route to (P23): the street
+// address, else the coordinates, else the name and area.
+function where(spot: CalendarSpot): string {
+  if (spot.address) return spot.address;
+  if (spot.latitude != null && spot.longitude != null) return `${spot.latitude},${spot.longitude}`;
+  return `${spot.name}, ${spot.area}`;
+}
+
+// The plan to come back to, and the pin to get there.
+function about(spot: CalendarSpot, planUrl: string): string {
+  return `The plan: ${planUrl}\nDirections: ${googleMapsUrl(spot)}`;
+}
 
 // Compact UTC stamp for calendar formats: 2026-08-07T16:00:00Z → 20260807T160000Z
 function stamp(d: Date): string {
@@ -11,24 +27,25 @@ function window(iso: string): { start: Date; end: Date } {
 }
 
 // "Add to Google Calendar" URL — no backend, opens a prefilled event.
-export function googleCalUrl(plan: Plan, spot: Spot): string | null {
+export function googleCalUrl(plan: Pick<Plan, "title" | "event_time">, spot: CalendarSpot, planUrl: string): string | null {
   if (!plan.event_time) return null;
   const { start, end } = window(plan.event_time);
   const params = new URLSearchParams({
     action: "TEMPLATE",
     text: `${spot.name}. ${plan.title}`,
     dates: `${stamp(start)}/${stamp(end)}`,
-    location: `${spot.name}, ${spot.area}`,
-    details: spot.description ?? `Decided with friends. ${spot.vibe}`,
+    location: where(spot),
+    details: about(spot, planUrl),
   });
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
 
 // Downloadable .ics as a data URI — works with Apple Calendar / Outlook.
-export function icsHref(plan: Plan, spot: Spot): string | null {
+export function icsHref(plan: Pick<Plan, "id" | "title" | "event_time">, spot: CalendarSpot, planUrl: string): string | null {
   if (!plan.event_time) return null;
   const { start, end } = window(plan.event_time);
-  const esc = (s: string) => s.replace(/([,;\\])/g, "\\$1");
+  // RFC 5545 TEXT: backslash, comma and semicolon escaped, a newline as \n.
+  const esc = (s: string) => s.replace(/([,;\\])/g, "\\$1").replace(/\r?\n/g, "\\n");
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
@@ -39,8 +56,8 @@ export function icsHref(plan: Plan, spot: Spot): string | null {
     `DTSTART:${stamp(start)}`,
     `DTEND:${stamp(end)}`,
     `SUMMARY:${esc(`${spot.name}. ${plan.title}`)}`,
-    `LOCATION:${esc(`${spot.name}, ${spot.area}`)}`,
-    `DESCRIPTION:${esc(spot.description ?? spot.vibe)}`,
+    `LOCATION:${esc(where(spot))}`,
+    `DESCRIPTION:${esc(about(spot, planUrl))}`,
     "END:VEVENT",
     "END:VCALENDAR",
   ];
