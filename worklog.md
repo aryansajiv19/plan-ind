@@ -442,3 +442,8 @@ control has no UI yet.
   in the /home rail; the plan page marks itself seen. Session A builds the
   badges and the WhatsApp nudge. test:db 95/95.
 
+- **P25:** content-first composer: a deck of real places for the chosen kind
+  of night (pin one into round 1, one Tab stop, paging), a sticky "Deal nine"
+  above the fold at 1440 and 390, "Tune it" as native details with a text
+  summary; a 390px sideways-scroll bug fixed; impeccable critique run and its
+  P1/P2 items fixed. ui-implementation skill: stale "restraint block" removed.
