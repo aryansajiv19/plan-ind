@@ -15,7 +15,8 @@ import SmartSearchBox, { type SmartIntent } from "@/components/SmartSearchBox";
 import { CATEGORIES, CATEGORY_GROUPS, type Category, type GroupKey } from "@/components/categoryGroups";
 import DirectPlanSearch from "@/components/DirectPlanSearch";
 import CustomPlaceSection, { useCustomPlaces } from "@/components/CustomPlaces";
-import DealReveal from "@/components/DealReveal";
+import DealReveal, { type RevealCard } from "@/components/DealReveal";
+import { fetchSampleDeal } from "@/lib/deal-sample";
 import { SAMPLE_POOLS } from "@/components/demo/sampleDecision";
 import type { PlanPrefill } from "@/lib/board-plan";
 
@@ -77,6 +78,8 @@ export default function StartPlanForm({
   // The deal reveal plays while the request runs; submit resolves this when
   // the sequence has shown, and navigates once both are done.
   const [revealing, setRevealing] = useState(false);
+  // P8, signed out: the nine real places the reveal deals, or null for the sample decks.
+  const [sampleCards, setSampleCards] = useState<readonly RevealCard[] | null>(null);
   const revealShown = useRef<(() => void) | null>(null);
   const [smartQuery, setSmartQuery] = useState(prefill?.smartQuery ?? "");
   const [smartIntent, setSmartIntent] = useState<SmartIntent | null>(null);
@@ -159,9 +162,17 @@ export default function StartPlanForm({
     const clean = title.trim();
     if (!clean) return;
     setError(null);
-    // The preview has no session to deal with: play the reveal on sample
-    // places and hand over to /demo/vote instead of a sign-in dead end.
-    if (demoMode) { setRevealing(true); return; }
+    // Signed out (P8): deal nine real places for these settings without a
+    // session, then hand over to /demo/vote instead of a sign-in dead end.
+    if (demoMode) {
+      setCreating(true);
+      setSampleCards(await fetchSampleDeal({
+        category, origin: originValue, maxBudget, radiusKm: selectedOrigin.coordinates ? radiusKm : null,
+      }));
+      setCreating(false);
+      setRevealing(true);
+      return;
+    }
 
     const restricted = custom.restrictedFor(age);
     if (restricted) {
@@ -198,12 +209,16 @@ export default function StartPlanForm({
       <DealReveal
         constraints={constraintChips}
         code={categoryMeta(category).code}
-        cards={demoMode ? SAMPLE_POOLS.flat() : undefined}
+        cards={demoMode ? (sampleCards ?? SAMPLE_POOLS.flat()) : undefined}
         onShown={() => revealShown.current?.()}
       >
         {demoMode ? (
           <>
-            <p className="plan-form__demo-note">Sample places, not a real deal. Sign in to deal nine for your own group.</p>
+            <p className="plan-form__demo-note">
+              {sampleCards
+                ? "Real places that fit your settings. Sign in to deal them for your own group."
+                : "Sample places shown. Sign in to deal nine for your own group."}
+            </p>
             <Link href="/demo/vote" className="plan-submit inline-flex items-center justify-center">See how the group votes</Link>
             <button type="button" className="mt-2 inline-flex min-h-11 w-full items-center justify-center text-sm text-muted underline underline-offset-4" onClick={() => setRevealing(false)}>
               Back to the form
@@ -384,7 +399,7 @@ export default function StartPlanForm({
         disabled={creating || !title.trim()}
         className="plan-submit"
       >
-        {creating ? "Building three rounds…" : demoMode ? "Preview the deal" : "Deal 9 places in 3 rounds"}
+        {creating ? (demoMode ? "Dealing…" : "Building three rounds…") : demoMode ? "Preview the deal" : "Deal 9 places in 3 rounds"}
       </button>
 
       {demoMode && (
