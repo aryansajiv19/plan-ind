@@ -245,6 +245,9 @@
 }
 
 /* P25: the types as one chip row; it wraps on desktop and scrolls on a phone. */
+.plan-form fieldset {
+  min-width: 0; /* fieldsets default to min-content, which the chip row would set */
+}
 .plan-category-options {
   display: flex;
   flex-wrap: wrap;
@@ -483,6 +486,7 @@
   overscroll-behavior-x: contain;
 }
 .plan-deck__card {
+  position: relative; /* holds its sr-only text inside the scrolling row */
   display: grid;
   overflow: hidden;
   border: 1px solid var(--color-line);
@@ -662,13 +666,8 @@
   padding: 0.8rem 1.2rem;
   border: 1px solid var(--color-ink);
   border-radius: var(--radius-control);
-  /* The filled-primary pair, not `var(--color-ink)` + `color: white`.
-     Those two mechanisms agreed only by coincidence in light, where the
-     ink IS dark and white sits on it at 18.10 — so the hardcoded white
-     never looked wrong and the --primary-* pair went unused on the app's
-     own primary controls while /login quietly used it. In dark the ink is
-     #D4C9C7 and white on it is 1.62: the button's own label, unreadable.
-     Reading the pair makes both grounds correct from one declaration. */
+  /* The filled-primary pair, so the label reads on both grounds (ink plus
+     a hardcoded white was 1.62:1 at night). */
   background: var(--primary-fill);
   color: var(--primary-ink);
   font-family: var(--font-display);
@@ -678,6 +677,14 @@
   transition: transform 260ms var(--ease-settle), box-shadow 150ms ease, opacity 150ms ease;
 }
 
+/* P25: the composer's primary action never leaves the screen while the
+   form is on it; the card-coloured fade lets the deck pass under it. */
+.plan-submit--deal {
+  position: sticky;
+  bottom: 1rem;
+  z-index: 5;
+  box-shadow: 0 -0.75rem 1rem -0.5rem var(--color-card);
+}
 .plan-submit:hover:not(:disabled) {
   transform: translateY(-1px);
 }

@@ -105,7 +105,7 @@ export default function StartPlanForm({
       <button
         type="submit"
         disabled={creating || !title.trim()}
-        className="plan-submit"
+        className="plan-submit plan-submit--deal"
       >
         {creating ? (demoMode ? "Dealing…" : "Dealing nine…") : demoMode ? "Preview the deal" : "Deal nine"}
       </button>

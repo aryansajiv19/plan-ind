@@ -70,17 +70,9 @@
 }
 
 .home-logo__three {
-  /* Was var(--color-punch-text) — an accent ink on the ink-filled badge,
-     which is 1.58:1 here and was 1.30:1 under the navy palette. A
-     long-standing bug that survives a palette swap precisely because both
-     values come off the same ramp as the badge behind them.
-
-     No warm accent in this palette can sit on the ink badge and clear AA:
-     the tan is the closest at 3.26:1 and is non-text anyway. So the
-     two-tone is kept with a warm off-white against the "D/" pure white
-     (11.87:1) rather than being faked at an unreadable ratio. If Design
-     wants a stronger accent two-tone here, the badge background has to
-     change — flagged, not decided unilaterally. */
+  /* A warm off-white on the ink badge (11.87:1): no warm accent in this
+     palette clears AA on it (the tan is 3.26:1). A stronger two-tone
+     needs a different badge background. */
   color: var(--color-paper);
   font-size: 0.82rem;
   transform: translateY(-1px);
@@ -345,18 +337,9 @@
 }
 
 .home-title strong {
-  /* SPECS.md §20: the ONE italic element on the front door. A single
-     phrase inside a longer headline, in the display serif, on a welcome
-     surface — the shape §20.2 allows. Never the whole headline: set
-     entirely in italic it stops reading as emphasis and becomes texture.
-
-     Enabled only after §20.1's condition was actually met. The first
-     font files shipped were the Cyrillic-Extended subset and contained no
-     Latin glyphs, so every Latin character fell back — which is why the
-     roman and italic measured identically and the headlines rendered as
-     a sans. Verified on the corrected files by rendering: genuinely drawn
-     italic letterforms, single-storey a and calligraphic g, not a slanted
-     roman. */
+  /* SPECS.md §20: the one italic element on the front door, a phrase in
+     the display serif, never a whole headline (it stops reading as
+     emphasis). Needs the Latin font subset, which now ships. */
   font-style: italic;
   position: relative;
   color: var(--color-ink);
@@ -653,6 +636,7 @@
 }
 .home-plan-card {
   position: relative;
+  min-width: 0; /* a grid item: the deck and chip rows scroll inside it, never widen it */
   padding: clamp(1.3rem, 4vw, 2.4rem);
   border: 0;
   border-radius: var(--radius-panel);
