@@ -429,3 +429,11 @@ control has no UI yet.
   distance, metro, Drive/Metro/Walk/Apple/Uber, map) and a labelled read-only
   carpool; sample venues carry real address/coordinates where the research has
   them. P25 (content-first composer) approved and in progress.
+- **P34 (platform lane):** DB tests for reopen, leave, delete, direct plans,
+  account deletion and friend invites; test:db 78 → 92, each proven to fail
+  when its function is broken. verify-journey stays until place import and
+  visit photos have Playwright specs (P33).
+- **P25 step 1:** StartPlanForm split into useComposer, ComposerDeck and
+  TuneIt (pure move). The content-first feature (WIP) has three open items:
+  Deal nine below the fold at 390px, Tune it scrolls 28px on open, and the
+  impeccable/animation review plus E2E re-run.
