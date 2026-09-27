@@ -45,9 +45,12 @@ async function plan(host: string, members: string[]): Promise<{ id: string; toke
   const id = randomUUID();
   const token = randomBytes(32).toString("hex");
   await psql(`insert into plans (id,title,category,area,status,stage,pool_count,created_by_user_id)
-      values ('${id}','QA075','dinner','Dubai','decided','decided',1,'${host}');
+      values ('${id}','QA075','dinner','Dubai','open','final',1,'${host}');
     insert into plan_host_tokens (plan_id,token_hash) values ('${id}','${createHash("sha256").update(token).digest("hex")}');
     insert into plan_access (plan_id,user_id) values ${[host, ...members].map((u) => `('${id}','${u}')`).join(",")};`);
+  // Decided a moment later, so these members were there before the decision
+  // (078 F2b); add a late joiner with plan_access after this.
+  await psql(`update plans set status = 'decided', stage = 'decided' where id = '${id}'`);
   made.plans.push(id);
   return { id, token };
 }
@@ -156,14 +159,78 @@ describe("075 any member can claim the booking", { skip: SKIP }, () => {
     assert.equal((await claim(b, p.id)).result, "claimed");
   });
 
-  test("a claim whose account was deleted is free to take, and the host can still take it over", async () => {
+  test("a claim whose account was deleted is cleared and free to take, and the host can still take it over", async () => {
     const [host, a, b] = [await user(), await user(), await user()];
     const p = await plan(host, [a, b]);
     await claim(a, p.id);
     assert.equal(JSON.parse(await as(a, "select delete_my_account(false)")).result, "deleted");
-    assert.equal(await holder(p.id), "Former member|none");
+    assert.equal(await holder(p.id), "none|none"); // 078 F1: cleared, not 'Former member'
     assert.equal((await claim(b, p.id)).result, "claimed");
     await as(host, `select execute_plan_command('${p.id}', '${p.token}', 'patch', '{"booking_owner": "me"}'::jsonb)`);
     assert.equal(await holder(p.id), `${await nameOf(host)}|${host}`);
   });
+
+  // ── 078: fixes from the security review of 075 ──────────────────────────
+  test("F1: once a booking is unmarked, a claim whose holder is gone is cleared", async () => {
+    const [host, a, b, c] = [await user(), await user(), await user(), await user()];
+    const p = await plan(host, [a, b, c]);
+    await claim(a, p.id);
+    await mark(host, p.id, true);
+    const aName = await nameOf(a);
+    assert.equal(JSON.parse(await as(a, "select delete_my_account(false)")).result, "deleted");
+    assert.equal(await holder(p.id), `${aName}|none`); // booked: the name stays, as before
+    assert.equal((await mark(host, p.id, false)).result, "unmarked");
+    assert.equal(await holder(p.id), "none|none");
+    await claim(b, p.id);
+    await mark(b, p.id, true);
+    assert.equal(JSON.parse(await as(b, `select leave_plan('${p.id}')`)).result, "left"); // left while booked
+    await mark(host, p.id, false);
+    assert.equal(await holder(p.id), "none|none");
+    assert.equal((await claim(c, p.id)).result, "claimed");
+  });
+
+  test("F2a: the host can release anyone's unbooked claim; another member can't", async () => {
+    const [host, a, b] = [await user(), await user(), await user()];
+    const p = await plan(host, [a, b]);
+    await claim(a, p.id);
+    assert.equal((await release(b, p.id)).result, "not_yours");
+    assert.deepEqual(await release(host, p.id), { result: "released", booking_owner: null, booked: false });
+    assert.equal(await holder(p.id), "none|none");
+  });
+
+  test("F2b: a holder who joined after the decision can't mark it booked; the host and an early holder can", async () => {
+    const [host, early, late] = [await user(), await user(), await user()];
+    const p = await plan(host, [early]);
+    await psql(`insert into plan_access (plan_id, user_id) values ('${p.id}', '${late}')`);
+    assert.equal((await claim(late, p.id)).result, "claimed");
+    assert.deepEqual(await mark(late, p.id, true), { result: "joined_after_decision", booking_owner: await nameOf(late), booked: false });
+    assert.equal((await mark(host, p.id, true)).result, "marked");
+    assert.equal((await mark(late, p.id, false)).result, "unmarked"); // undoing stays open to them
+    await release(late, p.id);
+    await claim(early, p.id);
+    assert.equal((await mark(early, p.id, true)).result, "marked");
+  });
+
+  test("applying 078 clears unbooked claims already held by nobody, and keeps the rest", async () => {
+    const [host, a] = [await user(), await user()];
+    const [stale, noRow, kept, booked] = [await plan(host, [a]), await plan(host, [a]), await plan(host, [a]), await plan(host, [a])];
+    await claim(a, kept.id);
+    const m = new URL("../supabase/migration-078-booking-fixes.sql", import.meta.url).pathname;
+    const sql = (await import("node:fs")).readFileSync(m, "utf8");
+    const cleanup = sql.slice(sql.indexOf("-- Plans already in that state"), sql.lastIndexOf("commit;"));
+    const { stdout } = await execFileAsync("psql", [DB_URL, "-X", "-q", "-A", "-t", "--no-psqlrc", "-v", "ON_ERROR_STOP=1",
+      "-c", `begin;
+        update plans set booking_owner = 'Former member' where id in ('${stale.id}', '${noRow.id}', '${booked.id}');
+        insert into plan_booking_owners (plan_id, user_id) values ('${stale.id}', null), ('${booked.id}', null);
+        update plans set booked = true where id = '${booked.id}';`,
+      "-c", cleanup,
+      "-c", `select string_agg(coalesce(p.booking_owner, 'none') || ':' || (b.plan_id is not null)::text, ',' order by array_position(
+        array['${stale.id}','${noRow.id}','${kept.id}','${booked.id}']::uuid[], p.id))
+        from plans p left join plan_booking_owners b on b.plan_id = p.id
+        where p.id in ('${stale.id}', '${noRow.id}', '${kept.id}', '${booked.id}')`,
+      "-c", "rollback"], { timeout: 60000 });
+    assert.equal(stdout.trim().split("\n").filter(Boolean).pop(),
+      `none:false,none:false,${await nameOf(a)}:true,Former member:true`); // booked is left alone
+  });
 });
+

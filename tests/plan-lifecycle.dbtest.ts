@@ -157,7 +157,7 @@ describe("069 the booking claim belongs to an account, not a name", { skip: SKIP
     await psql(`delete from people where id = '${host}'`);
   });
 
-  test("the booker's own account leaving clears it, and deleting renames it (control)", async () => {
+  test("the booker's own account leaving or being deleted clears an unbooked claim", async () => {
     const host = await user();
     const [booker, other] = [await user(), await user()];
     const p = await plan(host, "now() + interval '1 day'", [booker]);
@@ -170,7 +170,7 @@ describe("069 the booking claim belongs to an account, not a name", { skip: SKIP
     await as(booker, `select leave_plan('${p.id}')`);
     assert.equal(await owner(p.id), "<none>");
     await as(other, "select delete_my_account(false)");
-    assert.equal(await owner(q.id), "Former member");
+    assert.equal(await owner(q.id), "<none>"); // 078 F1: cleared, so a member can take it (was 'Former member')
   });
 });
 
