@@ -8,6 +8,7 @@ import type { MoodboardsState } from "@/components/account/useMoodboards";
 import type { PlanPrefill } from "@/lib/board-plan";
 import { categoryLabel } from "@/lib/categories";
 import { minimumAgeForCategory } from "@/lib/age-policy";
+import { listableToday } from "@/lib/venue-facts";
 import { getSupabase } from "@/lib/supabase";
 import useDebounce from "@/hooks/use-debounce";
 import type { Spot } from "@/lib/types";
@@ -60,11 +61,11 @@ export function useDiscoverSearch(spots: Spot[], age: number) {
     const filter = placeFilter;
     if (!q && filter === "All") return;
     let cancelled = false;
-    let request = getSupabase()
+    let request = listableToday(getSupabase()
       .from("spots")
       // Every spot this account may read (RLS: curated, community, its own),
-      // as the grid shows, not only curated (P13).
-      .select("id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, photo_url, photo_attribution, description, minimum_age");
+      // as the grid shows, not only curated (P13), less 070's closed ones.
+      .select("id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, photo_url, photo_attribution, description, minimum_age"));
     if (filter !== "All") request = request.eq("category", filter);
     if (q) {
       // Quote the value and escape what the quoting cares about. PostgREST's

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState, type Dispatch, type SetStateA
 import { getSupabase, claimPlanAccess, type PlanAccessDenial } from "@/lib/supabase";
 import { participantTokenHash } from "@/lib/participant";
 import { parseMyRows, type MyRows } from "@/lib/my-rows";
+import { FACT_COLUMNS } from "@/lib/venue-facts";
 import type { Plan, PlanSpot, Rating, Rsvp, Spot, Vote } from "@/lib/types";
 
 export type Load = "loading" | "ready" | "notfound" | "error";
@@ -174,7 +175,7 @@ export function usePlanData(id: string) {
       // full shape, so don't start reading a dropped field here without
       // adding it back to this list.
       const { data: spotRows, error: spotsErr } = spotIds.length
-        ? await getSupabase().from("spots").select("id, name, category, cuisine, price_band, area, description, vibe, open_till, min_spend, latitude, longitude, photo_url, photo_attribution, booking_url, source, address, google_place_id, minimum_age").in("id", spotIds)
+        ? await getSupabase().from("spots").select(`id, name, category, cuisine, price_band, area, description, vibe, open_till, min_spend, latitude, longitude, photo_url, photo_attribution, booking_url, source, address, google_place_id, minimum_age, nearest_station, station_line, station_walk_min, reopens_on, ${FACT_COLUMNS}`).in("id", spotIds)
         : { data: [], error: null };
       // Preserve the dealt order.
       const ordered = spotIds

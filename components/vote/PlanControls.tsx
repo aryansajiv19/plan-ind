@@ -86,10 +86,10 @@ export function ReopenControl({
   decided: boolean;
   ratingCount: number;
 }) {
-  const { isHost, confirmReopen, setConfirmReopen, reopening, reopenPlan } = host;
+  const { isHost, confirmReopen, setConfirmReopen, reopening, reopenPlan, confirmDelete, setConfirmDelete, deciding, deletePlan } = host;
   return (
     <>
-      {/* C7: host only, decided plans. */}
+      {/* C7 and P15: host only, decided plans: reopen or cancel. */}
       {/* Hidden once anyone has rated: 057 refuses (already_happened). A
           logged visit also refuses but isn't readable here, so the server's
           message still covers that case. */}
@@ -106,8 +106,23 @@ export function ReopenControl({
               </button>
               <button type="button" disabled={reopening} onClick={() => setConfirmReopen(false)}>Keep the decision</button>
             </div>
-          ) : (
+          ) : !confirmDelete && (
             <button type="button" onClick={() => setConfirmReopen(true)}>Reopen voting</button>
+          )}
+          {/* P15: cancelling is delete_plan, allowed until the outing has
+              happened (069 refuses with already_happened after that). */}
+          {confirmDelete ? (
+            <div className="vote-delete__confirm" role="group" aria-label="Confirm cancel">
+              <p>
+                Cancel “{plan!.title}”? It disappears for everyone on the link. If you booked, cancel the table yourself.
+              </p>
+              <button type="button" className="vote-delete__go" disabled={deciding} onClick={() => void deletePlan()}>
+                {deciding ? "Cancelling…" : "Cancel plan"}
+              </button>
+              <button type="button" disabled={deciding} onClick={() => setConfirmDelete(false)}>Keep it</button>
+            </div>
+          ) : !confirmReopen && (
+            <button type="button" onClick={() => setConfirmDelete(true)}>Cancel this plan</button>
           )}
         </div>
       )}

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { getSupabase } from "@/lib/supabase";
 import { minimumAgeForCategory } from "@/lib/age-policy";
+import { listableToday } from "@/lib/venue-facts";
 import DirectPlanForm, { type DirectPlanSpot } from "@/components/DirectPlanForm";
 
 type Row = DirectPlanSpot & { minimum_age: number | null };
@@ -29,7 +30,7 @@ export default function DirectPlanSearch({ age }: { age: number }) {
   // onto places rather than an empty box.
   useEffect(() => {
     let active = true;
-    void getSupabase().from("spots").select("id,name,area,category,minimum_age").eq("source", "curated")
+    void listableToday(getSupabase().from("spots").select("id,name,area,category,minimum_age").eq("source", "curated"))
       .order("name").limit(12)
       .then(({ data, error }) => {
         if (!active) return;
@@ -51,10 +52,10 @@ export default function DirectPlanSearch({ age }: { age: number }) {
     if (query.length < 2) return;
     setSpotSearching(true);
     setSearchFailed(false);
-    const { data, error } = await getSupabase()
+    const { data, error } = await listableToday(getSupabase()
       .from("spots")
       .select("id,name,area,category,minimum_age")
-      .eq("source", "curated")
+      .eq("source", "curated"))
       .or(`name.ilike.%${query}%,area.ilike.%${query}%,cuisine.ilike.%${query}%`)
       .order("name")
       .limit(12);

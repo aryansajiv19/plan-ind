@@ -10,6 +10,8 @@ import { getCurrentUser, safeNextPath } from "@/lib/auth";
 import PlaceDirectPlanCta from "@/components/PlaceDirectPlanCta";
 import GetThere from "@/components/GetThere";
 import { metroLine } from "@/lib/dubai-metro";
+import KnowBeforeYouGo from "@/components/KnowBeforeYouGo";
+import { FACT_COLUMNS, reopensLabel } from "@/lib/venue-facts";
 import PlaceSaveToBoard from "@/components/account/PlaceSaveToBoard";
 import OpenStatus from "@/components/OpenStatus";
 import VenueMap from "@/components/VenueMap";
@@ -37,7 +39,7 @@ const getSpot = cache(async (id: string) => {
   const { data } = await supabase
     .from("spots")
     .select(
-      "id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, photo_url, photo_attribution, description, booking_url, address, latitude, longitude, google_place_id, minimum_age",
+      `id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, photo_url, photo_attribution, description, booking_url, address, latitude, longitude, google_place_id, minimum_age, nearest_station, station_line, station_walk_min, reopens_on, ${FACT_COLUMNS}`,
     )
     .eq("id", id)
     .maybeSingle();
@@ -70,6 +72,7 @@ export default async function PlacePage({
 
   const cat = categoryMeta(spot.category);
   const hasPhoto = Boolean(spot.photo_url);
+  const reopens = reopensLabel(spot.reopens_on); // 070: closed until a date
 
   return (
     <main className="place-page">
@@ -104,6 +107,7 @@ export default async function PlacePage({
           <span>{spot.price_band}</span>
           <span>From AED {spot.min_spend}pp</span>
           <OpenStatus openTill={spot.open_till} />
+          {reopens && <span>{reopens}</span>}
         </div>
 
         {(spot.description ?? spot.vibe) && (
@@ -139,7 +143,8 @@ export default async function PlacePage({
           </a>
         </div>
         <GetThere venue={spot} />
-        {metroLine(spot.latitude, spot.longitude) && <p className="place-metro">{metroLine(spot.latitude, spot.longitude)}</p>}
+        {metroLine(spot) && <p className="place-metro">{metroLine(spot)}</p>}
+        <KnowBeforeYouGo spot={spot} className="mt-8" />
 
         {/* The in-app map sits under the deep links, which stay the primary
             way to get there. It loads only when scrolled to or asked for. */}

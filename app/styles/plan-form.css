@@ -592,17 +592,12 @@
   gap: 0.8rem;
   align-items: end;
 }
-.plan-location-fields select {
+.plan-location-fields select,
+.coming-from select {
   width: 100%;
-  /* `height` as well as `min-height`, and the height is the one that does
-     the work in Safari. WebKit discards an author min-height on a <select>
-     that still has its native `appearance` — computed min-height came back
-     as the UA's own 18px, so this control rendered 19px tall on Safari at
-     EVERY width while Chromium showed the intended 40.8px. Proven by
-     probe: adding `appearance: none` makes WebKit honour the min-height
-     again, but that also removes the native chevron, which would be a
-     redesign of the control rather than a fix. min-height stays for
-     Chromium and Firefox and for whenever WebKit changes its mind. */
+  /* `height` too: WebKit ignores min-height on a <select> that keeps its
+     native appearance (it rendered 19px on Safari), and appearance: none
+     would drop the native chevron. */
   height: 2.55rem;
   min-height: 2.55rem;
   padding: 0.5rem 0.7rem;

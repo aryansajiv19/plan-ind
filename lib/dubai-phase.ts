@@ -70,3 +70,17 @@ export function resolveGround(
 export function readPreference(raw: string | null | undefined): ThemePreference {
   return raw === "day" || raw === "night" || raw === "auto" ? raw : "auto";
 }
+
+// P23: a plan's time is entered and shown as Dubai wall time wherever the
+// host is. The UAE has no daylight saving, so +04:00 is exact all year.
+/** An ISO instant as the "YYYY-MM-DDTHH:mm" a datetime-local input shows, in Dubai. */
+export function toDubaiInput(iso: string): string {
+  return new Date(Date.parse(iso) + 4 * 3_600_000).toISOString().slice(0, 16);
+}
+
+/** A datetime-local value read as Dubai wall time, as an ISO instant; null if it isn't one. */
+export function fromDubaiInput(value: string): string | null {
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)) return null;
+  const ms = Date.parse(`${value}:00+04:00`);
+  return Number.isNaN(ms) ? null : new Date(ms).toISOString();
+}

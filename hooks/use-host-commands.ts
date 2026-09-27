@@ -197,8 +197,11 @@ export function useHostCommands({
       // 404: already gone, which is the outcome asked for.
       if (response.ok || response.status === 404) { setDeleted("self"); return; }
       setConfirmDelete(false);
+      // 069 (P15): a decided plan can be cancelled until someone rates or logs a visit.
+      const result = response.status === 409 ? ((await response.json().catch(() => null)) as { result?: string } | null)?.result : undefined;
       setNotice(
-        response.status === 409 ? "This plan is already decided, so it can’t be deleted."
+        result === "already_happened" ? "Someone has already rated or been, so this plan can’t be cancelled."
+          : response.status === 409 ? "This plan is already decided, so it can’t be deleted."
           : response.status === 403 ? "Only the person who started this plan can delete it."
             : response.status === 429 ? "Too many plan changes. Try again in a minute."
               : "That plan couldn’t be deleted. Try again.",

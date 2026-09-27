@@ -41,8 +41,8 @@ someone back to the group chat. P-numbers match `docs/ROADMAP.md`.
 
 | Phase | Items | Lanes |
 |---|---|---|
-| 1. Broken and dead ends | ~~P2~~ done; P4 server done (069), client pending; P3 "Your plans" rail; P5 deal failure says "raise your budget"; P6 dead budget/radius options; P7 signed-out composer refuses after typing; P8 preview ignores the visitor's settings; P9 place details from cards; P10 Google photo route has no caller; P11 rating before the outing logs a fake visit; P12 direct-plan form; P13 account read/write errors; P14 Settings incl. account deletion; P15 host can cancel a decided plan; P1 B8 landing | frontend, server, backend-sql |
-| 2. Never ask a friend | **070 catalogue truth: 4 closed venues still dealt live** (data/venue-facts.json); P16 directions per viewer (drive, metro, walk, Uber); P17 nearest metro + walk; P18 your own distance on cards; P19 coordinates for all 82; P20 "know before you go" facts; P21 "When" at creation; P22 carpool/booking as coordination; P23 time picker + calendar; P24 live routes/hours (key) | frontend, data, backend-sql |
+| 1. Broken and dead ends | DONE: P1–P5, P7, P9, P11–P15. Left: P6 (merging), P8 signed-out preview deal, P10 Google photo route caller (needs the Places key) | frontend, server, backend-sql |
+| 2. Never ask a friend | DONE: 070 catalogue truth, 071 closed-place guard, P16–P18, P20. Left: P21 "When" at creation; P22 carpool/booking as coordination; P23 time picker + calendar; P24 live routes/hours (needs a key) | frontend, backend-sql |
 | 3. Interface wow | P25 content-first composer; P26 reveal the real nine; P27 media band on vote cards; P28 photos + "right now" on landing; P29 payoff before sign-up; P30 honest demo; P31 share-and-return loop | frontend, server |
 | 4. Coverage and hygiene | P32 Places ingestion; P33 E2E for create, lifecycle, last mile; P34 DB tests, retire verify-journey; P35 copy/duplicate cleanup | all |
 

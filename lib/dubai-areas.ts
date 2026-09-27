@@ -10,6 +10,13 @@ export const DUBAI_ORIGINS = [
   { label: "Jumeirah", value: "jumeirah", coordinates: { latitude: 25.204, longitude: 55.238 } },
   { label: "Al Quoz", value: "al-quoz", coordinates: { latitude: 25.1345, longitude: 55.2346 } },
   { label: "Dubai Creek", value: "creek", coordinates: { latitude: 25.244, longitude: 55.331 } },
+  // P18: where people actually set out from.
+  { label: "Business Bay", value: "business-bay", coordinates: { latitude: 25.185, longitude: 55.265 } },
+  { label: "Deira", value: "deira", coordinates: { latitude: 25.27, longitude: 55.315 } },
+  { label: "JVC", value: "jvc", coordinates: { latitude: 25.06, longitude: 55.21 } },
+  { label: "Mirdif", value: "mirdif", coordinates: { latitude: 25.22, longitude: 55.42 } },
+  { label: "Dubai Silicon Oasis", value: "dso", coordinates: { latitude: 25.12, longitude: 55.38 } },
+  { label: "Sharjah", value: "sharjah", coordinates: { latitude: 25.346, longitude: 55.42 } },
 ] as const;
 
 const AREA_CENTRES: Record<string, Coordinates> = {

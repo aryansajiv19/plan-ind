@@ -7,8 +7,10 @@ import type { Mine } from "@/lib/my-rows";
 import type { Seat } from "@/lib/tally";
 import { categoryMeta } from "@/lib/categories";
 import { fitForEvent, hoursLabel } from "@/lib/open-hours";
-import { dubaiMinuteOfDay } from "@/lib/dubai-phase";
+import { dubaiMinuteOfDay, fromDubaiInput, toDubaiInput } from "@/lib/dubai-phase";
 import GettingThere from "@/components/vote/GettingThere";
+import KnowBeforeYouGo from "@/components/KnowBeforeYouGo";
+import { reopensLabel } from "@/lib/venue-facts";
 import BookingSection from "@/components/vote/BookingSection";
 import RatingSection from "@/components/vote/RatingSection";
 import WhosInSection from "@/components/vote/WhosInSection";
@@ -48,20 +50,16 @@ interface DecidedPlanProps {
   onRate: (partial: { stars?: number; again?: boolean }) => void;
 }
 
-// ISO (UTC) → the value a <input type="datetime-local"> expects (local wall time).
-function toLocalInput(iso: string): string {
-  const d = new Date(iso);
-  const local = new Date(d.getTime() - d.getTimezoneOffset() * 60_000);
-  return local.toISOString().slice(0, 16);
-}
-
+// Always Dubai wall time (P23): the venue's clock, whoever is looking.
 function prettyTime(iso: string): string {
-  return new Date(iso).toLocaleString(undefined, {
+  return new Date(iso).toLocaleString("en-GB", {
+    timeZone: "Asia/Dubai",
     weekday: "short",
     month: "short",
     day: "numeric",
     hour: "numeric",
     minute: "2-digit",
+    hour12: true,
   });
 }
 
@@ -83,7 +81,11 @@ export default function DecidedPlan({
   onUnmarkBooked,
   onRate,
 }: DecidedPlanProps) {
-  const [editingTime, setEditingTime] = useState(false);
+  // P23: the time is a draft until Save; null means not editing. A host
+  // with no time set yet edits straight away.
+  const [timeDraft, setTimeDraft] = useState<string | null>(null);
+  const editingTime = timeDraft !== null || (!plan.event_time && isHost);
+  const draftIso = fromDubaiInput(timeDraft ?? "");
   const [copied, setCopied] = useState(false);
   const cat = categoryMeta(winner.category);
 
@@ -104,6 +106,7 @@ export default function DecidedPlan({
 
   // The listed closing time against the plan's start (Dubai clock). Only a
   // verdict is worth a line; a bare listing already sits in the details.
+  const reopens = reopensLabel(winner.reopens_on);
   const fit = plan.event_time ? fitForEvent(winner.open_till, new Date(plan.event_time)) : null;
   const fitWarns = fit?.kind === "tight" || fit?.kind === "after-close";
   const startDate = plan.event_time ? new Date(plan.event_time) : null;
@@ -159,6 +162,8 @@ export default function DecidedPlan({
       <p className="mt-2 text-sm text-muted">
         The group’s headed to {winner.area}. Now let’s make it happen.
       </p>
+      {/* 070: a spot that closed after the plan dealt it. */}
+      {reopens && <p className="mt-2 text-sm font-medium">Heads up: closed now. {reopens}.</p>}
       {/* What the winner card used to carry, now that it no longer renders
           beside the reveal. */}
       <p className="vote-result__details mt-2 text-sm">
@@ -183,12 +188,12 @@ export default function DecidedPlan({
           <>
           <div className="mt-1 flex items-center justify-between gap-3">
             <p className="font-display text-lg font-extrabold">
-              {prettyTime(plan.event_time)}
+              {prettyTime(plan.event_time)}{viewerOffDubai && <span className="text-sm font-medium text-muted"> Dubai time</span>}
             </p>
             {isHost && (
               <button
                 type="button"
-                onClick={() => setEditingTime(true)}
+                onClick={() => setTimeDraft(toDubaiInput(plan.event_time!))}
                 className="text-sm font-bold text-grape underline"
               >
                 Change
@@ -207,19 +212,33 @@ export default function DecidedPlan({
           )}
           </>
         ) : isHost ? (
-          <div className="mt-2 flex flex-col gap-2 sm:flex-row">
-            <input
-              type="datetime-local"
-              defaultValue={plan.event_time ? toLocalInput(plan.event_time) : ""}
-              onChange={(e) => {
-                if (e.target.value) {
-                  onSetTime(new Date(e.target.value).toISOString());
-                  setEditingTime(false);
-                }
-              }}
-              className="vote-field flex-1 rounded-xl border-2 border-ink bg-card px-3 py-2 font-medium outline-none"
-            />
-          </div>
+          <form
+            className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-end"
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (!draftIso) return;
+              onSetTime(draftIso);
+              setTimeDraft(null);
+            }}
+          >
+            <label className="flex flex-1 flex-col gap-1 text-sm font-medium">
+              <span className="text-muted">Dubai time</span>
+              <input
+                type="datetime-local"
+                value={timeDraft ?? ""}
+                onChange={(event) => setTimeDraft(event.target.value)}
+                className="vote-field min-h-11 rounded-xl border-2 border-ink bg-card px-3 py-2 font-medium outline-none"
+              />
+            </label>
+            <button type="submit" disabled={!draftIso} className="min-h-11 rounded-xl border-2 border-ink bg-ink px-4 font-bold text-card disabled:opacity-50">
+              Save time
+            </button>
+            {plan.event_time && (
+              <button type="button" onClick={() => setTimeDraft(null)} className="min-h-11 px-2 text-sm font-bold text-muted underline">
+                Cancel
+              </button>
+            )}
+          </form>
         ) : (
           <p className="mt-1 text-sm text-muted">Not set yet. Ask the host to add a time.</p>
         )}
@@ -228,6 +247,7 @@ export default function DecidedPlan({
       <WhosInSection rsvps={rsvps} roster={roster} isMine={mine.rsvp} onSetRsvp={onSetRsvp} onSetCarpool={onSetCarpool} />
 
       <GettingThere plan={plan} winner={winner} />
+      <KnowBeforeYouGo spot={winner} className="mt-4 border-t border-line pt-4" />
 
       <BookingSection
         plan={plan}
