@@ -4,65 +4,17 @@ import ThemeSync from "@/components/ThemeSync";
 import { autoGround } from "@/lib/dubai-phase";
 import "./globals.css";
 
-// Newsreader, variable, wght 200-800.
-//
-// The handoff specified Manrope for display. This is a deliberate departure,
-// taken on the owner's call after Cobble came in as a reference for "the
-// nature of the design": nearly all of that reference's character comes from
-// pairing an editorial serif with a friendly sans, and a geometric sans on
-// warm sand reads generic next to it. A high-contrast serif with air is also
-// the sleekest thing available — the two briefs do not actually conflict.
-//
-// Newsreader specifically: its 200-800 axis is exactly the range the handoff
-// asked for, so turn 13's headline entrance (weight 300 -> 800 over 1.4s)
-// transfers unchanged; it carries an optical-size axis; and it is neither
-// Playfair nor Fraunces, both of which are everywhere.
-//
-// DISPLAY ONLY — hero, titles, section heads, the wordmark. Body copy,
-// labels, chips and numerals stay Hanken Grotesk. Two families, which is the
-// cap FRONTEND_DESIGN_STANDARDS sets.
-// Cormorant, variable, wght 300-700, roman AND italic.
-//
-// The italic is a SECOND SRC ENTRY on the same family, not a second
-// localFont() call and not hand-rolled @font-face — that is what makes
-// `font-style: italic` resolve to the real drawn face. SPECS.md §20.1 is
-// about exactly this: with only a roman registered, `font-style: italic`
-// yields a browser-synthesised oblique, the roman letterforms mechanically
-// slanted. That is the cheap-looking version of the effect the owner asked
-// for, so shipping it would defeat the instruction rather than satisfy it.
-//
-// Replaces Newsreader as the display face (owner's choice). Newsreader is
-// no longer loaded: nothing references it once --font-display-family points
-// here, and leaving it registered would ship 131KB of unused font on every
-// page. The file stays in public/fonts if it is ever wanted back.
-//
-// Cormorant's axis is 300-700, narrower than Newsreader's 200-800 — see
-// WeightRise, whose entrance range is narrowed to match rather than being
-// left to clamp silently at the top.
-const display = localFont({
-  src: [
-    {
-      path: "../public/fonts/cormorant-variable-latin.woff2",
-      weight: "300 700",
-      style: "normal",
-    },
-    {
-      path: "../public/fonts/cormorant-italic-variable-latin.woff2",
-      weight: "300 700",
-      style: "italic",
-    },
-  ],
-  variable: "--font-display-family",
-  display: "swap",
-});
-
-const hanken = localFont({
-  src: [
-    { path: "../public/fonts/hanken-grotesk-400.ttf", weight: "400" },
-    { path: "../public/fonts/hanken-grotesk-500.ttf", weight: "500" },
-    { path: "../public/fonts/hanken-grotesk-700.ttf", weight: "700" },
-  ],
-  variable: "--font-hanken",
+// Archivo, variable: weight 100-900 and width 62-125%. One family carries
+// the whole magazine: extra-condensed black for the cover voice, normal width
+// for listings, tabular numerals for AED, minutes and km. The width range is
+// declared so `font-stretch` selects the drawn widths instead of a synthetic
+// squash.
+const archivo = localFont({
+  src: "../public/fonts/archivo-variable-latin.woff2",
+  weight: "100 900",
+  style: "normal",
+  declarations: [{ prop: "font-stretch", value: "62% 125%" }],
+  variable: "--font-archivo",
   display: "swap",
 });
 
@@ -148,7 +100,7 @@ export default function RootLayout({
     <html
       lang="en"
       data-theme={ground}
-      className={`${display.variable} ${hanken.variable} h-full`}
+      className={`${archivo.variable} h-full`}
     >
       <body className="min-h-full flex flex-col">
         <ThemeSync serverGround={ground} />

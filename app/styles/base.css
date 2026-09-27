@@ -7,26 +7,26 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Display type is a SERIF now (Newsreader), and that changes two numbers the
-   old geometric sans wanted:
-
-   TRACKING. A geometric sans reads as confident when it is tracked tight, so
-   the headings here had crept to -.06em and -.08em. A high-contrast serif at
-   display size crushes at those values — its own sidebearings are already
-   doing the work. The handoff's -.03em turns out to be right for a serif and
-   too loose for the sans it was written for.
-
-   WEIGHT. The handoff says hero at 800. That was Manrope, where weight is
-   what buys presence. Newsreader at 800 goes blobby at 100px; the contrast
-   between thick and thin strokes is what carries a serif, so display sits at
-   400-600 and lets size and air do the rest. */
+/* Display type is Archivo at cover width: extra-condensed and heavy, set
+   tight, the way a listings magazine sets a headline. Body text stays at
+   normal width. The width rides on the family wherever the display face is
+   used, so `font-display` utilities get the cover voice too. */
 h1,
 h2,
 h3 {
   font-family: var(--font-display);
-  font-weight: 500;
-  letter-spacing: -0.02em;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1;
   text-wrap: balance;
+}
+@layer base {
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-stretch: 70%;
+  }
 }
 
 /* ── The signature element: press, and one hairline ────────────────
@@ -101,24 +101,12 @@ h3 {
   outline-offset: -2px;
 }
 
-/* SPECS.md §23.7 — the dark ring, and it was a shipping blocker rather
-   than polish: the graphite inset above is invisible on a near-black card,
-   which is keyboard access failing on the app's primary surface.
-
-   TWO bands, because no single colour can do the job. A focusable control
-   in dark sits on four grounds — card #051822, canvas #2D383E, and §21.3's
-   tan and light fills — spanning L* 7.2 to 81.8, and every single-value
-   candidate fails 3:1 on at least one of them (white is 1.62 on the light
-   fill; light is 1.00 on itself). Worst case for the pair is 4.59 on the
-   tan fill, and the bands separate from each other at 11.19 so the ring
-   reads as a ring rather than a smudge.
-
-   Swept the whole luminance range rather than only those four grounds: the
-   worst possible ground for this pair is mid-grey #6a6a6a at 3.35, still a
-   pass. No colour defeats it, so a new surface never needs it re-measured. */
+/* Night's focus ring is two bands, because no single colour clears 3:1 on
+   every ground a control can sit on (ink card, gold fill, photo scrim):
+   light outside, ink inside, each band separating from the other. */
 [data-theme="night"] {
-  --ring-outer: #d4c9c7;
-  --ring-inner: #051822;
+  --ring-outer: #f3f1ec;
+  --ring-inner: #0c0c10;
 }
 /* `:root[...]` rather than `[data-theme="night"]` on purpose, and it is
    load-bearing. A bare attribute selector plus :focus-visible scores
@@ -144,7 +132,7 @@ h3 {
 
      ⚠ This REPLACES box-shadow, which is safe only because dark uses no
      elevation shadows — a shadow must be darker than its ground and
-     #051822 is already at the floor, so soft elevation is structurally
+     the ink ground is already at the floor, so soft elevation is structurally
      invisible here and separation comes from value plus the --color-line
      hairline. If any dark surface later gains an outer box-shadow, this
      rule must APPEND to it, or focusing that surface silently deletes its
