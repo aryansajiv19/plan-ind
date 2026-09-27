@@ -33,3 +33,10 @@ test("a missing or non-https Supabase URL allows nothing", () => {
   }
   assert.equal(spotPhotoHost(SUPABASE), "fixtureref.supabase.co");
 });
+
+test("our own venue photos in public/venues are optimised, nothing else local", () => {
+  assert.equal(canOptimiseImage("/venues/40000000-0000-0000-0000-000000000001.webp", undefined), true);
+  for (const src of ["/venues/../secret.webp", "//evil.example/venues/x.webp", "/venues/x.jpg", "/venues/X.webp", "/other/x.webp"]) {
+    assert.equal(canOptimiseImage(src, SUPABASE), false, src);
+  }
+});
