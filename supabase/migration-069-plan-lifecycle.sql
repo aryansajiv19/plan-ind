@@ -1,6 +1,7 @@
 -- Migration 069: plan lifecycle (roadmap Phase 1). STAGED -- written, not
 -- applied anywhere. Applies after 068, at go-live. docs/ROADMAP.md items:
 --   P4  deadlines fire without the host (expire_plan)
+--   P11 rating only after the outing; unrating removes the visit it logged
 --   booking_owner by identity (confirmation-pass follow-up): who claimed the
 --       booking is recorded per account in plan_booking_owners, and only that
 --       account's leaving or deletion clears it -- not a same-named member.
@@ -436,3 +437,124 @@ end;
 $$;
 revoke all on function delete_my_account(boolean) from public, anon, authenticated;
 grant execute on function delete_my_account(boolean) to authenticated;
+
+-- ── P11: rating only after the outing ─────────────────────────────────────────
+-- When a plan was decided, kept by one trigger so decide, direct plans (born
+-- decided) and reopen all stay right without touching those functions.
+alter table plans add column if not exists decided_at timestamptz;
+grant select (decided_at) on plans to authenticated;
+
+create or replace function stamp_plan_decided_at()
+returns trigger language plpgsql set search_path = public, pg_temp as $$
+begin
+  if new.status = 'decided' then
+    if tg_op = 'INSERT' or old.status is distinct from 'decided' then
+      new.decided_at := now();
+    end if;
+  else
+    new.decided_at := null;
+  end if;
+  return new;
+end; $$;
+revoke all on function stamp_plan_decided_at() from public, anon, authenticated;
+drop trigger if exists plans_stamp_decided_at on plans;
+create trigger plans_stamp_decided_at before insert or update of status on plans
+  for each row execute function stamp_plan_decided_at();
+
+-- Plans decided before this migration: the earliest honest bound.
+update plans set decided_at = created_at where status = 'decided' and decided_at is null;
+
+create or replace function rate_plan(
+  p_plan_id uuid, p_spot_id uuid, p_voter_name text, p_stars integer, p_again boolean, p_participant_token_hash text
+) returns void language plpgsql security definer set search_path = public, pg_temp as $$
+declare
+  existing ratings%rowtype;
+  target plans%rowtype;
+  -- 067 (F2): a label only -- the caller's own profile name; p_voter_name only without one.
+  clean_name text := clean_display_name(coalesce(
+    (select pe.display_name from people pe where pe.auth_user_id = auth.uid()), p_voter_name));
+  caller uuid := auth.uid();
+begin
+  -- 064: a permanent account is the price of taking part.
+  if not is_permanent_user() then
+    raise exception 'Sign in to rate this plan' using errcode = '42501';
+  end if;
+  if caller is null or p_participant_token_hash is null
+     or p_participant_token_hash !~ '^[0-9a-f]{64}$'
+     or p_stars is null or p_stars not between 1 and 5 then
+    raise exception 'Participant authorization required' using errcode = '42501';
+  end if;
+  -- 067 (R2/R13): no hash-ownership check; identity is auth.uid().
+  if clean_name = '' then
+    raise exception 'Enter a name before rating' using errcode = '22023';
+  end if;
+
+  select * into target from plans where id = p_plan_id;
+  if target.id is null or target.status <> 'decided' then
+    raise exception 'This plan has not been decided yet' using errcode = '22023';
+  end if;
+  if target.winner_spot_id is null or target.winner_spot_id <> p_spot_id then
+    raise exception 'You can only rate the place the group chose' using errcode = '22023';
+  end if;
+  -- 069 (P11): only after the outing -- its time, or 3 hours after the plan
+  -- was decided when no time was set. A rating straight after deciding logged
+  -- a visit that never happened and blocked reopen for good.
+  if coalesce(target.event_time, target.decided_at + interval '3 hours') > now() then
+    raise exception 'Rating opens after the outing' using errcode = '22023';
+  end if;
+
+  for attempt in 1..3 loop
+    select * into existing from ratings where plan_id = p_plan_id and user_id = caller for update;
+    -- 067 (F2): no name-in-use refusal; the name is a label.
+    if existing.id is null then
+      begin
+        insert into ratings (plan_id, spot_id, voter_name, stars, again, participant_token_hash, user_id)
+        values (p_plan_id, p_spot_id, clean_name, p_stars, p_again, p_participant_token_hash, caller);
+        return;
+      exception when unique_violation then
+      end;
+    else
+      update ratings set voter_name = clean_name, spot_id = p_spot_id, stars = p_stars, again = p_again,
+        participant_token_hash = p_participant_token_hash
+        where id = existing.id;
+      return;
+    end if;
+  end loop;
+  raise exception 'Busy, try again' using errcode = '40001';
+end; $$;
+revoke all on function rate_plan(uuid, uuid, text, integer, boolean, text) from public, anon, authenticated;
+grant execute on function rate_plan(uuid, uuid, text, integer, boolean, text) to authenticated;
+
+create or replace function unrate_plan(p_plan_id uuid)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  removed int;
+  removed_visits int;
+begin
+  -- 064: a permanent account is the price of taking part.
+  if not is_permanent_user() then
+    raise exception 'Sign in to change your rating' using errcode = '42501';
+  end if;
+  if auth.uid() is null then
+    raise exception 'Participant authorization required' using errcode = '42501';
+  end if;
+  delete from ratings where plan_id = p_plan_id and user_id = auth.uid();
+  get diagnostics removed = row_count;
+  -- 069 (P11): the rating is what logged the caller's visit for this plan, so
+  -- take that back too -- unless it has photos (deleting it would orphan the
+  -- files, the same rule logVisit keeps). A leftover visit also blocks reopen.
+  delete from visits v
+  using people pe
+  where v.plan_id = p_plan_id and v.person_id = pe.id and pe.auth_user_id = auth.uid()
+    and not exists (select 1 from visit_photos ph where ph.visit_id = v.id);
+  get diagnostics removed_visits = row_count;
+  return jsonb_build_object('result', case when removed > 0 then 'removed' else 'not_rated' end,
+    'visit_removed', removed_visits > 0);
+end;
+$$;
+revoke all on function unrate_plan(uuid) from public, anon, authenticated;
+grant execute on function unrate_plan(uuid) to authenticated;

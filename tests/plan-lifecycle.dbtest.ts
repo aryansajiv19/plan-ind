@@ -70,9 +70,11 @@ const stage = (planId: string) => psql(`select status || '/' || stage from plans
 after(async () => {
   if (SKIP) return;
   const ids = (xs: string[]) => xs.map((x) => `'${x}'`).join(",");
+  // Users before spots: deleting a user cascades its people row and visits,
+  // and 065 refuses to delete a spot someone has visited.
   if (made.plans.length) await psql(`delete from plans where id in (${ids(made.plans)})`);
-  if (made.spots.length) await psql(`delete from spots where id in (${ids(made.spots)})`);
   if (made.users.length) await psql(`delete from auth.users where id in (${ids(made.users)})`);
+  if (made.spots.length) await psql(`delete from spots where id in (${ids(made.spots)})`);
 });
 
 // ── P4 ──────────────────────────────────────────────────────────────────────
@@ -169,5 +171,59 @@ describe("069 the booking claim belongs to an account, not a name", { skip: SKIP
     assert.equal(await owner(p.id), "<none>");
     await as(other, "select delete_my_account(false)");
     assert.equal(await owner(q.id), "Former member");
+  });
+});
+
+// ── P11 ─────────────────────────────────────────────────────────────────────
+describe("069 rating only after the outing (P11)", { skip: SKIP }, () => {
+  /** A decided one-pool plan; the members get a people row and plan access. */
+  async function decided(members: string[]): Promise<{ id: string; winner: string }> {
+    const host = await user();
+    const p = await plan(host, "now() + interval '1 day'", members);
+    for (const u of members) await psql(`insert into people (id, display_name, auth_user_id) values ('${u}', 'QA-${u.slice(0, 6)}', '${u}')`);
+    const cmd = (c: string) => as(host, `select execute_plan_command('${p.id}', '${p.token}', '${c}', '{}'::jsonb)`);
+    await cmd("advance");
+    const { winner_spot_id } = JSON.parse(await cmd("decide"));
+    return { id: p.id, winner: winner_spot_id };
+  }
+  const rate = (uid: string, planId: string, spot: string) =>
+    as(uid, `select rate_plan('${planId}','${spot}','x',4,true,'${hash()}')`);
+  const TOO_EARLY = /Rating opens after the outing/;
+
+  test("with a time set, rating opens only once it has passed", async () => {
+    const m = await user();
+    const d = await decided([m]);
+    await psql(`update plans set event_time = now() + interval '1 hour' where id = '${d.id}'`);
+    await assert.rejects(rate(m, d.id, d.winner), TOO_EARLY);
+    await psql(`update plans set event_time = now() - interval '1 hour' where id = '${d.id}'`);
+    await rate(m, d.id, d.winner);
+  });
+
+  test("with no time set, rating opens 3 hours after deciding (decided_at is stamped)", async () => {
+    const m = await user();
+    const d = await decided([m]);
+    assert.equal(await psql(`select decided_at > now() - interval '1 minute' from plans where id = '${d.id}'`), "t");
+    await assert.rejects(rate(m, d.id, d.winner), TOO_EARLY);
+    await psql(`update plans set decided_at = now() - interval '4 hours' where id = '${d.id}'`);
+    await rate(m, d.id, d.winner);
+  });
+
+  test("unrating removes the caller's own photo-less visit, and nothing else", async () => {
+    const [a, b, c] = [await user(), await user(), await user()];
+    const d = await decided([a, b, c]);
+    await psql(`update plans set event_time = now() - interval '1 hour' where id = '${d.id}'`);
+    const visit = (u: string) => psql(`insert into visits (person_id, spot_id, plan_id) values ('${u}','${d.winner}','${d.id}') returning id`);
+    const [va, vb] = [await visit(a), await visit(b)];
+    await visit(c);
+    await psql(`insert into visit_photos (visit_id, person_id, storage_path) values ('${vb}','${b}','${b}/${vb}/1.jpg')`);
+    for (const u of [a, b]) await rate(u, d.id, d.winner);
+
+    const outA = JSON.parse(await as(a, `select unrate_plan('${d.id}')`));
+    assert.deepEqual([outA.result, outA.visit_removed], ["removed", true]);
+    const outB = JSON.parse(await as(b, `select unrate_plan('${d.id}')`));
+    assert.deepEqual([outB.result, outB.visit_removed], ["removed", false]);
+    const left = await psql(`select string_agg(person_id::text, ',' order by person_id) from visits where plan_id = '${d.id}'`);
+    assert.equal(left, [b, c].sort().join(","));
+    assert.equal(await psql(`select count(*) from visits where id = '${va}'`), "0");
   });
 });

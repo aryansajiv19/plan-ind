@@ -68,6 +68,7 @@ export interface Plan {
   /** 057: set when the host reopens a decided plan. Show "reopened" only when
    *  status is "open" and this is set; it stays as history after a re-decide. */
   reopened_at?: string | null;
+  decided_at?: string | null; // 069: when status became decided
   stage: PlanStage;
   pool_count: number;
   budget_per_person: number | null;
