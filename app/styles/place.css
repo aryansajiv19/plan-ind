@@ -162,3 +162,8 @@
   text-decoration: underline;
   text-underline-offset: 0.2em;
 }
+.place-metro {
+  margin-top: 0.4rem;
+  color: var(--color-muted);
+  font-size: max(0.85rem, var(--type-floor));
+}

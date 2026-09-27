@@ -9,6 +9,7 @@ import { categoryMeta } from "@/lib/categories";
 import { getCurrentUser, safeNextPath } from "@/lib/auth";
 import PlaceDirectPlanCta from "@/components/PlaceDirectPlanCta";
 import GetThere from "@/components/GetThere";
+import { metroLine } from "@/lib/dubai-metro";
 import PlaceSaveToBoard from "@/components/account/PlaceSaveToBoard";
 import OpenStatus from "@/components/OpenStatus";
 import VenueMap from "@/components/VenueMap";
@@ -138,6 +139,7 @@ export default async function PlacePage({
           </a>
         </div>
         <GetThere venue={spot} />
+        {metroLine(spot.latitude, spot.longitude) && <p className="place-metro">{metroLine(spot.latitude, spot.longitude)}</p>}
 
         {/* The in-app map sits under the deep links, which stay the primary
             way to get there. It loads only when scrolled to or asked for. */}

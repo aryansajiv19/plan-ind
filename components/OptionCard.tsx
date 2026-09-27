@@ -7,6 +7,7 @@ import type { Spot } from "@/lib/types";
 import { categoryMeta } from "@/lib/categories";
 import type { DealReason } from "@/lib/deal-reasons";
 import { hoursLabel, openStatus } from "@/lib/open-hours";
+import { nearestStation } from "@/lib/dubai-metro";
 import { useMinuteClock } from "@/hooks/use-minute-clock";
 
 interface OptionCardProps {
@@ -50,6 +51,8 @@ export default function OptionCard({
   const now = useMinuteClock();
   const status = now ? openStatus(spot.open_till, now) : null;
   const hours = status?.kind === "closing-soon" ? status.label : hoursLabel(spot.open_till);
+  // P17: a walkable metro station is worth a word on the card; none isn't.
+  const near = nearestStation(spot.latitude, spot.longitude);
 
   // A vote arriving over realtime is the only "someone else is here" signal
   // this screen has. Acknowledge it once, then clear — a permanent highlight
@@ -119,6 +122,7 @@ export default function OptionCard({
 
       <p className="vote-option__meta mt-2 text-xs text-muted">
         {hours ? `${hours} · ` : ""}from AED {spot.min_spend}pp{shownKm != null ? ` · ${Math.max(1, Math.round(shownKm))} km away` : ""}
+        {near?.walkable ? ` · Metro ≈ ${near.walkMin} min walk` : ""}
       </p>
 
       {/* Why the deal picked it. Spans, not a list: this sits inside a
