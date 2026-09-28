@@ -6,18 +6,17 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import type { PersonCard, ProfileVisit, Spot, WrappedSummary, WrappedSummaryError } from "@/lib/types";
 import type { PlannedWith, VisitCollectionView, VisitPhotoView } from "@/lib/social";
-import StartPlanForm from "@/components/StartPlanForm";
 import type { PlanPrefill } from "@/lib/board-plan";
 import { takeDraft } from "@/lib/plan-draft";
 import type { CuratedCounts } from "@/lib/spots/catalogue";
 import { haptic } from "@/lib/interaction";
-import PhotoWall, { type WallItem } from "@/components/PhotoWall";
+import type { WallItem } from "@/components/PhotoWall";
 import HomeHero from "@/components/home/HomeHero";
 import LandingNav from "@/components/landing/LandingNav";
 import HowItWorks from "@/components/landing/HowItWorks";
 import YourPlans, { type PlanSummary } from "@/components/home/YourPlans";
 import { APP_VIEWS, VIEW_LABELS, WALL_SIZE, viewFromParam, type AppView } from "@/lib/home-views";
-import ActionSearchBar from "@/components/kokonutui/action-search-bar";
+import NearViewport from "@/components/home/NearViewport";
 import { greetingFor } from "@/lib/right-now";
 
 // The account tabs are most of this component's weight and the signed-out
@@ -28,6 +27,14 @@ import { greetingFor } from "@/lib/right-now";
 const viewLoading = () => <div aria-busy="true" style={{ minHeight: "100dvh" }} />;
 const AccountViews = dynamic(() => import("@/components/AccountViews"), { loading: viewLoading });
 const DemoAccountViews = dynamic(() => import("@/components/DemoAccountViews"), { loading: viewLoading });
+// Split out of the landing's first-paint JS (item 14): the signed-in page
+// renders these at once as before; the signed-out landing mounts the
+// composer and the wall only as they near the viewport (NearViewport), and
+// never renders the app nav's search bar. They carry supabase-js, the deal
+// reveal, smart search and the wall.
+const StartPlanForm = dynamic(() => import("@/components/StartPlanForm"));
+const PhotoWall = dynamic(() => import("@/components/PhotoWall"));
+const ActionSearchBar = dynamic(() => import("@/components/kokonutui/action-search-bar"));
 
 export default function HomeExperience({
   name,
@@ -301,7 +308,13 @@ export default function HomeExperience({
         </div>
 
         <div className="home-plan-card">
-          <StartPlanForm key={planPrefill?.key} age={age} demoMode={demoMode} sampleShelf={fixtures} prefill={planPrefill} smartSearchAvailable={smartSearchAvailable} />
+          {demoMode ? (
+            <NearViewport minHeight="38rem">
+              <StartPlanForm key={planPrefill?.key} age={age} demoMode={demoMode} sampleShelf={fixtures} prefill={planPrefill} smartSearchAvailable={smartSearchAvailable} />
+            </NearViewport>
+          ) : (
+            <StartPlanForm key={planPrefill?.key} age={age} demoMode={demoMode} sampleShelf={fixtures} prefill={planPrefill} smartSearchAvailable={smartSearchAvailable} />
+          )}
         </div>
       </section>
 
@@ -318,10 +331,12 @@ export default function HomeExperience({
             </p>
           )}
         </div>
-        <PhotoWall
-          items={wallItems}
-          emptyMessage="No places in the catalog yet. Once spots are seeded they show up here, newest first."
-        />
+        <NearViewport minHeight="100rem">
+          <PhotoWall
+            items={wallItems}
+            emptyMessage="No places in the catalog yet. Once spots are seeded they show up here, newest first."
+          />
+        </NearViewport>
       </section>
       </div>
       ) : (

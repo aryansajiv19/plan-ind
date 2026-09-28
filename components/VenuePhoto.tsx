@@ -32,11 +32,14 @@ export default function VenuePhoto({
   spot,
   sizes,
   preload = false,
+  fetchPriority,
   className = "object-cover",
 }: {
   spot: PhotoSpot;
   sizes: string;
   preload?: boolean;
+  /** "high" for the page's LCP image only. */
+  fetchPriority?: "high";
   className?: string;
 }) {
   if (spot.photo_url) {
@@ -48,6 +51,7 @@ export default function VenuePhoto({
           fill
           sizes={sizes}
           preload={preload}
+          fetchPriority={fetchPriority}
           className={className}
           unoptimized={!canOptimiseImage(spot.photo_url)}
         />
