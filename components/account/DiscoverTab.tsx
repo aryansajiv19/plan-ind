@@ -6,6 +6,7 @@ import PlaceLinkImporter from "@/components/PlaceLinkImporter";
 import FoldersSection from "@/components/account/FoldersSection";
 import type { useSuggestions } from "@/hooks/use-suggestions";
 import PlaceCard from "@/components/account/PlaceCard";
+import ExploreConstellation from "@/components/account/ExploreConstellation";
 import MoodboardsSection from "@/components/account/MoodboardsSection";
 import type { MoodboardsState } from "@/components/account/useMoodboards";
 import { placePlanPrefill, type PlanPrefill } from "@/lib/board-plan";
@@ -69,7 +70,7 @@ export function useDiscoverSearch(spots: Spot[], age: number) {
       .from("spots")
       // Every spot this account may read (RLS: curated, community, its own),
       // as the grid shows, not only curated (P13), less 070's closed ones.
-      .select("id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, photo_url, photo_attribution, description, minimum_age, google_place_id, source"));
+      .select("id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, photo_url, photo_attribution, description, minimum_age, google_place_id, source, latitude, longitude"));
     if (filter !== "All") request = request.eq("category", filter);
     if (q) {
       // Quote the value and escape what the quoting cares about. PostgREST's
@@ -131,6 +132,7 @@ export default function DiscoverTab({
   personId: string | null;
 }) {
   const { query, setQuery, placeFilter, setPlaceFilter, categories, visiblePlaces, searchFailed } = search;
+  const [layout, setLayout] = useState<"grid" | "map">("grid");
   const allowedCategory = (category: string) => CATEGORIES.some((c) => c.key === category) && age >= minimumAgeForCategory(category);
   return (
     <section className="demo-view" aria-labelledby="discover-title">
@@ -168,8 +170,15 @@ export default function DiscoverTab({
         </div>
       </div>
 
+      <div className="explore-toggle" role="group" aria-label="Show places as">
+        <button type="button" aria-pressed={layout === "grid"} onClick={() => setLayout("grid")}>Grid</button>
+        <button type="button" aria-pressed={layout === "map"} onClick={() => setLayout("map")}>Map</button>
+      </div>
+
       {searchFailed ? (
         <p className="demo-empty" role="alert">Search failed. Check your connection and try again.</p>
+      ) : visiblePlaces.length && layout === "map" ? (
+        <ExploreConstellation spots={visiblePlaces} />
       ) : visiblePlaces.length ? (
         <div className="demo-place-grid">
           {visiblePlaces.map((spot) => (

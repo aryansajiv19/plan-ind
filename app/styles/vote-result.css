@@ -482,3 +482,46 @@
   color: var(--color-punch-text);
   font-weight: 600;
 }
+
+/* ── Tonight at a glance (components/decided/TonightPanel.tsx) ────────
+   Every answer about the night in one card: label left, answer right;
+   a row that needs attention gets a sand mark. */
+.tonight-panel {
+  margin-top: 1.25rem;
+  padding: 1.1rem 1.2rem;
+  border: 1px solid color-mix(in srgb, var(--color-punch) 40%, transparent);
+  border-radius: var(--radius-panel);
+  background: color-mix(in srgb, var(--color-punch) 6%, var(--color-card));
+}
+.tonight-panel h2 {
+  font-size: 1.6rem;
+}
+.tonight-panel dl {
+  display: grid;
+  margin-top: 0.6rem;
+}
+.tonight-panel__row {
+  display: grid;
+  grid-template-columns: minmax(6rem, 9rem) 1fr;
+  gap: 0.75rem;
+  padding: 0.55rem 0;
+  border-top: 1px solid color-mix(in srgb, var(--color-line) 35%, transparent);
+}
+.tonight-panel__row:first-child {
+  border-top: 0;
+}
+.tonight-panel__row dt {
+  color: var(--color-muted);
+  font-size: max(0.8rem, var(--type-floor));
+}
+.tonight-panel__row dd {
+  color: var(--color-ink);
+  font-weight: 500;
+}
+.tonight-panel__row[data-warn] dd::before {
+  content: "●";
+  margin-right: 0.45rem;
+  color: var(--color-punch);
+  font-size: 0.7em;
+  vertical-align: 0.15em;
+}

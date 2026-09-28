@@ -644,3 +644,177 @@
   font-style: italic;
   font-size: 1.3rem;
 }
+
+/* ── Discover's map: the constellation (ExploreConstellation) ─────── */
+.explore-toggle {
+  display: inline-flex;
+  gap: 0.25rem;
+  margin: 1rem 0 0.75rem;
+  padding: 0.25rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-pill);
+}
+.explore-toggle button {
+  min-height: 2.25rem;
+  padding: 0 1rem;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-muted);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--dur-state) var(--ease-settle), color var(--dur-state);
+}
+.explore-toggle button[aria-pressed="true"] {
+  background: var(--primary-fill);
+  color: var(--primary-ink);
+}
+.explore-sky {
+  margin: 0;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-hero);
+  background: radial-gradient(ellipse at 60% 40%, color-mix(in srgb, var(--color-fill-quiet) 55%, transparent), transparent 70%);
+  overflow: hidden;
+}
+.explore-sky svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.explore-sky figcaption {
+  padding: 0.75rem 1rem;
+  color: var(--color-muted);
+  font-size: max(0.8rem, var(--type-floor));
+}
+.explore-sky__line {
+  stroke: color-mix(in srgb, var(--color-punch) 35%, transparent);
+  stroke-width: 1;
+}
+.explore-sky__hit {
+  fill: transparent;
+}
+.explore-sky__dot {
+  fill: var(--color-punch);
+  filter: drop-shadow(0 0 4px var(--color-punch));
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform var(--dur-state) var(--ease-spring);
+  animation: explore-star-in 500ms var(--ease-settle) both;
+  animation-delay: calc(var(--i) * 12ms);
+}
+.explore-sky__label {
+  fill: var(--color-ink);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 20px;
+  opacity: 0;
+  pointer-events: none;
+  paint-order: stroke;
+  stroke: var(--color-paper);
+  stroke-width: 4px;
+  transition: opacity 150ms ease-out;
+}
+.explore-sky__star:hover .explore-sky__dot,
+.explore-sky__star:focus-visible .explore-sky__dot {
+  transform: scale(1.8);
+}
+.explore-sky__star:hover .explore-sky__label,
+.explore-sky__star:focus-visible .explore-sky__label {
+  opacity: 1;
+}
+@keyframes explore-star-in {
+  from { opacity: 0; transform: scale(0.3); }
+}
+
+/* ── Saved, in folders (components/account/FoldersSection.tsx) ──────
+   Folders are little cards; lists inside are rows with a move menu. */
+.saved-folders {
+  margin-block: 2rem;
+}
+.saved-folders h2 {
+  font-size: clamp(1.6rem, 1.2rem + 1vw, 2.2rem);
+}
+.saved-folders > form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.6rem;
+  margin-top: 0.9rem;
+}
+.saved-folders label {
+  display: grid;
+  gap: 0.3rem;
+  color: var(--color-muted);
+  font-size: max(0.8rem, var(--type-floor));
+}
+.saved-folders input,
+.saved-folders select {
+  min-height: 2.6rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--color-line);
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+.saved-folders > form label:first-child input {
+  width: 4.5rem;
+  text-align: center;
+}
+.saved-folders button {
+  min-height: 2.6rem;
+  padding: 0 0.9rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-ink);
+  font-size: max(0.8rem, var(--type-floor));
+  font-weight: 600;
+  cursor: pointer;
+}
+.saved-folders > form button[type="submit"] {
+  border-color: var(--color-punch);
+  background: var(--primary-fill);
+  color: var(--primary-ink);
+}
+.saved-folders__group {
+  margin-top: 1rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-panel);
+  background: var(--color-card);
+  transition: border-color var(--dur-state);
+}
+.saved-folders__group:hover {
+  border-color: var(--color-punch);
+}
+.saved-folders__group h3 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.4rem;
+}
+.saved-folders__group h3 button {
+  min-height: 2.1rem;
+  font-family: var(--font-body);
+  font-style: normal;
+}
+.saved-folders__group h3 button:first-of-type {
+  margin-left: auto;
+}
+.saved-folders__group ul {
+  display: grid;
+  gap: 0.4rem;
+  margin-top: 0.7rem;
+  list-style: none;
+}
+.saved-folders__group li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.saved-folders__group > p {
+  margin-top: 0.5rem;
+  color: var(--color-muted);
+}
