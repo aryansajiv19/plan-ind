@@ -39,6 +39,9 @@ export function usePlanRealtime({
   // socket reconnects.
   const dataChannelRef = useRef<Channel | null>(null);
   const cancelRefetchesRef = useRef(() => {}); // drops coalesced refetches still waiting on a timer
+  // True while the channel is errored, timed out or closed: events are not
+  // arriving, so the screen may be stale. The client rejoins on its own.
+  const [livePaused, setLivePaused] = useState(false);
 
   // ── Realtime: live votes + live "decided" for everyone ───────────
   //
@@ -60,6 +63,7 @@ export function usePlanRealtime({
       void refetchPlan();
       later.forEach((refetch) => refetch());
     };
+    let active = true; // removeChannel below reports CLOSED; that is not a pause
     const channel = getSupabase()
       .channel(`plan:${id}`)
       .on(
@@ -105,18 +109,26 @@ export function usePlanRealtime({
       // R5: on every (re)join, the first included (it closes the gap after
       // the initial load).
       .subscribe((status) => {
+        if (!active) return;
+        setLivePaused(status !== "SUBSCRIBED");
         if (status === "SUBSCRIBED") catchUp();
       });
+    // A backgrounded tab (a phone locking) can miss events without the
+    // channel ever reporting it: catch up whenever the page is shown again.
+    const onVisible = () => { if (document.visibilityState === "visible") catchUp(); };
+    document.addEventListener("visibilitychange", onVisible);
     dataChannelRef.current = channel;
     cancelRefetchesRef.current = () => later.forEach((refetch) => refetch.cancel());
     return () => {
+      active = false;
+      document.removeEventListener("visibilitychange", onVisible);
       dataChannelRef.current = null;
       later.forEach((refetch) => refetch.cancel());
       getSupabase().removeChannel(channel);
     };
   }, [access, deleted, left, id, refetchVotes, refetchRsvps, refetchRatings, refetchPlanSpots, refetchPlan, setPlan, setDeleted]);
 
-  return { dataChannelRef, cancelRefetchesRef };
+  return { dataChannelRef, cancelRefetchesRef, livePaused };
 }
 
 export function usePlanPresence({

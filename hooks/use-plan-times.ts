@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import type { RealtimeSystemPayload } from "@supabase/supabase-js";
 import { getSupabase } from "@/lib/supabase";
 import { coalesce } from "@/lib/coalesce";
 
@@ -17,6 +18,8 @@ export type PlanTimes =
 /** `live` subscribes for ticks; otherwise the poll is read once (a decided plan). */
 export function usePlanTimes(planId: string, live: boolean) {
   const [times, setTimes] = useState<PlanTimes>({ state: "loading" });
+  // True while the live channel is errored, timed out or closed (see use-plan-realtime.ts).
+  const [livePaused, setLivePaused] = useState(false);
 
   const load = useCallback(async () => {
     const supabase = getSupabase();
@@ -38,13 +41,24 @@ export function usePlanTimes(planId: string, live: boolean) {
       return () => cancelAnimationFrame(frame);
     }
     const later = coalesce(load);
-    // ponytail: un-ticks from others arrive on the next event or rejoin until
-    // plan_time_votes gets replica identity full (a filtered DELETE is dropped).
+    let active = true; // removeChannel below reports CLOSED; that is not a pause
     const channel = getSupabase()
       .channel(`plan-times:${planId}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "plan_time_votes", filter: `plan_id=eq.${planId}` }, later)
-      .subscribe((status) => { if (status === "SUBSCRIBED") later(); });
+      // Changes flow only after this system ack, not at SUBSCRIBED: catch up again.
+      .on("system", {}, (payload: RealtimeSystemPayload) => {
+        if (payload.extension === "postgres_changes" && payload.status === "ok") later();
+      })
+      .subscribe((status) => {
+        if (!active) return;
+        setLivePaused(status !== "SUBSCRIBED");
+        if (status === "SUBSCRIBED") later();
+      });
+    const onVisible = () => { if (document.visibilityState === "visible") later(); };
+    document.addEventListener("visibilitychange", onVisible);
     return () => {
+      active = false;
+      document.removeEventListener("visibilitychange", onVisible);
       later.cancel();
       void getSupabase().removeChannel(channel);
     };
@@ -65,5 +79,5 @@ export function usePlanTimes(planId: string, live: boolean) {
     return error.code === "22023" ? "This plan is decided, so its time is set." : "That didn’t save. Check your connection and try again.";
   }
 
-  return { times, setAvailable };
+  return { times, setAvailable, livePaused };
 }

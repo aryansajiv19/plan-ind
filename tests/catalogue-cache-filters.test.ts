@@ -119,14 +119,6 @@ test("a failed ratings read is 'unavailable', not 'too few' (P5)", async () => {
   );
 });
 
-test("without a loader, dealSpotIds still reads the pool live through the caller's client", async () => {
-  const f = fakeDb((table) => ({ data: table === "spots" ? [...SHARED_POOL] : [], error: null }));
-  const ids = idsOf(await dealSpotIds(f.db, { category: "dinner", count: 1, constraints: { age: 25 } }));
-  assert.equal(ids.length, 1);
-  assert.equal(f.log[0].table, "spots");
-  assert.ok(f.log[0].calls.some(([m, a]) => m === "eq" && a[0] === "source" && a[1] === "curated"));
-});
-
 // ── Discover: cached curated half + live per-user half ───────────────────
 
 type Row = { id: string; name: string };

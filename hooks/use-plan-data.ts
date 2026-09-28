@@ -143,9 +143,13 @@ export function usePlanData(id: string) {
     const seq = ++fetchSeq.current.plan;
     const { data, error } = await getSupabase().from("plans").select(PLAN_COLUMNS).eq("id", id).maybeSingle();
     if (error) return false;
-    if (data && seq === fetchSeq.current.plan) setPlanRow(data as Plan);
+    // No row and no error is RLS saying "not yours any more" (removed member)
+    // or a deleted plan: re-run the access check so PlanStates shows why,
+    // instead of a stale plan with a live-looking tally.
+    if (!data) { void runAccess(); return true; }
+    if (seq === fetchSeq.current.plan) setPlanRow(data as Plan);
     return true;
-  }, [id]);
+  }, [id, runAccess]);
 
   const refetchPlanSpots = useCallback(async () => {
     const seq = ++fetchSeq.current.planSpots;
