@@ -46,7 +46,8 @@ test("/demo: the reveal deals nine places of the picked type, then links to the 
 
 test("/demo/vote plays the whole journey: compose, deal, rounds, final, reveal, booking", async ({ page }) => {
   await page.goto("/demo/vote");
-  const dinner = page.getByRole("button", { name: "Dinner", exact: true });
+  // A kind tile is named for its label and its count ("Dinner 9 places").
+  const dinner = page.getByRole("button", { name: /^Dinner\b/ });
   await dinner.click();
   await expect(dinner).toHaveAttribute("aria-pressed", "true");
   await page.getByRole("button", { name: "Deal nine" }).click();
