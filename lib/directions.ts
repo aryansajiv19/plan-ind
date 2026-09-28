@@ -112,3 +112,18 @@ export function isDubaiRushHour(now: Date): boolean {
   const hour = dubaiHour(now);
   return (hour >= 7 && hour < 10) || (hour >= 17 && hour < 20);
 }
+
+/** Minutes spare for parking or walking in, on top of the travel time. */
+export const LEAVE_BY_SPARE_MIN = 10;
+
+/**
+ * When to set off: the event time less the travel and a little spare,
+ * rounded down to 5 minutes. Null once that moment has passed or without
+ * both inputs, so a late viewer isn't told to leave in the past.
+ */
+export function leaveBy(eventIso: string | null, travelMin: number | null, now: Date = new Date()): Date | null {
+  if (!eventIso || travelMin == null) return null;
+  const at = new Date(eventIso).getTime() - (travelMin + LEAVE_BY_SPARE_MIN) * 60_000;
+  const rounded = Math.floor(at / 300_000) * 300_000;
+  return rounded > now.getTime() ? new Date(rounded) : null;
+}

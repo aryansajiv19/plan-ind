@@ -14,7 +14,7 @@ import RouteMap from "@/components/route/RouteMap";
 // created before an origin was picked has nothing honest to say about it.
 // The drive time is a labelled rush-hour estimate (lib/directions.ts).
 
-export default function GettingThere({ plan, winner }: { plan: Pick<Plan, "origin_latitude" | "origin_longitude" | "origin_label">; winner: Spot }) {
+export default function GettingThere({ plan, winner }: { plan: Pick<Plan, "origin_latitude" | "origin_longitude" | "origin_label"> & { event_time?: string | null }; winner: Spot }) {
   const km =
     plan.origin_latitude != null && plan.origin_longitude != null
     && winner.latitude != null && winner.longitude != null
@@ -48,6 +48,7 @@ export default function GettingThere({ plan, winner }: { plan: Pick<Plan, "origi
       <GetThere venue={winner} className="mt-2" />
       <RouteMap
         venue={winner}
+        eventTime={plan.event_time ?? null}
         planOrigin={plan.origin_latitude != null && plan.origin_longitude != null ? { latitude: plan.origin_latitude, longitude: plan.origin_longitude } : null}
       />
     </div>
