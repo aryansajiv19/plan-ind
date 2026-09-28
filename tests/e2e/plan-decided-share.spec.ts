@@ -40,16 +40,19 @@ test("dealt cards say why they were picked, and only what the deal filtered on",
     const tresind = cardFor(page, "Tresind Studio");
     await expect(threeFils).toBeVisible({ timeout: 20_000 });
 
-    // Same area as the origin: 0 km, which the chip floors to 1.
-    await expect(threeFils.getByText("Fits AED 200", { exact: true })).toBeVisible();
-    await expect(threeFils.getByText("1 km away", { exact: true })).toBeVisible();
+    // The reasons are one fact line since the redesign ("Fits AED 200 · 1 km
+    // away"): each fact is matched whole, between the line's separators.
+    const fact = (text: string) => new RegExp(`(^|· )${text}( ·|$)`);
+    // Same area as the origin: 0 km, which the line floors to 1.
+    await expect(threeFils.getByText(fact("Fits AED 200"))).toBeVisible();
+    await expect(threeFils.getByText(fact("1 km away"))).toBeVisible();
 
-    await expect(buQtair.getByText("Fits AED 200", { exact: true })).toBeVisible();
-    await expect(buQtair.getByText(/^\d+ km away$/)).toBeVisible();
+    await expect(buQtair.getByText(fact("Fits AED 200"))).toBeVisible();
+    await expect(buQtair.getByText(fact("\\d+ km away"))).toBeVisible();
 
     // The control: AED 550 minimum is over the plan's AED 200 budget.
     await expect(tresind).toBeVisible();
-    await expect(tresind.getByText("Fits AED 200", { exact: true })).toHaveCount(0);
+    await expect(tresind.getByText(/Fits AED 200/)).toHaveCount(0);
   });
 });
 
