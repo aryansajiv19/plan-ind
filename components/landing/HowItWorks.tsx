@@ -51,7 +51,7 @@ export default function HowItWorks() {
           <div className="how__decided" aria-hidden="true">
             <VenuePhoto spot={WINNER} sizes="(min-width: 850px) 24rem, 90vw" />
             <div>
-              <p className="vote-kicker">Decided · you’re going</p>
+              <p className="how__verdict">Decided. You’re going.</p>
               <p className="how__winner">{WINNER.name}</p>
               <p className="how__picked">
                 <span className="vote-face-stack">

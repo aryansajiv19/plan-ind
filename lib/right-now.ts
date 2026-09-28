@@ -36,3 +36,8 @@ export function greetingFor(now: Date): string {
   if (hour < 17) return "Good afternoon";
   return "Good evening";
 }
+
+/** "Sun 28 Sep" on the Dubai calendar, for the landing's issue band. */
+export function issueDate(now: Date): string {
+  return new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Dubai", weekday: "short", day: "numeric", month: "short" }).format(now);
+}
