@@ -52,7 +52,7 @@ export default function DemoJourney({ decks, eventTime }: { decks: DemoDeck[]; e
             // The deck's first photographed place is the tile's cover; none, and the tile is type on sand.
             const cover = option.pools.flat().find((spot) => spot.photo_url);
             return (
-              <button key={option.key} type="button" onClick={() => setDeck(option)} aria-pressed={deck.key === option.key} className="kind-tile">
+              <button key={option.key} type="button" onClick={() => setDeck(option)} aria-pressed={deck.key === option.key} aria-label={option.label} className="kind-tile">
                 {cover && <VenuePhoto spot={cover} sizes="(max-width: 640px) 50vw, 18rem" className="kind-tile__img" />}
                 <span className="kind-tile__label">
                   <strong>{option.label}</strong>

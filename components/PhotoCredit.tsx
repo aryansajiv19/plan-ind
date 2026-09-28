@@ -13,7 +13,7 @@ import type { Spot } from "@/lib/types";
  * identical everywhere a spot photo appears and a copy that drifts is a
  * copy that silently stops complying.
  *
- * Shown as a small "©" that opens to the full line on hover or focus
+ * Shown as a small "©" that opens to the full line on hover
  * (app/styles/overrides.css), so photos read clean.
  *
  * Renders nothing when there is no photo or no attribution: an empty
@@ -36,7 +36,6 @@ export function CreditMark({ text, className = "" }: { text: string; className?:
     <span
       className={`photo-credit ${className}`.trim()}
       role="note"
-      tabIndex={0}
       aria-label={`Photo: ${text}`}
       title={text}
     >

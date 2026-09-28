@@ -96,7 +96,8 @@
   justify-content: center;
   min-height: 2.75rem;
   padding: 0.7rem 1.5rem;
-  font-family: var(--font-display);
+  font-family: var(--font-body);
+  font-weight: 600;
 }
 /* M1: plans joined together, shown with the inviter's name before Accept.
    Ink, not an alarm colour: zero is information, not a threat. */

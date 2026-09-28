@@ -608,3 +608,39 @@
   font-weight: 500;
   cursor: pointer;
 }
+
+/* "For you" on Discover: suggestions as a quiet row of chips-with-reasons. */
+.discover-suggested {
+  margin-block: 2rem;
+}
+.discover-suggested h2 {
+  font-size: clamp(1.6rem, 1.2rem + 1vw, 2.2rem);
+}
+.discover-suggested ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 0.6rem;
+  margin-top: 0.9rem;
+  list-style: none;
+}
+.discover-suggested li {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-panel);
+  background: var(--color-card);
+  color: var(--color-muted);
+  font-size: max(0.8rem, var(--type-floor));
+  transition: transform var(--dur-state) var(--ease-settle), border-color var(--dur-state);
+}
+.discover-suggested li:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-punch);
+}
+.discover-suggested a {
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.3rem;
+}

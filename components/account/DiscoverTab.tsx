@@ -143,7 +143,7 @@ export default function DiscoverTab({
             {suggested.suggestions.map(({ spot, because }) => (
               <li key={spot.id}>
                 <Link href={`/place/${spot.id}`}>{spot.name}</Link>
-                <span> · {spot.area} · because you went to {because}</span>
+                <span>{spot.area} · because you went to {because}</span>
               </li>
             ))}
           </ul>
