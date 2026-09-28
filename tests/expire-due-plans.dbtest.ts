@@ -105,6 +105,32 @@ describe("084 deadlines fire on their own", { skip: SKIP }, () => {
     assert.equal(await psql(`select count(*) from plan_spots where plan_id='${id}' and advanced`), "1", "one finalist, not two");
   });
 
+  test("a plan that keeps failing is recorded, sits out an hour, and doesn't block the next overdue plan", async () => {
+    const [broken, next] = [await plan("now() - interval '103 years'"), await plan("now() - interval '102 years'")];
+    // Force the broken plan's transition to fail, for this test only.
+    await psql(`create or replace function qa084_fail() returns trigger language plpgsql as $$
+        begin if new.id = '${broken}' then raise exception 'qa084 forced failure' using errcode = 'P0001'; end if; return new; end $$;
+      create trigger qa084_fail before update on plans for each row execute function qa084_fail();`);
+    try {
+      await sweep(1); // the oldest is the broken one: fails, recorded
+      assert.equal(await psql(`select sqlstate || '/' || attempts from plan_sweep_failures where plan_id = '${broken}'`), "P0001/1");
+      assert.equal(await stage(broken), "open/pool");
+      await sweep(1); // it sits out the hour, so the next overdue plan gets the slot
+      assert.equal(await stage(next), "open/final");
+      assert.equal(await psql(`select attempts from plan_sweep_failures where plan_id = '${broken}'`), "1", "not retried within the hour");
+    } finally {
+      await psql("drop trigger if exists qa084_fail on plans; drop function if exists qa084_fail();");
+    }
+    // An hour on, fixed: it moves, and its failure row clears.
+    await psql(`update plan_sweep_failures set failed_at = now() - interval '2 hours' where plan_id = '${broken}'`);
+    await sweep();
+    assert.equal(await stage(broken), "open/final");
+    assert.equal(await psql(`select count(*) from plan_sweep_failures where plan_id = '${broken}'`), "0");
+    for (const role of ["anon", "authenticated"]) {
+      assert.equal(await psql(`select has_table_privilege('${role}', 'plan_sweep_failures', 'select')`), "f");
+    }
+  });
+
   test("the limit bounds a tick; no client role may run the sweep or the shared step", async () => {
     const ids = [await plan("now() - interval '101 years'"), await plan("now() - interval '100 years'")];
     await sweep(1);

@@ -20,8 +20,11 @@
 -- The sweep takes at most p_limit plans a tick (clamped 1..200, the job asks
 -- for 50), oldest deadline first, `for update skip locked` so it never waits
 -- on a member holding a plan, and one failing plan is skipped (its own
--- subtransaction) without stopping the rest. It logs only a plan id and a
--- SQLSTATE: nothing personal. It runs as the job's owner (postgres, like
+-- subtransaction) without stopping the rest. A failure is recorded in
+-- plan_sweep_failures (queryable: when, SQLSTATE, attempts; no client
+-- access) and that plan sits out the next hour, so a plan that keeps failing
+-- can't head every tick and starve the rest (security review, Low 1); the row
+-- clears when the plan moves. Nothing personal is logged or stored. It runs as the job's owner (postgres, like
 -- 031's purge job); no client role may execute any of the three functions
 -- directly except expire_plan, whose grant is unchanged.
 --
@@ -80,6 +83,16 @@ end; $$;
 revoke all on function expire_plan(uuid) from public, anon, authenticated;
 grant execute on function expire_plan(uuid) to authenticated;
 
+-- Sweep failures, for the owner to query. RLS on, no policies, no client grants, not published.
+create table if not exists plan_sweep_failures (
+  plan_id   uuid primary key references plans(id) on delete cascade,
+  failed_at timestamptz not null default now(),
+  sqlstate  text not null,
+  attempts  integer not null default 1
+);
+alter table plan_sweep_failures enable row level security;
+revoke all on table plan_sweep_failures from public, anon, authenticated;
+
 create or replace function expire_due_plans(p_limit integer default 50)
 returns integer language plpgsql security definer set search_path = public, extensions, pg_temp as $$
 declare
@@ -89,6 +102,8 @@ begin
   for due in
     select id from plans
     where status = 'open' and deadline <= now()
+      and not exists (select 1 from plan_sweep_failures f
+                      where f.plan_id = plans.id and f.failed_at > now() - interval '1 hour')
     order by deadline
     limit greatest(1, least(coalesce(p_limit, 50), 200))
     for update skip locked
@@ -97,9 +112,13 @@ begin
       if advance_due_plan(due) in ('advanced', 'decided') then
         moved := moved + 1;
       end if;
+      delete from plan_sweep_failures where plan_id = due;
     exception when others then
       -- One broken plan must not stop the sweep. No personal data: an id and a code.
       raise warning 'expire_due_plans: skipped plan % (SQLSTATE %)', due, sqlstate;
+      insert into plan_sweep_failures (plan_id, sqlstate) values (due, sqlstate)
+        on conflict (plan_id) do update
+          set failed_at = now(), sqlstate = excluded.sqlstate, attempts = plan_sweep_failures.attempts + 1;
     end;
   end loop;
   return moved;
