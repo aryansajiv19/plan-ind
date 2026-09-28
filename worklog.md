@@ -272,3 +272,12 @@ drop it, since the Google photo is credited and free of doubt. Estimate to "all 
   suite green there.
 
 
+- **Later still:** perf (paired Lighthouse, 5 reps): Hanken → Latin WOFF2
+  (fonts −30%), composer lazy on the landing (JS −89 KB); mobile LCP on /
+  4.78 s → ~4.16 s simulated Slow 4G. Signed-out pages use own photos only
+  (Google photo calls per visit 19 → 3); the wall prefers own-photo rows;
+  empty photo boxes become the dune. A failed auth read is 'couldn't check'
+  (readAccount, retried), never 'signed out'/'no name' (auth-transient.spec
+  pins it). Demo numbers derived from fixtures. 082/083/084 staged on main
+  (schema.sql verified on a fresh stack, test:db 140/140). CI green at
+  134676d, baselines from run 36487685828.
