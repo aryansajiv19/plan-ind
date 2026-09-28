@@ -577,3 +577,21 @@ everyone, all screens, nothing off limits, place ids approved.
 - **Lanes:** A on 4/5 (signed-in pages); B on 078 (booking F1/F2/F6); an
   agent is sourcing CC-licensed venue photos for 079 (own photos cost nothing
   per view; Google's are capped at 300/day).
+- **Outage, found and fixed:** every /place/[id] rendered its error boundary
+  in production from ef84c2b (VenuePhoto) until 222f732, roughly 2 hours on
+  2026-09-27/28: the place page (a server component) called hasVenuePhoto,
+  exported from a "use client" module. tsc, lint, unit tests and the lead's
+  screenshots (landing and vote only) all passed; B's E2E caught it. Fix
+  (B): pure helpers in lib/venue-photo.ts; rule added to app/CLAUDE.md.
+  Verified live: 3 place pages 200 with photo and credit, no console errors.
+  Also from B: the photo route answers "nothing to show" with 200 null (no
+  console noise), CI pins the Supabase CLI (a "latest" lookup hit the GitHub
+  rate limit and failed test-db).
+- **Finish review (impeccable) of landing + vote, two rounds, stopped at the
+  unattended budget:** fixed credits (full wrap, none under the headline),
+  band (greeting + Dubai date), wall as listings, vote listings on the ground
+  (no hairline boxes, coral pick, gold winner, one fact line), gold section
+  heads, kickers out; A fixed the composer overlap and dead column. Declined:
+  mono face and tally needles (owner: "don't over engineer"), photos on the
+  tiny dealt squares (no room for a visible credit). Cover revised to a split
+  (cover line on ink, mosaic right) so no photo hides under the headline.
