@@ -161,3 +161,16 @@ test("a holder who deletes their account frees the claim for everyone (it used t
   });
 });
 
+test("the host clears a claim someone else holds, and both screens offer it again", async ({ browser, baseURL }) => {
+  test.skip(!canProvision(), "needs the local stack to mint an account");
+  await decidedPlanWithTwo(browser, baseURL!, async ({ planId, member, hostPage, memberPage }) => {
+    await section(memberPage).getByRole("button", { name: "I’ll book it" }).click();
+    await expect(section(hostPage)).toContainText(`${member.name}’s booking it.`, { timeout: 15_000 });
+    await expect(section(memberPage).getByRole("button", { name: "Clear the booking" })).toHaveCount(0); // the host's only
+    await section(hostPage).getByRole("button", { name: "Clear the booking" }).click();
+    for (const page of [hostPage, memberPage]) {
+      await expect(section(page).getByRole("button", { name: "I’ll book it" })).toBeVisible({ timeout: 15_000 });
+    }
+    expect(await holderOf(planId)).toBeNull();
+  });
+});
