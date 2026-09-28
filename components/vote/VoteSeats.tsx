@@ -15,6 +15,7 @@ export default function VoteSeats({
   roster,
   picked,
   othersHere,
+  onRemove,
 }: {
   /** Everyone on the plan, one seat per person, you first. */
   roster: Seat[];
@@ -22,6 +23,8 @@ export default function VoteSeats({
   picked: ReadonlySet<string>;
   /** Other people with the plan open right now. */
   othersHere: string[];
+  /** 080: the host's control; only seats with a seat key (an account) can go. */
+  onRemove?: (seatKey: string, name: string) => void;
 }) {
   return (
     <div className="vote-seats">
@@ -36,6 +39,9 @@ export default function VoteSeats({
               <span className="sr-only">
                 {you ? `${name} (you)` : name}, {done ? "picked" : "not picked yet"}
               </span>
+              {onRemove && !you && key.startsWith("s:") && (
+                <button type="button" onClick={() => onRemove(key.slice(2), name)} aria-label={`Remove ${name} from this plan`}>Remove</button>
+              )}
             </li>
           );
         })}

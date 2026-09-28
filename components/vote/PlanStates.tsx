@@ -66,6 +66,9 @@ export function planStateScreen({
   if (access === "not-found") {
     return <VoteState kind="cold-link" />;
   }
+  if (access === "removed") {
+    return <VoteState kind="removed" />;
+  }
   if (access === "age-restricted" || access === "needs-birthday") {
     return <VoteState kind={access} message={accessMessage} />;
   }

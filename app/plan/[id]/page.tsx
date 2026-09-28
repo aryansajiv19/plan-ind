@@ -14,6 +14,7 @@ import { useViewerOrigin } from "@/hooks/use-viewer-origin";
 import { autoAdvanceAfterPick } from "@/hooks/pool-auto-advance";
 import { usePlanPresence, usePlanRealtime } from "@/hooks/use-plan-realtime";
 import { useHostCommands } from "@/hooks/use-host-commands";
+import { useRemoveMember } from "@/hooks/use-remove-member";
 import { useLastMile } from "@/hooks/use-last-mile";
 import { useVoteActions } from "@/hooks/use-vote-actions";
 import { useLeavePlan } from "@/hooks/use-leave-plan";
@@ -72,6 +73,7 @@ export default function VotePage() {
   const { nightMode, been } = usePlanDevice();
 
   const host = useHostCommands({ id, plan, setPlan, setPlanSpots, stage, spots, deleted, setDeleted, setNotice });
+  const removeMember = useRemoveMember({ id, setNotice, refetchVotes, refetchRsvps });
   const { isHost, deciding, advanceToFinal, decide, nudge, dismissNudge } = host;
   // The live channels are held so leavePlan can close them BEFORE the page
   // moves on (use-plan-realtime.ts).
@@ -151,6 +153,7 @@ export default function VotePage() {
           othersHere={othersHere}
           viewer={viewer}
           when={{ planId: id, seatKey: myRows?.seatKey ?? null }}
+          onRemove={host.isHost ? removeMember : undefined}
         />
 
         {stage === "pool" && !decided && (

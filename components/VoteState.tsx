@@ -28,7 +28,8 @@ export type VoteStateKind =
   | "deleted-by-you"
   | "age-restricted"
   | "needs-birthday"
-  | "needs-name";
+  | "needs-name"
+  | "removed";
 
 export default function VoteState({
   kind,
@@ -71,7 +72,7 @@ export default function VoteState({
           </div>
         )}
 
-        {(onRetry || kind === "signed-out" || kind === "age-restricted" || kind === "needs-birthday" || kind === "needs-name") && (
+        {(onRetry || kind === "signed-out" || kind === "age-restricted" || kind === "needs-birthday" || kind === "needs-name" || kind === "removed") && (
           <div className="vote-state__actions">
             {onRetry && (
               <button type="button" className="vote-primary-action" onClick={onRetry}>
@@ -93,7 +94,7 @@ export default function VoteState({
                 Open Settings
               </Link>
             )}
-            {kind === "age-restricted" && (
+            {(kind === "age-restricted" || kind === "removed") && (
               <Link href="/home" className="vote-primary-action">
                 Go home
               </Link>
@@ -119,6 +120,11 @@ function COPY({
       return {
         title: message ?? "This plan has an age requirement",
         body: "Ask the host to pick a plan everyone can join.",
+      };
+    case "removed":
+      return {
+        title: "The host removed you from this plan",
+        body: "Ask them if you think that’s a mistake.",
       };
     case "needs-name":
       return {

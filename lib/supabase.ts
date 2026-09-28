@@ -56,7 +56,9 @@ export type PlanAccessDenial =
   /** 067: the account is under this plan's minimum age. Final, no retry. */
   | "age-restricted"
   /** 067: the account has no date of birth yet; onboarding adds it. */
-  | "needs-birthday";
+  | "needs-birthday"
+  /** 080: the host removed this account. Final, no retry. */
+  | "removed";
 
 export type PlanAccessResult =
   | { ok: true }
@@ -65,6 +67,7 @@ export type PlanAccessResult =
 
 const AGE_REFUSAL = /^This plan is for ages \d+ and up\.$/;
 const NEEDS_BIRTHDAY = "Add your date of birth to join this plan.";
+const REMOVED = "The host removed you from this plan.";
 
 /**
  * Redeem a share-link uuid into a readable plan membership.
@@ -88,6 +91,7 @@ export async function claimPlanAccess(planId: string): Promise<PlanAccessResult>
     // through rather than offering a retry that can never succeed.
     if (error.code === "42501" && AGE_REFUSAL.test(error.message)) return { ok: false, reason: "age-restricted", message: error.message };
     if (error.code === "42501" && error.message === NEEDS_BIRTHDAY) return { ok: false, reason: "needs-birthday", message: error.message };
+    if (error.code === "42501" && error.message === REMOVED) return { ok: false, reason: "removed" };
     return { ok: false, reason: "claim-failed" };
   }
   // claim_plan_access returns false only when no plan has that id.

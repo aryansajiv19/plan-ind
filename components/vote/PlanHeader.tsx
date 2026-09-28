@@ -31,6 +31,7 @@ export default function PlanHeader({
   othersHere,
   viewer,
   when,
+  onRemove,
 }: {
   plan: Plan;
   voterName: string;
@@ -45,6 +46,8 @@ export default function PlanHeader({
   viewer: ViewerOrigin;
   /** P21: the plan's time poll, and this account's seat on it. */
   when: { planId: string; seatKey: string | null };
+  /** 080: set for the host only; removes a member by seat key. */
+  onRemove?: (seatKey: string, name: string) => void;
 }) {
   useMinuteClock(); // re-render each minute, so the "Closes in" chip counts down
   return (
@@ -72,7 +75,7 @@ export default function PlanHeader({
       {!decided && <ComingFrom viewer={viewer} />}
       {!decided && <WhenPoll planId={when.planId} seatKey={when.seatKey} roster={roster} />}
       {!decided && roster.length > 1 && (
-        <VoteSeats roster={roster} picked={pickedThisRound} othersHere={othersHere} />
+        <VoteSeats roster={roster} picked={pickedThisRound} othersHere={othersHere} onRemove={onRemove} />
       )}
     </div>
     <span className="vote-deadline shrink-0 whitespace-nowrap px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-grape">
