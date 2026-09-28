@@ -30,7 +30,8 @@ test("a new member onboards, deals, a friend joins by link and votes, the host d
     await hostPage.goto("/home");
     await hostPage.waitForURL(/\/onboarding/);
     await hostPage.getByLabel("What should friends call you?").fill(host.name);
-    await hostPage.getByLabel("Date of birth").fill("1994-05-02");
+    // By id: getByLabel("Date of birth") matches two elements on this page.
+    await hostPage.locator("#onboarding-dateOfBirth").fill("1994-05-02");
     await hostPage.getByRole("button", { name: "Continue" }).click();
     await hostPage.waitForURL((url) => url.pathname === "/home", { timeout: 20_000 });
 
