@@ -10,7 +10,7 @@ Legend: `S` under a day · `M` a day or two · `L` more.
 ## Live
 
 `main` auto-deploys to https://plan-ind.vercel.app (docs-only commits skip
-the build). Migrations through 081 are live; 082 is staged (owner approval).
+the build). Migrations through 081 are live; 082, 083 and 084 are staged (owner approval).
 Everyone signs in (064). One CV link: the landing's "Try it, no sign-up" runs
 the whole journey on /demo/vote with sample data.
 
@@ -37,7 +37,7 @@ match.ts split (B), then the owner's decisions below.
 |---|---|---|
 | O2 | Supabase Auth: anonymous sign-ins **off**, then the Turnstile secret, then the Google provider | Closes free guest sessions and the Luna quota drain |
 | O4 | Google Cloud: a browser key restricted by referrer to Maps JavaScript API + Routes API, set as `NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY` in Vercel; per-API daily quotas; a ~$20 budget alert | Live route map with real metro steps |
-| O7 | Apply migration 082 (freeze an in-plan custom spot's details; revoke stray anon/authenticated table grants). Security-reviewed, lane/platform-082 | Closes a bait-and-switch Low |
+| O7 | Apply staged migrations 082 (freeze an in-plan custom spot's details; revoke stray grants), 083 (member photo quota 40/min, 150/day) and 084 (a pg_cron job that closes overdue plans every 5 min). All security-reviewed, all on main | A bait-and-switch Low; members not hitting the photo limit; plans that decide on time with nobody online |
 | O8 | Catalogue growth: run `npm run places:discover` (prints cost, calls nothing), then one cell, then the grid (~$0 in the free tier, worst case ~$16) and review the CSV | 76 venues is the biggest product gap |
 | O6 | Housekeeping: delete merged `lane/*` branches; delete the unreferenced Tresind object from the spot-photos bucket | One branch that is always true |
 
