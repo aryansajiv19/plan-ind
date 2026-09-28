@@ -70,11 +70,15 @@ export default function PlaceLinkImporter({ demoMode = false }: { demoMode?: boo
     // chain written inline — see the trap list in components/CLAUDE.md).
     // refetchSaved itself is for addLink's non-effect call site below.
     if (demoMode) return;
-    void fetch("/api/place-import").then(async (response) => {
+    // Aborted on unmount (and the Strict Mode re-run): an abandoned read
+    // sets nothing and is not reported as a failed load.
+    const controller = new AbortController();
+    void fetch("/api/place-import", { signal: controller.signal }).then(async (response) => {
       if (!response.ok) { setLoadFailed(true); return; }
       const result = await response.json() as { saved?: SavedLink[] };
       if (Array.isArray(result.saved)) setSaved(result.saved);
-    }).catch(() => setLoadFailed(true));
+    }).catch(() => { if (!controller.signal.aborted) setLoadFailed(true); });
+    return () => controller.abort();
   }, [demoMode]);
 
   async function addLink(event: React.FormEvent) {

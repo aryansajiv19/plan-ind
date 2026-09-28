@@ -46,11 +46,21 @@ export function useBookingClaim({ id, plan, setPlan, myRows, refetchMine, refetc
     void refetchMine();
   }, [owner, refetchMine]);
 
+  // Leaving the page cancels an RPC still in flight; its answer is dropped.
+  const unmounted = useRef(new AbortController());
+  useEffect(() => {
+    const controller = new AbortController();
+    unmounted.current = controller;
+    return () => controller.abort();
+  }, []);
+
   async function run(action: BookingAction) {
+    const signal = unmounted.current.signal;
     setBusy(true);
     const { data, error } = action === "mark" || action === "unmark"
-      ? await getSupabase().rpc("mark_booked", { p_plan_id: id, p_booked: action === "mark" })
-      : await getSupabase().rpc(action === "claim" ? "claim_booking" : "release_booking", { p_plan_id: id });
+      ? await getSupabase().rpc("mark_booked", { p_plan_id: id, p_booked: action === "mark" }).abortSignal(signal)
+      : await getSupabase().rpc(action === "claim" ? "claim_booking" : "release_booking", { p_plan_id: id }).abortSignal(signal);
+    if (signal.aborted) return;
     const outcome = bookingOutcome(action, error ? null : data);
     const patch = outcome.patch;
     if (patch) setPlan((current) => current && { ...current, ...patch });
