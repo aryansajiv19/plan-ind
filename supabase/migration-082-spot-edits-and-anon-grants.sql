@@ -15,7 +15,8 @@
 --    definer functions run as their owner). RLS "update own custom spots"
 --    still decides which rows.
 --
--- 2. Zero-policy tables still carried anon table privileges. RLS already
+-- 2. Zero-policy tables still carried anon table privileges (and three of
+--    them authenticated ones no client path uses). RLS already
 --    refused anon every row; the grants go too, so a policy added by
 --    mistake can't expose them. Checked: every function touching these is
 --    security definer (runs as owner) except plan_host_authorized, which no
@@ -56,5 +57,11 @@ revoke update on spots from anon, authenticated;
 grant update (name, area, visibility) on spots to authenticated;
 
 revoke all on table member_ages, app_rate_limits, security_events, friend_invites, plan_host_tokens from anon;
+-- Security review of 082 (Low): the same for authenticated where no client
+-- path needs any. These have zero policies (020 dropped "attach host token"
+-- and "read own age"), so only definer functions, running as owner, touch
+-- them. member_ages and friend_invites keep authenticated's grants for now:
+-- RLS still refuses every row, and readMemberAge's legacy fallback reads it.
+revoke all on table app_rate_limits, security_events, plan_host_tokens from authenticated;
 
 commit;

@@ -91,9 +91,17 @@ export function useCustomPlaces(category: string, setError: (message: string | n
     setError(null);
     // Name, area and visibility only: my_custom_spots doesn't return the
     // note or address, so the editor can't show what it would overwrite.
+    // Name and area only when edited: JS trim() also strips Unicode spaces
+    // that the database's clean_app_text keeps, so re-sending an untouched
+    // name could differ and trip 082's in-plan guard on a visibility change.
+    const loaded = saved.find((item) => item.id === id);
     const { data, error: updateError } = await getSupabase()
       .from("spots")
-      .update({ name: name.trim(), area: area.trim(), visibility })
+      .update({
+        ...(loaded?.name !== name ? { name: name.trim() } : {}),
+        ...(loaded?.area !== area ? { area: area.trim() } : {}),
+        visibility,
+      })
       .eq("id", id)
       .select("id,name,area,category,visibility")
       .maybeSingle();

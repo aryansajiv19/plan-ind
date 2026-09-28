@@ -87,6 +87,14 @@ describe("082 spot edits and anon grants", { skip: SKIP }, () => {
     await assert.rejects(patch(a, id, "category = 'cafe'"), /permission denied/);
   });
 
+  test("authenticated holds nothing on the three tables only definer functions touch", async () => {
+    for (const table of ["app_rate_limits", "security_events", "plan_host_tokens"]) {
+      for (const privilege of ["select", "insert", "update", "delete"]) {
+        assert.equal(await psql(`select has_table_privilege('authenticated', '${table}', '${privilege}')`), "f", `${table} ${privilege}`);
+      }
+    }
+  });
+
   test("anon holds no privileges on the zero-policy tables", async () => {
     for (const table of ["member_ages", "app_rate_limits", "security_events", "friend_invites", "plan_host_tokens"]) {
       for (const privilege of ["select", "insert", "update", "delete"]) {
