@@ -671,7 +671,7 @@
      a hardcoded white was 1.62:1 at night). */
   background: var(--primary-fill);
   color: var(--primary-ink);
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
@@ -715,4 +715,73 @@
   font-weight: 500;
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+/* ── Kinds of night as photo tiles (demo composer) ──────────────────
+   A tile is a photograph with its name on it; picking one lifts it and
+   rings it in sand. Hover zooms the photo a touch: the press is the fun,
+   the chrome stays quiet. */
+.kind-tiles {
+  margin-top: 0.75rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: 0.75rem;
+}
+/* A photo-less place is a sand-dune card with its name on it, one design
+   for every such card, never a grey box that reads as a failed load. */
+.deal-card__typographic,
+.kind-tile {
+  background: linear-gradient(160deg, var(--color-punch), #704121);
+  color: var(--photo-ink);
+}
+.kind-tile {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 5;
+  border: 0;
+  border-radius: var(--radius-panel);
+  text-align: left;
+  cursor: pointer;
+  transition: transform var(--dur-state) var(--ease-settle), box-shadow var(--dur-state) var(--ease-settle);
+}
+.kind-tile__img {
+  object-fit: cover;
+  transition: transform 600ms var(--ease-settle);
+}
+.kind-tile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--photo-scrim);
+  pointer-events: none;
+}
+.kind-tile:hover .kind-tile__img {
+  transform: scale(1.06);
+}
+.kind-tile:active {
+  transform: scale(0.97);
+  transition-timing-function: var(--ease-spring);
+}
+.kind-tile[aria-pressed="true"] {
+  transform: translateY(-4px);
+  box-shadow: 0 0 0 3px var(--color-punch), var(--elevation-card);
+}
+.kind-tile__label {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 1;
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.9rem;
+}
+.kind-tile__label strong {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.5rem;
+  font-weight: 500;
+  line-height: 1.05;
+}
+.kind-tile__label span {
+  color: var(--photo-body);
+  font-size: max(0.78rem, var(--type-floor));
 }

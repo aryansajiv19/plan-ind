@@ -3,6 +3,7 @@
 import { useState } from "react";
 import DealReveal from "@/components/DealReveal";
 import SampleVote from "@/components/demo/SampleVote";
+import VenuePhoto from "@/components/VenuePhoto";
 import { SAMPLE_FRIENDS, SAMPLE_PLAN } from "@/components/demo/sampleDecision";
 import type { DemoDeck } from "@/components/demo/demoDecks";
 import { categoryMeta } from "@/lib/categories";
@@ -38,20 +39,28 @@ export default function DemoJourney({ decks, eventTime }: { decks: DemoDeck[]; e
 
   return (
     <section className="plan-form" aria-labelledby="demo-compose-heading">
-      <h1 id="demo-compose-heading" className="font-display text-2xl font-medium tracking-tight sm:text-3xl">
+      <h1 id="demo-compose-heading" className="font-display text-3xl tracking-tight sm:text-4xl">
         You and four friends. What kind of night?
       </h1>
-      <p className="mt-1 text-sm text-muted">
+      <p className="mt-2 max-w-2xl text-muted">
         Pick one and the app deals nine real Dubai places that fit, three per round. The friends are made up and vote on their own.
       </p>
-      <fieldset className="mt-4">
+      <fieldset className="mt-6">
         <legend className="plan-form__label">What kind of hangout?</legend>
-        <div className="plan-category-options">
-          {decks.map((option) => (
-            <button key={option.key} type="button" onClick={() => setDeck(option)} aria-pressed={deck.key === option.key} className="plan-category-option">
-              {option.label}
-            </button>
-          ))}
+        <div className="kind-tiles">
+          {decks.map((option) => {
+            // The deck's first photographed place is the tile's cover; none, and the tile is type on sand.
+            const cover = option.pools.flat().find((spot) => spot.photo_url);
+            return (
+              <button key={option.key} type="button" onClick={() => setDeck(option)} aria-pressed={deck.key === option.key} className="kind-tile">
+                {cover && <VenuePhoto spot={cover} sizes="(max-width: 640px) 50vw, 18rem" className="kind-tile__img" />}
+                <span className="kind-tile__label">
+                  <strong>{option.label}</strong>
+                  <span>{option.pools.flat().length} places</span>
+                </span>
+              </button>
+            );
+          })}
         </div>
       </fieldset>
       <ul className="mt-4 flex flex-wrap gap-1.5" aria-label="The sample plan's settings">

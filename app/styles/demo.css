@@ -303,3 +303,8 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* The sample banner on /demo/vote sits above the journey, with air. */
+.vote-experience > .home-demo-banner {
+  margin-bottom: 2rem;
+}

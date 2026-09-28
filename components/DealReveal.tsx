@@ -130,7 +130,7 @@ export default function DealReveal({
                             <PhotoCredit spot={{ photo_url: card.photo_url, photo_attribution: card.photo_attribution ?? null }} />
                           </>
                         ) : (
-                          <span className="absolute inset-0 flex items-end p-2.5 font-display text-base font-semibold leading-tight tracking-tight">
+                          <span className="deal-card__typographic absolute inset-0 flex items-end p-3 font-display text-xl leading-tight tracking-tight">
                             <span className="line-clamp-3">{card.name}</span>
                           </span>
                         )}
