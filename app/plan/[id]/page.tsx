@@ -142,6 +142,7 @@ export default function VotePage() {
       >
         <PlanHeader
           plan={plan!}
+          voterName={voterName}
           decided={decided}
           stage={stage}
           activePool={activePool}

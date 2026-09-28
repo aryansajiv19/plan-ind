@@ -31,6 +31,7 @@ export default function PlanHeader({
   viewer,
   when,
   onRemove,
+  voterName,
 }: {
   plan: Plan;
   decided: boolean;
@@ -46,12 +47,17 @@ export default function PlanHeader({
   when: { planId: string; seatKey: string | null };
   /** 080: set for the host only; removes a member by seat key. */
   onRemove?: (seatKey: string) => void;
+  /** Also the E2E suite's "this plan loaded as me" anchor. */
+  voterName: string;
 }) {
   useMinuteClock(); // re-render each minute, so the "Closes in" chip counts down
   return (
   <div className="vote-header flex items-start justify-between gap-3">
     <div>
       <h1 className="text-2xl font-semibold sm:text-3xl">{plan.title}</h1>
+      <p className="mt-1 text-sm text-muted">
+        Hey {voterName}
+      </p>
       {(plan.budget_per_person != null || plan.radius_km != null) && (
         <p className="vote-plan-constraints">
           {plan.budget_per_person != null ? `Up to AED ${plan.budget_per_person} per person` : "Any budget"}
