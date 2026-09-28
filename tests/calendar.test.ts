@@ -26,7 +26,8 @@ test("the description carries the plan and the Maps link, one escaped line per f
   const text = ics(spot);
   const description = text.split("\r\n").find((line) => line.startsWith("DESCRIPTION:"))!;
   assert.ok(description.includes(`The plan: ${url}\\nDirections: https://www.google.com/maps/search/`));
-  assert.equal(text.split("\r\n").filter((line) => line.startsWith("DESCRIPTION")).length, 1, "no raw newline breaks the property");
+  // The event's own plus one per reminder (a DISPLAY alarm requires one).
+  assert.equal(text.split("\r\n").filter((line) => line.startsWith("DESCRIPTION")).length, 3, "no raw newline breaks the property");
   assert.match(text, /^SUMMARY:Bu Qtair\. Friday\\, finally$/m);
 });
 
@@ -44,4 +45,11 @@ test("no value can inject an ICS line: a bare CR, CRLF and other controls (RFC 5
   assert.equal(lines.filter((line) => line.startsWith("DTSTART")).length, 1, "only the real DTSTART");
   assert.ok(lines.every((line) => !/[\u0000-\u0008\u000B-\u001F\u007F]/.test(line)), "no control characters survive");
   assert.match(ics(evil), /^LOCATION:Bu Qtair\\nDTSTART:19700101T000000Z\\, Umm Suqeim$/m);
+});
+
+test("the .ics reminds the day before and two hours before, inside the event", () => {
+  const text = ics(spot);
+  assert.deepEqual(text.split("\r\n").filter((line) => line.startsWith("TRIGGER:")), ["TRIGGER:-P1D", "TRIGGER:-PT2H"]);
+  assert.ok(text.indexOf("END:VALARM") < text.indexOf("END:VEVENT"));
+  assert.equal(text.split("BEGIN:VALARM").length - 1, 2);
 });

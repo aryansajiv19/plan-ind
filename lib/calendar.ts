@@ -64,6 +64,15 @@ export function icsHref(plan: Pick<Plan, "id" | "title" | "event_time">, spot: C
     `SUMMARY:${esc(`${spot.name}. ${plan.title}`)}`,
     `LOCATION:${esc(where(spot))}`,
     `DESCRIPTION:${esc(about(spot, planUrl))}`,
+    // Reminders the day before and two hours before. Google Calendar's
+    // template URL can't carry alarms; imported .ics files keep them.
+    ...["-P1D", "-PT2H"].flatMap((trigger) => [
+      "BEGIN:VALARM",
+      "ACTION:DISPLAY",
+      `TRIGGER:${trigger}`,
+      `DESCRIPTION:${esc(`${spot.name}. ${plan.title}`)}`,
+      "END:VALARM",
+    ]),
     "END:VEVENT",
     "END:VCALENDAR",
   ];

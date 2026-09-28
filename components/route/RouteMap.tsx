@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import VenueMap from "@/components/VenueMap";
-import type { MappableVenue } from "@/lib/directions";
+import { leaveBy, LEAVE_BY_SPARE_MIN, type MappableVenue } from "@/lib/directions";
 import type { Coordinates } from "@/lib/dubai-areas";
 import { loadMaps, onMapsAuthFailure, type MapsApi, type MapsMap, type MapsMarker, type MapsOverlay, type RoutesRoute } from "@/lib/maps-loader";
 import { metroEstimate, routeSteps, type ApiStep } from "@/lib/route-steps";
@@ -26,7 +26,7 @@ type Result = { steps: string[]; minutes: number | null } | "failed";
 const round = (c: Coordinates) => `${c.latitude.toFixed(3)},${c.longitude.toFixed(3)}`;
 const point = (c: Coordinates) => ({ lat: c.latitude, lng: c.longitude });
 
-export default function RouteMap({ venue, planOrigin }: { venue: MappableVenue; planOrigin: Coordinates | null }) {
+export default function RouteMap({ venue, planOrigin, eventTime = null }: { venue: MappableVenue; planOrigin: Coordinates | null; eventTime?: string | null }) {
   const viewer = useViewerOrigin();
   const [live, setLive] = useState(false);
   const livePosition = useLivePosition(live);
@@ -110,6 +110,11 @@ export default function RouteMap({ venue, planOrigin }: { venue: MappableVenue; 
   const result = requestKey ? results[requestKey] : undefined;
   const fallback = metroEstimate(origin, venue);
   const showFallback = !usable || result === "failed";
+  // Google's minutes for the mode on screen, else the drive estimate.
+  const travel = result && result !== "failed" && result.minutes != null
+    ? { minutes: result.minutes, how: MODES.find(([value]) => value === mode)![1].toLowerCase() }
+    : showFallback && fallback?.driveMin != null ? { minutes: fallback.driveMin, how: "drive (estimate)" } : null;
+  const leave = leaveBy(eventTime, travel?.minutes ?? null);
 
   return (
     <section className="route-map" aria-label={`Route to ${venue.name}`}>
@@ -123,6 +128,13 @@ export default function RouteMap({ venue, planOrigin }: { venue: MappableVenue; 
         <button type="button" onClick={() => setLive((on) => !on)} aria-pressed={live}>{live ? "Stop following" : "Follow me live"}</button>
         {livePosition.error && <span role="status">{livePosition.error}</span>}
       </div>
+
+      {leave && travel && (
+        <p className="route-map__leave">
+          Leave by {leave.toLocaleTimeString("en-GB", { timeZone: "Asia/Dubai", hour: "numeric", minute: "2-digit", hour12: true })}
+          {" "}(≈ {travel.minutes} min {travel.how} + {LEAVE_BY_SPARE_MIN} spare)
+        </p>
+      )}
 
       {usable && !shown && <button type="button" onClick={() => setShown(true)}>Show the route</button>}
 
