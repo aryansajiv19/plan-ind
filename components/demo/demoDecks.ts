@@ -44,6 +44,9 @@ function asSpot(row: DealSpotRow): Spot {
     photo_url: row.photo_url ?? null,
     photo_source: null,
     photo_attribution: row.photo_attribution ?? null,
+    // Our own photos only: a Google photo costs the daily cap and, past a
+    // visitor's limit, answers 429. Without one the card shows its no-photo design.
+    google_place_id: null,
     booking_url: null,
     source: "curated",
     visibility: "community",
