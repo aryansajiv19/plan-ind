@@ -25,7 +25,8 @@ export const runtime = "nodejs";
 //   its own photo or no place id, or Google has none. Expected states answer
 //   2xx, so a page full of cards never logs a console error per card.
 // 400 bad id
-// 429 quota · 502 Google failed · 503 auth or controls down
+// 200 null + X-Quota: limited -- over the caller's or the site's daily quota
+// 502 Google failed · 503 auth or controls down
 const NO_STORE = { "Cache-Control": "private, no-store" };
 let reportedNoKey = false;
 
@@ -62,7 +63,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     reportControlUnavailable("place-photo");
     return Response.json({ error: CONTROL_UNAVAILABLE_MESSAGE }, { status: 503, headers: NO_STORE });
   }
-  if (quota === "limited") return Response.json({ error: "Too many photo requests. Try again later." }, { status: 429, headers: NO_STORE });
+  // Over quota is an expected state on a page full of cards: answered like
+  // "nothing to show" (200 null, never cached) so the card shows its dune and
+  // the browser logs no error per card. X-Quota says why, for monitoring.
+  if (quota === "limited") return Response.json(null, { headers: { ...NO_STORE, "X-Quota": "limited" } });
 
   try {
     const photo = await resolvePlacePhoto(placeId, apiKey);
