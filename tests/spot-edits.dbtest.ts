@@ -95,6 +95,16 @@ describe("082 spot edits and anon grants", { skip: SKIP }, () => {
     }
   });
 
+  test("neither client role holds TRUNCATE, REFERENCES or TRIGGER on the five", async () => {
+    for (const role of ["anon", "authenticated"]) {
+      for (const table of ["member_ages", "app_rate_limits", "security_events", "friend_invites", "plan_host_tokens"]) {
+        for (const privilege of ["truncate", "references", "trigger"]) {
+          assert.equal(await psql(`select has_table_privilege('${role}', '${table}', '${privilege}')`), "f", `${role} ${table} ${privilege}`);
+        }
+      }
+    }
+  });
+
   test("anon holds no privileges on the zero-policy tables", async () => {
     for (const table of ["member_ages", "app_rate_limits", "security_events", "friend_invites", "plan_host_tokens"]) {
       for (const privilege of ["select", "insert", "update", "delete"]) {

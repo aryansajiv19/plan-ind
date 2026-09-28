@@ -7200,3 +7200,7 @@ revoke all on table member_ages, app_rate_limits, security_events, friend_invite
 -- them. member_ages and friend_invites keep authenticated's grants for now:
 -- RLS still refuses every row, and readMemberAge's legacy fallback reads it.
 revoke all on table app_rate_limits, security_events, plan_host_tokens from authenticated;
+-- Supabase's default grants also give both client roles TRUNCATE (which
+-- RLS does not govern), REFERENCES and TRIGGER on every public table. None
+-- is reachable through PostgREST; none is needed. Gone on these five.
+revoke truncate, references, trigger on table member_ages, app_rate_limits, security_events, friend_invites, plan_host_tokens from anon, authenticated;
