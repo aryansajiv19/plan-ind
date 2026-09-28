@@ -32,25 +32,21 @@ function walk(event: KeyboardEvent<HTMLUListElement>) {
   next.scrollIntoView({ block: "nearest", inline: "nearest" });
 }
 
+// A listing: the photo when there is one, the name and area set over its
+// foot (the vote card's overlay); without one, the same type on a plain band.
 function Face({ card }: { card: RowCard }) {
+  const photo = hasVenuePhoto(card);
   return (
-    <>
-      <span className="plan-deck__band">
-        {hasVenuePhoto(card) ? (
-          <VenuePhoto spot={card} sizes="10rem" />
-        ) : (
-          // No photo: the vote card's typographic band (P27), not an empty frame.
-          <span className="plan-deck__type">
-            {card.category && <span className="plan-deck__code">{categoryMeta(card.category).code}{card.cuisine ? ` · ${card.cuisine}` : ""}</span>}
-            <span className="plan-deck__name">{card.name}</span>
-          </span>
-        )}
+    <span className="plan-deck__band" data-photo={photo || undefined}>
+      {photo && <VenuePhoto spot={card} sizes="11rem" />}
+      <span className="plan-deck__type">
+        {card.category && <span className="plan-deck__code">{categoryMeta(card.category).code}{card.cuisine ? ` · ${card.cuisine}` : ""}</span>}
+        <span className="plan-deck__foot">
+          <span className="plan-deck__name">{card.name}</span>
+          <span className="plan-deck__where">{card.area}{card.min_spend ? ` · from AED ${card.min_spend}` : ""}</span>
+        </span>
       </span>
-      <span className="plan-deck__caption">
-        {hasVenuePhoto(card) && <strong className="font-semibold text-ink">{card.name}</strong>}
-        <span>{card.area}{card.min_spend ? ` · from AED ${card.min_spend}` : ""}</span>
-      </span>
-    </>
+    </span>
   );
 }
 

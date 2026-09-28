@@ -277,8 +277,9 @@ export default function HomeExperience({
       <HomeHero greeting={greeting} dateLabel={dateLabel} name={name} fixtures={fixtures} spots={spots} counts={counts} />
       ) : (
         <section id="top" className="home-appbar" aria-labelledby="home-title">
-          <p className="home-appbar__hello">{greeting}{name ? `, ${name}` : ""}.</p>
+          {/* The heading speaks first; the greeting follows it, not a label above it. */}
           <h1 id="home-title" className="home-appbar__title">What are we doing?</h1>
+          <p className="home-appbar__hello">{greeting}{name ? `, ${name}` : ""}.</p>
         </section>
       )}
       {demoMode ? <HowItWorks /> : <YourPlans plans={myPlans} unavailable={myPlansUnavailable} />}
@@ -287,13 +288,11 @@ export default function HomeExperience({
           a second big heading beside the form said the same thing again. */}
       <section id="plan-lab" className={`home-plan-section${demoMode ? "" : " home-plan-section--app"}`}>
         <div className="home-plan-section__intro">
-          <p className="home-section-kicker">Create a plan</p>
           {demoMode && <h2>What does the group feel like doing?</h2>}
           <p className={`home-plan-steps__lede${demoMode ? " home-plan-steps__lede--pitch" : ""}`}>Pick a kind of night, pin a place if one is calling, and deal nine across three quick rounds.</p>
         </div>
 
         <div className="home-plan-card">
-          <div className="home-plan-card__tape" aria-hidden="true">New plan</div>
           <StartPlanForm key={planPrefill?.key} age={age} demoMode={demoMode} sampleShelf={fixtures} prefill={planPrefill} smartSearchAvailable={smartSearchAvailable} />
         </div>
       </section>
@@ -304,7 +303,6 @@ export default function HomeExperience({
           and it is what the handoff asks for rather than padding the page. */}
       <section id="right-now" className="home-wall-section" aria-labelledby="right-now-title">
         <div className="home-plan-section__intro">
-          <p className="home-section-kicker">Dubai, right now</p>
           <h2 id="right-now-title">Somewhere to put on the list</h2>
           {counts && (
             <p className="home-wall-counts">

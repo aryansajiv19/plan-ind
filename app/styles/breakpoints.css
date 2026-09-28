@@ -48,12 +48,6 @@
   .cover__tile:nth-child(n + 7) { display: none; }
   .cover__tile:nth-child(5),
   .cover__tile:nth-child(8) { grid-column: auto; grid-row: auto; }
-  .home-plan-section {
-    grid-template-columns: 1fr;
-  }
-  .home-plan-section__intro {
-    position: static;
-  }
   .home-nav {
     padding-bottom: 0.75rem;
   }

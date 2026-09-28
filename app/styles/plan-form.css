@@ -62,10 +62,15 @@
   font-weight: 500;
   cursor: pointer;
 }
-.plan-mode-toggle button[aria-pressed="true"] {
+/* Every chosen option in the form is set reversed, in ink, as the vote's
+   current round is: not a metal tint, not a side bar. */
+.plan-mode-toggle button[aria-pressed="true"],
+.plan-category-option[aria-pressed="true"],
+.plan-deadline[aria-pressed="true"],
+.plan-choice-strip button[aria-pressed="true"] {
   border-color: var(--color-ink);
-  color: var(--color-ink);
-  background: var(--color-card);
+  background: var(--color-ink);
+  color: var(--color-card);
 }
 
 .plan-spot-search__field {
@@ -275,24 +280,6 @@
 .plan-deadline:hover {
   border-color: var(--color-ink);
 }
-/* was a hardcoded cool rgba(36,27,46,.42) off the warm ramp */
-
-/* The chosen type: a metal tint plus a 3px inset bar, legible as a shape
-   when the colour is not. */
-.plan-category-option[aria-pressed="true"] {
-  border-color: var(--color-punch-text);
-  background: color-mix(in srgb, var(--home-metal) 12%, transparent);
-  box-shadow: inset 3px 0 0 var(--home-metal);
-  color: var(--color-ink);
-  transform: scale(1.025);
-}
-
-.plan-deadline[aria-pressed="true"] {
-  border-color: var(--color-punch-text);
-  background: color-mix(in srgb, var(--home-metal) 9%, transparent);
-  color: var(--color-ink);
-  transform: scale(1.025);
-}
 
 .plan-form__input {
   width: 100%;
@@ -439,7 +426,7 @@
 .plan-deck__row {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: 9.5rem;
+  grid-auto-columns: 11rem;
   gap: 0.6rem;
   margin-top: 0.5rem;
   padding-bottom: 0.4rem;
@@ -451,9 +438,9 @@
   position: relative; /* holds its sr-only text inside the scrolling row */
   display: grid;
   overflow: hidden;
-  border: 1px solid var(--color-line);
+  border: 0;
   border-radius: var(--radius-control);
-  background: var(--color-card);
+  background: color-mix(in srgb, var(--color-ink) 7%, var(--color-card));
   color: var(--color-ink);
   text-align: left;
   cursor: pointer;
@@ -462,9 +449,9 @@
 .plan-deck__card:active:not(:disabled) {
   transform: scale(0.97);
 }
+/* Pinned is yours: the live accent, as your pick is on the vote screen. */
 .plan-deck__card[aria-pressed="true"] {
-  border-color: var(--color-punch-text);
-  box-shadow: inset 0 0 0 1px var(--color-punch-text);
+  box-shadow: inset 0 0 0 3px var(--color-live);
 }
 .plan-deck__card:disabled {
   cursor: default;
@@ -473,27 +460,63 @@
 .plan-deck__band {
   position: relative;
   display: block;
-  aspect-ratio: 4 / 3;
-  background: color-mix(in srgb, var(--color-ink) 5%, var(--color-card));
+  aspect-ratio: 4 / 5;
 }
 .plan-deck__type {
   position: absolute;
   inset: 0;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 0.6rem;
+  padding: 0.65rem;
+  pointer-events: none;
+}
+.plan-deck__band[data-photo] .plan-deck__type {
+  background: linear-gradient(0deg, rgba(12, 12, 16, 0.9) 0%, rgba(12, 12, 16, 0.3) 50%, transparent 74%);
+  color: var(--photo-ink);
 }
 .plan-deck__code {
+  justify-self: start;
+  align-self: flex-start;
+  max-width: 100%;
+  overflow: hidden;
   color: var(--color-punch-text);
-  font-size: max(0.62rem, var(--type-floor));
-  font-weight: 600;
+  font-size: max(0.66rem, var(--type-floor));
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* On a photo the code is a gold chip, like the vote card's. */
+.plan-deck__band[data-photo] .plan-deck__code {
+  max-width: 50%;
+  padding: 0.15rem 0.35rem;
+  background: var(--color-punch);
+  color: #0c0c10;
+}
+.plan-deck__band[data-photo] .photo-credit {
+  inset: 0.55rem 0.55rem auto auto;
+  max-width: 48%;
+}
+.plan-deck__foot {
+  display: grid;
+  gap: 0.25rem;
 }
 .plan-deck__name {
   font-family: var(--font-display);
-  font-size: 1.05rem;
+  font-size: 1.35rem;
+  font-weight: 900;
+  font-stretch: 70%;
+  line-height: 0.92;
+  text-transform: uppercase;
+}
+.plan-deck__where {
+  color: var(--color-muted);
+  font-size: max(0.72rem, var(--type-floor));
   font-weight: 600;
-  line-height: 1.15;
+}
+.plan-deck__band[data-photo] .plan-deck__where {
+  color: var(--photo-body);
 }
 .plan-deck__paging {
   display: flex;
@@ -520,14 +543,6 @@
 .plan-deck__paging button[data-dir="back"]::before {
   transform: translateX(0.1rem) rotate(135deg);
 }
-.plan-deck__caption {
-  display: grid;
-  gap: 0.1rem;
-  padding: 0.45rem 0.6rem 0.55rem;
-  color: var(--color-muted);
-  font-size: max(0.68rem, var(--type-floor));
-}
-
 /* "Tune it": the summary is the settings, as text; opening it folds down. */
 .plan-tune {
   margin-top: 1.2rem;
@@ -562,7 +577,7 @@
 .plan-tune__chip {
   padding: 0.2rem 0.55rem;
   border: 1px solid var(--color-line);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   color: var(--color-muted);
   font-size: max(0.65rem, var(--type-floor));
 }
@@ -618,11 +633,6 @@
 }
 .plan-choice-strip button:last-child {
   border-right-width: 1px;
-}
-.plan-choice-strip button[aria-pressed="true"] {
-  border-color: var(--color-punch-text);
-  background: color-mix(in srgb, var(--home-metal) 10%, transparent);
-  color: var(--color-ink);
 }
 .plan-location-fields {
   display: grid;
