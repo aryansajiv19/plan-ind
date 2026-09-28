@@ -3,6 +3,7 @@
 import { useState, type Dispatch, type SetStateAction } from "react";
 import { getSupabase } from "@/lib/supabase";
 import { haptic } from "@/lib/interaction";
+import { serial } from "@/lib/serial";
 import { isInRound, type Round } from "@/lib/tally";
 import type { Spot, Vote } from "@/lib/types";
 import type { Mine } from "@/lib/my-rows";
@@ -42,6 +43,9 @@ export function useVoteActions({
 }) {
   const [voteUndo, setVoteUndo] = useState<{ message: string; restore: () => Promise<boolean> } | null>(null);
   const { phase: currentPhase, poolNumber: currentPoolNumber } = round;
+  // cast_plan_vote calls go out one at a time, in tap order: two quick picks
+  // sent in parallel can land out of order and leave the older one saved.
+  const [enqueueVote] = useState(serial);
   // Your votes are your account's rows (lib/my-rows.ts, F2): one per round,
   // whichever device cast it. Not this device's hash (that hid your vote on a
   // second browser) and not your name (names are not unique on a plan).
@@ -80,7 +84,7 @@ export function useVoteActions({
       ] : rest;
     });
 
-    const { error } = await getSupabase().rpc("cast_plan_vote", {
+    const { error } = await enqueueVote(async () => getSupabase().rpc("cast_plan_vote", {
       p_plan_id: id,
       p_spot_id: spotId,
       p_voter_name: voterName,
@@ -88,7 +92,7 @@ export function useVoteActions({
       p_phase: currentPhase,
       p_pool_number: currentPoolNumber,
       p_participant_token_hash: participantHash,
-    });
+    }));
     if (error) {
       // Put back only your own previous pick, at once, then reconcile. A
       // whole-list snapshot restore would discard a Realtime vote from
@@ -112,7 +116,7 @@ export function useVoteActions({
         setVoteUndo({
           message: `Cleared your pick of ${place}.`,
           restore: async () => {
-            const { error: undoError } = await getSupabase().rpc("cast_plan_vote", {
+            const { error: undoError } = await enqueueVote(async () => getSupabase().rpc("cast_plan_vote", {
               p_plan_id: id,
               p_spot_id: spotId,
               p_voter_name: name,
@@ -120,7 +124,7 @@ export function useVoteActions({
               p_phase: phase,
               p_pool_number: pool,
               p_participant_token_hash: hash,
-            });
+            }));
             await refetchVotes();
             return !undoError;
           },

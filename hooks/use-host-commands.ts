@@ -263,11 +263,13 @@ export function useHostCommands({
   // expire_plan (069) advances or decides an expired plan for whichever
   // member is looking, idempotent and race-safe, so a closed tab on the
   // host's phone no longer freezes the group. Without 069 on a stack, the
-  // host's tab does it as before. Returns false only for "not due yet".
+  // host's tab does it as before. Returns false for "not due yet" or a failed call (retry).
   const expire = useCallback(async (): Promise<boolean> => {
     const { data, error } = await getSupabase().rpc("expire_plan", { p_plan_id: id });
     if (error) {
-      if (error.code === "PGRST202" && isHost) {
+      // Any failure but "069 not on this stack" is transient: retry.
+      if (error.code !== "PGRST202") return false;
+      if (isHost) {
         if (stage === "pool") await advanceToFinal();
         else await decide();
       }

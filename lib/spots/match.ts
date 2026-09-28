@@ -285,26 +285,6 @@ type Db = SupabaseClient;
 export type DealPoolLoader = (category: string) => Promise<readonly DealSpotRow[] | null>;
 
 /**
- * The live, uncached pool read under `db`'s RLS -- the default loader.
- *
- * Paged: PostgREST silently caps a table read at 1000 rows -- no error, and
- * no limit clause here to hint at it. Measured at 5082 curated spots, a
- * dinner-family deal matched 1109 rows and received 1000, so every plan was
- * dealt from the oldest 1000 spots of the family and the rest of the
- * catalogue was undealable. That is the core product loop quietly ignoring
- * most of the catalogue, not a slow query.
- */
-export function livePoolLoader(db: Db): DealPoolLoader {
-  return (category) => fetchAllRows<DealSpotRow>(
-    (from, to) => db.from("spots").select(DEAL_SPOT_COLUMNS)
-      .eq("source", "curated")
-      .in("category", categoryFamily(category))
-      .order("id").range(from, to) as unknown as PromiseLike<{ data: DealSpotRow[] | null; error: unknown }>,
-    "dealSpotIds.pool",
-  );
-}
-
-/**
  * The I/O shell: the pool (curated, identical for every caller -- cacheable),
  * then the ratings read under the caller's RLS (per-user -- never cached),
  * then the pure draw. Every per-caller filter -- age, budget, radius,
@@ -346,7 +326,7 @@ export async function dealSpotIds(db: Db, input: {
   constraints?: DealConstraints;
   rng?: () => number;
   embed?: SpotAffinity;
-}, loadPool: DealPoolLoader = livePoolLoader(db)): Promise<DealOutcome> {
+}, loadPool: DealPoolLoader): Promise<DealOutcome> {
   const data = await loadPool(input.category);
   if (!data) return { unavailable: true };
 
