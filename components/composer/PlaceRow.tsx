@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, type KeyboardEvent, type ReactNode } from "react";
-import VenuePhoto from "@/components/VenuePhoto";
+import VenuePhoto, { useGooglePhotos } from "@/components/VenuePhoto";
 import { hasVenuePhoto } from "@/lib/venue-photo";
 import { categoryMeta } from "@/lib/categories";
 
@@ -35,9 +35,9 @@ function walk(event: KeyboardEvent<HTMLUListElement>) {
 // A listing: the photo when there is one, the name and area set over its
 // foot (the vote card's overlay); without one, the same type on a plain band.
 function Face({ card }: { card: RowCard }) {
-  const photo = hasVenuePhoto(card);
+  const photo = hasVenuePhoto(card, useGooglePhotos());
   return (
-    <span className="plan-deck__band" data-photo={photo || undefined}>
+    <span className="plan-deck__band deal-card__typographic" data-photo={photo || undefined}>
       {photo && <VenuePhoto spot={card} sizes="11rem" />}
       <span className="plan-deck__type">
         {card.category && <span className="plan-deck__code">{categoryMeta(card.category).code}{card.cuisine ? ` · ${card.cuisine}` : ""}</span>}

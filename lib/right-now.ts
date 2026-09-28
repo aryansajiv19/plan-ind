@@ -7,14 +7,17 @@ import { dubaiHour } from "./dubai-phase.ts";
 type WallRow = { category: string; name: string; open_till?: string | null; photo_url?: string | null; google_place_id?: string | null };
 
 export function pickRightNow<T extends WallRow>(rows: readonly T[], now: Date, size: number): T[] {
+  // Our own photo first: the signed-out wall shows no Google photos (they
+  // are billed per view), so a Google-only pick would be a photo-less card.
+  // Then open now, then Google-matched before none.
   const rank = (row: T) => [
+    row.photo_url ? 0 : 1,
     openStatus(row.open_till, now)?.kind === "closed" ? 1 : 0,
-    // Our own photo (free, optimised) before Google's (billed per view).
-    row.photo_url ? 0 : row.google_place_id ? 1 : 2,
+    row.google_place_id ? 0 : 1,
   ];
   const ordered = [...rows].sort((a, b) => {
     const [ra, rb] = [rank(a), rank(b)];
-    return ra[0] - rb[0] || ra[1] - rb[1] || a.name.localeCompare(b.name);
+    return ra[0] - rb[0] || ra[1] - rb[1] || ra[2] - rb[2] || a.name.localeCompare(b.name);
   });
   const perCategory = new Map<string, number>();
   const picked: T[] = [];

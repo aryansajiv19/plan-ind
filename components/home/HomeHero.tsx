@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import WeightRise from "@/components/WeightRise";
-import VenuePhoto from "@/components/VenuePhoto";
+import VenuePhoto, { useGooglePhotos } from "@/components/VenuePhoto";
 import { hasVenuePhoto } from "@/lib/venue-photo";
 import type { CuratedCounts } from "@/lib/spots/catalogue";
 import type { Spot } from "@/lib/types";
@@ -30,7 +30,9 @@ export default function HomeHero({
   counts?: CuratedCounts | null;
 }) {
   // Photographed venues first; the wall already ranks them that way.
-  const tiles = [...spots.filter(hasVenuePhoto), ...spots.filter((spot) => !hasVenuePhoto(spot))].slice(0, MOSAIC_TILES);
+  const google = useGooglePhotos();
+  const pictured = (spot: Spot) => hasVenuePhoto(spot, google);
+  const tiles = [...spots.filter(pictured), ...spots.filter((spot) => !pictured(spot))].slice(0, MOSAIC_TILES);
 
   return (
     <section id="top" className="home-hero" aria-labelledby="home-title">
@@ -43,7 +45,7 @@ export default function HomeHero({
 
       <div className="cover__mosaic" aria-hidden="true">
         {tiles.map((spot, index) => (
-          <div key={spot.id} className="cover__tile">
+          <div key={spot.id} className="cover__tile deal-card__typographic">
             <span className="cover__tile-name">{spot.name}</span>
             {/* The first tile is the landing's LCP (Lighthouse): preloaded at high priority; the rest load normally. */}
             <VenuePhoto spot={spot} sizes="(min-width: 720px) 34vw, 67vw" preload={index === 0} fetchPriority={index === 0 ? "high" : undefined} />

@@ -2,7 +2,7 @@
 
 import { Fragment, useEffect, useRef, useState } from "react";
 import CountUp from "@/components/CountUp";
-import VenuePhoto from "@/components/VenuePhoto";
+import VenuePhoto, { useGooglePhotos } from "@/components/VenuePhoto";
 import { hasVenuePhoto } from "@/lib/venue-photo";
 import { avatarStyle, initialsOf } from "@/lib/avatar";
 import type { Spot } from "@/lib/types";
@@ -105,7 +105,7 @@ export default function OptionCard({
     return () => clearTimeout(timer);
   }, [voters]);
 
-  const photo = hasVenuePhoto(spot);
+  const photo = hasVenuePhoto(spot, useGooglePhotos());
   // The meta line drops the spend on a typographic band, which already says
   // it. No spend to state (a custom place), no spend shown.
   const spend = knownMinSpend(spot);

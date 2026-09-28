@@ -1,11 +1,23 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import PhotoCredit, { CreditMark } from "@/components/PhotoCredit";
 import { canOptimiseImage } from "@/lib/image-src";
 import type { PlacePhoto } from "@/lib/places/photo";
 import type { PhotoSpot } from "@/lib/venue-photo";
+
+// Google photos are billed per view, capped per day for the whole site, and
+// may not be cached (terms). Signed-out surfaces (the landing, /demo) show
+// our own photos only: a signed-out view used to spend 14-17 of the 300/day.
+const GooglePhotos = createContext(true);
+export function NoGooglePhotos({ children, off = true }: { children: ReactNode; off?: boolean }) {
+  return <GooglePhotos.Provider value={!off}>{children}</GooglePhotos.Provider>;
+}
+/** Whether this surface may show Google photos; pass it to hasVenuePhoto. */
+export function useGooglePhotos() {
+  return useContext(GooglePhotos);
+}
 
 // One request per spot per page view, shared by every card that shows it. A
 // refusal (signed out, quota, no photo) resolves null and is not retried.
@@ -42,6 +54,7 @@ export default function VenuePhoto({
   fetchPriority?: "high";
   className?: string;
 }) {
+  const google = useGooglePhotos();
   if (spot.photo_url) {
     return (
       <>
@@ -60,7 +73,7 @@ export default function VenuePhoto({
       </>
     );
   }
-  return spot.google_place_id ? <GooglePhoto spotId={spot.id} className={className} /> : null;
+  return google && spot.google_place_id ? <GooglePhoto spotId={spot.id} className={className} /> : null;
 }
 
 function GooglePhoto({ spotId, className }: { spotId: string; className: string }) {
