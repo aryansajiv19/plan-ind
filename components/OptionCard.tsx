@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import CountUp from "@/components/CountUp";
-import VenuePhoto, { hasVenuePhoto } from "@/components/VenuePhoto";
+import VenuePhoto from "@/components/VenuePhoto";
+import { hasVenuePhoto } from "@/lib/venue-photo";
 import { avatarStyle, initialsOf } from "@/lib/avatar";
 import type { Spot } from "@/lib/types";
 import { categoryMeta } from "@/lib/categories";

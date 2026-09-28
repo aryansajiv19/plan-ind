@@ -5,12 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import PhotoCredit from "@/components/PhotoCredit";
 import { canOptimiseImage } from "@/lib/image-src";
 import type { PlacePhoto } from "@/lib/places/photo";
-import type { Spot } from "@/lib/types";
-
-export type PhotoSpot = Pick<Spot, "id" | "photo_url" | "photo_attribution"> & { google_place_id?: string | null };
-
-/** A card lays out around a photo when it has our own or a matched Google place's. */
-export const hasVenuePhoto = (spot: PhotoSpot) => Boolean(spot.photo_url || spot.google_place_id);
+import type { PhotoSpot } from "@/lib/venue-photo";
 
 // One request per spot per page view, shared by every card that shows it. A
 // refusal (signed out, quota, no photo) resolves null and is not retried.

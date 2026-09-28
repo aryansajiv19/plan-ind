@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef, type KeyboardEvent, type ReactNode } from "react";
-import VenuePhoto, { hasVenuePhoto } from "@/components/VenuePhoto";
+import VenuePhoto from "@/components/VenuePhoto";
+import { hasVenuePhoto } from "@/lib/venue-photo";
 import { categoryMeta } from "@/lib/categories";
 
 /** A place as a composer row shows it: the deck (P25) and My places. */

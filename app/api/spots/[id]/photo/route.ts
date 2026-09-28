@@ -21,16 +21,25 @@ export const runtime = "nodejs";
 // browser for an hour (private: never by a shared cache, ours included).
 //
 // 200 { photoUri, widthPx, heightPx, attributions: [{ displayName, uri }] }
-// 400 bad id · 404 no fallback photo for this spot
-// 429 quota · 502 Google failed · 503 no key configured / controls down
+// 200 null -- nothing to show: no key configured, no such spot, the spot has
+//   its own photo or no place id, or Google has none. Expected states answer
+//   2xx, so a page full of cards never logs a console error per card.
+// 400 bad id
+// 429 quota · 502 Google failed · 503 auth or controls down
 const NO_STORE = { "Cache-Control": "private, no-store" };
+let reportedNoKey = false;
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const spotId = parseSpotId((await params).id);
   if (!spotId) return Response.json({ error: "Not a spot." }, { status: 400, headers: NO_STORE });
 
   const apiKey = placesApiKey();
-  if (!apiKey) return Response.json({ error: "Photos are not available." }, { status: 503, headers: NO_STORE });
+  if (!apiKey) {
+    // A deploy without the key shows no Google photos; say so once, server-side.
+    if (!reportedNoKey) console.error("Places photos: GOOGLE_PLACES_API_KEY is not set; answering null");
+    reportedNoKey = true;
+    return Response.json(null, { headers: NO_STORE });
+  }
 
   const supabase = await createClient();
   const user = await sessionUser(supabase);
@@ -38,12 +47,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
   // Read the row BEFORE spending quota: a spot with its own photo, or
   // without a place id, costs nothing and should not count. RLS applies --
-  // a spot the caller cannot read is a 404 like any other.
+  // a spot the caller cannot read has no photo, like any other.
   const { data, error } = await supabase
     .from("spots").select("id, source, photo_url, google_place_id").eq("id", spotId).maybeSingle();
   if (error) return Response.json({ error: "That spot could not be loaded." }, { status: 502, headers: NO_STORE });
   const placeId = eligiblePlaceId(data as PhotoSpotRow | null);
-  if (!placeId) return Response.json({ error: "No photo for this spot." }, { status: 404, headers: NO_STORE });
+  if (!placeId) return Response.json(null, { headers: PHOTO_CACHE });
 
   // A guest session is free to mint, so it gets the visitor limit, not an account's.
   const quota = photoQuotaFor(user) === "account"
@@ -57,7 +66,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
   try {
     const photo = await resolvePlacePhoto(placeId, apiKey);
-    if (!photo) return Response.json({ error: "No photo for this spot." }, { status: 404, headers: NO_STORE });
+    if (!photo) return Response.json(null, { headers: PHOTO_CACHE });
     return Response.json(photo, { headers: PHOTO_CACHE });
   } catch (failure) {
     // The message is already key-free (placesFetchJson redacts); log the

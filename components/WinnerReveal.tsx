@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import VenuePhoto, { hasVenuePhoto, type PhotoSpot } from "@/components/VenuePhoto";
+import VenuePhoto from "@/components/VenuePhoto";
+import { hasVenuePhoto, type PhotoSpot } from "@/lib/venue-photo";
 
 // Read via useSyncExternalStore, not a plain useEffect + setState: the
 // server has no matchMedia, so the client's first render must match its

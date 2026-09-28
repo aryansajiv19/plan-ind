@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import VenuePhoto, { hasVenuePhoto } from "@/components/VenuePhoto";
+import VenuePhoto from "@/components/VenuePhoto";
+import { hasVenuePhoto } from "@/lib/venue-photo";
 import { categoryLabel } from "@/lib/categories";
 import { hoursLabel } from "@/lib/open-hours";
 import { priceLabel } from "@/lib/price";
