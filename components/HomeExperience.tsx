@@ -10,13 +10,14 @@ import type { PlanPrefill } from "@/lib/board-plan";
 import { takeDraft } from "@/lib/plan-draft";
 import type { CuratedCounts } from "@/lib/spots/catalogue";
 import { haptic } from "@/lib/interaction";
-import type { WallItem } from "@/components/PhotoWall";
+import PhotoWall, { type WallItem } from "@/components/PhotoWall";
 import HomeHero from "@/components/home/HomeHero";
 import LandingNav from "@/components/landing/LandingNav";
 import HowItWorks from "@/components/landing/HowItWorks";
 import YourPlans, { type PlanSummary } from "@/components/home/YourPlans";
 import { APP_VIEWS, VIEW_LABELS, WALL_SIZE, viewFromParam, type AppView } from "@/lib/home-views";
 import NearViewport from "@/components/home/NearViewport";
+import { NoGooglePhotos } from "@/components/VenuePhoto";
 import { greetingFor } from "@/lib/right-now";
 
 // The account tabs are most of this component's weight and the signed-out
@@ -29,11 +30,11 @@ const AccountViews = dynamic(() => import("@/components/AccountViews"), { loadin
 const DemoAccountViews = dynamic(() => import("@/components/DemoAccountViews"), { loading: viewLoading });
 // Split out of the landing's first-paint JS (item 14): the signed-in page
 // renders these at once as before; the signed-out landing mounts the
-// composer and the wall only as they near the viewport (NearViewport), and
-// never renders the app nav's search bar. They carry supabase-js, the deal
-// reveal, smart search and the wall.
+// composer only as it nears the viewport (NearViewport), and never renders
+// the app nav's search bar. They carry supabase-js, the deal reveal and
+// smart search. The wall is NOT deferred: its tiles are the landing's links
+// to every venue page, and those belong in the first HTML (crawlers, no JS).
 const StartPlanForm = dynamic(() => import("@/components/StartPlanForm"));
-const PhotoWall = dynamic(() => import("@/components/PhotoWall"));
 const ActionSearchBar = dynamic(() => import("@/components/kokonutui/action-search-bar"));
 
 export default function HomeExperience({
@@ -228,6 +229,7 @@ export default function HomeExperience({
 
 
   return (
+    <NoGooglePhotos off={demoMode}>
     <main onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} className={`home-experience ${ready ? "home-experience--ready" : ""}`}>
       <div className="home-grid-field" aria-hidden="true" />
 
@@ -331,12 +333,10 @@ export default function HomeExperience({
             </p>
           )}
         </div>
-        <NearViewport minHeight="100rem">
-          <PhotoWall
-            items={wallItems}
-            emptyMessage="No places in the catalog yet. Once spots are seeded they show up here, newest first."
-          />
-        </NearViewport>
+        <PhotoWall
+          items={wallItems}
+          emptyMessage="No places in the catalog yet. Once spots are seeded they show up here, newest first."
+        />
       </section>
       </div>
       ) : (
@@ -383,5 +383,6 @@ export default function HomeExperience({
         </nav>
       </footer>
     </main>
+    </NoGooglePhotos>
   );
 }

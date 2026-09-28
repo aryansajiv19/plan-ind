@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import LandingNav from "@/components/landing/LandingNav";
 import DemoJourney from "@/components/demo/DemoJourney";
+import { NoGooglePhotos } from "@/components/VenuePhoto";
 import { loadDemoDecks } from "@/components/demo/demoDecks";
 
 // The playable sample journey: pick a kind of night, the deal, three rounds,
@@ -42,7 +43,9 @@ export default async function DemoVotePage() {
         <strong>Sample data.</strong> Real places, a made up group. Your votes stay on this screen and nothing saves.{" "}
         <Link href="/login" className="inline-flex min-h-11 items-center">Start your own plan →</Link>
       </p>
-      <DemoJourney decks={decks} eventTime={nextThursdayEvening(new Date())} />
+      <NoGooglePhotos>
+        <DemoJourney decks={decks} eventTime={nextThursdayEvening(new Date())} />
+      </NoGooglePhotos>
     </main>
     </>
   );

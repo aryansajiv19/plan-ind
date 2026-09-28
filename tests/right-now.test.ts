@@ -6,7 +6,7 @@ import { greetingFor, pickRightNow } from "../lib/right-now.ts";
 const evening = new Date("2026-09-27T17:00:00Z");
 const row = (name: string, category: string, open_till: string, photo_url: string | null = null) => ({ name, category, open_till, photo_url });
 
-test("open now comes first, photographed first, at most two per category", () => {
+test("photographed first, then open now, at most two per category", () => {
   const rows = [
     row("Aa Cafe", "cafe", "4pm"),               // closed by 9pm
     row("Bb Dinner", "dinner", "11pm"),
@@ -24,6 +24,14 @@ test("our own photo beats a Google-matched one, which beats none", () => {
     { name: "Cc Own", category: "c", open_till: "3am", photo_url: "/venues/c.webp", google_place_id: null },
   ];
   assert.deepEqual(pickRightNow(rows, evening, 3).map((r) => r.name), ["Cc Own", "Bb Google", "Aa None"]);
+});
+
+test("a closed place with our own photo outranks an open Google-only one (no Google photos signed out)", () => {
+  const rows = [
+    { name: "Aa Open Google", category: "a", open_till: "3am", photo_url: null, google_place_id: "ChIJ1234567890" },
+    { name: "Bb Closed Own", category: "b", open_till: "4pm", photo_url: "/venues/b.webp", google_place_id: null },
+  ];
+  assert.deepEqual(pickRightNow(rows, evening, 2).map((r) => r.name), ["Bb Closed Own", "Aa Open Google"]);
 });
 
 test("the greeting follows the Dubai clock, whoever is asking", () => {

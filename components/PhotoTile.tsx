@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { Spot } from "@/lib/types";
-import VenuePhoto from "@/components/VenuePhoto";
+import VenuePhoto, { useGooglePhotos } from "@/components/VenuePhoto";
 import { hasVenuePhoto } from "@/lib/venue-photo";
 import { categoryLabel, categoryMeta } from "@/lib/categories";
 
@@ -35,7 +35,7 @@ export default function PhotoTile({
   note?: WallNote;
   height: number;
 }) {
-  const hasPhoto = hasVenuePhoto(spot);
+  const hasPhoto = hasVenuePhoto(spot, useGooglePhotos());
   const meta = [spot.area, spot.min_spend ? `AED ${spot.min_spend}` : null]
     .filter(Boolean)
     .join(" · ");

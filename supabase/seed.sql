@@ -74,3 +74,23 @@ insert into plan_spots (plan_id, spot_id) values
   ('11111111-1111-1111-1111-111111111111', 'a0000000-0000-0000-0000-000000000001'),
   ('11111111-1111-1111-1111-111111111111', 'a0000000-0000-0000-0000-000000000002'),
   ('11111111-1111-1111-1111-111111111111', 'a0000000-0000-0000-0000-000000000003');
+
+-- The real place ids of the five seed venues (sampleDecision.ts uses these
+-- ids) and two self-hosted photos with their credits (migration 079's
+-- files in public/venues), so the photo paths run on CI too: without them
+-- tests/e2e/signed-out-photos.spec.ts passes vacuously. Values as live.
+update spots set google_place_id = case id
+    when 'a0000000-0000-0000-0000-000000000001' then 'ChIJN0PuVXJpXz4RTi-IEGAvito'
+    when 'a0000000-0000-0000-0000-000000000002' then 'ChIJN81uvipDXz4RH_4cyTocRMI'
+    when 'a0000000-0000-0000-0000-000000000003' then 'ChIJc_qkbD5CXz4RjckbjFAB3eM'
+    when 'a0000000-0000-0000-0000-000000000004' then 'ChIJlbbiwENqXz4RYs-mK1C-G8o'
+    when 'a0000000-0000-0000-0000-000000000005' then 'ChIJcfzwzo0TXz4RyQpaHkMBWsE'
+  end
+  where id in ('a0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000002',
+    'a0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000004', 'a0000000-0000-0000-0000-000000000005');
+update spots set photo_url = '/venues/a0000000-0000-0000-0000-000000000004.webp', photo_source = 'wikimedia',
+    photo_attribution = 'Ankur P from Pune, India / Wikimedia Commons / CC BY 2.0'
+  where id = 'a0000000-0000-0000-0000-000000000004';
+update spots set photo_url = '/venues/d0000000-0000-0000-0000-000000000003.webp', photo_source = 'wikimedia',
+    photo_attribution = 'Diego Delso / Wikimedia Commons / CC BY-SA 4.0'
+  where id = 'd0000000-0000-0000-0000-000000000003';
