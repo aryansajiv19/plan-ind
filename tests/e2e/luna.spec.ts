@@ -64,8 +64,11 @@ test.describe("Luna into the composer", () => {
     await page.goto("/home");
     await ask(page, { error: "Sign in to use smart search." }, 401);
     await expect(page.locator(".plan-smart-search__error")).toContainText("Sign in to use smart search.");
+    // The navigation, not where it settles: this session is really still
+    // valid (only the route said 401), so /login sends it straight back home.
+    const toLogin = page.waitForRequest((request) => /\/login\?next=(%2F|\/)home/.test(request.url()));
     await page.getByRole("button", { name: "Sign in again" }).click();
-    await expect(page).toHaveURL(/\/login\?next=%2Fhome|\/login\?next=\/home/);
+    await toLogin;
   });
 
   test("a brief written before sign-in is back in the box after it", async ({ page, context, baseURL }) => {

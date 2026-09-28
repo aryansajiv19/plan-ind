@@ -1,6 +1,7 @@
 import { test, expect, type Frame, type Page } from "@playwright/test";
 import { randomUUID } from "node:crypto";
 import { isLocalStack, localAdmin } from "./local-stack";
+import { mountLandingSection } from "./page-helpers";
 
 // Runtime bug-hunt: the failures that ship silently because nothing throws.
 //
@@ -125,6 +126,11 @@ for (const path of PAGES) {
     const found = collect(page);
     await page.goto(path, gotoOptions(path));
     await settle(page, path);
+    // The lazy composer and wall are part of the page: mount them before judging it.
+    if (path === "/" || path === "/demo") {
+      await mountLandingSection(page, "plan-lab");
+      await mountLandingSection(page, "right-now");
+    }
 
     expect(found.pageErrors, `uncaught exceptions on ${path}: ${JSON.stringify(found.pageErrors, null, 1)}`)
       .toEqual([]);
@@ -178,6 +184,7 @@ for (const path of PAGES) {
 test("every venue page linked from the front door loads cleanly, photos resolved and credited", async ({ page }) => {
   test.setTimeout(180_000);
   await page.goto("/", IDLE);
+  await mountLandingSection(page, "right-now");
   const hrefs = [...new Set(await page.locator('a[href^="/place/"]').evaluateAll(
     (links) => links.map((a) => (a as HTMLAnchorElement).getAttribute("href")!.split("?")[0])))];
   expect(hrefs.length, "the front door links to no venue pages").toBeGreaterThan(0);
