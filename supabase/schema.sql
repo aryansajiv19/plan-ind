@@ -7207,3 +7207,84 @@ end; $$;
 -- raises when auth.uid() is null, so anon could never spend quota anyway.
 revoke all on function consume_app_quota(text,text) from public, anon, authenticated;
 grant execute on function consume_app_quota(text,text) to authenticated;
+
+-- 084: deadlines fire on their own -- see migration-084-expire-due-plans.sql.
+-- The pg_cron job (every 5 min, expire_due_plans(50)) is scheduled by that
+-- migration only, like 031's purge job: a scratch project may lack pg_cron.
+
+create or replace function advance_due_plan(p_plan_id uuid)
+returns text language plpgsql security definer set search_path = public, extensions, pg_temp as $$
+declare
+  target plans%rowtype;
+begin
+  select * into target from plans where id = p_plan_id for update;
+  if target.status = 'decided' then
+    return 'already_decided';
+  elsif target.deadline is null or target.deadline > now() then
+    return 'not_due';
+  elsif target.stage = 'pool' then
+    perform plan_transition(p_plan_id, 'advance');
+    return 'advanced';
+  elsif target.stage = 'final' then
+    perform plan_transition(p_plan_id, 'decide');
+    return 'decided';
+  end if;
+  return 'not_due';
+end; $$;
+-- Internal: expire_plan and expire_due_plans call it; no client role may.
+revoke all on function advance_due_plan(uuid) from public, anon, authenticated;
+
+-- expire_plan: the 069 body with its stage branch replaced by the shared call.
+create or replace function expire_plan(p_plan_id uuid)
+returns jsonb language plpgsql security definer set search_path = public, extensions, pg_temp as $$
+declare
+  target plans%rowtype;
+  outcome text;
+  finalists uuid[];
+begin
+  if not is_permanent_user() or not exists (
+    select 1 from plan_access where plan_id = p_plan_id and user_id = auth.uid()
+  ) then
+    raise exception 'Plan access required' using errcode = '42501';
+  end if;
+
+  outcome := advance_due_plan(p_plan_id);
+
+  select * into target from plans where id = p_plan_id;
+  select coalesce(array_agg(spot_id order by pool_number), '{}') into finalists
+    from plan_spots where plan_id = p_plan_id and advanced;
+  return jsonb_build_object('result', outcome, 'plan', to_jsonb(target) - 'created_by_user_id',
+    'winner_spot_id', target.winner_spot_id, 'finalists', finalists);
+end; $$;
+revoke all on function expire_plan(uuid) from public, anon, authenticated;
+grant execute on function expire_plan(uuid) to authenticated;
+
+create or replace function expire_due_plans(p_limit integer default 50)
+returns integer language plpgsql security definer set search_path = public, extensions, pg_temp as $$
+declare
+  due uuid;
+  moved integer := 0;
+begin
+  for due in
+    select id from plans
+    where status = 'open' and deadline <= now()
+    order by deadline
+    limit greatest(1, least(coalesce(p_limit, 50), 200))
+    for update skip locked
+  loop
+    begin
+      if advance_due_plan(due) in ('advanced', 'decided') then
+        moved := moved + 1;
+      end if;
+    exception when others then
+      -- One broken plan must not stop the sweep. No personal data: an id and a code.
+      raise warning 'expire_due_plans: skipped plan % (SQLSTATE %)', due, sqlstate;
+    end;
+  end loop;
+  return moved;
+end; $$;
+-- Run by pg_cron as the owner only.
+revoke all on function expire_due_plans(integer) from public, anon, authenticated;
+
+-- The sweep's read: open plans by deadline.
+create index if not exists plans_open_deadline_idx on plans (deadline) where status = 'open';
