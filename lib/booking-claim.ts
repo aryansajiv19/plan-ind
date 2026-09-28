@@ -49,6 +49,8 @@ export function bookingOutcome(action: BookingAction, data: unknown): BookingOut
       return say("It’s booked already, so it stays as it is.");
     case "not_holder":
       return say("Only whoever’s booking it, or the host, can mark it booked.");
+    case "joined_after_decision":
+      return say("Only someone who was in the plan before it was decided, or the host, can mark it booked.");
     case "not_decided":
       return { ...say("Nothing to book until the group picks a place."), resync: true };
     case "no_profile":

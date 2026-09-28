@@ -47,3 +47,9 @@ test("a stale screen is told to re-read the plan; a normal answer is not", () =>
   for (const result of ["not_decided", "not_member", "not_found"]) assert.equal(bookingOutcome("claim", { result, booking_owner: null, booked: false }).resync, true, result);
   for (const result of ["claimed", "taken", "booked", "no_profile"]) assert.equal(bookingOutcome("claim", { result, booking_owner: "Sara", booked: false }).resync, undefined, result);
 });
+
+test("a holder who joined after the decision is told why they can't mark it booked", () => {
+  const outcome = bookingOutcome("mark", { result: "joined_after_decision", booking_owner: "Sara", booked: false });
+  assert.deepEqual(outcome.patch, { booking_owner: "Sara", booked: false });
+  assert.match(outcome.note!.text, /before it was decided, or the host/);
+});
