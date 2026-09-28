@@ -19,21 +19,23 @@ export const STORY = {
 };
 
 const RENDERABLE = /\.(jpe?g|png)$/i; // Satori decodes PNG/JPEG, not WebP (verified)
-const OWN_FILE = /^\/venues\/[A-Za-z0-9-]+\.(jpe?g|png)$/i;
+const OWN_FILE = /^\/venues\/[A-Za-z0-9-]+\.(jpe?g|png|webp)$/i;
 
 /**
  * The venue's own photo as a data URL, or null. Own photos only: a
  * self-hosted file under public/venues, or our Supabase bucket. Never a Google
- * photo (their terms keep those off our server). WebP files (the 079 set)
- * return null until they have JPEG twins; the card is typographic then.
+ * photo (their terms keep those off our server). A self-hosted WebP (the 079
+ * set) is read from its JPEG twin beside it (1080 px long edge, <=150 KB-ish);
+ * without a twin the card is typographic.
  */
 export async function storyPhoto(photoUrl: string | null): Promise<string | null> {
   if (!photoUrl) return null;
   try {
     if (photoUrl.startsWith("/")) {
       if (!OWN_FILE.test(photoUrl)) return null;
-      const data = await readFile(join(process.cwd(), "public", photoUrl));
-      return `data:image/${/png$/i.test(photoUrl) ? "png" : "jpeg"};base64,${data.toString("base64")}`;
+      const file = photoUrl.replace(/\.webp$/i, ".jpg");
+      const data = await readFile(join(process.cwd(), "public", file));
+      return `data:image/${/png$/i.test(file) ? "png" : "jpeg"};base64,${data.toString("base64")}`;
     }
     const url = new URL(photoUrl);
     if (url.origin !== new URL(getSupabaseConfig().url).origin || !RENDERABLE.test(url.pathname)) return null;
