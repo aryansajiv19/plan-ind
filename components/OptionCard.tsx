@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import CountUp from "@/components/CountUp";
 import VenuePhoto from "@/components/VenuePhoto";
 import { hasVenuePhoto } from "@/lib/venue-photo";
@@ -176,7 +176,9 @@ export default function OptionCard({
       {reasons && reasons.length > 0 && (
         <p className="mt-2 text-xs font-semibold text-muted">
           <span className="sr-only">Why this: </span>
-          {reasons.map((reason) => reason.label).join(" · ")}
+          {reasons.map((reason, index) => (
+            <Fragment key={reason.kind}>{index > 0 ? " · " : null}<span>{reason.label}</span></Fragment>
+          ))}
         </p>
       )}
 
