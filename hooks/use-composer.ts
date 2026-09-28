@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { dealSpotsForCategory, inRevealOrder } from "@/lib/deal";
 import { DUBAI_ORIGINS } from "@/lib/dubai-areas";
-import { DEAL_BUDGET_OPTIONS, DEAL_RADIUS_OPTIONS_KM } from "@/lib/spots/match";
 import { useDealPreview } from "@/hooks/use-deal-preview";
 import { minimumAgeForCategory } from "@/lib/age-policy";
 import { secureJsonFetch } from "@/lib/security/csrf-client";
@@ -17,6 +16,8 @@ import { offerTimes, useWhenPicks } from "@/components/WhenPicker";
 import { fetchSampleDeal } from "@/lib/deal-sample";
 import type { PlanPrefill } from "@/lib/board-plan";
 import { checkedPrefill } from "@/lib/composer-prefill";
+import { intentToForm } from "@/lib/composer-intent";
+import { readRemembered, saveRemembered, validRemembered, type Remembered } from "@/lib/composer-settings";
 
 export const PRESETS = [
   { label: "In 3 hours", hours: 3 },
@@ -26,26 +27,6 @@ export const PRESETS = [
 
 type CategoryKey = Category["key"];
 export type PinnedPlace = NonNullable<PlanPrefill["pinned"]>;
-
-/** P25: Luna's budget or radius, snapped to the nearest chip the form offers (ties go up). */
-export function nearestOption(options: readonly (number | null)[], value: number | null): number | null {
-  if (value == null) return null;
-  const numbers = options.filter((option): option is number => option != null);
-  return numbers.reduce((best, option) => (Math.abs(option - value) <= Math.abs(best - value) ? option : best), numbers[0]);
-}
-
-// P25: the last settings a plan was dealt with, per device. Every read is
-// checked against what the form offers now; anything stale is ignored.
-const SETTINGS_KEY = "deal-three:composer";
-type Remembered = { category?: string; maxBudget?: number | null; origin?: string; radiusKm?: number | null; presetIdx?: number };
-function readRemembered(): Remembered | null {
-  try {
-    const raw = JSON.parse(localStorage.getItem(SETTINGS_KEY) ?? "null");
-    return raw && typeof raw === "object" ? raw as Remembered : null;
-  } catch {
-    return null;
-  }
-}
 
 /**
  * The deal composer's state and actions: what the host picks, the deal,
@@ -105,16 +86,17 @@ export function useComposer({ age, demoMode, prefill: rawPrefill }: { age: numbe
     const frame = requestAnimationFrame(() => {
       const saved = readRemembered();
       if (!saved) return;
-      const known = CATEGORIES.find((c) => c.key === saved.category);
-      if (known && age >= minimumAgeForCategory(known.key)) {
+      const valid = validRemembered(saved, age, PRESETS.length);
+      const known = valid.category;
+      if (known) {
         setCategory(known.key);
         setTitle(known.title);
         setActiveGroup(CATEGORY_GROUPS.find((group) => group.categories.some((c) => c.key === known.key))?.key ?? "food");
       }
-      if (saved.maxBudget === null || DEAL_BUDGET_OPTIONS.includes(saved.maxBudget as number)) setMaxBudget(saved.maxBudget ?? null);
-      if (DUBAI_ORIGINS.some((origin) => origin.value === saved.origin)) setOriginValue(saved.origin!);
-      if (saved.radiusKm === null || DEAL_RADIUS_OPTIONS_KM.includes(saved.radiusKm as number)) setRadiusKm(saved.radiusKm ?? null);
-      if (Number.isInteger(saved.presetIdx) && saved.presetIdx! >= 0 && saved.presetIdx! < PRESETS.length) setPresetIdx(saved.presetIdx!);
+      if (valid.maxBudget !== undefined) setMaxBudget(valid.maxBudget);
+      if (valid.origin !== undefined) setOriginValue(valid.origin);
+      if (valid.radiusKm !== undefined) setRadiusKm(valid.radiusKm);
+      if (valid.presetIdx !== undefined) setPresetIdx(valid.presetIdx);
       setRemembered(saved);
     });
     return () => cancelAnimationFrame(frame);
@@ -143,24 +125,18 @@ export function useComposer({ age, demoMode, prefill: rawPrefill }: { age: numbe
 
   /** Luna's intent into the form. A kind it can't use keeps the current one and the title, and says so. */
   function applyIntent(intent: SmartIntent): string | null {
-    const matchedCategory = CATEGORIES.find((item) => item.key === intent.category);
-    const matchedGroup = CATEGORY_GROUPS.find((group) => group.categories.some((item) => item.key === intent.category));
-    const matchedOrigin = DUBAI_ORIGINS.find((origin) => origin.value === intent.origin);
-    const minimumAge = matchedCategory ? minimumAgeForCategory(matchedCategory.key) : 0;
-    const usable = matchedCategory != null && age >= minimumAge;
-    if (usable) {
-      setCategory(matchedCategory.key);
-      if (matchedGroup) setActiveGroup(matchedGroup.key);
+    const form = intentToForm(intent, age, categoryLabel);
+    if (form.category) {
+      setCategory(form.category.key);
+      if (form.category.group) setActiveGroup(form.category.group);
       setTitle(intent.title);
       setTitleEdited(true);
     }
-    if (matchedOrigin) setOriginValue(matchedOrigin.value);
-    setMaxBudget(nearestOption(DEAL_BUDGET_OPTIONS, intent.maxBudget));
-    setRadiusKm(intent.origin === "anywhere" ? null : nearestOption(DEAL_RADIUS_OPTIONS_KM, intent.radiusKm ?? 20));
+    if (form.origin) setOriginValue(form.origin);
+    setMaxBudget(form.maxBudget);
+    setRadiusKm(form.radiusKm);
     setSmartIntent(intent);
-    if (!matchedCategory) return `Luna suggested a kind of place the app doesn’t list, so this stays ${categoryLabel}.`;
-    if (!usable) return `${matchedCategory.label} is ${minimumAge}+, so this stays ${categoryLabel}.`;
-    return null;
+    return form.message;
   }
 
   // P7: signing in keeps what the visitor has set up; /home restores it.
@@ -227,9 +203,7 @@ export function useComposer({ age, demoMode, prefill: rawPrefill }: { age: numbe
     const clean = title.trim();
     if (!clean) return;
     setError(null);
-    try {
-      localStorage.setItem(SETTINGS_KEY, JSON.stringify({ category, maxBudget, origin: originValue, radiusKm, presetIdx } satisfies Remembered));
-    } catch { /* storage blocked: nothing remembered */ }
+    saveRemembered({ category, maxBudget, origin: originValue, radiusKm, presetIdx });
     // Signed out (P8): deal nine real places for these settings without a
     // session, then hand over to /demo/vote instead of a sign-in dead end.
     if (demoMode) {
