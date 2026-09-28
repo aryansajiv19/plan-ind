@@ -19,9 +19,9 @@ const display = localFont({
 
 const hanken = localFont({
   src: [
-    { path: "../public/fonts/hanken-grotesk-400.ttf", weight: "400" },
-    { path: "../public/fonts/hanken-grotesk-500.ttf", weight: "500" },
-    { path: "../public/fonts/hanken-grotesk-700.ttf", weight: "700" },
+    { path: "../public/fonts/hanken-grotesk-400-latin.woff2", weight: "400" },
+    { path: "../public/fonts/hanken-grotesk-500-latin.woff2", weight: "500" },
+    { path: "../public/fonts/hanken-grotesk-700-latin.woff2", weight: "700" },
   ],
   variable: "--font-hanken",
   display: "swap",
