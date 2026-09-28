@@ -3,8 +3,14 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   createFolder, deleteFolder, getFoldersAndLists, groupByFolder, moveToFolder, renameFolder,
-  type FiledList, type FolderView, type ListKind,
+  type FiledList, type FolderRefusal, type FolderView, type ListKind,
 } from "@/lib/social/folders";
+
+const REFUSED: Record<FolderRefusal, string> = {
+  taken: "You already have a folder with that name.",
+  invalid: "That name or emoji has characters folders can’t hold. Try plain text and one emoji.",
+  failed: "That didn’t save. Try again in a moment.",
+};
 
 const KIND_LABEL: Record<ListKind, string> = { been: "Been list", board: "Moodboard", saved: "Saved links" };
 
@@ -34,11 +40,14 @@ export default function FoldersSection({ personId }: { personId: string }) {
     return () => { live = false; };
   }, [personId]);
 
-  async function run(write: Promise<unknown>, failure: string) {
+  /** Applies a write, then re-reads. `true` or an object is success; a refusal string, or false, is not. */
+  async function run(write: Promise<unknown>, failure: string): Promise<boolean> {
     setError(null);
-    const ok = await write;
-    if (!ok) setError(failure);
+    const result = await write;
+    const ok = result === true || (typeof result === "object" && result !== null);
+    if (!ok) setError(typeof result === "string" && result in REFUSED ? REFUSED[result as FolderRefusal] : failure);
     await load();
+    return ok;
   }
 
   if (data === null) return null;
@@ -51,8 +60,8 @@ export default function FoldersSection({ personId }: { personId: string }) {
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          void run(createFolder(personId, name, emoji), "That folder couldn’t be made. Is the name already taken?")
-            .then(() => { setName(""); setEmoji(""); });
+          void run(createFolder(personId, name, emoji), REFUSED.failed)
+            .then((ok) => { if (ok) { setName(""); setEmoji(""); } });
         }}
       >
         <label><span>Emoji</span><input value={emoji} onChange={(event) => setEmoji(event.target.value)} maxLength={8} placeholder="📁" /></label>
@@ -66,7 +75,7 @@ export default function FoldersSection({ personId }: { personId: string }) {
           {folder && renaming?.id === folder.id ? (
             <form onSubmit={(event) => {
               event.preventDefault();
-              void run(renameFolder(folder.id, renaming.name), "That name couldn’t be saved.").then(() => setRenaming(null));
+              void run(renameFolder(folder.id, renaming.name), "That name couldn’t be saved.").then((ok) => { if (ok) setRenaming(null); });
             }}>
               <input value={renaming.name} onChange={(event) => setRenaming({ id: folder.id, name: event.target.value })} maxLength={40} aria-label="Folder name" />
               <button type="submit">Save</button>

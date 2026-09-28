@@ -42,21 +42,31 @@ export async function getFoldersAndLists(
   };
 }
 
-/** Trimmed to the DB's 40-character limit; the DB refuses control or bidi characters. */
-export async function createFolder(personId: string, name: string, emoji: string, db: Db = getSupabase()): Promise<FolderView | null> {
-  const trimmed = name.trim().slice(0, 40);
-  if (!trimmed) return null;
+/** Why a folder write was refused, so the screen can say which. */
+export type FolderRefusal = "taken" | "invalid" | "failed";
+const refusal = (code: string | undefined): FolderRefusal =>
+  code === "23505" ? "taken" : code === "23514" ? "invalid" : "failed";
+
+/** The DB's 40-character limit, counted in code points as char_length does (an emoji is one, not two). */
+const cleanName = (name: string) => Array.from(name.trim()).slice(0, 40).join("");
+
+/** The DB refuses control or bidi characters rather than rewriting them ("invalid"). */
+export async function createFolder(personId: string, name: string, emoji: string, db: Db = getSupabase()): Promise<FolderView | FolderRefusal> {
+  const trimmed = cleanName(name);
+  if (!trimmed) return "invalid";
   const { data, error } = await db.from("folders")
     .insert({ person_id: personId, name: trimmed, ...(emoji.trim() ? { emoji: emoji.trim() } : {}) })
     .select("id, name, emoji").single();
-  return error || !data ? null : data as FolderView;
+  if (error || !data) return refusal(error?.code);
+  return data as FolderView;
 }
 
-export async function renameFolder(id: string, name: string, db: Db = getSupabase()): Promise<boolean> {
-  const trimmed = name.trim().slice(0, 40);
-  if (!trimmed) return false;
+export async function renameFolder(id: string, name: string, db: Db = getSupabase()): Promise<true | FolderRefusal> {
+  const trimmed = cleanName(name);
+  if (!trimmed) return "invalid";
   const { data, error } = await db.from("folders").update({ name: trimmed }).eq("id", id).select("id");
-  return !error && (data?.length ?? 0) > 0;
+  if (error) return refusal(error.code);
+  return (data?.length ?? 0) > 0 ? true : "failed";
 }
 
 export async function deleteFolder(id: string, db: Db = getSupabase()): Promise<boolean> {
