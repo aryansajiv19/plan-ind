@@ -16,7 +16,6 @@ export default function PrivacyPage() {
     <main className="legal-page">
       <Link href="/" className="legal-page__back">Deal three</Link>
       <article>
-        <p className="home-section-kicker">Legal</p>
         <h1>Privacy policy</h1>
         <p className="legal-page__date">Effective 19 August 2026</p>
         {legal.isPlaceholder && <p className="legal-page__notice">Development legal details are shown on this build.</p>}

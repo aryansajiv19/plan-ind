@@ -30,7 +30,7 @@ export default function FriendsTab({
   return (
     <section className="demo-view" aria-labelledby="friends-title">
       <header className="demo-view__header demo-view__header--split">
-        <div><p className="home-section-kicker">Your planning circle</p><h1 id="friends-title">The people you actually go out with.</h1></div>
+        <div><h1 id="friends-title">The people you actually go out with.</h1></div>
         <button type="button" className="demo-primary-action" onClick={onStartPlan}>Start a group plan</button>
       </header>
 

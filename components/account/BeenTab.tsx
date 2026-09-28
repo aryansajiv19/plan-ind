@@ -66,7 +66,6 @@ export default function BeenTab({
     <section className="demo-view" aria-labelledby="been-title">
       <header className="demo-view__header demo-view__header--split">
         <div>
-          <p className="home-section-kicker">Your city log</p>
           <h1 id="been-title">{stats.places ? `${stats.places} ${stats.places === 1 ? "place" : "places"}, properly remembered.` : "Your city log starts here."}</h1>
         </div>
         {stats.total > 0 && (

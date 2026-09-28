@@ -11,7 +11,7 @@
   font-size: clamp(1.5rem, 3vw, 2.4rem);
   line-height: .98;
 }
-.demo-tool-panel > p:not(.home-section-kicker) {
+.demo-tool-panel > p {
   max-width: 34rem;
   color: var(--color-muted);
   line-height: 1.5;
@@ -189,7 +189,7 @@
   font-size: clamp(1.3rem, 2vw, 1.6rem);
   line-height: .92;
 }
-.demo-wrapped p:not(.home-section-kicker) {
+.demo-wrapped p {
   max-width: 30rem;
   color: var(--color-muted);
   line-height: 1.5;

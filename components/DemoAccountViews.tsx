@@ -6,7 +6,7 @@ import PlaceLinkImporter from "@/components/PlaceLinkImporter";
 import DemoMoodboards from "@/components/demo/DemoMoodboards";
 import { friendPlanPrefill, originForArea, type PlanPrefill } from "@/lib/board-plan";
 import { validateImageFile } from "@/lib/upload";
-import { categoryLabel } from "@/lib/categories";
+import { categoryLabel, categoryMeta } from "@/lib/categories";
 
 type AccountView = "discover" | "been" | "friends" | "profile";
 
@@ -185,7 +185,7 @@ export default function DemoAccountViews({
     return (
       <section className="demo-view" aria-labelledby="discover-title">
         <header className="demo-view__header">
-          <div><p className="home-section-kicker">Discover Dubai</p><h1 id="discover-title">Places worth considering.</h1></div>
+          <div><h1 id="discover-title">Places worth considering.</h1></div>
           <p>Real context from your circle, alongside the details that decide whether a place works tonight.</p>
         </header>
 
@@ -206,10 +206,15 @@ export default function DemoAccountViews({
           <div className="demo-place-grid">
             {visiblePlaces.map((place) => (
               <article key={place.name} className="demo-place-card">
-                <div className="demo-place-card__image"><Image src={place.image} alt={`Community visit at ${place.name}`} fill sizes="(max-width: 700px) 100vw, 50vw" /></div>
+                <div className="demo-place-card__band" data-photo>
+                  <Image src={place.image} alt={`Community visit at ${place.name}`} fill sizes="(max-width: 700px) 100vw, 20rem" />
+                  <div className="demo-place-card__over">
+                    <span className="demo-place-card__chip" aria-hidden="true">{categoryMeta(place.key).code}</span>
+                    <div><h2>{place.name}</h2><p className="demo-place-card__area">{place.area} · {place.price}</p></div>
+                  </div>
+                </div>
                 <div className="demo-place-card__body">
                   <div className="demo-place-card__meta"><span>{categoryLabel(place.category)}</span><span>{place.rating} / 5</span></div>
-                  <h2>{place.name}</h2><p className="demo-place-card__area">{place.area} · {place.price}</p>
                   <p>{place.note}</p><p className="demo-place-card__context">{place.friendNote}</p>
                   {/* The preview deal can't hold a sample place, so it promises what it does. */}
                   <button type="button" onClick={() => onStartPlan({ key: `${place.name}:${Date.now()}`, boardName: place.name, category: place.key, origin: originForArea(place.area) ?? "anywhere", title: `Somewhere like ${place.name}?`, source: "like" })}>Plan something like this</button>
@@ -226,7 +231,7 @@ export default function DemoAccountViews({
     return (
       <section className="demo-view" aria-labelledby="been-title">
         <header className="demo-view__header demo-view__header--split">
-          <div><p className="home-section-kicker">Your city log</p><h1 id="been-title">32 places, properly remembered.</h1></div>
+          <div><h1 id="been-title">32 places, properly remembered.</h1></div>
           <div className="demo-account-stats"><span><strong>18</strong> this year</span><span><strong>6</strong> weekend streak</span><span><strong>4.7</strong> average</span><span><strong>86</strong> photos</span></div>
         </header>
 
@@ -293,7 +298,7 @@ export default function DemoAccountViews({
     return (
       <section className="demo-view" aria-labelledby="friends-title">
         <header className="demo-view__header demo-view__header--split">
-          <div><p className="home-section-kicker">Your planning circle</p><h1 id="friends-title">The people you actually go out with.</h1></div>
+          <div><h1 id="friends-title">The people you actually go out with.</h1></div>
           <button type="button" className="demo-primary-action" onClick={() => onStartPlan()}>Start a group plan</button>
         </header>
 
@@ -317,14 +322,13 @@ export default function DemoAccountViews({
     <section className="demo-view" aria-labelledby="profile-title">
       <header className="demo-profile-head">
         <span className="demo-profile-avatar" aria-hidden="true">{name.slice(0, 2).toUpperCase()}</span>
-        <div><p className="home-section-kicker">Demo account</p><h1 id="profile-title">{name}</h1><p>Dubai · planning since March 2026</p></div>
+        <div><h1 id="profile-title">{name}</h1><p>Dubai · planning since March 2026</p></div>
       </header>
 
       <div className="demo-profile-stats"><span><strong>32</strong> places</span><span><strong>47</strong> plans</span><span><strong>18</strong> friends</span><span><strong>86</strong> photos</span></div>
 
       <section className="demo-city-pattern" aria-labelledby="city-pattern-title">
         <div className="demo-city-pattern__lead">
-          <p className="home-section-kicker">Your Dubai</p>
           <h2 id="city-pattern-title">Jumeirah is 31% of your city.</h2>
           <p>You have gone out six weekends in a row. Your current best is nine.</p>
           <div><span><strong>6</strong> current streak</span><span><strong>9</strong> personal best</span></div>
@@ -341,7 +345,7 @@ export default function DemoAccountViews({
       </section>
 
 
-      <section className="demo-photo-strip"><div><p className="home-section-kicker">Recent photos</p><h2>Your July in Dubai</h2></div>{PLACES.map((place) => <span key={place.name}><Image src={place.image} alt={`From ${place.name}`} fill sizes="160px" /></span>)}</section>
+      <section className="demo-photo-strip"><div><h2>Your July in Dubai</h2></div>{PLACES.map((place) => <span key={place.name}><Image src={place.image} alt={`From ${place.name}`} fill sizes="160px" /></span>)}</section>
     </section>
   );
 }

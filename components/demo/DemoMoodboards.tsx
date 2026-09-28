@@ -37,7 +37,6 @@ export default function DemoMoodboards({ onPlan }: { onPlan: (prefill: PlanPrefi
     <section className="demo-tool-panel demo-moodboard-panel" aria-labelledby="demo-moodboards-title">
       <div className="demo-tool-panel__head">
         <div>
-          <p className="home-section-kicker">Moodboards · sample</p>
           <h2 id="demo-moodboards-title">Keep the feeling, not just the venue.</h2>
         </div>
       </div>

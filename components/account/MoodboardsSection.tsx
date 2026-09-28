@@ -110,7 +110,6 @@ export default function MoodboardsSection({
     <section className="demo-tool-panel demo-moodboard-panel" aria-labelledby="moodboards-title">
       <div className="demo-tool-panel__head">
         <div>
-          <p className="home-section-kicker">Moodboards</p>
           <h2 id="moodboards-title">Keep the feeling, not just the venue.</h2>
         </div>
       </div>

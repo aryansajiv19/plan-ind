@@ -128,7 +128,7 @@ export default function DiscoverTab({
   return (
     <section className="demo-view" aria-labelledby="discover-title">
       <header className="demo-view__header">
-        <div><p className="home-section-kicker">Discover Dubai</p><h1 id="discover-title">Places worth considering.</h1></div>
+        <div><h1 id="discover-title">Places worth considering.</h1></div>
         <p>The catalogue a plan deals from. Search it, then start a vote on anything that fits tonight.</p>
       </header>
 

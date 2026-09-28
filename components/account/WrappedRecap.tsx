@@ -89,7 +89,6 @@ export default function WrappedRecap({
   return (
     <section className="demo-wrapped" aria-labelledby="wrapped-title">
       <div>
-        <p className="home-section-kicker">Your month in plans</p>
         <h2 id="wrapped-title">Deal three Wrapped</h2>
         <p>A small recap of the places, people and decisions that shaped your month.</p>
       </div>

@@ -21,24 +21,26 @@ export default function PlaceCard({
 }) {
   const meta = categoryMeta(spot.category);
   const hours = hoursLabel(spot.open_till);
+  const photo = hasVenuePhoto(spot);
   return (
-    <article
-      className={`demo-place-card ${hasVenuePhoto(spot) ? "" : "demo-place-card--flat"}`}
-    >
-      {hasVenuePhoto(spot) ? (
-        <div className="demo-place-card__image">
-          <VenuePhoto spot={spot} sizes="(max-width: 700px) 100vw, 50vw" />
+    <article className="demo-place-card">
+      {/* A listing: the photo (or a plain band) with the name set over its
+          foot, as the vote card does; the facts run underneath. */}
+      <div className="demo-place-card__band" data-photo={photo || undefined} data-code={meta.code}>
+        {photo && <VenuePhoto spot={spot} sizes="(max-width: 700px) 100vw, 20rem" />}
+        <div className="demo-place-card__over">
+          <span className="demo-place-card__chip" aria-hidden="true">{meta.code}</span>
+          <div>
+            <h2>{spot.name}</h2>
+            <p className="demo-place-card__area">{[spot.area, priceLabel(spot)].filter(Boolean).join(" · ")}</p>
+          </div>
         </div>
-      ) : (
-        <div className="demo-place-card__code" aria-hidden="true">{meta.code}</div>
-      )}
+      </div>
       <div className="demo-place-card__body">
         <div className="demo-place-card__meta">
           <span>{spot.cuisine || categoryLabel(spot.category)}</span>
           {hours && <span>{hours}</span>}
         </div>
-        <h2>{spot.name}</h2>
-        <p className="demo-place-card__area">{[spot.area, priceLabel(spot)].filter(Boolean).join(" · ")}</p>
         {spot.description && <p>{spot.description}</p>}
         {spot.vibe && <p className="demo-place-card__context">{spot.vibe}</p>}
         <button type="button" onClick={onStartPlan}>Start a vote with this place</button>
