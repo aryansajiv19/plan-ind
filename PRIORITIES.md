@@ -19,14 +19,13 @@ Goal: solid, secure, scalable, working end to end, and not minimal. In order;
 each step gated (tsc, lint, unit, test:db, E2E), security-reviewed where it
 touches RLS/quotas/writes, pushed, and checked on the live URL with Playwright.
 
-1. **Land what is ready:** booking client + booking E2E (075 is live), P35
-   cleanup, the perf batch numbers.
-2. **Photos everywhere:** apply the approved place ids; open the photo route
-   to signed-out visitors behind a per-IP and a global daily cap (cost stays
-   bounded; a refused photo falls back to the designed no-photo card).
-3. **Redesign, all surfaces** (impeccable direction, code-led): landing and
-   demo, vote, composer, then signed-in pages. Dense, photo-led, Dubai at
-   night. Motion reviewed before merge; visual baselines regenerated.
+1. **Land what is ready:** DONE 2026-09-28 (booking client + E2E, P35, perf
+   batch, 075/066/076/077/078/079 live and verified).
+2. **Photos everywhere:** DONE. 64 of 76 visible venues photographable (23
+   self-hosted CC photos, the rest Google within a 300/day cost cap).
+3. **Redesign, all surfaces:** landing, demo and vote DONE (finish review, two
+   rounds). Signed-in pages in progress on the frontend lane (Plan tab
+   merged). Then regenerate the visual baselines once, via CI dispatch.
 4. **End-to-end proof:** a Playwright journey on the local stack (sign up →
    create → share → vote → decide → book), then a signed-out sweep of live.
 5. **Security + scale pass** on the new surface area; record residuals.
