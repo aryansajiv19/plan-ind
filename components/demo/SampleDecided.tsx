@@ -4,9 +4,12 @@ import { avatarStyle, initialsOf } from "@/lib/avatar";
 import { categoryMeta } from "@/lib/categories";
 import { votersFor, yesCount, type Round } from "@/lib/tally";
 import type { Spot, Vote } from "@/lib/types";
-import { SAMPLE_FRIENDS, SAMPLE_PLAN, SAMPLE_POOLS, SAMPLE_VOTER } from "@/components/demo/sampleDecision";
+import { SAMPLE_FRIENDS, SAMPLE_PLAN, SAMPLE_VOTER } from "@/components/demo/sampleDecision";
+import DemoBooking from "@/components/demo/DemoBooking";
 import GettingThere from "@/components/vote/GettingThere";
 import { coordinatesForArea } from "@/lib/dubai-areas";
+import { hoursLabel } from "@/lib/open-hours";
+import { knownMinSpend } from "@/lib/price";
 
 const GROUP_SIZE = SAMPLE_FRIENDS.length + 1;
 const FINAL: Round = { phase: "final", poolNumber: 0 };
@@ -25,7 +28,7 @@ const SAMPLE_WHOS_IN = [
 
 /**
  * The sample's decided screen: the real WinnerReveal, a compact recap of how
- * the group got there, then the real GettingThere and a read-only who's in. DecidedPlan itself is not reused: its RSVP,
+ * the group got there, a sample booking with real calendar links and forecast, then the real GettingThere and a read-only who's in. DecidedPlan itself is not reused: its RSVP,
  * carpool, booking and rating controls all write to the server, and offering
  * them here would be controls that pretend to save.
  */
@@ -33,11 +36,17 @@ export default function SampleDecided({
   winner,
   votes,
   finalists,
+  pools,
+  title,
+  eventTime,
   onReplay,
 }: {
   winner: Spot;
   votes: Vote[];
   finalists: string[];
+  pools: Spot[][];
+  title: string;
+  eventTime: string;
   onReplay: () => void;
 }) {
   const finalVoters = votersFor(votes, winner.id, FINAL);
@@ -72,14 +81,14 @@ export default function SampleDecided({
 
         <p className="vote-result__details mt-3 text-sm">
           {winner.description ?? winner.vibe}
-          <span className="text-muted"> · {winner.area} · Open till {winner.open_till} · from AED {winner.min_spend}pp</span>
+          <span className="text-muted"> · {[winner.area, hoursLabel(winner.open_till), knownMinSpend(winner) != null && `from AED ${winner.min_spend}pp`].filter(Boolean).join(" · ")}</span>
         </p>
 
         <div className="mt-4 border-t border-line pt-4">
           <p className="text-xs font-bold uppercase tracking-wide text-muted">How the group got here</p>
           <ol className="mt-2 grid gap-1.5 text-sm">
             {finalists.map((id, index) => {
-              const spot = SAMPLE_POOLS[index].find((candidate) => candidate.id === id);
+              const spot = pools[index].find((candidate) => candidate.id === id);
               const round: Round = { phase: "pool", poolNumber: index + 1 };
               return (
                 <li key={id} className="flex justify-between gap-3">
@@ -94,6 +103,8 @@ export default function SampleDecided({
             </li>
           </ol>
         </div>
+
+        <DemoBooking winner={winner} title={title} eventTime={eventTime} />
 
         <GettingThere plan={SAMPLE_START} winner={winner} />
 
@@ -111,7 +122,7 @@ export default function SampleDecided({
             ))}
           </ul>
           <p className="mt-3 text-sm text-muted">
-            On a real plan everyone sets their own, the host claims the booking, and it goes in your calendar.
+            On a real plan everyone sets their own, from their own phone.
           </p>
         </div>
       </div>
@@ -123,7 +134,7 @@ export default function SampleDecided({
           Start your own plan
         </Link>
         <button type="button" onClick={onReplay} className="vote-secondary-action rounded-2xl border-2 border-ink bg-card">
-          Play it again
+          Try another kind of night
         </button>
       </div>
     </>

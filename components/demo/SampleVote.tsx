@@ -19,21 +19,19 @@ import {
   FRIEND_PICKS,
   SAMPLE_FRIENDS,
   SAMPLE_PLAN,
-  SAMPLE_POOLS,
   SAMPLE_VOTER,
 } from "@/components/demo/sampleDecision";
+import type { DemoDeck } from "@/components/demo/demoDecks";
 
 // /demo/vote: the real vote screen's pieces (OptionCard, seats, round dots,
 // the options grid, the face flight, WinnerReveal) driven by fixtures and
 // React state instead of Supabase. Nothing is fetched and nothing persists.
-// The friends' votes are scheduled a beat after yours so counts and faces
-// arrive the way Realtime delivers them on a live plan.
+// The friends' votes land on a timer from the moment a round opens, so counts
+// and faces arrive the way Realtime delivers them on a live plan.
 
 type Stage = "pool" | "final" | "decided";
 type RoundKey = keyof typeof FRIEND_PICKS;
 
-const ALL_SPOTS = SAMPLE_POOLS.flat();
-const spotById = (id: string) => ALL_SPOTS.find((spot) => spot.id === id)!;
 const keyOf = (round: Round): RoundKey => (round.phase === "final" ? "final" : (`pool${round.poolNumber}` as RoundKey));
 const roundOf = (key: RoundKey): Round => (key === "final" ? { phase: "final", poolNumber: 0 } : { phase: "pool", poolNumber: Number(key.slice(4)) });
 const ORIGIN = coordinatesForArea(SAMPLE_PLAN.originLabel);
@@ -55,9 +53,9 @@ function topOf(votes: Vote[], spotIds: readonly string[], round: Round): string 
   return spotIds.reduce((best, id) => (yesCount(votes, id, round) > yesCount(votes, best, round) ? id : best), spotIds[0]);
 }
 
-const poolIds = (pool: number) => SAMPLE_POOLS[pool - 1].map((spot) => spot.id);
-
-function SampleRun({ onReplay }: { onReplay: () => void }) {
+function SampleRun({ deck, eventTime, onReplay }: { deck: DemoDeck; eventTime: string; onReplay: () => void }) {
+  const poolIds = (pool: number) => deck.pools[pool - 1].map((spot) => spot.id);
+  const spotById = (id: string) => deck.pools.flat().find((spot) => spot.id === id)!;
   const [stage, setStage] = useState<Stage>("pool");
   const [activePool, setActivePool] = useState(1);
   const [roundDir, setRoundDir] = useState(1);
@@ -71,7 +69,16 @@ function SampleRun({ onReplay }: { onReplay: () => void }) {
 
   useEffect(() => {
     const pending = timers.current;
-    return () => pending.forEach((timer) => clearTimeout(timer));
+    const opened = scheduled.current;
+    // Round one opens with the page. Cleared on unmount (and StrictMode's
+    // re-run) so the next mount schedules it afresh.
+    friendsArrive("pool1", poolIds(1));
+    return () => {
+      pending.forEach((timer) => clearTimeout(timer));
+      pending.clear();
+      opened.clear();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once per mount
   }, []);
 
   const decided = stage === "decided";
@@ -92,9 +99,19 @@ function SampleRun({ onReplay }: { onReplay: () => void }) {
     timers.current.add(timer);
   }
 
+  /** The friends still to vote in a round arrive one by one, once per round. */
+  function friendsArrive(key: RoundKey, ids: readonly string[]) {
+    if (scheduled.current.has(key)) return;
+    scheduled.current.add(key);
+    SAMPLE_FRIENDS.map((_, friend) => friend)
+      .filter((friend) => friend !== EARLY_FRIEND[key])
+      .forEach((friend, order) => later(() => setVotes((current) => withFriend(current, key, friend, ids)), ARRIVAL_DELAYS_MS[order]));
+  }
+
   function enterPool(pool: number) {
     const key = `pool${pool}` as RoundKey;
     setVotes((current) => withFriend(current, key, EARLY_FRIEND[key], poolIds(pool)));
+    friendsArrive(key, poolIds(pool));
     setRoundDir(pool >= activePool ? 1 : -1);
     setActivePool(pool);
   }
@@ -115,13 +132,6 @@ function SampleRun({ onReplay }: { onReplay: () => void }) {
       const rest = current.filter((v) => !(v.voter_name === SAMPLE_VOTER && v.phase === round.phase && v.pool_number === round.poolNumber));
       return clearing ? rest : [...rest, voteFor(SAMPLE_VOTER, spotId, round)];
     });
-    if (clearing || scheduled.current.has(roundKey)) return;
-    scheduled.current.add(roundKey);
-    const key = roundKey;
-    const ids = [...visibleIds];
-    SAMPLE_FRIENDS.map((_, friend) => friend)
-      .filter((friend) => friend !== EARLY_FRIEND[key])
-      .forEach((friend, order) => later(() => setVotes((current) => withFriend(current, key, friend, ids)), ARRIVAL_DELAYS_MS[order]));
   }
 
   function buildShortlist() {
@@ -130,6 +140,7 @@ function SampleRun({ onReplay }: { onReplay: () => void }) {
     const chosen = keys.map((key) => topOf(all, poolIds(roundOf(key).poolNumber), roundOf(key)));
     setVotes(withFriend(all, "final", EARLY_FRIEND.final, chosen));
     setFinalists(chosen);
+    friendsArrive("final", chosen);
     setRoundDir(1);
     setStage("final");
     haptic(10);
@@ -168,8 +179,8 @@ function SampleRun({ onReplay }: { onReplay: () => void }) {
     >
       <div className="vote-header flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold sm:text-3xl">{SAMPLE_PLAN.title}</h1>
-          <p className="mt-1 text-sm text-muted">You and four friends, deciding dinner.</p>
+          <h1 className="text-2xl font-semibold sm:text-3xl">{deck.title}</h1>
+          <p className="mt-1 text-sm text-muted">You and four friends, deciding: {deck.label.toLowerCase()}.</p>
           <p className="vote-plan-constraints">
             Up to AED {SAMPLE_PLAN.budgetPerPerson} per person · within {SAMPLE_PLAN.radiusKm} km of {SAMPLE_PLAN.originLabel}
           </p>
@@ -263,18 +274,17 @@ function SampleRun({ onReplay }: { onReplay: () => void }) {
           </p>
         </>
       ) : (
-        winner && <SampleDecided winner={winner} votes={votes} finalists={finalists} onReplay={onReplay} />
+        winner && <SampleDecided winner={winner} votes={votes} finalists={finalists} pools={deck.pools} title={deck.title} eventTime={eventTime} onReplay={onReplay} />
       )}
     </div>
   );
 }
 
-/** Replay remounts the run, which clears its state and its pending timers. */
-export default function SampleVote() {
-  const [run, setRun] = useState(0);
+/** The run's state and pending timers go with it when the journey moves on. */
+export default function SampleVote({ deck, eventTime, onReplay }: { deck: DemoDeck; eventTime: string; onReplay: () => void }) {
   return (
     <>
-      <SampleRun key={run} onReplay={() => setRun((n) => n + 1)} />
+      <SampleRun deck={deck} eventTime={eventTime} onReplay={onReplay} />
       <p className="mt-2 text-center text-sm text-muted">
         <Link href="/demo" className="inline-flex min-h-11 items-center px-3 underline underline-offset-2">Back to the demo</Link>
       </p>

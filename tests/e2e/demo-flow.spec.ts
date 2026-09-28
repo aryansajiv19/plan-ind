@@ -1,9 +1,10 @@
 import { test, expect } from "@playwright/test";
 
 // The public, account-free demo: /demo's plan form plays the deal reveal on
-// sample places and hands over to /demo/vote, which plays three rounds and a
-// final to the winner reveal. Fixture driven end to end (no database), so
-// this runs against any target.
+// sample places and hands over to /demo/vote, the whole journey: pick a kind
+// of night, the deal, three rounds and a final with friends voting on a
+// timer, the reveal, a booking, the calendar. The journey test plays the
+// dinner fixture (no database), so it runs against any target.
 
 // Padel deals from its family (lib/spots/match.ts CATEGORY_FAMILIES).
 const PADEL_FAMILY = ["sports", "padel", "adventure", "outdoors", "games"];
@@ -40,11 +41,24 @@ test("/demo: the reveal deals nine places of the picked type, then links to the 
   await expect(next).toHaveAttribute("href", "/demo/vote");
   await next.click();
   await expect(page).toHaveURL(/\/demo\/vote$/);
-  await expect(page.locator(".vote-options-grid .vote-option")).toHaveCount(3, { timeout: 20_000 });
+  await expect(page.getByRole("button", { name: "Deal nine" })).toBeVisible({ timeout: 20_000 });
 });
 
-test("/demo/vote plays three rounds and a final to the winner reveal", async ({ page }) => {
+test("/demo/vote plays the whole journey: compose, deal, rounds, final, reveal, booking", async ({ page }) => {
   await page.goto("/demo/vote");
+  const dinner = page.getByRole("button", { name: "Dinner", exact: true });
+  await dinner.click();
+  await expect(dinner).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: "Deal nine" }).click();
+  const dealt = page.getByRole("list", { name: "Nine places in three rounds" });
+  await expect(dealt.locator(":scope > li > ul > li")).toHaveCount(9);
+  await expect(dealt.getByText("Reif Japanese Kushiyaki")).toBeVisible();
+  await page.getByRole("button", { name: "Start round one" }).click();
+
+  // The friends vote on their own once a round opens: all four are in
+  // before the visitor has picked anything.
+  await expect(page.getByText(/^4 picked this round/)).toBeVisible({ timeout: 10_000 });
+
   const cards = page.locator(".vote-options-grid .vote-option__choice"); // each card's Select button (P27)
   const primary = page.locator("button.vote-primary-action");
 
@@ -72,4 +86,24 @@ test("/demo/vote plays three rounds and a final to the winner reveal", async ({ 
   await expect(name).toHaveText(
     /^(Reif Japanese Kushiyaki|Ravi Restaurant|3Fils|Bu Qtair|Orfali Bros Bistro|Bait Maryam|Tresind Studio|Zuma|Al Mallah)$/,
   );
+
+  // Booking round trip: claim, mark, unmark, give it back, and the offer is
+  // where it started. Local state only, and labelled so.
+  await expect(page.getByText("Booking · sample, nothing is booked")).toBeVisible();
+  await page.getByRole("button", { name: "I’ll book it" }).click();
+  await page.getByRole("button", { name: "Mark as booked" }).click();
+  await expect(page.getByText("Booked by you")).toBeVisible();
+  await page.getByRole("button", { name: "Unmark booked" }).click();
+  await page.getByRole("button", { name: "I can’t book after all" }).click();
+  await expect(page.getByText("Booked by you")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "I’ll book it" })).toBeVisible();
+
+  // The calendar links carry the winner and the sample's Thursday evening.
+  const gcal = page.getByRole("link", { name: "Add to Google Calendar" });
+  await expect(gcal).toHaveAttribute("href", /^https:\/\/calendar\.google\.com\/calendar\/render\?.*dates=\d{8}T160000Z/);
+  await expect(page.getByRole("link", { name: "Download .ics" })).toHaveAttribute("href", /^data:text\/calendar/);
+
+  // Another kind of night starts the journey over.
+  await page.getByRole("button", { name: "Try another kind of night" }).click();
+  await expect(page.getByRole("button", { name: "Deal nine" })).toBeVisible();
 });
