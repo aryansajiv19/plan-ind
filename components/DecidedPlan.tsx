@@ -7,7 +7,8 @@ import type { Mine } from "@/lib/my-rows";
 import type { BookingClaim } from "@/hooks/use-booking-claim";
 import type { Seat } from "@/lib/tally";
 import { categoryMeta } from "@/lib/categories";
-import { groupCostLine, knownMinSpend } from "@/lib/price";
+import { knownMinSpend } from "@/lib/price";
+import TonightPanel from "@/components/decided/TonightPanel";
 import { fitForEvent, hoursLabel } from "@/lib/open-hours";
 import { dubaiMinuteOfDay, fromDubaiInput, toDubaiInput } from "@/lib/dubai-phase";
 import GettingThere from "@/components/vote/GettingThere";
@@ -86,8 +87,7 @@ export default function DecidedPlan({
 
   // One announcement for every share path: this button, WhatsApp and the
   // native sheet all send lib/share-preview's shareMessage.
-  // Per head from the venue's checked spend, times who said they're coming.
-  const costLine = groupCostLine(winner, rsvps.filter((r) => (r.choice ?? (r.coming ? "coming" : "no")) === "coming").length);
+  const coming = rsvps.filter((r) => (r.choice ?? (r.coming ? "coming" : "no")) === "coming").length;
   const shareWinner: ShareWinner = { name: winner.name, area: winner.area, eventTime: plan.event_time };
 
   async function copyForChat() {
@@ -235,8 +235,9 @@ export default function DecidedPlan({
         )}
       </div>
 
+      <TonightPanel plan={plan} winner={winner} coming={coming} />
+
       <WhosInSection rsvps={rsvps} roster={roster} isMine={mine.rsvp} onSetRsvp={onSetRsvp} onSetCarpool={onSetCarpool} />
-      {costLine && <p className="decided-cost">{costLine}</p>}
 
       <BookingSection
         plan={plan}
