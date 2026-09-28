@@ -179,8 +179,8 @@ cap). Redesign live on landing, demo, vote and the Plan tab.
 **Resume tomorrow, in order (PRIORITIES "Now"):**
 1. Frontend lane (A): the bolder composer pass (kinds of night as photo tiles,
    deck cards as photo listings, no grey panel, no dead band, readable helper
-   copy), then Discover, Been, Friends, Profile/Wrapped, place page, decided
-   plan, login/onboarding. Lead reviews each surface with viewport captures
+   copy), then decided plan, login/onboarding (Discover through the place page
+   are built on the parked branch; review and merge them first). Lead reviews each surface with viewport captures
    (full-page captures smear sticky bars).
 2. Platform lane (B): full-journey E2E on a throwaway stack + a signed-out
    Playwright sweep of the live URL.
@@ -190,6 +190,17 @@ cap). Redesign live on landing, demo, vote and the Plan tab.
    what it confirms; security subagent on any RLS/RPC change.
 4. Once the redesign lands: regenerate visual baselines once (CI dispatch,
    hold pushes while it runs), final CI green, live sweep, owner screenshots.
+
+**Branches parked tonight (pushed, not merged):**
+- `lane/frontend-redesign-app` @ 8092f18 (A): Discover, Been, Friends,
+  Profile/Wrapped and the place page already redesigned on top of the merged
+  Plan tab; app/styles +33 lines over main (A pays it back in the composer
+  and decided passes). Lead reviews with viewport captures, then merges.
+  A's next: composer pass (photo tiles need one small cached read per
+  category group: approved), decided plan, login/onboarding.
+- `lane/frontend-booking-078` @ eb2c82c: already merged (256bcb3).
+- A's local lane stack has 079 applied and a decided plan (247bafed) kept
+  for tomorrow's screenshots; local only.
 
 **CI state:** functional green except what the redesign changed in visual
 baselines (24 visual failures expected until step 4). test-db 112+ green;
