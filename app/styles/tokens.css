@@ -177,7 +177,6 @@
 :root {
   --photo-ink: #f6f2ec; /* 17.47:1 on the scrim */
   --photo-body: #ddd7cf; /* 13.64:1 */
-  --photo-eyebrow: #d3af78; /* 9.44:1 */
   --photo-scrim: linear-gradient(
     0deg,
     rgba(14, 12, 14, 0.9) 6%,

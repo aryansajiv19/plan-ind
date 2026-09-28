@@ -14,7 +14,7 @@ export default function PlaceDirectPlanCta({ spot }: { spot: DirectPlanSpot }) {
 
   if (!open) {
     return (
-      <button type="button" onClick={() => setOpen(true)} className="place-action place-action--secondary">
+      <button type="button" onClick={() => setOpen(true)} className="place-action">
         Plan it here, skip the vote
       </button>
     );
