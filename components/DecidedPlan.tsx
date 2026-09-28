@@ -175,7 +175,7 @@ export default function DecidedPlan({
         {plan.event_time && !editingTime ? (
           <>
           <div className="mt-1 flex items-center justify-between gap-3">
-            <p className="font-display text-lg font-extrabold">
+            <p className="font-display text-xl font-semibold">
               {prettyTime(plan.event_time)}{viewerOffDubai && <span className="text-sm font-medium text-muted"> Dubai time</span>}
             </p>
             {isHost && (

@@ -35,11 +35,10 @@
 
 /* The plan's title is the page's cover line. */
 .vote-shell h1 {
-  font-size: clamp(2rem, 4vw, 3.25rem);
-  font-weight: 900;
+  font-size: clamp(1.3rem, 2.6vw, 2.11rem);
+  font-weight: 700;
   line-height: 0.92;
   letter-spacing: 0;
-  text-transform: uppercase;
 }
 
 .vote-deadline {
@@ -74,7 +73,7 @@
 .vote-state__title {
   font-family: var(--font-display);
   font-size: clamp(1.5rem, 5vw, 2rem);
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: -0.02em;
   color: var(--color-ink);
   text-wrap: balance;
@@ -181,9 +180,8 @@
   border-radius: var(--radius-control);
   background: var(--color-card);
   color: var(--color-muted);
-  font-stretch: 75%;
   font-size: max(0.85rem, var(--type-floor));
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   cursor: pointer;
@@ -225,9 +223,8 @@
   border: 1px solid var(--color-line);
   border-radius: var(--radius-control);
   color: var(--color-muted);
-  font-stretch: 70%;
   font-size: max(0.85rem, var(--type-floor));
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   transition: background 400ms var(--ease-settle), color 400ms var(--ease-settle);
@@ -243,7 +240,7 @@
 .vote-pool-progress[data-all] .vote-pool-progress__final {
   border-color: var(--color-punch);
   background: var(--color-punch);
-  color: #0c0c10;
+  color: var(--primary-ink);
 }
 
 /* ── SPECS.md §25.2: plan gravity ──────────────────────────────────
@@ -433,9 +430,8 @@
   white-space: nowrap;
 }
 .vote-option h3 {
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: 0;
-  text-transform: uppercase;
 }
 .vote-option__votes {
   color: var(--color-punch-text);
@@ -479,14 +475,14 @@
   flex-direction: column;
   justify-content: space-between;
   padding: 0.85rem;
-  background: linear-gradient(0deg, rgba(12, 12, 16, 0.9) 0%, rgba(12, 12, 16, 0.3) 48%, transparent 72%);
+  background: linear-gradient(0deg, rgba(9, 28, 36, 0.9) 0%, rgba(9, 28, 36, 0.3) 48%, transparent 72%);
   color: var(--photo-ink);
   pointer-events: none;
 }
 .vote-option__overlay .vote-option__category {
   border: 0;
   background: var(--color-punch);
-  color: #0c0c10;
+  color: var(--primary-ink);
 }
 .vote-option__name {
   font-size: clamp(1.55rem, 2.3vw, 2rem);
@@ -499,10 +495,6 @@
   font-weight: 600;
 }
 /* Credits move to the top-right corner here: the name owns the foot. */
-.vote-option__media .photo-credit {
-  inset: 0.55rem 0.55rem auto auto;
-  max-width: 48%;
-}
 /* The winner's hairline, repeated over the band that covers the card's edge. */
 .vote-option--winner .vote-option__media::after {
   content: "";

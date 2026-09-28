@@ -4,17 +4,25 @@ import ThemeSync from "@/components/ThemeSync";
 import { autoGround } from "@/lib/dubai-phase";
 import "./globals.css";
 
-// Archivo, variable: weight 100-900 and width 62-125%. One family carries
-// the whole magazine: extra-condensed black for the cover voice, normal width
-// for listings, tabular numerals for AED, minutes and km. The width range is
-// declared so `font-stretch` selects the drawn widths instead of a synthetic
-// squash.
-const archivo = localFont({
-  src: "../public/fonts/archivo-variable-latin.woff2",
-  weight: "100 900",
-  style: "normal",
-  declarations: [{ prop: "font-stretch", value: "62% 125%" }],
-  variable: "--font-archivo",
+// Cormorant (display: hero, titles) with a real italic src, so
+// `font-style: italic` gets the drawn face, not a synthetic slant.
+// Hanken Grotesk carries body, labels, chips and numerals.
+const display = localFont({
+  src: [
+    { path: "../public/fonts/cormorant-variable-latin.woff2", weight: "300 700", style: "normal" },
+    { path: "../public/fonts/cormorant-italic-variable-latin.woff2", weight: "300 700", style: "italic" },
+  ],
+  variable: "--font-display-family",
+  display: "swap",
+});
+
+const hanken = localFont({
+  src: [
+    { path: "../public/fonts/hanken-grotesk-400.ttf", weight: "400" },
+    { path: "../public/fonts/hanken-grotesk-500.ttf", weight: "500" },
+    { path: "../public/fonts/hanken-grotesk-700.ttf", weight: "700" },
+  ],
+  variable: "--font-hanken",
   display: "swap",
 });
 
@@ -61,8 +69,8 @@ export const viewport: Viewport = {
   viewportFit: "cover",
   interactiveWidget: "resizes-content",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f7f7f5" },
-    { media: "(prefers-color-scheme: dark)", color: "#0d1117" },
+    { media: "(prefers-color-scheme: light)", color: "#f5f1ec" },
+    { media: "(prefers-color-scheme: dark)", color: "#0f2a36" },
   ],
 };
 
@@ -100,7 +108,7 @@ export default function RootLayout({
     <html
       lang="en"
       data-theme={ground}
-      className={`${archivo.variable} h-full`}
+      className={`${display.variable} ${hanken.variable} h-full`}
     >
       <body className="min-h-full flex flex-col">
         <ThemeSync serverGround={ground} />

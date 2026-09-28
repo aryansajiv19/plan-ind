@@ -7,26 +7,18 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Display type is Archivo at cover width: extra-condensed and heavy, set
-   tight, the way a listings magazine sets a headline. Body text stays at
-   normal width. The width rides on the family wherever the display face is
-   used, so `font-display` utilities get the cover voice too. */
+/* Display type is Cormorant ITALIC (the drawn italic, layout.tsx): sleek
+   and slanted, carried by air rather than size or weight. Body is Hanken. */
 h1,
 h2,
-h3 {
+h3,
+.font-display {
   font-family: var(--font-display);
-  font-weight: 800;
+  font-style: italic;
+  font-weight: 500;
   letter-spacing: -0.01em;
-  line-height: 1;
+  line-height: 1.02;
   text-wrap: balance;
-}
-@layer base {
-  h1,
-  h2,
-  h3,
-  .font-display {
-    font-stretch: 70%;
-  }
 }
 
 /* ── The signature element: press, and one hairline ────────────────
@@ -102,11 +94,11 @@ h3 {
 }
 
 /* Night's focus ring is two bands, because no single colour clears 3:1 on
-   every ground a control can sit on (ink card, gold fill, photo scrim):
+   every ground a control can sit on (navy card, sand fill, photo scrim):
    light outside, ink inside, each band separating from the other. */
 [data-theme="night"] {
-  --ring-outer: #f3f1ec;
-  --ring-inner: #0c0c10;
+  --ring-outer: #f2f2f2;
+  --ring-inner: #0f2a36;
 }
 /* `:root[...]` rather than `[data-theme="night"]` on purpose, and it is
    load-bearing. A bare attribute selector plus :focus-visible scores

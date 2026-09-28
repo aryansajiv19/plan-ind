@@ -32,9 +32,8 @@
   inset: 8% 0 auto;
   color: color-mix(in srgb, var(--color-ink) 9%, transparent);
   font-family: var(--font-display);
-  font-size: clamp(9rem, 22vw, 18rem);
-  font-stretch: 70%;
-  font-weight: 900;
+  font-size: clamp(5.85rem, 14.3vw, 11.7rem);
+  font-weight: 700;
   line-height: 1;
   text-align: center;
 }
@@ -59,24 +58,22 @@
   margin: 0;
   padding: 0.2rem 0.5rem;
   background: var(--color-punch);
-  color: #0c0c10;
+  color: var(--primary-ink);
   font-size: max(0.78rem, var(--type-floor));
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: 0.06em;
 }
 
 .place-hero__name {
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(3rem, 7vw, 6.5rem);
-  font-weight: 900;
+  font-size: clamp(1.95rem, 4.55vw, 4.23rem);
+  font-weight: 700;
   line-height: 0.88;
-  text-transform: uppercase;
 }
 .place-subhead {
   font-size: 1.5rem;
-  font-weight: 900;
-  text-transform: uppercase;
+  font-weight: 700;
 }
 
 .place-hero__area {
@@ -128,8 +125,8 @@
   border: 2px solid var(--primary-fill);
   border-radius: var(--radius-pill);
   background: var(--primary-fill);
-  color: #0c0c10;
-  font-weight: 800;
+  color: var(--primary-ink);
+  font-weight: 600;
   cursor: pointer;
   text-decoration: none;
 }

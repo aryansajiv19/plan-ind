@@ -50,7 +50,7 @@ export default function RoundActions({
             type="button"
             onClick={() => (activePool < poolCount ? onContinue() : onGoToPool(firstUnchosen ?? 1))}
             disabled={!hasCurrentSelection}
-            className="vote-primary-action flex-1 rounded-2xl border-2 border-ink font-display text-lg font-extrabold disabled:opacity-40"
+            className="vote-primary-action flex-1 rounded-2xl border-2 border-ink text-lg font-semibold disabled:opacity-40"
           >
             {activePool < poolCount ? "Next round" : `Go to round ${firstUnchosen}`}
           </button>
@@ -63,7 +63,7 @@ export default function RoundActions({
             type="button"
             onClick={onContinue}
             disabled={deciding || !hasCurrentSelection || (activePool === poolCount && !allPoolsChosen)}
-            className="vote-primary-action flex-1 rounded-2xl border-2 border-ink font-display text-lg font-extrabold disabled:opacity-40"
+            className="vote-primary-action flex-1 rounded-2xl border-2 border-ink text-lg font-semibold disabled:opacity-40"
           >
             {deciding
               ? "Building the shortlist…"
@@ -76,7 +76,7 @@ export default function RoundActions({
             type="button"
             onClick={onDecide}
             disabled={deciding || !hasCurrentSelection}
-            className="vote-primary-action flex-1 rounded-2xl border-2 border-ink font-display text-lg font-extrabold disabled:opacity-40"
+            className="vote-primary-action flex-1 rounded-2xl border-2 border-ink text-lg font-semibold disabled:opacity-40"
           >
             {deciding ? "Choosing…" : "Choose the final place"}
           </button>

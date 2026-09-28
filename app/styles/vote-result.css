@@ -50,8 +50,8 @@
      no-JavaScript render keeps. Real text either way: sharp at any device
      pixel ratio, where the canvas above it is a fixed 400x220 buffer
      stretched to the panel, roughly 5x on a retina phone. */
-  font-size: clamp(2.4rem, 7vw, 4rem);
-  font-weight: 800;
+  font-size: clamp(1.56rem, 4.55vw, 2.6rem);
+  font-weight: 600;
   line-height: 1;
   text-align: center;
   text-wrap: balance;

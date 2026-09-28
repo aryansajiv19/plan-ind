@@ -151,7 +151,7 @@ export default function OptionCard({
               <span aria-hidden="true">{cat.code}</span>
               <span className="vote-option__cuisine">{spot.cuisine}</span>
             </span>
-            <h3 className="mt-auto text-balance font-display text-3xl font-extrabold leading-[1.1] tracking-tight">{spot.name}</h3>
+            <h3 className="mt-auto text-balance font-display text-3xl font-semibold leading-[1.1] tracking-tight">{spot.name}</h3>
             <p className="mt-1 text-xs font-medium text-muted">{spot.area}{spend != null ? ` · from AED ${spend}pp` : ""}</p>
           </div>
         )}

@@ -12,10 +12,9 @@
 .home-appbar__title {
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(2.6rem, 5.5vw, 4.5rem);
-  font-weight: 900;
+  font-size: clamp(1.69rem, 3.58vw, 2.93rem);
+  font-weight: 700;
   line-height: 0.9;
-  text-transform: uppercase;
 }
 .home-appbar__hello {
   margin: 0.5rem 0 0;
@@ -369,7 +368,7 @@
 }
 .legal-page h1 {
   margin-top: 0.4rem;
-  font-size: clamp(2rem, 7vw, 3.5rem);
+  font-size: clamp(1.3rem, 4.55vw, 2.27rem);
 }
 .legal-page h2 {
   margin-top: 2rem;

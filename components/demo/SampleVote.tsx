@@ -168,7 +168,7 @@ function SampleRun({ onReplay }: { onReplay: () => void }) {
     >
       <div className="vote-header flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-extrabold sm:text-3xl">{SAMPLE_PLAN.title}</h1>
+          <h1 className="text-2xl font-semibold sm:text-3xl">{SAMPLE_PLAN.title}</h1>
           <p className="mt-1 text-sm text-muted">You and four friends, deciding dinner.</p>
           <p className="vote-plan-constraints">
             Up to AED {SAMPLE_PLAN.budgetPerPerson} per person · within {SAMPLE_PLAN.radiusKm} km of {SAMPLE_PLAN.originLabel}
@@ -233,7 +233,7 @@ function SampleRun({ onReplay }: { onReplay: () => void }) {
                 type="button"
                 onClick={() => (activePool < SAMPLE_PLAN.poolCount ? enterPool(activePool + 1) : buildShortlist())}
                 disabled={!myPick || (activePool === SAMPLE_PLAN.poolCount && !allPoolsChosen)}
-                className="vote-primary-action flex-1 rounded-2xl border-2 border-ink font-display text-lg font-extrabold disabled:opacity-40"
+                className="vote-primary-action flex-1 rounded-2xl border-2 border-ink text-lg font-semibold disabled:opacity-40"
               >
                 {activePool < SAMPLE_PLAN.poolCount ? `Continue to round ${activePool + 1}` : "Build the final shortlist"}
               </button>
@@ -242,7 +242,7 @@ function SampleRun({ onReplay }: { onReplay: () => void }) {
                 type="button"
                 onClick={decide}
                 disabled={!myPick}
-                className="vote-primary-action flex-1 rounded-2xl border-2 border-ink font-display text-lg font-extrabold disabled:opacity-40"
+                className="vote-primary-action flex-1 rounded-2xl border-2 border-ink text-lg font-semibold disabled:opacity-40"
               >
                 Choose the final place
               </button>

@@ -288,7 +288,7 @@
 }
 .demo-profile-avatar.demo-profile-avatar--emoji {
   font-family: inherit;
-  font-size: clamp(2.5rem, 5vw, 3.75rem);
+  font-size: clamp(1.62rem, 3.25vw, 2.44rem);
 }
 
 /* Undo for quick reversible actions. Bottom-centre, sized to its message
@@ -518,8 +518,7 @@
 .demo-collection-empty strong {
   font-family: var(--font-display);
   font-size: clamp(1.6rem, 2.6vw, 2.2rem);
-  font-stretch: 70%;
-  font-weight: 900;
+  font-weight: 700;
   line-height: 0.92;
   text-transform: uppercase;
 }
@@ -533,8 +532,8 @@
   padding: var(--btn-pad-md);
   border: 0;
   background: var(--primary-fill);
-  color: #0c0c10;
-  font-weight: 800;
+  color: var(--primary-ink);
+  font-weight: 600;
   cursor: pointer;
 }
 
@@ -549,8 +548,8 @@
   margin-left: -0.35rem;
   border: 2px solid var(--color-paper);
   border-radius: 50%;
-  background: #34363b;
-  color: #f4f1ea;
+  background: var(--color-fill-quiet);
+  color: var(--color-ink);
   font-size: max(0.58rem, var(--type-floor));
   font-weight: 500;
 }
@@ -581,8 +580,7 @@
 .demo-photo-upload strong {
   font-family: var(--font-display);
   font-size: 1.35rem;
-  font-stretch: 70%;
-  font-weight: 900;
+  font-weight: 700;
   text-transform: uppercase;
 }
 .demo-photo-upload small {
@@ -709,7 +707,7 @@
 .demo-city-pattern__lead h2 {
   max-width: 25rem;
   margin-top: 0.6rem;
-  font-size: clamp(2rem, 4vw, 3.6rem);
+  font-size: clamp(1.3rem, 2.6vw, 2.34rem);
 }
 .demo-city-pattern__lead > p {
   max-width: 27rem;

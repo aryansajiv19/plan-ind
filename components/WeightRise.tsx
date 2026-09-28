@@ -27,9 +27,9 @@ import { motion, useReducedMotion } from "motion/react";
  */
 export default function WeightRise({
   children,
-  // Archivo's full weight axis: the cover headline arrives light and lands black.
+  // Cormorant's full weight axis (300-700): the headline arrives light and settles bold.
   from = 300,
-  to = 900,
+  to = 700,
   duration = 1.4,
   delay = 0,
   className = "",

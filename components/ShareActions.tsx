@@ -68,7 +68,7 @@ export default function ShareActions({ title, winner = null }: { title: string |
         target="_blank"
         rel="noopener noreferrer"
         onClick={() => haptic(10)}
-        className="vote-secondary-action flex-1 rounded-2xl border-2 border-ink bg-card font-display text-lg font-extrabold"
+        className="vote-secondary-action flex-1 rounded-2xl border-2 border-ink bg-card text-lg font-semibold"
       >
         Share on WhatsApp
       </a>
@@ -77,7 +77,7 @@ export default function ShareActions({ title, winner = null }: { title: string |
           <button
             type="button"
             onClick={nativeShare}
-            className="vote-secondary-action flex-1 rounded-2xl border-2 border-ink bg-card font-display font-extrabold"
+            className="vote-secondary-action flex-1 rounded-2xl border-2 border-ink bg-card font-semibold"
           >
             Share via…
           </button>
@@ -85,7 +85,7 @@ export default function ShareActions({ title, winner = null }: { title: string |
         <button
           type="button"
           onClick={copyLink}
-          className="vote-secondary-action flex-1 rounded-2xl border-2 border-ink bg-card font-display font-extrabold"
+          className="vote-secondary-action flex-1 rounded-2xl border-2 border-ink bg-card font-semibold"
         >
           <span aria-live="polite">{copied ? "Link copied" : "Copy link"}</span>
         </button>

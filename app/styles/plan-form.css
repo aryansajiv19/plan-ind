@@ -473,7 +473,7 @@
   pointer-events: none;
 }
 .plan-deck__band[data-photo] .plan-deck__type {
-  background: linear-gradient(0deg, rgba(12, 12, 16, 0.9) 0%, rgba(12, 12, 16, 0.3) 50%, transparent 74%);
+  background: linear-gradient(0deg, rgba(9, 28, 36, 0.9) 0%, rgba(9, 28, 36, 0.3) 50%, transparent 74%);
   color: var(--photo-ink);
 }
 .plan-deck__code {
@@ -492,11 +492,7 @@
   max-width: 50%;
   padding: 0.15rem 0.35rem;
   background: var(--color-punch);
-  color: #0c0c10;
-}
-.plan-deck__band[data-photo] .photo-credit {
-  inset: 0.55rem 0.55rem auto auto;
-  max-width: 48%;
+  color: var(--primary-ink);
 }
 .plan-deck__foot {
   display: grid;
@@ -505,10 +501,8 @@
 .plan-deck__name {
   font-family: var(--font-display);
   font-size: 1.35rem;
-  font-weight: 900;
-  font-stretch: 70%;
+  font-weight: 700;
   line-height: 0.92;
-  text-transform: uppercase;
 }
 .plan-deck__where {
   color: var(--color-muted);

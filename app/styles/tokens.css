@@ -24,32 +24,32 @@
 }
 
 /* ── Design tokens ─────────────────────────────────────────────────
-   The night-listings magazine (2026-09-27 redesign; direction contract in
-   .impeccable/surfaces). Photography carries the colour; the ground is
-   ink by night and white paper by day. Souk gold is the one FILL that owns
-   headers, bands and primary actions (ink text on it, 10.7:1); a darker
-   gold is its text form. Coral is live state only. Every text pairing
-   below clears 4.5:1 on both surfaces and --color-line clears 3:1 (SC
-   1.4.11), measured when set. Day is the base; night re-authors it. */
+   Desert modern (owner, 2026-09-28): the owner's own hexes, #442816
+   #704121 #AB6F44 #174050 #0C657C and #7D9BBC #F2F2F2 #CE9963 #9F7652
+   #3F230B. Night (the identity, pinned in layout.tsx) is a desert sky:
+   navy-teal ground, sand as the one fill, dusty blue as the boundary.
+   Photography still carries most colour. Every text pair clears 4.5:1 and
+   --color-line clears 3:1 on both surfaces, measured when set. Day is the
+   base; night re-authors it. */
 @theme {
-  --color-paper: #f7f7f5; /* canvas: white paper, not cream */
+  --color-paper: #f5f1ec; /* warm sand-white */
   --color-card: #ffffff;
-  --color-ink: #0c0c10; /* 18.2 canvas / 19.5 card */
-  --color-muted: #45454f; /* 8.8 / 9.5 */
-  --color-punch: #f2b705; /* souk gold: FILL only; ink on it 10.7 */
-  --color-punch-text: #8a6200; /* gold as text: 5.1 / 5.5 */
-  --color-fill-quiet: #e8e7e2;
-  --color-line: #86868f; /* control boundary: 3.4 / 3.6 */
-  --color-accent-premium: #8a6200;
-  --color-live: #c2410c; /* coral, live state only: 4.8 / 5.2 */
-  --color-error: #b42318; /* 6.1 / 6.6 */
-  --color-grape: #8a6200;
-  --color-mint: #8a6200;
+  --color-ink: #3f230b; /* 12.9 canvas / 14.4 card */
+  --color-muted: #704121; /* 7.6 / 8.5 */
+  --color-punch: #ce9963; /* sand: FILL only; ink on it 5.7 */
+  --color-punch-text: #0c657c; /* teal as text: 5.9 / 6.6 */
+  --color-fill-quiet: #ece3d8;
+  --color-line: #ab6f44; /* control boundary: 3.7 / 4.1 */
+  --color-accent-premium: #704121;
+  --color-live: #0c657c; /* live state only */
+  --color-error: #a3301f;
+  --color-grape: #0c657c;
+  --color-mint: #0c657c;
 
-  /* One family, Archivo, at two widths: extra-condensed black for the
-     cover voice, normal width for listings (layout.tsx). */
-  --font-display: var(--font-archivo), system-ui, sans-serif;
-  --font-body: var(--font-archivo), system-ui, sans-serif;
+  /* Cormorant for display (hero, titles), Hanken Grotesk for everything
+     else (layout.tsx). Cormorant goes fragile under ~20px: keep it big. */
+  --font-display: var(--font-display-family), Georgia, serif;
+  --font-body: var(--font-hanken), system-ui, sans-serif;
 
   /* ── Motion curves: two, and only two ────────────────────────────
      --ease-settle does not overshoot. Entrances, snaps, and returns to
@@ -129,45 +129,45 @@
    `var()` therefore belongs here, where it is always emitted; @theme is
    for tokens that should also generate a utility class. */
 :root {
-  --color-accent-tint: rgba(242, 183, 5, 0.16); /* gold tint for inactive chips */
-  --color-live-dot: #c2410c; /* same as --color-live */
-  --color-shimmer: rgba(12, 12, 16, 0.06); /* skeleton sweep */
+  --color-accent-tint: rgba(206, 153, 99, 0.18); /* sand tint for inactive chips */
+  --color-live-dot: #0c657c; /* same as --color-live */
+  --color-shimmer: rgba(63, 35, 11, 0.06); /* skeleton sweep */
 
   /* Durations, named so they stop being pasted as magic numbers. */
   --dur-press: 200ms;
   --dur-state: 300ms;
 }
 
-/* ── Night: the ink cover ─────────────────────────────────────────
+/* ── Night: the desert sky ────────────────────────────────────────
    Selected by the Dubai clock from ~17:00 (lib/dubai-phase.ts), at the
    document root so every screen flips. */
 [data-theme="night"] {
-  --color-paper: #0c0c10;
-  --color-card: #18181e;
-  --color-ink: #f3f1ec; /* 17.3 canvas / 15.7 card */
-  --color-muted: #a9a9b3; /* 8.4 / 7.6 */
-  --color-punch: #f2b705;
-  --color-punch-text: #f5c02e; /* 11.6 / 10.5 */
-  --color-fill-quiet: #2a2a32;
-  --color-line: #6f6f7a; /* 3.9 / 3.6 */
-  --color-accent-premium: #f5c02e;
-  --color-accent-tint: rgba(242, 183, 5, 0.16);
-  --color-shimmer: rgba(243, 241, 236, 0.07);
-  --color-live: #ff7a45; /* 7.6 / 6.8 */
-  --color-live-dot: #ff7a45;
-  --color-error: #ff6b6b; /* 7.0 / 6.4 */
-  --color-grape: #f5c02e;
-  --color-mint: #f5c02e;
+  --color-paper: #0f2a36;
+  --color-card: #174050; /* owner's navy-teal */
+  --color-ink: #f2f2f2; /* 13.4 canvas / 10.0 card */
+  --color-muted: #d9c3ab; /* 8.8 / 6.6 */
+  --color-punch: #ce9963;
+  --color-punch-text: #d8a877; /* 7.0 / 5.2 */
+  --color-fill-quiet: #1c4a5c;
+  --color-line: #7d9bbc; /* dusty blue: 5.2 / 3.9 */
+  --color-accent-premium: #d8a877;
+  --color-accent-tint: rgba(206, 153, 99, 0.18);
+  --color-shimmer: rgba(242, 242, 242, 0.07);
+  --color-live: #a7c0d8; /* 8.0 / 5.9 */
+  --color-live-dot: #a7c0d8;
+  --color-error: #ff9b8a;
+  --color-grape: #d8a877;
+  --color-mint: #d8a877;
 
   /* Native controls, scrollbars and date pickers read this. */
   color-scheme: dark;
 }
 
-/* The primary button: a flat souk-gold fill with ink text (10.7:1), the
+/* The primary button: a flat sand fill with deep-brown text (5.7:1), the
    same in both themes. Not a --color-* because it is a paint, not a hue. */
 :root {
-  --primary-fill: #f2b705;
-  --primary-ink: #0c0c10;
+  --primary-fill: #ce9963;
+  --primary-ink: #3f230b;
 }
 
 /* ── Text over photography ─────────────────────────────────────────
@@ -179,21 +179,21 @@
   --photo-body: #ddd7cf; /* 13.64:1 */
   --photo-scrim: linear-gradient(
     0deg,
-    rgba(14, 12, 14, 0.9) 6%,
-    rgba(14, 12, 14, 0.18) 56%,
-    rgba(14, 12, 14, 0.05) 100%
+    rgba(9, 28, 36, 0.9) 6%,
+    rgba(9, 28, 36, 0.18) 56%,
+    rgba(9, 28, 36, 0.05) 100%
   );
 }
 
-/* ── Radii and elevation: a magazine is cut square ────────────────── */
+/* ── Radii and elevation: soft and modern, not bubbly ────────────── */
 :root {
-  --elevation-card: 0 1px 2px rgba(12, 12, 16, 0.06), 0 12px 28px rgba(12, 12, 16, 0.10);
-  --radius-control: 4px;
+  --elevation-card: 0 1px 2px rgba(9, 28, 36, 0.08), 0 14px 32px rgba(9, 28, 36, 0.14);
+  --radius-control: 12px;
   --radius-ring: 999px; /* avatars stay round */
-  --radius-thumb: 4px;
-  --radius-panel: 6px;
-  --radius-pill: 4px;
-  --radius-hero: 6px;
+  --radius-thumb: 14px;
+  --radius-panel: 18px;
+  --radius-pill: 999px;
+  --radius-hero: 22px;
 }
 
 /* ── SPECS.md §21: which components wear a colour ───────────────────

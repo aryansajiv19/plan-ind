@@ -63,7 +63,7 @@
   color: var(--primary-ink);
   box-shadow: none;
   font-family: var(--font-display);
-  font-weight: 800;
+  font-weight: 600;
   font-size: 0.9rem;
   letter-spacing: -0.04em;
   transform: none;
@@ -184,9 +184,8 @@
   background: var(--primary-fill);
   color: var(--primary-ink);
   font-size: max(0.78rem, var(--type-floor));
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: 0.03em;
-  text-transform: uppercase;
   text-decoration: none;
 }
 /* 2.75rem = 44px, the floor this file already enforces for phones at the
@@ -204,7 +203,7 @@
   color: var(--color-ink);
   box-shadow: none;
   font-family: var(--font-display);
-  font-weight: 800;
+  font-weight: 600;
   cursor: pointer;
   transition: transform 160ms ease, box-shadow 160ms ease;
 }
@@ -279,7 +278,7 @@
   min-height: min(calc(100svh - 4.5rem), 54rem);
   display: grid;
   grid-template-rows: auto 1fr;
-  background: #0c0c10;
+  background: #0a1f28;
   color: var(--photo-ink);
   overflow: hidden;
 }
@@ -291,15 +290,14 @@
   gap: 0.3rem 1.75rem;
   padding: 0.55rem var(--page-gutter);
   background: var(--color-punch);
-  color: #0c0c10;
-  font-stretch: 70%;
-  font-weight: 800;
+  color: var(--primary-ink);
+  font-weight: 600;
   font-size: max(0.82rem, var(--type-floor));
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 .cover__band strong {
-  font-weight: 900;
+  font-weight: 700;
   font-size: 1.15em;
 }
 
@@ -321,7 +319,7 @@
 .cover__tile {
   position: relative;
   overflow: hidden;
-  background: #18181e;
+  background: #174050;
 }
 .cover__tile:nth-child(1) { grid-column: span 2; grid-row: span 2; }
 .cover__tile:nth-child(5),
@@ -333,12 +331,10 @@
   inset: auto 0.7rem 0.6rem auto;
   max-width: calc(100% - 1.4rem);
   color: var(--photo-body);
-  font-stretch: 70%;
-  font-weight: 800;
+  font-weight: 600;
   font-size: clamp(1.1rem, 2vw, 1.9rem);
   line-height: 0.95;
   text-align: right;
-  text-transform: uppercase;
 }
 .cover__tile .venue-photo,
 .cover__tile img {
@@ -351,14 +347,10 @@
   z-index: 2;
   pointer-events: none;
   background:
-    linear-gradient(90deg, #0c0c10 0%, rgba(12, 12, 16, 0.5) 18%, transparent 38%),
-    linear-gradient(0deg, rgba(12, 12, 16, 0.6) 0%, transparent 30%);
+    linear-gradient(90deg, #0a1f28 0%, rgba(9, 28, 36, 0.5) 18%, transparent 38%),
+    linear-gradient(0deg, rgba(9, 28, 36, 0.6) 0%, transparent 30%);
 }
 /* Credits ride above the fade, top-right of each tile. */
-.cover__tile .photo-credit {
-  inset: 0.45rem 0.45rem auto auto;
-  max-width: calc(100% - 0.9rem);
-}
 
 .home-hero__copy {
   position: relative;
@@ -372,11 +364,10 @@
 
 .home-title {
   margin-top: 0.6rem;
-  font-size: clamp(3.4rem, 8vw, 8rem);
-  font-weight: 900;
-  line-height: 0.86;
-  letter-spacing: 0;
-  text-transform: uppercase;
+  font-size: clamp(2.6rem, 5.4vw, 5.6rem);
+  font-weight: 600;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
 }
 
 /* The hero's entrance runs from first paint, in CSS. It used to wait for a
@@ -396,7 +387,7 @@
 
 .home-title strong {
   color: var(--color-punch);
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .home-deck {
@@ -424,11 +415,9 @@
   border-radius: var(--radius-control);
   background: var(--primary-fill);
   color: var(--primary-ink);
-  font-stretch: 85%;
-  font-weight: 800;
+  font-weight: 600;
   font-size: 1.05rem;
   letter-spacing: 0.02em;
-  text-transform: uppercase;
   transition: transform 260ms var(--ease-settle);
 }
 
@@ -520,18 +509,12 @@
 .how h2,
 .home-plan-section h2,
 .home-wall-section h2 {
-  display: inline-block;
   max-width: none;
   margin-top: 0;
-  padding: 0.12em 0.3em 0.02em;
-  background: var(--color-punch);
-  color: #0c0c10;
-  font-size: clamp(1.9rem, 1.2rem + 2.2vw, 3rem);
-  font-weight: 900;
-  line-height: 0.95;
-  text-transform: uppercase;
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
+  color: var(--color-ink);
+  font-size: clamp(1.43rem, 0.91rem + 1.56vw, 2.21rem);
+  font-weight: 600;
+  line-height: 1;
 }
 .how__note,
 .how__step > p {
@@ -551,7 +534,6 @@
 }
 .how__step h3 {
   font-size: 1.6rem;
-  text-transform: uppercase;
 }
 .how__deal,
 .how__card,
@@ -578,10 +560,8 @@
   font-size: max(0.72rem, var(--type-floor));
 }
 .how__deal-card b {
-  font-stretch: 75%;
-  font-weight: 800;
+  font-weight: 600;
   line-height: 1.05;
-  text-transform: uppercase;
 }
 .how__deal-card span {
   color: var(--color-muted);
@@ -607,15 +587,11 @@
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: linear-gradient(0deg, rgba(12, 12, 16, 0.92), rgba(12, 12, 16, 0.2) 75%);
+  background: linear-gradient(0deg, rgba(9, 28, 36, 0.92), rgba(9, 28, 36, 0.2) 75%);
 }
 .how__decided > div {
   position: relative;
   z-index: 2;
-}
-.how__decided .photo-credit {
-  inset: 0.6rem 0.6rem auto auto;
-  z-index: 3;
 }
 .how__verdict {
   color: var(--photo-body);
@@ -624,9 +600,8 @@
 .how__winner {
   margin-top: 0.25rem;
   font-size: 2.6rem;
-  font-weight: 900;
+  font-weight: 700;
   line-height: 0.9;
-  text-transform: uppercase;
 }
 .how__decided .how__picked {
   color: var(--photo-body);
@@ -676,9 +651,8 @@
 .your-plans__title {
   font-family: var(--font-display);
   font-size: 1.6rem;
-  font-weight: 900;
+  font-weight: 700;
   line-height: 0.95;
-  text-transform: uppercase;
 }
 .your-plans__rail {
   display: flex;
@@ -713,11 +687,9 @@
   overflow: hidden;
   font-family: var(--font-display);
   font-size: 1.3rem;
-  font-weight: 900;
-  font-stretch: 70%;
+  font-weight: 700;
   line-height: 0.95;
   text-overflow: ellipsis;
-  text-transform: uppercase;
   white-space: nowrap;
 }
 .your-plans__state {

@@ -56,7 +56,7 @@
   color: var(--auth-paper);
   font-family: var(--font-display);
   font-size: .95rem;
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: -.06em;
   text-decoration: none;
 }
@@ -80,7 +80,7 @@
 .auth-intro h1 {
   max-width: 30rem;
   margin: auto 0 1.25rem;
-  font-size: clamp(3.5rem, 7vw, 6.8rem);
+  font-size: clamp(2.27rem, 4.55vw, 4.42rem);
   line-height: .96;
   letter-spacing: -.03em;
   font-weight: 500;
@@ -110,7 +110,7 @@
 }
 .auth-panel__heading h2 {
   margin: .45rem 0 0;
-  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-size: clamp(1.3rem, 2.6vw, 2.08rem);
   line-height: .95;
   letter-spacing: -.06em;
 }
@@ -149,7 +149,7 @@
   text-align: center;
   font-family: var(--font-display);
   font-size: 1.5rem;
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: .28em;
 }
 .auth-google, .auth-submit {
@@ -288,7 +288,7 @@
   }
   .auth-intro h1 {
     margin-top: auto;
-    font-size: clamp(3.4rem, 16vw, 5.8rem);
+    font-size: clamp(2.21rem, 10.4vw, 3.77rem);
   }
   .auth-copy {
     font-size: .84rem;

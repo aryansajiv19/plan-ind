@@ -13,6 +13,9 @@ import type { Spot } from "@/lib/types";
  * identical everywhere a spot photo appears and a copy that drifts is a
  * copy that silently stops complying.
  *
+ * Shown as a small "©" that opens to the full line on hover or focus
+ * (app/styles/overrides.css), so photos read clean.
+ *
  * Renders nothing when there is no photo or no attribution: an empty
  * credit line is noise, and a credit with no image is meaningless.
  */
@@ -25,6 +28,15 @@ export default function PhotoCredit({
 }) {
   if (!spot.photo_url || !spot.photo_attribution) return null;
   return (
-    <span className={`photo-credit ${className}`.trim()}>{spot.photo_attribution}</span>
+    <span
+      className={`photo-credit ${className}`.trim()}
+      role="note"
+      tabIndex={0}
+      aria-label={`Photo: ${spot.photo_attribution}`}
+      title={spot.photo_attribution}
+    >
+      <span aria-hidden="true">©</span>
+      <span className="photo-credit__text" aria-hidden="true">{spot.photo_attribution}</span>
+    </span>
   );
 }

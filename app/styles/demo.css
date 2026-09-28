@@ -208,13 +208,13 @@
   grid-column: 1 / -1;
   padding: clamp(1.25rem, 4vw, 2.5rem);
   background: var(--color-punch);
-  color: #0c0c10;
+  color: var(--primary-ink);
 }
 .demo-wrapped__eyebrow {
   padding-bottom: .6rem;
   border-bottom: 2px solid currentColor;
   font-size: max(.75rem, var(--type-floor));
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: .06em;
   text-transform: uppercase;
 }
@@ -223,14 +223,13 @@
 .demo-wrapped__stats b {
   display: block;
   font-family: var(--font-display);
-  font-stretch: 70%;
-  font-weight: 900;
+  font-weight: 700;
   line-height: .9;
   text-transform: uppercase;
 }
 .demo-wrapped__card > strong {
   margin-top: 1.5rem;
-  font-size: clamp(5rem, 14vw, 10rem);
+  font-size: clamp(3.25rem, 9.1vw, 6.5rem);
   line-height: .8;
 }
 .demo-wrapped__card > span {
@@ -264,20 +263,20 @@
 .demo-wrapped__actions button {
   min-height: var(--btn-h-md);
   padding: var(--btn-pad-md);
-  border: 1px solid #0c0c10;
+  border: 1px solid #0a1f28;
   background: transparent;
-  color: #0c0c10;
+  color: var(--primary-ink);
   font-weight: 700;
   cursor: pointer;
 }
 .demo-wrapped__actions button:first-child {
-  background: #0c0c10;
+  background: #0a1f28;
   color: var(--color-punch);
 }
 .demo-wrapped .demo-wrapped__status {
   min-height: 1.4em;
   margin-top: .65rem;
-  color: #0c0c10;
+  color: var(--primary-ink);
   font-size: max(.72rem, var(--type-floor));
 }
 @media (max-width: 760px) {

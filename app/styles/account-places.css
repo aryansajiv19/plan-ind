@@ -57,15 +57,14 @@
 /* Every account view speaks in the cover voice: headings condensed, heavy
    and uppercase, the page title at headline size. */
 .demo-view :is(h1, h2, h3) {
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: 0;
   line-height: 0.92;
-  text-transform: uppercase;
 }
 .demo-view__header h1,
 .demo-profile-head h1 {
   max-width: 48rem;
-  font-size: clamp(2.6rem, 5vw, 4.5rem);
+  font-size: clamp(1.69rem, 3.25vw, 2.93rem);
 }
 
 .demo-view__header > p {
@@ -336,9 +335,8 @@
   inset: 22% 0 auto;
   color: color-mix(in srgb, var(--color-ink) 12%, transparent);
   font-family: var(--font-display);
-  font-size: clamp(5rem, 9vw, 8rem);
-  font-stretch: 70%;
-  font-weight: 900;
+  font-size: clamp(3.25rem, 5.85vw, 5.2rem);
+  font-weight: 700;
   line-height: 1;
   text-align: center;
 }
@@ -356,21 +354,17 @@
   pointer-events: none;
 }
 .demo-place-card__band[data-photo] .demo-place-card__over {
-  background: linear-gradient(0deg, rgba(12, 12, 16, 0.9) 0%, rgba(12, 12, 16, 0.3) 48%, transparent 72%);
+  background: linear-gradient(0deg, rgba(9, 28, 36, 0.9) 0%, rgba(9, 28, 36, 0.3) 48%, transparent 72%);
   color: var(--photo-ink);
 }
 .demo-place-card__chip {
   align-self: flex-start;
   padding: 0.15rem 0.4rem;
   background: var(--color-punch);
-  color: #0c0c10;
+  color: var(--primary-ink);
   font-size: max(0.7rem, var(--type-floor));
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: 0.06em;
-}
-.demo-place-card__band .photo-credit {
-  inset: 0.55rem 0.55rem auto auto;
-  max-width: 55%;
 }
 .demo-place-card__over h2 {
   font-size: clamp(1.5rem, 2vw, 1.9rem);
@@ -430,9 +424,9 @@
   padding: var(--btn-pad-md);
   border: 1px solid var(--primary-fill);
   background: var(--primary-fill);
-  color: #0c0c10;
+  color: var(--primary-ink);
   font-size: max(0.78rem, var(--type-floor));
-  font-weight: 800;
+  font-weight: 600;
   cursor: pointer;
 }
 .demo-place-card__body > button {

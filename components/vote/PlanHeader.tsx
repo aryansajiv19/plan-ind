@@ -50,7 +50,7 @@ export default function PlanHeader({
   return (
   <div className="vote-header flex items-start justify-between gap-3">
     <div>
-      <h1 className="text-2xl font-extrabold sm:text-3xl">{plan.title}</h1>
+      <h1 className="text-2xl font-semibold sm:text-3xl">{plan.title}</h1>
       <p className="mt-1 text-sm text-muted">
         Hey {voterName}
       </p>

@@ -1,15 +1,11 @@
 /* app/styles/overrides.css — Must load last: the photo credit and VenuePhoto frame. */
 
-/* ── Photo credit (licence obligation, not a caption) ───────────────
-   Rendered by components/PhotoCredit.tsx wherever a spot photo appears.
-   Several curated photos are CC-BY, where attribution is a condition of
-   use, so this has to be legible rather than hidden: it sits on the
-   photo's own scrim treatment, small but never below the readable floor,
-   and it must not be clipped away by a parent's overflow.
-
-   Positioned bottom-left because every photo surface in this app already
-   reserves the bottom-right for its own furniture (the wall tile's note
-   chip, the place hero's body block). */
+/* ── Photo credit (licence obligation, kept out of the way) ─────────
+   Rendered by components/PhotoCredit.tsx on every spot photo. CC-BY and
+   Google photos must be credited, but the owner wants clean photos: so the
+   credit is a small "©" in the top corner, and the full line opens on
+   hover of the photo or keyboard focus of the mark. Never display:none —
+   the text stays in the DOM and in the mark's accessible name. */
 /* VenuePhoto's Google branch fills the card's photo frame, a quiet ink block
    until the browser has the photo. */
 .venue-photo {
@@ -26,22 +22,33 @@
 }
 .photo-credit {
   position: absolute;
-  left: 10px;
-  bottom: 8px;
+  top: 0.5rem;
+  right: 0.5rem;
   z-index: 3;
-  max-width: calc(100% - 20px);
-  padding: 3px 7px;
-  border-radius: var(--radius-control);
-  /* Measured at 3.86:1 with the lighter photo-body ink on a 0.62 scrim —
-     under the floor, which for a licence credit is not acceptable. The
-     brighter photo ink on a denser scrim clears it. */
-  background: rgba(10, 9, 10, 0.82);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  max-width: calc(100% - 1rem);
+  min-height: 1.5rem;
+  padding: 0 0.45rem;
+  border-radius: var(--radius-pill);
+  background: rgba(9, 28, 36, 0.55);
   color: var(--photo-ink);
-  /* A licence credit has to be readable to count as attribution, so this
-     does not go to the smallest size the layout would tolerate. */
   font-size: max(0.7rem, var(--type-floor));
   line-height: 1.35;
-  letter-spacing: 0.01em;
-  /* Wraps in full: a cut-off licence is not attribution. */
+  opacity: 0.7;
+  transition: opacity var(--dur-state) var(--ease-settle), background var(--dur-state);
+}
+.photo-credit__text {
+  display: none;
   overflow-wrap: anywhere;
+}
+:hover > .photo-credit,
+.photo-credit:focus-visible {
+  opacity: 1;
+  background: rgba(9, 28, 36, 0.88);
+}
+:hover > .photo-credit .photo-credit__text,
+.photo-credit:focus-visible .photo-credit__text {
+  display: inline;
 }
