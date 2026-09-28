@@ -91,14 +91,28 @@ export function useCustomPlaces(category: string, setError: (message: string | n
     setError(null);
     // Name, area and visibility only: my_custom_spots doesn't return the
     // note or address, so the editor can't show what it would overwrite.
+    // Name and area only when edited: JS trim() also strips Unicode spaces
+    // that the database's clean_app_text keeps, so re-sending an untouched
+    // name could differ and trip 082's in-plan guard on a visibility change.
+    const loaded = saved.find((item) => item.id === id);
     const { data, error: updateError } = await getSupabase()
       .from("spots")
-      .update({ name: name.trim(), area: area.trim(), visibility })
+      .update({
+        ...(loaded?.name !== name ? { name: name.trim() } : {}),
+        ...(loaded?.area !== area ? { area: area.trim() } : {}),
+        visibility,
+      })
       .eq("id", id)
       .select("id,name,area,category,visibility")
       .maybeSingle();
     setSaving(false);
-    // No row back and no error: RLS filtered it (not the caller's place).
+    // 082 refuses changing a place that is in a plan, with a message and
+    // the way out in its hint; say that. No row back and no error: RLS
+    // filtered it (not the caller's place).
+    if (updateError?.code === "42501" && updateError.hint) {
+      setError([updateError.message, updateError.hint].join(" "));
+      return;
+    }
     if (updateError || !data) {
       setError("That place couldn’t be updated. Try again in a moment.");
       return;

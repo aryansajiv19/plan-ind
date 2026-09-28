@@ -7207,3 +7207,49 @@ end; $$;
 -- raises when auth.uid() is null, so anon could never spend quota anyway.
 revoke all on function consume_app_quota(text,text) from public, anon, authenticated;
 grant execute on function consume_app_quota(text,text) to authenticated;
+
+-- 082: in-plan custom spots keep their details; narrower spot UPDATE; no anon grants on zero-policy tables -- see migration-082-spot-edits-and-anon-grants.sql.
+
+create or replace function public.protect_spots_in_plans_on_update()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+begin
+  if old.source = 'custom'
+     and (new.name, new.area, new.category, new.minimum_age, new.latitude, new.longitude)
+         is distinct from (old.name, old.area, old.category, old.minimum_age, old.latitude, old.longitude)
+     and (exists (select 1 from plan_spots x where x.spot_id = old.id)
+          or exists (select 1 from votes x where x.spot_id = old.id)
+          or exists (select 1 from ratings x where x.spot_id = old.id)
+          or exists (select 1 from plans x where x.winner_spot_id = old.id)) then
+    raise exception 'This place is part of a plan, so its details can''t change.'
+      using errcode = '42501',
+            hint = 'It''s in a plan; make it private instead.';
+  end if;
+  return new;
+end;
+$$;
+-- A trigger function; no client role needs EXECUTE (the 021/024 trap).
+revoke all on function public.protect_spots_in_plans_on_update() from public, anon, authenticated;
+
+drop trigger if exists spots_protect_in_plans_on_update on spots;
+create trigger spots_protect_in_plans_on_update
+  before update of name, area, category, minimum_age, latitude, longitude on spots
+  for each row execute function public.protect_spots_in_plans_on_update();
+
+revoke update on spots from anon, authenticated;
+grant update (name, area, visibility) on spots to authenticated;
+
+revoke all on table member_ages, app_rate_limits, security_events, friend_invites, plan_host_tokens from anon;
+-- Security review of 082 (Low): the same for authenticated where no client
+-- path needs any. These have zero policies (020 dropped "attach host token"
+-- and "read own age"), so only definer functions, running as owner, touch
+-- them. member_ages and friend_invites keep authenticated's grants for now:
+-- RLS still refuses every row, and readMemberAge's legacy fallback reads it.
+revoke all on table app_rate_limits, security_events, plan_host_tokens from authenticated;
+-- Supabase's default grants also give both client roles TRUNCATE (which
+-- RLS does not govern), REFERENCES and TRIGGER on every public table. None
+-- is reachable through PostgREST; none is needed. Gone on these five.
+revoke truncate, references, trigger on table member_ages, app_rate_limits, security_events, friend_invites, plan_host_tokens from anon, authenticated;
