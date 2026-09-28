@@ -163,3 +163,31 @@ export async function GET() {
     return Response.json({ error: "Saved places could not be loaded." }, { status: 500 });
   }
 }
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export async function DELETE(request: Request) {
+  try {
+    validateMutationRequest(request);
+  } catch (error) {
+    return requestError(error, "The request could not be read.");
+  }
+  const id = new URL(request.url).searchParams.get("id") ?? "";
+  if (!UUID.test(id)) return Response.json({ error: "That saved link wasn't found." }, { status: 400 });
+  const supabase = await createClient();
+  const user = await sessionUser(supabase);
+  if (user === "unavailable") return Response.json({ error: AUTH_UNAVAILABLE_MESSAGE }, { status: 503 });
+  if (user === "signed-out") return Response.json({ error: "Sign in to remove a saved link." }, { status: 401 });
+  try {
+    const personId = await authenticatedProfile(supabase, user);
+    // Scoped to the caller twice (this filter and RLS); its collection items cascade.
+    const { data, error } = await supabase
+      .from("place_imports").delete().eq("id", id).eq("person_id", personId).select("id");
+    if (error) throw error;
+    // Zero rows is not success: someone else's id, or already removed.
+    if (!data?.length) return Response.json({ error: "That saved link wasn't found." }, { status: 404 });
+    return Response.json({ removed: id }, { headers: { "Cache-Control": "no-store" } });
+  } catch {
+    return Response.json({ error: "That saved link couldn't be removed." }, { status: 500 });
+  }
+}
