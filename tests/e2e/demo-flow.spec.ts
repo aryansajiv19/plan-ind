@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { mountLandingSection } from "./page-helpers";
 
 // The public, account-free demo: /demo's plan form plays the deal reveal on
 // sample places and hands over to /demo/vote, the whole journey: pick a kind
@@ -11,6 +12,7 @@ const PADEL_FAMILY = ["sports", "padel", "adventure", "outdoors", "games"];
 
 test("/demo: the reveal deals nine places of the picked type, then links to the sample vote", async ({ page }) => {
   await page.goto("/demo");
+  await mountLandingSection(page, "plan-lab");
   await page.getByRole("button", { name: "Move and play", exact: true }).click();
   await page.getByRole("button", { name: "Padel", exact: true }).click();
   const submit = page.getByRole("button", { name: "Preview the deal" });

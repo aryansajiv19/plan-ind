@@ -1,4 +1,4 @@
-import type { Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 
 /**
  * Resolves once Realtime says row changes will flow ("Subscribed to
@@ -17,3 +17,14 @@ export function realtimeReady(page: Page): Promise<void> {
 /** The decided plan's booking block. */
 export const bookingSection = (page: Page) =>
   page.locator("div.border-t", { has: page.getByText("Booking", { exact: true }) }).first();
+
+/**
+ * The public landing (/ and /demo) mounts its composer (#plan-lab) and wall
+ * (#right-now) only as they near the viewport (NearViewport). Scroll there
+ * like a visitor, then wait until no placeholder or skeleton is left.
+ */
+export async function mountLandingSection(page: Page, id: "plan-lab" | "right-now") {
+  const section = page.locator(`#${id}`);
+  await section.scrollIntoViewIfNeeded();
+  await expect(section.locator("[aria-busy=true]")).toHaveCount(0, { timeout: 20_000 });
+}
