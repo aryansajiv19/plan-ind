@@ -569,3 +569,13 @@
   color: var(--color-muted);
   font-size: max(0.8rem, var(--type-floor));
 }
+
+.vote-live-paused {
+  margin-block: 0.75rem;
+  padding: 0.45rem 0.8rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent-tint);
+  color: var(--color-ink);
+  font-size: max(0.8rem, var(--type-floor));
+  justify-self: start;
+}

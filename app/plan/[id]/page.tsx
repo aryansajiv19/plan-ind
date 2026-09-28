@@ -77,7 +77,7 @@ export default function VotePage() {
   const { isHost, deciding, advanceToFinal, decide, nudge, dismissNudge } = host;
   // The live channels are held so leavePlan can close them BEFORE the page
   // moves on (use-plan-realtime.ts).
-  const { dataChannelRef, cancelRefetchesRef } = usePlanRealtime({
+  const { dataChannelRef, cancelRefetchesRef, livePaused } = usePlanRealtime({
     id, access, deleted, left, refetchVotes, refetchRsvps, refetchRatings, refetchPlanSpots, refetchPlan, setPlan, setDeleted,
   });
   const { presentNames, presenceChannelRef } = usePlanPresence({ id, access, voterName, left });
@@ -176,6 +176,12 @@ export default function VotePage() {
             Once decided and folded, the grid goes: the winner card beside
             DecidedPlan's reveal showed the same place twice. Its details
             (description, hours, price) move under the reveal. */}
+        {/* The socket dropped (phone slept, network blip): say so rather than
+            show a tally that looks live and isn't. It catches up on return. */}
+        {livePaused && (
+          <p className="vote-live-paused" role="status">Live updates paused. Reconnecting…</p>
+        )}
+
         {/* Alone on the plan: the only job is getting the link out, so the
             share buttons come first instead of under three cards. */}
         {!decided && roster.length <= 1 && (
