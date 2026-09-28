@@ -202,10 +202,23 @@ cap). Redesign live on landing, demo, vote and the Plan tab.
 - A's local lane stack has 079 applied and a decided plan (247bafed) kept
   for tomorrow's screenshots; local only.
 
+- `lane/platform-journey` @ d87c079 (B): runtime-health sweep extended
+  (/demo, /demo/vote, a credit on every venue photo); journey.spec written
+  (onboarding → deal → join by link → rounds → decide → joined_after_decision
+  and not_holder refused → booked). Next: onboarding selector (getByLabel
+  "Date of birth" matches 2; use #onboarding-dateOfBirth), CI, hand back.
+- `lane/platform-booking-fixes` @ b0b7e27 (B): the host-clears E2E after the
+  078 merge; merge it tomorrow (matches A's "Clear the booking").
+- Live signed-out sweep (B): 17 pass, 3 fail on one finding: Tresind
+  Studio's photo (039, photo_source venue_site, no licence, no credit) shows
+  on /, /demo and its page. Owner decision (below).
+
 **CI state:** functional green except what the redesign changed in visual
 baselines (24 visual failures expected until step 4). test-db 112+ green;
 the Supabase CLI is pinned.
 
 **Owner-only, still open:** Supabase Auth (anonymous sign-ins off → Turnstile
 secret → Google provider); Routes API on the key's project; a Cloud budget
-alert. Estimate to "all together": ~6-10 working hours from resume.
+alert; Tresind Studio's unlicensed venue-site photo: keep it (the venue's own
+promotional image) or drop it for its Google photo (credited). Lead's lean:
+drop it, since the Google photo is credited and free of doubt. Estimate to "all together": ~6-10 working hours from resume.
