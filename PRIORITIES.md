@@ -9,39 +9,37 @@ Legend: `S` under a day · `M` a day or two · `L` more.
 
 ## Live
 
-`main` auto-deploys to https://plan-ind.vercel.app (live since 2026-09-27;
-docs-only commits skip the build). Migrations through 074 are live; 075 is
-staged. Everyone signs in (064).
+`main` auto-deploys to https://plan-ind.vercel.app (docs-only commits skip
+the build). Migrations through 081 are live; 082 is staged (owner approval).
+Everyone signs in (064). One CV link: the landing's "Try it, no sign-up" runs
+the whole journey on /demo/vote with sample data.
 
-## Now: the lead's autonomous plan (owner 2026-09-27: "you plan the next steps")
+## Now (2026-09-28, owner away; three sessions: lead + B platform + C journey)
 
-Paused 2026-09-28 night by the owner; resume from the worklog checkpoint.
+Plan: `~/.claude/plans/rippling-puzzling-donut.md`. Lanes hand off to the
+lead, who reviews, gates and merges; migrations are staged, security-reviewed,
+then applied only with the owner's yes.
 
-Goal: solid, secure, scalable, working end to end, and not minimal. In order;
-each step gated (tsc, lint, unit, test:db, E2E), security-reviewed where it
-touches RLS/quotas/writes, pushed, and checked on the live URL with Playwright.
+Done today: desert palette + Cormorant italic + night sky with stars and
+glints; shared nav everywhere; photo tiles; Luna leads the composer; host
+removes a member (080); folders (081); custom-place edit/delete; saved-link
+remove; live route map (fallback until the key); reminders, leave-by, cost per
+head; For you; Tonight/At a glance; story share cards; Discover constellation
+map; UX-audit pass; hooks hardening (silent failures, vote ordering); client
+error reporting; demo journey; Tresind photo swapped.
 
-1. **Land what is ready:** DONE 2026-09-28 (booking client + E2E, P35, perf
-   batch, 075/066/076/077/078/079 live and verified).
-2. **Photos everywhere:** DONE. 64 of 76 visible venues photographable (23
-   self-hosted CC photos, the rest Google within a 300/day cost cap).
-3. **Redesign, all surfaces:** landing, demo and vote DONE (finish review, two
-   rounds). Signed-in pages in progress on the frontend lane (Plan tab
-   merged). Then regenerate the visual baselines once, via CI dispatch.
-4. **End-to-end proof:** a Playwright journey on the local stack (sign up →
-   create → share → vote → decide → book), then a signed-out sweep of live.
-5. **Security + scale pass** on the new surface area; record residuals.
+Next: visual baselines regenerated (in progress), E2E for today's features (C),
+match.ts split (B), then the owner's decisions below.
 
 ## Waiting on the owner
 
 | # | Item | Why it matters |
 |---|---|---|
-| O1 | Done 2026-09-27: 075 and 066 applied live. Merge `lane/frontend-booking` + `lane/platform-booking-e2e` next (lead) | |
-| O2 | Supabase Auth: turn **off** anonymous sign-ins, **then** set the Turnstile secret, then the Google provider (OAuth client in progress) | Closes free guest sessions and the Luna quota drain |
-| O3 | Approve the Places matches (dry run: 33 high, 34 review, 15 reject; review file in the lead's scratchpad, delete after) | P32 and P28: real photos on 76 venues; P24 live hours need the stored place ids |
-| O4 | Enable the **Routes API** on the key's Cloud project (it returns SERVICE_DISABLED today) | P24 metro legs and drive time at the event hour |
-| O5 | Keep or change the sign-street design experiment (`lane/frontend-exp`) | Direction for the rest of phase 3 |
-| O6 | Housekeeping: delete merged `lane/*` branches; 13 photos for `spot-photos` (O8, may be superseded by Places) | One branch that is always true |
+| O2 | Supabase Auth: anonymous sign-ins **off**, then the Turnstile secret, then the Google provider | Closes free guest sessions and the Luna quota drain |
+| O4 | Google Cloud: a browser key restricted by referrer to Maps JavaScript API + Routes API, set as `NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY` in Vercel; per-API daily quotas; a ~$20 budget alert | Live route map with real metro steps |
+| O7 | Apply migration 082 (freeze an in-plan custom spot's details; revoke stray anon/authenticated table grants). Security-reviewed, lane/platform-082 | Closes a bait-and-switch Low |
+| O8 | Catalogue growth: run `npm run places:discover` (prints cost, calls nothing), then one cell, then the grid (~$0 in the free tier, worst case ~$16) and review the CSV | 76 venues is the biggest product gap |
+| O6 | Housekeeping: delete merged `lane/*` branches; delete the unreferenced Tresind object from the spot-photos bucket | One branch that is always true |
 
 ## Roadmap (product audit 2026-09-27, detail in `docs/ROADMAP.md`)
 
