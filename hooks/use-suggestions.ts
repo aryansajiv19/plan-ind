@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { getSupabase } from "@/lib/supabase";
 import { listableToday } from "@/lib/venue-facts";
 import { minimumAgeForCategory } from "@/lib/age-policy";
@@ -19,16 +19,20 @@ export function useSuggestions(visits: ProfileVisit[], age: number, enabled: boo
   const categories = useMemo(() => topCategories(visits), [visits]);
   const key = categories.join("|");
   const [read, setRead] = useState<{ key: string; rows: Spot[] } | null>(null);
+  // Discover opens and closes with the tab; the same categories aren't re-read.
+  const fetched = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!enabled || !key) return;
+    if (!enabled || !key || fetched.current === key) return;
     let cancelled = false;
     listableToday(getSupabase().from("spots").select(COLUMNS))
       .in("category", key.split("|"))
       .order("name")
       .limit(200)
       .then(({ data, error }) => {
-        if (!cancelled) setRead({ key, rows: error ? [] : (data ?? []) as Spot[] });
+        if (cancelled) return;
+        if (!error) fetched.current = key; // a failed read is retried on the next open
+        setRead({ key, rows: error ? [] : (data ?? []) as Spot[] });
       });
     return () => { cancelled = true; };
   }, [enabled, key]);

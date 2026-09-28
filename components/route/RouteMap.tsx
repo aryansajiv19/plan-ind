@@ -16,14 +16,17 @@ import { useLivePosition } from "@/hooks/use-live-position";
 // lib/dubai-metro.ts estimate and the keyless embed instead.
 //
 // Cost: nothing from Google loads until "Show the route" is tapped, and each
-// mode is computed once per ~100 m of origin (the rounding below).
+// mode is computed once per ~100 m of a chosen origin, or ~1 km while
+// following live (the rounding below): each computeRoutes is billed, and
+// a 20 km drive at 100 m would be ~200 of them. The dot itself moves on
+// every fix.
 
 const KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY ?? "";
 const MODES = [["TRANSIT", "Metro"], ["DRIVING", "Drive"], ["WALKING", "Walk"]] as const;
 type Mode = (typeof MODES)[number][0];
 type Result = { steps: string[]; minutes: number | null } | "failed";
 
-const round = (c: Coordinates) => `${c.latitude.toFixed(3)},${c.longitude.toFixed(3)}`;
+const round = (c: Coordinates, places: number) => `${c.latitude.toFixed(places)},${c.longitude.toFixed(places)}`;
 const point = (c: Coordinates) => ({ lat: c.latitude, lng: c.longitude });
 
 export default function RouteMap({ venue, planOrigin, eventTime = null }: { venue: MappableVenue; planOrigin: Coordinates | null; eventTime?: string | null }) {
@@ -63,7 +66,7 @@ export default function RouteMap({ venue, planOrigin, eventTime = null }: { venu
   }, [shown]);
 
   // One route per mode and ~100 m of origin.
-  const requestKey = origin ? `${mode}:${round(origin)}` : null;
+  const requestKey = origin ? `${mode}:${round(origin, livePosition.position ? 2 : 3)}` : null;
   useEffect(() => {
     if (!google || google === "failed" || !origin || !destination || !requestKey || results[requestKey]) return;
     let live = true;
