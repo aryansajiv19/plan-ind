@@ -248,8 +248,12 @@ test("a venue page with a photo renders that photo and its credit", async ({ pag
   expect(naturalWidth, "the place hero image resolved to nothing — a 404 that still lays out").toBeGreaterThan(0);
 
   // CC-BY images carry credit as a licence condition, not as a nicety, so an
-  // unrendered credit is a licensing problem rather than a cosmetic one.
-  await expect(page.getByText(/Wikimedia Commons/i).first()).toBeVisible();
+  // unrendered credit is a licensing problem rather than a cosmetic one. The
+  // credit is a "©" mark that opens to the full line on hover or focus.
+  const credit = page.getByRole("note", { name: /Wikimedia Commons/i }).first();
+  await expect(credit).toBeVisible();
+  await credit.hover();
+  await expect(credit.getByText(/Wikimedia Commons/i)).toBeVisible();
 
   expect(found.badResponses, `4xx/5xx while loading the place page: ${JSON.stringify(found.badResponses, null, 1)}`)
     .toEqual([]);
