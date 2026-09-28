@@ -500,21 +500,38 @@
   color: var(--color-error);
   font-size: max(0.72rem, var(--type-floor));
 }
+/* Empty and unavailable states: the magazine's gold head rule over a line
+   in the cover voice and the one action that fills it, not a soft panel. */
 .demo-collection-empty {
   grid-column: 1 / -1;
-  min-height: 16rem;
   display: grid;
-  place-content: center;
   justify-items: start;
-  padding: 2rem;
-  border-radius: var(--radius-panel);
-  background: var(--color-card);
-  box-shadow: var(--elevation-card);
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  padding-top: 1.4rem;
+  border-top: 3px solid var(--color-punch);
 }
-/* §19.3 */
+.demo-collection-empty strong {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 2.6vw, 2.2rem);
+  font-stretch: 70%;
+  font-weight: 900;
+  line-height: 0.92;
+  text-transform: uppercase;
+}
 .demo-collection-empty p {
-  margin: 0.45rem 0 1rem;
+  max-width: 60ch;
   color: var(--color-muted);
+}
+.demo-collection-empty button {
+  margin-top: 0.5rem;
+  min-height: var(--btn-h-md);
+  padding: var(--btn-pad-md);
+  border: 0;
+  background: var(--primary-fill);
+  color: #0c0c10;
+  font-weight: 800;
+  cursor: pointer;
 }
 
 .demo-face-stack {
@@ -541,7 +558,7 @@
   min-width: 0;
 }
 .demo-photo-upload {
-  min-height: 15rem;
+  min-height: 7.5rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -559,6 +576,10 @@
 }
 .demo-photo-upload strong {
   font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-stretch: 70%;
+  font-weight: 900;
+  text-transform: uppercase;
 }
 .demo-photo-upload small {
   color: var(--color-muted);

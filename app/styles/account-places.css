@@ -447,22 +447,17 @@
   color: var(--color-muted);
 }
 
+/* A fact line, not a row of big numbers: the counts read as a sentence. */
 .demo-account-stats {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.5rem;
-}
-.demo-account-stats span {
-  display: grid;
-  gap: 0.2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.4rem;
   color: var(--color-muted);
-  font-size: max(0.68rem, var(--type-floor));
 }
 .demo-account-stats strong {
+  margin-right: 0.3rem;
   color: var(--color-ink);
-  font-family: var(--font-display);
-  font-size: 1.65rem;
-  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .demo-collection-bar {
@@ -495,8 +490,12 @@
   cursor: pointer;
 }
 .demo-collection-tabs button[aria-selected="true"] {
-  border-color: var(--color-punch-text);
-  color: var(--color-ink);
+  border-color: var(--color-ink);
+  background: var(--color-ink);
+  color: var(--color-card);
+}
+.demo-collection-tabs button[aria-selected="true"] span {
+  color: inherit;
 }
 .demo-collection-tabs span {
   margin-left: 0.3rem;
@@ -603,8 +602,7 @@
   color: var(--color-ink);
   font-size: max(0.65rem, var(--type-floor));
 }
-.demo-visit__collection-action button,
-.demo-collection-empty button {
+.demo-visit__collection-action button {
   padding: 0;
   border: 0;
   border-bottom: 1px solid var(--home-metal);

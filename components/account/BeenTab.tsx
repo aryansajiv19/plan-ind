@@ -70,8 +70,8 @@ export default function BeenTab({
         </div>
         {stats.total > 0 && (
           <div className="demo-account-stats">
-            <span><strong>{stats.total}</strong> visits</span>
-            <span><strong>{stats.places}</strong> places</span>
+            <span><strong>{stats.total}</strong> {stats.total === 1 ? "visit" : "visits"}</span>
+            <span><strong>{stats.places}</strong> {stats.places === 1 ? "place" : "places"}</span>
             <span><strong>{stats.fromPlans}</strong> from plans</span>
           </div>
         )}
