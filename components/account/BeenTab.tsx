@@ -110,7 +110,7 @@ export default function BeenTab({
                     onKeyDown={(event) => {
                       if (event.key === "Enter") { event.preventDefault(); void createCollection(); }
                     }}
-                    placeholder="Tokyo food list, date nights…"
+                    placeholder="JBR brunch list, date nights…"
                     maxLength={40}
                   />
                   <button type="button" onClick={() => void createCollection()} disabled={!newCollectionName.trim()}>Create</button>

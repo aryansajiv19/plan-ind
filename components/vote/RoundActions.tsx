@@ -1,4 +1,6 @@
 import type { PlanStage } from "@/lib/types";
+import { usePlanUrl } from "@/components/ShareActions";
+import { whatsappShareUrl } from "@/lib/share-preview";
 
 // The round-advance control and its hint, under the cards while voting.
 export default function RoundActions({
@@ -14,6 +16,8 @@ export default function RoundActions({
   onGoToPool,
   onDecide,
   nudge,
+  deadline,
+  planTitle,
 }: {
   isHost: boolean;
   stage: PlanStage;
@@ -29,7 +33,16 @@ export default function RoundActions({
   onDecide: () => void;
   /** P31: the host just opened the final round; tell the group. */
   nudge?: { href: string; dismiss: () => void } | null;
+  /** The plan moves on by itself here (expire_plan), so waiting is never a dead end. */
+  deadline?: string | null;
+  /** For a member's "Nudge the host" link to this plan on WhatsApp. */
+  planTitle?: string | null;
 }) {
+  const url = usePlanUrl(); // null on the server, so hydration agrees
+  const hostNudgeHref = url ? whatsappShareUrl(planTitle, url) : null;
+  const movesOn = deadline
+    ? new Date(deadline).toLocaleString("en-GB", { timeZone: "Asia/Dubai", weekday: "short", hour: "numeric", minute: "2-digit", hour12: true })
+    : null;
   return (
     <>
       {nudge && stage === "final" && (
@@ -55,9 +68,22 @@ export default function RoundActions({
             {activePool < poolCount ? "Next round" : `Go to round ${firstUnchosen}`}
           </button>
         ) : !isHost ? (
-          <p className="flex-1 self-center text-sm font-medium text-muted">
-            {stage === "pool" ? "Waiting for the host to build the final shortlist." : "Waiting for the host to continue."}
-          </p>
+          // Final round, nothing picked yet: the hint below says what to do,
+          // so no "waiting" line contradicts it.
+          stage === "final" && !hasCurrentSelection ? null : (
+            <p className="flex-1 self-center text-sm font-medium text-muted">
+              {stage === "pool" ? "Waiting for the host to build the final shortlist" : "Waiting for the host to pick the winner"}
+              {movesOn ? `, or it moves on by itself ${movesOn}.` : "."}
+              {hostNudgeHref && (
+                <>
+                  {" "}
+                  <a href={hostNudgeHref} target="_blank" rel="noopener noreferrer" className="font-semibold text-ink underline underline-offset-4">
+                    Nudge the host
+                  </a>
+                </>
+              )}
+            </p>
+          )
         ) : stage === "pool" ? (
           <button
             type="button"

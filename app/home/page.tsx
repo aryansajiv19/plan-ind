@@ -73,14 +73,15 @@ export default async function HomePage({
     // Narrowed from select("*"): traced every field AccountViews's Discover
     // tab (PlaceCard, search/filter) actually reads (2026-09-04, production-
     // readiness pass). minimum_age/booking_url/source/visibility/
-    // created_by_user_id/address/latitude/longitude are dropped here --
+    // created_by_user_id is dropped here --
     // `Spot`'s type still claims the full shape, so don't start reading a
     // dropped field from this particular query without adding it back.
     // minimum_age was added back 2026-09-07: the Discover grid now applies
     // the same age gate as StartPlanForm and ActionSearchBar, and it cannot
     // do that on rows that do not carry the column. source was added back
     // 2026-09-27: a custom place's price_band is a placeholder, and PlaceCard
-    // must know not to show it (lib/price.ts).
+    // must know not to show it (lib/price.ts). latitude/longitude were added
+    // 2026-09-28 for Discover's map (ExploreConstellation).
     supabase.from("spots").select(DISCOVER_COLUMNS).neq("source", "curated").order("name").order("id").limit(DISCOVER_LIMIT),
     person ? getProfileVisits(person, 50, supabase) : Promise.resolve(emptyRead<ProfileVisit>()),
     person ? getPlannedWith(person, supabase) : Promise.resolve(emptyRead<PlannedWith>()),

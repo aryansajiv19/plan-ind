@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useMinuteClock } from "@/hooks/use-minute-clock";
+import { saveDraft } from "@/lib/plan-draft";
 import Link from "next/link";
 import type { Plan, Rating, Rsvp, Spot } from "@/lib/types";
 import type { Mine } from "@/lib/my-rows";
@@ -115,6 +118,26 @@ export default function DecidedPlan({
   // hours after the decision when no time was set.
   const rateOpensAt = plan.event_time
     ?? (plan.decided_at ? new Date(Date.parse(plan.decided_at) + 3 * 3_600_000).toISOString() : null);
+  // After the night, rating is the one thing left to do (it fills Been,
+  // Friends and Wrapped), so it moves to the top instead of the bottom.
+  const now = useMinuteClock();
+  const afterTheNight = rateOpensAt != null && now != null && Date.parse(rateOpensAt) <= now.getTime();
+  const router = useRouter();
+  // "Plan another like this": the composer on /home restores this draft.
+  function planAnother() {
+    saveDraft({
+      category: winner.category,
+      title: `${plan.title} again`.slice(0, 60),
+      origin: "anywhere",
+      maxBudget: plan.budget_per_person ?? null,
+      radiusKm: null,
+      smartQuery: "",
+    });
+    router.push("/home");
+  }
+  const rating = (
+    <RatingSection planId={plan.id} spotId={winner.id} opensAt={rateOpensAt} isMine={mine.rating} ratings={ratings} onRate={onRate} />
+  );
 
   return (
     <div className="vote-result mt-6 rounded-2xl border-2 border-punch bg-punch/5 p-4 sm:p-5">
@@ -163,10 +186,14 @@ export default function DecidedPlan({
         <Link href={`/place/${winner.id}?from=/plan/${plan.id}`}>Place details</Link>
       </p>
 
+      {afterTheNight && rating}
+      {/* A guest's one real action (are you coming?) sits right under the answer. */}
+      <WhosInSection rsvps={rsvps} roster={roster} isMine={mine.rsvp} onSetRsvp={onSetRsvp} onSetCarpool={onSetCarpool} />
+
       <button
         type="button"
         onClick={copyForChat}
-        className="vote-result__primary mt-3 w-full px-5 py-3 font-display"
+        className="vote-result__primary mt-3 w-full px-5 py-3 font-semibold"
       >
         {copied ? "Copied. Paste it in the chat" : "Copy for the group chat"}
       </button>
@@ -239,8 +266,6 @@ export default function DecidedPlan({
       <TonightPanel plan={plan} winner={winner} coming={coming} />
       <ShareStoryButton href={`/plan/${plan.id}/story`} fileName="deal-three-plan.png" />
 
-      <WhosInSection rsvps={rsvps} roster={roster} isMine={mine.rsvp} onSetRsvp={onSetRsvp} onSetCarpool={onSetCarpool} />
-
       <BookingSection
         plan={plan}
         winner={winner}
@@ -252,7 +277,11 @@ export default function DecidedPlan({
       <KnowBeforeYouGo spot={winner} className="mt-4 border-t border-line pt-4" />
 
 
-      <RatingSection planId={plan.id} spotId={winner.id} opensAt={rateOpensAt} isMine={mine.rating} ratings={ratings} onRate={onRate} />
+      {!afterTheNight && rating}
+
+      <button type="button" onClick={planAnother} className="vote-secondary-action decided-again mt-5 w-full rounded-2xl">
+        Plan another like this
+      </button>
     </div>
   );
 }

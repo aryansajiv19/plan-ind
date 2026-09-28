@@ -38,7 +38,7 @@ export default function BookingSection({
               {/* "Mark as booked" had no way back: a mis-tap was permanent, and
                   reopening a plan requires it untaken. */}
               {(isHost || booking.mine) && (
-                <button type="button" onClick={booking.unmark} disabled={booking.busy} className="vote-result__button px-4 py-2 text-sm font-display disabled:opacity-50">
+                <button type="button" onClick={booking.unmark} disabled={booking.busy} className="vote-result__button px-4 py-2 text-sm font-semibold disabled:opacity-50">
                   Unmark booked
                 </button>
               )}
@@ -49,25 +49,25 @@ export default function BookingSection({
                 {booking.mine ? "You’re booking it." : `${plan.booking_owner}’s booking it.`}
               </span>
               {(isHost || booking.mine) && (
-                <button type="button" onClick={booking.mark} disabled={booking.busy} className="vote-result__button px-4 py-2 text-sm font-display disabled:opacity-50">
+                <button type="button" onClick={booking.mark} disabled={booking.busy} className="vote-result__button px-4 py-2 text-sm font-semibold disabled:opacity-50">
                   Mark as booked
                 </button>
               )}
               {booking.mine && (
-                <button type="button" onClick={booking.release} disabled={booking.busy} className="vote-result__button px-4 py-2 text-sm font-display disabled:opacity-50">
+                <button type="button" onClick={booking.release} disabled={booking.busy} className="vote-result__button px-4 py-2 text-sm font-semibold disabled:opacity-50">
                   I can’t book after all
                 </button>
               )}
               {/* 078: the host frees a claim someone else holds (a no-show, a
                   late joiner) so the group can take it again. */}
               {isHost && !booking.mine && (
-                <button type="button" onClick={booking.release} disabled={booking.busy} className="vote-result__button px-4 py-2 text-sm font-display disabled:opacity-50">
+                <button type="button" onClick={booking.release} disabled={booking.busy} className="vote-result__button px-4 py-2 text-sm font-semibold disabled:opacity-50">
                   Clear the booking
                 </button>
               )}
             </>
           ) : (
-            <button type="button" onClick={booking.claim} disabled={booking.busy} className="vote-result__button px-4 py-2 text-sm font-display disabled:opacity-50">
+            <button type="button" onClick={booking.claim} disabled={booking.busy} className="vote-result__button px-4 py-2 text-sm font-semibold disabled:opacity-50">
               I’ll book it
             </button>
           )}

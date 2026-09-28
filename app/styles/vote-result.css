@@ -525,3 +525,47 @@
   font-size: 0.7em;
   vertical-align: 0.15em;
 }
+
+/* Alone on a new plan: the share prompt leads (plan page). */
+.vote-alone {
+  margin-block: 1rem 1.5rem;
+  padding: 1rem 1.1rem;
+  border: 1px dashed color-mix(in srgb, var(--color-punch) 60%, transparent);
+  border-radius: var(--radius-panel);
+}
+.vote-alone > p {
+  margin-bottom: 0.6rem;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.4rem;
+}
+
+/* Share to story: a secondary action with a sand edge. */
+.share-story {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+.share-story button {
+  min-height: 2.75rem;
+  padding: 0 1.2rem;
+  border: 1px solid var(--color-punch);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-ink);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--dur-state) var(--ease-settle), transform var(--dur-press) var(--ease-spring);
+}
+.share-story button:hover:not(:disabled) {
+  background: var(--color-accent-tint);
+}
+.share-story button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+.share-story > :not(button) {
+  color: var(--color-muted);
+  font-size: max(0.8rem, var(--type-floor));
+}

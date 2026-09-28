@@ -20,7 +20,6 @@ function closesLabel(deadline: string | null): string {
 // the deadline chip.
 export default function PlanHeader({
   plan,
-  voterName,
   decided,
   stage,
   activePool,
@@ -34,7 +33,6 @@ export default function PlanHeader({
   onRemove,
 }: {
   plan: Plan;
-  voterName: string;
   decided: boolean;
   stage: PlanStage;
   activePool: number;
@@ -54,9 +52,6 @@ export default function PlanHeader({
   <div className="vote-header flex items-start justify-between gap-3">
     <div>
       <h1 className="text-2xl font-semibold sm:text-3xl">{plan.title}</h1>
-      <p className="mt-1 text-sm text-muted">
-        Hey {voterName}
-      </p>
       {(plan.budget_per_person != null || plan.radius_km != null) && (
         <p className="vote-plan-constraints">
           {plan.budget_per_person != null ? `Up to AED ${plan.budget_per_person} per person` : "Any budget"}

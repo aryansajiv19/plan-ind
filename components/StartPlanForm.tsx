@@ -97,7 +97,7 @@ export default function StartPlanForm({
             : prefill.source === "like" ? `Set up like ${prefill.boardName}: the same type and area.`
               : prefill.boardName
                 ? `Set up from your board ${prefill.boardName}, leaning the way its places do. Check the type and area, then deal nine from the catalogue.`
-                : "Picked up where you left off before signing in. Check it, then deal nine."}
+                : "Picked up where you left off. Check it, then deal nine."}
         </p>
       )}
       {/* Luna first: describing the night is the fastest way in, so it sits

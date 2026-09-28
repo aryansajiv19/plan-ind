@@ -87,6 +87,7 @@
 .vote-primary-action,
 .vote-secondary-action {
   display: inline-flex;
+  white-space: nowrap;
   align-items: center;
   justify-content: center;
   min-height: 2.75rem;

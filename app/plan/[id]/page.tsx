@@ -142,7 +142,6 @@ export default function VotePage() {
       >
         <PlanHeader
           plan={plan!}
-          voterName={voterName}
           decided={decided}
           stage={stage}
           activePool={activePool}
@@ -177,6 +176,15 @@ export default function VotePage() {
             Once decided and folded, the grid goes: the winner card beside
             DecidedPlan's reveal showed the same place twice. Its details
             (description, hours, price) move under the reveal. */}
+        {/* Alone on the plan: the only job is getting the link out, so the
+            share buttons come first instead of under three cards. */}
+        {!decided && roster.length <= 1 && (
+          <div className="vote-alone">
+            <p>Nobody’s joined yet. Send the link.</p>
+            <ShareActions title={plan?.title ?? null} />
+          </div>
+        )}
+
         {!foldDone && (
           <VoteOptionsGrid
             key={`round-${currentPoolNumber}`}
@@ -231,8 +239,10 @@ export default function VotePage() {
             onGoToPool={(pool) => { setRoundDir(pool > activePool ? 1 : -1); setActivePool(pool); }}
             onDecide={decide}
             nudge={nudge ? { href: nudge, dismiss: dismissNudge } : null}
+            deadline={plan?.deadline ?? null}
+            planTitle={plan?.title ?? null}
           />
-          <ShareActions title={plan?.title ?? null} />
+          {roster.length > 1 && <ShareActions title={plan?.title ?? null} />}
           <HostPlanControls host={host} plan={plan} voterCount={voterCount} canEdit={canEdit} />
           </>
         ) : (
@@ -288,11 +298,6 @@ export default function VotePage() {
         )}
       </div>
 
-      {!decided && (
-        <p className="mt-4 px-1 text-center text-xs text-muted">
-          Pick one in each round, then vote on the final three.
-        </p>
-      )}
     </main>
   );
 }

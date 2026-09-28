@@ -14,7 +14,7 @@ const noSubscribe = () => () => {};
 // Read via useSyncExternalStore, not useEffect + setState (React 19 lint),
 // and with a server snapshot so the SSR pass and hydration agree: the server
 // renders no native-share button and no WhatsApp href, the client fills both.
-function usePlanUrl(): string | null {
+export function usePlanUrl(): string | null {
   return useSyncExternalStore(
     noSubscribe,
     () => `${window.location.origin}${window.location.pathname}`,
