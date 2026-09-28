@@ -44,6 +44,11 @@ Not hypotheticals — every one of these shipped a bug in this repo.
   backgrounded Chrome window freezes rendering so rAF never fires and the page
   looks broken when it isn't. Confirm anything visual with `getComputedStyle` /
   `getBoundingClientRect`, or force the entrance end-state before capturing.
+- **A server component must not call a function exported from a `"use
+  client"` module.** On the server that export is only a client reference, so
+  the call throws and the page renders its error boundary; tsc, lint and unit
+  tests all stay green. Every `/place/[id]` was down in production this way
+  (2026-09-28). Pure helpers live in `lib/`, never beside a client component.
 - **Clean up Realtime subscriptions.** An uncleaned channel survives navigation
   and double-fires handlers.
 
