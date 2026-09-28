@@ -117,11 +117,12 @@
 .place-link-importer__field button {
   min-height: 2.8rem;
   padding: 0.6rem 0.85rem;
-  border: 1px solid var(--color-ink);
-  background: var(--color-ink);
-  color: var(--color-card);
-  font-size: max(0.68rem, var(--type-floor));
-  font-weight: 500;
+  margin-left: 0.5rem;
+  border: 0;
+  background: var(--primary-fill);
+  color: var(--primary-ink);
+  font-size: max(0.8rem, var(--type-floor));
+  font-weight: 700;
   cursor: pointer;
 }
 .place-link-importer__field button:disabled {
@@ -134,21 +135,22 @@
 }
 .place-link-importer fieldset > div {
   display: flex;
+  gap: 0.4rem;
 }
 .place-link-importer fieldset button {
   min-height: 2.35rem;
   padding: 0.45rem 0.7rem;
   border: 1px solid var(--color-line);
+  border-radius: var(--radius-pill);
   background: transparent;
   color: var(--color-muted);
-  font-size: max(0.64rem, var(--type-floor));
+  font-size: max(0.72rem, var(--type-floor));
   cursor: pointer;
-}
-.place-link-importer fieldset button + button {
-  border-left: 0;
+  transition: background var(--dur-state) var(--ease-settle), color var(--dur-state);
 }
 .place-link-importer fieldset button[aria-pressed="true"] {
-  border-color: var(--color-punch-text);
+  border-color: var(--color-punch);
+  background: var(--color-accent-tint);
   color: var(--color-ink);
 }
 .place-link-importer__message,

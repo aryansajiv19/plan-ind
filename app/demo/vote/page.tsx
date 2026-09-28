@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import LandingNav from "@/components/landing/LandingNav";
 import SampleVote from "@/components/demo/SampleVote";
 
 // The playable sample decision: deal, three rounds, a final, the reveal.
@@ -19,8 +20,10 @@ export const metadata: Metadata = {
 
 export default function DemoVotePage() {
   return (
-    // The banner sits inside <main>: .vote-experience isolates and paints a
-    // fixed backdrop, which would cover a sibling rendered before it.
+    <>
+    <LandingNav />
+    {/* The banner sits inside <main>: .vote-experience isolates and paints a
+        fixed backdrop, which would cover a sibling rendered before it. */}
     <main className="vote-experience mx-auto w-full max-w-4xl px-4 py-6 sm:py-10">
       <p className="home-demo-banner mb-4" role="note">
         <strong>Sample data.</strong> A made up group deciding dinner. Your votes stay on this screen and nothing saves.{" "}
@@ -28,5 +31,6 @@ export default function DemoVotePage() {
       </p>
       <SampleVote />
     </main>
+    </>
   );
 }

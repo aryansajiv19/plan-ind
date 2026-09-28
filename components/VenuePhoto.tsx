@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import PhotoCredit from "@/components/PhotoCredit";
+import PhotoCredit, { CreditMark } from "@/components/PhotoCredit";
 import { canOptimiseImage } from "@/lib/image-src";
 import type { PlacePhoto } from "@/lib/places/photo";
 import type { PhotoSpot } from "@/lib/venue-photo";
@@ -101,7 +101,7 @@ function GooglePhoto({ spotId, className }: { spotId: string; className: string 
             onError={() => setPhoto(null)}
           />
           {/* Google's terms: show the photo's authors wherever it appears. */}
-          <span className="photo-credit">{authors ? `${authors} · ` : ""}Google Maps</span>
+          <CreditMark text={`${authors ? `${authors} · ` : ""}Google Maps`} />
         </>
       ) : null}
     </span>

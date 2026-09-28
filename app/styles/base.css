@@ -21,6 +21,17 @@ h3,
   text-wrap: balance;
 }
 
+/* Controls are soft-cornered by default; a component that sets its own
+   radius wins (this is layered, component rules are not). */
+@layer base {
+  button,
+  input,
+  select,
+  textarea {
+    border-radius: var(--radius-control);
+  }
+}
+
 /* ── The signature element: press, and one hairline ────────────────
    `.token` used to live here — a hard 5px/6px offset shadow that made
    things look tappable. It is GONE, deliberately. The design handoff

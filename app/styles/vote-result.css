@@ -85,7 +85,7 @@
 }
 .vote-result__booked {
   border: 1px solid var(--color-punch-text);
-  border-radius: 0;
+  border-radius: var(--radius-control);
   background: transparent;
   color: var(--color-punch-text);
 }
@@ -298,7 +298,7 @@
   width: 2.15rem;
   height: 2.15rem;
   border: 1px solid var(--color-line);
-  border-radius: 0;
+  border-radius: var(--radius-control);
   background: transparent;
   color: var(--color-muted);
   font-size: max(0.72rem, var(--type-floor));

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import LandingNav from "@/components/landing/LandingNav";
 import { fetchPlanSharePreview } from "@/lib/share-preview-server";
 import { SITE_NAME, shareCopy } from "@/lib/share-preview";
 
@@ -36,6 +37,13 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   };
 }
 
+// Plans are members-only (proxy.ts sends signed-out visitors to /login), so
+// the shared nav is always the signed-in one.
 export default function PlanLayout({ children }: { children: React.ReactNode }) {
-  return children;
+  return (
+    <>
+      <LandingNav signedIn />
+      {children}
+    </>
+  );
 }

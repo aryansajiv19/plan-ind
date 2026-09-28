@@ -27,16 +27,21 @@ export default function PhotoCredit({
   className?: string;
 }) {
   if (!spot.photo_url || !spot.photo_attribution) return null;
+  return <CreditMark text={spot.photo_attribution} className={className} />;
+}
+
+/** The "©" mark itself, for credits that do not come from a spot row. */
+export function CreditMark({ text, className = "" }: { text: string; className?: string }) {
   return (
     <span
       className={`photo-credit ${className}`.trim()}
       role="note"
       tabIndex={0}
-      aria-label={`Photo: ${spot.photo_attribution}`}
-      title={spot.photo_attribution}
+      aria-label={`Photo: ${text}`}
+      title={text}
     >
       <span aria-hidden="true">©</span>
-      <span className="photo-credit__text" aria-hidden="true">{spot.photo_attribution}</span>
+      <span className="photo-credit__text" aria-hidden="true">{text}</span>
     </span>
   );
 }

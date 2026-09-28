@@ -43,7 +43,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 2rem clamp(1.25rem, 4vw, 3rem);
+  /* On the same rail as .place-content below, so title and text line up. */
+  padding: 2rem max(var(--page-gutter), calc((100% - 48rem) / 2));
   color: var(--photo-ink);
 }
 .place-hero--typographic .place-hero__body {
@@ -53,7 +54,7 @@
 .place-hero__category {
   position: absolute;
   top: 1.5rem;
-  left: clamp(1.25rem, 4vw, 3rem);
+  left: max(var(--page-gutter), calc((100% - 48rem) / 2));
   z-index: 1;
   margin: 0;
   padding: 0.2rem 0.5rem;

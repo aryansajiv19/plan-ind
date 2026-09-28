@@ -2,6 +2,7 @@ import { cache } from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
+import LandingNav from "@/components/landing/LandingNav";
 import { createClient } from "@/lib/supabase/server";
 import VenuePhoto from "@/components/VenuePhoto";
 import { hasVenuePhoto } from "@/lib/venue-photo";
@@ -76,6 +77,8 @@ export default async function PlacePage({
   const reopens = reopensLabel(spot.reopens_on); // 070: closed until a date
 
   return (
+    <>
+    <LandingNav signedIn={Boolean(user)} />
     <main className="place-page">
       <div className={`place-hero ${hasPhoto ? "" : "place-hero--typographic"}`} data-code={cat.code}>
         <VenuePhoto spot={spot} sizes="100vw" preload className="place-hero__img" />
@@ -158,5 +161,6 @@ export default async function PlacePage({
         <Link href={from ?? (user ? "/home?view=discover" : "/")} className="place-back">Back</Link>
       </div>
     </main>
+    </>
   );
 }

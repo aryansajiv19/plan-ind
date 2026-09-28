@@ -12,11 +12,11 @@ function dubaiClock(now: Date): string {
   return `${hour % 12 || 12}:${String(minutes % 60).padStart(2, "0")} ${hour < 12 ? "am" : "pm"}`;
 }
 
-// The signed-out nav: the app's own tabs, each opening its /demo view
-// (fixtures, no account), then Sign in and the page's one primary action.
-// Same classes as the signed-in nav, so the same breakpoints apply,
-// including the bottom tab bar below 520px.
-export default function LandingNav() {
+// The shared top nav for every page outside /home's own. Signed out, the
+// app's tabs open their /demo view (fixtures, no account); signed in, they
+// open the real tab on /home. Same classes as the /home nav, so the same
+// breakpoints apply, including the bottom tab bar below 520px.
+export default function LandingNav({ signedIn = false }: { signedIn?: boolean }) {
   const now = useMinuteClock(); // null during SSR, so the clock never mismatches
   return (
     <header className="home-nav">
@@ -25,9 +25,9 @@ export default function LandingNav() {
         <span className="home-logo__three">03</span>
       </Link>
 
-      <nav className="home-app-tabs" aria-label="Explore the app with sample data">
+      <nav className="home-app-tabs" aria-label={signedIn ? "App" : "Explore the app with sample data"}>
         {APP_VIEWS.map((view) => (
-          <Link key={view} href={`/demo?view=${view}`} className="home-app-tab">
+          <Link key={view} href={signedIn ? `/home?view=${view}` : `/demo?view=${view}`} className="home-app-tab">
             {VIEW_LABELS[view]}
           </Link>
         ))}
@@ -35,8 +35,10 @@ export default function LandingNav() {
 
       <div className="home-nav__right">
         {now && <span className="home-nav__clock">Dubai · {dubaiClock(now)}</span>}
-        <Link href="/login" className="home-nav__login">Sign in</Link>
-        <a href="#plan-lab" className="home-nav__signin">Start a plan</a>
+        {!signedIn && <Link href="/login" className="home-nav__login">Sign in</Link>}
+        <Link href={signedIn ? "/home" : "/#plan-lab"} className="home-nav__signin">
+          {signedIn ? "Make a plan" : "Start a plan"}
+        </Link>
       </div>
     </header>
   );

@@ -438,7 +438,7 @@
 }
 .vote-option__choice {
   border: 1px solid var(--color-line);
-  border-radius: 0;
+  border-radius: var(--radius-control);
   background: transparent;
   color: var(--color-ink);
   cursor: pointer;
