@@ -15,6 +15,8 @@ staged. Everyone signs in (064).
 
 ## Now: the lead's autonomous plan (owner 2026-09-27: "you plan the next steps")
 
+Paused 2026-09-28 night by the owner; resume from the worklog checkpoint.
+
 Goal: solid, secure, scalable, working end to end, and not minimal. In order;
 each step gated (tsc, lint, unit, test:db, E2E), security-reviewed where it
 touches RLS/quotas/writes, pushed, and checked on the live URL with Playwright.

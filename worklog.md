@@ -166,3 +166,35 @@ everyone, all screens, nothing off limits, place ids approved.
   mono face and tally needles (owner: "don't over engineer"), photos on the
   tiny dealt squares (no room for a visible credit). Cover revised to a split
   (cover line on ink, mosaic right) so no photo hides under the headline.
+
+## 2026-09-28 — CHECKPOINT: stopped for the night by the owner (read this first)
+
+**Live (main = production, auto-deploy):** migrations through 079 applied and
+catalog-verified (078 by function fingerprints). Full flow works end to end:
+email-code sign-in → compose → deal → vote (Realtime) → decide → claim/mark
+booking (any member; host can clear) → directions, photos. 64 of 76 visible
+venues photographable (23 self-hosted CC, the rest Google within the 300/day
+cap). Redesign live on landing, demo, vote and the Plan tab.
+
+**Resume tomorrow, in order (PRIORITIES "Now"):**
+1. Frontend lane (A): the bolder composer pass (kinds of night as photo tiles,
+   deck cards as photo listings, no grey panel, no dead band, readable helper
+   copy), then Discover, Been, Friends, Profile/Wrapped, place page, decided
+   plan, login/onboarding. Lead reviews each surface with viewport captures
+   (full-page captures smear sticky bars).
+2. Platform lane (B): full-journey E2E on a throwaway stack + a signed-out
+   Playwright sweep of the live URL.
+3. Lead: resume the post-launch review workflow (stopped mid-run, cache kept):
+   Workflow({scriptPath: ".../workflows/scripts/post-launch-review-wf_4c0cfe8f-46a.js",
+   resumeFromRunId: "wf_4c0cfe8f-46a"}) in this session's project dir; fix
+   what it confirms; security subagent on any RLS/RPC change.
+4. Once the redesign lands: regenerate visual baselines once (CI dispatch,
+   hold pushes while it runs), final CI green, live sweep, owner screenshots.
+
+**CI state:** functional green except what the redesign changed in visual
+baselines (24 visual failures expected until step 4). test-db 112+ green;
+the Supabase CLI is pinned.
+
+**Owner-only, still open:** Supabase Auth (anonymous sign-ins off → Turnstile
+secret → Google provider); Routes API on the key's project; a Cloud budget
+alert. Estimate to "all together": ~6-10 working hours from resume.
