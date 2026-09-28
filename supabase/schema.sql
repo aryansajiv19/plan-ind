@@ -7158,3 +7158,39 @@ alter table place_collections add constraint place_collections_folder_fk
 create index if not exists visit_collections_folder_idx on visit_collections (folder_id) where folder_id is not null;
 create index if not exists moodboards_folder_idx        on moodboards (folder_id) where folder_id is not null;
 create index if not exists place_collections_folder_idx on place_collections (folder_id) where folder_id is not null;
+
+-- 082: in-plan custom spots keep their details; narrower spot UPDATE; no anon grants on zero-policy tables -- see migration-082-spot-edits-and-anon-grants.sql.
+
+create or replace function public.protect_spots_in_plans_on_update()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+begin
+  if old.source = 'custom'
+     and (new.name, new.area, new.category, new.minimum_age, new.latitude, new.longitude)
+         is distinct from (old.name, old.area, old.category, old.minimum_age, old.latitude, old.longitude)
+     and (exists (select 1 from plan_spots x where x.spot_id = old.id)
+          or exists (select 1 from votes x where x.spot_id = old.id)
+          or exists (select 1 from ratings x where x.spot_id = old.id)
+          or exists (select 1 from plans x where x.winner_spot_id = old.id)) then
+    raise exception 'This place is part of a plan, so its details can''t change.'
+      using errcode = '42501',
+            hint = 'It''s in a plan; make it private instead.';
+  end if;
+  return new;
+end;
+$$;
+-- A trigger function; no client role needs EXECUTE (the 021/024 trap).
+revoke all on function public.protect_spots_in_plans_on_update() from public, anon, authenticated;
+
+drop trigger if exists spots_protect_in_plans_on_update on spots;
+create trigger spots_protect_in_plans_on_update
+  before update of name, area, category, minimum_age, latitude, longitude on spots
+  for each row execute function public.protect_spots_in_plans_on_update();
+
+revoke update on spots from anon, authenticated;
+grant update (name, area, visibility) on spots to authenticated;
+
+revoke all on table member_ages, app_rate_limits, security_events, friend_invites, plan_host_tokens from anon;

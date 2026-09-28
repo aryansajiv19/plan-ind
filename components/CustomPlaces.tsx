@@ -98,7 +98,13 @@ export function useCustomPlaces(category: string, setError: (message: string | n
       .select("id,name,area,category,visibility")
       .maybeSingle();
     setSaving(false);
-    // No row back and no error: RLS filtered it (not the caller's place).
+    // 082 refuses changing a place that is in a plan, with a message and
+    // the way out in its hint; say that. No row back and no error: RLS
+    // filtered it (not the caller's place).
+    if (updateError?.code === "42501" && updateError.hint) {
+      setError([updateError.message, updateError.hint].join(" "));
+      return;
+    }
     if (updateError || !data) {
       setError("That place couldn’t be updated. Try again in a moment.");
       return;
