@@ -108,40 +108,40 @@ export default function StartPlanForm({
         demoMode={demoMode}
         // Signed out there is no one's shelf to show, except /demo's labelled samples.
         shelf={(!demoMode || sampleShelf) && <MyPlacesShelf composer={composer} age={age} sample={demoMode} />}
-      />
+      >
+        <TuneIt
+          composer={composer}
+          demoMode={demoMode}
+          luna={smartSearchAvailable && (
+            <SmartSearchBox
+              query={smartQuery}
+              onQueryChange={(query) => { setSmartQuery(query); setSmartIntent(null); }}
+              intent={smartIntent}
+              onIntent={applyIntent}
+              demoMode={demoMode}
+              onSignIn={signIn}
+            />
+          )}
+        />
 
-      <TuneIt
-        composer={composer}
-        demoMode={demoMode}
-        luna={smartSearchAvailable && (
-          <SmartSearchBox
-            query={smartQuery}
-            onQueryChange={(query) => { setSmartQuery(query); setSmartIntent(null); }}
-            intent={smartIntent}
-            onIntent={applyIntent}
-            demoMode={demoMode}
-            onSignIn={signIn}
-          />
-        )}
-      />
-
-      {/* The deal stays in reach from anywhere in the form, Tune it included:
-          sticky at the bottom edge, on the card's own surface. */}
-      <div className="plan-deal-bar">
-        {error && (
-          <p role="alert" className="plan-form__error">
-            {error}
-          </p>
-        )}
-        {!title.trim() && <p className="plan-form__demo-note">Give it a title under Tune it to deal.</p>}
-        <button
-          type="submit"
-          disabled={creating || !title.trim()}
-          className="plan-submit"
-        >
-          {creating ? (demoMode ? "Dealing…" : "Dealing nine…") : demoMode ? "Preview the deal" : "Deal nine"}
-        </button>
-      </div>
+        {/* The deal stays in reach from anywhere in the form, Tune it included:
+            sticky at the bottom edge, on the card's own surface. */}
+        <div className="plan-deal-bar">
+          {error && (
+            <p role="alert" className="plan-form__error">
+              {error}
+            </p>
+          )}
+          {!title.trim() && <p className="plan-form__demo-note">Give it a title under Tune it to deal.</p>}
+          <button
+            type="submit"
+            disabled={creating || !title.trim()}
+            className="plan-submit"
+          >
+            {creating ? (demoMode ? "Dealing…" : "Dealing nine…") : demoMode ? "Preview the deal" : "Deal nine"}
+          </button>
+        </div>
+      </ComposerDeck>
 
       {demoMode && (
         <p className="plan-form__demo-note">

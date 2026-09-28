@@ -10,7 +10,7 @@ import type { Composer } from "@/hooks/use-composer";
  * pins a place into the vote, one per round in pin order; the preview has no
  * session to pin with, so there the deck is a window, not a control.
  */
-export default function ComposerDeck({ composer, age, demoMode, shelf }: { composer: Composer; age: number; demoMode: boolean; shelf?: ReactNode }) {
+export default function ComposerDeck({ composer, age, demoMode, shelf, children }: { composer: Composer; age: number; demoMode: boolean; shelf?: ReactNode; children?: ReactNode }) {
   const { groups, shownGroup, visibleCategories, category, pickCategory, setActiveGroup, pins, togglePin, roundOf, pinnedIds } = composer;
   const deck = useDeckPlaces(category, age, true);
   const full = pinnedIds.length >= 3;
@@ -52,6 +52,10 @@ export default function ComposerDeck({ composer, age, demoMode, shelf }: { compo
         </div>
       </fieldset>
 
+      {/* The deal bar's sticky range: it floats over the deck and Tune it, but
+          it can never rise over the hangout picker above (it used to, as the
+          form scrolled in from below). */}
+      <div>
       {shelf}
 
       <PlaceRow
@@ -71,6 +75,8 @@ export default function ComposerDeck({ composer, age, demoMode, shelf }: { compo
           </p>
         }
       />
+      {children}
+      </div>
     </>
   );
 }

@@ -460,23 +460,19 @@
   display: none;
 }
 
+/* One column: the intro heads the section and the composer takes the full
+   width, so its deck shows most of the nine at once. Two columns left a tall
+   empty column beside the form. */
 .home-plan-section {
   width: min(100% - 2 * var(--page-gutter), 76rem);
   margin-inline: auto;
   padding: clamp(5rem, 10vw, 9rem) 0;
   display: grid;
-  grid-template-columns: 0.78fr 1.22fr;
-  align-items: start;
-  gap: clamp(2rem, 7vw, 6rem);
-}
-
-/* Sticky below the sticky nav (~5.4rem tall), not under it. */
-.home-plan-section__intro {
-  position: sticky;
-  top: 7rem;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.25rem;
 }
 /* Signed in, the section follows the app bar directly: the front door's
-   9rem of air above a headline became dead space under one. */
+   9rem of air became dead space under a headline. */
 .home-plan-section--app {
   padding-top: 2.5rem;
 }
@@ -634,27 +630,6 @@
   transform: none;
 }
 
-.home-plan-card__tape {
-  position: absolute;
-  top: -1rem;
-  /* Same inset as the card's padding, so the tag shares the form's left edge. */
-  left: clamp(1.3rem, 4vw, 2.4rem);
-  width: auto;
-  padding: 0.45rem;
-  border: 1px solid var(--color-line);
-  background: var(--color-card);
-  color: var(--color-ink);
-  text-align: center;
-  font-family: var(--font-display);
-  font-size: max(0.7rem, var(--type-floor));
-  color: var(--color-punch-text);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  transform: none;
-  box-shadow: none;
-}
-
 /* Your plans (P3): the signed-in way back into a plan, a rail above the
    composer. Scrolls inside itself, never the page. */
 .your-plans {
@@ -663,8 +638,10 @@
 }
 .your-plans__title {
   font-family: var(--font-display);
-  font-size: 1.25rem;
-  font-weight: 500;
+  font-size: 1.6rem;
+  font-weight: 900;
+  line-height: 0.95;
+  text-transform: uppercase;
 }
 .your-plans__rail {
   display: flex;
@@ -675,23 +652,35 @@
   scroll-snap-type: x proximity;
   list-style: none;
 }
+/* A listing, not a boxed card: a gold head rule, the plan's name set like a
+   headline, its state underneath. */
 .your-plans__card {
   display: grid;
-  gap: 0.35rem;
-  width: 15rem;
+  align-content: start;
+  gap: 0.4rem;
+  width: 16rem;
   min-height: 2.75rem;
-  padding: 0.9rem 1rem;
-  border: 1px solid var(--color-line);
-  border-radius: var(--radius-control);
+  padding: 0.8rem 1rem 0.95rem;
+  border-top: 3px solid var(--color-punch);
+  border-radius: 0;
   background: var(--color-card);
   color: var(--color-ink);
   text-decoration: none;
   scroll-snap-align: start;
+  transition: background 150ms ease;
+}
+.your-plans__card:hover {
+  background: color-mix(in srgb, var(--color-ink) 6%, var(--color-card));
 }
 .your-plans__name {
   overflow: hidden;
-  font-weight: 500;
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 900;
+  font-stretch: 70%;
+  line-height: 0.95;
   text-overflow: ellipsis;
+  text-transform: uppercase;
   white-space: nowrap;
 }
 .your-plans__state {
