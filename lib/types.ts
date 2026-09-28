@@ -249,6 +249,7 @@ export interface VisitCollection {
   id: string;
   person_id: string;
   name: string;
+  folder_id?: string | null; // 081 (staged)
   created_at: string;
 }
 
@@ -277,6 +278,7 @@ export interface Moodboard {
   name: string;
   theme: string | null;
   visibility: "private" | "friends" | "shared";
+  folder_id?: string | null; // 081 (staged)
   created_at: string;
 }
 
@@ -297,6 +299,17 @@ export interface PlaceCollection {
   person_id: string;
   name: string;
   kind: "want_to_try" | "planning" | "custom";
+  folder_id?: string | null; // 081 (staged)
+  created_at: string;
+}
+
+// 081 (staged): a private folder grouping an account's lists. Same owner as
+// the lists it holds (composite FK); deleting one un-files them.
+export interface Folder {
+  id: string;
+  person_id: string;
+  name: string;
+  emoji: string;
   created_at: string;
 }
 
