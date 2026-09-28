@@ -22,6 +22,7 @@ import type { PlannedWith, VisitCollectionView, VisitPhotoView } from "@/lib/soc
 import type { PersonCard, ProfileVisit, Spot } from "@/lib/types";
 import { viewFromParam } from "@/lib/home-views";
 import type { PlanSummary } from "@/components/home/YourPlans";
+import { readRailExtras } from "@/lib/plan-rail";
 
 const DISCOVER_LIMIT = 120;
 
@@ -96,6 +97,9 @@ export default async function HomePage({
     // first (`changed`), then most recently changed; bounded.
     supabase.rpc("my_plan_rail", { p_limit: 8 }),
   ]);
+  // UX #8: winner name/area and "your vote needed" for the <= 8 rail plans.
+  const railPlans = (myPlans.data ?? []) as PlanSummary[];
+  const railExtras = railPlans.length ? await readRailExtras(supabase, railPlans, user.id) : {};
   // Either half failing renders [] -- what the single query rendered on
   // failure -- rather than half a grid that looks complete.
   const spots = curatedSpots.data && ownSpots.data && !ownSpots.error
@@ -120,7 +124,7 @@ export default async function HomePage({
         spots={spots}
         visits={visits.rows}
         visitsUnavailable={visits.failed}
-        myPlans={(myPlans.data ?? []) as PlanSummary[]}
+        myPlans={railPlans.map((plan) => ({ ...plan, ...railExtras[plan.id] }))}
         myPlansUnavailable={Boolean(myPlans.error)}
         smartSearchAvailable={Boolean(process.env.OPENAI_API_KEY)}
         plannedWith={friends.rows}

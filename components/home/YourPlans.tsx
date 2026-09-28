@@ -8,6 +8,10 @@ import type { Plan } from "@/lib/types";
 export type PlanSummary = Pick<Plan, "id" | "title" | "status" | "stage" | "deadline" | "event_time" | "winner_spot_id" | "decided_at" | "stage_changed_at"> & {
   /** P31 (074): the stage moved on since this account last opened the plan. */
   changed?: boolean;
+  /** UX #8 (lib/plan-rail.ts): the decided plan's winner, when readable. */
+  winner?: { name: string; area: string };
+  /** UX #8: this seat still has a pick to make in the current round. */
+  voteNeeded?: boolean;
 };
 
 // Dubai time and one fixed locale, so the server and the browser render the
@@ -62,7 +66,9 @@ export default function YourPlans({ plans, unavailable }: { plans: PlanSummary[]
                   {changeBadge(plan)}{ago(plan.stage_changed_at, now) ? ` · ${ago(plan.stage_changed_at, now)}` : ""}
                 </span>
               )}
+              {plan.voteNeeded && <span className="your-plans__needed">Your vote needed</span>}
               <span className="your-plans__name">{plan.title}</span>
+              {plan.winner && <span className="your-plans__winner">{plan.winner.name} · {plan.winner.area}</span>}
               <span className="your-plans__state">{stateLine(plan, now)}</span>
             </Link>
           </li>
