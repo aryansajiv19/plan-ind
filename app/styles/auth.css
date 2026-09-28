@@ -1,11 +1,6 @@
 /* app/styles/auth.css — Sign-in, onboarding, and the not-found / error shells. */
 
-/* Authentication shares the product palette.
-
-   The `--auth-*` set used to be six hardcoded day values with no night
-   variant, which is why /login and /onboarding stayed white after sunset
-   (FE.4). They are now aliases onto the themed tokens, so auth flips with
-   everything else and there is one palette to maintain, not two. */
+/* Auth aliases the themed tokens, so it flips with everything else. */
 .auth-shell {
   --auth-paper: var(--color-paper);
   --auth-card: var(--color-card);
@@ -137,13 +132,8 @@
   font: inherit;
   font-size: .9rem;
 }
-/* `outline: none` plus a champagne glow used to sit here, which opted the
-   only two auth fields out of the global :focus-visible ring and replaced
-   it with an 18% tint — the tinted focus indicator the standards file
-   rules out, and too faint to carry 1.4.11 on its own. Deleted rather
-   than restated locally: the global rule above already draws the graphite
-   inset ring, so the fix is to stop overriding it. The border tint stays
-   as a soft cue for pointer focus, where no ring is drawn. */
+/* No local focus override: the global ring applies. The border tint is a
+   pointer-focus cue only. */
 .auth-input:focus {
   border-color: var(--auth-metal);
 }
@@ -257,17 +247,7 @@
   line-height: 1.5;
   text-align: center;
 }
-/* The Terms and Privacy links inside this sentence had NO affordance at
-   all: same colour as the prose around them (both resolved to #969A9E,
-   parent and link identical) and text-decoration: none. Not "colour is the
-   only signal" — there was no signal. On the one sentence where being able
-   to reach the terms actually matters.
-
-   Underlined rather than recoloured, which is the treatment .legal-page
-   already uses for inline prose links, so this is the house pattern
-   applied rather than a new one invented. The graphite focus ring's inset
-   exception for inline links (§19.7) already anticipates links living in
-   sentences here. */
+/* Inline links are underlined (the house pattern), not only recoloured. */
 .auth-footnote a {
   color: var(--auth-ink);
   text-decoration: underline;

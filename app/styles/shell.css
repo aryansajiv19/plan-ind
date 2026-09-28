@@ -75,17 +75,8 @@
   }
 }
 
-/* ── Touch targets ─────────────────────────────────────────────────
-   Found by auditing at 390px, which had never been done: the bottom tab
-   bar was 37px tall, the day/night toggle 34px, the 1–5 rating control
-   34x34, and several action buttons 18px. Apple HIG and the Android
-   guidance both put the comfortable minimum at 44px; WCAG 2.2 (2.5.8)
-   sets the floor at 24px, which these cleared while still being fiddly
-   under a thumb.
-
-   Phone-scoped so desktop keeps its density — a cursor is precise, a
-   thumb is not. Inline links inside a sentence are deliberately left
-   alone; 2.5.8 exempts them and padding them would break the text. */
+/* ── Touch targets: 44px on phones ─────────────────────────────────
+   Desktop keeps its density; inline links in a sentence are exempt. */
 @media (max-width: 640px) {
   .home-app-tab {
     min-height: 2.85rem;

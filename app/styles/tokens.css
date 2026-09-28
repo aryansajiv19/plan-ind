@@ -1,17 +1,9 @@
 /* app/styles/tokens.css — Design tokens: the text floor, @theme, the night palette, radii, button padding. */
 
-/* ── Desktop text floor ────────────────────────────────────────────
-   Owner, 2026-09-16: this is a web app first. Sub-12px labels read fine on
-   a phone held at arm's length and are unreadable on a desktop monitor, and
-   a measured 39% of home's text rendered under 12px there. Every small
-   font-size below is written as max(value, var(--type-floor)): the floor is
-   0 on phones (sizes unchanged) and 12px from tablet width up. New small
-   sizes should use the same form.
-
-   --page-gutter is the one side margin every page rail shares (nav and
-   sections alike): 1rem on phones, 2rem from tablet width up. Before this,
-   desktop fell back to the phone's 16px below 1248px and the nav computed
-   its own from 100vw, which drifts from 100% by the scrollbar width. */
+/* ── Desktop text floor and page gutter ─────────────────────────────
+   Small sizes are written max(value, var(--type-floor)): 0 on phones,
+   12px from tablet up (a web app first). --page-gutter is the one side
+   margin every rail shares. */
 :root {
   --type-floor: 0px;
   --page-gutter: 1rem;
@@ -51,35 +43,16 @@
   --font-display: var(--font-display-family), Georgia, serif;
   --font-body: var(--font-hanken), system-ui, sans-serif;
 
-  /* ── Motion curves: two, and only two ────────────────────────────
-     --ease-settle does not overshoot. Entrances, snaps, and returns to
-     rest — anything arriving that the person did not push.
-
-     --ease-spring overshoots and settles back. PRESS FEEDBACK ONLY. The
-     handoff narrows this from its previous use: a spring on an entrance
-     reads as bounce, and bounce is what turn 13 stripped out.        */
+  /* Two curves only: --ease-settle for entrances and returns (no
+     overshoot); --ease-spring for press feedback only. */
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ── Registry compatibility ────────────────────────────────────────
-   Two shims so components pulled from the shadcn / kokonutui registries
-   render in OUR system instead of their own. Both are here rather than
-   edited into each component, so the next one added needs no rewriting.
-
-   1. The `dark:` variant. Registry components are written against
-      Tailwind's default dark variant, which follows prefers-color-scheme
-      or a `.dark` class. Ours is the Dubai clock on [data-theme]. This
-      line repoints the variant; without it every `dark:` class in a
-      registry component is dead code.
-
-   2. shadcn's semantic token names. `new-york` style components expect
-      --background / --foreground / --primary / --input / --border and
-      friends. Rather than define a second palette, they alias onto ours.
-      A registry component asking for --primary gets the accent; one
-      asking for --muted-foreground gets our muted. Anything not mapped
-      here should be added when a component actually needs it, never
-      invented ahead of time. */
+   shadcn/kokonutui components render in our system: `dark:` follows the
+   Dubai clock on [data-theme], and their semantic names alias onto ours.
+   Add an alias only when a component needs it. */
 @custom-variant dark ([data-theme="night"] &);
 
 :root {
@@ -120,14 +93,9 @@
   --color-destructive-foreground: var(--destructive-foreground);
 }
 
-/* ── Tokens that live in :root, not @theme, on purpose ─────────────
-   Tailwind v4 TREE-SHAKES @theme variables that nothing references, and a
-   dropped variable is silent — the rule that reads it just computes to
-   nothing. `--color-live-dot` and the durations were emitted at night (the
-   night block below is plain CSS, always kept) and dropped by day, so the
-   day ground had no live-dot at all. Anything consumed only through
-   `var()` therefore belongs here, where it is always emitted; @theme is
-   for tokens that should also generate a utility class. */
+/* Consumed only through var(): kept in :root because Tailwind v4
+   tree-shakes unreferenced @theme vars (the day ground once lost its
+   live-dot this way). */
 :root {
   --color-accent-tint: rgba(206, 153, 99, 0.18); /* sand tint for inactive chips */
   --color-live-dot: #0c657c; /* same as --color-live */
@@ -199,34 +167,9 @@
   --radius-hero: 22px;
 }
 
-/* ── SPECS.md §21: which components wear a colour ───────────────────
-   REWRITTEN. The first version filled photo-less cards, alternating tan
-   and blue by index. It met its own spec exactly — 1 in 3, none adjacent,
-   assigned by position — and the owner rejected the result as forced. The
-   diagnosis: photo presence is a per-instance data condition, so keying on
-   it looks no less arbitrary than keying on index. Both scatter.
-
-   The model now: a colour belongs to a COMPONENT, not an instance. A kind
-   of surface is always the same colour, everywhere, every time.
-
-   - Repeating content is NEVER filled — venue cards, vote options, visit
-     tiles, wall tiles, friend rows, results. Photography is their colour.
-     That is the single biggest change here, and it is why the Discover
-     grid's fills are gone rather than retuned.
-   - A fill never sits on or behind a photographed surface. That half of
-     the old rule survives, as a constraint rather than a trigger.
-   - The DEFAULT instrument is accent TEXT, not a fill: brown #7C5841
-     carries small text natively in v7 (5.80 canvas), which v6 could not
-     do. The section kickers already read --color-punch-text, so colour
-     lands by component role wherever they appear, with no blocks and
-     nothing to scatter.
-   - The framing fill (--color-fill-quiet) is the exception, capped at ONE
-     filled surface per screen, and is deliberately unused for now: the
-     spec's own fallback is "if in doubt, brown text and no fill."
-
-   If a fill is ever added here, its ink is never softened — full white on
-   navy/slate/brown, full navy on tan/grey/light. The v6 failure was a
-   softened mid-tone landing ~4.0:1. */
+/* Colour belongs to a COMPONENT, never an instance: repeating content
+   (cards, tiles, rows) is never filled, photography is its colour, and a
+   fill never sits behind a photo. Accent TEXT is the default instrument. */
 
 /* ── Button padding scale (SPECS.md §13.2) ──────────────────────────
    The .demo-* button family had 12+ selectors each choosing padding and

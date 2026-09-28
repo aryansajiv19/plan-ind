@@ -314,17 +314,8 @@
 /* dark ink on the tan fill = 5.74:1 */
 
 /* ── Press feedback ────────────────────────────────────────────────
-   Audited the primary actions end to end — deal, vote, continue,
-   decide, share, RSVP, claim/mark booked, rate — and these were the
-   ones that changed colour on press but never moved. A phone has no
-   hover, so on the target device they had no acknowledgement at all.
-
-   Two halves, and the asymmetry is the point:
-     down — 90ms ease-out, blunt, tracks the thumb
-     up   — 300ms --ease-settle, no overshoot (SPECS.md §7)
-
-   Transform only. Guarded by no-preference so reduced motion gets
-   the colour change and nothing else. */
+   Down 90ms ease-out, up 300ms --ease-settle; transform only, and only
+   under no-preference (reduced motion keeps the colour change). */
 .vote-toggle,
 .vote-rating-button,
 .vote-pool-progress button,

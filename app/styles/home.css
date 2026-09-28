@@ -51,13 +51,7 @@
   height: 2.75rem;
   border: 1px solid var(--color-ink);
   border-radius: var(--radius-control);
-  /* The filled-primary pair, not `var(--color-ink)` + `color: white`.
-     Those two mechanisms agreed only by coincidence in light, where the
-     ink IS dark and white sits on it at 18.10 — so the hardcoded white
-     never looked wrong and the --primary-* pair went unused on the app's
-     own primary controls while /login quietly used it. In dark the ink is
-     #D4C9C7 and white on it is 1.62: the button's own label, unreadable.
-     Reading the pair makes both grounds correct from one declaration. */
+  /* The filled-primary pair, so the label reads on both grounds. */
   background: var(--primary-fill);
   color: var(--primary-ink);
   box-shadow: none;
@@ -627,12 +621,7 @@
   border-radius: var(--radius-panel);
   background: var(--color-card);
   backdrop-filter: none;
-  /* SPECS.md §19.3 reverses the previous note here. This used to declare
-     a border and no shadow, on the reasoning that a surface takes an edge
-     rather than a lift. The "smooth" direction inverts that: the card
-     separates from the canvas by VALUE (ΔL* 3.25) plus a soft diffuse
-     elevation, and the hairline goes. Opaque card, not a 96% mix, so the
-     value step is the full measured one. */
+  /* Separates from the canvas by value plus a soft lift, no hairline. */
   box-shadow: var(--elevation-card);
   transform: none;
 }

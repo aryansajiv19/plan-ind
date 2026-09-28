@@ -1,12 +1,7 @@
 /* app/styles/vote.css — Shared-plan voting: states, rounds, gravity, option cards, actions. */
 
-/* Shared-plan voting uses the same language as home.
-
-   This block used to redefine the ENTIRE day palette locally. That is now
-   deleted, and deleting it is load-bearing: with the theme applied at the
-   document root, a local day palette here would win over [data-theme="night"]
-   and the vote page would be the one screen that never went dark. `--vote-metal`
-   stays only as an alias so the many rules below that read it keep working. */
+/* Shared-plan voting uses home's language. No local palette here: it
+   would beat [data-theme] at the root. `--vote-metal` is only an alias. */
 .vote-experience {
   --vote-metal: var(--color-punch);
   position: relative;

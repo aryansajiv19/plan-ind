@@ -35,17 +35,8 @@ h3,
   }
 }
 
-/* ── The signature element: press, and one hairline ────────────────
-   `.token` used to live here — a hard 5px/6px offset shadow that made
-   things look tappable. It is GONE, deliberately. The design handoff
-   rejected turn 8 for precisely that language ("thick ink-brass
-   outlines, hard offset shadows... nothing thinner than a 2px border"),
-   and turn 13 replaced it with restraint: depth comes from perspective
-   (see .tilt-card) and from one brass hairline, never from a drop.
-
-   What survives is the PRESS, which is the half that was always about
-   feel rather than decoration: down is a scale, not a translate, and the
-   status line afterwards says what actually happened. */
+/* ── The press ─────────────────────────────────────────────────────
+   Down is a scale, not a translate; no offset shadows (rejected). */
 @layer components {
   .token {
     transition:
@@ -89,19 +80,8 @@ h3,
   scroll-margin-top: 5.5rem;
 }
 
-/* Visible keyboard focus everywhere (quality floor).
-   The ring is drawn INSIDE the control's own box. Segmented controls here
-   sit between 0px and 9px apart — the category group tabs are flush — so any
-   outward offset paints over the neighbouring button instead of marking the
-   focused one.
-
-   currentColor, not --color-ink: a graphite ring inset into an INK-FILLED
-   button is ink on ink and invisible, which is how every primary button
-   ("Save memory", "Create", the nav's "Sign in") had no visible focus at all
-   in day — measured, then photographed. Following the control's own text
-   colour flips the ring to paper exactly where the fill is ink, and changes
-   nothing on paper-filled controls. Worst case in the app is a muted link's
-   ring at 12.02:1 day / 5.41:1 night, both well past SC 1.4.11's 3:1. */
+/* Visible keyboard focus everywhere: drawn INSIDE the control (they sit
+   0-9px apart) in currentColor, so it shows on filled buttons too. */
 :focus-visible {
   outline: 2px solid currentColor;
   outline-offset: -2px;
@@ -114,18 +94,8 @@ h3,
   --ring-outer: #f2f2f2;
   --ring-inner: #07090d;
 }
-/* `:root[...]` rather than `[data-theme="night"]` on purpose, and it is
-   load-bearing. A bare attribute selector plus :focus-visible scores
-   (0,2,0), which TIES with the ~20 per-component rules further down this
-   file (`.plan-category-group:focus-visible` and friends) — and a tie
-   loses to source order. Verified by Tab press before the fix: those rules
-   still painted their solid graphite outline over this ring, so dark
-   showed the two inset bands AND an ink outline, three visible bands on
-   one control, with an outward offset on the nav link that an ancestor's
-   overflow can clip. Adding :root takes this to (0,3,0) and it supersedes
-   them, which is the intent — §23.7 exists because the graphite ring is
-   invisible on a near-black card, so in dark it must replace rather than
-   accompany. */
+/* `:root[...]` is load-bearing: (0,3,0) beats the per-component
+   :focus-visible rules, so night's two-band ring replaces them. */
 :root[data-theme="night"] :focus-visible {
   /* Transparent, not removed. In forced-colors / Windows High Contrast the
      box-shadow below is dropped entirely, and a transparent outline is
@@ -133,16 +103,8 @@ h3,
      most likely to need it. */
   outline: 2px solid transparent;
   outline-offset: -2px;
-  /* Inset so an ancestor's overflow cannot clip it, and so it follows
-     border-radius for free.
-
-     ⚠ This REPLACES box-shadow, which is safe only because dark uses no
-     elevation shadows — a shadow must be darker than its ground and
-     the ink ground is already at the floor, so soft elevation is structurally
-     invisible here and separation comes from value plus the --color-line
-     hairline. If any dark surface later gains an outer box-shadow, this
-     rule must APPEND to it, or focusing that surface silently deletes its
-     elevation. */
+  /* Inset (never clipped, follows the radius). It REPLACES box-shadow:
+     a surface that gains an outer shadow must append to it instead. */
   box-shadow:
     inset 0 0 0 2px var(--ring-outer),
     inset 0 0 0 4px var(--ring-inner);
