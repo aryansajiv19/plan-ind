@@ -358,6 +358,28 @@
   transform: translateY(-2px) scale(1.008);
 }
 
+/* The pick stamps on: a small chip pops in with a spring and a tilt
+   (entry only, via @starting-style), so choosing feels like a move. */
+.vote-option[data-selected]:not([data-locked])::after {
+  content: "✓ Your pick";
+  position: absolute;
+  top: 2.4rem;
+  right: 0.6rem;
+  z-index: 4;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-live);
+  color: var(--color-paper);
+  font-size: max(0.72rem, var(--type-floor));
+  font-weight: 700;
+  pointer-events: none;
+  transition: opacity 180ms ease-out, transform 280ms var(--ease-spring);
+  @starting-style {
+    opacity: 0;
+    transform: scale(0.8) rotate(-8deg);
+  }
+}
+
 /* A chosen card still sinks when pressed again to unpick. Not behind a
    no-preference guard: a press response is direct manipulation, and the
    global reduce block zeroes its duration instead. */

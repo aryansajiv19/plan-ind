@@ -3,6 +3,7 @@
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import type { PersonCard, ProfileVisit, Spot, WrappedSummary, WrappedSummaryError } from "@/lib/types";
 import type { PlannedWith, VisitCollectionView, VisitPhotoView } from "@/lib/social";
 import StartPlanForm from "@/components/StartPlanForm";
@@ -149,7 +150,14 @@ export default function HomeExperience({
     haptic(6);
     scrollOffsets.current[current] = window.scrollY;
     viewRef.current = next;
-    setSelectedView(next);
+    // A quick cross-fade between tabs where the browser has View
+    // Transitions (base.css); elsewhere, and under reduced motion, a swap.
+    const swap = () => flushSync(() => setSelectedView(next));
+    if (document.startViewTransition && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      document.startViewTransition(swap);
+    } else {
+      swap();
+    }
     if (push) {
       const url = next === "plan"
         ? window.location.pathname

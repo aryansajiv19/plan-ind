@@ -159,3 +159,21 @@ h3,
     animation: none;
   }
 }
+
+/* Tab switches on /home (HomeExperience): the page cross-fades with a
+   short rise; the nav keeps its own name so it holds still. */
+.home-nav {
+  view-transition-name: app-nav;
+}
+::view-transition-old(root) {
+  animation: 140ms ease-out both vt-out;
+}
+::view-transition-new(root) {
+  animation: 220ms var(--ease-settle) both vt-in;
+}
+@keyframes vt-out {
+  to { opacity: 0; }
+}
+@keyframes vt-in {
+  from { opacity: 0; transform: translateY(8px); }
+}
