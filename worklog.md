@@ -80,6 +80,7 @@ Apply in order. Every migration is additive and re-run safe unless noted.
 | 077 | `migration-077-visitor-photos.sql` | **yes — applied live 2026-09-28 via Supabase MCP (lead; owner: "apply any migrations").** consume_otp_limit gains 'place-photo-anon' (40/min, 120/day per hashed IP; visitors take the shared 'place-photo-global' counter to 200 of 300). Verified: body has the scope, security definer, execute anon+authenticated (as 072). Security review (B): Medium + Low fixed. |
 | 078 | `migration-078-booking-fixes.sql` | **yes — applied live 2026-09-28 via Supabase MCP (lead; owner: "apply any migrations").** Stale unbooked claims cleared (delete_my_account, mark_booked(false), host patch), host can release any unbooked claim, a post-decision holder can't mark a reopenable plan booked. Pre-apply cleanup count 0. Verified: live fingerprints of the 4 functions equalled main's schema.sql before, and equal a local apply of the file after (b6d5ff9b / d7e6cb8a / 1e70e687 / 76ff0947); grants authenticated only. Security review (B): Medium + Low fixed. |
 | 079 | `migration-079-venue-photos.sql` | **yes — applied live 2026-09-28 via Supabase MCP (lead; owner: "apply any migrations"), after the deploy carrying public/venues.** 17 self-hosted Wikimedia Commons photos (CC BY / BY-SA, licences read from the Commons API). Verified: all 17 URLs 200 on live; curated with own photo 6 → 23; photographable (own or Google) 64 of 76 visible. |
+| 080 | `migration-080-remove-plan-member.sql` | **yes — applied live 2026-09-28 via Supabase MCP (lead; owner approved in session), after a security review (2 Lows folded in).** Host removes a member and it sticks: `plan_removed_members` (RLS, zero policies, not published), `remove_plan_member` (definer, authenticated only), `claim_plan_access` refuses removed accounts, `enforce_plan_membership`/`set_time_availability` take the plan row in key share. Verified by catalog: grants, prosrc, prosecdef, publication. |
 | 049 / 051 | `migration-049-hide-voter-user-id.sql`, `migration-051-hide-creator-user-id.sql` | **yes — applied live 2026-09-19 13:20Z via Supabase MCP (T0), owner-approved.** Confirmed 2026-09-26 by `list_migrations` (`migration_049_hide_voter_user_id`, `migration_051_hide_creator_user_id`). This row said "NOT applied" for a week because the entry recording it lived only on the unpushed `ai-engineering`. |
 
 `npm run test:smoke` asserts the 019 guards against the live project. All ten
@@ -222,3 +223,12 @@ secret → Google provider); Routes API on the key's project; a Cloud budget
 alert; Tresind Studio's unlicensed venue-site photo: keep it (the venue's own
 promotional image) or drop it for its Google photo (credited). Lead's lean:
 drop it, since the Google photo is credited and free of doubt. Estimate to "all together": ~6-10 working hours from resume.
+
+
+## 2026-09-28 (evening) — owner redirect, three sessions
+
+- Owner: keep the redesign's energy, restore the Dubai palette and a sleek italic face. Shipped: desert palette (owner's hexes, night = desert sky), Cormorant italic display + Hanken, Archivo deleted, soft corners, photo credits as a hover (c) mark, shared nav on /place, /plan and /demo/vote, photo tiles for kinds of night, sand-dune cards for photo-less places.
+- Sessions: B (Platform, plan-ind-e6) and C (Journey, plan-ind-4f) work in lanes and hand off to the lead, who merges. Plan: ~/.claude/plans/rippling-puzzling-donut.md.
+- Merged: B health (abort on unmount), B CRUD (edit/delete own custom places, remove a saved link, host removes a member + 080), B live route map (Maps JS + Routes computeRoutes, falls back to lib/dubai-metro.ts until NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY exists), C demo journey (whole flow signed out on /demo/vote), C journey E2E.
+- CI: only the 24 visual baselines fail (redesign); regenerate once the design settles.
+- Owner-only: create the referrer-restricted browser key (Maps JavaScript API + Routes API, per-API daily quotas) and set NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY in Vercel; Supabase Auth (anon off → Turnstile → Google provider).
