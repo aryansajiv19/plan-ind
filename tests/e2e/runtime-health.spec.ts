@@ -70,14 +70,25 @@ type Collected = {
 
 function collect(page: Page): Collected {
   const out: Collected = { consoleErrors: [], pageErrors: [], failedRequests: [], badResponses: [] };
+  // Our own origin, or no URL at all (still ours to explain): a cross-origin
+  // frame's console (the keyless Google map on /place logs CORS and 500s from
+  // inside its iframe) is not ours to break or fix.
+  const appOrigin = () => new URL(page.url()).origin;
+  const fromUs = (url: string) => { if (!url) return true; try { return new URL(url).origin === appOrigin(); } catch { return true; } };
   page.on("console", (msg) => {
-    if (msg.type() !== "error") return;
+    if (msg.type() !== "error" || !fromUs(msg.location().url)) return;
     const text = msg.text();
     if (IGNORED_CONSOLE.some((re) => re.test(text))) return;
     out.consoleErrors.push(text);
   });
-  // An uncaught exception or unhandled rejection in the page.
-  page.on("pageerror", (error) => out.pageErrors.push(error.message));
+  // An uncaught exception or unhandled rejection. It carries no frame, so a
+  // stack that names only other origins (a third-party frame's script) is
+  // theirs; anything else, including no stack, counts.
+  page.on("pageerror", (error) => {
+    const urls = error.stack?.match(/https?:\/\/[^\s)]+/g) ?? [];
+    if (urls.length > 0 && !urls.some(fromUs)) return;
+    out.pageErrors.push(error.message);
+  });
   // Only the page's own frame counts: a third-party iframe's inner traffic (the
   // Google map on /place, a Turnstile widget) isn't ours to break or fix, and
   // one Google map tile answering 500 once failed this spec on a clean run.
@@ -120,6 +131,37 @@ async function loadEveryImage(page: Page) {
 
 /** Venue photos: ours (self-hosted or the storage bucket), the demo's, or Google's. */
 const VENUE_PHOTO = /\/venues\/|spot-photos|\/demo\/[^/?]+\.(webp|jpe?g|png)|googleusercontent/;
+
+// Controls for collect()'s origin filter: our own errors still count, and a
+// foreign frame's don't. The foreign frame is on www.google.com (the only
+// frame origin the CSP allows besides Turnstile, and the map's own), answered
+// locally by page.route, so it never touches Google.
+test("control: an error from the app's own origin is still counted", async ({ page }) => {
+  const found = collect(page);
+  await page.goto("/privacy");
+  await page.addScriptTag({ content: "console.error('e2e control: app console error'); setTimeout(() => { throw new Error('e2e control: app uncaught'); });" });
+  await expect.poll(() => found.consoleErrors.concat(found.pageErrors).join(" | ")).toContain("e2e control: app uncaught");
+  expect(found.consoleErrors).toContain("e2e control: app console error");
+});
+
+test("control: an error inside a foreign-origin frame is not ours", async ({ page }) => {
+  await page.route("https://www.google.com/e2e-control-frame", (route) => route.fulfill({
+    contentType: "text/html",
+    body: "<script>console.error('e2e control: foreign frame error'); throw new Error('e2e control: foreign uncaught');</script>",
+  }));
+  const found = collect(page);
+  await page.goto("/privacy");
+  const logged = page.waitForEvent("console", (msg) => msg.text() === "e2e control: foreign frame error");
+  await page.evaluate(() => {
+    const frame = document.createElement("iframe");
+    frame.src = "https://www.google.com/e2e-control-frame";
+    document.body.append(frame);
+  });
+  await logged; // it really was logged, so the filter is what kept it out
+  await page.waitForTimeout(500);
+  expect(found.consoleErrors).toEqual([]);
+  expect(found.pageErrors).toEqual([]);
+});
 
 for (const path of PAGES) {
   test(`no runtime errors or failed requests: ${path}`, async ({ page }) => {
