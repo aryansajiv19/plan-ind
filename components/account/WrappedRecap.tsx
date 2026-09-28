@@ -1,5 +1,6 @@
 "use client";
 
+import ShareStoryButton from "@/components/decided/ShareStoryButton";
 import { useEffect, useRef, useState } from "react";
 import type { WrappedSummary, WrappedSummaryError } from "@/lib/types";
 
@@ -145,6 +146,7 @@ export default function WrappedRecap({
             </div>
             <div className="demo-wrapped__actions">
               <button type="button" disabled={sharing} onClick={() => void shareWrapped()}>{sharing ? "Sharing…" : "Share Wrapped"}</button>
+              <ShareStoryButton href="/wrapped/story" fileName="deal-three-wrapped.png" />
               <button type="button" aria-expanded="true" aria-controls="wrapped-recap" onClick={closeRecap}>Close</button>
             </div>
             <p className="demo-wrapped__status" role="status" aria-live="polite">{shareStatus}</p>

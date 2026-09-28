@@ -9,6 +9,7 @@ import type { Seat } from "@/lib/tally";
 import { categoryMeta } from "@/lib/categories";
 import { knownMinSpend } from "@/lib/price";
 import TonightPanel from "@/components/decided/TonightPanel";
+import ShareStoryButton from "@/components/decided/ShareStoryButton";
 import { fitForEvent, hoursLabel } from "@/lib/open-hours";
 import { dubaiMinuteOfDay, fromDubaiInput, toDubaiInput } from "@/lib/dubai-phase";
 import GettingThere from "@/components/vote/GettingThere";
@@ -236,6 +237,7 @@ export default function DecidedPlan({
       </div>
 
       <TonightPanel plan={plan} winner={winner} coming={coming} />
+      <ShareStoryButton href={`/plan/${plan.id}/story`} fileName="deal-three-plan.png" />
 
       <WhosInSection rsvps={rsvps} roster={roster} isMine={mine.rsvp} onSetRsvp={onSetRsvp} onSetCarpool={onSetCarpool} />
 
