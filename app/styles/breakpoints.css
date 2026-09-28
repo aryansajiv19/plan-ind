@@ -91,7 +91,9 @@
 }
 
 @media (max-width: 520px) {
-  .home-experience {
+  /* Any page carrying the tab bar (now fixed to the bottom) keeps its last
+     control clear of it, not only /home. */
+  body:has(.home-app-tabs) {
     padding-bottom: 4.8rem;
   }
   .home-nav {

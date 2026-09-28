@@ -103,7 +103,7 @@
 
 .home-app-tab {
   position: relative;
-  padding: 0.68rem 1rem;
+  padding: 0.68rem clamp(0.4rem, 1.1vw, 1rem);
   font-size: max(0.9rem, var(--type-floor));
   font-weight: 500;
   letter-spacing: 0.01em;
