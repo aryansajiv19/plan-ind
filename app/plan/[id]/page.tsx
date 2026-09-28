@@ -44,7 +44,7 @@ export default function VotePage() {
     plan, setPlan, spots, planSpots, setPlanSpots, votes, setVotes, rsvps, setRsvps, ratings, setRatings, myRows, refetchMine,
     participantHash, refetchVotes, refetchRsvps, refetchRatings, refetchPlanSpots, refetchPlan,
   } = usePlanData(id);
-  const { voterName, accountNameTried } = useVoterName();
+  const { voterName, accountNameTried, nameFailed, retryName } = useVoterName();
   usePlanSeen(id, access, plan?.stage); // P31: clears this plan's "changed" on the /home rail
   // Which rows are this account's: by id once my_plan_rows exists, by name before (F2).
   const mine = mineFrom(myRows, voterName);
@@ -120,6 +120,7 @@ export default function VotePage() {
   // Hold while the account's name resolves, so the page doesn't flash. With no
   // name at all (no profile name, metadata or email), Settings is the fix.
   if (!voterName) {
+    if (nameFailed) return <VoteState kind="retry" onRetry={retryName} />;
     return <VoteState kind={accountNameTried ? "needs-name" : "loading"} planTitle={plan?.title} />;
   }
 

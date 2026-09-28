@@ -79,7 +79,10 @@ const REMOVED = "The host removed you from this plan.";
  */
 export async function claimPlanAccess(planId: string): Promise<PlanAccessResult> {
   const supabase = getSupabase();
-  const { data: { user } } = await supabase.auth.getUser();
+  const account = await readAccount();
+  // A failed auth read is not a verdict: the retry screen, never "sign in".
+  if (account === "unavailable") return { ok: false, reason: "claim-failed" };
+  const user = account.user;
   if (!user || user.is_anonymous) return { ok: false, reason: "signed-out" };
 
   const { data: claimed, error } = await supabase.rpc("claim_plan_access", { p_plan_id: planId });
@@ -96,4 +99,23 @@ export async function claimPlanAccess(planId: string): Promise<PlanAccessResult>
   }
   // claim_plan_access returns false only when no plan has that id.
   return claimed ? { ok: true } : { ok: false, reason: "not-found" };
+}
+
+type AuthUser = Awaited<ReturnType<ReturnType<typeof getSupabase>["auth"]["getUser"]>>["data"]["user"];
+
+/**
+ * The signed-in account, or "unavailable" when the auth read itself failed.
+ * A missing session is `{ user: null }`; a network error, timeout or 5xx is
+ * retried twice and then reported as unavailable. Collapsing the two is how a
+ * real member under load was shown "Sign in to join this plan" (2026-09-28).
+ */
+export async function readAccount(): Promise<{ user: AuthUser } | "unavailable"> {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const { data, error } = await getSupabase().auth.getUser();
+    if (!error) return { user: data.user };
+    const status = (error as { status?: number }).status;
+    if (error.name === "AuthSessionMissingError" || status === 401 || status === 403) return { user: null };
+    await new Promise((resolve) => setTimeout(resolve, 400 * (attempt + 1)));
+  }
+  return "unavailable";
 }
