@@ -680,3 +680,24 @@
   color: var(--color-muted);
   font-size: max(0.8rem, var(--type-floor));
 }
+
+/* Home rail: the winner's name on a decided plan; a sand pill when it's
+   your turn (components/home/YourPlans.tsx). */
+.your-plans__winner {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--color-punch-text);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.05rem;
+}
+.your-plans__needed {
+  display: inline-block;
+  margin-top: 0.3rem;
+  padding: 0.15rem 0.55rem;
+  border-radius: var(--radius-pill);
+  background: var(--primary-fill);
+  color: var(--primary-ink);
+  font-size: max(0.72rem, var(--type-floor));
+  font-weight: 700;
+}
