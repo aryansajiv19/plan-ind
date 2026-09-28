@@ -4,7 +4,7 @@ import { distanceKm } from "@/lib/dubai-areas";
 import { useMinuteClock } from "@/hooks/use-minute-clock";
 import GetThere from "@/components/GetThere";
 import { metroLine } from "@/lib/dubai-metro";
-import VenueMap from "@/components/VenueMap";
+import RouteMap from "@/components/route/RouteMap";
 
 // The decided plan's "Where": the address, how far it is from the plan's
 // start point, deep links into the maps apps people already use (the
@@ -46,7 +46,10 @@ export default function GettingThere({ plan, winner }: { plan: Pick<Plan, "origi
         </a>
       </div>
       <GetThere venue={winner} className="mt-2" />
-      <VenueMap venue={winner} />
+      <RouteMap
+        venue={winner}
+        planOrigin={plan.origin_latitude != null && plan.origin_longitude != null ? { latitude: plan.origin_latitude, longitude: plan.origin_longitude } : null}
+      />
     </div>
   );
 }

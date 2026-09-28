@@ -45,12 +45,15 @@ export async function proxy(request: NextRequest) {
   const csp = [
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://challenges.cloudflare.com${isDev ? " 'unsafe-eval'" : ""}`,
-    "style-src 'self' 'unsafe-inline'",
+    // The route map (components/route/RouteMap.tsx): Maps JS loads its
+    // scripts through 'strict-dynamic', its Roboto stylesheet and fonts from
+    // Google Fonts, and calls maps.googleapis.com and routes.googleapis.com (Route.computeRoutes).
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     // Dev only: a local Supabase serves signed photo URLs over plain http.
     // Production keeps https: only.
     `img-src 'self' data: blob: https:${isDev && supabaseOrigin.startsWith("http:") ? ` ${supabaseOrigin}` : ""}`,
-    "font-src 'self' data:",
-    `connect-src 'self' ${supabaseOrigin} ${supabaseSocket} https://challenges.cloudflare.com`,
+    "font-src 'self' data: https://fonts.gstatic.com",
+    `connect-src 'self' ${supabaseOrigin} ${supabaseSocket} https://challenges.cloudflare.com https://maps.googleapis.com https://routes.googleapis.com`,
     // Turnstile, and the venue map (components/VenueMap.tsx). The map's own
     // tiles and scripts load under Google's policy inside the frame; only its
     // document URL is ours to allow. The keyed Maps Embed API is the same host.
