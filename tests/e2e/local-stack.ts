@@ -74,7 +74,10 @@ export interface Member {
  * a display name (the vote screen greets the voter with it) and a birthday
  * in member_ages (what /onboarding collects), so no screen detours.
  */
-export async function signInAsMember(context: BrowserContext, baseURL: string, name: string): Promise<Member> {
+export async function signInAsMember(
+  context: BrowserContext, baseURL: string, name: string,
+  { onboarded = true }: { onboarded?: boolean } = {},
+): Promise<Member> {
   const url = localStackUrl();
   const admin = localAdmin();
   const email = `${emailPrefixFor(currentRunId())}${randomUUID().slice(0, 8)}@${E2E_EMAIL_DOMAIN}`;
@@ -86,12 +89,16 @@ export async function signInAsMember(context: BrowserContext, baseURL: string, n
   if (createError || !created.user) throw new Error(`creating ${email} failed: ${createError?.message}`);
   const userId = created.user.id;
 
-  const { error: profileError } = await admin.from("people")
-    .insert({ id: userId, display_name: name, auth_user_id: userId });
-  if (profileError) throw new Error(`profile for ${email} failed: ${profileError.message}`);
-  const { error: ageError } = await admin.from("member_ages")
-    .insert({ user_id: userId, date_of_birth: "1990-01-01" });
-  if (ageError) throw new Error(`birthday for ${email} failed: ${ageError.message}`);
+  // onboarded: false is a brand-new sign-up -- no profile, no birthday -- which
+  // the app must send through /onboarding.
+  if (onboarded) {
+    const { error: profileError } = await admin.from("people")
+      .insert({ id: userId, display_name: name, auth_user_id: userId });
+    if (profileError) throw new Error(`profile for ${email} failed: ${profileError.message}`);
+    const { error: ageError } = await admin.from("member_ages")
+      .insert({ user_id: userId, date_of_birth: "1990-01-01" });
+    if (ageError) throw new Error(`birthday for ${email} failed: ${ageError.message}`);
+  }
 
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
     ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? LOCAL_ANON_KEY;
