@@ -4,8 +4,9 @@ import type { BookingClaim } from "@/hooks/use-booking-claim";
 import { googleCalUrl, icsHref } from "@/lib/calendar";
 
 // The decided plan's booking and calendar links (075). Any member takes or
-// hands back the booking; whoever holds it, or the host, marks it booked
-// (mark_booked checks both; the offer here only mirrors that).
+// hands back the booking; whoever holds it, or the host, marks it booked; the
+// host can clear anyone's unbooked claim (078). The server checks each; the
+// offer here only mirrors that.
 export default function BookingSection({
   plan,
   winner,
@@ -55,6 +56,13 @@ export default function BookingSection({
               {booking.mine && (
                 <button type="button" onClick={booking.release} disabled={booking.busy} className="vote-result__button px-4 py-2 text-sm font-display disabled:opacity-50">
                   I can’t book after all
+                </button>
+              )}
+              {/* 078: the host frees a claim someone else holds (a no-show, a
+                  late joiner) so the group can take it again. */}
+              {isHost && !booking.mine && (
+                <button type="button" onClick={booking.release} disabled={booking.busy} className="vote-result__button px-4 py-2 text-sm font-display disabled:opacity-50">
+                  Clear the booking
                 </button>
               )}
             </>

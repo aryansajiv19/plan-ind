@@ -18,7 +18,9 @@ const RESULT_COMMANDS: Record<string, { rpc: string; status: Record<string, numb
   edit: { rpc: "edit_plan", failure: "That plan could not be edited.", status: { edited: 200, nothing_to_change: 200, not_found: 404, not_host: 403, voting_started: 409, invalid_title: 422, invalid_deadline: 422 } },
   reopen: { rpc: "reopen_plan", failure: "That plan could not be reopened.", status: { reopened: 200, not_found: 404, not_host: 403, not_decided: 409, no_rounds: 409, booked: 409, already_happened: 409, invalid_deadline: 422 } },
 };
-const PATCH_FIELDS = new Set(["event_time", "booking_owner", "booked"]);
+// The booking moved to its own RPCs (075 claim/release/mark_booked, 078 host
+// release), so the host patch carries only the event time (review F7).
+const PATCH_FIELDS = new Set(["event_time"]);
 // A full instant with an explicit offset. Date.parse is looser than Postgres
 // ("2026" or "UTC+4" parse in JS but fail or shift in timestamptz), so the
 // route only forwards what both read the same way.
