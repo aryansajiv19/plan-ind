@@ -7,6 +7,8 @@ import DemoMoodboards from "@/components/demo/DemoMoodboards";
 import { friendPlanPrefill, originForArea, type PlanPrefill } from "@/lib/board-plan";
 import { validateImageFile } from "@/lib/upload";
 import { categoryLabel, categoryMeta } from "@/lib/categories";
+import { initialsOf } from "@/lib/avatar";
+import { friendStats, visitStats } from "@/components/demo/demoStats";
 
 type AccountView = "discover" | "been" | "friends" | "profile";
 
@@ -17,7 +19,9 @@ const PLACES = [
     category: "Dinner",
     key: "dinner",
     group: "food",
-    price: "AED 220 pp",
+    district: "Downtown and DIFC",
+    // Catalogue truth (070): AED 250 minimum spend, 18+.
+    price: "AED 250 pp",
     rating: "4.8",
     friendNote: "Sara and 3 friends would return",
     image: "/demo/alserkal-dinner.webp",
@@ -29,6 +33,7 @@ const PLACES = [
     category: "Beach club",
     key: "beach_club",
     group: "water",
+    district: "Al Sufouh",
     price: "AED 350 pp",
     rating: "4.6",
     friendNote: "Maya saved this for Saturday",
@@ -41,6 +46,7 @@ const PLACES = [
     category: "Sports",
     key: "padel",
     group: "active",
+    district: "Al Quoz",
     price: "AED 100 pp",
     rating: "4.7",
     friendNote: "You, Zain and Omar have been",
@@ -53,7 +59,9 @@ const PLACES = [
     category: "Escape",
     key: "outdoors",
     group: "leisure",
-    price: "Free",
+    district: "Outside the city",
+    // The catalogue's spend (the wall shows the same); entry itself is free.
+    price: "AED 20 pp",
     rating: "4.9",
     friendNote: "Your group rated sunrise highest",
     image: "/demo/al-qudra-morning.webp",
@@ -62,10 +70,10 @@ const PLACES = [
 ] as const;
 
 const VISITS = [
-  { id: "ninive", place: PLACES[0], date: "02 Aug 2026", score: "4.8", people: ["S", "M", "Z"], note: "The garden table was the right call. Stayed for another round and nobody wanted to leave." },
-  { id: "padel-art", place: PLACES[2], date: "27 Jul 2026", score: "4.6", people: ["O", "Z"], note: "Booked ninety minutes, played for two hours. Tuesday evenings are quieter." },
-  { id: "drift-beach", place: PLACES[1], date: "19 Jul 2026", score: "4.5", people: ["M", "L", "S"], note: "Go early for the calm pool, stay through sunset, skip the loud late session." },
-  { id: "al-qudra", place: PLACES[3], date: "06 Jul 2026", score: "4.9", people: ["O", "N", "Z"], note: "Left at 5:10, reached before sunrise. Coffee and bikes made the morning." },
+  { id: "ninive", place: PLACES[0], date: "2026-08-02", score: 4.8, with: ["sara", "maya", "zain"], note: "The garden table was the right call. Stayed for another round and nobody wanted to leave." },
+  { id: "padel-art", place: PLACES[2], date: "2026-07-27", score: 4.6, with: ["omar", "zain"], note: "Booked ninety minutes, played for two hours. Tuesday evenings are quieter." },
+  { id: "drift-beach", place: PLACES[1], date: "2026-07-19", score: 4.5, with: ["maya", "leila", "sara"], note: "Go early for the calm pool, stay through sunset, skip the loud late session." },
+  { id: "al-qudra", place: PLACES[3], date: "2026-07-06", score: 4.9, with: ["omar", "leila", "zain"], note: "Left at 5:10, reached before sunrise. Coffee and bikes made the morning." },
 ] as const;
 
 interface DemoCollection {
@@ -80,21 +88,21 @@ const DEFAULT_COLLECTIONS: DemoCollection[] = [
   { id: "weekends", name: "Weekend reset", visitIds: ["drift-beach", "al-qudra"] },
 ];
 
-const FRIENDS = [
-  { initials: "SA", name: "Sara Ahmed", shared: 14, last: "Ninive", note: "Dinner · arts · low-key nights" },
-  { initials: "ZM", name: "Zain Malik", shared: 11, last: "Padel Art", note: "Padel · games · late food" },
-  { initials: "MK", name: "Maya Khan", shared: 9, last: "Drift Beach", note: "Beach clubs · brunch · wellness" },
-  { initials: "OA", name: "Omar Ali", shared: 8, last: "Al Qudra Lakes", note: "Outdoors · sports · coffee" },
-  { initials: "LN", name: "Leila Noor", shared: 6, last: "Cinema Akil", note: "Cinema · live music · dessert" },
+const FRIEND_ROWS = [
+  { id: "sara", name: "Sara Ahmed", note: "Dinner · arts · low-key nights" },
+  { id: "zain", name: "Zain Malik", note: "Padel · games · late food" },
+  { id: "maya", name: "Maya Khan", note: "Beach clubs · brunch · wellness" },
+  { id: "omar", name: "Omar Ali", note: "Outdoors · sports · coffee" },
+  { id: "leila", name: "Leila Noor", note: "Cinema · live music · dessert" },
 ] as const;
 
-const CITY_AREAS = [
-  { name: "Jumeirah", share: 31, visits: 10 },
-  { name: "Al Quoz", share: 25, visits: 8 },
-  { name: "Marina and JBR", share: 19, visits: 6 },
-  { name: "Downtown and DIFC", share: 16, visits: 5 },
-  { name: "Elsewhere", share: 9, visits: 3 },
-] as const;
+// Every number on Been, Friends and Profile comes from the visits above.
+const STAT_VISITS = VISITS.map((visit) => ({ id: visit.id, placeName: visit.place.name, date: visit.date, score: visit.score, district: visit.place.district, with: visit.with }));
+const STATS = visitStats(STAT_VISITS);
+const FRIENDS = FRIEND_ROWS.map((friend) => ({ ...friend, ...friendStats(STAT_VISITS, friend.id) }))
+  .sort((a, b) => b.outings - a.outings);
+const firstLetter = (id: string) => FRIEND_ROWS.find((friend) => friend.id === id)?.name.slice(0, 1) ?? "?";
+const dayLabel = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" });
 
 function FaceStack({ people }: { people: readonly string[] }) {
   return (
@@ -231,8 +239,8 @@ export default function DemoAccountViews({
     return (
       <section className="demo-view" aria-labelledby="been-title">
         <header className="demo-view__header demo-view__header--split">
-          <div><h1 id="been-title">32 places, properly remembered.</h1></div>
-          <div className="demo-account-stats"><span><strong>18</strong> this year</span><span><strong>6</strong> weekend streak</span><span><strong>4.7</strong> average</span><span><strong>86</strong> photos</span></div>
+          <div><h1 id="been-title">{STATS.places} places, properly remembered.</h1></div>
+          <div className="demo-account-stats"><span><strong>{STATS.inYear}</strong> in {STATS.year}</span><span><strong>{STATS.average}</strong> average</span><span><strong>{VISITS.length}</strong> photos</span></div>
         </header>
 
         <div className="demo-collection-bar">
@@ -253,9 +261,9 @@ export default function DemoAccountViews({
             <article key={visit.place.name} className={`demo-visit ${index === 0 ? "demo-visit--featured" : ""}`}>
               <div className="demo-visit__image"><Image src={visit.place.image} alt={`Photo from ${visit.place.name}`} fill sizes="(max-width: 700px) 100vw, 50vw" /></div>
               <div className="demo-visit__content">
-                <div className="demo-visit__top"><span>{visit.date}</span><strong>{visit.score} / 5</strong></div>
+                <div className="demo-visit__top"><span>{dayLabel(visit.date)}</span><strong>{visit.score} / 5</strong></div>
                 <h2>{visit.place.name}</h2><p className="demo-place-card__area">{visit.place.area}</p><p>{visit.note}</p>
-                <div className="demo-visit__people"><FaceStack people={visit.people} /><span>Went with {visit.people.length} friends</span></div>
+                <div className="demo-visit__people"><FaceStack people={visit.with.map(firstLetter)} /><span>Went with {visit.with.length} friends</span></div>
                 <div className="demo-visit__collection-action">
                   {activeFolder ? (
                     <button type="button" onClick={() => removeVisitFromActiveCollection(visit.id)}>Remove from {activeFolder.name}</button>
@@ -306,9 +314,9 @@ export default function DemoAccountViews({
           <div className="demo-friend-list">
             {FRIENDS.map((friend) => (
               <article key={friend.name} className="demo-friend-row">
-                <span className="demo-friend-avatar" aria-hidden="true">{friend.initials}</span>
-                <div><h2>{friend.name}</h2><p>{friend.note}</p><small>Last together · {friend.last}</small></div>
-                <div className="demo-friend-row__numbers"><strong>{friend.shared}</strong><span>outings</span></div>
+                <span className="demo-friend-avatar" aria-hidden="true">{initialsOf(friend.name)}</span>
+                <div><h2>{friend.name}</h2><p>{friend.note}</p>{friend.last && <small>Last together · {friend.last}</small>}</div>
+                <div className="demo-friend-row__numbers"><strong>{friend.outings}</strong><span>outings</span></div>
                 <button type="button" onClick={() => onStartPlan(friendPlanPrefill(friend.name, `${friend.name}:${Date.now()}`))}>Plan together</button>
               </article>
             ))}
@@ -321,31 +329,32 @@ export default function DemoAccountViews({
   return (
     <section className="demo-view" aria-labelledby="profile-title">
       <header className="demo-profile-head">
-        <span className="demo-profile-avatar" aria-hidden="true">{name.slice(0, 2).toUpperCase()}</span>
+        <span className="demo-profile-avatar" aria-hidden="true">{initialsOf(name)}</span>
         <div><h1 id="profile-title">{name}</h1><p>Dubai · planning since March 2026</p></div>
       </header>
 
-      <div className="demo-profile-stats"><span><strong>32</strong> places</span><span><strong>47</strong> plans</span><span><strong>18</strong> friends</span><span><strong>86</strong> photos</span></div>
+      <div className="demo-profile-stats"><span><strong>{STATS.places}</strong> places</span><span><strong>{FRIENDS.length}</strong> friends</span><span><strong>{VISITS.length}</strong> photos</span></div>
 
       <section className="demo-city-pattern" aria-labelledby="city-pattern-title">
         <div className="demo-city-pattern__lead">
-          <h2 id="city-pattern-title">Jumeirah is 31% of your city.</h2>
-          <p>You have gone out six weekends in a row. Your current best is nine.</p>
-          <div><span><strong>6</strong> current streak</span><span><strong>9</strong> personal best</span></div>
+          <h2 id="city-pattern-title">
+            {STATS.topArea ? `${STATS.topArea.name} is ${STATS.topArea.share}% of your city.` : `Spread across ${STATS.areas.length} areas, no favourite yet.`}
+          </h2>
+          <p>Most recently {VISITS[0].place.name}, {dayLabel(VISITS[0].date)}. Rated {STATS.average} on average.</p>
         </div>
         <div className="demo-area-list">
-          {CITY_AREAS.map((area) => (
+          {STATS.areas.map((area) => (
             <div key={area.name}>
               <div><span>{area.name}</span><strong>{area.share}%</strong></div>
               <progress value={area.share} max="100" aria-label={`${area.name}, ${area.share}% of visits`} />
-              <small>{area.visits} places</small>
+              <small>{area.count} {area.count === 1 ? "place" : "places"}</small>
             </div>
           ))}
         </div>
       </section>
 
 
-      <section className="demo-photo-strip"><div><h2>Your July in Dubai</h2></div>{PLACES.map((place) => <span key={place.name}><Image src={place.image} alt={`From ${place.name}`} fill sizes="160px" /></span>)}</section>
+      <section className="demo-photo-strip"><div><h2>Your {STATS.period} in Dubai</h2></div>{VISITS.map((visit) => <span key={visit.id}><Image src={visit.place.image} alt={`From ${visit.place.name}`} fill sizes="160px" /></span>)}</section>
     </section>
   );
 }
