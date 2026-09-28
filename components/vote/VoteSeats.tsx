@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { avatarStyle, initialsOf } from "@/lib/avatar";
 import type { Seat } from "@/lib/tally";
 
@@ -24,8 +27,9 @@ export default function VoteSeats({
   /** Other people with the plan open right now. */
   othersHere: string[];
   /** 080: the host's control; only seats with a seat key (an account) can go. */
-  onRemove?: (seatKey: string, name: string) => void;
+  onRemove?: (seatKey: string) => void;
 }) {
+  const [confirming, setConfirming] = useState<string | null>(null);
   return (
     <div className="vote-seats">
       <ul className="vote-seats__row" aria-label="People on this plan">
@@ -39,9 +43,15 @@ export default function VoteSeats({
               <span className="sr-only">
                 {you ? `${name} (you)` : name}, {done ? "picked" : "not picked yet"}
               </span>
-              {onRemove && !you && key.startsWith("s:") && (
-                <button type="button" onClick={() => onRemove(key.slice(2), name)} aria-label={`Remove ${name} from this plan`}>Remove</button>
-              )}
+              {onRemove && !you && key.startsWith("s:") && (confirming === key ? (
+                // Two steps: no un-remove exists (080), so one stray tap must not be final.
+                <>
+                  <button type="button" onClick={() => { setConfirming(null); onRemove(key.slice(2)); }}>Remove {name} for good</button>
+                  <button type="button" onClick={() => setConfirming(null)}>Keep</button>
+                </>
+              ) : (
+                <button type="button" onClick={() => setConfirming(key)} aria-label={`Remove ${name} from this plan`}>Remove</button>
+              ))}
             </li>
           );
         })}

@@ -47,7 +47,7 @@ export default function PlanHeader({
   /** P21: the plan's time poll, and this account's seat on it. */
   when: { planId: string; seatKey: string | null };
   /** 080: set for the host only; removes a member by seat key. */
-  onRemove?: (seatKey: string, name: string) => void;
+  onRemove?: (seatKey: string) => void;
 }) {
   useMinuteClock(); // re-render each minute, so the "Closes in" chip counts down
   return (

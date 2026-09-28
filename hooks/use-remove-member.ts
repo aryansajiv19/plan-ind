@@ -21,9 +21,7 @@ export function useRemoveMember({ id, setNotice, refetchVotes, refetchRsvps }: {
   refetchVotes: () => unknown;
   refetchRsvps: () => unknown;
 }) {
-  return useCallback(async (seatKey: string, name: string) => {
-    // No un-remove exists (080), so a stray tap must not be final.
-    if (!window.confirm(`Remove ${name} from this plan? They won’t be able to rejoin.`)) return;
+  return useCallback(async (seatKey: string) => {
     const { data, error } = await getSupabase().rpc("remove_plan_member", { p_plan_id: id, p_seat_key: seatKey });
     const result = error ? null : (data as { result?: string } | null)?.result;
     if (result === "removed") {

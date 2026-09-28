@@ -126,4 +126,57 @@ end; $$;
 revoke all on function claim_plan_access(uuid) from public, anon, authenticated;
 grant execute on function claim_plan_access(uuid) to authenticated;
 
+-- Security review of 080 (Low): a removed member's write already in flight
+-- read plan_access before the removal committed and landed after it. Both
+-- membership checks now take the plan row in key share first, so they wait
+-- out a remove_plan_member (or leave_plan) holding it for update. The FK's
+-- own key share comes only at the end of the statement, after the check.
+-- enforce_plan_membership: the 020 body plus that line (votes, rsvps, ratings).
+create or replace function enforce_plan_membership()
+returns trigger language plpgsql set search_path = public, pg_temp as $$
+begin
+  perform 1 from plans where id = new.plan_id for key share;
+  if auth.uid() is null or not exists (
+    select 1 from plan_access a where a.plan_id = new.plan_id and a.user_id = auth.uid()
+  ) then
+    raise exception 'Plan access required' using errcode = '42501';
+  end if;
+  return new;
+end; $$;
+
+-- set_time_availability: the 073 body plus the same line.
+create or replace function set_time_availability(p_plan_id uuid, p_option_id uuid, p_available boolean)
+returns jsonb language plpgsql security definer set search_path = public, pg_temp as $$
+declare
+  target plans%rowtype;
+  seat text := md5(p_plan_id::text || ':' || auth.uid()::text);
+begin
+  perform 1 from plans where id = p_plan_id for key share;
+  if not is_permanent_user() or not exists (
+    select 1 from plan_access where plan_id = p_plan_id and user_id = auth.uid()
+  ) then
+    raise exception 'Plan access required' using errcode = '42501';
+  end if;
+  select * into target from plans where id = p_plan_id;
+  if target.status <> 'open' then
+    raise exception 'This plan is decided; its time is set' using errcode = '22023';
+  end if;
+  if not exists (select 1 from plan_time_options where id = p_option_id and plan_id = p_plan_id) then
+    raise exception 'That time is not on this plan' using errcode = '22023';
+  end if;
+  -- Un-ticking a past time is harmless; ticking one would vote for it.
+  if p_available and exists (select 1 from plan_time_options where id = p_option_id and starts_at <= now()) then
+    raise exception 'That time has passed' using errcode = '22023';
+  end if;
+  if p_available then
+    insert into plan_time_votes (option_id, plan_id, seat_key) values (p_option_id, p_plan_id, seat)
+    on conflict do nothing;
+  else
+    delete from plan_time_votes where option_id = p_option_id and seat_key = seat;
+  end if;
+  return jsonb_build_object('option_id', p_option_id, 'available', p_available, 'seat_key', seat);
+end; $$;
+revoke all on function set_time_availability(uuid, uuid, boolean) from public, anon, authenticated;
+grant execute on function set_time_availability(uuid, uuid, boolean) to authenticated;
+
 commit;

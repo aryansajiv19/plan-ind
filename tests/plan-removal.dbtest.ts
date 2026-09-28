@@ -99,6 +99,20 @@ describe("080 host removes a member", { skip: SKIP }, () => {
     assert.equal(await psql(`select count(*) from plan_access where plan_id='${p}' and user_id='${host}'`), "1");
   });
 
+  test("a seat key from another plan names nobody here, and deletes nothing", async () => {
+    const [host, a] = [await user(), await user()];
+    const [p, q] = [await plan(host, [a]), await plan(host, [a])];
+    const foreign = seat(q, a);
+    assert.equal(JSON.parse(await as(host, `select remove_plan_member('${p}', '${foreign}')`)).result, "not_member");
+    assert.equal(await rows(p, a), "1|1");
+    assert.equal(await rows(q, a), "1|1");
+  });
+
+  test("anon can't call it, and the removal record is not in the Realtime publication", async () => {
+    assert.equal(await psql(`select has_function_privilege('anon', 'remove_plan_member(uuid,text)', 'execute')`), "f");
+    assert.equal(await psql(`select count(*) from pg_publication_tables where tablename = 'plan_removed_members'`), "0");
+  });
+
   test("the removal record is unreadable to clients and goes with the plan", async () => {
     const [host, a] = [await user(), await user()];
     const p = await plan(host, [a]);
