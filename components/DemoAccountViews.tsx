@@ -244,7 +244,7 @@ export default function DemoAccountViews({
           </div>
           <div className="demo-collection-create">
             <label htmlFor="collection-name">New collection</label>
-            <div><input id="collection-name" value={newCollectionName} onChange={(event) => setNewCollectionName(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); createCollection(); } }} placeholder="Tokyo food list, date nights…" maxLength={40} /><button type="button" onClick={createCollection} disabled={!newCollectionName.trim()}>Create</button></div>
+            <div><input id="collection-name" value={newCollectionName} onChange={(event) => setNewCollectionName(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); createCollection(); } }} placeholder="JBR brunch list, date nights…" maxLength={40} /><button type="button" onClick={createCollection} disabled={!newCollectionName.trim()}>Create</button></div>
           </div>
         </div>
 

@@ -2,15 +2,17 @@
 // invented and only ever rendered under the "Sample data" banner (house rule
 // 1: never show invented data as someone's own). No Supabase, no persistence.
 //
-// The spots are real Dubai venues in the curated catalog's shape; the first
-// five match supabase/seed.sql so the sample and a fresh local database agree.
+// The spots are real Dubai venues in the curated catalog's shape; four match
+// supabase/seed.sql so the sample and a fresh local database agree. Every one
+// fits the sample budget: a card the real deal could never produce is a lie.
 // The people are made up and render as initials only (lib/avatar.ts), never
 // as photos or faces.
 import type { Spot } from "@/lib/types";
 
 export const SAMPLE_PLAN = {
   title: "Where are we eating Thursday?",
-  budgetPerPerson: 600,
+  // The composer's top budget (DEAL_BUDGET_OPTIONS), so the sample is a plan anyone can make.
+  budgetPerPerson: 500,
   radiusKm: 25,
   originLabel: "DIFC",
   poolCount: 3,
@@ -22,8 +24,8 @@ export const SAMPLE_VOTER = "You";
 export const SAMPLE_FRIENDS = ["Maya Haddad", "Omar Khalid", "Priya Nair", "Sam Carter"] as const;
 
 type SpotSeed = Pick<Spot, "id" | "name" | "area" | "cuisine" | "price_band" | "min_spend" | "open_till" | "vibe" | "booking_url">
-  // The five real catalogue venues keep their real ids and Google place ids,
-  // so the sample shows their real photos; the other four stay sample-only.
+  // The four real catalogue venues keep their real ids and Google place ids,
+  // so the sample shows their real photos; the other five stay sample-only.
   & Partial<Pick<Spot, "google_place_id">>
   // P29: where the catalogue knows it (data/venue-facts.json), so the sample
   // winner's directions are real. Unknown stays null, never invented.
@@ -59,7 +61,7 @@ export const SAMPLE_POOLS: readonly (readonly Spot[])[] = [
     dinner({ id: "sample-baitmaryam", name: "Bait Maryam", area: "JLT", cuisine: "Levantine", price_band: "$$", min_spend: 110, open_till: "11pm", vibe: "Home style Levantine, like dinner at an aunt's", booking_url: null }),
   ],
   [
-    dinner({ id: "a0000000-0000-0000-0000-000000000005", google_place_id: "ChIJcfzwzo0TXz4RyQpaHkMBWsE", name: "Tresind Studio", area: "DIFC", cuisine: "Indian", price_band: "$$$", min_spend: 550, open_till: "11pm", vibe: "Theatrical tasting menu, book weeks ahead", booking_url: "https://www.tresindstudio.com" }),
+    dinner({ id: "sample-alustad", name: "Al Ustad Special Kebab", area: "Bur Dubai", cuisine: "Persian", price_band: "$", min_spend: 0, open_till: "", vibe: "Family-run kebab house, walls of framed photos", booking_url: null }),
     dinner({ id: "sample-zuma", name: "Zuma", area: "DIFC", cuisine: "Japanese izakaya", price_band: "$$$", min_spend: 400, open_till: "1am", vibe: "Robata grill, loud room, see and be seen", booking_url: null }),
     dinner({ id: "sample-almallah", name: "Al Mallah", area: "Al Satwa", cuisine: "Lebanese", price_band: "$", min_spend: 40, open_till: "3am", vibe: "Shawarma institution, pavement tables, open late", booking_url: null }),
   ],

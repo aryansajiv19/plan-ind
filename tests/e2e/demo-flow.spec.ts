@@ -85,7 +85,7 @@ test("/demo/vote plays the whole journey: compose, deal, rounds, final, reveal, 
   await expect(page.locator("canvas.winner-reveal__canvas")).toHaveCount(0, { timeout: 10_000 });
   await expect(name).not.toHaveAttribute("data-hidden", /.*/);
   await expect(name).toHaveText(
-    /^(Reif Japanese Kushiyaki|Ravi Restaurant|3Fils|Bu Qtair|Orfali Bros Bistro|Bait Maryam|Tresind Studio|Zuma|Al Mallah)$/,
+    /^(Reif Japanese Kushiyaki|Ravi Restaurant|3Fils|Bu Qtair|Orfali Bros Bistro|Bait Maryam|Al Ustad Special Kebab|Zuma|Al Mallah)$/,
   );
 
   // Booking round trip: claim, mark, unmark, give it back, and the offer is

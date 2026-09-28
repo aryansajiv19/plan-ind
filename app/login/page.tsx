@@ -1,13 +1,8 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import AuthForm from "@/components/AuthForm";
-import { getCurrentUser, safeNextPath } from "@/lib/auth";
+import { getCurrentUser, planIdFromNext, safeNextPath } from "@/lib/auth";
 import { fetchPlanSharePreview } from "@/lib/share-preview-server";
-
-// The plan a `next` of /plan/<uuid> points at, if any.
-function planIdFrom(next: string): string | null {
-  return /^\/plan\/([0-9a-f-]{36})$/i.exec(next)?.[1] ?? null;
-}
 
 export default async function LoginPage({
   searchParams,
@@ -24,8 +19,11 @@ export default async function LoginPage({
   // the keyless read that already builds this link's WhatsApp card, so it
   // shows nothing a link holder can't already see, and never a member-scoped
   // row. Null (bad id, deleted plan, timeout) falls back to generic copy.
-  const planId = planIdFrom(next);
-  const planTitle = planId ? (await fetchPlanSharePreview(planId))?.title ?? null : null;
+  const planId = planIdFromNext(next);
+  const preview = planId ? await fetchPlanSharePreview(planId) : null;
+  const planTitle = preview?.title ?? null;
+  const host = preview?.host_first_name ?? null;
+  const decided = preview?.status === "decided";
   // Fixed copy only: echoing the param would let any link write the alert.
   const pageError = params.error === "google"
     ? "Google sign-in isn’t available right now. Use your email instead."
@@ -40,10 +38,13 @@ export default async function LoginPage({
           <Link href="/" className="auth-mark" aria-label="Deal three home"><span>D/</span><b>03</b></Link>
           {planId ? (
             <>
-              <p className="auth-kicker">A plan is waiting</p>
+              <p className="auth-kicker">
+                {decided ? (host ? `${host}’s group has decided` : "The group has decided")
+                  : host ? `${host} wants your vote` : "A plan is waiting"}
+              </p>
               <h1 id="auth-title">
                 {planTitle
-                  ? <>Sign in to vote on<br /><em>“{planTitle}”</em></>
+                  ? <>{decided ? "Sign in to see" : "Sign in to vote on"}<br /><em>“{planTitle}”</em></>
                   : <>Sign in to join<br /><em>this plan.</em></>}
               </h1>
               <p className="auth-copy">Continue with Google or get a code by email. It takes seconds, and you’ll land right back on the plan.</p>
