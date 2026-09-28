@@ -184,7 +184,6 @@ export default function PlaceLinkImporter({ demoMode = false }: { demoMode?: boo
   return (
     <section className="place-link-importer" aria-labelledby="place-link-title">
       <div className="place-link-importer__intro">
-        <p className="home-section-kicker">Found something online?</p>
         <h2 id="place-link-title">Save the link. Find the place.</h2>
         <p>Paste a post from Instagram, TikTok, Facebook, Reddit or another website.</p>
       </div>

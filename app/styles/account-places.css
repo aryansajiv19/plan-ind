@@ -2,7 +2,7 @@
 
 /* Populated account preview views. Every `next/image` fill parent is
    explicitly positioned and sized so media cannot escape into the page. */
-.demo-place-card__image,
+.demo-place-card__band,
 .demo-visit__image,
 .demo-photo-upload__preview,
 .demo-photo-strip > span,
@@ -13,7 +13,6 @@
   isolation: isolate;
 }
 
-.demo-place-card__image,
 .demo-visit__image {
   aspect-ratio: 16 / 10;
 }
@@ -25,7 +24,7 @@
   min-height: 10rem;
 }
 
-.demo-place-card__image img,
+.demo-place-card__band img,
 .demo-visit__image img,
 .demo-photo-upload__preview img,
 .demo-photo-strip img,
@@ -33,7 +32,7 @@
   object-fit: cover;
 }
 
-.demo-place-card__image,
+.demo-place-card__band,
 .demo-visit__image,
 .demo-photo-strip > span {
   border-radius: var(--radius-control);
@@ -55,19 +54,18 @@
   align-items: end;
 }
 
-/* SPECS.md §18: these were larger and bolder than the real front-door hero
-   (.home-title, ceiling 4.75rem / weight 500) that they sit under in the
-   hierarchy. Section headers now match the hero's weight and stay well
-   below its size. .demo-profile-head h1 diverges below — a signed-in
-   username is a data label, not copy. */
+/* Every account view speaks in the cover voice: headings condensed, heavy
+   and uppercase, the page title at headline size. */
+.demo-view :is(h1, h2, h3) {
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 0.92;
+  text-transform: uppercase;
+}
 .demo-view__header h1,
 .demo-profile-head h1 {
   max-width: 48rem;
-  margin-top: 0.7rem;
-  font-size: clamp(2.2rem, 4vw, 3.4rem);
-  line-height: 0.96;
-  letter-spacing: -0.055em;
-  font-weight: 500;
+  font-size: clamp(2.6rem, 5vw, 4.5rem);
 }
 
 .demo-view__header > p {
@@ -310,25 +308,78 @@
   cursor: pointer;
 }
 .demo-filter-tabs button[aria-pressed="true"] {
-  border-color: var(--color-punch-text);
-  color: var(--color-ink);
+  border-color: var(--color-ink);
+  background: var(--color-ink);
+  color: var(--color-card);
 }
 
+/* Listings, magazine-dense: four columns at desktop. */
 .demo-place-grid {
   margin-top: 2.5rem;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 3rem 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(15.5rem, 1fr));
+  gap: 2.5rem 1.25rem;
 }
-/* Most Discover cards do have a photograph, so the group hue needs somewhere
-   to live above it. A 3px masthead rule — same device as .vote-shell, so a
-   place and the plan you make from it read as the same kind of night. */
 .demo-place-card {
   min-width: 0;
-  border-top: 3px solid var(--color-line);
+}
+/* The band: the photo, or plain, with the code chip up top and the name set
+   over its foot on a scrim (the vote card's overlay). */
+.demo-place-card__band {
+  aspect-ratio: 4 / 5;
+  background: color-mix(in srgb, var(--color-ink) 7%, var(--color-card));
+}
+/* No photo: the category code as texture, never an empty frame. */
+.demo-place-card__band:not([data-photo])::before {
+  content: attr(data-code);
+  position: absolute;
+  inset: 22% 0 auto;
+  color: color-mix(in srgb, var(--color-ink) 12%, transparent);
+  font-family: var(--font-display);
+  font-size: clamp(5rem, 9vw, 8rem);
+  font-stretch: 70%;
+  font-weight: 900;
+  line-height: 1;
+  text-align: center;
+}
+.demo-place-card__band:not([data-photo]) .demo-place-card__chip {
+  visibility: hidden;
+}
+.demo-place-card__over {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0.85rem;
+  pointer-events: none;
+}
+.demo-place-card__band[data-photo] .demo-place-card__over {
+  background: linear-gradient(0deg, rgba(12, 12, 16, 0.9) 0%, rgba(12, 12, 16, 0.3) 48%, transparent 72%);
+  color: var(--photo-ink);
+}
+.demo-place-card__chip {
+  align-self: flex-start;
+  padding: 0.15rem 0.4rem;
+  background: var(--color-punch);
+  color: #0c0c10;
+  font-size: max(0.7rem, var(--type-floor));
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+.demo-place-card__band .photo-credit {
+  inset: 0.55rem 0.55rem auto auto;
+  max-width: 55%;
+}
+.demo-place-card__over h2 {
+  font-size: clamp(1.5rem, 2vw, 1.9rem);
+}
+.demo-place-card__band[data-photo] .demo-place-card__area {
+  color: var(--photo-body);
 }
 .demo-place-card__body {
-  padding: 1rem 0 1.5rem;
+  padding: 0.85rem 0 0.5rem;
 }
 .demo-place-card__meta,
 .demo-visit__top {
@@ -350,15 +401,15 @@
 .demo-visit__top strong {
   color: var(--color-punch-text);
 }
-.demo-place-card h2,
 .demo-visit h2 {
   margin-top: 0.65rem;
   font-size: 1.45rem;
 }
 .demo-place-card__area {
-  margin-top: 0.2rem;
+  margin-top: 0.3rem;
   color: var(--color-muted);
-  font-size: 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 600;
 }
 .demo-place-card__body > p:not(.demo-place-card__area, .demo-place-card__context) {
   margin-top: 0.8rem;
@@ -372,17 +423,22 @@
   font-size: max(0.74rem, var(--type-floor));
   font-weight: 600;
 }
-.demo-place-card button,
+.demo-place-card__body > button,
 .demo-primary-action {
   margin-top: 1rem;
   min-height: var(--btn-h-md);
   padding: var(--btn-pad-md);
-  border: 1px solid var(--color-ink);
-  background: var(--color-ink);
-  color: var(--color-card);
-  font-size: max(0.72rem, var(--type-floor));
-  font-weight: 700;
+  border: 1px solid var(--primary-fill);
+  background: var(--primary-fill);
+  color: #0c0c10;
+  font-size: max(0.78rem, var(--type-floor));
+  font-weight: 800;
   cursor: pointer;
+}
+.demo-place-card__body > button {
+  border-color: var(--color-line);
+  background: transparent;
+  color: var(--color-ink);
 }
 .demo-empty {
   margin-top: 2rem;
@@ -391,22 +447,17 @@
   color: var(--color-muted);
 }
 
+/* A fact line, not a row of big numbers: the counts read as a sentence. */
 .demo-account-stats {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.5rem;
-}
-.demo-account-stats span {
-  display: grid;
-  gap: 0.2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.4rem;
   color: var(--color-muted);
-  font-size: max(0.68rem, var(--type-floor));
 }
 .demo-account-stats strong {
+  margin-right: 0.3rem;
   color: var(--color-ink);
-  font-family: var(--font-display);
-  font-size: 1.65rem;
-  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .demo-collection-bar {
@@ -439,8 +490,12 @@
   cursor: pointer;
 }
 .demo-collection-tabs button[aria-selected="true"] {
-  border-color: var(--color-punch-text);
-  color: var(--color-ink);
+  border-color: var(--color-ink);
+  background: var(--color-ink);
+  color: var(--color-card);
+}
+.demo-collection-tabs button[aria-selected="true"] span {
+  color: inherit;
 }
 .demo-collection-tabs span {
   margin-left: 0.3rem;
@@ -547,8 +602,7 @@
   color: var(--color-ink);
   font-size: max(0.65rem, var(--type-floor));
 }
-.demo-visit__collection-action button,
-.demo-collection-empty button {
+.demo-visit__collection-action button {
   padding: 0;
   border: 0;
   border-bottom: 1px solid var(--home-metal);

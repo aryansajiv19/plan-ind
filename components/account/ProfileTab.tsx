@@ -26,7 +26,7 @@ export default function ProfileTab({
     <section className="demo-view" aria-labelledby="profile-title">
       <header className="demo-profile-head">
         <span className={`demo-profile-avatar${emoji ? " demo-profile-avatar--emoji" : ""}`} aria-hidden="true">{emoji ?? initialsOf(name)}</span>
-        <div><p className="home-section-kicker">Your account</p><h1 id="profile-title">{name}</h1><p>Dubai</p></div>
+        <div><h1 id="profile-title">{name}</h1><p>Dubai</p></div>
       </header>
 
       <SettingsBlock name={name} emoji={emoji} personId={personId} />
@@ -40,7 +40,6 @@ export default function ProfileTab({
       {stats.areas.length > 0 ? (
         <section className="demo-city-pattern" aria-labelledby="city-pattern-title">
           <div className="demo-city-pattern__lead">
-            <p className="home-section-kicker">Your Dubai</p>
             <h2 id="city-pattern-title">{stats.areas[0].name} is {stats.areas[0].share}% of your city.</h2>
             <p>Counted from the {stats.total} {stats.total === 1 ? "visit" : "visits"} in your log.</p>
           </div>

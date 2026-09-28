@@ -77,11 +77,13 @@ export default async function PlacePage({
 
   return (
     <main className="place-page">
-      <div className={`place-hero ${hasPhoto ? "" : "place-hero--typographic"}`}>
+      <div className={`place-hero ${hasPhoto ? "" : "place-hero--typographic"}`} data-code={cat.code}>
         <VenuePhoto spot={spot} sizes="100vw" preload className="place-hero__img" />
         <div className="place-hero__scrim" aria-hidden="true" />
+        {/* The code is a chip in the band's corner, as on the vote card: not a
+            label stacked over the name. */}
+        <p className="place-hero__category">{cat.code}</p>
         <div className="place-hero__body">
-          <p className="place-hero__category">{cat.code}</p>
           <h1 className="place-hero__name">{spot.name}</h1>
           <p className="place-hero__area">{spot.area}</p>
         </div>
@@ -105,7 +107,7 @@ export default async function PlacePage({
               href={spot.booking_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="place-action"
+              className="place-action place-action--secondary"
             >
               Book a table
             </a>
@@ -126,7 +128,7 @@ export default async function PlacePage({
         {/* The in-app map sits under the deep links, which stay the primary
             way to get there. It loads only when scrolled to or asked for. */}
         <section className="mt-8" aria-labelledby="place-where">
-          <p id="place-where" className="text-xs font-medium uppercase tracking-wide text-muted">Where</p>
+          <h2 id="place-where" className="place-subhead">Where</h2>
           <p className="mt-1 text-sm">{spot.address ?? `${spot.area}, Dubai`}</p>
           <VenueMap venue={spot} />
         </section>
@@ -145,7 +147,7 @@ export default async function PlacePage({
           {user && <PlaceSaveToBoard spot={spot} />}
           {/* P9: signed out, planning starts with an account; come back here after. */}
           {!user && (
-            <Link href={`/login?next=/place/${spot.id}`} className="place-action place-action--secondary">
+            <Link href={`/login?next=/place/${spot.id}`} className="place-action">
               Plan a night here
             </Link>
           )}

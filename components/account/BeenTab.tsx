@@ -66,13 +66,12 @@ export default function BeenTab({
     <section className="demo-view" aria-labelledby="been-title">
       <header className="demo-view__header demo-view__header--split">
         <div>
-          <p className="home-section-kicker">Your city log</p>
           <h1 id="been-title">{stats.places ? `${stats.places} ${stats.places === 1 ? "place" : "places"}, properly remembered.` : "Your city log starts here."}</h1>
         </div>
         {stats.total > 0 && (
           <div className="demo-account-stats">
-            <span><strong>{stats.total}</strong> visits</span>
-            <span><strong>{stats.places}</strong> places</span>
+            <span><strong>{stats.total}</strong> {stats.total === 1 ? "visit" : "visits"}</span>
+            <span><strong>{stats.places}</strong> {stats.places === 1 ? "place" : "places"}</span>
             <span><strong>{stats.fromPlans}</strong> from plans</span>
           </div>
         )}

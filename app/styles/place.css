@@ -24,8 +24,19 @@
 .place-hero--typographic .place-hero__scrim {
   display: none;
 }
-.place-hero--typographic {
-  border-bottom: 1px solid var(--color-line);
+/* No photo: the category code, condensed and faint, fills the band; the
+   name still sits at its foot, so photo and no-photo heroes match. */
+.place-hero--typographic::before {
+  content: attr(data-code);
+  position: absolute;
+  inset: 8% 0 auto;
+  color: color-mix(in srgb, var(--color-ink) 9%, transparent);
+  font-family: var(--font-display);
+  font-size: clamp(9rem, 22vw, 18rem);
+  font-stretch: 70%;
+  font-weight: 900;
+  line-height: 1;
+  text-align: center;
 }
 
 .place-hero__body {
@@ -36,42 +47,36 @@
   padding: 2rem clamp(1.25rem, 4vw, 3rem);
   color: var(--photo-ink);
 }
-/* §22. With a photo, .place-hero__body is absolutely positioned against
-   the bottom of the 460px hero, so the slack is spoken for. Without one it
-   goes back into flow and sat at the top of a box still reserving 460px
-   for an image that is not there — 255px of dead space above the divider
-   at 1440 and 278px at 390, which is most of a phone screen. The 460px
-   stays so a venue with a photo and a venue without one have the same
-   hero and navigating between them does not jump; the container now says
-   where its free space goes instead of leaving it at the bottom. */
-.place-hero--typographic {
-  display: grid;
-  align-content: center;
-}
 .place-hero--typographic .place-hero__body {
-  position: static;
-  padding: 3rem clamp(1.25rem, 4vw, 3rem);
   color: var(--color-ink);
 }
 
 .place-hero__category {
-  margin: 0 0 0.4rem;
-  font-size: max(0.72rem, var(--type-floor));
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--photo-eyebrow);
-}
-.place-hero--typographic .place-hero__category {
-  color: var(--color-punch-text);
+  position: absolute;
+  top: 1.5rem;
+  left: clamp(1.25rem, 4vw, 3rem);
+  z-index: 1;
+  margin: 0;
+  padding: 0.2rem 0.5rem;
+  background: var(--color-punch);
+  color: #0c0c10;
+  font-size: max(0.78rem, var(--type-floor));
+  font-weight: 800;
+  letter-spacing: 0.06em;
 }
 
 .place-hero__name {
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(2rem, 1.4rem + 2.4vw, 3.4rem);
-  font-weight: 800;
-  line-height: 1;
+  font-size: clamp(3rem, 7vw, 6.5rem);
+  font-weight: 900;
+  line-height: 0.88;
+  text-transform: uppercase;
+}
+.place-subhead {
+  font-size: 1.5rem;
+  font-weight: 900;
+  text-transform: uppercase;
 }
 
 .place-hero__area {
@@ -113,19 +118,23 @@
   margin-top: 2rem;
 }
 
+/* The page's one primary (planning a night here) is the gold fill; the
+   rest are outlines. */
 .place-action {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
   padding: 0.7rem 1.4rem;
-  border: 2px solid var(--color-ink);
+  border: 2px solid var(--primary-fill);
   border-radius: var(--radius-pill);
-  background: var(--color-ink);
-  color: var(--color-card);
-  font-weight: 700;
+  background: var(--primary-fill);
+  color: #0c0c10;
+  font-weight: 800;
+  cursor: pointer;
   text-decoration: none;
 }
 .place-action--secondary {
+  border-color: var(--color-ink);
   background: transparent;
   color: var(--color-ink);
   font-weight: 500;

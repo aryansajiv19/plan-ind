@@ -7,7 +7,7 @@ export default function KnowBeforeYouGo({ spot, className = "" }: { spot: Parame
   if (rows.length === 0) return null;
   return (
     <section className={className} aria-labelledby="know-before-you-go">
-      <p id="know-before-you-go" className="text-xs font-bold uppercase tracking-wide text-muted">Know before you go</p>
+      <h2 id="know-before-you-go" className="place-subhead">Know before you go</h2>
       <dl className="mt-2 grid gap-x-5 gap-y-3 text-sm sm:grid-cols-[8rem_1fr] sm:gap-y-2">
         {rows.map((row) => (
           <div key={row.label} className="grid gap-0.5 sm:contents">

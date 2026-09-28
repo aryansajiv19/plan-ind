@@ -11,7 +11,7 @@
   font-size: clamp(1.5rem, 3vw, 2.4rem);
   line-height: .98;
 }
-.demo-tool-panel > p:not(.home-section-kicker) {
+.demo-tool-panel > p {
   max-width: 34rem;
   color: var(--color-muted);
   line-height: 1.5;
@@ -189,7 +189,7 @@
   font-size: clamp(1.3rem, 2vw, 1.6rem);
   line-height: .92;
 }
-.demo-wrapped p:not(.home-section-kicker) {
+.demo-wrapped p {
   max-width: 30rem;
   color: var(--color-muted);
   line-height: 1.5;
@@ -202,54 +202,58 @@
   align-self: stretch;
   padding: 1.25rem;
 }
+/* Wrapped is a poster: a souk-gold field, everything on it in ink (10.7:1),
+   the month as its issue line and the plan count at cover size. */
 .demo-wrapped__card {
   grid-column: 1 / -1;
   padding: clamp(1.25rem, 4vw, 2.5rem);
-  background: var(--color-ink);
-  color: var(--color-card);
+  background: var(--color-punch);
+  color: #0c0c10;
 }
 .demo-wrapped__eyebrow {
-  color: var(--home-metal);
-  font-size: max(.65rem, var(--type-floor));
-  font-weight: 500;
-  letter-spacing: .15em;
+  padding-bottom: .6rem;
+  border-bottom: 2px solid currentColor;
+  font-size: max(.75rem, var(--type-floor));
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.demo-wrapped__card > strong,
+.demo-wrapped__card > span,
+.demo-wrapped__stats b {
+  display: block;
+  font-family: var(--font-display);
+  font-stretch: 70%;
+  font-weight: 900;
+  line-height: .9;
   text-transform: uppercase;
 }
 .demo-wrapped__card > strong {
-  display: block;
   margin-top: 1.5rem;
-  font-family: var(--font-display);
-  font-size: clamp(4rem, 12vw, 8rem);
-  line-height: .75;
-  letter-spacing: -.1em;
+  font-size: clamp(5rem, 14vw, 10rem);
+  line-height: .8;
 }
 .demo-wrapped__card > span {
-  display: block;
-  max-width: 20rem;
-  margin-top: 1rem;
-  color: color-mix(in srgb, var(--color-card) 72%, transparent);
-  font-size: .82rem;
-  line-height: 1.45;
+  margin-top: .8rem;
+  font-size: 1.5rem;
 }
 .demo-wrapped__stats {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1px;
+  gap: 1rem;
   margin-top: 2rem;
-  border-top: 1px solid color-mix(in srgb, var(--color-card) 22%, transparent);
+  border-top: 2px solid currentColor;
 }
 .demo-wrapped__stats div {
   display: grid;
-  gap: .35rem;
-  padding: 1rem .8rem 0 0;
+  gap: .3rem;
+  padding-top: 1rem;
 }
 .demo-wrapped__stats b {
-  color: var(--home-metal);
-  font-size: .8rem;
+  font-size: 1.45rem;
 }
 .demo-wrapped__stats small {
-  color: color-mix(in srgb, var(--color-card) 65%, transparent);
-  font-size: max(.65rem, var(--type-floor));
+  font-size: max(.72rem, var(--type-floor));
   line-height: 1.35;
 }
 .demo-wrapped__actions {
@@ -260,30 +264,21 @@
 .demo-wrapped__actions button {
   min-height: var(--btn-h-md);
   padding: var(--btn-pad-md);
-  border: 1px solid color-mix(in srgb, var(--color-card) 38%, transparent);
+  border: 1px solid #0c0c10;
   background: transparent;
-  color: var(--color-card);
-  font-size: max(.68rem, var(--type-floor));
-  font-weight: 500;
+  color: #0c0c10;
+  font-weight: 700;
   cursor: pointer;
 }
-/* On the dark ink card this action inverts to a light fill. A brown fill
-   here is only 1.58:1 against the ink behind it — the button's own edge
-   does not read, which is exactly the "elements blend into the
-   background" the owner named. Light-on-dark clears it at 12.89:1 both
-   for the boundary and for the label, and suits the white-dominant
-   brief. The brown fill stays correct everywhere it sits on a LIGHT
-   ground; it is this dark surface that needs the inversion. */
 .demo-wrapped__actions button:first-child {
-  border-color: var(--color-card);
-  background: var(--color-card);
-  color: var(--color-ink);
+  background: #0c0c10;
+  color: var(--color-punch);
 }
 .demo-wrapped .demo-wrapped__status {
   min-height: 1.4em;
   margin-top: .65rem;
-  color: color-mix(in srgb, var(--color-card) 72%, transparent);
-  font-size: max(.65rem, var(--type-floor));
+  color: #0c0c10;
+  font-size: max(.72rem, var(--type-floor));
 }
 @media (max-width: 760px) {
   .demo-inline-form {

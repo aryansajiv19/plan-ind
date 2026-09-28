@@ -498,13 +498,6 @@
 .home-plan-section--app .home-plan-section__intro > .home-plan-steps__lede {
   margin-top: 0.8rem;
 }
-.home-section-kicker {
-  color: var(--color-punch-text);
-  font-size: max(0.66rem, var(--type-floor));
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
 /* One clamp across every width. This heading used to be clamp(2.8rem, 5vw,
    5rem) with separate overrides at 520px and 640px, which measured 72px on
    desktop (wrapping to four lines) and 22px on a phone — a 3.3x swing and

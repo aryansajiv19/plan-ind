@@ -23,25 +23,6 @@
   font-size: 0.95rem;
 }
 
-/* Curated spots frequently have no photograph. A typographic category
-   block is honest about that; a stock image would not be. */
-/* Photoless cards are most of Discover, so this block is the largest colour
-   surface in the product. A 14% wash of the group hue with the category code
-   set in it: worst measured pair is 4.93:1 (food, day) and 5.32:1 (night).
-   The code itself carries the meaning — the wash only speeds it up. */
-.demo-place-card__code {
-  display: grid;
-  place-items: center;
-  aspect-ratio: 16 / 9;
-  border-bottom: 2px solid var(--color-line);
-  background: color-mix(in srgb, var(--color-punch) 14%, var(--color-card));
-  color: var(--color-muted);
-  font-family: var(--font-display);
-  font-size: 1.5rem;
-  font-weight: 700;
-  letter-spacing: 0.22em;
-}
-
 @media (max-width: 520px) {
   .home-appbar {
     width: 100%;
@@ -52,10 +33,6 @@
   .demo-view {
     width: 100%;
     padding-inline: 0.95rem;
-  }
-  .demo-place-card__code {
-    aspect-ratio: 21 / 9;
-    font-size: 1.15rem;
   }
 }
 
