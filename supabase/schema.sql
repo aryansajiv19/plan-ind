@@ -61,6 +61,7 @@ end $$;
 -- Social layer first: it references spots and plans.
 drop table if exists plan_removed_members cascade;
 drop table if exists folders cascade;
+drop table if exists plan_sweep_failures cascade;
 drop table if exists plan_time_votes cascade;
 drop table if exists plan_time_options cascade;
 drop table if exists plan_booking_owners cascade;
@@ -7253,3 +7254,100 @@ revoke all on table app_rate_limits, security_events, plan_host_tokens from auth
 -- RLS does not govern), REFERENCES and TRIGGER on every public table. None
 -- is reachable through PostgREST; none is needed. Gone on these five.
 revoke truncate, references, trigger on table member_ages, app_rate_limits, security_events, friend_invites, plan_host_tokens from anon, authenticated;
+
+-- 084: deadlines fire on their own -- see migration-084-expire-due-plans.sql.
+-- The pg_cron job (every 5 min, expire_due_plans(50)) is scheduled by that
+-- migration only, like 031's purge job: a scratch project may lack pg_cron.
+
+create or replace function advance_due_plan(p_plan_id uuid)
+returns text language plpgsql security definer set search_path = public, extensions, pg_temp as $$
+declare
+  target plans%rowtype;
+begin
+  select * into target from plans where id = p_plan_id for update;
+  if target.status = 'decided' then
+    return 'already_decided';
+  elsif target.deadline is null or target.deadline > now() then
+    return 'not_due';
+  elsif target.stage = 'pool' then
+    perform plan_transition(p_plan_id, 'advance');
+    return 'advanced';
+  elsif target.stage = 'final' then
+    perform plan_transition(p_plan_id, 'decide');
+    return 'decided';
+  end if;
+  return 'not_due';
+end; $$;
+-- Internal: expire_plan and expire_due_plans call it; no client role may.
+revoke all on function advance_due_plan(uuid) from public, anon, authenticated;
+
+-- expire_plan: the 069 body with its stage branch replaced by the shared call.
+create or replace function expire_plan(p_plan_id uuid)
+returns jsonb language plpgsql security definer set search_path = public, extensions, pg_temp as $$
+declare
+  target plans%rowtype;
+  outcome text;
+  finalists uuid[];
+begin
+  if not is_permanent_user() or not exists (
+    select 1 from plan_access where plan_id = p_plan_id and user_id = auth.uid()
+  ) then
+    raise exception 'Plan access required' using errcode = '42501';
+  end if;
+
+  outcome := advance_due_plan(p_plan_id);
+
+  select * into target from plans where id = p_plan_id;
+  select coalesce(array_agg(spot_id order by pool_number), '{}') into finalists
+    from plan_spots where plan_id = p_plan_id and advanced;
+  return jsonb_build_object('result', outcome, 'plan', to_jsonb(target) - 'created_by_user_id',
+    'winner_spot_id', target.winner_spot_id, 'finalists', finalists);
+end; $$;
+revoke all on function expire_plan(uuid) from public, anon, authenticated;
+grant execute on function expire_plan(uuid) to authenticated;
+
+-- Sweep failures, for the owner to query. RLS on, no policies, no client grants, not published.
+create table if not exists plan_sweep_failures (
+  plan_id   uuid primary key references plans(id) on delete cascade,
+  failed_at timestamptz not null default now(),
+  sqlstate  text not null,
+  attempts  integer not null default 1
+);
+alter table plan_sweep_failures enable row level security;
+revoke all on table plan_sweep_failures from public, anon, authenticated;
+
+create or replace function expire_due_plans(p_limit integer default 50)
+returns integer language plpgsql security definer set search_path = public, extensions, pg_temp as $$
+declare
+  due uuid;
+  moved integer := 0;
+begin
+  for due in
+    select id from plans
+    where status = 'open' and deadline <= now()
+      and not exists (select 1 from plan_sweep_failures f
+                      where f.plan_id = plans.id and f.failed_at > now() - interval '1 hour')
+    order by deadline
+    limit greatest(1, least(coalesce(p_limit, 50), 200))
+    for update skip locked
+  loop
+    begin
+      if advance_due_plan(due) in ('advanced', 'decided') then
+        moved := moved + 1;
+      end if;
+      delete from plan_sweep_failures where plan_id = due;
+    exception when others then
+      -- One broken plan must not stop the sweep. No personal data: an id and a code.
+      raise warning 'expire_due_plans: skipped plan % (SQLSTATE %)', due, sqlstate;
+      insert into plan_sweep_failures (plan_id, sqlstate) values (due, sqlstate)
+        on conflict (plan_id) do update
+          set failed_at = now(), sqlstate = excluded.sqlstate, attempts = plan_sweep_failures.attempts + 1;
+    end;
+  end loop;
+  return moved;
+end; $$;
+-- Run by pg_cron as the owner only.
+revoke all on function expire_due_plans(integer) from public, anon, authenticated;
+
+-- The sweep's read: open plans by deadline.
+create index if not exists plans_open_deadline_idx on plans (deadline) where status = 'open';
