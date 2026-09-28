@@ -66,10 +66,10 @@ export default function HomeHero({
 
         <div className="home-actions">
           <a href="#plan-lab" className="home-primary-cta">Start a plan</a>
-          {/* The product without an email: /demo/vote plays a whole sample
-              decision from fixtures. */}
+          {/* The product without an email: /demo/vote plays the whole journey,
+              sample data, no account. */}
           <Link href="/demo/vote" className="home-secondary-cta">
-            {fixtures ? "See a sample vote" : "Try the demo"}
+            {fixtures ? "See a sample vote" : "Try it, no sign-up"}
           </Link>
         </div>
       </div>

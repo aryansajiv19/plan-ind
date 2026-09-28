@@ -86,5 +86,5 @@ export const EARLY_FRIEND: Record<"pool1" | "pool2" | "pool3" | "final", number>
   final: 3,
 };
 
-/** How long after the visitor's first pick each remaining friend's vote lands. */
-export const ARRIVAL_DELAYS_MS = [700, 1400, 2200] as const;
+/** How long after a round opens each remaining friend's vote lands. */
+export const ARRIVAL_DELAYS_MS = [1200, 2600, 4200] as const;
