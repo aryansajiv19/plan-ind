@@ -42,7 +42,7 @@
     grid-template-rows: repeat(3, minmax(0, 1fr));
   }
   .cover__mosaic::after {
-    background: linear-gradient(0deg, #0a1f28 0%, transparent 35%);
+    background: linear-gradient(0deg, #07090d 0%, transparent 35%);
   }
   .home-hero__copy { grid-row: 3; }
   .cover__tile:nth-child(n + 7) { display: none; }

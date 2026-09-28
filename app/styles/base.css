@@ -1,5 +1,8 @@
 /* app/styles/base.css — Element defaults, the press signature, shuffle tension, focus rings. */
 
+html {
+  background: var(--color-paper);
+}
 body {
   background: var(--color-paper);
   color: var(--color-ink);
@@ -109,7 +112,7 @@ h3,
    light outside, ink inside, each band separating from the other. */
 [data-theme="night"] {
   --ring-outer: #f2f2f2;
-  --ring-inner: #0f2a36;
+  --ring-inner: #07090d;
 }
 /* `:root[...]` rather than `[data-theme="night"]` on purpose, and it is
    load-bearing. A bare attribute selector plus :focus-visible scores
@@ -149,4 +152,48 @@ h3,
 ::selection {
   background: color-mix(in srgb, var(--color-punch) 35%, transparent);
   color: var(--color-ink);
+}
+
+/* ── The night sky: faint stars behind everything ───────────────────
+   Two tiled layers of 1px dots (different tile sizes, so the pattern
+   never visibly repeats); the second twinkles slowly. CSS only, fixed,
+   never over content, and still under prefers-reduced-motion. */
+[data-theme="night"] body {
+  background: transparent;
+}
+[data-theme="night"] body::before,
+[data-theme="night"] body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+[data-theme="night"] body::before {
+  background-image:
+    radial-gradient(1px 1px at 23px 41px, rgba(242, 242, 242, 0.5), transparent),
+    radial-gradient(1px 1px at 131px 17px, rgba(242, 242, 242, 0.35), transparent),
+    radial-gradient(1px 1px at 211px 97px, rgba(216, 168, 119, 0.45), transparent),
+    radial-gradient(1px 1px at 67px 173px, rgba(242, 242, 242, 0.3), transparent),
+    radial-gradient(1.5px 1.5px at 251px 223px, rgba(242, 242, 242, 0.55), transparent),
+    radial-gradient(1px 1px at 157px 263px, rgba(167, 192, 216, 0.4), transparent);
+  background-size: 290px 290px;
+}
+[data-theme="night"] body::after {
+  background-image:
+    radial-gradient(1px 1px at 91px 59px, rgba(242, 242, 242, 0.7), transparent),
+    radial-gradient(1.5px 1.5px at 313px 151px, rgba(216, 168, 119, 0.6), transparent),
+    radial-gradient(1px 1px at 197px 331px, rgba(242, 242, 242, 0.6), transparent),
+    radial-gradient(1px 1px at 419px 409px, rgba(167, 192, 216, 0.55), transparent);
+  background-size: 470px 470px;
+  animation: sky-twinkle 5s ease-in-out infinite alternate;
+}
+@keyframes sky-twinkle {
+  from { opacity: 0.25; }
+  to { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="night"] body::after {
+    animation: none;
+  }
 }

@@ -9,9 +9,8 @@
   position: relative;
   min-height: 100dvh;
   isolation: isolate;
-  background: var(--color-paper);
   color: var(--color-ink);
-  transition: background 240ms ease, color 240ms ease;
+  transition: color 240ms ease;
 }
 
 .home-grid-field {
@@ -277,7 +276,7 @@
   min-height: min(calc(100svh - 4.5rem), 54rem);
   display: grid;
   grid-template-rows: auto 1fr;
-  background: #0a1f28;
+  background: transparent;
   color: var(--photo-ink);
   overflow: hidden;
 }
@@ -346,8 +345,8 @@
   z-index: 2;
   pointer-events: none;
   background:
-    linear-gradient(90deg, #0a1f28 0%, rgba(9, 28, 36, 0.5) 18%, transparent 38%),
-    linear-gradient(0deg, rgba(9, 28, 36, 0.6) 0%, transparent 30%);
+    linear-gradient(90deg, #07090d 0%, rgba(7, 9, 13, 0.5) 18%, transparent 38%),
+    linear-gradient(0deg, rgba(7, 9, 13, 0.6) 0%, transparent 30%);
 }
 /* Credits ride above the fade, top-right of each tile. */
 
@@ -434,9 +433,6 @@
    theme applies, its fixed page backdrop must not. Two classes, because
    vote.css loads later and would otherwise win, painting that backdrop over
    everything before it in the page. */
-.vote-experience.vote-experience--embed::before {
-  content: none;
-}
 .live-vote {
   width: 100%;
 }
@@ -586,7 +582,7 @@
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: linear-gradient(0deg, rgba(9, 28, 36, 0.92), rgba(9, 28, 36, 0.2) 75%);
+  background: linear-gradient(0deg, rgba(7, 9, 13, 0.92), rgba(7, 9, 13, 0.2) 75%);
 }
 .how__decided > div {
   position: relative;

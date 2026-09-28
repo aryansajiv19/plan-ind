@@ -70,7 +70,7 @@ export const viewport: Viewport = {
   interactiveWidget: "resizes-content",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#f5f1ec" },
-    { media: "(prefers-color-scheme: dark)", color: "#0f2a36" },
+    { media: "(prefers-color-scheme: dark)", color: "#07090d" },
   ],
 };
 

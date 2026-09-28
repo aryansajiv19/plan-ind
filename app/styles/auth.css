@@ -27,7 +27,6 @@
   display: grid;
   align-content: safe center;
   color: var(--auth-ink);
-  background: color-mix(in srgb, var(--auth-paper) 88%, transparent);
 }
 .auth-frame {
   width: min(70rem, 100%);

@@ -356,7 +356,7 @@
   pointer-events: none;
 }
 .demo-place-card__band[data-photo] .demo-place-card__over {
-  background: linear-gradient(0deg, rgba(9, 28, 36, 0.9) 0%, rgba(9, 28, 36, 0.3) 48%, transparent 72%);
+  background: linear-gradient(0deg, rgba(7, 9, 13, 0.9) 0%, rgba(7, 9, 13, 0.3) 48%, transparent 72%);
   color: var(--photo-ink);
 }
 .demo-place-card__chip {

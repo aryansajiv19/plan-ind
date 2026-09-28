@@ -142,14 +142,17 @@
    Selected by the Dubai clock from ~17:00 (lib/dubai-phase.ts), at the
    document root so every screen flips. */
 [data-theme="night"] {
-  --color-paper: #0f2a36;
-  --color-card: #174050; /* owner's navy-teal */
-  --color-ink: #f2f2f2; /* 13.4 canvas / 10.0 card */
-  --color-muted: #d9c3ab; /* 8.8 / 6.6 */
+  /* Owner experiment 2026-09-28: a near-black desert sky with faint stars
+     (base.css). Cards are a navy-black lift; the owner's #174050 is the
+     quiet fill. */
+  --color-paper: #07090d;
+  --color-card: #101c24;
+  --color-ink: #f2f2f2; /* 17.8 canvas / 15.5 card */
+  --color-muted: #d9c3ab; /* 11.7 / 10.2 */
   --color-punch: #ce9963;
-  --color-punch-text: #d8a877; /* 7.0 / 5.2 */
-  --color-fill-quiet: #1c4a5c;
-  --color-line: #7d9bbc; /* dusty blue: 5.2 / 3.9 */
+  --color-punch-text: #d8a877; /* 9.3 / 8.1 */
+  --color-fill-quiet: #174050;
+  --color-line: #7d9bbc; /* dusty blue: 6.9 / 6.0 */
   --color-accent-premium: #d8a877;
   --color-accent-tint: rgba(206, 153, 99, 0.18);
   --color-shimmer: rgba(242, 242, 242, 0.07);
@@ -179,15 +182,15 @@
   --photo-body: #ddd7cf; /* 13.64:1 */
   --photo-scrim: linear-gradient(
     0deg,
-    rgba(9, 28, 36, 0.9) 6%,
-    rgba(9, 28, 36, 0.18) 56%,
-    rgba(9, 28, 36, 0.05) 100%
+    rgba(7, 9, 13, 0.9) 6%,
+    rgba(7, 9, 13, 0.18) 56%,
+    rgba(7, 9, 13, 0.05) 100%
   );
 }
 
 /* ── Radii and elevation: soft and modern, not bubbly ────────────── */
 :root {
-  --elevation-card: 0 1px 2px rgba(9, 28, 36, 0.08), 0 14px 32px rgba(9, 28, 36, 0.14);
+  --elevation-card: 0 1px 2px rgba(7, 9, 13, 0.08), 0 14px 32px rgba(7, 9, 13, 0.14);
   --radius-control: 12px;
   --radius-ring: 999px; /* avatars stay round */
   --radius-thumb: 14px;

@@ -3,7 +3,6 @@
 /* ── Place page (SPECS.md §6, 12a) ───────────────────────────────── */
 .place-page {
   min-height: 100dvh;
-  background: var(--color-paper);
   color: var(--color-ink);
 }
 

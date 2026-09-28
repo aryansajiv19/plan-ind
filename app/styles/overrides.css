@@ -32,7 +32,7 @@
   min-height: 1.5rem;
   padding: 0 0.45rem;
   border-radius: var(--radius-pill);
-  background: rgba(9, 28, 36, 0.55);
+  background: rgba(7, 9, 13, 0.55);
   color: var(--photo-ink);
   font-size: max(0.7rem, var(--type-floor));
   line-height: 1.35;
@@ -46,7 +46,7 @@
 :hover > .photo-credit,
 .photo-credit:focus-visible {
   opacity: 1;
-  background: rgba(9, 28, 36, 0.88);
+  background: rgba(7, 9, 13, 0.88);
 }
 :hover > .photo-credit .photo-credit__text,
 .photo-credit:focus-visible .photo-credit__text {
