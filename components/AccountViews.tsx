@@ -9,6 +9,7 @@
 // Every screen has a real empty state. A new account genuinely has no visits
 // and no friends, and saying so is more useful than borrowing someone else's.
 
+import { useSuggestions } from "@/hooks/use-suggestions";
 import DiscoverTab, { useDiscoverSearch } from "@/components/account/DiscoverTab";
 import BeenTab from "@/components/account/BeenTab";
 import useBeenCollections from "@/components/account/useBeenCollections";
@@ -88,10 +89,12 @@ export default function AccountViews({
   const stats = useVisitStats(visits);
   // Loaded the first time Discover opens, then kept across tab switches.
   const boards = useMoodboards(personId, view === "discover");
+  const suggested = useSuggestions(visits, age, view === "discover" && !visitsUnavailable);
 
   if (view === "discover") {
     return (
       <DiscoverTab
+        suggested={suggested}
         spots={spots}
         search={search}
         boards={boards}
