@@ -65,9 +65,7 @@
   margin-top: 2.5rem;
 }
 .birthday-fix h2, .profile-emoji h2 {
-  font-family: var(--font-body);
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: 1.35rem;
 }
 .birthday-fix p {
   color: var(--color-muted);
@@ -683,33 +681,22 @@
   flex: 0 0 auto;
   font-size: 1.7rem;
 }
-.demo-profile-head h1 {
-  font-size: clamp(1.6rem, 2.5vw, 2.2rem);
-  font-weight: 600;
-}
 .demo-profile-head > div > p:last-child {
   margin-top: 0.5rem;
   color: var(--color-muted);
 }
+/* A fact line, as on Been: the counts read as a sentence, not big numbers. */
 .demo-profile-stats {
   margin-top: 2.5rem;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  border-block: 1px solid var(--color-line);
-}
-.demo-profile-stats span {
-  display: grid;
-  gap: 0.2rem;
-  padding: 1.2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.4rem;
   color: var(--color-muted);
-  font-size: max(0.68rem, var(--type-floor));
-}
-.demo-profile-stats span + span {
-  border-left: 1px solid var(--color-line);
 }
 .demo-profile-stats strong {
+  margin-right: 0.3rem;
   color: var(--color-ink);
-  font-size: 1.6rem;
+  font-variant-numeric: tabular-nums;
 }
 .demo-city-pattern {
   margin-top: 2.5rem;
@@ -723,8 +710,6 @@
   max-width: 25rem;
   margin-top: 0.6rem;
   font-size: clamp(2rem, 4vw, 3.6rem);
-  line-height: 1;
-  letter-spacing: -0.045em;
 }
 .demo-city-pattern__lead > p {
   max-width: 27rem;
@@ -806,16 +791,12 @@
   font-size: 1.35rem;
 }
 
+/* Inside the settings block, whose account row already carries the rule. */
 .home-profile-actions {
-  width: min(100% - 2 * var(--page-gutter), 76rem);
-  margin-top: 2rem;
-  margin-inline: auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--color-line);
   color: var(--color-muted);
   font-size: 0.82rem;
 }
@@ -838,9 +819,7 @@
   border-top: 1px solid var(--color-line);
 }
 .settings-block h2 {
-  font-family: var(--font-display);
-  font-size: 1.4rem;
-  font-weight: 500;
+  font-size: 1.9rem;
 }
 .settings-block__account {
   display: grid;
