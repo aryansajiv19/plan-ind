@@ -17,7 +17,7 @@ import { isLocalStack, localAdmin } from "./local-stack";
 //
 // Public pages only, unauthenticated, no writes.
 
-const PAGES = ["/", "/login", "/privacy", "/terms"] as const;
+const PAGES = ["/", "/login", "/privacy", "/terms", "/demo", "/demo/vote"] as const;
 
 // Turnstile keeps the load event pending forever in a headless context, so
 // `networkidle` never fires on /login ONCE A SITE KEY IS CONFIGURED. Root-
@@ -95,6 +95,31 @@ function collect(page: Page): Collected {
   return out;
 }
 
+/**
+ * Scroll the whole page so every lazy image is asked for, then give them
+ * time to finish. Without this a below-the-fold lazy image reads as broken
+ * (naturalWidth 0 because it was never requested) -- the live front door
+ * failed that way with three good photos.
+ */
+async function loadEveryImage(page: Page) {
+  await page.evaluate(async () => {
+    for (let y = 0; y < document.documentElement.scrollHeight; y += window.innerHeight / 2) {
+      window.scrollTo(0, y);
+      await new Promise((resolve) => setTimeout(resolve, 120));
+    }
+    window.scrollTo(0, 0);
+  });
+  // A Google photo is fetched only once its card nears the viewport, then its
+  // <img> is inserted: let those requests land before judging (a /demo flake).
+  // Capped: /login's captcha widget never lets the network go idle.
+  await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => undefined);
+  await page.waitForFunction(() => Array.from(document.images).every((img) => img.complete), null, { timeout: 15_000 })
+    .catch(() => undefined); // an image that never finishes is reported by the check itself
+}
+
+/** Venue photos: ours (self-hosted or the storage bucket), the demo's, or Google's. */
+const VENUE_PHOTO = /\/venues\/|spot-photos|\/demo\/[^/?]+\.(webp|jpe?g|png)|googleusercontent/;
+
 for (const path of PAGES) {
   test(`no runtime errors or failed requests: ${path}`, async ({ page }) => {
     const found = collect(page);
@@ -117,6 +142,7 @@ for (const path of PAGES) {
   test(`every image actually resolved: ${path}`, async ({ page }) => {
     await page.goto(path, gotoOptions(path));
     await settle(page, path);
+    await loadEveryImage(page);
     const broken = await page.evaluate(() =>
       Array.from(document.querySelectorAll("img"))
         .filter((img) => {
@@ -129,7 +155,57 @@ for (const path of PAGES) {
     );
     expect(broken, `images that rendered nothing on ${path}: ${JSON.stringify(broken, null, 1)}`).toEqual([]);
   });
+
+  // A photo shown without its credit is a licence breach for the CC-BY ones
+  // (PhotoCredit), so every venue photo must have its credit beside it.
+  test(`every venue photo carries its credit: ${path}`, async ({ page }) => {
+    await page.goto(path, gotoOptions(path));
+    await settle(page, path);
+    await loadEveryImage(page);
+    const uncredited = await page.evaluate((pattern) =>
+      Array.from(document.querySelectorAll("img"))
+        .filter((img) => new RegExp(pattern).test(decodeURIComponent(img.currentSrc || img.src)))
+        .filter((img) => !img.parentElement?.querySelector(".photo-credit"))
+        .map((img) => decodeURIComponent(img.currentSrc || img.src)), VENUE_PHOTO.source);
+    expect(uncredited, `venue photos with no credit on ${path}: ${JSON.stringify(uncredited, null, 1)}`).toEqual([]);
+  });
 }
+
+// Every venue page the front door links to: it loads, logs nothing, and its
+// photos resolve with their credits. (The place page once crashed for every
+// venue -- a client function called on the server -- and only a place-page
+// spec noticed.)
+test("every venue page linked from the front door loads cleanly, photos resolved and credited", async ({ page }) => {
+  test.setTimeout(180_000);
+  await page.goto("/", IDLE);
+  const hrefs = [...new Set(await page.locator('a[href^="/place/"]').evaluateAll(
+    (links) => links.map((a) => (a as HTMLAnchorElement).getAttribute("href")!.split("?")[0])))];
+  expect(hrefs.length, "the front door links to no venue pages").toBeGreaterThan(0);
+  const problems: string[] = [];
+  for (const href of hrefs) {
+    const found = collect(page);
+    const response = await page.goto(href, IDLE);
+    if (response?.status() !== 200) problems.push(`${href}: status ${response?.status()}`);
+    await loadEveryImage(page);
+    const [broken, uncredited] = await page.evaluate((pattern) => {
+      const imgs = Array.from(document.querySelectorAll("img"));
+      const laidOut = (img: HTMLImageElement) => { const r = img.getBoundingClientRect(); return r.width > 1 && r.height > 1; };
+      const src = (img: HTMLImageElement) => decodeURIComponent(img.currentSrc || img.src);
+      return [
+        imgs.filter((img) => laidOut(img) && img.naturalWidth === 0).map(src),
+        imgs.filter((img) => new RegExp(pattern).test(src(img)) && !img.parentElement?.querySelector(".photo-credit")).map(src),
+      ];
+    }, VENUE_PHOTO.source);
+    for (const [what, list] of [["uncaught exceptions", found.pageErrors], ["console errors", found.consoleErrors],
+      ["4xx/5xx", found.badResponses.map((r) => `${r.status} ${r.url}`)], ["images that rendered nothing", broken],
+      ["photos with no credit", uncredited]] as const) {
+      if (list.length) problems.push(`${href}: ${what}: ${JSON.stringify(list)}`);
+    }
+    page.removeAllListeners("console"); page.removeAllListeners("pageerror");
+    page.removeAllListeners("requestfailed"); page.removeAllListeners("response");
+  }
+  expect(problems, `venue pages from the front door (${hrefs.length} checked):\n${problems.join("\n")}`).toEqual([]);
+});
 
 // The place page is where today's broken image actually lived, and it is the
 // only public route that renders a venue photo.
@@ -172,8 +248,12 @@ test("a venue page with a photo renders that photo and its credit", async ({ pag
   expect(naturalWidth, "the place hero image resolved to nothing — a 404 that still lays out").toBeGreaterThan(0);
 
   // CC-BY images carry credit as a licence condition, not as a nicety, so an
-  // unrendered credit is a licensing problem rather than a cosmetic one.
-  await expect(page.getByText(/Wikimedia Commons/i).first()).toBeVisible();
+  // unrendered credit is a licensing problem rather than a cosmetic one. The
+  // credit is a "©" mark that opens to the full line on hover or focus.
+  const credit = page.getByRole("note", { name: /Wikimedia Commons/i }).first();
+  await expect(credit).toBeVisible();
+  await credit.hover();
+  await expect(credit.getByText(/Wikimedia Commons/i)).toBeVisible();
 
   expect(found.badResponses, `4xx/5xx while loading the place page: ${JSON.stringify(found.badResponses, null, 1)}`)
     .toEqual([]);

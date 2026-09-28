@@ -1,6 +1,7 @@
 import { test, expect, type Browser, type Page } from "@playwright/test";
 import { clientAs, localAdmin, signInAsMember, type Member } from "./local-stack";
 import { canProvision, withPlan, SEEDED, FILLER } from "./plan-factory";
+import { bookingSection, realtimeReady } from "./page-helpers";
 
 // 075: any member of a decided plan says "I'll book it" (claim_booking),
 // hands it back (release_booking), and the holder or the host marks it
@@ -9,20 +10,7 @@ import { canProvision, withPlan, SEEDED, FILLER } from "./plan-factory";
 // reach the other over Realtime, with no reload.
 
 const spotIds = [...Object.values(SEEDED), ...FILLER].slice(0, 9);
-const section = (page: Page) => page.locator("div.border-t", { has: page.getByText("Booking", { exact: true }) }).first();
-/**
- * Resolves once Realtime says row changes will flow ("Subscribed to
- * PostgreSQL"). The page's SUBSCRIBED status comes earlier, on the join
- * reply; a change in between is not delivered, so acting before this raced
- * the other screen (a CI flake). Attach before navigating.
- */
-function realtimeReady(page: Page): Promise<void> {
-  return new Promise((resolve) => {
-    page.on("websocket", (ws) => ws.on("framereceived", ({ payload }) => {
-      if (String(payload).includes("Subscribed to PostgreSQL")) resolve();
-    }));
-  });
-}
+const section = bookingSection;
 const holderOf = async (planId: string) =>
   (await localAdmin().from("plan_booking_owners").select("user_id").eq("plan_id", planId).maybeSingle()).data?.user_id ?? null;
 

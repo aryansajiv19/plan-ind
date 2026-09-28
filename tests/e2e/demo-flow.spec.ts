@@ -89,6 +89,7 @@ test("/demo/vote plays the whole journey: compose, deal, rounds, final, reveal, 
 
   // Booking round trip: claim, mark, unmark, give it back, and the offer is
   // where it started. Local state only, and labelled so.
+  await expect(page.getByText("Sample forecast")).toBeVisible();
   await expect(page.getByText("Booking · sample, nothing is booked")).toBeVisible();
   await page.getByRole("button", { name: "I’ll book it" }).click();
   await page.getByRole("button", { name: "Mark as booked" }).click();

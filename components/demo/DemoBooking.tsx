@@ -4,8 +4,8 @@ import { useState } from "react";
 import { googleCalUrl, icsHref } from "@/lib/calendar";
 import type { Spot } from "@/lib/types";
 
-// The sample's time, booking and calendar. No forecast: /api/weather is for
-// signed-in members only, and a signed-out call is refused. Booking mirrors BookingSection's
+// The sample's time, forecast, booking and calendar. The forecast is a fixed
+// sample line, labelled so: /api/weather is for signed-in members only. Booking mirrors BookingSection's
 // markup, held in local state: a claim here books nothing and tells nobody,
 // and says so. The calendar links are real.
 export default function DemoBooking({ winner, title, eventTime }: { winner: Spot; title: string; eventTime: string }) {
@@ -22,6 +22,7 @@ export default function DemoBooking({ winner, title, eventTime }: { winner: Spot
       <div className="mt-4 border-t border-line pt-4">
         <p className="text-xs font-bold uppercase tracking-wide text-muted">When</p>
         <p className="mt-1 text-sm font-medium">{when}, Dubai time</p>
+        <p className="mt-1 text-sm text-muted">29°C, clear, light breeze. Comfortable outdoors. <span className="text-xs">Sample forecast</span></p>
       </div>
 
       <div className="mt-4 border-t border-line pt-4">
