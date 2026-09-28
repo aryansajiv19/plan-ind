@@ -25,11 +25,10 @@
   background-size: 4rem 100%, auto;
 }
 
-/* No panel: the plan is a section of the magazine, a gold masthead rule
-   over the listings on the page's own ground. */
+/* No panel: the plan is a section of the magazine, its listings on the
+   page's own ground under the cover-line title. */
 .vote-shell {
   border: 0;
-  border-top: 4px solid var(--color-punch);
   border-radius: 0;
   background: transparent;
 }
@@ -424,10 +423,9 @@
 }
 /* No new hue: this card already spends its colour on category, state and
    outcome, so case and weight carry it. */
+/* Leading is live state, so it takes coral, as text: no box. */
 .vote-option__leading {
-  padding: 0.1rem 0.4rem;
-  border: 1px solid var(--color-line);
-  color: var(--color-ink);
+  color: var(--color-live);
   font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.04em;

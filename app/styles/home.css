@@ -311,7 +311,7 @@
   z-index: 0; /* its own stack: the fade and credits stay under the cover line */
   grid-row: 2;
   grid-column: 1;
-  margin-left: 34%;
+  margin-left: 50%;
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
   grid-template-rows: repeat(3, minmax(0, 1fr));

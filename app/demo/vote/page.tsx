@@ -22,7 +22,7 @@ export default function DemoVotePage() {
     // The banner sits inside <main>: .vote-experience isolates and paints a
     // fixed backdrop, which would cover a sibling rendered before it.
     <main className="vote-experience mx-auto w-full max-w-4xl px-4 py-6 sm:py-10">
-      <p className="home-demo-banner mb-4 rounded-2xl border border-line" role="note">
+      <p className="home-demo-banner mb-4" role="note">
         <strong>Sample data.</strong> A made up group deciding dinner. Your votes stay on this screen and nothing saves.{" "}
         <Link href="/login" className="inline-flex min-h-11 items-center">Start your own plan →</Link>
       </p>

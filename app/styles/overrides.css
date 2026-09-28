@@ -42,9 +42,6 @@
   font-size: max(0.7rem, var(--type-floor));
   line-height: 1.35;
   letter-spacing: 0.01em;
-  /* Two lines, never an ellipsis: a cut-off licence is not attribution. */
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
+  /* Wraps in full: a cut-off licence is not attribution. */
+  overflow-wrap: anywhere;
 }
