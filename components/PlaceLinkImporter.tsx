@@ -122,6 +122,27 @@ export default function PlaceLinkImporter({ demoMode = false }: { demoMode?: boo
     }
   }
 
+  async function removeLink(id: string) {
+    setMessage(null);
+    setError(null);
+    if (demoMode) {
+      const next = saved.filter((entry) => entry.id !== id);
+      setSaved(next);
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      return;
+    }
+    try {
+      const response = await secureJsonFetch(`/api/place-import?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+      if (!response.ok) {
+        const result = await response.json().catch(() => ({})) as { error?: string };
+        throw new Error(result.error ?? "That saved link couldn't be removed.");
+      }
+      setSaved((current) => current.filter((entry) => entry.id !== id));
+    } catch (removeError) {
+      setError(removeError instanceof Error ? removeError.message : "That saved link couldn't be removed.");
+    }
+  }
+
   function renderResult(item: SavedLink) {
     const collectionLabel = item.collection === "want_to_try" ? "Want to try" : "Planning";
     if (item.resolvedSpot) {
@@ -211,7 +232,10 @@ export default function PlaceLinkImporter({ demoMode = false }: { demoMode?: boo
           ))}
         </div>
         {filteredSaved.slice(0, showAll ? undefined : 8).map((item) => (
-          <div key={item.id}>{renderResult(item)}</div>
+          <div key={item.id}>
+            {renderResult(item)}
+            <button type="button" onClick={() => void removeLink(item.id)} aria-label={`Remove ${item.resolvedSpot?.name ?? item.providerLabel} link`}>Remove</button>
+          </div>
         ))}
         {filteredSaved.length > 8 && (
           <button type="button" className="place-link-importer__more" onClick={() => setShowAll((all) => !all)}>
