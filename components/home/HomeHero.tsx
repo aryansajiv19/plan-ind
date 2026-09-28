@@ -45,7 +45,8 @@ export default function HomeHero({
         {tiles.map((spot, index) => (
           <div key={spot.id} className="cover__tile">
             <span className="cover__tile-name">{spot.name}</span>
-            <VenuePhoto spot={spot} sizes="(min-width: 720px) 34vw, 67vw" preload={index < 2} />
+            {/* The first tile is the landing's LCP (Lighthouse): preloaded at high priority; the rest load normally. */}
+            <VenuePhoto spot={spot} sizes="(min-width: 720px) 34vw, 67vw" preload={index === 0} fetchPriority={index === 0 ? "high" : undefined} />
           </div>
         ))}
       </div>
