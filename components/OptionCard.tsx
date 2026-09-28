@@ -171,17 +171,12 @@ export default function OptionCard({
         {near?.walkable ? ` · Metro ≈\u00a0${near.walkMin}\u00a0min walk` : ""}
       </p>
 
-      {/* Why the deal picked it. Hairline and muted, no hue: it explains,
-          it is not state. */}
+      {/* Why the deal picked it: one muted fact line. It explains; it is not state. */}
       {reasons && reasons.length > 0 && (
-        <span className="mt-2 flex flex-wrap gap-1.5">
+        <p className="mt-2 text-xs font-semibold text-muted">
           <span className="sr-only">Why this: </span>
-          {reasons.map((reason) => (
-            <span key={reason.kind} className="rounded-full border border-line px-2 py-0.5 text-xs font-medium text-muted">
-              {reason.label}
-            </span>
-          ))}
-        </span>
+          {reasons.map((reason) => reason.label).join(" · ")}
+        </p>
       )}
 
       {/* State on its own line: category marks identity and never state. */}

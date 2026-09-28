@@ -24,10 +24,6 @@
 
 .wall-tile {
   position: relative;
-  overflow: hidden;
-  border-radius: var(--radius-panel);
-  background: var(--color-card);
-  box-shadow: var(--elevation-card); /* §19.3: lift off the canvas, no hairline */
   isolation: isolate;
 }
 .wall-tile__link {
@@ -35,79 +31,64 @@
   inset: 0;
   z-index: 2;
 }
+.wall-tile__photo {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-panel);
+  background: var(--color-card);
+}
 .wall-tile__img {
   object-fit: cover;
 }
-
-/* Text over a photograph keeps the night values in BOTH grounds — it sits
-   on a dark scrim either way. A headline that flips to ink on a photo
-   disappears. */
+/* The listing under the photo, on the page's own ground. */
 .wall-tile__body {
-  position: absolute;
-  inset: auto 0 0 0;
-  z-index: 1;
-  padding: 18px;
-  background: var(--photo-scrim);
-  color: var(--photo-ink);
-}
-/* Room for the licence credit, which sits over the bottom of the photo. */
-.wall-tile:has(.photo-credit) .wall-tile__body {
-  padding-bottom: 40px;
+  padding: 10px 2px 0;
 }
 .wall-tile__name {
   margin: 0;
-  font-family: var(--font-display);
-  font-size: 1.05rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  color: var(--photo-ink);
+  font-size: 1.35rem;
+  font-weight: 900;
+  line-height: 0.95;
+  text-transform: uppercase;
+  text-wrap: balance;
 }
 .wall-tile__meta {
-  margin: 2px 0 0;
-  font-size: 0.76rem;
-  color: var(--photo-body);
+  margin: 4px 0 0;
+  color: var(--color-muted);
+  font-size: max(0.78rem, var(--type-floor));
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
-
-/* The photo-less tile. Not a fallback — the common case while the catalog
-   has one nullable photo column. It carries no scrim, so it is the one
-   place tile text uses the THEME's ink rather than the over-photo set. */
+.wall-tile__vibe {
+  margin: 4px 0 0;
+  color: var(--color-muted);
+  font-size: max(0.78rem, var(--type-floor));
+  line-height: 1.4;
+  text-wrap: pretty;
+}
+/* A venue with no photo: its name set large on a raised panel. */
 .wall-tile--typographic {
-  border: 1px solid var(--color-line);
+  overflow: hidden;
+  border-radius: var(--radius-panel);
+  background: var(--color-card);
 }
 .wall-tile--typographic .wall-tile__body {
+  position: absolute;
   inset: 0;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  background: none;
-  color: var(--color-ink);
+  padding: 18px;
 }
 .wall-tile--typographic .wall-tile__name {
-  font-size: clamp(1.15rem, 1rem + 1vw, 1.6rem);
-  color: var(--color-ink);
-  text-wrap: balance;
+  font-size: clamp(1.4rem, 1rem + 1.2vw, 2rem);
 }
 .wall-tile__code {
   margin-bottom: auto;
   color: var(--color-punch-text);
-  font-size: max(0.66rem, var(--type-floor));
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-size: max(0.72rem, var(--type-floor));
+  font-weight: 800;
 }
-.wall-tile--typographic .wall-tile__meta {
-  color: var(--color-muted);
-}
-.wall-tile__vibe {
-  margin: 10px 0 0;
-  padding-top: 10px;
-  border-top: 1px solid var(--color-line);
-  font-size: 0.78rem;
-  line-height: 1.45;
-  color: var(--color-muted);
-  text-wrap: pretty;
-}
-
 /* Overlay chips describe WHAT HAPPENED — "Sara + 2 saved", "In Friday's
    deal" — never the category. A chip naming the category would be the
    retired rainbow, in words. */

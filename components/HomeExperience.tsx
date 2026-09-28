@@ -31,6 +31,7 @@ const DemoAccountViews = dynamic(() => import("@/components/DemoAccountViews"), 
 export default function HomeExperience({
   name,
   greeting: serverGreeting,
+  dateLabel,
   emoji = null,
   age = 21,
   demoMode = false,
@@ -57,6 +58,8 @@ export default function HomeExperience({
   name: string;
   /** P28: computed on the server on the Dubai clock, so the first paint says it. */
   greeting?: string;
+  /** Landing only: today on the Dubai calendar, for the cover's issue band. */
+  dateLabel?: string;
   /** The account's chosen emoji, or null when none is chosen. */
   emoji?: string | null;
   age?: number;
@@ -271,7 +274,7 @@ export default function HomeExperience({
           scrolling past a marketing headline to reach your own tool is a
           website habit, and on a phone it costs the whole first screen. */}
       {demoMode ? (
-      <HomeHero greeting={greeting} name={name} fixtures={fixtures} spots={spots} counts={counts} />
+      <HomeHero greeting={greeting} dateLabel={dateLabel} name={name} fixtures={fixtures} spots={spots} counts={counts} />
       ) : (
         <section id="top" className="home-appbar" aria-labelledby="home-title">
           <p className="home-appbar__hello">{greeting}{name ? `, ${name}` : ""}.</p>

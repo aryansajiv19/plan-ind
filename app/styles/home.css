@@ -283,15 +283,6 @@
   color: var(--photo-ink);
   overflow: hidden;
 }
-.home-hero::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background:
-    linear-gradient(90deg, rgba(12, 12, 16, 0.94) 0%, rgba(12, 12, 16, 0.78) 34%, rgba(12, 12, 16, 0.12) 72%),
-    linear-gradient(0deg, rgba(12, 12, 16, 0.9) 0%, transparent 42%);
-}
 
 .cover__band {
   display: flex;
@@ -312,10 +303,15 @@
   font-size: 1.15em;
 }
 
+/* The mosaic owns the right of the cover, in the row under the band, and
+   fades into the ink under the cover line, so no photo (or its credit)
+   hides under the band or the headline. */
 .cover__mosaic {
-  position: absolute;
-  inset: 0;
-  z-index: -2;
+  position: relative;
+  z-index: 0; /* its own stack: the fade and credits stay under the cover line */
+  grid-row: 2;
+  grid-column: 1;
+  margin-left: 34%;
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
   grid-template-rows: repeat(3, minmax(0, 1fr));
@@ -348,19 +344,30 @@
 .cover__tile img {
   z-index: 1;
 }
+.cover__mosaic::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, #0c0c10 0%, rgba(12, 12, 16, 0.5) 18%, transparent 38%),
+    linear-gradient(0deg, rgba(12, 12, 16, 0.6) 0%, transparent 30%);
+}
+/* Credits ride above the fade, top-right of each tile. */
+.cover__tile .photo-credit {
+  inset: 0.45rem 0.45rem auto auto;
+  max-width: calc(100% - 0.9rem);
+}
 
 .home-hero__copy {
+  position: relative;
+  z-index: 1;
+  grid-row: 2;
+  grid-column: 1;
   align-self: end;
   width: min(100%, 64rem);
   padding: clamp(2rem, 6vh, 4rem) var(--page-gutter) clamp(2.5rem, 7vh, 4.5rem);
-}
-
-.home-hello {
-  color: var(--photo-body);
-  font-size: max(0.82rem, var(--type-floor));
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
 }
 
 .home-title {
@@ -507,12 +514,6 @@
    desktop (wrapping to four lines) and 22px on a phone — a 3.3x swing and
    two different design intentions. The interpolated middle term scales it
    smoothly instead of stepping. */
-.home-plan-section h2 {
-  max-width: 26rem;
-  margin-top: 0.8rem;
-  font-size: clamp(2rem, 1.2rem + 2.6vw, 3.25rem);
-  line-height: 0.98;
-}
 .home-plan-section__intro > .home-plan-steps__lede {
   max-width: 24rem;
   margin-top: 1.2rem;
@@ -526,9 +527,26 @@
   padding-block: clamp(2.5rem, 5vw, 4rem);
   border-top: 1px solid var(--color-line);
 }
-.how h2 {
-  font-size: clamp(1.8rem, 1.2rem + 1.8vw, 2.6rem);
-  line-height: 1.02;
+/* The wall's heading spans the page: it scrolls with it, never pinned. */
+.home-wall-section .home-plan-section__intro {
+  position: static;
+}
+/* Section heads sit in a souk-gold field, the magazine's section tabs. */
+.how h2,
+.home-plan-section h2,
+.home-wall-section h2 {
+  display: inline-block;
+  max-width: none;
+  margin-top: 0;
+  padding: 0.12em 0.3em 0.02em;
+  background: var(--color-punch);
+  color: #0c0c10;
+  font-size: clamp(1.9rem, 1.2rem + 2.2vw, 3rem);
+  font-weight: 900;
+  line-height: 0.95;
+  text-transform: uppercase;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }
 .how__note,
 .how__step > p {
@@ -613,6 +631,10 @@
 .how__decided .photo-credit {
   inset: 0.6rem 0.6rem auto auto;
   z-index: 3;
+}
+.how__verdict {
+  color: var(--photo-body);
+  font-weight: 700;
 }
 .how__winner {
   margin-top: 0.25rem;

@@ -15,12 +15,14 @@ const MOSAIC_TILES = 12;
  */
 export default function HomeHero({
   greeting,
+  dateLabel,
   name,
   fixtures,
   spots,
   counts,
 }: {
   greeting: string;
+  dateLabel?: string;
   name: string;
   fixtures: boolean;
   spots: Spot[];
@@ -32,6 +34,7 @@ export default function HomeHero({
   return (
     <section id="top" className="home-hero" aria-labelledby="home-title">
       <p className="cover__band">
+        <span className="cover__issue">{greeting}{name ? `, ${name}` : ""}{dateLabel ? ` · ${dateLabel}` : ""}</span>
         <strong>Tonight in Dubai</strong>
         {counts ? <span>{counts.places} places{counts.categories ? ` · ${counts.categories} kinds of night` : ""}</span> : null}
         <span>Nine dealt · three rounds · one winner</span>
@@ -47,8 +50,6 @@ export default function HomeHero({
       </div>
 
       <div className="home-hero__copy">
-        <p className="home-hello">{greeting}{name ? `, ${name}` : ""}.</p>
-
         <h1 id="home-title" className="home-title" aria-label="Dubai plans without the group chat.">
           <span className="home-title__line home-title__line--one">Dubai plans,</span>
           <span className="home-title__line home-title__line--two">without the</span>

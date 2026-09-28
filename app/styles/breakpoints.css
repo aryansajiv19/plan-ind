@@ -31,11 +31,23 @@
 }
 
 @media (max-width: 850px) {
-  .cover__mosaic {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    grid-template-rows: repeat(4, minmax(0, 1fr));
+  /* A phone stacks the cover: band, photos, then the cover line on ink. */
+  .home-hero {
+    grid-template-rows: auto auto auto;
   }
-  .cover__tile:nth-child(n + 13) { display: none; }
+  .cover__mosaic {
+    margin-left: 0;
+    height: 46svh;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+  }
+  .cover__mosaic::after {
+    background: linear-gradient(0deg, #0c0c10 0%, transparent 35%);
+  }
+  .home-hero__copy { grid-row: 3; }
+  .cover__tile:nth-child(n + 7) { display: none; }
+  .cover__tile:nth-child(5),
+  .cover__tile:nth-child(8) { grid-column: auto; grid-row: auto; }
   .home-plan-section {
     grid-template-columns: 1fr;
   }

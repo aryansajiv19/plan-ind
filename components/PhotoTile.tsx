@@ -42,9 +42,15 @@ export default function PhotoTile({
   return (
     <article
       className={`wall-tile ${hasPhoto ? "" : "wall-tile--typographic"}`}
-      style={{ height }}
+      style={hasPhoto ? undefined : { height }}
     >
-      <VenuePhoto spot={spot} sizes="(max-width: 720px) 50vw, 25vw" className="wall-tile__img" />
+      {/* A listing: the photo, then the facts on the page, never captioned
+          over a bright sky. */}
+      {hasPhoto ? (
+        <div className="wall-tile__photo" style={{ height }}>
+          <VenuePhoto spot={spot} sizes="(max-width: 720px) 50vw, 25vw" className="wall-tile__img" />
+        </div>
+      ) : null}
 
       <div className="wall-tile__body">
         {/* Photo-less tiles carry the category code as texture (no hue: the
@@ -54,9 +60,7 @@ export default function PhotoTile({
         ) : null}
         <h3 className="wall-tile__name">{spot.name}</h3>
         {meta ? <p className="wall-tile__meta">{meta}</p> : null}
-        {!hasPhoto && spot.vibe ? (
-          <p className="wall-tile__vibe">{spot.vibe}</p>
-        ) : null}
+        {spot.vibe ? <p className="wall-tile__vibe">{spot.vibe}</p> : null}
       </div>
 
       {note ? (

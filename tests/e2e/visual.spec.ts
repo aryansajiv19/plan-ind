@@ -24,7 +24,7 @@ const FIXED_TIME = new Date("2026-09-26T15:30:00.000Z");
 // (picked by what is open). Both are masked, and the wall is pinned to a
 // fixed box so the page's length doesn't change with the pick either. Test
 // CSS only: no production code path exists for this.
-const TIME_DEPENDENT = ".home-hello, .home-appbar__hello, #right-now .wall";
+const TIME_DEPENDENT = ".cover__issue, .home-appbar__hello, #right-now .wall";
 const PIN_WALL = "#right-now .wall { height: 60rem !important; overflow: hidden !important; }";
 
 const VIEWPORTS = [
