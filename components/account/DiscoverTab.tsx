@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import PlaceLinkImporter from "@/components/PlaceLinkImporter";
+import type { useSuggestions } from "@/hooks/use-suggestions";
 import PlaceCard from "@/components/account/PlaceCard";
 import MoodboardsSection from "@/components/account/MoodboardsSection";
 import type { MoodboardsState } from "@/components/account/useMoodboards";
@@ -111,6 +113,7 @@ export function useDiscoverSearch(spots: Spot[], age: number) {
 }
 
 export default function DiscoverTab({
+  suggested,
   spots,
   search,
   boards,
@@ -122,6 +125,7 @@ export default function DiscoverTab({
   boards: MoodboardsState;
   age: number;
   onPlanFromBoard: (prefill: PlanPrefill) => void;
+  suggested: ReturnType<typeof useSuggestions>;
 }) {
   const { query, setQuery, placeFilter, setPlaceFilter, categories, visiblePlaces, searchFailed } = search;
   const allowedCategory = (category: string) => CATEGORIES.some((c) => c.key === category) && age >= minimumAgeForCategory(category);
@@ -131,6 +135,20 @@ export default function DiscoverTab({
         <div><h1 id="discover-title">Places worth considering.</h1></div>
         <p>The catalogue a plan deals from. Search it, then start a vote on anything that fits tonight.</p>
       </header>
+
+      {suggested.suggestions.length > 0 && (
+        <section className="discover-suggested" aria-labelledby="suggested-title">
+          <h2 id="suggested-title">For you</h2>
+          <ul>
+            {suggested.suggestions.map(({ spot, because }) => (
+              <li key={spot.id}>
+                <Link href={`/place/${spot.id}`}>{spot.name}</Link>
+                <span> · {spot.area} · because you went to {because}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <MoodboardsSection boards={boards} age={age} onPlanFromBoard={onPlanFromBoard} />
 
