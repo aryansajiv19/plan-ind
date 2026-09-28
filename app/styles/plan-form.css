@@ -140,7 +140,11 @@
 }
 
 .plan-smart-search {
-  padding-top: 0.2rem;
+  margin-bottom: 1.25rem;
+  padding: 1rem;
+  border: 1px solid color-mix(in srgb, var(--color-punch) 45%, transparent);
+  border-radius: var(--radius-panel);
+  background: color-mix(in srgb, var(--color-punch) 7%, var(--color-card));
 }
 /* P25: Luna as one line: the brief and its button abreast. */
 .plan-smart-search__bar {
@@ -151,22 +155,27 @@
 .plan-smart-search__bar input {
   flex: 1;
   min-width: 0;
-  min-height: 2.75rem;
-  padding: 0 0.75rem;
+  min-height: 3rem;
+  padding: 0 0.9rem;
   border: 1px solid var(--color-line);
-  background: var(--color-card);
+  background: var(--color-paper);
   color: var(--color-ink);
+  font-size: 1rem;
 }
 /* <small> is the UA's "smaller" (0.8em); restated so the floor reaches it. */
 .plan-smart-search__bar button {
-  min-height: 2.75rem;
-  padding: 0 0.85rem;
-  border: 1px solid var(--color-ink);
-  background: var(--color-ink);
-  color: var(--color-card);
-  font-size: max(0.7rem, var(--type-floor));
-  font-weight: 500;
+  min-height: 3rem;
+  padding: 0 1.1rem;
+  border: 0;
+  background: var(--primary-fill);
+  color: var(--primary-ink);
+  font-size: max(0.85rem, var(--type-floor));
+  font-weight: 700;
   cursor: pointer;
+  transition: transform var(--dur-press) var(--ease-spring);
+}
+.plan-smart-search__bar button:active:not(:disabled) {
+  transform: scale(0.96);
 }
 .plan-smart-search__bar button:disabled {
   cursor: not-allowed;

@@ -100,6 +100,18 @@ export default function StartPlanForm({
                 : "Picked up where you left off before signing in. Check it, then deal nine."}
         </p>
       )}
+      {/* Luna first: describing the night is the fastest way in, so it sits
+          above the kinds rather than folded under Tune it. */}
+      {smartSearchAvailable && (
+        <SmartSearchBox
+          query={smartQuery}
+          onQueryChange={(query) => { setSmartQuery(query); setSmartIntent(null); }}
+          intent={smartIntent}
+          onIntent={applyIntent}
+          demoMode={demoMode}
+          onSignIn={signIn}
+        />
+      )}
       {/* P25: reward before effort. The places, then the deal; every setting
           past that has a valid default and folds away under "Tune it". */}
       <ComposerDeck
@@ -109,20 +121,7 @@ export default function StartPlanForm({
         // Signed out there is no one's shelf to show, except /demo's labelled samples.
         shelf={(!demoMode || sampleShelf) && <MyPlacesShelf composer={composer} age={age} sample={demoMode} />}
       >
-        <TuneIt
-          composer={composer}
-          demoMode={demoMode}
-          luna={smartSearchAvailable && (
-            <SmartSearchBox
-              query={smartQuery}
-              onQueryChange={(query) => { setSmartQuery(query); setSmartIntent(null); }}
-              intent={smartIntent}
-              onIntent={applyIntent}
-              demoMode={demoMode}
-              onSignIn={signIn}
-            />
-          )}
-        />
+        <TuneIt composer={composer} demoMode={demoMode} />
 
         {/* The deal stays in reach from anywhere in the form, Tune it included:
             sticky at the bottom edge, on the card's own surface. */}

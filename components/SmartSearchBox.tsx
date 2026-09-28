@@ -62,10 +62,10 @@ export default function SmartSearchBox({
   }
 
   return (
-    // P25: one line inside "Tune it". Enter builds the search here; it must
+    // The composer's first line (StartPlanForm). Enter builds the search here; it must
     // never submit the deal form this sits in.
     <section className="plan-smart-search" aria-labelledby="smart-search-heading">
-      <label id="smart-search-heading" htmlFor="smart-search-input" className="plan-form__label">Or describe it to Luna</label>
+      <label id="smart-search-heading" htmlFor="smart-search-input" className="plan-form__label">Describe the night to Luna</label>
       <div className="plan-smart-search__bar">
         <input
           id="smart-search-input"

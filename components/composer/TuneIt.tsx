@@ -1,6 +1,5 @@
 "use client";
 
-import type { ReactNode } from "react";
 import { DUBAI_ORIGINS } from "@/lib/dubai-areas";
 import CustomPlaceSection from "@/components/CustomPlaces";
 import { DEAL_BUDGET_OPTIONS, DEAL_RADIUS_OPTIONS_KM } from "@/lib/spots/match";
@@ -20,7 +19,7 @@ const countChip = (n: number | null) => n != null && (
  * so the summary says what they are as real text (read by screen readers),
  * and it opens downward, so nothing above it moves.
  */
-export default function TuneIt({ composer, demoMode, luna }: { composer: Composer; demoMode: boolean; luna: ReactNode }) {
+export default function TuneIt({ composer, demoMode }: { composer: Composer; demoMode: boolean }) {
   const { preview, need, maxBudget, setMaxBudget, originValue, setOriginValue, radiusKm, setRadiusKm, when, title, setTitle, setTitleEdited, presetIdx, setPresetIdx, custom, signIn, tuneOpen, setTuneOpen } = composer;
   const origin = DUBAI_ORIGINS.find((option) => option.value === originValue);
   const summary = [
@@ -38,7 +37,6 @@ export default function TuneIt({ composer, demoMode, luna }: { composer: Compose
         {/* sr-only commas, so a screen reader pauses between the settings. */}
         {summary.map((chip) => <span key={chip} className="plan-tune__chip">{chip}<span className="sr-only">,</span></span>)}
       </summary>
-      {luna}
       <CustomPlaceSection places={custom} onSignIn={demoMode ? signIn : undefined} />
 
       <section className="plan-constraints" aria-labelledby="recommendation-heading">
