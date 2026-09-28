@@ -25,5 +25,5 @@ export default async function DemoPage({ searchParams }: { searchParams: Promise
   const now = new Date();
   // The landing's tabs link here (?view=been): open that tab on first paint.
   const initialView = viewFromParam((await searchParams).view);
-  return <HomeExperience name="Aryan" greeting={greetingFor(now)} dateLabel={issueDate(now)} demoMode fixtures initialView={initialView} spots={pickRightNow(data ?? [], now, WALL_SIZE) as unknown as Spot[]} smartSearchAvailable={Boolean(process.env.OPENAI_API_KEY)} />;
+  return <HomeExperience name="Sample member" greeting={greetingFor(now)} dateLabel={issueDate(now)} demoMode fixtures initialView={initialView} spots={pickRightNow(data ?? [], now, WALL_SIZE) as unknown as Spot[]} smartSearchAvailable={Boolean(process.env.OPENAI_API_KEY)} />;
 }

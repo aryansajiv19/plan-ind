@@ -47,6 +47,11 @@ export async function requireUser() {
  * sign-in path in `app/auth/actions.ts`, so there is exactly one copy of this
  * check rather than one per call site.
  */
+/** The plan a safe `next` of /plan/<uuid> points at, if any. */
+export function planIdFromNext(next: string): string | null {
+  return /^\/plan\/([0-9a-f-]{36})$/i.exec(next)?.[1] ?? null;
+}
+
 export function safeNextPath(value: string | null | undefined): string {
   if (!value?.startsWith("/")) return "/home";
   // Backslashes and control characters are refused outright: browsers treat
