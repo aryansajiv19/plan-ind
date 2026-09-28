@@ -40,9 +40,9 @@ test("dealt cards say why they were picked, and only what the deal filtered on",
     const tresind = cardFor(page, "Tresind Studio");
     await expect(threeFils).toBeVisible({ timeout: 20_000 });
 
-    // The reasons are one fact line since the redesign ("Fits AED 200 · 1 km
-    // away"): each fact is matched whole, between the line's separators.
-    const fact = (text: string) => new RegExp(`(^|· )${text}( ·|$)`);
+    // The reasons are one fact line since the redesign ("Why this: Fits AED
+    // 200 · 1 km away"): each fact is matched whole, between its separators.
+    const fact = (text: string) => new RegExp(`(^|: |· )${text}( ·|$)`);
     // Same area as the origin: 0 km, which the line floors to 1.
     await expect(threeFils.getByText(fact("Fits AED 200"))).toBeVisible();
     await expect(threeFils.getByText(fact("1 km away"))).toBeVisible();
