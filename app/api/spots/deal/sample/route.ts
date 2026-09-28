@@ -62,7 +62,10 @@ export async function GET(request: Request) {
   const byId = new Map(pool.map((spot) => [spot.id, spot]));
   const cards = ids.map((id) => {
     const spot = byId.get(id)!;
-    return { id: spot.id, name: spot.name, area: spot.area, category: spot.category };
+    return {
+      id: spot.id, name: spot.name, area: spot.area, category: spot.category,
+      photo_url: spot.photo_url ?? null, photo_attribution: spot.photo_attribution ?? null, google_place_id: spot.google_place_id ?? null,
+    };
   });
   return Response.json({ cards }, noStore);
 }

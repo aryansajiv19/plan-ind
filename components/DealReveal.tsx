@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import PhotoCredit from "@/components/PhotoCredit";
+import VenuePhoto from "@/components/VenuePhoto";
 
 /** Length of the whole sequence. Kept under 1.5s (PRIORITIES X2). */
 export const DEAL_REVEAL_MS = 1300;
@@ -11,6 +12,9 @@ const EASE_SETTLE = [0.22, 1, 0.36, 1] as const;
 const ROUNDS = [0, 1, 2] as const;
 
 export interface RevealCard {
+  /** With an id, a Google-photo place shows its photo too (VenuePhoto). */
+  id?: string;
+  google_place_id?: string | null;
   name: string;
   area: string;
   /** With its credit: a licence obligation wherever the photo renders. */
@@ -122,21 +126,28 @@ export default function DealReveal({
                   // credit, or the name in the display serif.
                   return (
                     <motion.li key={slot} {...flip(0.5 + index * 0.06)} className="flex flex-col overflow-hidden rounded-lg border border-line bg-card">
-                      <span className="relative block aspect-[4/3] bg-[color-mix(in_srgb,var(--color-ink)_5%,var(--color-card))]">
-                        {card.photo_url ? (
+                      {/* Layers: the sand-dune card, the photo over it when there is
+                          one (own, or Google's for members), a scrim, the name. So a
+                          place never shows as an empty box while its photo loads. */}
+                      <span className="deal-card__typographic relative block aspect-[4/3]">
+                        {card.id ? (
+                          <VenuePhoto
+                            spot={{ id: card.id, photo_url: card.photo_url ?? null, photo_attribution: card.photo_attribution ?? null, google_place_id: card.google_place_id }}
+                            sizes="(max-width: 640px) 33vw, 16rem"
+                            className="object-cover"
+                          />
+                        ) : card.photo_url ? (
                           <>
                             {/* eslint-disable-next-line @next/next/no-img-element -- a 1.3s moment; same unoptimized posture as the cards */}
                             <img src={card.photo_url} alt="" className="absolute inset-0 h-full w-full object-cover" />
                             <PhotoCredit spot={{ photo_url: card.photo_url, photo_attribution: card.photo_attribution ?? null }} />
                           </>
-                        ) : (
-                          <span className="deal-card__typographic absolute inset-0 flex items-end p-3 font-display text-xl leading-tight tracking-tight">
-                            <span className="line-clamp-3">{card.name}</span>
-                          </span>
-                        )}
+                        ) : null}
+                        <span className="pointer-events-none absolute inset-0 flex items-end bg-[image:var(--photo-scrim)] p-3 font-display text-xl leading-tight tracking-tight">
+                          <span className="line-clamp-3">{card.name}</span>
+                        </span>
                       </span>
                       <span className="px-2.5 py-1.5">
-                        {card.photo_url && <span className="line-clamp-1 block text-xs font-medium">{card.name}</span>}
                         <span className="block truncate text-[0.7rem] text-muted">{card.area}</span>
                       </span>
                     </motion.li>

@@ -6,6 +6,8 @@ export type { DealConstraints };
 
 /** P26: what the reveal shows for a dealt place, once the route sends cards. */
 export interface DealtCard {
+  id: string;
+  google_place_id: string | null;
   name: string;
   area: string;
   photo_url: string | null;
@@ -26,7 +28,7 @@ function cardsFor(raw: unknown, ids: readonly string[]): DealtCard[] | null {
     const row = card as Record<string, unknown> | null;
     if (!row || row.id !== ids[i] || typeof row.name !== "string" || typeof row.area !== "string") return null;
     const text = (value: unknown) => (typeof value === "string" && value ? value : null);
-    return { name: row.name, area: row.area, photo_url: text(row.photo_url), photo_attribution: text(row.photo_attribution) };
+    return { id: row.id as string, google_place_id: text(row.google_place_id), name: row.name, area: row.area, photo_url: text(row.photo_url), photo_attribution: text(row.photo_attribution) };
   });
   return cards.every(Boolean) ? cards as DealtCard[] : null;
 }

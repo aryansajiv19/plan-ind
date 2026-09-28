@@ -32,6 +32,7 @@ export interface DealSpotRow {
   // P26: the deal can show real cards. Optional so hand-built pools stay valid.
   photo_url?: string | null;
   photo_attribution?: string | null;
+  google_place_id?: string | null;
 }
 
 export interface DealRatingRow {
@@ -54,7 +55,7 @@ export type SpotAffinity = (spot: DealSpotRow) => number | null;
 const noAffinity: SpotAffinity = () => null;
 
 export const DEAL_SPOT_COLUMNS =
-  "id,name,category,area,cuisine,min_spend,vibe,description,latitude,longitude,minimum_age,visibility,reopens_on,photo_url,photo_attribution";
+  "id,name,category,area,cuisine,min_spend,vibe,description,latitude,longitude,minimum_age,visibility,reopens_on,photo_url,photo_attribution,google_place_id";
 
 /** Today's calendar date in Dubai, as YYYY-MM-DD (reopens_on is a Dubai date). */
 export function dubaiToday(now: Date = new Date()): string {
@@ -327,11 +328,13 @@ export interface DealCard {
   min_spend: number;
   photo_url: string | null;
   photo_attribution: string | null;
+  google_place_id: string | null;
 }
 export function dealCard(spot: DealSpotRow): DealCard {
   return {
     id: spot.id, name: spot.name, area: spot.area, min_spend: spot.min_spend,
     photo_url: spot.photo_url ?? null, photo_attribution: spot.photo_attribution ?? null,
+    google_place_id: spot.google_place_id ?? null,
   };
 }
 

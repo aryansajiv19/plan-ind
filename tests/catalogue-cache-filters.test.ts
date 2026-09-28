@@ -268,5 +268,5 @@ test("a deal's spots line up with its ids, and a photo never travels without its
   const b = cards.find((c) => c.id === "b")!;
   assert.deepEqual([b.photo_url, b.photo_attribution], [null, null]);
   assert.equal(cards.find((c) => c.id === "c")!.min_spend, 250);
-  assert.deepEqual(Object.keys(a).sort(), ["area", "id", "min_spend", "name", "photo_attribution", "photo_url"]);
+  assert.deepEqual(Object.keys(a).sort(), ["area", "google_place_id", "id", "min_spend", "name", "photo_attribution", "photo_url"]);
 });
