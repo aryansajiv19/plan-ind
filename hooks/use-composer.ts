@@ -141,18 +141,26 @@ export function useComposer({ age, demoMode, prefill: rawPrefill }: { age: numbe
     if (!titleEdited) setTitle(cat.title);
   }
 
-  function applyIntent(intent: SmartIntent) {
+  /** Luna's intent into the form. A kind it can't use keeps the current one and the title, and says so. */
+  function applyIntent(intent: SmartIntent): string | null {
     const matchedCategory = CATEGORIES.find((item) => item.key === intent.category);
     const matchedGroup = CATEGORY_GROUPS.find((group) => group.categories.some((item) => item.key === intent.category));
     const matchedOrigin = DUBAI_ORIGINS.find((origin) => origin.value === intent.origin);
-    if (matchedCategory && age >= minimumAgeForCategory(matchedCategory.key)) setCategory(matchedCategory.key);
-    if (matchedGroup) setActiveGroup(matchedGroup.key);
+    const minimumAge = matchedCategory ? minimumAgeForCategory(matchedCategory.key) : 0;
+    const usable = matchedCategory != null && age >= minimumAge;
+    if (usable) {
+      setCategory(matchedCategory.key);
+      if (matchedGroup) setActiveGroup(matchedGroup.key);
+      setTitle(intent.title);
+      setTitleEdited(true);
+    }
     if (matchedOrigin) setOriginValue(matchedOrigin.value);
     setMaxBudget(nearestOption(DEAL_BUDGET_OPTIONS, intent.maxBudget));
     setRadiusKm(intent.origin === "anywhere" ? null : nearestOption(DEAL_RADIUS_OPTIONS_KM, intent.radiusKm ?? 20));
-    setTitle(intent.title);
-    setTitleEdited(true);
     setSmartIntent(intent);
+    if (!matchedCategory) return `Luna suggested a kind of place the app doesn’t list, so this stays ${categoryLabel}.`;
+    if (!usable) return `${matchedCategory.label} is ${minimumAge}+, so this stays ${categoryLabel}.`;
+    return null;
   }
 
   // P7: signing in keeps what the visitor has set up; /home restores it.

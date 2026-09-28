@@ -4,6 +4,7 @@ import { useState } from "react";
 import DealReveal from "@/components/DealReveal";
 import SampleVote from "@/components/demo/SampleVote";
 import VenuePhoto from "@/components/VenuePhoto";
+import DemoLuna from "@/components/demo/DemoLuna";
 import { SAMPLE_FRIENDS, SAMPLE_PLAN } from "@/components/demo/sampleDecision";
 import type { DemoDeck } from "@/components/demo/demoDecks";
 import { categoryMeta } from "@/lib/categories";
@@ -63,6 +64,7 @@ export default function DemoJourney({ decks, eventTime }: { decks: DemoDeck[]; e
           })}
         </div>
       </fieldset>
+      <DemoLuna decks={decks} onPick={setDeck} />
       <ul className="mt-4 flex flex-wrap gap-1.5" aria-label="The sample plan's settings">
         {CONSTRAINTS.map((label) => (
           <li key={label} className="rounded-full border border-line px-2.5 py-1 text-xs font-medium text-muted">{label}</li>
