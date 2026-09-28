@@ -229,7 +229,7 @@ function ActionSearchBar({
               onChange={handleInputChange}
               onFocus={handleFocus}
               onKeyDown={handleKeyDown}
-              placeholder="Search a place, a night, or a person"
+              placeholder="Search places or friends"
               role="combobox"
               type="text"
               value={query}
