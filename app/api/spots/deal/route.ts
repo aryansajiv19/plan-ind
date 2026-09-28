@@ -8,7 +8,8 @@ import {
   requestError,
   validateMutationRequest,
 } from "@/lib/security/request";
-import { dealCard, dealSpotIds, type DealConstraints } from "@/lib/spots/match";
+import type { DealConstraints } from "@/lib/spots/match";
+import { dealCard, dealSpotIds } from "@/lib/spots/deal-spots";
 import { curatedDealPool } from "@/lib/spots/catalogue";
 
 export const runtime = "nodejs";

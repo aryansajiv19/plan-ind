@@ -6,7 +6,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { dealSpotIds, type DealOutcome, type DealSpotRow } from "../lib/spots/match.ts";
+import type { DealSpotRow } from "../lib/spots/match.ts";
+import { dealSpotIds, type DealOutcome } from "../lib/spots/deal-spots.ts";
 import { mergeDiscoverSpots } from "../lib/spots/discover.ts";
 import { ensureOwnProfile } from "../lib/own-profile.ts";
 
@@ -245,7 +246,7 @@ test("eligibleCount counts what a deal could draw for each budget, radius and ag
 
 // ── P26: the deal carries its cards ──────────────────────────────────────────
 test("a deal's spots line up with its ids, and a photo never travels without its credit", async () => {
-  const { dealCard } = await import("../lib/spots/match.ts");
+  const { dealCard } = await import("../lib/spots/deal-spots.ts");
   const pool = [
     spot("a", { photo_url: "https://img.example/a.jpg", photo_attribution: "Photo: A Venue" }),
     spot("b"),
