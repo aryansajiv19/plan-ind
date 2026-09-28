@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import ThemeSync from "@/components/ThemeSync";
+import SkySparkles from "@/components/SkySparkles";
 import { autoGround } from "@/lib/dubai-phase";
 import "./globals.css";
 
@@ -112,6 +113,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <ThemeSync serverGround={ground} />
+        <SkySparkles />
         <div className="relative z-10 flex flex-1 flex-col">{children}</div>
       </body>
     </html>
