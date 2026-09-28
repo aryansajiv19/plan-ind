@@ -84,6 +84,9 @@ jobs:
       NEXT_PUBLIC_SITE_URL: http://localhost:3000
       NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
       SECURITY_CONTROL_SECRET: local-secret
+      # Renders the Luna box; luna.spec answers /api/smart-search in the
+      # browser, so no model is ever called with this placeholder.
+      OPENAI_API_KEY: e2e-mocked
       DB: postgresql://postgres:postgres@127.0.0.1:54322/postgres
     steps:
       - uses: actions/checkout@v4
