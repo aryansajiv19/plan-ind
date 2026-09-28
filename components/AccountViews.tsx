@@ -94,6 +94,7 @@ export default function AccountViews({
   if (view === "discover") {
     return (
       <DiscoverTab
+        personId={personId}
         suggested={suggested}
         spots={spots}
         search={search}
