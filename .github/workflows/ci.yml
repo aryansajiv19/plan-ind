@@ -62,7 +62,9 @@ jobs:
       - run: npm ci
       - uses: supabase/setup-cli@v1
         with:
-          version: latest
+          # Pinned: "latest" is resolved through the GitHub API, which rate-
+          # limited this job red on c0b839f. Bump deliberately.
+          version: 2.118.0
       - run: supabase start --exclude studio,edge-runtime,imgproxy,logflare,vector,pgbouncer
       - run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -f supabase/schema.sql
       - run: npm run test:db
@@ -92,7 +94,9 @@ jobs:
       - run: npm ci
       - uses: supabase/setup-cli@v1
         with:
-          version: latest
+          # Pinned: "latest" is resolved through the GitHub API, which rate-
+          # limited this job red on c0b839f. Bump deliberately.
+          version: 2.118.0
       - run: supabase start --exclude studio,edge-runtime,imgproxy,logflare,vector,pgbouncer,postgres-meta
       - run: echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$(supabase status -o json | jq -r .ANON_KEY)" >> "$GITHUB_ENV"
       - run: |
