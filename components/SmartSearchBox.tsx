@@ -30,12 +30,16 @@ export default function SmartSearchBox({
   query: string;
   onQueryChange: (query: string) => void;
   intent: SmartIntent | null;
-  onIntent: (intent: SmartIntent) => void;
+  /** Applies the intent; returns a note when part of it couldn't be used. */
+  onIntent: (intent: SmartIntent) => string | null;
   demoMode: boolean;
   onSignIn: () => void;
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // A 401 here is a session that ended while the form was open: offer the way back.
+  const [signedOut, setSignedOut] = useState(false);
+  const [note, setNote] = useState<string | null>(null);
 
   async function interpret() {
     const trimmed = query.trim();
@@ -45,6 +49,8 @@ export default function SmartSearchBox({
     }
     setLoading(true);
     setError(null);
+    setSignedOut(false);
+    setNote(null);
     try {
       const response = await secureJsonFetch("/api/smart-search", {
         method: "POST",
@@ -52,8 +58,9 @@ export default function SmartSearchBox({
         body: JSON.stringify({ query: trimmed }),
       });
       const result = await response.json() as { intent?: SmartIntent; error?: string };
+      if (response.status === 401) setSignedOut(true);
       if (!response.ok || !result.intent) throw new Error(result.error ?? "Smart search failed.");
-      onIntent(result.intent);
+      setNote(onIntent(result.intent));
     } catch (smartSearchError) {
       setError(smartSearchError instanceof Error ? smartSearchError.message : "Smart search failed.");
     } finally {
@@ -73,6 +80,7 @@ export default function SmartSearchBox({
           onChange={(event) => {
             onQueryChange(event.target.value);
             setError(null);
+            setNote(null);
           }}
           onKeyDown={(event) => {
             if (event.key !== "Enter") return;
@@ -89,10 +97,16 @@ export default function SmartSearchBox({
           <button type="button" onClick={interpret} disabled={loading || query.trim().length < 8}>{loading ? "Understanding…" : "Build it"}</button>
         )}
       </div>
-      {error && <p className="plan-smart-search__error" role="alert">{error}</p>}
+      {error && (
+        <p className="plan-smart-search__error" role="alert">
+          {error}
+          {signedOut && <> <button type="button" onClick={onSignIn} className="inline-flex min-h-11 items-center font-semibold underline underline-offset-4">Sign in again</button></>}
+        </p>
+      )}
       {intent && (
         <div className="plan-smart-result" aria-live="polite">
           <div><strong>{intent.summary}</strong></div>
+          {note && <p>{note}</p>}
           <div>{intent.occasion && <span>{intent.occasion}</span>}{intent.vibeKeywords.map((keyword) => <span key={keyword}>{keyword}</span>)}{intent.maxBudget != null && <span>≤ AED {intent.maxBudget} pp</span>}</div>
         </div>
       )}

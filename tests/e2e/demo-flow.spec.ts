@@ -109,3 +109,14 @@ test("/demo/vote plays the whole journey: compose, deal, rounds, final, reveal, 
   await page.getByRole("button", { name: "Try another kind of night" }).click();
   await expect(page.getByRole("button", { name: "Deal nine" })).toBeVisible();
 });
+
+test("/demo/vote: the sample Luna brief picks its kind of night, labelled, with no model call", async ({ page }) => {
+  let modelCalls = 0;
+  await page.route("**/api/smart-search", (route) => { modelCalls += 1; return route.abort(); });
+  await page.goto("/demo/vote");
+  await expect(page.locator("#demo-luna-input")).toHaveValue(/active for the five of us/);
+  await page.getByRole("button", { name: "Build it" }).click();
+  await expect(page.getByText("A fixed sample answer, no model call.", { exact: false })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Move and play" })).toHaveAttribute("aria-pressed", "true");
+  expect(modelCalls).toBe(0);
+});
