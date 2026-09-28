@@ -34,7 +34,7 @@ must not render as "nothing there".
 |---|---|---|
 | `security/` | quotas, CSRF, control secret | `resolveAppOrigin` is the single source of app origin; all three consumers share it |
 | `supabase/` | browser + server clients, config | |
-| `spots/`, `deal.ts` | dealing the nine | category "nearness" ordering lives in `spots/match.ts` |
+| `spots/`, `deal.ts` | dealing the nine | `spots/match.ts` is the pure draw and scoring (category "nearness" lives there); `spots/deal-spots.ts` is the I/O shell (pool, ratings under RLS) |
 | `place-import/` | link intake, SSRF guards | allowlisted adapters only; never a generic fetch of an arbitrary URL |
 | `places/` | Google Places client, matcher, SQL gen, photo fallback | field masks are reviewed constants (billing tier); only `place_id` may be stored |
 | `observability/` | structured logging | redaction matches by substring marker, not exact name |
