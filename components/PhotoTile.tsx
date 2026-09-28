@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import type { Spot } from "@/lib/types";
-import VenuePhoto, { hasVenuePhoto } from "@/components/VenuePhoto";
+import VenuePhoto from "@/components/VenuePhoto";
+import { hasVenuePhoto } from "@/lib/venue-photo";
 import { categoryLabel, categoryMeta } from "@/lib/categories";
 
 export interface WallNote {

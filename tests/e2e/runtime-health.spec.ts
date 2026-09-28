@@ -54,6 +54,10 @@ const IGNORED_CONSOLE = [
   /\[Fast Refresh\]/i,
   // Next dev-server HMR chatter; absent in a production build.
   /webpack-hmr|_next\/static\/webpack/i,
+  // CI builds without a Turnstile site key on purpose (sign-in is injected,
+  // never solved), and the login page says so loudly -- right wherever the key
+  // should exist, so this is ignored only when this run has none.
+  ...(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ? [] : [/^Turnstile: NEXT_PUBLIC_TURNSTILE_SITE_KEY is not set$/]),
 ];
 
 type Collected = {

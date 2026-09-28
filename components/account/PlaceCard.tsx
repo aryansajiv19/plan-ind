@@ -1,4 +1,5 @@
-import VenuePhoto, { hasVenuePhoto } from "@/components/VenuePhoto";
+import VenuePhoto from "@/components/VenuePhoto";
+import { hasVenuePhoto } from "@/lib/venue-photo";
 import SaveToBoard from "@/components/account/SaveToBoard";
 import type { MoodboardsState } from "@/components/account/useMoodboards";
 import { categoryLabel, categoryMeta } from "@/lib/categories";

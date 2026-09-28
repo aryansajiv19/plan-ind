@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import WeightRise from "@/components/WeightRise";
-import VenuePhoto, { hasVenuePhoto } from "@/components/VenuePhoto";
+import VenuePhoto from "@/components/VenuePhoto";
+import { hasVenuePhoto } from "@/lib/venue-photo";
 import type { CuratedCounts } from "@/lib/spots/catalogue";
 import type { Spot } from "@/lib/types";
 
