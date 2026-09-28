@@ -42,7 +42,10 @@ const server = createServer((req, res) => {
     let raw = "";
     req.on("data", (chunk) => { raw += chunk; });
     req.on("end", () => {
-      const { textQuery = "" } = JSON.parse(raw || "{}");
+      const { textQuery = "", pageToken } = JSON.parse(raw || "{}");
+      // Discovery (scripts/places-discover.ts): "restaurant in Dubai Marina" pages 1 -> 2.
+      if (pageToken === "fixture-page-2") return send(res, 200, fixture("discovery-page-2.json"));
+      if (/^restaurant in Dubai Marina, Dubai$/.test(textQuery)) return send(res, 200, fixture("discovery-page-1.json"));
       const hit = BY_QUERY.find(([pattern]) => pattern.test(textQuery));
       send(res, 200, fixture(hit ? hit[1] : "text-search-empty.json"));
     });
