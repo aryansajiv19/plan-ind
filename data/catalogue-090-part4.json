@@ -242,7 +242,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000001b5f8ed",
@@ -396,7 +396,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00001a15842a",
@@ -506,7 +506,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-00017128a201",
@@ -550,7 +550,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "office, not a venue"
   },
   {
    "id": "c0900000-0000-0000-0001-0002e839682e",
@@ -746,9 +746,9 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Modern art gallery in Palm Strip Mall opposite Jumeirah Mosque; works by Dali, Chagall and Botero",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0001308f67f1",
@@ -924,7 +924,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000015703d95",
@@ -968,7 +968,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000126856403",
@@ -4972,7 +4972,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00000dbf1f0e",
@@ -5060,7 +5060,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000015ff071a",
@@ -5564,9 +5564,9 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Greenhouse-style outdoor dining and shopping walk in Al Khawaneej with a lake, windmill and cinema",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0002-00005afb085f",
@@ -5676,7 +5676,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000088e3af37",
@@ -5850,9 +5850,9 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Two-floor indoor football centre on Umm Suqeim Road, Barsha 2, with 5-a-side and 7-a-side pitches",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0002-0000156d9409",
@@ -5894,9 +5894,9 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "18-hole par-72 course in Dubai Hills Estate with a floodlit driving range and two 9-hole courses",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0002-000041d528af",
@@ -5916,9 +5916,9 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Indoor multi-sport dome at Al Habtoor City with padel, cricket, football, tennis and pickleball courts",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-000096501627",
@@ -6026,9 +6026,9 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Snooker hall on Khalid Bin Al Waleed Road, Karama, with 12 snooker and 5 pool tables; open 9am-11pm",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0002-00000d85889f",
@@ -6246,9 +6246,9 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "18-hole par-72 desert-style course by Ian Baker-Finch with Nicklaus Design, open to the public",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0002-000008ee9211",
@@ -6378,9 +6378,9 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Floodlit nine-hole par 3 course at Emirates Golf Club, six tees per hole, Dubai Marina skyline backdrop",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0002-000005324ee6",
@@ -6466,9 +6466,9 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Outdoor JLT sports centre: six five-a-side pitches, beach soccer and volleyball sand pitches, hourly hire",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0002-000000a370f0",
@@ -6488,9 +6488,9 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Pay-and-play floodlit 9-hole course at Meydan Racecourse, laid out around six lakes; no membership",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-000097c88662",
@@ -6510,9 +6510,9 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Floodlit pay-and-play 9-hole course at Meydan with six lakes, a driving range and Burj Khalifa views",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0002-00003709448e",
@@ -6532,9 +6532,9 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "8.4km solar-lit cycling track in Meydan with skyline views, plus a pump track for BMX and skateboards",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0002-00001dd8fa46",
@@ -6554,9 +6554,9 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "57,000 sq ft indoor sports hall near Arabian Center with four multipurpose courts for badminton and volleyball",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0002bcd566d7",
@@ -6600,7 +6600,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000dbde2c9f",
@@ -6752,9 +6752,9 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Parisian-style lounge bar at Novotel Al Barsha serving cocktails, opposite Mashreq Metro",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0000f292d098",
@@ -6774,9 +6774,9 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Basement sports bar at Ramee Rose Hotel, Barsha Heights, with 17 screens and two pool tables",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-00012430a8f3",
@@ -6796,9 +6796,9 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Sports and live-music pub at Donatello Hotel, Al Barsha, with 17 screens, darts, a pool table and Tex-Mex food",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-00007b72de82",
@@ -6818,9 +6818,9 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Bar at Ramee Rose Hotel, Barsha Heights, with sushi and teppanyaki, shisha and weekly theme nights",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0002023142bc",
@@ -6862,9 +6862,9 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Manila-style Filipino nightclub at Holiday Inn Al Barsha with live band, karaoke, pool table and darts",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-00020036034d",
@@ -6884,9 +6884,9 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Rock bar at Citymax Hotel Al Barsha by Mall of the Emirates with a resident band, DJ and music-legend murals",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-000203af698d",
@@ -6906,9 +6906,9 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "British pub at Radisson Blu Barsha Heights with live sports on screens, a pool table and draught beer",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0001ffb6447a",
@@ -6928,9 +6928,9 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Restaurant and lounge with a full bar at Donatello Hotel, Al Barsha 1, open noon to 3am",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-000200833ce0",
@@ -6994,9 +6994,9 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Sports bar at Holiday Inn Al Barsha with cinema screens around a circular bar and live music",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-000200002f80",
@@ -7016,9 +7016,9 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "British-style pub at Citymax Hotel Al Barsha behind Mall of the Emirates, with chess, Jenga and pub classics",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-000200de9963",
@@ -7040,7 +7040,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000165c95344",
@@ -7060,9 +7060,9 @@
    "upkeep": 5,
    "proposed_vibe": "Toast the town at V Lounge 30th floors above Sheikh Zayed Road. Groove to global rhythms and shake things up as the",
    "proposed_vibe_source": "osm:description",
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Cocktail lounge at V Hotel, Al Habtoor City, with live entertainment and Sheikh Zayed Road views",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-000165c8eb74",
@@ -7106,7 +7106,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0002-00001dd8edf2",
@@ -7148,9 +7148,9 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Sports bar at JW Marriott Marquis with canal-view terrace, big screens and Thursday live music",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0002931716c9",
@@ -7170,9 +7170,9 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Bar on the 71st and 72nd floors of JW Marriott Marquis with cocktails, cigars and live DJs",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-000162e88065",
@@ -7192,9 +7192,9 @@
    "upkeep": 5,
    "proposed_vibe": "La Ville Hotel & Suites is a boutique hotel experience found in the heart of CITY WALK, Dubai’s new urban living",
    "proposed_vibe_source": "https://livelaville.com/",
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Fifth-floor rooftop bar and pool at La Ville Hotel, City Walk, with Burj Khalifa views and Mediterranean food",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0001f61b0a40",
@@ -7214,9 +7214,9 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Cheers-style bar at Jumeira Rotana, Satwa, with American and British pub food, karaoke and live bands",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0000dd949565",
@@ -7238,7 +7238,7 @@
    "proposed_vibe_source": "https://www.seaviewhoteldubai.com/restaurants",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-000162e8a009",
@@ -7260,7 +7260,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-00021b42e90e",
@@ -7280,9 +7280,9 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Poolside bar at the Al Jaddaf hotel with 180-degree skyline views from Burj Khalifa to the Frame, plus shisha",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0000fbb9c489",
@@ -7368,9 +7368,9 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Sports bar at Majestic City Retreat Hotel, Bur Dubai, with barrel tables, big screens and long happy hour",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0000dd948b8d",
@@ -7412,9 +7412,9 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Open-air rooftop lounge at Dubai Creek Golf & Yacht Club with creek views, cocktails and resident DJs",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-00011147d26b",
@@ -7434,9 +7434,9 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Seafood restro-bar at Arabian Courtyard Hotel, Bur Dubai, with draught beer, shisha and live sports screens",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0001a40e675d",
@@ -7458,7 +7458,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00011b0e1894",
@@ -7478,9 +7478,9 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Filipino nightclub at Fortune Karama Hotel by ADCB Metro with a live band nightly, open 6pm to 4am",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0000dd94548e",
@@ -7566,9 +7566,9 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Rooftop pool bar at Movenpick Bur Dubai in Oud Metha with Burj Khalifa views and cocktails",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-000134eebcc5",
@@ -7610,16 +7610,16 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "British sports pub at Mövenpick Bur Dubai, Oud Metha, with 14 screens, darts and pool; open until 3am",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0001459c4399",
    "osm": "node/5462836121",
    "osm_url": "https://www.openstreetmap.org/node/5462836121",
    "name": "Tomo Restaurant",
-   "category": "vibes",
+   "category": "dinner",
    "area": "Oud Metha",
    "district": "Creek & Old Dubai",
    "cuisine": "Bar and lounge",
@@ -7628,13 +7628,13 @@
    "opening_hours": null,
    "open_till": "",
    "website": null,
-   "minimum_age": 21,
+   "minimum_age": 0,
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Japanese restaurant on the 17th floor of Raffles Dubai, Wafi, with a terrace lounge, sushi and a hot pot area",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0002-000022e3dbe1",
@@ -7676,9 +7676,9 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Pool bar at Hilton Dubai Creek on Baniyas Road, Deira",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-00018429252e",
@@ -7698,9 +7698,9 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Karaoke lounge at Hyatt Regency Deira with private rooms for 12-20, a 50,000-song list and Asian food",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0000dd9407e0",
@@ -7729,7 +7729,7 @@
    "osm": "node/4748885122",
    "osm_url": "https://www.openstreetmap.org/node/4748885122",
    "name": "Kitakits Kafe & Klubb",
-   "category": "vibes",
+   "category": "nightlife",
    "area": "Al Rigga",
    "district": "Deira & Al Rigga",
    "cuisine": "Bar and lounge",
@@ -7742,9 +7742,9 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Filipino club at Marco Polo Hotel, Deira, with live bands, DJ sets and Filipino food until 3am",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0001253dc294",
@@ -7764,9 +7764,9 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Wood-panelled British pub at Radisson Blu Deira Creek, open since 1975, with live sports and pool",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-000120ede793",
@@ -7808,9 +7808,9 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Cocktail bar at JA Hatta Fort Hotel with a sunset terrace and live music",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-000085e62ca5",
@@ -7832,7 +7832,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-000085e6adb6",
@@ -7854,7 +7854,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-00034293b0d1",
@@ -7918,9 +7918,9 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Havana-themed bar at ibis One Central with 40 rums, a jukebox and nightly Latin bands or DJs",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0000e7e72196",
@@ -7940,9 +7940,9 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "British pub at Swissôtel Al Murooj near Downtown with Premier League screenings and a large outdoor terrace",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-000117fcc1fd",
@@ -7962,9 +7962,9 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Rooftop bar 43 floors up at Four Points Sheikh Zayed Road, indoor and outdoor seats facing Burj Khalifa",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0001056fe36c",
@@ -7984,9 +7984,9 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Colonial-style British pub in the basement of Towers Rotana with a very long bar and 20 sports screens",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0000cc8d04c8",
@@ -8006,9 +8006,9 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Art-deco sky lounge on the 63rd floor of Address Downtown overlooking the Dubai Fountain",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0002cfcff049",
@@ -8050,9 +8050,9 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "English pub on the mezzanine of Four Points Sheikh Zayed Road with live sports, 80s decor and pub grub",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0000ddd9b2d0",
@@ -8072,9 +8072,9 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "British sports pub at Millennium Plaza Downtown, Sheikh Zayed Road, with big screens and outdoor seating",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-000085e5feae",
@@ -8118,7 +8118,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000de07cf67",
@@ -8138,9 +8138,9 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Irish pub at Le Méridien Garhoud with sports screens, Tuesday quiz nights and live music",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-00015b9238b0",
@@ -8184,7 +8184,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0002bcbd54da",
@@ -8204,9 +8204,9 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Sports bar at Holiday Inn Express Dubai Airport, Garhoud, with big screens, draught beer and game nights",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0002-000045f6c3bb",
@@ -8226,9 +8226,9 @@
    "upkeep": 7,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Cocktail bar on the 27th floor of Burj Al Arab, 200m up, with Gulf views; smart-casual dress code",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-000123f49894",
@@ -8270,9 +8270,9 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Shoes-off beach lounge at Dubai Marine Beach Resort, Jumeirah 1, with shisha, cocktails and open-air seating",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-00021d0e15fd",
@@ -8323,7 +8323,7 @@
    "osm": "node/9042427670",
    "osm_url": "https://www.openstreetmap.org/node/9042427670",
    "name": "Smoky Beach",
-   "category": "vibes",
+   "category": "shisha",
    "area": "Pearl Jumeirah",
    "district": "Jumeirah coast",
    "cuisine": "Bar and lounge",
@@ -8332,13 +8332,13 @@
    "opening_hours": null,
    "open_till": "",
    "website": null,
-   "minimum_age": 21,
+   "minimum_age": 18,
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Alcohol-free beachside shisha lounge at La Mer with a deep-house soundtrack, open late",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-00032716318b",
@@ -8358,9 +8358,9 @@
    "upkeep": 9,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Belgian bar-restaurant at Park Inn by Radisson, Motor City, serving mussels, coq au vin and Belgian waffles",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0000eef39005",
@@ -8380,9 +8380,9 @@
    "upkeep": 6,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Two-floor sports bar with a garden overlooking the Football Academy pitches in Dubai Sports City",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0001f05d32a0",
@@ -8424,9 +8424,9 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Rooftop bar by the pool deck at Occidental IMPZ with resident DJs and a movie-theatre-style interior",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0001a4ae9559",
@@ -8468,9 +8468,9 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Sea-view pool bar at Sofitel JBR with swim-up bar, shisha menu and live music Thursdays and Fridays",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-000062f47c32",
@@ -8490,9 +8490,9 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Irish pub at Sofitel Dubai Jumeirah Beach just off The Walk JBR, showing live sports",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0002de381e37",
@@ -8534,9 +8534,9 @@
    "upkeep": 3,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Beach lounge at Sheraton Jumeirah Beach Resort, JBR, with sushi, cocktails, sunset views and DJs",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0002bd8202a1",
@@ -8578,9 +8578,9 @@
    "upkeep": 3,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Sports bar at JA Ocean View Hotel on The Walk, JBR, with a large indoor screen, foosball, pool and darts",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-000079ea49ae",
@@ -8600,9 +8600,9 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Terrace restaurant and lounge at Dubai Marina Yacht Club overlooking moored yachts, with DJs and live music",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-00017db73715",
@@ -8688,9 +8688,9 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "British gastropub at Dubai Marriott Harbour with a marina-view terrace, open kitchen and roast menu",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-000117dcaad8",
@@ -8710,9 +8710,9 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "London Underground-themed pub at Al Habtoor Grand, JBR, with sports screens, quiz nights and billiards",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-000079ea49af",
@@ -8754,9 +8754,9 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Jason Atherton bar and restaurant on the 43rd floor of Grosvenor House, Dubai Marina, with three terraces",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0001459b9561",
@@ -8778,7 +8778,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-000293171791",
@@ -8798,9 +8798,9 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Gastropub at Amwaj Rotana, JBR, with British and American food, draught beers, a DJ and live sport",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0002-0000257bb5eb",
@@ -8820,9 +8820,9 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Garden pool bar and restaurant at Le Royal Meridien, JBR: Mediterranean food by day, cocktails at sunset",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-00029317172d",
@@ -8844,7 +8844,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0002-0000257bb5f2",
@@ -8886,9 +8886,9 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Fourth-floor pool lounge at Address Dubai Marina around an infinity pool, with shisha and marina views",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0001459ba951",
@@ -8910,7 +8910,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-000299632c3a",
@@ -8930,16 +8930,16 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "British gastropub in Pullman JLT with a beer garden, sports screens and live music three nights a week",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0002-000010a964de",
    "osm": "way/279536862",
    "osm_url": "https://www.openstreetmap.org/way/279536862",
    "name": "The Empire",
-   "category": "vibes",
+   "category": "shisha",
    "area": "JBR",
    "district": "Marina & JBR",
    "cuisine": "Bar and lounge",
@@ -8948,20 +8948,20 @@
    "opening_hours": null,
    "open_till": "",
    "website": null,
-   "minimum_age": 21,
+   "minimum_age": 18,
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Shisha lounge cafe at The Beach, JBR, with a large screen for football and views of Ain Dubai; open to 4am",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0002-0000433d5436",
    "osm": "way/1128092726",
    "osm_url": "https://www.openstreetmap.org/way/1128092726",
    "name": "Yalseah Lounge",
-   "category": "vibes",
+   "category": "shisha",
    "area": "JBR",
    "district": "Marina & JBR",
    "cuisine": "Bar and lounge",
@@ -8970,13 +8970,13 @@
    "opening_hours": null,
    "open_till": "",
    "website": null,
-   "minimum_age": 21,
+   "minimum_age": 18,
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Shisha lounge on JBR Beach serving seaside bites with sunset views, open 9am to 5am",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0000ff6777ed",
@@ -9040,9 +9040,9 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Beachside bar and lounge at One&Only Royal Mirage with Arabian Gulf views, cocktails and light bites",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-00014a5b556a",
@@ -9064,7 +9064,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00021185c0e9",
@@ -9108,7 +9108,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00021185c0eb",
@@ -9137,7 +9137,7 @@
    "osm": "node/8883912948",
    "osm_url": "https://www.openstreetmap.org/node/8883912948",
    "name": "The Penthouse",
-   "category": "vibes",
+   "category": "nightlife",
    "area": "One&Only Royal Mirage",
    "district": "The Palm",
    "cuisine": "Bar and lounge",
@@ -9150,9 +9150,9 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "16th-floor adults-only rooftop lounge and club at FIVE Palm Jumeirah with two pools, open 5pm to 4am",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0000e2ff10f1",
@@ -9174,7 +9174,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000e2ff10f2",
@@ -9196,7 +9196,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001267f408e",
@@ -9218,7 +9218,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00012667826f",
@@ -9240,7 +9240,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "not a hangout"
   }
  ]
 }
