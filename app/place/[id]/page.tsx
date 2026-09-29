@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import LandingNav from "@/components/landing/LandingNav";
 import WentHere from "@/components/ranking/WentHere";
+import PlaceScoreChip from "@/components/ranking/PlaceScoreChip";
 import { createClient } from "@/lib/supabase/server";
 import VenuePhoto from "@/components/VenuePhoto";
 import { hasVenuePhoto } from "@/lib/venue-photo";
@@ -95,6 +96,7 @@ export default async function PlacePage({
 
       <div className="place-content">
         <div className="place-meta">
+          {user && <PlaceScoreChip spotId={spot.id} />}
           {knownPriceBand(spot) && <span>{spot.price_band}</span>}
           {knownMinSpend(spot) != null && <span>From AED {spot.min_spend}pp</span>}
           <OpenStatus openTill={spot.open_till} />

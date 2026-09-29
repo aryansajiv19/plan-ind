@@ -50,7 +50,7 @@ export default function UnrateButton({ planId, spotId }: { planId: string; spotI
   if (armed) {
     return (
       <span className="vote-unrate" role="group" aria-label="Confirm removing your rating">
-        <span>Remove your rating? The visit stays in your Been.</span>
+        <span>Remove your rating? A visit with no notes, photos or people on it also leaves your Been and your ranking.</span>
         <button type="button" disabled={pending} onClick={() => void remove()}>{pending ? "Removing…" : "Remove rating"}</button>
         <button type="button" disabled={pending} onClick={() => setArmed(false)}>Keep it</button>
       </span>

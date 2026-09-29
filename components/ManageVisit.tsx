@@ -181,7 +181,7 @@ export default function ManageVisit({
 
           {armedIsVisit ? (
             <p className="manage-visit__confirm" role="group" aria-label="Confirm delete">
-              <span>Delete {label(visit)}? Its tags and photos go with it. This can’t be undone.</span>
+              <span>Delete {label(visit)}? Its tags and photos go with it, and if it’s your only visit there it leaves your ranking too. This can’t be undone.</span>
               <button type="button" disabled={pending} onClick={() => void run(() => deleteVisit(visit.id), "Couldn’t finish deleting that visit. Try again — it picks up where it stopped.")}>
                 {pending ? "Deleting…" : "Delete visit"}
               </button>

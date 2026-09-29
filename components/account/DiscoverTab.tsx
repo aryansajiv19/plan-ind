@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { useSuggestions } from "@/hooks/use-suggestions";
 import PlaceCard from "@/components/account/PlaceCard";
 import ExploreConstellation from "@/components/account/ExploreConstellation";
+import TopPlaces from "@/components/discover/TopPlaces";
 import type { MoodboardsState } from "@/components/account/useMoodboards";
 import { placePlanPrefill, type PlanPrefill } from "@/lib/board-plan";
 import { CATEGORIES } from "@/components/categoryGroups";
@@ -135,6 +136,8 @@ export default function DiscoverTab({
         <div><h1 id="discover-title">Places worth considering.</h1></div>
         <p>The catalogue a plan deals from. Search it, then start a vote on anything that fits tonight.</p>
       </header>
+
+      <TopPlaces spots={spots} />
 
       {suggested.suggestions.length > 0 && (
         <section className="discover-suggested" aria-labelledby="suggested-title">
