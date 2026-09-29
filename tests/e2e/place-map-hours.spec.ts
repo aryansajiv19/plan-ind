@@ -1,78 +1,64 @@
-import { test, expect, type Page } from "@playwright/test";
+import { randomUUID } from "node:crypto";
+import { test, expect } from "@playwright/test";
+import { nearestStation } from "@/lib/dubai-metro";
 import { canProvision, SEEDED } from "./plan-factory";
 import { localAdmin } from "./local-stack";
 
-// /place/[id]: the venue map is LAZY (VenueMap.tsx) -- no Google iframe until
-// the section nears the viewport or "Show map" is pressed -- and the hours
-// line reads the listing against the Dubai clock (OpenStatus.tsx).
-//
-// The iframe's src is asserted, never its content: www.google.com does not
-// load from the sandbox this was written in, and the contract being tested
-// is ours (which origin, which place, what title), not Google's.
+// /place/[id]: the venue map is OUR OWN (components/map/DubaiMiniMap.tsx,
+// wave 1c): an SVG of the Dubai Metro, the nearest station lit, the walk and
+// the venue pin, with "Open in Google Maps" for turn-by-turn. No Google
+// iframe and no key. The hours line reads the listing against the Dubai clock
+// (OpenStatus.tsx).
 //
 // The clock is FIXED per test (page.clock.setFixedTime), so "Closes in 20
 // min" is deterministic. Only Date is frozen; timers still run.
 
-test.skip(!canProvision(), "skipped: reads a seed.sql spot id that exists only on a local stack.");
+test.skip(!canProvision(), "skipped: reads and provisions spots on a local stack.");
 
-const PLACE = `/place/${SEEDED.threeFils}`; // 3Fils, Jumeirah, open till 11pm
+const PLACE = `/place/${SEEDED.threeFils}`; // 3Fils, Jumeirah, open till 11pm; no coordinates in the seed
 const dubai = (hhmm: string) => new Date(`2026-09-25T${hhmm}:00+04:00`);
 
-async function shortViewport(page: Page) {
-  // Short enough on every project that the Where section starts well below
-  // the fold plus VenueMap's 160px rootMargin.
-  const width = page.viewportSize()?.width ?? 1280;
-  await page.setViewportSize({ width, height: 420 });
-}
+// A curated spot a short walk from Business Bay metro, provisioned per test:
+// the seed has no coordinates, and the map needs them.
+const AT = { latitude: 25.1925, longitude: 55.2625 };
 
-test("the map is not loaded until scrolled to, then embeds this place from www.google.com", async ({ page }) => {
-  await shortViewport(page);
-  await page.clock.setFixedTime(dubai("22:40"));
-  await page.goto(PLACE);
-
-  // Hydrated: only the client can know it is 22:40 in Dubai.
-  await expect(page.getByText("Closes in 20 min", { exact: true })).toBeVisible({ timeout: 20_000 });
-
-  const map = page.locator('iframe[title^="Map of "]');
-  const showMap = page.getByRole("button", { name: "Show map" });
-  await expect(showMap).toBeAttached();
-  // Give an eager observer every chance to fire before asserting it did not.
-  await page.waitForLoadState("networkidle");
-  await expect(map).toHaveCount(0);
-
-  // A plain scroll, not a click: the observer alone must swap the map in.
-  await showMap.evaluate((el) => el.scrollIntoView({ block: "center" }));
-  await expect(map).toHaveCount(1);
-  await expect(showMap).toHaveCount(0);
-  await expect(map).toHaveAttribute("title", "Map of 3Fils, Jumeirah");
-  const src = new URL((await map.getAttribute("src"))!);
-  expect(src.protocol).toBe("https:");
-  expect(src.hostname).toBe("www.google.com");
-  expect(src.searchParams.get("output")).toBe("embed");
-  // Coordinates when the row has them (070 fills them on a stack with its data
-  // applied; the seed has none), else the name and area -- mapEmbedUrl's rule.
-  const { data: row, error } = await localAdmin().from("spots")
-    .select("latitude, longitude").eq("id", SEEDED.threeFils).single();
-  expect(error).toBeNull();
-  const expected = row!.latitude != null && row!.longitude != null
-    ? `${row!.latitude},${row!.longitude}`
-    : "3Fils, Jumeirah, Dubai";
-  expect(src.searchParams.get("q")).toBe(expected);
+test("the map is ours: metro, the nearest station, the walk, the pin, and a way out to Google Maps", async ({ page }) => {
+  const admin = localAdmin();
+  const id = randomUUID();
+  const { error } = await admin.from("spots").insert({
+    id, name: "E2E Map Spot", category: "dinner", area: "Business Bay", cuisine: "Test", price_band: "$$",
+    min_spend: 100, open_till: "11pm", vibe: "Fixture for the map", source: "curated", ...AT,
+  });
+  if (error) throw new Error(`provisioning the map spot failed: ${error.message}`);
+  try {
+    await page.goto(`/place/${id}`);
+    const map = page.locator("figure.mini-map");
+    await expect(map).toBeVisible({ timeout: 20_000 });
+    const near = nearestStation(AT.latitude, AT.longitude)!;
+    await expect(map.getByRole("img")).toHaveAttribute("aria-label",
+      `Map: E2E Map Spot, ${near.walkMin} min walk from ${near.station.name} metro`);
+    await expect(map.locator("path.mini-map__pin")).toHaveCount(1);
+    await expect(map.locator("circle.mini-map__near")).toHaveCount(1);
+    await expect(map.locator("figcaption")).toContainText(`≈ ${near.walkMin} min walk from ${near.station.name}`);
+    const out = map.getByRole("link", { name: "Open in Google Maps" });
+    const href = new URL((await out.getAttribute("href"))!);
+    expect(`${href.origin}${href.pathname}`).toBe("https://www.google.com/maps/search/");
+    expect(href.searchParams.get("query")).toBe(`${AT.latitude},${AT.longitude}`);
+    // No Google embed anywhere on the page any more.
+    await expect(page.locator("iframe")).toHaveCount(0);
+  } finally {
+    await admin.from("spots").delete().eq("id", id);
+  }
 });
 
-test("\"Show map\" loads the map on request", async ({ page }) => {
-  await shortViewport(page);
+test("a place without coordinates draws no map but is never a dead end", async ({ page }) => {
   await page.goto(PLACE);
-  await page.waitForLoadState("networkidle");
-  const map = page.locator('iframe[title="Map of 3Fils, Jumeirah"]');
-  await expect(map).toHaveCount(0);
-  // Not .click(): it scrolls the button into view first, and near the viewport
-  // the placeholder swaps itself for the map by design, so the button was
-  // detached mid-click (the Mobile Chrome flake). A click with no scroll
-  // tests the button alone.
-  await page.getByRole("button", { name: "Show map" }).dispatchEvent("click");
-  await expect(map).toHaveCount(1);
-  expect(new URL((await map.getAttribute("src"))!).hostname).toBe("www.google.com");
+  await expect(page.getByRole("heading", { level: 1, name: "3Fils" })).toBeVisible({ timeout: 20_000 });
+  await expect(page.locator("figure.mini-map")).toHaveCount(0);
+  const where = page.locator("section", { has: page.getByRole("heading", { name: "Where" }) });
+  await expect(where).toContainText("Jumeirah");
+  await expect(page.getByRole("link", { name: "Open in Google Maps" }).first()).toHaveAttribute("href", /^https:\/\/www\.google\.com\/maps\//);
+  await expect(page.locator("iframe")).toHaveCount(0);
 });
 
 test("the hours line follows the Dubai clock: listed, closing soon, closed", async ({ page }) => {

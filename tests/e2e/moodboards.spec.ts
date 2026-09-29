@@ -3,9 +3,10 @@ import { NO_FIXTURE_REASON } from "./fixture";
 import { localAdmin, signInAsMember } from "./local-stack";
 import { canProvision, SEEDED } from "./plan-factory";
 
-// Moodboards in Discover (components/account/MoodboardsSection.tsx), the
-// whole lifecycle on one fresh account: create -> save a place from a
-// Discover card AND from /place/[id] -> add a link -> remove one item for
+// Moodboards on the Saved tab (components/account/MoodboardsSection.tsx; wave
+// 1b moved them off Discover), the whole lifecycle on one fresh account:
+// create -> save a place from a Discover card AND from /place/[id] -> add a
+// link -> remove one item for
 // good, remove another and Undo it -> rename -> delete. After each step
 // that writes, a RELOAD proves the server has it, not just React state.
 //
@@ -13,8 +14,8 @@ import { canProvision, SEEDED } from "./plan-factory";
 // so every count here is exact. Boards cascade from people, which cascades
 // from auth.users, so global-teardown's account sweep removes them.
 
-async function openDiscover(page: Page) {
-  await page.goto("/home?view=discover");
+async function openSaved(page: Page) {
+  await page.goto("/home?view=saved");
   // The create form renders only once the boards have loaded.
   await expect(page.getByLabel("New board name")).toBeVisible({ timeout: 20_000 });
 }
@@ -38,7 +39,7 @@ test("a board survives create, save, link, remove with Undo, rename and delete",
   const renamed = `${board} v2`;
 
   // ── Create ──────────────────────────────────────────────────────────
-  await openDiscover(page);
+  await openSaved(page);
   await expect(page.getByText(/^No boards yet\./)).toBeVisible();
   await page.getByLabel("New board name").fill(board);
   await page.getByRole("button", { name: "New board", exact: true }).click();
@@ -46,11 +47,14 @@ test("a board survives create, save, link, remove with Undo, rename and delete",
   await expect(boardTabs(page).first()).toContainText(board);
   await expect(page.getByText(`${board} is empty.`, { exact: false })).toBeVisible();
 
-  // ── Save a place from a Discover card ───────────────────────────────
+  // ── Save a place from a Discover card (Discover keeps Save to board) ─
+  await page.goto("/home?view=discover");
+  await expect(page.getByLabel("New board name"), "boards are managed on Saved, not Discover").toHaveCount(0);
   const card = page.locator("article.demo-place-card").filter({ has: page.getByRole("heading", { name: "3Fils", exact: true }) });
   await card.getByRole("button", { name: "Save to board" }).click();
   await card.getByRole("list", { name: "Boards for 3Fils" }).getByRole("button", { name: new RegExp(board) }).click();
   await expect(card.getByText(`Saved to ${board}.`)).toBeVisible();
+  await openSaved(page);
   await expect(tile(page, "3Fils")).toBeVisible();
 
   // ── Save a place from /place/[id] ───────────────────────────────────
@@ -64,7 +68,7 @@ test("a board survives create, save, link, remove with Undo, rename and delete",
   await expect(placeBoards.getByRole("button", { name: new RegExp(board) })).toBeDisabled();
 
   // ── Add a link ──────────────────────────────────────────────────────
-  await openDiscover(page);
+  await openSaved(page);
   await expect(tile(page, "Ravi Restaurant")).toBeVisible(); // the place-page save persisted
   await page.getByLabel("Link", { exact: true }).fill("https://example.com/menu");
   await page.getByLabel("Title", { exact: true }).fill("The menu");
