@@ -141,8 +141,16 @@ export const minimumAgeFor = (category: string) => (ADULT.has(category) ? 21 : 0
 
 const norm = (name: string) => name.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, " ").trim();
 
-/** Candidates from Overpass elements, with every reason a row was dropped. */
-export function candidatesFrom(elements: readonly OsmElement[], existingNames: readonly string[]) {
+/** Our 23 categories (components/categoryGroups.ts), for checking a forced one. */
+export const CATEGORY_KEYS = new Set(Object.keys(LABEL));
+
+/**
+ * Candidates from Overpass elements, with every reason a row was dropped.
+ * `forced` (osm ref -> category) is for hand-picked objects whose OSM tags
+ * don't say the category we list them under (a shisha place tagged a cafe).
+ */
+export function candidatesFrom(elements: readonly OsmElement[], existingNames: readonly string[],
+  forced: ReadonlyMap<string, string> = new Map()) {
   const existing = new Set(existingNames.map(norm));
   const seen = new Set<string>();
   const kept: CatalogueRow[] = [];
@@ -154,8 +162,9 @@ export function candidatesFrom(elements: readonly OsmElement[], existingNames: r
     const skip = (reason: string) => skipped.push({ ref, name, reason });
     const why = excluded(tags);
     if (why) { skip(why); continue; }
-    const category = categoryOf(tags);
+    const category = forced.get(ref) ?? categoryOf(tags);
     if (!category) { skip("no category"); continue; }
+    if (!CATEGORY_KEYS.has(category)) { skip(`unknown category "${category}"`); continue; }
     const lat = el.lat ?? el.center?.lat;
     const lon = el.lon ?? el.center?.lon;
     if (lat == null || lon == null) { skip("no coordinates"); continue; }
