@@ -4,8 +4,9 @@ import { test, expect } from "@playwright/test";
 // Places photo costs the shared daily cap (300/day, ~15 per landing view
 // before this), and past a visitor's limit it answered 429 and left an empty
 // dark frame. So: no request to /api/spots/:id/photo at all, and every wall
-// card is either a photo that actually loaded or the typographic tile, never
-// a photo frame with nothing in it. Scrolled through the whole page first,
+// card is either a photo that actually loaded, its category art (wave 1a:
+// .category-art, an SVG scene), or the typographic tile, never a photo frame
+// with nothing in it. Scrolled through the whole page first,
 // because the wall and the composer mount only near the viewport.
 
 for (const path of ["/", "/demo"]) {
@@ -32,10 +33,14 @@ for (const path of ["/", "/demo"]) {
         await expect(tile.locator(".wall-tile__photo"), `card ${i} is typographic but has a photo frame`).toHaveCount(0);
         continue;
       }
-      const img = tile.locator(".wall-tile__photo img");
-      await expect(img, `card ${i} has a photo frame with no image in it`).toHaveCount(1, { timeout: 10_000 });
-      await expect.poll(() => img.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0),
-        { message: `card ${i}'s photo never loaded`, timeout: 10_000 }).toBe(true);
+      const frame = tile.locator(".wall-tile__photo");
+      const img = frame.locator("img");
+      await expect(img.or(frame.locator(".category-art")).first(), `card ${i} has a photo frame with nothing in it`)
+        .toBeVisible({ timeout: 10_000 });
+      if (await img.count()) {
+        await expect.poll(() => img.first().evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0),
+          { message: `card ${i}'s photo never loaded`, timeout: 10_000 }).toBe(true);
+      }
     }
     // The rest of the page too (the composer deck), then the verdict.
     await page.mouse.wheel(0, 20_000);

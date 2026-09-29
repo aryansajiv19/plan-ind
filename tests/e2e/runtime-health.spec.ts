@@ -129,8 +129,14 @@ async function loadEveryImage(page: Page) {
     .catch(() => undefined); // an image that never finishes is reported by the check itself
 }
 
-/** Venue photos: ours (self-hosted or the storage bucket), the demo's, or Google's. */
-const VENUE_PHOTO = /\/venues\/|spot-photos|\/demo\/[^/?]+\.(webp|jpe?g|png)|googleusercontent/;
+/** Our own venue photos: self-hosted, the storage bucket, or the demo's. */
+const OWN_PHOTO = /\/venues\/|spot-photos|\/demo\/[^/?]+\.(webp|jpe?g|png)/;
+/** Google Places photos, which must show their author beside them (Google's terms). */
+const GOOGLE_PHOTO = /googleusercontent/;
+
+// Credits since wave 1a: our own photos carry no mark on the image (their
+// licence credits are listed on /credits, which CC BY allows "in any
+// reasonable manner"); a Google photo shows its author (.photo-attrib).
 
 // Controls for collect()'s origin filter: our own errors still count, and a
 // foreign frame's don't. The foreign frame is on www.google.com (the only
@@ -204,26 +210,26 @@ for (const path of PAGES) {
     expect(broken, `images that rendered nothing on ${path}: ${JSON.stringify(broken, null, 1)}`).toEqual([]);
   });
 
-  // A photo shown without its credit is a licence breach for the CC-BY ones
-  // (PhotoCredit), so every venue photo must have its credit beside it.
-  test(`every venue photo carries its credit: ${path}`, async ({ page }) => {
+  test(`photo credits follow the rules (own: none on the image; Google: its author): ${path}`, async ({ page }) => {
     await page.goto(path, gotoOptions(path));
     await settle(page, path);
     await loadEveryImage(page);
-    const uncredited = await page.evaluate((pattern) =>
-      Array.from(document.querySelectorAll("img"))
-        .filter((img) => new RegExp(pattern).test(decodeURIComponent(img.currentSrc || img.src)))
-        .filter((img) => !img.parentElement?.querySelector(".photo-credit"))
-        .map((img) => decodeURIComponent(img.currentSrc || img.src)), VENUE_PHOTO.source);
-    expect(uncredited, `venue photos with no credit on ${path}: ${JSON.stringify(uncredited, null, 1)}`).toEqual([]);
+    const problems = await page.evaluate(([own, google]) => {
+      const src = (img: HTMLImageElement) => decodeURIComponent(img.currentSrc || img.src);
+      const attributed = (img: HTMLImageElement) => Boolean(img.parentElement?.querySelector(".photo-attrib"));
+      return Array.from(document.querySelectorAll("img")).flatMap((img) =>
+        new RegExp(own).test(src(img)) && attributed(img) ? [`${src(img)}: own photo carries an on-image credit`]
+          : new RegExp(google).test(src(img)) && !attributed(img) ? [`${src(img)}: Google photo without its author`] : []);
+    }, [OWN_PHOTO.source, GOOGLE_PHOTO.source]);
+    expect(problems, `photo credit problems on ${path}: ${JSON.stringify(problems, null, 1)}`).toEqual([]);
   });
 }
 
 // Every venue page the front door links to: it loads, logs nothing, and its
-// photos resolve with their credits. (The place page once crashed for every
+// photos resolve and follow the credit rules. (The place page once crashed for every
 // venue -- a client function called on the server -- and only a place-page
 // spec noticed.)
-test("every venue page linked from the front door loads cleanly, photos resolved and credited", async ({ page }) => {
+test("every venue page linked from the front door loads cleanly, photos resolved, credits right", async ({ page }) => {
   test.setTimeout(180_000);
   await page.goto("/", IDLE);
   await mountLandingSection(page, "right-now");
@@ -236,18 +242,20 @@ test("every venue page linked from the front door loads cleanly, photos resolved
     const response = await page.goto(href, IDLE);
     if (response?.status() !== 200) problems.push(`${href}: status ${response?.status()}`);
     await loadEveryImage(page);
-    const [broken, uncredited] = await page.evaluate((pattern) => {
+    const [broken, uncredited] = await page.evaluate(([own, google]) => {
       const imgs = Array.from(document.querySelectorAll("img"));
       const laidOut = (img: HTMLImageElement) => { const r = img.getBoundingClientRect(); return r.width > 1 && r.height > 1; };
       const src = (img: HTMLImageElement) => decodeURIComponent(img.currentSrc || img.src);
+      const attributed = (img: HTMLImageElement) => Boolean(img.parentElement?.querySelector(".photo-attrib"));
       return [
         imgs.filter((img) => laidOut(img) && img.naturalWidth === 0).map(src),
-        imgs.filter((img) => new RegExp(pattern).test(src(img)) && !img.parentElement?.querySelector(".photo-credit")).map(src),
+        imgs.filter((img) => (new RegExp(own).test(src(img)) && attributed(img))
+          || (new RegExp(google).test(src(img)) && !attributed(img))).map(src),
       ];
-    }, VENUE_PHOTO.source);
+    }, [OWN_PHOTO.source, GOOGLE_PHOTO.source]);
     for (const [what, list] of [["uncaught exceptions", found.pageErrors], ["console errors", found.consoleErrors],
       ["4xx/5xx", found.badResponses.map((r) => `${r.status} ${r.url}`)], ["images that rendered nothing", broken],
-      ["photos with no credit", uncredited]] as const) {
+      ["photos breaking the credit rules", uncredited]] as const) {
       if (list.length) problems.push(`${href}: ${what}: ${JSON.stringify(list)}`);
     }
     page.removeAllListeners("console"); page.removeAllListeners("pageerror");
@@ -287,7 +295,7 @@ async function withPhotoSpot(run: (spotId: string) => Promise<void>): Promise<vo
   }
 }
 
-test("a venue page with a photo renders that photo and its credit", async ({ page }) => withPhotoSpot(async (spotId) => {
+test("a venue page with a photo renders that photo, and /credits carries its credit", async ({ page }) => withPhotoSpot(async (spotId) => {
   const found = collect(page);
   await page.goto(`/place/${spotId}`, { waitUntil: "networkidle" });
 
@@ -297,13 +305,47 @@ test("a venue page with a photo renders that photo and its credit", async ({ pag
   expect(naturalWidth, "the place hero image resolved to nothing — a 404 that still lays out").toBeGreaterThan(0);
 
   // CC-BY images carry credit as a licence condition, not as a nicety, so an
-  // unrendered credit is a licensing problem rather than a cosmetic one. The
-  // credit is a "©" mark that opens to the full line on hover or focus.
-  const credit = page.getByRole("note", { name: /Wikimedia Commons/i }).first();
-  await expect(credit).toBeVisible();
-  await credit.hover();
-  await expect(credit.getByText(/Wikimedia Commons/i)).toBeVisible();
+  // unrendered credit is a licensing problem rather than a cosmetic one.
+  // Since wave 1a the image itself carries no mark; the credit lives on
+  // /credits, next to a link to this very place.
+  await expect(page.locator(".place-hero .photo-attrib"), "our own photo carries no on-image mark").toHaveCount(0);
+  await page.goto("/credits", { waitUntil: "networkidle" });
+  const row = page.locator(".credits-list li").filter({ has: page.locator(`a[href="/place/${spotId}"]`) });
+  await expect(row, "/credits doesn't list this place's photo").toHaveCount(1);
+  await expect(row).toContainText(/Wikimedia Commons/i);
 
   expect(found.badResponses, `4xx/5xx while loading the place page: ${JSON.stringify(found.badResponses, null, 1)}`)
     .toEqual([]);
 }));
+
+// /credits is where our own photos' licence credits live now (wave 1a), so it
+// must load cleanly and list every own photo the front door shows: a photo on
+// the landing with no row here is an uncredited CC BY photo.
+test("/credits loads and credits every own photo the front door shows", async ({ page }) => {
+  await page.goto("/", IDLE);
+  await mountLandingSection(page, "right-now");
+  await loadEveryImage(page);
+  const shown = await page.evaluate((own) => [...new Set(Array.from(document.querySelectorAll("img"))
+    .map((img) => decodeURIComponent(img.currentSrc || img.src))
+    .filter((src) => new RegExp(own).test(src))
+    .map((src) => src.match(/\/venues\/([0-9a-f-]{36})\./)?.[1])
+    .filter((id): id is string => Boolean(id)))], OWN_PHOTO.source);
+
+  expect(shown.length, "the front door shows none of our own photos, so this check would be vacuous").toBeGreaterThan(0);
+
+  const found = collect(page);
+  const response = await page.goto("/credits", IDLE);
+  expect(response?.status()).toBe(200);
+  await expect(page.getByRole("heading", { name: "Photo credits" })).toBeVisible();
+  // By its words, not role="alert": Next's route announcer is an alert too.
+  await expect(page.getByText("The credits didn’t load"), "the credits read failed").toHaveCount(0);
+  const credited = await page.locator(".credits-list li").evaluateAll((rows) => rows.map((row) => ({
+    id: row.querySelector("a")?.getAttribute("href")?.replace("/place/", "") ?? "",
+    text: row.textContent ?? "",
+  })));
+  expect(credited.length, "/credits lists nothing").toBeGreaterThan(0);
+  expect(credited.filter((row) => !/\S.*\/.*\S/.test(row.text)), "a row with no attribution line").toEqual([]);
+  const missing = shown.filter((id) => !credited.some((row) => row.id === id));
+  expect(missing, `own photos on the front door with no credit on /credits: ${JSON.stringify(missing)}`).toEqual([]);
+  expect(found.pageErrors.concat(found.consoleErrors), "errors on /credits").toEqual([]);
+});
