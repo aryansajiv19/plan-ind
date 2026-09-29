@@ -12,7 +12,7 @@ export interface District {
 }
 
 export const DISTRICTS: readonly District[] = [
-  { name: "Marina & JBR", areas: ["Dubai Marina", "JBR", "La Vie, JBR", "JLT", "Dubai Harbour", "Le Royal Meridien"] },
+  { name: "Marina & JBR", areas: ["Dubai Marina", "JBR", "La Vie, JBR", "JLT", "Dubai Harbour", "Le Royal Meridien", "Dubai Media City", "Discovery Gardens"] },
   { name: "The Palm", areas: ["Palm Jumeirah", "Atlantis", "One&Only Royal Mirage"] },
   { name: "Downtown & DIFC", areas: ["Downtown Dubai", "Dubai Mall", "Address Dubai Mall", "Address Sky View", "Emirates Towers", "DIFC", "Trade Centre", "Dubai World Trade Centre"] },
   { name: "Business Bay", areas: ["Business Bay", "JW Marriott Marquis", "The Oberoi", "Al Habtoor City"] },

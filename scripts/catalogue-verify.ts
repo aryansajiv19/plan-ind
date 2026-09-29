@@ -3,10 +3,11 @@
 //
 //   node --experimental-strip-types --import ./tests/register-aliases.mjs scripts/catalogue-verify.ts <id> [<id> ...]
 //   ... scripts/catalogue-verify.ts --pending      (every row not yet approved or rejected)
+//   ... --file data/catalogue-090-part2.json ...   (another review file; default 089's)
 //
 // Prints, per row: whether the name appears in the site's title or
 // description, the title, the description, and where the site ended up.
-// Changes nothing; the reviewer edits data/catalogue-089.json.
+// Changes nothing; the reviewer edits the review file.
 
 import { readFile } from "node:fs/promises";
 import path from "node:path";
@@ -14,13 +15,15 @@ import type { ReviewRow } from "../lib/catalogue/review.ts";
 import { siteMeta } from "./catalogue-web.ts";
 
 const root = path.resolve(import.meta.dirname, "..");
-const rows = (JSON.parse(await readFile(path.join(root, "data/catalogue-089.json"), "utf8")) as { rows: ReviewRow[] }).rows;
 const args = process.argv.slice(2);
+const fileAt = args.indexOf("--file");
+const file = fileAt >= 0 ? args[fileAt + 1] : "data/catalogue-089.json";
+const rows = (JSON.parse(await readFile(path.resolve(root, file), "utf8")) as { rows: ReviewRow[] }).rows;
 const chosen = args.includes("--pending")
   ? rows.filter((r) => !r.approved && !r.reject_reason)
   : rows.filter((r) => args.includes(r.id));
 if (chosen.length === 0) {
-  console.log("usage: <id> [<id> ...] | --pending");
+  console.log("usage: [--file data/<review>.json] <id> [<id> ...] | --pending");
   process.exit(1);
 }
 
