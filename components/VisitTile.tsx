@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import VenuePhoto from "@/components/VenuePhoto";
 import Link from "next/link";
 import type { ProfileVisit } from "@/lib/types";
 
@@ -25,7 +26,9 @@ export default function VisitTile({
   photoUrl: string | null;
   height: number;
 }) {
-  const hasPhoto = Boolean(photoUrl);
+  // Your own photo first; else the place's photo, or its category scene,
+  // so a visit tile is never an empty dark box.
+  const hasPhoto = Boolean(photoUrl) || Boolean(visit.spot);
   const name = visit.spot?.name ?? "A place that has since been removed";
   const meta = [visit.spot?.area, DATE_FORMAT.format(new Date(visit.visited_at))]
     .filter(Boolean)
@@ -36,9 +39,12 @@ export default function VisitTile({
       className={`wall-tile ${hasPhoto ? "" : "wall-tile--typographic"}`}
       style={{ height }}
     >
-      {hasPhoto ? (
+      {!photoUrl && visit.spot ? (
+        <VenuePhoto spot={visit.spot} sizes="(max-width: 720px) 50vw, 25vw" className="wall-tile__img" />
+      ) : null}
+      {photoUrl ? (
         <Image
-          src={photoUrl as string}
+          src={photoUrl}
           alt=""
           fill
           sizes="(max-width: 720px) 50vw, 25vw"

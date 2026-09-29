@@ -18,26 +18,27 @@ const BANDS: { key: RankingBucket; label: string }[] = [
  * shown as "nothing ranked".
  */
 export default function MyRanking({ visits, ranking }: { visits: ProfileVisit[]; ranking: ReturnType<typeof useRanking> }) {
-  const [playing, setPlaying] = useState<string | null>(null);
+  // The place being played is held, not looked up, so the game stays on
+  // screen through its score pop after the place leaves "pending".
+  const [playing, setPlaying] = useState<NonNullable<ProfileVisit["spot"]> | null>(null);
   const ranked = new Set(ranking.rows.map((row) => row.spot_id));
   const pending = [...new Map(visits.filter((v) => v.spot && !ranked.has(v.spot.id)).map((v) => [v.spot!.id, v.spot!])).values()];
-  const current = pending.find((spot) => spot.id === playing);
 
   if (ranking.status === "failed") return <p className="demo-empty" role="alert">Your ranking didn’t load. Refresh to try again.</p>;
   if (ranking.status !== "ready") return null;
 
   return (
     <div className="my-ranking">
-      {pending.length > 0 && (
+      {(pending.length > 0 || playing) && (
         <section aria-labelledby="rate-pending-title" className="my-ranking__pending">
           <h2 id="rate-pending-title">Rate your places <span>{pending.length}</span></h2>
-          {current ? (
-            <RateGame place={current} ranking={ranking} onDone={() => setTimeout(() => setPlaying(null), 1800)} />
+          {playing ? (
+            <RateGame place={playing} ranking={ranking} onDone={() => setTimeout(() => setPlaying(null), 2200)} />
           ) : (
             <ul>
               {pending.map((spot) => (
                 <li key={spot.id}>
-                  <button type="button" onClick={() => setPlaying(spot.id)}>
+                  <button type="button" onClick={() => setPlaying(spot)}>
                     <strong>{spot.name}</strong>
                     <span>{spot.area} · tap to rate</span>
                   </button>
