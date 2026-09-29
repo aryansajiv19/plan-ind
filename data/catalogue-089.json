@@ -20,8 +20,8 @@
    "upkeep": 8,
    "proposed_vibe": "Climbing gym | Classes for Kids and Beginners | Mountain Extreme | Dubai",
    "proposed_vibe_source": "https://www.mtnextreme.com/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Bouldering and roped climbing in an Al Quoz warehouse, with a coffee bar overlooking the walls",
    "reject_reason": null
   },
   {
@@ -42,8 +42,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Outdoor 15-metre lead and speed walls on the side of the World Trade Centre Club, beginner sessions",
    "reject_reason": null
   },
   {
@@ -66,7 +66,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0890000-0000-0000-0001-0002ad41dd03",
@@ -88,7 +88,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-0002d479212c",
@@ -110,7 +110,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "office, not a venue"
   },
   {
    "id": "c0890000-0000-0000-0002-00001422207c",
@@ -130,8 +130,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Quiet, undeveloped public beach between the Palm and the Burj Al Arab, no shops and few crowds",
    "reject_reason": null
   },
   {
@@ -154,7 +154,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0002-0000055805ce",
@@ -176,7 +176,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0890000-0000-0000-0002-00000558176d",
@@ -196,8 +196,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Free public beach at Umm Suqeim facing the Burj Al Arab, with showers and lit night swimming zones",
    "reject_reason": null
   },
   {
@@ -220,7 +220,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0890000-0000-0000-0002-000005a0801b",
@@ -242,7 +242,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0002-00005880cf51",
@@ -264,7 +264,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0002-000013154b04",
@@ -284,8 +284,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Public beach along JBR's The Walk under the towers and Ain Dubai, with jet skis and beach volleyball",
    "reject_reason": null
   },
   {
@@ -306,8 +306,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Small free beach opposite Mercato Mall with a jogging track, volleyball courts and Burj Khalifa views",
    "reject_reason": null
   },
   {
@@ -328,8 +328,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Mediterranean beach club at Atlantis The Palm with an infinity pool facing Ain Dubai; hosts concerts",
    "reject_reason": null
   },
   {
@@ -352,7 +352,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0002-000028b388e2",
@@ -374,7 +374,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0002-00002764831e",
@@ -396,7 +396,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-000339f0a9c0",
@@ -416,8 +416,8 @@
    "upkeep": 9,
    "proposed_vibe": "BLACKCoffee by Café Younes is the extension of the Café Younes brand, with the ambition of strengthening its coffee",
    "proposed_vibe_source": "https://blackcoffee.ae/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Specialty coffee roasted by the Lebanese Cafe Younes family, in Duja Tower off Sheikh Zayed Road",
    "reject_reason": null
   },
   {
@@ -438,8 +438,8 @@
    "upkeep": 9,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Cosy cafe with giant board games and a reading corner, burgers, pizza and waffles until 3am",
    "reject_reason": null
   },
   {
@@ -462,7 +462,7 @@
    "proposed_vibe_source": "https://brixdessert.com/cafe",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0890000-0000-0000-0001-0000b5fdbbfa",
@@ -484,7 +484,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-00010c9640e0",
@@ -506,7 +506,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0001-0001285ab959",
@@ -526,8 +526,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Seasonal all-day kitchen and bakery by the JBR tram stop: Turkish eggs, shakshouka and fresh bread",
    "reject_reason": null
   },
   {
@@ -550,7 +550,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-00030c4e6dd2",
@@ -572,7 +572,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-0003426b8b79",
@@ -594,7 +594,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0001-00025bb4ee8e",
@@ -614,8 +614,8 @@
    "upkeep": 10,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Dessert-led cafe at The Galleria on Al Wasl Road: milk cake, cheesecakes and French toast, open late",
    "reject_reason": null
   },
   {
@@ -638,7 +638,7 @@
    "proposed_vibe_source": "osm:description",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "office, not a venue"
   },
   {
    "id": "c0890000-0000-0000-0001-0002adcdb51f",
@@ -660,7 +660,7 @@
    "proposed_vibe_source": "https://www.labriocheuae.com",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0890000-0000-0000-0001-0001582e9a5d",
@@ -682,7 +682,7 @@
    "proposed_vibe_source": "osm:description",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0890000-0000-0000-0001-0001584106ba",
@@ -704,7 +704,7 @@
    "proposed_vibe_source": "https://www.thelimetreecafe.com/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0890000-0000-0000-0001-0001843a0fc0",
@@ -726,7 +726,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-0001d384b492",
@@ -748,7 +748,7 @@
    "proposed_vibe_source": "https://www.booba.ae/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0890000-0000-0000-0001-0001fb212036",
@@ -768,8 +768,8 @@
    "upkeep": 9,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Specialty coffee, art and curated retail at the quiet end of Dubai Design District",
    "reject_reason": null
   },
   {
@@ -792,7 +792,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-0002f6cc70d4",
@@ -814,7 +814,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-00010cb1c4b5",
@@ -834,8 +834,8 @@
    "upkeep": 9,
    "proposed_vibe": "Al Ijaza Cafeteria on Jumeirah Beach Road, Dubai. Famous since 1990 for Hassan Mathar, shawarma, sandwiches and fresh",
    "proposed_vibe_source": "https://www.alijaza.ae",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Shawarma and fresh-juice cafeteria on Jumeirah Beach Road since 1990, known for its Hassan Mathar",
    "reject_reason": null
   },
   {
@@ -858,7 +858,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0890000-0000-0000-0001-00032fd97f2d",
@@ -880,7 +880,7 @@
    "proposed_vibe_source": "https://www.jonesthegrocer.com/dubai-international-airport-dubai-i84?srsltid=AfmBOoprOeu4l-L9uckf5q9XeDqU7Qrbhm964p4uhzkJ1c2UZn3Flw7A",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0890000-0000-0000-0001-00032c5d7f32",
@@ -900,8 +900,8 @@
    "upkeep": 9,
    "proposed_vibe": "Levante is a luxury flower studio and café in Dubai, offering exquisite flower arangements, elegant vases, and curated",
    "proposed_vibe_source": "https://artoflevante.ae",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Flower studio and specialty coffee shop at Jaddaf Waterfront, with desserts and chocolates",
    "reject_reason": null
   },
   {
@@ -924,7 +924,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0890000-0000-0000-0001-0001b6de1ccc",
@@ -946,7 +946,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-000143e239c7",
@@ -968,7 +968,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0890000-0000-0000-0001-00009ca062fc",
@@ -988,8 +988,8 @@
    "upkeep": 9,
    "proposed_vibe": "The Lime Tree Cafe & Kitchen Dubai – cafés, bakery, food store, catering, hampers, artisanal cakes & desserts, gourmet",
    "proposed_vibe_source": "https://www.thelimetreecafe.com/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Homegrown Jumeirah cafe and bakery with all-day plates, cakes and a food store",
    "reject_reason": null
   },
   {
@@ -1010,8 +1010,8 @@
    "upkeep": 9,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Sourdough bakery, cafe and micro-roastery in one room by the Trade Centre roundabout, all-day breakfast",
    "reject_reason": null
   },
   {
@@ -1032,8 +1032,8 @@
    "upkeep": 9,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Surfers' cafe at Surf House in Umm Suqeim: all-day breakfast, sushi, poke and a dog-friendly backyard",
    "reject_reason": null
   },
   {
@@ -1054,8 +1054,8 @@
    "upkeep": 9,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Museum of the UAE's 1971 founding beside Union House, where the union agreement was signed",
    "reject_reason": null
   },
   {
@@ -1078,7 +1078,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-00024a89e98e",
@@ -1100,7 +1100,7 @@
    "proposed_vibe_source": "osm:description",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "office, not a venue"
   },
   {
    "id": "c0890000-0000-0000-0001-00024a89e98d",
@@ -1120,8 +1120,8 @@
    "upkeep": 9,
    "proposed_vibe": "Performing arts theater in Dubai, United Arab Emirates",
    "proposed_vibe_source": "osm:description",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Independent 177-seat black-box theatre in Alserkal Avenue: plays, stand-up, magic and live music",
    "reject_reason": null
   },
   {
@@ -1144,7 +1144,7 @@
    "proposed_vibe_source": "https://woo-hoo.ae/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0001-0000f6d64b19",
@@ -1166,7 +1166,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0890000-0000-0000-0002-0000170bce2f",
@@ -1186,8 +1186,8 @@
    "upkeep": 8,
    "proposed_vibe": "Independent travel guide to the Dubai Frame — the world's largest picture frame in Dubai. Tickets from AED 49, opening",
    "proposed_vibe_source": "https://www.thedubaiframe.com/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Walk the glass-floored sky bridge 150 metres up, old Dubai to the north and the new city to the south",
    "reject_reason": null
   },
   {
@@ -1210,7 +1210,7 @@
    "proposed_vibe_source": "http://www.galerie-nationale.com",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0003-000000b35bf3",
@@ -1232,7 +1232,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not in Dubai"
   },
   {
    "id": "c0890000-0000-0000-0002-00001c5cdfb8",
@@ -1252,8 +1252,8 @@
    "upkeep": 6,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Dhow-shaped 2,000-seat Downtown house for opera, ballet, musicals, concerts and stand-up",
    "reject_reason": null
   },
   {
@@ -1276,7 +1276,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-00024a89e98c",
@@ -1296,8 +1296,8 @@
    "upkeep": 6,
    "proposed_vibe": "The Theater provides an upscale level of entertainment to fulfill a diverse need in the market. The combination of",
    "proposed_vibe_source": "osm:description",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Late-night dinner show at the Fairmont on Sheikh Zayed Road, live music and dance Thursday to Saturday",
    "reject_reason": null
   },
   {
@@ -1318,8 +1318,8 @@
    "upkeep": 6,
    "proposed_vibe": "A beautiful 515 seat Theatre onboard the Queen Elizabeth 2 based in Mina Rashid in Dubai. Hosting a wide range of shows",
    "proposed_vibe_source": "osm:description",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Theatre aboard the QE2 ocean liner docked at Mina Rashid, with its own food and drink",
    "reject_reason": null
   },
   {
@@ -1340,8 +1340,8 @@
    "upkeep": 6,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Restored 1950s house by the Deira Gold Souk telling the stories of Emirati women, with a small cafe",
    "reject_reason": null
   },
   {
@@ -1364,7 +1364,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0890000-0000-0000-0001-00013342454a",
@@ -1384,8 +1384,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Fine-art photography gallery in DIFC's Gate Village, showing international and regional photographers",
    "reject_reason": null
   },
   {
@@ -1408,7 +1408,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0001-000117fcc1f6",
@@ -1430,7 +1430,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0890000-0000-0000-0001-00028072c86e",
@@ -1450,8 +1450,8 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Over 60 wax figures across music, film, sport and Bollywood on Bluewaters, no ropes between you and them",
    "reject_reason": null
   },
   {
@@ -1472,8 +1472,8 @@
    "upkeep": 4,
    "proposed_vibe": "A one of kind digital art gallery",
    "proposed_vibe_source": "osm:description",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Contemporary and digital art gallery on Sheikh Mohammed bin Rashid Boulevard in Downtown",
    "reject_reason": null
   },
   {
@@ -1496,7 +1496,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "wrong category"
   },
   {
    "id": "c0890000-0000-0000-0001-000123818256",
@@ -1518,7 +1518,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "wrong category"
   },
   {
    "id": "c0890000-0000-0000-0001-0001255253eb",
@@ -1540,7 +1540,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "wrong category"
   },
   {
    "id": "c0890000-0000-0000-0001-00033b53078c",
@@ -1562,7 +1562,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-00032e5c5690",
@@ -1584,7 +1584,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "wrong category"
   },
   {
    "id": "c0890000-0000-0000-0001-0000a879c131",
@@ -1604,8 +1604,8 @@
    "upkeep": 8,
    "proposed_vibe": "At House of Pops, select plant-based fruit pops are guaranteed to satisfy your cravings! Order fiber-rich, tasty",
    "proposed_vibe_source": "https://houseofpops.ae/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Plant-based fruit pops with no refined sugar and no plastic packaging, on JBR's The Walk",
    "reject_reason": null
   },
   {
@@ -1628,7 +1628,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-000150262a7d",
@@ -1650,7 +1650,7 @@
    "proposed_vibe_source": "https://www.instagram.com/parkandsip",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-00021c9432eb",
@@ -1672,7 +1672,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "wrong category"
   },
   {
    "id": "c0890000-0000-0000-0001-00018b5cc9e3",
@@ -1694,7 +1694,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0890000-0000-0000-0001-0001765bcc66",
@@ -1716,7 +1716,7 @@
    "proposed_vibe_source": "https://aftersoriginal.co.uk/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-0001d9b24b72",
@@ -1738,7 +1738,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-0001db3c67af",
@@ -1760,7 +1760,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-00018b5b9957",
@@ -1782,7 +1782,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0890000-0000-0000-0001-0002ec6f8c61",
@@ -1802,8 +1802,8 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Dessert stop on Jumeirah Beach Road: churros, creme brulee jars, crepes and San Sebastian cheesecake",
    "reject_reason": null
   },
   {
@@ -1826,7 +1826,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-000345777670",
@@ -1846,8 +1846,8 @@
    "upkeep": 3,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Italian gelateria in Souk Al Bahar: gelato and sorbets alongside crepes and waffles",
    "reject_reason": null
   },
   {
@@ -1870,7 +1870,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0890000-0000-0000-0001-000108c6f4d9",
@@ -1892,7 +1892,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0890000-0000-0000-0001-0001090dd1b2",
@@ -1914,7 +1914,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-00024148aa72",
@@ -1934,8 +1934,8 @@
    "upkeep": 11,
    "proposed_vibe": "Mykonos means summer and summer is joie de vivre. Joie de vivre and glamour are the essence of NAMMOS. Discover the",
    "proposed_vibe_source": "http://www.nammos.gr/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Mykonos beach club and Greek-Mediterranean restaurant at Four Seasons Jumeirah, lively after sunset",
    "reject_reason": null
   },
   {
@@ -1958,7 +1958,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not distinctive"
   },
   {
    "id": "c0890000-0000-0000-0002-000019f1f364",
@@ -1978,8 +1978,8 @@
    "upkeep": 10,
    "proposed_vibe": "Authentic Bedouin experiences in the desert, and Emirati cuisine at our restaurants and camps",
    "proposed_vibe_source": "https://alkhayma.com/restaurant/al-khayma-heritage-restaurant-dubai",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Emirati cooking in an Al Fahidi heritage house, dining in a covered courtyard with bread baked in view",
    "reject_reason": null
   },
   {
@@ -2002,7 +2002,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-000348b497a3",
@@ -2022,8 +2022,8 @@
    "upkeep": 10,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "London-style pub from the McGettigan's team: roasts, big-screen sport, quiz nights and live music",
    "reject_reason": null
   },
   {
@@ -2046,7 +2046,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0890000-0000-0000-0001-000211b24654",
@@ -2066,8 +2066,8 @@
    "upkeep": 10,
    "proposed_vibe": "Enjoy fresh seafood including crab, lobster, grilled prawns, octopus and Mediterranean dishes crafted with authentic",
    "proposed_vibe_source": "https://www.ibnalbahr.me/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Seafood on Palm Jumeirah: crab, lobster, grilled prawns and octopus with Mediterranean plates",
    "reject_reason": null
   },
   {
@@ -2090,7 +2090,7 @@
    "proposed_vibe_source": "https://www.iranzamin.ae/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0890000-0000-0000-0001-00018058f279",
@@ -2110,8 +2110,8 @@
    "upkeep": 10,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Anatolian grills, kebabs and hand-made manti in Al Barsha, opposite Mashreq metro, with a big terrace",
    "reject_reason": null
   },
   {
@@ -2134,7 +2134,7 @@
    "proposed_vibe_source": "osm:description",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "cloud kitchen"
   },
   {
    "id": "c0890000-0000-0000-0001-0000a7331924",
@@ -2156,7 +2156,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0890000-0000-0000-0001-0000f6d7cb8c",
@@ -2178,7 +2178,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not distinctive"
   },
   {
    "id": "c0890000-0000-0000-0001-00013850bf99",
@@ -2198,8 +2198,8 @@
    "upkeep": 10,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Greek taverna in JLT with whitewashed walls and an olive-tree terrace, mezze and grills",
    "reject_reason": null
   },
   {
@@ -2222,7 +2222,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0890000-0000-0000-0001-00010f36aaeb",
@@ -2244,7 +2244,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0890000-0000-0000-0002-000007ab7716",
@@ -2264,8 +2264,8 @@
    "upkeep": 10,
    "proposed_vibe": "Savour the warmth of authentic Italian cuisine at Pierchic. Located on a private pier at Jumeirah Al Qasr, enjoy an",
    "proposed_vibe_source": "https://www.jumeirah.com/en/dine/dubai/al-qasr-pierchic",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Italian restaurant at the end of a private pier at Jumeirah Al Qasr, surrounded by sea",
    "reject_reason": null
   },
   {
@@ -2288,7 +2288,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0890000-0000-0000-0001-000107d28341",
@@ -2310,7 +2310,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-000289c78744",
@@ -2330,8 +2330,8 @@
    "upkeep": 10,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Iraqi and Lebanese dining with shisha in a Jumeirah villa, big-screen matches on the outdoor terrace",
    "reject_reason": null
   },
   {
@@ -2352,8 +2352,8 @@
    "upkeep": 10,
    "proposed_vibe": "The Maine Group is a collection of iconic restaurants and beach clubs across Dubai, London and Ibiza",
    "proposed_vibe_source": "https://themaine.ae/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "New England brasserie at JBR: oysters, lobster and a raw bar, with a lively Saturday brunch",
    "reject_reason": null
   },
   {
@@ -2374,8 +2374,8 @@
    "upkeep": 8,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Walk-through haunted house on the Dubai Mall's second floor, 15 rooms of scares, 16 and over",
    "reject_reason": null
   },
   {
@@ -2396,8 +2396,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Escape rooms in JLT from historical to horror themes, one-hour team games, open until midnight",
    "reject_reason": null
   },
   {
@@ -2418,8 +2418,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Horror-themed escape rooms in a villa on Al Wasl Road, Jumeirah 3",
    "reject_reason": null
   },
   {
@@ -2440,8 +2440,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Themed escape rooms at Boxpark on Al Wasl Road, 60-minute games, open until midnight",
    "reject_reason": null
   },
   {
@@ -2462,8 +2462,8 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Horror escape rooms with live actors in Al Quoz, four themed games for teams of two to ten, 16 and over",
    "reject_reason": null
   },
   {
@@ -2486,7 +2486,7 @@
    "proposed_vibe_source": "https://www.dubaigardenglow.com/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0890000-0000-0000-0001-0003439d7651",
@@ -2508,7 +2508,7 @@
    "proposed_vibe_source": "https://www.visitdubai.com/en/festivals-and-events/dubai-events-calendar/modesh-world",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0002-000017050a42",
@@ -2530,7 +2530,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0002-00000be93641",
@@ -2552,7 +2552,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0002-00001735541a",
@@ -2574,7 +2574,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0002-0000260c761b",
@@ -2594,8 +2594,8 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Around 250 Nile crocodiles next to Mushrif Park, with a natural history museum and aquarium",
    "reject_reason": null
   },
   {
@@ -2616,8 +2616,8 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Atlantis-themed aquarium chambers and tunnels with sharks, rays and jellyfish at Atlantis The Palm",
    "reject_reason": null
   },
   {
@@ -2638,8 +2638,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Walk a 48-metre glass tunnel through the Dubai Mall shark tank, then the underwater zoo upstairs",
    "reject_reason": null
   },
   {
@@ -2660,8 +2660,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Illuminated gardens and 100-plus animatronic dinosaurs at Zabeel Park beside the Dubai Frame",
    "reject_reason": null
   },
   {
@@ -2684,7 +2684,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0001-000085e4d2f0",
@@ -2704,8 +2704,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Ski Dubai: real-snow indoor slopes at Mall of the Emirates, five runs, a snow park and penguins",
    "reject_reason": null
   },
   {
@@ -2726,8 +2726,8 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Glow-in-the-dark 18-hole mini golf with 3D glasses on JBR's The Walk",
    "reject_reason": null
   },
   {
@@ -2750,7 +2750,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-00016fc73fa0",
@@ -2772,7 +2772,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-00031a2ef172",
@@ -2794,7 +2794,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0890000-0000-0000-0001-00016708b191",
@@ -2814,8 +2814,8 @@
    "upkeep": 8,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Two-floor VR park in the Dubai Mall, 30-plus rides and multiplayer games paid by credits",
    "reject_reason": null
   },
   {
@@ -2836,8 +2836,8 @@
    "upkeep": 3,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Two-level bar with 12 bowling lanes, darts, pool and a retro arcade at City Walk, 21 and over",
    "reject_reason": null
   },
   {
@@ -2858,8 +2858,8 @@
    "upkeep": 3,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Private karaoke rooms for groups in Deira, open until 3am",
    "reject_reason": null
   },
   {
@@ -2880,8 +2880,8 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Private karaoke rooms with a photo-booth add-on on the third floor of BurJuman",
    "reject_reason": null
   },
   {
@@ -2904,7 +2904,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "office, not a venue"
   },
   {
    "id": "c0890000-0000-0000-0001-00012c52994a",
@@ -2926,7 +2926,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0890000-0000-0000-0001-000125aca00b",
@@ -2948,7 +2948,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0890000-0000-0000-0001-00012816f6a7",
@@ -2970,7 +2970,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0890000-0000-0000-0001-0002d605d22b",
@@ -2990,8 +2990,8 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Cinema at Address Fountain Views with leather recliners, swivel tables and Dolby Atmos sound",
    "reject_reason": null
   },
   {
@@ -3014,7 +3014,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0890000-0000-0000-0002-000012db2356",
@@ -3036,7 +3036,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0890000-0000-0000-0001-00011d55e957",
@@ -3058,7 +3058,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0890000-0000-0000-0002-00002a69e650",
@@ -3078,8 +3078,8 @@
    "upkeep": 9,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Beach club by the Skydive Dubai drop zone in Dubai Marina, infinity pool by day and DJs at night",
    "reject_reason": null
   },
   {
@@ -3102,7 +3102,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-00028e6aa7ac",
@@ -3124,7 +3124,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-0000a889af00",
@@ -3146,7 +3146,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-00025ba8229d",
@@ -3168,7 +3168,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-00028ec76ee1",
@@ -3188,8 +3188,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Nightclub, lounge and rooftop at Marriott Al Jaddaf, LED screens and lasers, Wednesday to Sunday",
    "reject_reason": null
   },
   {
@@ -3210,8 +3210,8 @@
    "upkeep": 5,
    "proposed_vibe": "The DXB Night Club is a premier destination in Downtown Dubai on Marasi Dr, offering luxurious Arabic and Gulf-style",
    "proposed_vibe_source": "osm:description",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Arabic and Khaleeji club nights with live acts and resident DJs on Marasi Drive, Business Bay",
    "reject_reason": null
   },
   {
@@ -3234,7 +3234,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-0002a0261a13",
@@ -3256,7 +3256,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-00007ac2409f",
@@ -3278,7 +3278,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0890000-0000-0000-0001-0001240e0eed",
@@ -3300,7 +3300,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-0000eeb8fc68",
@@ -3320,8 +3320,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Nightclub with chequered LED walls and a suspended DJ booth in Barsha Heights, 21 and over",
    "reject_reason": null
   },
   {
@@ -3344,7 +3344,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-0001095e0b6c",
@@ -3366,7 +3366,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-00013b44e248",
@@ -3388,7 +3388,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0890000-0000-0000-0002-0000431da1c1",
@@ -3410,7 +3410,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0890000-0000-0000-0001-00031466602e",
@@ -3432,7 +3432,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0002-00002f0c76d1",
@@ -3454,7 +3454,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0890000-0000-0000-0001-0002a400af01",
@@ -3476,7 +3476,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0002-000018f21eb7",
@@ -3498,7 +3498,7 @@
    "proposed_vibe_source": "https://www.dubaigardenglow.com/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0890000-0000-0000-0002-00000dbf0420",
@@ -3520,7 +3520,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0002-00003093d9d5",
@@ -3542,7 +3542,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0002-00001b8e6e2b",
@@ -3562,8 +3562,8 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Al Khawaneej park of plants named in the Quran, with a glass house and the Cave of Miracles",
    "reject_reason": null
   },
   {
@@ -3586,7 +3586,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0002-00002bb76090",
@@ -3608,7 +3608,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0002-00001b94d54c",
@@ -3630,7 +3630,7 @@
    "proposed_vibe_source": "osm:description",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0002-00000e6d3814",
@@ -3652,7 +3652,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0002-00001a6b4699",
@@ -3674,7 +3674,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0002-00002f23e566",
@@ -3694,8 +3694,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Lakeside park in Al Barsha with a 1.4 km rubber running loop, courts, pitches and bike paths",
    "reject_reason": null
   },
   {
@@ -3718,7 +3718,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0002-0000279d1bb3",
@@ -3740,7 +3740,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0002-0000156b80ec",
@@ -3762,7 +3762,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0002-00002788211d",
@@ -3784,7 +3784,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0002-00001f729272",
@@ -3806,7 +3806,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0002-000015bcc1d0",
@@ -3828,7 +3828,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0002-00000bf72ba5",
@@ -3848,8 +3848,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Hilltop park in Hatta with mountain views, picnic and barbecue areas and a viewpoint tower",
    "reject_reason": null
   },
   {
@@ -3872,7 +3872,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0002-00000535c062",
@@ -3894,7 +3894,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0002-000050f9ff80",
@@ -3916,7 +3916,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0002-000046a9435d",
@@ -3938,7 +3938,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-00021185c0e7",
@@ -3958,8 +3958,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Padel club at Golden Mile on Palm Jumeirah: three courts, a gym and a cafe for after the match",
    "reject_reason": null
   },
   {
@@ -3982,7 +3982,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0002-00000533e57d",
@@ -4004,7 +4004,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0002-00002f8befcf",
@@ -4024,8 +4024,8 @@
    "upkeep": 9,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Dubai Hills mall with 600-plus stores and the Storm Coaster, an indoor launch rollercoaster",
    "reject_reason": null
   },
   {
@@ -4048,7 +4048,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not distinctive"
   },
   {
    "id": "c0890000-0000-0000-0002-00000647a7f6",
@@ -4068,8 +4068,8 @@
    "upkeep": 9,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Mirdif mall with iFly indoor skydiving, a bowling alley, Magic Planet and a 10-screen cinema",
    "reject_reason": null
   },
   {
@@ -4090,8 +4090,8 @@
    "upkeep": 9,
    "proposed_vibe": "Visit Palm Jumeirah Mall for top shopping, dining, and fun in Palm Jumeirah. A must-visit lifestyle destination in",
    "proposed_vibe_source": "https://www.palmjumeirahmall.ae",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Mall on Palm Jumeirah for shopping, dining and entertainment",
    "reject_reason": null
   },
   {
@@ -4114,7 +4114,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "office, not a venue"
   },
   {
    "id": "c0890000-0000-0000-0002-000005728be9",
@@ -4136,7 +4136,7 @@
    "proposed_vibe_source": "https://timessquarecenter.ae/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0001-0001af79aaf9",
@@ -4158,7 +4158,7 @@
    "proposed_vibe_source": "https://www.ebsuae.com/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "office, not a venue"
   },
   {
    "id": "c0890000-0000-0000-0001-0001c1ebcbd8",
@@ -4180,7 +4180,7 @@
    "proposed_vibe_source": "https://www.ebsuae.com/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "office, not a venue"
   },
   {
    "id": "c0890000-0000-0000-0002-000001896196",
@@ -4202,7 +4202,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not distinctive"
   },
   {
    "id": "c0890000-0000-0000-0001-00021b1cac29",
@@ -4224,7 +4224,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-0001afd6feb7",
@@ -4246,7 +4246,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "office, not a venue"
   },
   {
    "id": "c0890000-0000-0000-0002-00001d1ec84b",
@@ -4268,7 +4268,7 @@
    "proposed_vibe_source": "http://themall.co.ae/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0002-00000eaf1488",
@@ -4290,7 +4290,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0002-000005448350",
@@ -4310,8 +4310,8 @@
    "upkeep": 6,
    "proposed_vibe": "Dragon Mart, also known as Dragon Mall, is the largest Chinese market in Dubai and UAE. Visit us to explore more than",
    "proposed_vibe_source": "https://www.dragonmart.ae/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Sprawling Chinese trading market by International City, from electronics to furniture",
    "reject_reason": null
   },
   {
@@ -4334,7 +4334,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0002-00001dd5b7a8",
@@ -4356,7 +4356,7 @@
    "proposed_vibe_source": "https://j3mall.com",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0001-0000bf13914b",
@@ -4378,7 +4378,7 @@
    "proposed_vibe_source": "https://www.arabiancenter.com/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0002-00000c140405",
@@ -4398,8 +4398,8 @@
    "upkeep": 5,
    "proposed_vibe": "Experience the warmth of Madinat Jumeirah, an Arabian resort in Dubai. Discover luxury hotels and waterways for a stay",
    "proposed_vibe_source": "https://www.jumeirah.com/en/hotels-resorts/dubai/madinat-jumeirah/facilities/souk-madinat-jumeirah/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Arabian-style souk on Madinat Jumeirah's waterways, abra rides between shops and 20-plus restaurants",
    "reject_reason": null
   },
   {
@@ -4422,7 +4422,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0001-0001a9eb4f67",
@@ -4444,7 +4444,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0002-00001ae11790",
@@ -4466,7 +4466,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0001-0001b3adc77a",
@@ -4488,7 +4488,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0001-0001d61cef12",
@@ -4510,7 +4510,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0001-0001eaf6206e",
@@ -4532,7 +4532,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0001-000114916476",
@@ -4554,7 +4554,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-0000d157669a",
@@ -4576,7 +4576,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0002-00000c56bdcc",
@@ -4598,7 +4598,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-000337572b5d",
@@ -4620,7 +4620,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0002-00001689837c",
@@ -4642,7 +4642,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0002-00004b3ac12d",
@@ -4664,7 +4664,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0890000-0000-0000-0002-00000c4cce8d",
@@ -4684,8 +4684,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Nine hard courts at the Dubai Duty Free tennis stadium in Garhoud, next to the Irish Village",
    "reject_reason": null
   },
   {
@@ -4708,7 +4708,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-0002eec871d0",
@@ -4728,8 +4728,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Friday night horse racing at Meydan, November to March, with free general admission",
    "reject_reason": null
   },
   {
@@ -4752,7 +4752,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0001-0002651a49ce",
@@ -4772,8 +4772,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Indoor five-a-side football and basketball in Al Quoz, bookable pitches",
    "reject_reason": null
   },
   {
@@ -4796,7 +4796,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0001-0000db7d1e81",
@@ -4818,7 +4818,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0001-0002651a49cd",
@@ -4838,8 +4838,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Laser-tag combat simulator across two themed maps in a 31,000 sq ft Al Quoz warehouse",
    "reject_reason": null
   },
   {
@@ -4862,7 +4862,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0001-000248df7c72",
@@ -4882,8 +4882,8 @@
    "upkeep": 10,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Pan-Asian restaurant and bar at Grosvenor House, open late into the night",
    "reject_reason": null
   },
   {
@@ -4904,8 +4904,8 @@
    "upkeep": 9,
    "proposed_vibe": "Sports Bar in Al Barsha Dubai • Pool & Darts • Live Sports on Big Screens • Daily Happy Hours 2pm to 9pm • Showing Live",
    "proposed_vibe_source": "https://elitebybloshotel.com/brooklyn-bar-dubai/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Al Barsha sports bar with pool, darts and live matches on big screens",
    "reject_reason": null
   },
   {
@@ -4928,7 +4928,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0890000-0000-0000-0001-0001b3aa4f18",
@@ -4950,7 +4950,7 @@
    "proposed_vibe_source": "https://www.enishdubai.com/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0890000-0000-0000-0001-0000e519918d",
@@ -4972,7 +4972,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-0001459ba94f",
@@ -4992,8 +4992,8 @@
    "upkeep": 9,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Rooftop lounge on the 35th floor of Hilton Dubai The Walk, sharing plates and Gulf views",
    "reject_reason": null
   },
   {
@@ -5016,7 +5016,7 @@
    "proposed_vibe_source": "https://www.satoshihouse.com",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-0001cdbb1755",
@@ -5036,8 +5036,8 @@
    "upkeep": 9,
    "proposed_vibe": "Discover Trader Vic s Madinat, the ultimate private dining in Dubai. Enjoy exquisite rooftop bar cuisine, cocktails",
    "proposed_vibe_source": "https://tradervicsmadinat.com",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Tiki-style rooftop bar and restaurant at Madinat Jumeirah",
    "reject_reason": null
   },
   {
@@ -5058,8 +5058,8 @@
    "upkeep": 9,
    "proposed_vibe": "Wavebreaker Beachside Restaurant in JBR is open daily for lunch and dinner, serving one of Dubai’s best burgers, daily",
    "proposed_vibe_source": "https://www.jbr-restaurants.com/wavebreaker",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Beachside restaurant and bar on JBR beach at the Hilton, lunch and dinner daily",
    "reject_reason": null
   },
   {
@@ -5080,8 +5080,8 @@
    "upkeep": 8,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Champagne and cocktail bar on the 44th floor of Grosvenor House with 360-degree Marina views",
    "reject_reason": null
   },
   {
@@ -5102,8 +5102,8 @@
    "upkeep": 8,
    "proposed_vibe": "French restaurant Dubai Harbour — Bar Du Port is a sophisticated bar and dining destination at Dubai Harbour Pier Club",
    "proposed_vibe_source": "https://www.barduportdubai.com/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "French-Mediterranean bar and dining room at the Dubai Harbour Pier Club",
    "reject_reason": null
   },
   {
@@ -5126,7 +5126,7 @@
    "proposed_vibe_source": "https://fortunegroupofhotels.com/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-0000ddda155e",
@@ -5148,7 +5148,7 @@
    "proposed_vibe_source": "https://www.fairmont.com/palm-dubai/dining/cigar-room/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-0002ddec8889",
@@ -5170,7 +5170,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-00027f09ab1b",
@@ -5192,7 +5192,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0890000-0000-0000-0001-000303d1114e",
@@ -5214,7 +5214,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0890000-0000-0000-0001-00020fde20fa",
@@ -5234,8 +5234,8 @@
    "upkeep": 8,
    "proposed_vibe": "Peacock Alley, located in the luxurious Waldorf Astoria DIFC, offers a refined afternoon tea experience in Dubai. Enjoy",
    "proposed_vibe_source": "https://peacockalleydifc.com",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Afternoon tea lounge in the Waldorf Astoria DIFC",
    "reject_reason": null
   },
   {
@@ -5256,8 +5256,8 @@
    "upkeep": 8,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Riviera-style rooftop with a glass-lined pool on the 18th floor of Burj Daman, DIFC",
    "reject_reason": null
   },
   {
@@ -5278,8 +5278,8 @@
    "upkeep": 8,
    "proposed_vibe": "Rose and Crown is your quintessential British pub in Dubai with a big personality, full of comfort and charm, buzz and",
    "proposed_vibe_source": "https://roseandcrowndubai.com/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "British pub with sport on screen, pub food and ladies' nights",
    "reject_reason": null
   },
   {
@@ -5300,8 +5300,8 @@
    "upkeep": 8,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Loft bar, wine cellar and beer garden inside Le Meridien in Garhoud",
    "reject_reason": null
   },
   {
@@ -5324,7 +5324,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0890000-0000-0000-0001-0000f5e1db46",
@@ -5346,7 +5346,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0002-00001eacf241",
@@ -5368,7 +5368,7 @@
    "proposed_vibe_source": "http://www.splashnparty.ae/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0890000-0000-0000-0001-0000f0c81b06",
@@ -5390,7 +5390,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0002-0000249810a8",
@@ -5412,7 +5412,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0890000-0000-0000-0001-0001240daea2",
@@ -5434,7 +5434,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-000123eebd5e",
@@ -5456,7 +5456,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-000123f72f43",
@@ -5478,7 +5478,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-00012430a903",
@@ -5500,7 +5500,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-0000f292d09a",
@@ -5522,7 +5522,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-000123f72f37",
@@ -5544,7 +5544,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0001-000124fdeb92",
@@ -5566,7 +5566,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0890000-0000-0000-0002-0000156da322",
@@ -5588,7 +5588,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   }
  ]
 }
