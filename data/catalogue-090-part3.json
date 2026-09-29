@@ -20,8 +20,8 @@
    "upkeep": 9,
    "proposed_vibe": "31K Followers, 32 Following, 783 Posts - BETTER TOGETHER CAFE | DUBAI ( bettertogethercafedxb) on Instagram: \" +971 04",
    "proposed_vibe_source": "https://www.instagram.com/bettertogethercafedxb",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "All-day breakfast and brunch cafe in Motor City's Boulevard mall, with a menu drawn from several cuisines",
    "reject_reason": null
   },
   {
@@ -29,7 +29,7 @@
    "osm": "node/13461669318",
    "osm_url": "https://www.openstreetmap.org/node/13461669318",
    "name": "Kafetaso Coffee & Company",
-   "category": "brunch",
+   "category": "cafe",
    "area": "Motor City",
    "district": "JVC, Sports City & Motor City",
    "cuisine": "Burger, coffee shop",
@@ -42,8 +42,8 @@
    "upkeep": 9,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Neighbourhood coffee shop on the Arjan edge of Motor City with freshly roasted beans and pastries",
    "reject_reason": null
   },
   {
@@ -64,8 +64,8 @@
    "upkeep": 9,
    "proposed_vibe": "Best all day breakfast, specialty coffee & matcha in JVC Dubai. Made from scratch daily. Near Arjan, Motor City & JVT",
    "proposed_vibe_source": "https://www.villagehangoutcafe.com/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "All-day breakfast, specialty coffee and matcha, made from scratch daily, in a small corner cafe",
    "reject_reason": null
   },
   {
@@ -86,16 +86,16 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Hamptons-inspired cafe in the Arabian Ranches community centre, known for its picture-ready breakfast spreads",
    "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-000285ec5d51",
    "osm": "node/10836794705",
    "osm_url": "https://www.openstreetmap.org/node/10836794705",
-   "name": "UNO",
-   "category": "brunch",
+   "name": "Uno Espresso",
+   "category": "cafe",
    "area": "Dubai Silicon Oasis",
    "district": "Silicon Oasis & Academic City",
    "cuisine": "Coffee shop, breakfast",
@@ -108,8 +108,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Semmer Villas community cafe with coffee, pastries and breakfast at indoor and outdoor tables",
    "reject_reason": null
   },
   {
@@ -130,8 +130,8 @@
    "upkeep": 6,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Specialty coffee roastery pouring from over 30 single-origin beans at a small cafe counter",
    "reject_reason": null
   },
   {
@@ -154,7 +154,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002c26b7789",
@@ -176,7 +176,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002c11fc4d4",
@@ -198,7 +198,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00005114cc33",
@@ -220,7 +220,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00021397dfb7",
@@ -242,7 +242,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00034d0cb5d3",
@@ -264,7 +264,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001a54f4aa9",
@@ -286,7 +286,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002e09a34fb",
@@ -308,7 +308,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00030aa7620c",
@@ -330,7 +330,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0002c123808f",
@@ -352,7 +352,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0003096aeffc",
@@ -374,7 +374,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00030aa761ff",
@@ -396,7 +396,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002c11fc4d8",
@@ -418,7 +418,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00032eea5035",
@@ -440,7 +440,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002c11fc4dd",
@@ -462,7 +462,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001267a2fad",
@@ -484,7 +484,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000019ed9b47",
@@ -506,7 +506,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002c11fc4e0",
@@ -528,7 +528,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001020767f2",
@@ -550,7 +550,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000f8767c3e",
@@ -572,7 +572,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001251d0eeb",
@@ -594,7 +594,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002c0f3678f",
@@ -616,7 +616,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001267f4241",
@@ -638,7 +638,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001264d0fff",
@@ -660,7 +660,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001258c164d",
@@ -682,7 +682,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000125b091da",
@@ -704,7 +704,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002dd4176b2",
@@ -726,7 +726,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00010f5eb938",
@@ -748,7 +748,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00010f6c46f5",
@@ -770,7 +770,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001267f404a",
@@ -792,7 +792,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000125887d8f",
@@ -814,7 +814,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001264ff9f4",
@@ -836,7 +836,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002c125e589",
@@ -858,7 +858,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00030aa7620f",
@@ -880,7 +880,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00030aa76223",
@@ -902,7 +902,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-00001de80948",
@@ -924,7 +924,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001264d100c",
@@ -946,7 +946,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000125b091de",
@@ -968,7 +968,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000161ba7f3e",
@@ -990,7 +990,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0003206d0b52",
@@ -1010,8 +1010,8 @@
    "upkeep": 8,
    "proposed_vibe": "Subko Specialty Coffee Roasters, Craft Bakehouse, and Fine Cacao is at its core, committed to an ideal: to help",
    "proposed_vibe_source": "https://subko.coffee/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Mumbai roaster's two-level cafe: microlot coffee, sourdough, croissants and bean-to-bar cacao",
    "reject_reason": null
   },
   {
@@ -1032,8 +1032,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Ferrari-themed gallery cafe in Al Quoz with F1 memorabilia, cars and an original pit wall beside the coffee",
    "reject_reason": null
   },
   {
@@ -1054,8 +1054,8 @@
    "upkeep": 4,
    "proposed_vibe": "Dubai's OG Sultans of Sling. Come for fresh direct trade coffee, roasted & brewed on site. Stay for our extensive range",
    "proposed_vibe_source": "https://nightjar.coffee",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Warehouse roastery and brew bar at Alserkal with direct-trade coffee, nitro cold brew and an all-day menu",
    "reject_reason": null
   },
   {
@@ -1076,8 +1076,8 @@
    "upkeep": 3,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Cafe with homemade dishes drawing on Middle Eastern, Australian and NZ cooking, and Nightjar coffee",
    "reject_reason": null
   },
   {
@@ -1100,7 +1100,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000124ff9921",
@@ -1122,7 +1122,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000124fa2151",
@@ -1144,7 +1144,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000124ff9928",
@@ -1166,7 +1166,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00012432fe46",
@@ -1188,7 +1188,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000204188f44",
@@ -1210,14 +1210,14 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00029f4776d7",
    "osm": "node/11262195415",
    "osm_url": "https://www.openstreetmap.org/node/11262195415",
    "name": "Unwind Speciality Boardgame Cafe",
-   "category": "cafe",
+   "category": "games",
    "area": "Grand Millennium",
    "district": "Barsha & Dubai Hills",
    "cuisine": "Cafe",
@@ -1230,8 +1230,8 @@
    "upkeep": 8,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Board game cafe with 800-plus games, game masters who teach play, specialty coffee and sandwiches",
    "reject_reason": null
   },
   {
@@ -1254,7 +1254,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-000123f72f41",
@@ -1276,7 +1276,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000138ca7056",
@@ -1296,8 +1296,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Breakfast plates, salads and organic coffee from the Friends' Avenue founders, with outdoor seating",
    "reject_reason": null
   },
   {
@@ -1318,8 +1318,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Portuguese bakery and cafe in Gold & Diamond Park serving pastel de nata and specialty coffee",
    "reject_reason": null
   },
   {
@@ -1340,8 +1340,8 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Woman-owned roastery pouring organic single-origin coffee roasted in-house",
    "reject_reason": null
   },
   {
@@ -1364,7 +1364,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002b56c085e",
@@ -1384,8 +1384,8 @@
    "upkeep": 3,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Vegan-friendly cafe and bakery at Dubai Hills Park serving pancakes, avocado toast and cakes, with a terrace",
    "reject_reason": null
   },
   {
@@ -1408,7 +1408,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000123a2b7ef",
@@ -1430,7 +1430,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001202f0106",
@@ -1450,8 +1450,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Long-running French-style cafe in The Greens for healthy continental plates, salads and fresh drinks",
    "reject_reason": null
   },
   {
@@ -1474,7 +1474,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000123a4dd2e",
@@ -1496,7 +1496,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001202f8fa4",
@@ -1518,7 +1518,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000123ef17be",
@@ -1540,7 +1540,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00020257a055",
@@ -1562,7 +1562,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00010f28f2b5",
@@ -1584,7 +1584,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000bc9d05e2",
@@ -1606,7 +1606,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "wrong category"
   },
   {
    "id": "c0900000-0000-0000-0001-000123ee07a3",
@@ -1628,7 +1628,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002b4b39661",
@@ -1648,8 +1648,8 @@
    "upkeep": 8,
    "proposed_vibe": "The Grey, a cultural platform in Dubai. Two spaces, one editorial sensibility. Coffee, matcha, the Greyprint, and the",
    "proposed_vibe_source": "https://the-grey.co/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Coffee and matcha lounge on Al Wasl, run as a cultural space with an editorial feel; open late at weekends",
    "reject_reason": null
   },
   {
@@ -1670,8 +1670,8 @@
    "upkeep": 6,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "London cafe's Business Bay outpost at Peninsula 5 for specialty coffee, brunch plates and fresh bakes",
    "reject_reason": null
   },
   {
@@ -1694,7 +1694,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0001fd19d0b2",
@@ -1714,8 +1714,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Russian cafe-bakery at Churchill Towers serving pastries, crepes, dumplings and breakfast",
    "reject_reason": null
   },
   {
@@ -1738,7 +1738,7 @@
    "proposed_vibe_source": "https://tereaheetsdubai.ae/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000e40a78ee",
@@ -1758,8 +1758,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Health-focused cafe on the Business Bay canal walk with specialty coffee and wholesome plates",
    "reject_reason": null
   },
   {
@@ -1782,13 +1782,13 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00025b3f9b3e",
    "osm": "node/10120829758",
    "osm_url": "https://www.openstreetmap.org/node/10120829758",
-   "name": "Fuze Caffe",
+   "name": "Fuze Cafe",
    "category": "cafe",
    "area": "Al Habtoor City",
    "district": "Business Bay",
@@ -1802,8 +1802,8 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Specialty coffee cafe on the Al Habtoor City boulevard, serving breakfast through dinner",
    "reject_reason": null
   },
   {
@@ -1826,7 +1826,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00033ec36daa",
@@ -1848,7 +1848,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001665970f4",
@@ -1870,7 +1870,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000096501626",
@@ -1892,7 +1892,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00011eea7638",
@@ -1914,7 +1914,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000246c53e03",
@@ -1936,7 +1936,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000125005dc8",
@@ -1958,7 +1958,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002151e27ca",
@@ -1978,8 +1978,8 @@
    "upkeep": 8,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Boxpark cafe drawn like a black-and-white illustration, so only guests, food and drinks show in colour",
    "reject_reason": null
   },
   {
@@ -2000,8 +2000,8 @@
    "upkeep": 8,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "LA-born City Walk cafe for organic coffee, fine teas and a health-leaning all-day menu",
    "reject_reason": null
   },
   {
@@ -2024,7 +2024,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00016d2e17d7",
@@ -2046,14 +2046,14 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001fa6de645",
    "osm": "node/8496473669",
    "osm_url": "https://www.openstreetmap.org/node/8496473669",
    "name": "Piazza17",
-   "category": "cafe",
+   "category": "dinner",
    "area": "City Walk",
    "district": "City Walk & Satwa",
    "cuisine": "Italian",
@@ -2066,8 +2066,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Italian pizzeria near City Walk open 4pm to 2am, which also runs a pizza food truck for events",
    "reject_reason": null
   },
   {
@@ -2090,7 +2090,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00011d61f2df",
@@ -2112,7 +2112,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000265c4090f",
@@ -2134,7 +2134,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-00012453e2f1",
@@ -2156,7 +2156,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000124703eed",
@@ -2178,7 +2178,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001192bca19",
@@ -2200,7 +2200,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00010b6650a5",
@@ -2220,8 +2220,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Motorcycle-themed family cafe on Jumeirah Beach Road serving burgers, with a barbershop and retail shop",
    "reject_reason": null
   },
   {
@@ -2244,7 +2244,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001258de08f",
@@ -2266,7 +2266,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0002-00001a214d9a",
@@ -2288,7 +2288,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000263b181aa",
@@ -2308,8 +2308,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Al Wasl Road cafe open late for acai bowls, crepes and specialty coffee, with parking out front",
    "reject_reason": null
   },
   {
@@ -2332,7 +2332,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-00012453e2ee",
@@ -2354,7 +2354,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000335e6139c",
@@ -2374,8 +2374,8 @@
    "upkeep": 9,
    "proposed_vibe": "Shams Cafe in Meydan Dubai offers specialty coffee, cold brews, mocktails & authentic Iranian Food and sandwiches. Open",
    "proposed_vibe_source": "https://shamscafe.ae",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Specialty coffee, cold brews and mocktails alongside Iranian food and sandwiches, open till 2am",
    "reject_reason": null
   },
   {
@@ -2398,7 +2398,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-00034c852df6",
@@ -2418,8 +2418,8 @@
    "upkeep": 8,
    "proposed_vibe": "The KAF Dubai is a specialty coffee cafe serving artisan coffee, breakfast, brunch, and desserts in Downtown Dubai and",
    "proposed_vibe_source": "https://thekafdubai.com",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Specialty coffee cafe in Sobha Hartland Greens with a brew bar, poached-egg breakfasts and acai bowls",
    "reject_reason": null
   },
   {
@@ -2442,7 +2442,7 @@
    "proposed_vibe_source": "http://yorkvivant.com/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002a5951d7d",
@@ -2464,7 +2464,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000f28294ea",
@@ -2484,8 +2484,8 @@
    "upkeep": 5,
    "proposed_vibe": "Dine in style at One Life, the community space that has been proudly serving the good folks of Dubai since 2016. Come",
    "proposed_vibe_source": "https://onelifedxb.com/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Two-floor cafe, roastery and community space in d3 since 2016, with an open kitchen",
    "reject_reason": null
   },
   {
@@ -2508,7 +2508,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001de50f8b2",
@@ -2530,7 +2530,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00033263a315",
@@ -2552,7 +2552,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0003266bb962",
@@ -2574,7 +2574,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-000017054d83",
@@ -2596,7 +2596,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000129c7df11",
@@ -2618,7 +2618,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002e8e8fb3d",
@@ -2638,8 +2638,8 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Specialty coffee roaster in Al Shindagha with its own blends, drip coffee and brewing know-how",
    "reject_reason": null
   },
   {
@@ -2662,7 +2662,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002a4008096",
@@ -2684,7 +2684,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "wrong category"
   },
   {
    "id": "c0900000-0000-0000-0001-00016e9ed572",
@@ -2706,7 +2706,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001243ac452",
@@ -2728,7 +2728,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001245c0cc5",
@@ -2750,7 +2750,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001243d44f2",
@@ -2772,7 +2772,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000124531050",
@@ -2794,14 +2794,14 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000123f528b9",
    "osm": "node/4898236601",
    "osm_url": "https://www.openstreetmap.org/node/4898236601",
    "name": "Alsultanah Cafe",
-   "category": "cafe",
+   "category": "shisha",
    "area": "Al Karama",
    "district": "Creek & Old Dubai",
    "cuisine": "Cafe",
@@ -2810,12 +2810,12 @@
    "opening_hours": null,
    "open_till": "",
    "website": null,
-   "minimum_age": 0,
+   "minimum_age": 18,
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Late-night Karama cafe with 20-plus shisha flavours, food and games, open till 3am",
    "reject_reason": null
   },
   {
@@ -2838,7 +2838,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001243b6d7a",
@@ -2860,7 +2860,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002ddabc9f0",
@@ -2882,7 +2882,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000f9628835",
@@ -2904,7 +2904,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000e6f998d1",
@@ -2926,7 +2926,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00034de80b0d",
@@ -2946,8 +2946,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Warehouse cafe by Port Rashid with specialty coffee, an all-day menu and collectable cars on display",
    "reject_reason": null
   },
   {
@@ -2970,7 +2970,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001243d4618",
@@ -2992,7 +2992,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001243b6dad",
@@ -3014,14 +3014,14 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000123f4f4ff",
    "osm": "node/4898223359",
    "osm_url": "https://www.openstreetmap.org/node/4898223359",
    "name": "Nasimi Cafe",
-   "category": "cafe",
+   "category": "shisha",
    "area": "Al Karama",
    "district": "Creek & Old Dubai",
    "cuisine": "Cafe",
@@ -3030,12 +3030,12 @@
    "opening_hours": null,
    "open_till": "",
    "website": null,
-   "minimum_age": 0,
+   "minimum_age": 18,
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Late-night shisha cafe on Umm Hurair Road, open until 5am, with coffee and casual food",
    "reject_reason": null
   },
   {
@@ -3058,7 +3058,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000123834565",
@@ -3080,7 +3080,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000124531049",
@@ -3102,7 +3102,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00033985e92f",
@@ -3124,7 +3124,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00012516fa2e",
@@ -3146,7 +3146,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001243d45ca",
@@ -3168,7 +3168,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00029064724c",
@@ -3190,7 +3190,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "wrong category"
   },
   {
    "id": "c0900000-0000-0000-0001-0002151e27d5",
@@ -3212,7 +3212,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00012605345a",
@@ -3234,7 +3234,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00001a006b70",
@@ -3256,7 +3256,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-0000f729a3ee",
@@ -3278,7 +3278,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001253cb74a",
@@ -3300,7 +3300,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-0001265eb8ef",
@@ -3322,7 +3322,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00012662940d",
@@ -3344,7 +3344,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000126806d88",
@@ -3366,7 +3366,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00012662e747",
@@ -3388,7 +3388,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000126809b2e",
@@ -3410,7 +3410,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00012699d374",
@@ -3432,7 +3432,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001265d898a",
@@ -3454,7 +3454,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00012662940f",
@@ -3476,7 +3476,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001267f148e",
@@ -3498,7 +3498,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00012661c9eb",
@@ -3520,7 +3520,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000125881bab",
@@ -3542,7 +3542,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-0001269772e8",
@@ -3564,7 +3564,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000126071b64",
@@ -3586,7 +3586,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00012664ce87",
@@ -3608,7 +3608,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001269c9713",
@@ -3630,7 +3630,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000125ffcd6b",
@@ -3652,7 +3652,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00012661b54f",
@@ -3674,7 +3674,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000126a30af0",
@@ -3696,7 +3696,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000126859893",
@@ -3718,7 +3718,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001267beebb",
@@ -3740,7 +3740,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001266165c4",
@@ -3762,7 +3762,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001260a7f2d",
@@ -3784,7 +3784,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000125d14cb4",
@@ -3806,7 +3806,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00012684d19f",
@@ -3828,7 +3828,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00012661a054",
@@ -3850,7 +3850,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000111480083",
@@ -3872,7 +3872,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00012684d194",
@@ -3894,7 +3894,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000126a30acc",
@@ -3916,7 +3916,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001269aa2bd",
@@ -3938,7 +3938,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000125ff6753",
@@ -3960,7 +3960,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001260b3b5c",
@@ -3982,7 +3982,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001260cc50e",
@@ -4004,7 +4004,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000126639b8d",
@@ -4026,7 +4026,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001265eb8f4",
@@ -4048,7 +4048,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00012665267f",
@@ -4070,7 +4070,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000125eb184c",
@@ -4092,7 +4092,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000c0f89b68",
@@ -4114,7 +4114,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00003680f99f",
@@ -4136,7 +4136,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001720ab938",
@@ -4158,14 +4158,14 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000172ae7bf3",
    "osm": "node/6219004915",
    "osm_url": "https://www.openstreetmap.org/node/6219004915",
    "name": "Gazebo",
-   "category": "cafe",
+   "category": "dinner",
    "area": "Hatta",
    "district": "Desert & beyond",
    "cuisine": "Cafe",
@@ -4178,8 +4178,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Contemporary Indian restaurant on the Hatta road with mountain views, from the UAE's Gazebo group",
    "reject_reason": null
   },
   {
@@ -4202,7 +4202,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001de50f8b3",
@@ -4224,7 +4224,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000290647257",
@@ -4244,8 +4244,8 @@
    "upkeep": 8,
    "proposed_vibe": "L ETO is an upscale international restaurant & cafe brand - discover what lies within",
    "proposed_vibe_source": "https://letocaffe.com/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "London cafe in Dubai Mall known for a daily-changing counter of house-made cakes and breakfast",
    "reject_reason": null
   },
   {
@@ -4268,7 +4268,7 @@
    "proposed_vibe_source": "https://www.lamarzocco.com/ae/en/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "office, not a venue"
   },
   {
    "id": "c0900000-0000-0000-0001-0002151e27d6",
@@ -4290,13 +4290,13 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0001efd92a33",
    "osm": "node/8318954035",
    "osm_url": "https://www.openstreetmap.org/node/8318954035",
-   "name": "TEN 11 Coffee Boutique , Dubai Mall",
+   "name": "TEN 11 Coffee Boutique",
    "category": "cafe",
    "area": "Address Dubai Mall",
    "district": "Downtown & DIFC",
@@ -4310,8 +4310,8 @@
    "upkeep": 8,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Abu Dhabi-born coffee boutique on Dubai Mall's Fashion Avenue: specialty coffee, homemade dishes, desserts",
    "reject_reason": null
   },
   {
@@ -4332,16 +4332,16 @@
    "upkeep": 8,
    "proposed_vibe": "The KAF Dubai is a specialty coffee cafe serving artisan coffee, breakfast, brunch, and desserts in Downtown Dubai and",
    "proposed_vibe_source": "https://thekafdubai.com",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Specialty coffee with small-batch roasts, eggs on sourdough, acai bowls and desserts",
    "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0002b46155ef",
    "osm": "node/11616212463",
    "osm_url": "https://www.openstreetmap.org/node/11616212463",
-   "name": "Unwind Specialty Boardgame Cafe",
-   "category": "cafe",
+   "name": "Unwind Speciality Boardgame Cafe",
+   "category": "games",
    "area": "Dubai World Trade Centre",
    "district": "Downtown & DIFC",
    "cuisine": "Cafe",
@@ -4354,8 +4354,8 @@
    "upkeep": 8,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Board game cafe with 800-plus games, game masters to teach them, specialty coffee and sandwiches",
    "reject_reason": null
   },
   {
@@ -4378,7 +4378,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-00031c046c49",
@@ -4400,7 +4400,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00013e280891",
@@ -4422,7 +4422,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001057060d1",
@@ -4444,7 +4444,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000124c1559f",
@@ -4466,7 +4466,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000119a6e252",
@@ -4488,7 +4488,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00010d847d2b",
@@ -4510,7 +4510,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00011d615bb7",
@@ -4532,7 +4532,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00011f59f38e",
@@ -4554,7 +4554,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000124c1d9ce",
@@ -4576,7 +4576,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00010de9076c",
@@ -4598,13 +4598,13 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00012e3bec32",
    "osm": "node/5070646322",
    "osm_url": "https://www.openstreetmap.org/node/5070646322",
-   "name": "kana cafe",
+   "name": "The Kana Cafe",
    "category": "cafe",
    "area": "Address Dubai Mall",
    "district": "Downtown & DIFC",
@@ -4618,8 +4618,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Homegrown all-day cafe in Downtown, open since 2008, with breakfast plates, Middle Eastern dishes and shisha",
    "reject_reason": null
   },
   {
@@ -4642,7 +4642,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000135d84c51",
@@ -4664,7 +4664,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00010d847d24",
@@ -4686,7 +4686,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0002f725d45c",
@@ -4708,7 +4708,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000291ca070c",
@@ -4730,14 +4730,14 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00033985e8d1",
    "osm": "node/13849979089",
    "osm_url": "https://www.openstreetmap.org/node/13849979089",
    "name": "Maras Turka",
-   "category": "cafe",
+   "category": "dessert",
    "area": "Dubai Festival City",
    "district": "Festival City & Garhoud",
    "cuisine": "Turkish",
@@ -4750,8 +4750,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Turkish dondurma ice cream, baklava, kunafa and pastries",
    "reject_reason": null
   },
   {
@@ -4774,7 +4774,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0001266244da",
@@ -4796,7 +4796,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000124722264",
@@ -4818,7 +4818,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000124722267",
@@ -4840,7 +4840,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00029fca4f3b",
@@ -4860,8 +4860,8 @@
    "upkeep": 8,
    "proposed_vibe": "Comptoir 102 established its legitimacy as one of the best concept stores in the city. Acclaimed by international",
    "proposed_vibe_source": "https://comptoir102.com",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Healthy cafe inside a Jumeirah concept store selling fashion, clean beauty and organic groceries",
    "reject_reason": null
   },
   {
@@ -4882,8 +4882,8 @@
    "upkeep": 8,
    "proposed_vibe": "CLEAN & NATURAL INGREDIENTSHEALTHY FOOD REIMAGINED, JUST FEELS RIGHT How are you feeling today? Let s see if we have a",
    "proposed_vibe_source": "https://wearefeels.com/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Active-lifestyle cafe and juice bar at Marsa Al Arab serving clean, healthy plates and fresh juices",
    "reject_reason": null
   },
   {
@@ -4904,8 +4904,8 @@
    "upkeep": 8,
    "proposed_vibe": "We help you turn everyday moments into memorable floral occasions full of joy and cheer thanks to fresh flowers",
    "proposed_vibe_source": "https://plantmama.ae",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Flower boutique and garden cafe on Al Manara Street with a specialty coffee bar among plants and bouquets",
    "reject_reason": null
   },
   {
@@ -4928,7 +4928,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001aa8842ed",
@@ -4950,7 +4950,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-000125005d51",
@@ -4972,7 +4972,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-0002d047a73e",
@@ -4994,7 +4994,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000247d4822e",
@@ -5014,8 +5014,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Small coffee shop at the front of Sunset Mall in Jumeirah, a short walk from the beach",
    "reject_reason": null
   },
   {
@@ -5038,7 +5038,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000123ec9812",
@@ -5060,7 +5060,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000123ed7555",
@@ -5080,8 +5080,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Small specialty coffee stop on Jumeirah Road in Umm Suqeim 2",
    "reject_reason": null
   },
   {
@@ -5104,14 +5104,14 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00012590384e",
    "osm": "node/4925175886",
    "osm_url": "https://www.openstreetmap.org/node/4925175886",
    "name": "Moroccan Taste",
-   "category": "cafe",
+   "category": "dinner",
    "area": "Jumeirah",
    "district": "Jumeirah coast",
    "cuisine": "Moroccan, arab",
@@ -5124,8 +5124,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Casual Moroccan restaurant opposite Jumeirah Beach Park, open 10am to midnight",
    "reject_reason": null
   },
   {
@@ -5148,7 +5148,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-00001dc0f5e0",
@@ -5170,14 +5170,14 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000fc394c9a",
    "osm": "node/4231613594",
    "osm_url": "https://www.openstreetmap.org/node/4231613594",
-   "name": "Bubble cafe",
-   "category": "cafe",
+   "name": "Bubble Cafe",
+   "category": "shisha",
    "area": "Jumeirah Beach",
    "district": "Jumeirah coast",
    "cuisine": "Cafe",
@@ -5186,12 +5186,12 @@
    "opening_hours": null,
    "open_till": "",
    "website": null,
-   "minimum_age": 0,
+   "minimum_age": 18,
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Jumeirah Street library cafe and shisha lounge for over-18s, open from 10am to 2am",
    "reject_reason": null
   },
   {
@@ -5214,7 +5214,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-00001da76f9d",
@@ -5236,7 +5236,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001094a0c13",
@@ -5258,7 +5258,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000121cf723e",
@@ -5280,7 +5280,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00010f1b4ba2",
@@ -5302,7 +5302,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0002-00001dc0c004",
@@ -5324,7 +5324,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00012381ab4a",
@@ -5344,8 +5344,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Evening cafe with an Emirati-leaning menu of Arabic and Italian plates, open 3pm to midnight",
    "reject_reason": null
   },
   {
@@ -5368,13 +5368,13 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001245aa87d",
    "osm": "node/4904888445",
    "osm_url": "https://www.openstreetmap.org/node/4904888445",
-   "name": "Roasters Café",
+   "name": "Roasters Specialty Coffee House",
    "category": "cafe",
    "area": "Jumeirah",
    "district": "Jumeirah coast",
@@ -5388,8 +5388,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Homegrown specialty coffee house in Jumeirah with direct-trade roasts, a long tea list and breakfast dishes",
    "reject_reason": null
   },
   {
@@ -5412,7 +5412,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000137335211",
@@ -5432,8 +5432,8 @@
    "upkeep": 8,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Paleo cafe in Motor City: gluten-, dairy- and sugar-free plates like Turkish eggs and harissa chicken",
    "reject_reason": null
   },
   {
@@ -5454,8 +5454,8 @@
    "upkeep": 4,
    "proposed_vibe": "We’re an automotive focused community Café and venue in the paddock of Dubai Autodrome",
    "proposed_vibe_source": "http://thecarscafe.com",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Car-themed cafe in the Dubai Autodrome paddock with specialty coffee, a carwash and F1 screenings",
    "reject_reason": null
   },
   {
@@ -5478,7 +5478,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000101251f9c",
@@ -5500,13 +5500,13 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00024a8a0293",
    "osm": "node/9840493203",
    "osm_url": "https://www.openstreetmap.org/node/9840493203",
-   "name": "Kana Cafe Motor City",
+   "name": "Kana Cafe",
    "category": "cafe",
    "area": "Motor City",
    "district": "JVC, Sports City & Motor City",
@@ -5520,8 +5520,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Late-opening cafe at First Avenue Mall in Motor City with shisha and sports screenings, open until 2am",
    "reject_reason": null
   },
   {
@@ -5544,7 +5544,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000fe3667d5",
@@ -5566,7 +5566,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002e7dd7837",
@@ -5586,8 +5586,8 @@
    "upkeep": 8,
    "proposed_vibe": "Bake my Day Dubai is a restaurant with breakfast, lunch, diner and snacks located at JBR Beach Dubai. Our Dutch &",
    "proposed_vibe_source": "https://bakemyday.ae/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "JBR terrace cafe for Dutch bakes, Belgian fries and waffles, looking out at the Dubai Eye",
    "reject_reason": null
   },
   {
@@ -5610,7 +5610,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00023df573fb",
@@ -5632,7 +5632,7 @@
    "proposed_vibe_source": "https://www.theacaispotcafe.com/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00011d61f6c1",
@@ -5654,7 +5654,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000138c78f3b",
@@ -5674,8 +5674,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Casual offshoot of DIFC deli 1762 at One JLT, serving soups, pizza, healthy plates and coffee",
    "reject_reason": null
   },
   {
@@ -5698,7 +5698,7 @@
    "proposed_vibe_source": "https://caffenero.com/ae/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0002416b7799",
@@ -5720,14 +5720,14 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000138c761e9",
    "osm": "node/5247558121",
    "osm_url": "https://www.openstreetmap.org/node/5247558121",
    "name": "Friends Avenue Cafe",
-   "category": "cafe",
+   "category": "brunch",
    "area": "JLT",
    "district": "Marina & JBR",
    "cuisine": "Cafe",
@@ -5740,8 +5740,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Cluster T cafe in JLT for all-day breakfast, burgers, healthy bowls and coffee",
    "reject_reason": null
   },
   {
@@ -5762,8 +5762,8 @@
    "upkeep": 3,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Neighbourhood cafe and all-day bistro in JLT Cluster Q for fresh coffee, salads, sandwiches and croissants",
    "reject_reason": null
   },
   {
@@ -5786,14 +5786,14 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00013168a72d",
    "osm": "node/5123909421",
    "osm_url": "https://www.openstreetmap.org/node/5123909421",
-   "name": "Chalcos",
-   "category": "cafe",
+   "name": "Chalco's Mexican Grill",
+   "category": "dinner",
    "area": "JLT",
    "district": "Marina & JBR",
    "cuisine": "Mexican",
@@ -5806,8 +5806,8 @@
    "upkeep": 3,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Mexican grill in JLT Cluster D with funky decor, known for oversized burritos and margaritas",
    "reject_reason": null
   },
   {
@@ -5830,7 +5830,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00013a50e4e4",
@@ -5852,7 +5852,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000a8eb749d",
@@ -5874,7 +5874,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-000124bf0de8",
@@ -5896,7 +5896,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0000bd371e84",
@@ -5918,7 +5918,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000c2b46a50",
@@ -5940,7 +5940,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001209aa581",
@@ -5962,7 +5962,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00002a83d75c",
@@ -5984,14 +5984,14 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000f463fa18",
    "osm": "node/4100192792",
    "osm_url": "https://www.openstreetmap.org/node/4100192792",
    "name": "Café Isan",
-   "category": "cafe",
+   "category": "dinner",
    "area": "JLT",
    "district": "Marina & JBR",
    "cuisine": "Thai",
@@ -6004,8 +6004,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Northeastern Thai street food on benches: pad thai, som tum and mango sticky rice",
    "reject_reason": null
   },
   {
@@ -6028,7 +6028,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00002aa4a6e6",
@@ -6050,7 +6050,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000c2b479e9",
@@ -6072,7 +6072,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000117921ec0",
@@ -6094,7 +6094,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000a87a7289",
@@ -6116,7 +6116,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00011dc282c6",
@@ -6138,7 +6138,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000c2b478c8",
@@ -6160,7 +6160,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002fa727729",
@@ -6182,7 +6182,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0001201285d9",
@@ -6204,7 +6204,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000e4b7ff8f",
@@ -6226,7 +6226,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-00011486bffe",
@@ -6248,7 +6248,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002660fc63c",
@@ -6270,7 +6270,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000290647278",
@@ -6292,7 +6292,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000204188f4b",
@@ -6314,7 +6314,7 @@
    "proposed_vibe_source": "https://ybalawrqenab.com/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000049de06f9",
@@ -6334,8 +6334,8 @@
    "upkeep": 4,
    "proposed_vibe": "Café Peloton is the established starting point for cycling in the UAE. Located on a track in Dubai, accessible by road",
    "proposed_vibe_source": "https://breakawaycycling.ae/cafe-peloton/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Cyclists' cafe at Mushrif Park with locally roasted specialty coffee, breakfasts and smoothies",
    "reject_reason": null
   },
   {
@@ -6358,7 +6358,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001df51e748",
@@ -6380,7 +6380,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002eb315c4b",
@@ -6402,7 +6402,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-0001146188c3",
@@ -6424,7 +6424,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000124b773a3",
@@ -6446,7 +6446,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00012518d3d0",
@@ -6468,7 +6468,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001090dd1b1",
@@ -6490,7 +6490,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001124fd26e",
@@ -6512,7 +6512,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000124f750de",
@@ -6534,7 +6534,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000124f91923",
@@ -6556,7 +6556,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000149da58ba",
@@ -6578,7 +6578,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00010f25107d",
@@ -6600,7 +6600,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000124ff9810",
@@ -6622,7 +6622,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002919dc883",
@@ -6644,7 +6644,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000288dd00e1",
@@ -6666,7 +6666,7 @@
    "proposed_vibe_source": "https://kulfichai.com",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00014bdc452d",
@@ -6688,7 +6688,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001592dd812",
@@ -6710,14 +6710,14 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002d1dcaa19",
    "osm": "node/12110834201",
    "osm_url": "https://www.openstreetmap.org/node/12110834201",
    "name": "Hengchen",
-   "category": "cafe",
+   "category": "dinner",
    "area": "Dubai Silicon Oasis",
    "district": "Silicon Oasis & Academic City",
    "cuisine": "Asian, chinese",
@@ -6730,8 +6730,8 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Cosy 25-seat fusion Chinese restaurant in Silicon Oasis, open since 2010, for wok-fired dishes and prawns",
    "reject_reason": null
   },
   {
@@ -6754,7 +6754,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002d1def216",
@@ -6776,7 +6776,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00027fdba6d7",
@@ -6798,7 +6798,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002762d0dcb",
@@ -6820,7 +6820,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000dbde2ca0",
@@ -6842,7 +6842,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000dbde2ca1",
@@ -6864,7 +6864,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00014cbebafd",
@@ -6886,7 +6886,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00010a1d31f9",
@@ -6908,7 +6908,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002da4ee0c0",
@@ -6928,8 +6928,8 @@
    "upkeep": 3,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Media City coffee bar in the CNN building, focused on espresso and open 7am to 5pm",
    "reject_reason": null
   },
   {
@@ -6952,7 +6952,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000047f44034",
@@ -6974,7 +6974,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0001882e419f",
@@ -6996,7 +6996,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-00023ff1687d",
@@ -7018,7 +7018,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000058d16762",
@@ -7040,13 +7040,13 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00015f6f80cd",
    "osm": "node/5896110285",
    "osm_url": "https://www.openstreetmap.org/node/5896110285",
-   "name": "Revo Cafe",
+   "name": "Revo Café",
    "category": "cafe",
    "area": "Palm Jumeirah",
    "district": "The Palm",
@@ -7060,8 +7060,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Anantara The Palm's all-day cafe for healthy plates, breakfast and coffee with indoor and outdoor seats",
    "reject_reason": null
   },
   {
@@ -7084,7 +7084,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002e303c58e",
@@ -7106,7 +7106,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00012685640e",
@@ -7128,7 +7128,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00034d0f5361",
@@ -7150,7 +7150,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002c0f36789",
@@ -7172,7 +7172,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002c11fc4db",
@@ -7194,7 +7194,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0000483bf585",
@@ -7216,7 +7216,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000123f86a11",
@@ -7238,7 +7238,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00020251de6d",
@@ -7260,7 +7260,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000124e2aec5",
@@ -7282,7 +7282,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002a7a346bd",
@@ -7304,7 +7304,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001237fc47c",
@@ -7326,7 +7326,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002dd105efe",
@@ -7348,7 +7348,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001245c0c23",
@@ -7370,7 +7370,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00012684420f",
@@ -7392,7 +7392,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-000125d15ba2",
@@ -7414,7 +7414,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00010a4f75f1",
@@ -7436,7 +7436,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001fffb4399",
@@ -7458,7 +7458,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00012c4a3263",
@@ -7480,7 +7480,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000123f49914",
@@ -7502,13 +7502,13 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00012381f594",
    "osm": "node/4890686868",
    "osm_url": "https://www.openstreetmap.org/node/4890686868",
-   "name": "Scoobi",
+   "name": "Scoopi Cafe",
    "category": "dessert",
    "area": "Umm Suqeim",
    "district": "Jumeirah coast",
@@ -7522,8 +7522,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Ice cream and chocolate cafe on Jumeirah Beach Road serving gourmet scoops",
    "reject_reason": null
   },
   {
@@ -7546,7 +7546,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-00021af87f23",
@@ -7568,7 +7568,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002e8229240",
@@ -7590,7 +7590,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002b202918a",
@@ -7612,7 +7612,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0003215d33d0",
@@ -7634,7 +7634,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0001702d07bd",
@@ -7656,7 +7656,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002aeefb535",
@@ -7678,7 +7678,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00032fc5d461",
@@ -7700,7 +7700,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001113747a9",
@@ -7722,7 +7722,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0000a879f0d9",
@@ -7744,7 +7744,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-000252e041cb",
@@ -7766,7 +7766,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000314679501",
@@ -7788,7 +7788,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00027fb3d9ae",
@@ -7810,7 +7810,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002ca6aebaa",
@@ -7832,7 +7832,7 @@
    "proposed_vibe_source": "https://softlyme.com",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002ad7f1be1",
@@ -7854,7 +7854,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002919d8c99",
@@ -7876,7 +7876,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002c14fe835",
@@ -7898,7 +7898,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000140869585",
@@ -7920,7 +7920,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   }
  ]
 }
