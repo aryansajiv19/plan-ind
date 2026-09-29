@@ -13,7 +13,7 @@ import { useLivePosition } from "@/hooks/use-live-position";
 // Route.computeRoutes) for transit, driving and walking, from the viewer's
 // live position, else where they said they're coming from, else the plan's
 // start. With no browser key, a refused key, or a failed call it shows the
-// lib/dubai-metro.ts estimate and the keyless embed instead.
+// lib/dubai-metro.ts estimate and our own SVG map (components/map) instead.
 //
 // Cost: nothing from Google loads until "Show the route" is tapped, and each
 // mode is computed once per ~100 m of a chosen origin, or ~1 km while
