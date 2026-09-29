@@ -4,6 +4,7 @@
 // stores anything from Google; place ids are matched later, separately.
 
 import { DISTRICTS, districtFor } from "@/lib/dubai-explored";
+import { CATEGORY_MINIMUM_AGE } from "@/lib/age-policy";
 import { AREA_CENTRES, distanceKm, type Coordinates } from "@/lib/dubai-areas";
 
 /** Our area names that belong to a district and have a centre, in our own casing. */
@@ -36,7 +37,6 @@ export interface CatalogueRow {
   score: number;
 }
 
-const ADULT = new Set(["vibes", "nightlife", "live_music", "karaoke"]);
 const RESTAURANT_DESSERT = /(^|;)\s*(ice_cream|dessert|cake|frozen_yogurt|chocolate|waffle|crepe)\s*(;|$)/;
 const BREAKFAST = /(^|;)\s*(breakfast|brunch)\s*(;|$)/;
 
@@ -137,7 +137,9 @@ export function snapArea(lat: number, lon: number): { area: string; district: st
   return district ? { area: best.area, district } : null;
 }
 
-export const minimumAgeFor = (category: string) => (ADULT.has(category) ? 21 : 0);
+// The app's own policy (lib/age-policy.ts) is the one source; live music is
+// bar-based in Dubai, so it is held at 21 here as well.
+export const minimumAgeFor = (category: string) => CATEGORY_MINIMUM_AGE[category] ?? (category === "live_music" ? 21 : 0);
 
 const norm = (name: string) => name.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, " ").trim();
 

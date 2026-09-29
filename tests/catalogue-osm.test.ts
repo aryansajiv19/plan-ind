@@ -99,3 +99,8 @@ test("--add: OSM refs with an optional forced category; a forced one must be our
   assert.deepEqual(kept.map((k) => [k.name, k.category]), [["Hookah Place", "shisha"]], "a shisha place tagged a cafe lands as shisha");
   assert.deepEqual(skipped.map((s) => s.reason).sort(), ["chain (brand tag)", 'unknown category "jetski"']);
 });
+
+test("catalogue ages follow the app's policy: shisha 18, beach clubs 21, karaoke open", async () => {
+  const { minimumAgeFor } = await import("@/lib/catalogue/osm");
+  assert.deepEqual(["shisha", "beach_club", "nightlife", "vibes", "karaoke", "live_music", "cafe"].map(minimumAgeFor), [18, 21, 21, 21, 0, 21, 0]);
+});
