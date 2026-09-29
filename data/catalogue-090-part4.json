@@ -1768,7 +1768,7 @@
    "osm_url": "https://www.openstreetmap.org/way/495449950",
    "name": "Safa Park",
    "category": "outdoors",
-   "area": "Al Habtoor City",
+   "area": "Al Wasl",
    "district": "Business Bay",
    "cuisine": "Park",
    "latitude": 25.185382,
@@ -1782,7 +1782,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Wide lawns and shaded trees with Downtown skyline views; small entry fee",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Al Habtoor City"
   },
   {
    "id": "c0900000-0000-0000-0002-00002b58fe75",
@@ -4782,7 +4783,7 @@
    "osm_url": "https://www.openstreetmap.org/relation/1715611",
    "name": "Souk Al Bahar",
    "category": "shopping",
-   "area": "Address Dubai Mall",
+   "area": "Downtown Dubai",
    "district": "Downtown & DIFC",
    "cuisine": "Mall",
    "latitude": 25.194774,
@@ -4796,7 +4797,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Arabesque souk in Downtown Dubai for shopping, dining and entertainment",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Address Dubai Mall"
   },
   {
    "id": "c0900000-0000-0000-0002-00001b2765c3",
@@ -5794,7 +5796,7 @@
    "osm_url": "https://www.openstreetmap.org/way/10647259",
    "name": "Emirates Golf Club",
    "category": "sports",
-   "area": "The Lakes",
+   "area": "Dubai Media City",
    "district": "Barsha & Dubai Hills",
    "cuisine": "Golf",
    "latitude": 25.084999,
@@ -5808,7 +5810,8 @@
    "proposed_vibe_source": "https://www.dubaigolf.com/emirates-golf-club/",
    "approved": true,
    "vibe_final": "Dubai's first golf club, home of the Majlis championship course, par 72 over 7,301 yards",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "The Lakes"
   },
   {
    "id": "c0900000-0000-0000-0002-0000156d93dd",
@@ -5904,7 +5907,7 @@
    "osm_url": "https://www.openstreetmap.org/way/1104488623",
    "name": "Danube Sports World",
    "category": "sports",
-   "area": "Al Habtoor City",
+   "area": "Business Bay",
    "district": "Business Bay",
    "cuisine": "Sports centre",
    "latitude": 25.179003,
@@ -5918,7 +5921,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Indoor multi-sport dome at Al Habtoor City with padel, cricket, football, tennis and pickleball courts",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Al Habtoor City"
   },
   {
    "id": "c0900000-0000-0000-0001-000096501627",
@@ -6102,7 +6106,7 @@
    "osm_url": "https://www.openstreetmap.org/node/5038155538",
    "name": "Dubai Ice Rink",
    "category": "sports",
-   "area": "Address Dubai Mall",
+   "area": "Downtown Dubai",
    "district": "Downtown & DIFC",
    "cuisine": "Ice skating",
    "latitude": 25.196388,
@@ -6116,7 +6120,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Olympic-sized skating rink inside Dubai Mall",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Address Dubai Mall"
   },
   {
    "id": "c0900000-0000-0000-0002-000016fd969a",
@@ -6718,7 +6723,7 @@
    "osm_url": "https://www.openstreetmap.org/node/4404170091",
    "name": "Lock, Stock & Barrel",
    "category": "vibes",
-   "area": "Grand Millennium",
+   "area": "Dubai Media City",
    "district": "Barsha & Dubai Hills",
    "cuisine": "Bar and lounge",
    "latitude": 25.101242,
@@ -6732,7 +6737,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Industrial-style bar with a full stage and mega screens; live shows three nights a week plus sport",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Grand Millennium"
   },
   {
    "id": "c0900000-0000-0000-0001-0001202f8fa5",
@@ -6762,7 +6768,7 @@
    "osm_url": "https://www.openstreetmap.org/node/4069707928",
    "name": "Good fellas sport bar",
    "category": "vibes",
-   "area": "Grand Millennium",
+   "area": "Al Barsha",
    "district": "Barsha & Dubai Hills",
    "cuisine": "Bar and lounge",
    "latitude": 25.098198,
@@ -6776,7 +6782,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Basement sports bar at Ramee Rose Hotel, Barsha Heights, with 17 screens and two pool tables",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Grand Millennium"
   },
   {
    "id": "c0900000-0000-0000-0001-00012430a8f3",
@@ -6784,7 +6791,7 @@
    "osm_url": "https://www.openstreetmap.org/node/4902136051",
    "name": "Red Hot Chili",
    "category": "vibes",
-   "area": "Mall of the Emirates",
+   "area": "Al Barsha",
    "district": "Barsha & Dubai Hills",
    "cuisine": "Bar and lounge",
    "latitude": 25.115423,
@@ -6798,7 +6805,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Sports and live-music pub at Donatello Hotel, Al Barsha, with 17 screens, darts, a pool table and Tex-Mex food",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Mall of the Emirates"
   },
   {
    "id": "c0900000-0000-0000-0001-00007b72de82",
@@ -6806,7 +6814,7 @@
    "osm_url": "https://www.openstreetmap.org/node/2071125634",
    "name": "Rock Bottom",
    "category": "vibes",
-   "area": "Grand Millennium",
+   "area": "Al Barsha",
    "district": "Barsha & Dubai Hills",
    "cuisine": "Bar and lounge",
    "latitude": 25.09827,
@@ -6820,7 +6828,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Bar at Ramee Rose Hotel, Barsha Heights, with sushi and teppanyaki, shisha and weekly theme nights",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Grand Millennium"
   },
   {
    "id": "c0900000-0000-0000-0001-0002023142bc",
@@ -6850,7 +6859,7 @@
    "osm_url": "https://www.openstreetmap.org/node/8585102460",
    "name": "Bodega Garage",
    "category": "vibes",
-   "area": "Mall of the Emirates",
+   "area": "Al Barsha",
    "district": "Barsha & Dubai Hills",
    "cuisine": "Bar and lounge",
    "latitude": 25.115915,
@@ -6864,7 +6873,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Manila-style Filipino nightclub at Holiday Inn Al Barsha with live band, karaoke, pool table and darts",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Mall of the Emirates"
   },
   {
    "id": "c0900000-0000-0000-0001-00020036034d",
@@ -6872,7 +6882,7 @@
    "osm_url": "https://www.openstreetmap.org/node/8593474381",
    "name": "Maxx Music Bar",
    "category": "vibes",
-   "area": "Mall of the Emirates",
+   "area": "Al Barsha",
    "district": "Barsha & Dubai Hills",
    "cuisine": "Bar and lounge",
    "latitude": 25.11534,
@@ -6886,7 +6896,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Rock bar at Citymax Hotel Al Barsha by Mall of the Emirates with a resident band, DJ and music-legend murals",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Mall of the Emirates"
   },
   {
    "id": "c0900000-0000-0000-0001-000203af698d",
@@ -6894,7 +6905,7 @@
    "osm_url": "https://www.openstreetmap.org/node/8651762061",
    "name": "Nelson's",
    "category": "vibes",
-   "area": "Grand Millennium",
+   "area": "Al Barsha",
    "district": "Barsha & Dubai Hills",
    "cuisine": "Bar and lounge",
    "latitude": 25.100053,
@@ -6908,7 +6919,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "British pub at Radisson Blu Barsha Heights with live sports on screens, a pool table and draught beer",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Grand Millennium"
   },
   {
    "id": "c0900000-0000-0000-0001-0001ffb6447a",
@@ -6916,7 +6928,7 @@
    "osm_url": "https://www.openstreetmap.org/node/8585102458",
    "name": "Oro Lounge",
    "category": "vibes",
-   "area": "Mall of the Emirates",
+   "area": "Al Barsha",
    "district": "Barsha & Dubai Hills",
    "cuisine": "Bar and lounge",
    "latitude": 25.115581,
@@ -6930,7 +6942,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Restaurant and lounge with a full bar at Donatello Hotel, Al Barsha 1, open noon to 3am",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Mall of the Emirates"
   },
   {
    "id": "c0900000-0000-0000-0001-000200833ce0",
@@ -6982,7 +6995,7 @@
    "osm_url": "https://www.openstreetmap.org/node/8585102462",
    "name": "The Q",
    "category": "vibes",
-   "area": "Mall of the Emirates",
+   "area": "Al Barsha",
    "district": "Barsha & Dubai Hills",
    "cuisine": "Bar and lounge",
    "latitude": 25.116423,
@@ -6996,7 +7009,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Sports bar at Holiday Inn Al Barsha with cinema screens around a circular bar and live music",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Mall of the Emirates"
   },
   {
    "id": "c0900000-0000-0000-0001-000200002f80",
@@ -7004,7 +7018,7 @@
    "osm_url": "https://www.openstreetmap.org/node/8589946752",
    "name": "The Stag",
    "category": "vibes",
-   "area": "Mall of the Emirates",
+   "area": "Al Barsha",
    "district": "Barsha & Dubai Hills",
    "cuisine": "Bar and lounge",
    "latitude": 25.114213,
@@ -7018,7 +7032,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "British-style pub at Citymax Hotel Al Barsha behind Mall of the Emirates, with chess, Jenga and pub classics",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Mall of the Emirates"
   },
   {
    "id": "c0900000-0000-0000-0001-000200de9963",
@@ -7048,7 +7063,7 @@
    "osm_url": "https://www.openstreetmap.org/node/6002660164",
    "name": "V Lounge",
    "category": "vibes",
-   "area": "Al Habtoor City",
+   "area": "Business Bay",
    "district": "Business Bay",
    "cuisine": "Bar and lounge",
    "latitude": 25.184359,
@@ -7062,7 +7077,8 @@
    "proposed_vibe_source": "osm:description",
    "approved": true,
    "vibe_final": "Cocktail lounge at V Hotel, Al Habtoor City, with live entertainment and Sheikh Zayed Road views",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Al Habtoor City"
   },
   {
    "id": "c0900000-0000-0000-0001-000165c8eb74",
@@ -7136,7 +7152,7 @@
    "osm_url": "https://www.openstreetmap.org/node/11058983705",
    "name": "Bridgewater Tavern",
    "category": "vibes",
-   "area": "JW Marriott Marquis",
+   "area": "Business Bay",
    "district": "Business Bay",
    "cuisine": "Bar and lounge",
    "latitude": 25.185795,
@@ -7150,7 +7166,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Sports bar at JW Marriott Marquis with canal-view terrace, big screens and Thursday live music",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "JW Marriott Marquis"
   },
   {
    "id": "c0900000-0000-0000-0001-0002931716c9",
@@ -7158,7 +7175,7 @@
    "osm_url": "https://www.openstreetmap.org/node/11057698505",
    "name": "The Vault Bar",
    "category": "vibes",
-   "area": "JW Marriott Marquis",
+   "area": "Business Bay",
    "district": "Business Bay",
    "cuisine": "Bar and lounge",
    "latitude": 25.185834,
@@ -7172,7 +7189,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Bar on the 71st and 72nd floors of JW Marriott Marquis with cocktails, cigars and live DJs",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "JW Marriott Marquis"
   },
   {
    "id": "c0900000-0000-0000-0001-000162e88065",
@@ -7862,7 +7880,7 @@
    "osm_url": "https://www.openstreetmap.org/node/14001877201",
    "name": "Ernst Biergarten",
    "category": "vibes",
-   "area": "Emirates Towers",
+   "area": "Trade Centre",
    "district": "Downtown & DIFC",
    "cuisine": "German",
    "latitude": 25.219232,
@@ -7876,7 +7894,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Bavarian beer hall at 25hours One Central with German draught beer, pork knuckle, live music and sport",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Emirates Towers"
   },
   {
    "id": "c0900000-0000-0000-0001-0003287de5e5",
@@ -7884,7 +7903,7 @@
    "osm_url": "https://www.openstreetmap.org/node/13564241381",
    "name": "The Irish Vickers",
    "category": "vibes",
-   "area": "Address Dubai Mall",
+   "area": "Downtown Dubai",
    "district": "Downtown & DIFC",
    "cuisine": "Bar and lounge",
    "latitude": 25.194699,
@@ -7898,7 +7917,8 @@
    "proposed_vibe_source": "https://linktr.ee/theirishvickersdxb",
    "approved": true,
    "vibe_final": "Irish sports bar on Souk Al Bahar level 3 with live music and live sport",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Address Dubai Mall"
   },
   {
    "id": "c0900000-0000-0000-0001-00010cc82c25",
@@ -7928,7 +7948,7 @@
    "osm_url": "https://www.openstreetmap.org/node/3890684310",
    "name": "Double Decker Pub",
    "category": "vibes",
-   "area": "Dubai Mall",
+   "area": "Downtown Dubai",
    "district": "Downtown & DIFC",
    "cuisine": "Bar and lounge",
    "latitude": 25.202429,
@@ -7942,7 +7962,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "British pub at Swissôtel Al Murooj near Downtown with Premier League screenings and a large outdoor terrace",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Dubai Mall"
   },
   {
    "id": "c0900000-0000-0000-0001-000117fcc1fd",
@@ -7994,7 +8015,7 @@
    "osm_url": "https://www.openstreetmap.org/node/3431793864",
    "name": "NEOS",
    "category": "vibes",
-   "area": "Address Dubai Mall",
+   "area": "Downtown Dubai",
    "district": "Downtown & DIFC",
    "cuisine": "Bar and lounge",
    "latitude": 25.19407,
@@ -8008,7 +8029,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Art-deco sky lounge on the 63rd floor of Address Downtown overlooking the Dubai Fountain",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Address Dubai Mall"
   },
   {
    "id": "c0900000-0000-0000-0001-0002cfcff049",
@@ -8060,7 +8082,7 @@
    "osm_url": "https://www.openstreetmap.org/node/3722031824",
    "name": "Harverters",
    "category": "vibes",
-   "area": "Emirates Towers",
+   "area": "Trade Centre",
    "district": "Downtown & DIFC",
    "cuisine": "Bar and lounge",
    "latitude": 25.220284,
@@ -8074,7 +8096,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "British sports pub at Millennium Plaza Downtown, Sheikh Zayed Road, with big screens and outdoor seating",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Emirates Towers"
   },
   {
    "id": "c0900000-0000-0000-0001-000085e5feae",
@@ -8676,7 +8699,7 @@
    "osm_url": "https://www.openstreetmap.org/node/3837354556",
    "name": "The Croft",
    "category": "vibes",
-   "area": "Le Royal Meridien",
+   "area": "Dubai Marina",
    "district": "Marina & JBR",
    "cuisine": "Bar and lounge",
    "latitude": 25.087624,
@@ -8690,7 +8713,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "British gastropub at Dubai Marriott Harbour with a marina-view terrace, open kitchen and roast menu",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Le Royal Meridien"
   },
   {
    "id": "c0900000-0000-0000-0001-000117dcaad8",
@@ -8698,7 +8722,7 @@
    "osm_url": "https://www.openstreetmap.org/node/4695304920",
    "name": "The Underground",
    "category": "vibes",
-   "area": "Le Royal Meridien",
+   "area": "Dubai Marina",
    "district": "Marina & JBR",
    "cuisine": "Bar and lounge",
    "latitude": 25.08569,
@@ -8712,7 +8736,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "London Underground-themed pub at Al Habtoor Grand, JBR, with sports screens, quiz nights and billiards",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Le Royal Meridien"
   },
   {
    "id": "c0900000-0000-0000-0001-000079ea49af",
@@ -8742,7 +8767,7 @@
    "osm_url": "https://www.openstreetmap.org/node/12311152181",
    "name": "City Social",
    "category": "vibes",
-   "area": "Le Royal Meridien",
+   "area": "Dubai Marina",
    "district": "Marina & JBR",
    "cuisine": "Bar and lounge",
    "latitude": 25.086348,
@@ -8756,7 +8781,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Jason Atherton bar and restaurant on the 43rd floor of Grosvenor House, Dubai Marina, with three terraces",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Le Royal Meridien"
   },
   {
    "id": "c0900000-0000-0000-0001-0001459b9561",
@@ -8808,7 +8834,7 @@
    "osm_url": "https://www.openstreetmap.org/way/628864491",
    "name": "Le Deck",
    "category": "vibes",
-   "area": "Le Royal Meridien",
+   "area": "Dubai Marina",
    "district": "Marina & JBR",
    "cuisine": "Bar and lounge",
    "latitude": 25.085125,
@@ -8822,7 +8848,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Garden pool bar and restaurant at Le Royal Meridien, JBR: Mediterranean food by day, cocktails at sunset",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Le Royal Meridien"
   },
   {
    "id": "c0900000-0000-0000-0001-00029317172d",
@@ -9028,7 +9055,7 @@
    "osm_url": "https://www.openstreetmap.org/node/4405534290",
    "name": "Jetty Lounge - One & Only",
    "category": "vibes",
-   "area": "One&Only Royal Mirage",
+   "area": "Dubai Media City",
    "district": "The Palm",
    "cuisine": "Bar and lounge",
    "latitude": 25.097095,
@@ -9042,7 +9069,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Beachside bar and lounge at One&Only Royal Mirage with Arabian Gulf views, cocktails and light bites",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "One&Only Royal Mirage"
   },
   {
    "id": "c0900000-0000-0000-0001-00014a5b556a",
@@ -9138,7 +9166,7 @@
    "osm_url": "https://www.openstreetmap.org/node/8883912948",
    "name": "The Penthouse",
    "category": "nightlife",
-   "area": "One&Only Royal Mirage",
+   "area": "Dubai Media City",
    "district": "The Palm",
    "cuisine": "Bar and lounge",
    "latitude": 25.104097,
@@ -9152,7 +9180,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "16th-floor adults-only rooftop lounge and club at FIVE Palm Jumeirah with two pools, open 5pm to 4am",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "One&Only Royal Mirage"
   },
   {
    "id": "c0900000-0000-0000-0001-0000e2ff10f1",

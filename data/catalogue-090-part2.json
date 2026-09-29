@@ -756,7 +756,7 @@
    "osm_url": "https://www.openstreetmap.org/node/4787925723",
    "name": "Bread & Olives",
    "category": "dinner",
-   "area": "Grand Millennium",
+   "area": "Dubai Media City",
    "district": "Barsha & Dubai Hills",
    "cuisine": "Arab, lebanese",
    "latitude": 25.095301,
@@ -770,7 +770,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Lebanese restaurant in Barsha Heights near Grand Millennium, listed on Zomato and Talabat",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Grand Millennium"
   },
   {
    "id": "c0900000-0000-0000-0001-0001ab06c249",
@@ -778,7 +779,7 @@
    "osm_url": "https://www.openstreetmap.org/node/7164314185",
    "name": "Gharana",
    "category": "dinner",
-   "area": "Mall of the Emirates",
+   "area": "Al Barsha",
    "district": "Barsha & Dubai Hills",
    "cuisine": "Indian",
    "latitude": 25.116248,
@@ -792,7 +793,8 @@
    "proposed_vibe_source": "https://www.gharanarestaurant.com/",
    "approved": true,
    "vibe_final": "North Indian dishes with live ghazal and Bollywood music at the Holiday Inn Al Barsha",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Mall of the Emirates"
   },
   {
    "id": "c0900000-0000-0000-0001-000132986574",
@@ -954,7 +956,7 @@
    "osm_url": "https://www.openstreetmap.org/node/12247069951",
    "name": "Allo Beirut",
    "category": "dinner",
-   "area": "Grand Millennium",
+   "area": "Al Barsha",
    "district": "Barsha & Dubai Hills",
    "cuisine": "Lebanese",
    "latitude": 25.094429,
@@ -968,7 +970,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Lebanese street food with fresh saj, falafel and shawarma from an open kitchen on Hessa Street, Al Barsha",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Grand Millennium"
   },
   {
    "id": "c0900000-0000-0000-0001-0002ee895b69",
@@ -1130,7 +1133,7 @@
    "osm_url": "https://www.openstreetmap.org/node/4486756688",
    "name": "Ibn Hamido",
    "category": "dinner",
-   "area": "Mall of the Emirates",
+   "area": "Al Barsha",
    "district": "Barsha & Dubai Hills",
    "cuisine": "Seafood",
    "latitude": 25.114018,
@@ -1144,7 +1147,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Egyptian-style seafood where you pick the fish and how it is cooked, in Al Barsha 1 by Mashreq Metro",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Mall of the Emirates"
   },
   {
    "id": "c0900000-0000-0000-0001-00008dafe6ce",
@@ -1152,7 +1156,7 @@
    "osm_url": "https://www.openstreetmap.org/node/2377115342",
    "name": "Lila Cafe",
    "category": "shisha",
-   "area": "Grand Millennium",
+   "area": "Dubai Media City",
    "district": "Barsha & Dubai Hills",
    "cuisine": "Restaurant",
    "latitude": 25.097017,
@@ -1166,7 +1170,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Arabic and Mediterranean dishes with coffee and shisha in Barsha Heights",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Grand Millennium"
   },
   {
    "id": "c0900000-0000-0000-0001-0002d9f955bb",
@@ -1306,7 +1311,7 @@
    "osm_url": "https://www.openstreetmap.org/node/5851403986",
    "name": "chatauri gali",
    "category": "dinner",
-   "area": "Mall of the Emirates",
+   "area": "Al Barsha",
    "district": "Barsha & Dubai Hills",
    "cuisine": "Indian",
    "latitude": 25.116299,
@@ -1320,7 +1325,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Vegetarian North Indian street food and sweets such as gol gappa and jalebi, behind Mall of the Emirates",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Mall of the Emirates"
   },
   {
    "id": "c0900000-0000-0000-0001-0001243d1669",
@@ -1482,7 +1488,7 @@
    "osm_url": "https://www.openstreetmap.org/node/4900332688",
    "name": "Harput Restaurant",
    "category": "dinner",
-   "area": "Mall of the Emirates",
+   "area": "Al Barsha",
    "district": "Barsha & Dubai Hills",
    "cuisine": "Turkish",
    "latitude": 25.11615,
@@ -1496,7 +1502,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Turkish kebabs, lahmacun and baklava near Mall of the Emirates, with outdoor seating",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Mall of the Emirates"
   },
   {
    "id": "c0900000-0000-0000-0001-00020197fd18",
@@ -1768,7 +1775,7 @@
    "osm_url": "https://www.openstreetmap.org/node/4900332690",
    "name": "The Royal Budha",
    "category": "dinner",
-   "area": "Mall of the Emirates",
+   "area": "Al Barsha",
    "district": "Barsha & Dubai Hills",
    "cuisine": "Thai",
    "latitude": 25.115951,
@@ -1782,7 +1789,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Thai menu of pad Thai and curries in a low-lit room under a large Buddha, at Holiday Inn Al Barsha",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Mall of the Emirates"
   },
   {
    "id": "c0900000-0000-0000-0001-0001116a3dd2",
@@ -1878,7 +1886,7 @@
    "osm_url": "https://www.openstreetmap.org/node/11113861610",
    "name": "Il Pastaio Dubai",
    "category": "dinner",
-   "area": "Al Habtoor City",
+   "area": "Business Bay",
    "district": "Business Bay",
    "cuisine": "Italian, pizza",
    "latitude": 25.180869,
@@ -1892,7 +1900,8 @@
    "proposed_vibe_source": "https://www.ilpastaiodubai.ae/",
    "approved": true,
    "vibe_final": "Sicilian-rooted Italian at Al Habtoor City with a lemon-tree terrace, Thursday pasta nights and aperitivo",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Al Habtoor City"
   },
   {
    "id": "c0900000-0000-0000-0001-00033e95b5d1",
@@ -1900,7 +1909,7 @@
    "osm_url": "https://www.openstreetmap.org/node/13934900689",
    "name": "Mordi",
    "category": "dinner",
-   "area": "The Oberoi",
+   "area": "Business Bay",
    "district": "Business Bay",
    "cuisine": "Pizza",
    "latitude": 25.184563,
@@ -1914,7 +1923,8 @@
    "proposed_vibe_source": "https://www.mordi.ae/",
    "approved": true,
    "vibe_final": "Roman pizza al taglio sold by weight at Peninsula One, Business Bay, made to share standing at the counter",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "The Oberoi"
   },
   {
    "id": "c0900000-0000-0000-0001-0001a1963401",
@@ -1966,7 +1976,7 @@
    "osm_url": "https://www.openstreetmap.org/node/6012093462",
    "name": "World Cut Steakhouse",
    "category": "dinner",
-   "area": "Al Habtoor City",
+   "area": "Business Bay",
    "district": "Business Bay",
    "cuisine": "Steak house",
    "latitude": 25.183249,
@@ -1980,7 +1990,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Steakhouse with 17 cuts of Australian and US beef, dark wood and jazz, at Habtoor Palace",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Al Habtoor City"
   },
   {
    "id": "c0900000-0000-0000-0001-0001b6de9dd2",
@@ -2010,7 +2021,7 @@
    "osm_url": "https://www.openstreetmap.org/node/6012052686",
    "name": "Namu",
    "category": "dinner",
-   "area": "Al Habtoor City",
+   "area": "Business Bay",
    "district": "Business Bay",
    "cuisine": "Restaurant",
    "latitude": 25.184431,
@@ -2024,7 +2035,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Korean-Japanese live-station dining on the 31st floor of V Hotel, Al Habtoor City, with canal and Gulf views",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Al Habtoor City"
   },
   {
    "id": "c0900000-0000-0000-0001-00018440d1cc",
@@ -2032,7 +2044,7 @@
    "osm_url": "https://www.openstreetmap.org/node/6513807820",
    "name": "Tangerine",
    "category": "dinner",
-   "area": "The Oberoi",
+   "area": "Business Bay",
    "district": "Business Bay",
    "cuisine": "Asian, thai",
    "latitude": 25.189287,
@@ -2046,7 +2058,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Thai and pan-Asian dishes from Singapore, Malay and Indonesian kitchens at Bay Avenue in Business Bay",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "The Oberoi"
   },
   {
    "id": "c0900000-0000-0000-0001-00033ec36dac",
@@ -2098,7 +2111,7 @@
    "osm_url": "https://www.openstreetmap.org/node/6512256303",
    "name": "Tong Thai",
    "category": "dinner",
-   "area": "JW Marriott Marquis",
+   "area": "Business Bay",
    "district": "Business Bay",
    "cuisine": "Thai",
    "latitude": 25.185973,
@@ -2112,7 +2125,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Thai classics such as tom yum and pad thai at dinner in the JW Marriott Marquis, Business Bay",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "JW Marriott Marquis"
   },
   {
    "id": "c0900000-0000-0000-0001-00030204aa11",
@@ -2164,7 +2178,7 @@
    "osm_url": "https://www.openstreetmap.org/node/6513808394",
    "name": "Farsi",
    "category": "dinner",
-   "area": "The Oberoi",
+   "area": "Business Bay",
    "district": "Business Bay",
    "cuisine": "Persian",
    "latitude": 25.18921,
@@ -2178,7 +2192,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Iranian kebabs and Persian dishes from an Iranian chef on Bay Avenue in Business Bay",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "The Oberoi"
   },
   {
    "id": "c0900000-0000-0000-0001-000293362b6d",
@@ -2186,7 +2201,7 @@
    "osm_url": "https://www.openstreetmap.org/node/11059735405",
    "name": "Izakaya",
    "category": "dinner",
-   "area": "JW Marriott Marquis",
+   "area": "Business Bay",
    "district": "Business Bay",
    "cuisine": "Japanese, sushi",
    "latitude": 25.185947,
@@ -2200,7 +2215,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Japanese restaurant inside the JW Marriott Marquis in Business Bay, with sushi and izakaya-style dishes",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "JW Marriott Marquis"
   },
   {
    "id": "c0900000-0000-0000-0001-000166588e64",
@@ -2208,7 +2224,7 @@
    "osm_url": "https://www.openstreetmap.org/node/6012046948",
    "name": "Le Patio",
    "category": "dinner",
-   "area": "Al Habtoor City",
+   "area": "Business Bay",
    "district": "Business Bay",
    "cuisine": "Restaurant",
    "latitude": 25.184282,
@@ -2222,7 +2238,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Open-air courtyard restaurant and lounge at Habtoor Palace with Middle Eastern dishes and shisha",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Al Habtoor City"
   },
   {
    "id": "c0900000-0000-0000-0001-0001cc224e49",
@@ -2318,7 +2335,7 @@
    "osm_url": "https://www.openstreetmap.org/node/11866622444",
    "name": "Kimura-ya",
    "category": "dinner",
-   "area": "The Oberoi",
+   "area": "Business Bay",
    "district": "Business Bay",
    "cuisine": "Restaurant",
    "latitude": 25.185858,
@@ -2332,7 +2349,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Izakaya-style Japanese at the Anantara Downtown with sushi, yakitori, wagyu and sake, open until 1am",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "The Oberoi"
   },
   {
    "id": "c0900000-0000-0000-0001-00016658db61",
@@ -2340,7 +2358,7 @@
    "osm_url": "https://www.openstreetmap.org/node/6012066657",
    "name": "Ribs & Brews",
    "category": "dinner",
-   "area": "Al Habtoor City",
+   "area": "Business Bay",
    "district": "Business Bay",
    "cuisine": "Restaurant",
    "latitude": 25.184432,
@@ -2354,7 +2372,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "American gastropub with ribs, live music, TV sports, a golf simulator, darts and pool in Al Habtoor City",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Al Habtoor City"
   },
   {
    "id": "c0900000-0000-0000-0001-0000fb42f423",
@@ -2384,7 +2403,7 @@
    "osm_url": "https://www.openstreetmap.org/node/6012038463",
    "name": "BQ - French Kitchen & Bar",
    "category": "dinner",
-   "area": "Al Habtoor City",
+   "area": "Business Bay",
    "district": "Business Bay",
    "cuisine": "French",
    "latitude": 25.183594,
@@ -2398,7 +2417,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "French Euro-Mediterranean bistro at Habtoor Palace, with a patisserie next door and Thursday French nights",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Al Habtoor City"
   },
   {
    "id": "c0900000-0000-0000-0001-00025d18d813",
@@ -3066,7 +3086,7 @@
    "osm_url": "https://www.openstreetmap.org/node/3722050018",
    "name": "Alfie's",
    "category": "dinner",
-   "area": "Emirates Towers",
+   "area": "Trade Centre",
    "district": "Downtown & DIFC",
    "cuisine": "British",
    "latitude": 25.217492,
@@ -3080,7 +3100,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "British menu in a Dunhill-linked restaurant with leather banquettes, a bar and a lounge at Emirates Towers",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Emirates Towers"
   },
   {
    "id": "c0900000-0000-0000-0001-00020fddf31f",
@@ -3176,7 +3197,7 @@
    "osm_url": "https://www.openstreetmap.org/node/13422023357",
    "name": "Rowley's",
    "category": "dinner",
-   "area": "Address Sky View",
+   "area": "Downtown Dubai",
    "district": "Downtown & DIFC",
    "cuisine": "Steak house",
    "latitude": 25.204814,
@@ -3190,7 +3211,8 @@
    "proposed_vibe_source": "https://rowleysrestaurants.com/",
    "approved": true,
    "vibe_final": "Steak with unlimited frites in DIFC's Central Park Towers, with a Burj Khalifa-view terrace and speakeasy",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Address Sky View"
   },
   {
    "id": "c0900000-0000-0000-0001-0000ddd9e28e",
@@ -3484,7 +3506,7 @@
    "osm_url": "https://www.openstreetmap.org/node/3722129858",
    "name": "Shang Palace",
    "category": "dinner",
-   "area": "Address Sky View",
+   "area": "City Walk",
    "district": "Downtown & DIFC",
    "cuisine": "Chinese",
    "latitude": 25.207943,
@@ -3498,7 +3520,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Cantonese and regional Chinese from Sichuan to Huaiyang at the Shangri-La, Sheikh Zayed Road, Michelin-listed",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Address Sky View"
   },
   {
    "id": "c0900000-0000-0000-0001-00011147d1a7",
@@ -3594,7 +3617,7 @@
    "osm_url": "https://www.openstreetmap.org/node/9488977608",
    "name": "Lopo Pizzeria",
    "category": "dinner",
-   "area": "Address Dubai Mall",
+   "area": "Downtown Dubai",
    "district": "Downtown & DIFC",
    "cuisine": "Restaurant",
    "latitude": 25.189848,
@@ -3608,7 +3631,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Slow-fermented, stone-baked pizza and Italian comfort food at a Burj Views pizzeria with shared tables",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Address Dubai Mall"
   },
   {
    "id": "c0900000-0000-0000-0001-00017fe9d48a",
@@ -3792,7 +3816,7 @@
    "osm_url": "https://www.openstreetmap.org/node/11835509269",
    "name": "Qartuli Authentic Georgian",
    "category": "dinner",
-   "area": "Address Dubai Mall",
+   "area": "Downtown Dubai",
    "district": "Downtown & DIFC",
    "cuisine": "Georgian",
    "latitude": 25.194776,
@@ -3806,7 +3830,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Homestyle Georgian cooking in a 19th-century-styled room at Dunya Tower, opposite Address Fountain Views",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Address Dubai Mall"
   },
   {
    "id": "c0900000-0000-0000-0001-00014497f3c1",
@@ -3946,7 +3971,7 @@
    "osm_url": "https://www.openstreetmap.org/node/8676557020",
    "name": "Beirut Khanum",
    "category": "dinner",
-   "area": "Address Dubai Mall",
+   "area": "Downtown Dubai",
    "district": "Downtown & DIFC",
    "cuisine": "Lebanese",
    "latitude": 25.191806,
@@ -3960,7 +3985,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Lebanese restaurant on Mohammed Bin Rashid Boulevard near Burj Khalifa, open until 3 am",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Address Dubai Mall"
   },
   {
    "id": "c0900000-0000-0000-0001-00015afc0d12",
@@ -3990,7 +4016,7 @@
    "osm_url": "https://www.openstreetmap.org/node/5445777821",
    "name": "Em Sherif",
    "category": "dinner",
-   "area": "Address Dubai Mall",
+   "area": "Downtown Dubai",
    "district": "Downtown & DIFC",
    "cuisine": "Lebanese",
    "latitude": 25.194815,
@@ -4004,7 +4030,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Lebanese set-menu feasts with live music at The Address Downtown, overlooking the Burj Khalifa",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Address Dubai Mall"
   },
   {
    "id": "c0900000-0000-0000-0001-0000fb1753c5",
@@ -5684,7 +5711,7 @@
    "osm_url": "https://www.openstreetmap.org/node/10904896768",
    "name": "Grand Grill Steakhouse",
    "category": "dinner",
-   "area": "Le Royal Meridien",
+   "area": "Dubai Marina",
    "district": "Marina & JBR",
    "cuisine": "Steak house",
    "latitude": 25.086144,
@@ -5698,7 +5725,8 @@
    "proposed_vibe_source": "https://www.thegrandgrillsteakhouse.com/",
    "approved": true,
    "vibe_final": "South African-style steakhouse at Al Habtoor Grand in Dubai Marina, with in-house aged cuts and a terrace",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Le Royal Meridien"
   },
   {
    "id": "c0900000-0000-0000-0001-000145b34a88",
@@ -5882,7 +5910,7 @@
    "osm_url": "https://www.openstreetmap.org/node/10904989464",
    "name": "stefanos",
    "category": "dinner",
-   "area": "Le Royal Meridien",
+   "area": "Dubai Marina",
    "district": "Marina & JBR",
    "cuisine": "Italian",
    "latitude": 25.083507,
@@ -5896,7 +5924,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Pasta, pizza and shisha on Dubai Marina Walk, open from 2pm until 2am",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Le Royal Meridien"
   },
   {
    "id": "c0900000-0000-0000-0001-0001b6de00ef",
@@ -6036,7 +6065,7 @@
    "osm_url": "https://www.openstreetmap.org/node/9687496616",
    "name": "Dinner In The Sky",
    "category": "dinner",
-   "area": "Le Royal Meridien",
+   "area": "Dubai Marina",
    "district": "Marina & JBR",
    "cuisine": "Restaurant",
    "latitude": 25.088848,
@@ -6050,7 +6079,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Fine-dining lunches and dinners at a table hung 50 metres up from a crane at Skydive Dubai in Al Sufouh",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Le Royal Meridien"
   },
   {
    "id": "c0900000-0000-0000-0001-0001e0ba4af1",
@@ -6344,7 +6374,7 @@
    "osm_url": "https://www.openstreetmap.org/node/5462796624",
    "name": "Zengo",
    "category": "dinner",
-   "area": "Le Royal Meridien",
+   "area": "Dubai Marina",
    "district": "Marina & JBR",
    "cuisine": "Asian",
    "latitude": 25.084816,
@@ -6358,7 +6388,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Pan-Asian and Latin menu with robata grill and sushi counter, at Le Royal Meridien Marina",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Le Royal Meridien"
   },
   {
    "id": "c0900000-0000-0000-0001-000297d11f0b",
@@ -6916,7 +6947,7 @@
    "osm_url": "https://www.openstreetmap.org/node/1208606979",
    "name": "Al Khayma",
    "category": "dinner",
-   "area": "Le Royal Meridien",
+   "area": "Dubai Marina",
    "district": "Marina & JBR",
    "cuisine": "Arab",
    "latitude": 25.085506,
@@ -6930,7 +6961,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Mezze and Lebanese grills in a majlis-tent setting at Le Royal Meridien, with weekend live music",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Le Royal Meridien"
   },
   {
    "id": "c0900000-0000-0000-0001-0000f6793d7d",
@@ -7378,7 +7410,7 @@
    "osm_url": "https://www.openstreetmap.org/node/10273331287",
    "name": "Barfly by Buddha-Bar Dubai",
    "category": "vibes",
-   "area": "One&Only Royal Mirage",
+   "area": "Palm Jumeirah",
    "district": "The Palm",
    "cuisine": "International, asian fusion",
    "latitude": 25.105022,
@@ -7392,7 +7424,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Paris-born supper club at the Hilton Dubai Palm Jumeirah with Asian-fusion plates, open until 2am on weekends",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "One&Only Royal Mirage"
   },
   {
    "id": "c0900000-0000-0000-0001-00027ffde37e",
@@ -7422,7 +7455,7 @@
    "osm_url": "https://www.openstreetmap.org/node/12551489284",
    "name": "En Fuengo",
    "category": "dinner",
-   "area": "Atlantis",
+   "area": "Palm Jumeirah",
    "district": "The Palm",
    "cuisine": "Latin american",
    "latitude": 25.131514,
@@ -7436,7 +7469,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "South American grill at Atlantis The Palm with live music, dancers and a Saturday brunch",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Atlantis"
   },
   {
    "id": "c0900000-0000-0000-0001-000211b2464d",
@@ -7686,7 +7720,7 @@
    "osm_url": "https://www.openstreetmap.org/node/7030673656",
    "name": "Wavehouse",
    "category": "games",
-   "area": "Atlantis",
+   "area": "Palm Jumeirah",
    "district": "The Palm",
    "cuisine": "Restaurant",
    "latitude": 25.131821,
@@ -7700,7 +7734,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Restaurant, bar, bowling, arcade and surf machine at Atlantis The Palm, with a terrace and live music",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Atlantis"
   },
   {
    "id": "c0900000-0000-0000-0001-000056c68c0a",

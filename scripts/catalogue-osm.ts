@@ -37,7 +37,7 @@ import { cleanVibe, siteMeta, USER_AGENT } from "./catalogue-web.ts";
 const root = path.resolve(import.meta.dirname, "..");
 const BATCHES: Record<Batch, { files: string[]; sql: string; title: string }> = {
   "089": { files: ["data/catalogue-089.json"], sql: "supabase/migration-089-catalogue-growth.sql", title: "catalogue growth from OpenStreetMap, picked by hand" },
-  "090": { files: [1, 2, 3, 4].map((n) => `data/catalogue-090-part${n}.json`), sql: "supabase/migration-090-catalogue-growth-2.sql", title: "catalogue growth 2, the wider districts, picked by hand" },
+  "090": { files: [1, 2, 3, 4].map((n) => `data/catalogue-090-part${n}.json`), sql: "supabase/migration-095-catalogue-growth-2.sql", title: "catalogue growth 2, the wider districts, picked by hand" },
 };
 const DATA = path.join(root, BATCHES["089"].files[0]);
 const REVIEW_SIZE = 300;
@@ -192,7 +192,7 @@ async function pool() {
   console.log("by district", count(rows, (r) => r.district));
 }
 
-const header = (batch: Batch) => `-- Migration ${batch}: ${BATCHES[batch].title}.
+const header = (batch: Batch) => `-- Migration ${BATCHES[batch].sql.match(/migration-(\d+)/)![1]}: ${BATCHES[batch].title}.
 --
 -- STAGED -- generated, not applied anywhere. Apply only with the owner's
 -- approval (after the security review), then record it in worklog.md the same day.

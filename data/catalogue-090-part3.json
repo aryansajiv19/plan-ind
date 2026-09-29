@@ -1218,7 +1218,7 @@
    "osm_url": "https://www.openstreetmap.org/node/11262195415",
    "name": "Unwind Speciality Boardgame Cafe",
    "category": "games",
-   "area": "Grand Millennium",
+   "area": "Al Barsha",
    "district": "Barsha & Dubai Hills",
    "cuisine": "Cafe",
    "latitude": 25.08888,
@@ -1232,7 +1232,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Board game cafe with 800-plus games, game masters who teach play, specialty coffee and sandwiches",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Grand Millennium"
   },
   {
    "id": "c0900000-0000-0000-0001-0002a19ba2c8",
@@ -1284,7 +1285,7 @@
    "osm_url": "https://www.openstreetmap.org/node/5247758422",
    "name": "Arrows and Sparrows Cafe",
    "category": "cafe",
-   "area": "The Lakes",
+   "area": "Dubai Media City",
    "district": "Barsha & Dubai Hills",
    "cuisine": "Cafe",
    "latitude": 25.095995,
@@ -1298,7 +1299,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Breakfast plates, salads and organic coffee from the Friends' Avenue founders, with outdoor seating",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "The Lakes"
   },
   {
    "id": "c0900000-0000-0000-0001-00032aade00a",
@@ -1306,7 +1308,7 @@
    "osm_url": "https://www.openstreetmap.org/node/13600940042",
    "name": "Casa Alma Café",
    "category": "cafe",
-   "area": "Mall of the Emirates",
+   "area": "Al Barsha",
    "district": "Barsha & Dubai Hills",
    "cuisine": "Portuguese, pastry",
    "latitude": 25.126451,
@@ -1320,7 +1322,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Portuguese bakery and cafe in Gold & Diamond Park serving pastel de nata and specialty coffee",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Mall of the Emirates"
   },
   {
    "id": "c0900000-0000-0000-0001-0002dd35b63f",
@@ -1328,7 +1331,7 @@
    "osm_url": "https://www.openstreetmap.org/node/12301219391",
    "name": "Boon Coffee Roasters",
    "category": "cafe",
-   "area": "The Lakes",
+   "area": "Dubai Media City",
    "district": "Barsha & Dubai Hills",
    "cuisine": "Coffee shop",
    "latitude": 25.102439,
@@ -1342,7 +1345,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Woman-owned roastery pouring organic single-origin coffee roasted in-house",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "The Lakes"
   },
   {
    "id": "c0900000-0000-0000-0001-0001f05d32b4",
@@ -1438,7 +1442,7 @@
    "osm_url": "https://www.openstreetmap.org/node/4834918662",
    "name": "Bert's Cafe",
    "category": "cafe",
-   "area": "The Lakes",
+   "area": "Dubai Media City",
    "district": "Barsha & Dubai Hills",
    "cuisine": "Cafe",
    "latitude": 25.093391,
@@ -1452,7 +1456,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Long-running French-style cafe in The Greens for healthy continental plates, salads and fresh drinks",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "The Lakes"
   },
   {
    "id": "c0900000-0000-0000-0001-00020197fd16",
@@ -1636,7 +1641,7 @@
    "osm_url": "https://www.openstreetmap.org/node/11621602913",
    "name": "The Grey",
    "category": "cafe",
-   "area": "Al Habtoor City",
+   "area": "Jumeirah Beach",
    "district": "Business Bay",
    "cuisine": "Coffee shop",
    "latitude": 25.183491,
@@ -1650,7 +1655,8 @@
    "proposed_vibe_source": "https://the-grey.co/",
    "approved": true,
    "vibe_final": "Coffee and matcha lounge on Al Wasl, run as a cultural space with an editorial feel; open late at weekends",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Al Habtoor City"
   },
   {
    "id": "c0900000-0000-0000-0001-00033e5407f2",
@@ -1658,7 +1664,7 @@
    "osm_url": "https://www.openstreetmap.org/node/13930596338",
    "name": "Halfcup",
    "category": "cafe",
-   "area": "The Oberoi",
+   "area": "Business Bay",
    "district": "Business Bay",
    "cuisine": "Coffee shop",
    "latitude": 25.183445,
@@ -1672,7 +1678,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "London cafe's Business Bay outpost at Peninsula 5 for specialty coffee, brunch plates and fresh bakes",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "The Oberoi"
   },
   {
    "id": "c0900000-0000-0000-0001-00033ec3e50a",
@@ -1702,7 +1709,7 @@
    "osm_url": "https://www.openstreetmap.org/node/8541294770",
    "name": "Pechka Cafe and Bakery",
    "category": "cafe",
-   "area": "The Oberoi",
+   "area": "Business Bay",
    "district": "Business Bay",
    "cuisine": "Coffee shop",
    "latitude": 25.181518,
@@ -1716,7 +1723,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Russian cafe-bakery at Churchill Towers serving pastries, crepes, dumplings and breakfast",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "The Oberoi"
   },
   {
    "id": "c0900000-0000-0000-0001-0002d642dac5",
@@ -1746,7 +1754,7 @@
    "osm_url": "https://www.openstreetmap.org/node/3825891566",
    "name": "The Health Spot Cafe",
    "category": "cafe",
-   "area": "The Oberoi",
+   "area": "Business Bay",
    "district": "Business Bay",
    "cuisine": "Satvik, juice bar",
    "latitude": 25.18502,
@@ -1760,7 +1768,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Health-focused cafe on the Business Bay canal walk with specialty coffee and wholesome plates",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "The Oberoi"
   },
   {
    "id": "c0900000-0000-0000-0001-0001a90cff24",
@@ -1790,7 +1799,7 @@
    "osm_url": "https://www.openstreetmap.org/node/10120829758",
    "name": "Fuze Cafe",
    "category": "cafe",
-   "area": "Al Habtoor City",
+   "area": "Business Bay",
    "district": "Business Bay",
    "cuisine": "Cafe",
    "latitude": 25.183472,
@@ -1804,7 +1813,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Specialty coffee cafe on the Al Habtoor City boulevard, serving breakfast through dinner",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Al Habtoor City"
   },
   {
    "id": "c0900000-0000-0000-0001-0002afa544e6",
@@ -4232,7 +4242,7 @@
    "osm_url": "https://www.openstreetmap.org/node/11012436567",
    "name": "L'eto",
    "category": "cafe",
-   "area": "Address Dubai Mall",
+   "area": "Downtown Dubai",
    "district": "Downtown & DIFC",
    "cuisine": "Cafe",
    "latitude": 25.197097,
@@ -4246,7 +4256,8 @@
    "proposed_vibe_source": "https://letocaffe.com/",
    "approved": true,
    "vibe_final": "London cafe in Dubai Mall known for a daily-changing counter of house-made cakes and breakfast",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Address Dubai Mall"
   },
   {
    "id": "c0900000-0000-0000-0001-000322bdbd15",
@@ -4298,7 +4309,7 @@
    "osm_url": "https://www.openstreetmap.org/node/8318954035",
    "name": "TEN 11 Coffee Boutique",
    "category": "cafe",
-   "area": "Address Dubai Mall",
+   "area": "Downtown Dubai",
    "district": "Downtown & DIFC",
    "cuisine": "Cafe",
    "latitude": 25.197403,
@@ -4312,7 +4323,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Abu Dhabi-born coffee boutique on Dubai Mall's Fashion Avenue: specialty coffee, homemade dishes, desserts",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Address Dubai Mall"
   },
   {
    "id": "c0900000-0000-0000-0001-00034c852df5",
@@ -4606,7 +4618,7 @@
    "osm_url": "https://www.openstreetmap.org/node/5070646322",
    "name": "The Kana Cafe",
    "category": "cafe",
-   "area": "Address Dubai Mall",
+   "area": "Downtown Dubai",
    "district": "Downtown & DIFC",
    "cuisine": "Cafe",
    "latitude": 25.189994,
@@ -4620,7 +4632,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Homegrown all-day cafe in Downtown, open since 2008, with breakfast plates, Middle Eastern dishes and shisha",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "Address Dubai Mall"
   },
   {
    "id": "c0900000-0000-0000-0001-000124d6db11",
@@ -6916,7 +6929,7 @@
    "osm_url": "https://www.openstreetmap.org/node/12252537024",
    "name": "Cogito Coffee",
    "category": "cafe",
-   "area": "One&Only Royal Mirage",
+   "area": "Dubai Media City",
    "district": "The Palm",
    "cuisine": "Cafe",
    "latitude": 25.092961,
@@ -6930,7 +6943,8 @@
    "proposed_vibe_source": null,
    "approved": true,
    "vibe_final": "Media City coffee bar in the CNN building, focused on espresso and open 7am to 5pm",
-   "reject_reason": null
+   "reject_reason": null,
+   "area_label_from": "One&Only Royal Mirage"
   },
   {
    "id": "c0900000-0000-0000-0001-00023ff1687c",
