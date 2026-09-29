@@ -16,7 +16,7 @@ import KnowBeforeYouGo from "@/components/KnowBeforeYouGo";
 import { FACT_COLUMNS, reopensLabel } from "@/lib/venue-facts";
 import PlaceSaveToBoard from "@/components/account/PlaceSaveToBoard";
 import OpenStatus from "@/components/OpenStatus";
-import VenueMap from "@/components/VenueMap";
+import DubaiMiniMap from "@/components/map/DubaiMiniMap";
 import { googleMapsUrl } from "@/lib/directions";
 
 // The venue detail page — SPECS.md §6, previously unbuilt (12a). Scoped down
@@ -133,7 +133,7 @@ export default async function PlacePage({
         <section className="mt-8" aria-labelledby="place-where">
           <h2 id="place-where" className="place-subhead">Where</h2>
           <p className="mt-1 text-sm">{spot.address ?? `${spot.area}, Dubai`}</p>
-          <VenueMap venue={spot} />
+          <DubaiMiniMap venue={spot} />
         </section>
 
         {/* SPECS.md §10.1: the direct-plan entry point. Signed-in only —

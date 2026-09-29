@@ -8,7 +8,6 @@ import {
   isDubaiRushHour,
   uberUrl,
   googleMapsUrl,
-  mapEmbedUrl,
 } from "../lib/directions.ts";
 import { distanceKm } from "../lib/dubai-areas.ts";
 
@@ -31,15 +30,6 @@ test("drive estimate stays out where it would mislead", () => {
 test("distanceKm: Marina to DIFC is about 20 km straight line", () => {
   const km = distanceKm({ latitude: 25.0805, longitude: 55.1403 }, { latitude: 25.2136, longitude: 55.2821 });
   assert.ok(km > 19 && km < 21, String(km));
-});
-
-test("embed URL: keyless, coordinates when known, google.com host only", () => {
-  const url = new URL(mapEmbedUrl(zuma));
-  assert.equal(url.origin, "https://www.google.com"); // proxy.ts frame-src
-  assert.equal(url.searchParams.get("q"), "25.2136,55.2821");
-  assert.equal(url.searchParams.get("output"), "embed");
-  assert.equal(url.searchParams.get("key"), null);
-  assert.equal(new URL(mapEmbedUrl(noCoords)).searchParams.get("q"), "Ravi Restaurant, Al Satwa, Dubai");
 });
 
 test("deep links fall back to the name, and to the address when there is one", () => {

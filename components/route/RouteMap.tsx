@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import VenueMap from "@/components/VenueMap";
+import DubaiMiniMap from "@/components/map/DubaiMiniMap";
 import { leaveBy, LEAVE_BY_SPARE_MIN, type MappableVenue } from "@/lib/directions";
 import type { Coordinates } from "@/lib/dubai-areas";
 import { loadMaps, onMapsAuthFailure, type MapsApi, type MapsMap, type MapsMarker, type MapsOverlay, type RoutesRoute } from "@/lib/maps-loader";
@@ -166,7 +166,7 @@ export default function RouteMap({ venue, planOrigin, eventTime = null }: { venu
             <ol className="route-map__steps">{fallback.steps.map((step) => <li key={step}>{step}</li>)}</ol>
           )}
           {fallback?.driveMin != null && <p className="route-map__total">≈ {fallback.driveMin} min drive (estimate)</p>}
-          <VenueMap venue={venue} />
+          <DubaiMiniMap venue={venue} />
         </>
       )}
     </section>

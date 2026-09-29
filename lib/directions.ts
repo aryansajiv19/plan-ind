@@ -53,21 +53,6 @@ export function appleMapsUrl(venue: MappableVenue): string {
   return `https://maps.apple.com/?${params}`;
 }
 
-/**
- * The in-app map's iframe src. The one place that knows the embed URL.
- *
- * Keyless today: the legacy `output=embed` form. When a Maps Embed API key
- * exists, the swap is this return line, e.g.
- *   `https://www.google.com/maps/embed/v1/place?${new URLSearchParams({ key, q: query, zoom: "15" })}`
- * Same host, so proxy.ts's frame-src does not change. Restrict that key by
- * HTTP referrer to the site ORIGIN: VenueMap sends `strict-origin`, never the
- * path (a plan page's path is its id).
- */
-export function mapEmbedUrl(venue: MappableVenue): string {
-  const query = hasCoords(venue) ? `${venue.latitude},${venue.longitude}` : `${venue.name}, ${venue.area}, Dubai`;
-  return `https://www.google.com/maps?${new URLSearchParams({ q: query, z: "15", output: "embed" })}`;
-}
-
 // ── Get there (P16): one tap from wherever the viewer is ─────────────────
 
 export type TravelMode = "driving" | "transit" | "walking";
