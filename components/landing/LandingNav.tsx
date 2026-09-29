@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { APP_VIEWS, VIEW_LABELS } from "@/lib/home-views";
+import { TAB_VIEWS, VIEW_LABELS } from "@/lib/home-views";
 import { dubaiMinuteOfDay } from "@/lib/dubai-phase";
 import { useMinuteClock } from "@/hooks/use-minute-clock";
 
@@ -26,7 +26,7 @@ export default function LandingNav({ signedIn = false }: { signedIn?: boolean })
       </Link>
 
       <nav className="home-app-tabs" aria-label={signedIn ? "App" : "Explore the app with sample data"}>
-        {APP_VIEWS.map((view) => (
+        {TAB_VIEWS.map((view) => (
           <Link key={view} href={signedIn ? `/home?view=${view}` : `/demo?view=${view}`} className="home-app-tab">
             {VIEW_LABELS[view]}
           </Link>

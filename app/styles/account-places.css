@@ -775,16 +775,43 @@
   background: var(--primary-fill);
   color: var(--primary-ink);
 }
-.saved-folders__group {
-  margin-top: 1rem;
-  padding: 1rem 1.1rem;
-  border: 1px solid var(--color-line);
-  border-radius: var(--radius-panel);
-  background: var(--color-card);
-  transition: border-color var(--dur-state);
+/* Folders are little folders: a grid of cards, each with a tab on top and
+   a warm desert wash (brown, navy, sand, cycling), lifting on hover. */
+.saved-folders > form ~ .saved-folders__group:first-of-type {
+  margin-top: 1.4rem;
 }
-.saved-folders__group:hover {
-  border-color: var(--color-punch);
+.saved-folders__group {
+  position: relative;
+  margin-top: 1.6rem;
+  padding: 1.1rem 1.1rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--color-punch) 35%, transparent);
+  border-radius: 4px var(--radius-panel) var(--radius-panel) var(--radius-panel);
+  background: linear-gradient(160deg, rgba(112, 65, 33, 0.55), rgba(23, 64, 80, 0.55));
+  transition: transform var(--dur-state) var(--ease-settle), box-shadow var(--dur-state) var(--ease-settle);
+}
+.saved-folders__group::before {
+  content: "";
+  position: absolute;
+  top: -0.7rem;
+  left: -1px;
+  width: 38%;
+  height: 0.8rem;
+  border: 1px solid color-mix(in srgb, var(--color-punch) 35%, transparent);
+  border-bottom: 0;
+  border-radius: var(--radius-control) var(--radius-control) 0 0;
+  background: inherit;
+}
+.saved-folders__group:nth-of-type(3n + 2) {
+  background: linear-gradient(160deg, rgba(23, 64, 80, 0.7), rgba(12, 101, 124, 0.35));
+}
+.saved-folders__group:nth-of-type(3n + 3) {
+  background: linear-gradient(160deg, rgba(206, 153, 99, 0.35), rgba(68, 40, 22, 0.6));
+}
+@media (hover: hover) and (pointer: fine) {
+  .saved-folders__group:hover {
+    transform: translateY(-3px) rotate(-0.3deg);
+    box-shadow: var(--elevation-card);
+  }
 }
 .saved-folders__group h3 {
   display: flex;

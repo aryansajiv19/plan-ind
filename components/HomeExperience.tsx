@@ -15,7 +15,7 @@ import HomeHero from "@/components/home/HomeHero";
 import LandingNav from "@/components/landing/LandingNav";
 import HowItWorks from "@/components/landing/HowItWorks";
 import YourPlans, { type PlanSummary } from "@/components/home/YourPlans";
-import { APP_VIEWS, VIEW_LABELS, WALL_SIZE, viewFromParam, type AppView } from "@/lib/home-views";
+import { TAB_VIEWS, VIEW_LABELS, WALL_SIZE, viewFromParam, type AppView } from "@/lib/home-views";
 import NearViewport from "@/components/home/NearViewport";
 import { NoGooglePhotos } from "@/components/VenuePhoto";
 import { greetingFor } from "@/lib/right-now";
@@ -222,9 +222,9 @@ export default function HomeExperience({
     swipeStartX.current = null;
     const end = event.changedTouches[0]?.clientX;
     if (start === null || end === undefined || Math.abs(end - start) < 64) return;
-    const index = APP_VIEWS.indexOf(viewRef.current);
+    const index = TAB_VIEWS.indexOf(viewRef.current);
     const nextIndex = end < start ? index + 1 : index - 1;
-    if (nextIndex >= 0 && nextIndex < APP_VIEWS.length) showView(APP_VIEWS[nextIndex]);
+    if (nextIndex >= 0 && nextIndex < TAB_VIEWS.length) showView(TAB_VIEWS[nextIndex]);
   }
 
 
@@ -241,7 +241,7 @@ export default function HomeExperience({
         </a>
 
         <nav className="home-app-tabs" aria-label="Main app navigation">
-          {APP_VIEWS.map((view) => (
+          {TAB_VIEWS.map((view) => (
             <button
               key={view}
               type="button"

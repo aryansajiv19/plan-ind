@@ -2,12 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import PlaceLinkImporter from "@/components/PlaceLinkImporter";
-import FoldersSection from "@/components/account/FoldersSection";
 import type { useSuggestions } from "@/hooks/use-suggestions";
 import PlaceCard from "@/components/account/PlaceCard";
 import ExploreConstellation from "@/components/account/ExploreConstellation";
-import MoodboardsSection from "@/components/account/MoodboardsSection";
 import type { MoodboardsState } from "@/components/account/useMoodboards";
 import { placePlanPrefill, type PlanPrefill } from "@/lib/board-plan";
 import { CATEGORIES } from "@/components/categoryGroups";
@@ -115,7 +112,6 @@ export function useDiscoverSearch(spots: Spot[], age: number) {
 }
 
 export default function DiscoverTab({
-  personId,
   suggested,
   spots,
   search,
@@ -129,7 +125,6 @@ export default function DiscoverTab({
   age: number;
   onPlanFromBoard: (prefill: PlanPrefill) => void;
   suggested: ReturnType<typeof useSuggestions>;
-  personId: string | null;
 }) {
   const { query, setQuery, placeFilter, setPlaceFilter, categories, visiblePlaces, searchFailed } = search;
   const [layout, setLayout] = useState<"grid" | "map">("grid");
@@ -140,8 +135,6 @@ export default function DiscoverTab({
         <div><h1 id="discover-title">Places worth considering.</h1></div>
         <p>The catalogue a plan deals from. Search it, then start a vote on anything that fits tonight.</p>
       </header>
-
-      {personId && <FoldersSection personId={personId} />}
 
       {suggested.suggestions.length > 0 && (
         <section className="discover-suggested" aria-labelledby="suggested-title">
@@ -156,10 +149,6 @@ export default function DiscoverTab({
           </ul>
         </section>
       )}
-
-      <MoodboardsSection boards={boards} age={age} onPlanFromBoard={onPlanFromBoard} />
-
-      <PlaceLinkImporter />
 
       <div className="demo-discover-tools">
         <label><span>Search places</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Area, place or category" /></label>

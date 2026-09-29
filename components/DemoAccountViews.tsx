@@ -10,7 +10,7 @@ import { categoryLabel, categoryMeta } from "@/lib/categories";
 import { initialsOf } from "@/lib/avatar";
 import { friendStats, visitStats } from "@/components/demo/demoStats";
 
-type AccountView = "discover" | "been" | "friends" | "profile";
+type AccountView = "discover" | "saved" | "been" | "friends" | "profile";
 
 const PLACES = [
   {
@@ -189,6 +189,19 @@ export default function DemoAccountViews({
       : collection));
   }
 
+  if (view === "saved") {
+    return (
+      <section className="demo-view saved-view" aria-labelledby="saved-title">
+        <header className="demo-view__header">
+          <div><h1 id="saved-title">Saved.</h1></div>
+          <p>Your folders, boards and saved links. Keep a place now, plan it later.</p>
+        </header>
+        <DemoMoodboards onPlan={onStartPlan} />
+        <PlaceLinkImporter demoMode />
+      </section>
+    );
+  }
+
   if (view === "discover") {
     return (
       <section className="demo-view" aria-labelledby="discover-title">
@@ -196,10 +209,6 @@ export default function DemoAccountViews({
           <div><h1 id="discover-title">Places worth considering.</h1></div>
           <p>Real context from your circle, alongside the details that decide whether a place works tonight.</p>
         </header>
-
-        <PlaceLinkImporter demoMode />
-
-        <DemoMoodboards onPlan={onStartPlan} />
 
         <div className="demo-discover-tools">
           <label><span>Search places</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Area, place or category" /></label>

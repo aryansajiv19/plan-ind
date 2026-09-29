@@ -12,6 +12,7 @@
 import { useSuggestions } from "@/hooks/use-suggestions";
 import DiscoverTab, { useDiscoverSearch } from "@/components/account/DiscoverTab";
 import BeenTab from "@/components/account/BeenTab";
+import SavedTab from "@/components/account/SavedTab";
 import useBeenCollections from "@/components/account/useBeenCollections";
 import FriendsTab from "@/components/account/FriendsTab";
 import ProfileTab from "@/components/account/ProfileTab";
@@ -27,7 +28,7 @@ import type {
   WrappedSummaryError,
 } from "@/lib/types";
 
-type AccountView = "discover" | "been" | "friends" | "profile";
+type AccountView = "discover" | "saved" | "been" | "friends" | "profile";
 
 export default function AccountViews({
   view,
@@ -88,13 +89,13 @@ export default function AccountViews({
   const been = useBeenCollections({ personId, visits, photos, initialCollections });
   const stats = useVisitStats(visits);
   // Loaded the first time Discover opens, then kept across tab switches.
-  const boards = useMoodboards(personId, view === "discover");
+  // Discover needs them for "save to board" on cards; Saved shows them.
+  const boards = useMoodboards(personId, view === "discover" || view === "saved");
   const suggested = useSuggestions(visits, age, view === "discover" && !visitsUnavailable);
 
   if (view === "discover") {
     return (
       <DiscoverTab
-        personId={personId}
         suggested={suggested}
         spots={spots}
         search={search}
@@ -103,6 +104,10 @@ export default function AccountViews({
         onPlanFromBoard={onPlanFromBoard}
       />
     );
+  }
+
+  if (view === "saved") {
+    return <SavedTab personId={personId} boards={boards} age={age} onPlanFromBoard={onPlanFromBoard} />;
   }
 
   if (view === "been") {
