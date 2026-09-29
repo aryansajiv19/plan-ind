@@ -62,12 +62,21 @@ const board = async (uid: string, scope: string, key: string | null = null, peri
   JSON.parse(await as(uid, `select coalesce(json_agg(b), '[]') from leaderboard('${scope}', ${key ? `'${key}'` : "null"}, '${period}', ${limit}) b`));
 const mine = async (uid: string, scope = "dubai", key: string | null = null, period = "all") =>
   (await board(uid, scope, key, period)).find((r) => r.is_me);
-async function decidedPlan(host: string, members: string[], winner: string) {
+/** A decided plan; `voters` cast a final vote first (a group decision needs two). */
+async function decidedPlan(host: string, members: string[], winner: string, voters: string[] = []) {
   const id = randomUUID();
-  await psql(`insert into plans (id,title,category,area,status,stage,pool_count,created_by_user_id,winner_spot_id,decided_at)
-      values ('${id}','QA086','dinner','Dubai','decided','decided',1,'${host}','${winner}', now());
+  await psql(`insert into plans (id,title,category,area,status,stage,pool_count,created_by_user_id)
+      values ('${id}','QA086','dinner','Dubai','open','final',1,'${host}');
+    insert into plan_spots (plan_id, spot_id, pool_number) values ('${id}','${winner}',1);
     insert into plan_access (plan_id,user_id) values ${[host, ...members].map((u) => `('${id}','${u}')`).join(",")};`);
   made.plans.push(id);
+  for (const v of voters) {
+    // Fixture rows: the membership trigger wants a session, which setup has none of.
+    await psql(`set session_replication_role = replica;
+      insert into votes (plan_id, spot_id, voter_name, value, phase, pool_number, user_id) values ('${id}','${winner}','QA',true,'final',0,'${v}');`);
+  }
+  await psql(`update plans set status = 'decided', stage = 'decided', winner_spot_id = '${winner}', decided_at = now() where id = '${id}'`);
+  return id;
 }
 
 after(async () => {
@@ -98,25 +107,32 @@ describe("086 points, derived from rows", { skip: SKIP }, () => {
     }
     assert.equal((await mine(me))?.points, 45 + 5 * 3, "seven photos in a day count as five");
 
-    await decidedPlan(me, [], p1); // alone: not "hosted"
+    await decidedPlan(me, [], p1, [me]); // alone: not "hosted"
+    await decidedPlan(me, [friend], p1); // two members, nobody voted: a direct plan
     assert.equal((await mine(me))?.points, 60);
-    await decidedPlan(me, [friend], p1);
+    await decidedPlan(me, [friend], p1, [me, friend]);
     assert.equal((await mine(me))?.points, 60 + 15);
 
-    // A solo plan's winner visit earns nothing; one from a plan with company does.
-    const [soloWinner, groupWinner] = await places(2, area);
-    const solo = randomUUID();
-    const group = randomUUID();
-    await psql(`insert into plans (id,title,category,area,status,stage,pool_count,created_by_user_id,winner_spot_id,decided_at)
-        values ('${solo}','QA086','dinner','Dubai','decided','decided',1,'${friend}','${soloWinner}', now()),
-               ('${group}','QA086','dinner','Dubai','decided','decided',1,'${friend}','${groupWinner}', now());
-      insert into plan_access (plan_id,user_id) values ('${solo}','${me}'),('${group}','${me}'),('${group}','${friend}');
-      insert into visits (person_id, spot_id, plan_id) values ('${me}','${soloWinner}','${solo}'),('${me}','${groupWinner}','${group}');`);
-    made.plans.push(solo, group);
+    // A plan visit earns only when the group voted on the plan.
+    const [unvotedWinner, votedWinner] = await places(2, area);
+    const unvoted = await decidedPlan(friend, [me], unvotedWinner);
+    const voted = await decidedPlan(friend, [me], votedWinner, [me, friend]);
+    await psql(`insert into visits (person_id, spot_id, plan_id) values ('${me}','${unvotedWinner}','${unvoted}'),('${me}','${votedWinner}','${voted}')`);
     assert.equal((await mine(me))?.points, 75 + 10);
 
     // The area board counts only activity there, without the area bonus.
     assert.equal((await mine(me, "area", area))?.points, 10 + 10 + 5 + 15 + 15 + 10);
+  });
+
+  test("hosting earns for two plans a day at most; new places for five a day at most", async () => {
+    const area = `QA-${tag()}`;
+    const [me, friend] = [await user(), await user()];
+    const spots = await places(7, area);
+    for (let i = 0; i < 3; i += 1) await decidedPlan(me, [friend], spots[i], [me, friend]);
+    const hostedOnly = await mine(me);
+    assert.equal(hostedOnly?.points, 2 * 15);
+    for (const s of spots) await visit(me, s);
+    assert.equal((await mine(me))?.points, 30 + 5 * 10 + 20, "seven new places in a day earn for five");
   });
 
   test("this month counts only what happened this Dubai month", async () => {
@@ -155,9 +171,10 @@ describe("086 who is shown, and how", { skip: SKIP }, () => {
     const hiddenKey = await keyOf(hidden);
     assert.ok((await board(me, "area", area)).some((r) => r.player_key === hiddenKey));
 
+    const hiddenLabel = (await mine(hidden, "friends"))!.label;
     await as(hidden, `update people set hide_from_boards = true where id = '${hidden}'`);
     assert.ok(!(await board(me, "area", area)).some((r) => r.player_key === hiddenKey), "gone from the public board");
-    assert.ok((await board(me, "friends")).some((r) => r.player_key === hiddenKey), "still on my friends board");
+    assert.ok((await board(me, "friends")).some((r) => r.label === hiddenLabel), "still on my friends board");
     assert.equal((await mine(hidden, "area", area))?.points, 10, "still sees their own rank");
   });
 
@@ -174,19 +191,31 @@ describe("086 who is shown, and how", { skip: SKIP }, () => {
     assert.deepEqual(empty.find((r) => r.is_me), { ...empty.find((r) => r.is_me)!, rank: null, points: 0 });
   });
 
-  test("a place board ranks by ranking score and shows the band, never visit counts; hidden people stay off it", async () => {
+  test("a place board is you and your friends, by ranking score with the band, never visit counts", async () => {
     const area = `QA-${tag()}`;
-    const [a, b, c] = [await user(), await user(), await user()];
+    const [a, b, c, stranger] = [await user(), await user(), await user(), await user()];
     const [p] = await places(1, area);
-    for (const u of [a, b, c]) await visit(u, p);
+    for (const u of [a, b, c, stranger]) await visit(u, p);
     for (let i = 0; i < 4; i += 1) await visit(c, p); // many visits change nothing here
+    await psql(`insert into friendships (person_id, friend_id) values ('${c}','${a}'),('${c}','${b}')`);
     await as(a, `select rank_place('${p}','fine')`);
     await as(b, `select rank_place('${p}','loved')`);
+    await as(stranger, `select rank_place('${p}','loved')`);
     const rows = await board(c, "place", p);
-    assert.deepEqual(rows.filter((r) => !r.is_me).map((r) => [r.rank, r.band, r.points]), [[1, "loved", null], [2, "fine", null]]);
+    assert.deepEqual(rows.filter((r) => !r.is_me).map((r) => [r.rank, r.band, r.points]), [[1, "loved", null], [2, "fine", null]],
+      "two friends; the stranger who also loved it isn't shown");
     assert.ok(!rows.some((r) => r.is_me), "c hasn't ranked it, so c isn't on it");
-    await as(b, `update people set hide_from_boards = true where id = '${b}'`);
-    assert.deepEqual((await board(c, "place", p)).map((r) => r.band), ["fine"]);
+    assert.deepEqual((await board(stranger, "place", p)).map((r) => [r.band, r.is_me]), [["loved", true]]);
+  });
+
+  test("the same person has a different key on each board", async () => {
+    const area = `QA-${tag()}`;
+    const me = await user();
+    const [p] = await places(1, area);
+    await visit(me, p);
+    const keys = new Set([(await mine(me, "dubai"))!.player_key, (await mine(me, "area", area))!.player_key,
+      (await mine(me, "dubai", null, "month"))!.player_key, (await mine(me, "friends"))!.player_key]);
+    assert.equal(keys.size, 4);
   });
 
   test("anon and guest sessions get nothing; bad arguments are refused", async () => {
@@ -197,6 +226,7 @@ describe("086 who is shown, and how", { skip: SKIP }, () => {
     await assert.rejects(() => as(me, `select * from leaderboard('everyone')`), /Unknown board/);
     await assert.rejects(() => as(me, `select * from leaderboard('area')`), /needs a place or an area/);
     await assert.rejects(() => as(me, `select * from leaderboard('place', 'not-a-uuid')`), /Unknown place/);
+    await assert.rejects(() => as(me, `select * from leaderboard('place', '${"-".repeat(36)}')`), /Unknown place/);
     await assert.rejects(() => as(me, `select * from board_points(null, null)`), /permission denied/);
   });
 });
