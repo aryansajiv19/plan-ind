@@ -130,7 +130,7 @@ export default function RateGame({ place, ranking, onDone }: { place: Place; ran
       {phase === "done" && saved && (
         <div className="rate-game__step rate-game__result" key="done" role="status">
           <p className="rate-game__score">{Number(saved.score).toFixed(1)}<span>/10</span></p>
-          <p>#{saved.position} of your {BUCKETS.find((b) => b.key === saved.bucket)?.label.toLowerCase()} places</p>
+          <p>#{saved.position} of your {saved.bucket === "loved" ? "loved" : saved.bucket === "fine" ? "fine" : "not-for-me"} places</p>
         </div>
       )}
 

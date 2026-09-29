@@ -53,7 +53,7 @@ test("rank two places, see them on Been, remove one and the other rescores", asy
   await cards.filter({ hasText: "Ravi Restaurant" }).click();
   await game.getByRole("button", { name: "Rank it" }).click();
   await expect(game.locator(".rate-game__score")).toHaveText("10.0/10", { timeout: 20_000 });
-  await expect(game).toContainText("#1 of your loved it places");
+  await expect(game).toContainText("#1 of your loved places");
   expect(await rankingRows(me.userId)).toEqual([
     { spot_id: SEEDED.ravi, bucket: "loved", position: 1, score: 10 },
     { spot_id: SEEDED.threeFils, bucket: "loved", position: 2, score: 8.5 },
