@@ -7,6 +7,7 @@ import { avatarStyle, initialsOf } from "@/lib/avatar";
 import type { PlannedWith } from "@/lib/social";
 import type { PersonCard, ProfileVisit, Spot } from "@/lib/types";
 import Leaderboards from "@/components/leaderboard/Leaderboards";
+import CrewMatch from "@/components/crew/CrewMatch";
 import { friendPlanPrefill, type PlanPrefill } from "@/lib/board-plan";
 
 export default function FriendsTab({
@@ -42,7 +43,10 @@ export default function FriendsTab({
       {personId && <Leaderboards spots={spots} visits={visits} />}
 
       {personId && (
-        <FriendsPanel personId={personId} friends={friends} unavailable={friendsUnavailable} onChanged={() => router.refresh()} />
+        <>
+          <FriendsPanel personId={personId} friends={friends} unavailable={friendsUnavailable} onChanged={() => router.refresh()} />
+          {!friendsUnavailable && <CrewMatch friends={friends} />}
+        </>
       )}
 
       <h2 className="friends-panel__subhead">People you’ve been out with</h2>

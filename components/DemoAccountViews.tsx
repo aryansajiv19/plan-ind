@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import PlaceLinkImporter from "@/components/PlaceLinkImporter";
 import DemoFolders from "@/components/demo/DemoFolders";
 import DemoLeaderboard from "@/components/demo/DemoLeaderboard";
+import DemoCrewMatch from "@/components/demo/DemoCrewMatch";
 import DemoRanking from "@/components/demo/DemoRanking";
 import DubaiExploredCard from "@/components/been/DubaiExploredCard";
 import { dubaiExplored } from "@/lib/dubai-explored";
@@ -196,6 +197,7 @@ export default function DemoAccountViews({
         </header>
 
         <DemoLeaderboard />
+        <DemoCrewMatch />
 
         <div className="demo-friend-layout">
           <div className="demo-friend-list">
