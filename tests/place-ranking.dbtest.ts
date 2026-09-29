@@ -130,17 +130,18 @@ describe("085 rank_place: position, score and buckets", { skip: SKIP }, () => {
 });
 
 describe("085 privacy and community scores", { skip: SKIP }, () => {
-  test("one person's rankings are theirs alone; others see only a 3+ rater mean", async () => {
-    const [x, y, z, w] = [await user(), await user(), await user(), await user()];
+  test("one person's rankings are theirs alone; others see only a 5+ rater mean, the count as a band", async () => {
+    const raters = [await user(), await user(), await user(), await user(), await user()];
+    const w = await user();
     const [s] = await places(1);
-    for (const u of [x, y, z]) await visited(u, s);
-    await rank(x, s, "loved"); // 10
-    await rank(y, s, "fine");  // 7
+    for (const u of raters) await visited(u, s);
+    const buckets = ["loved", "fine", "meh", "loved", "fine"]; // 10, 7, 4, 10, 7
+    for (let i = 0; i < 4; i += 1) await rank(raters[i], s, buckets[i]);
     assert.equal(await as(w, `select count(*) from place_rankings`), "0", "another account reads no rows");
     assert.equal(await as(w, `select count(*) from my_ranking()`), "0");
-    assert.equal(await as(w, `select count(*) from place_scores(array['${s}'::uuid])`), "0", "two raters: no score yet");
-    await rank(z, s, "meh"); // 4
-    assert.equal(await as(w, `select score || '/' || raters from place_scores(array['${s}'::uuid])`), "7.0/3");
+    assert.equal(await as(w, `select count(*) from place_scores(array['${s}'::uuid])`), "0", "four raters: no score yet");
+    await rank(raters[4], s, buckets[4]);
+    assert.equal(await as(w, `select score || '/' || raters from place_scores(array['${s}'::uuid])`), "7.6/5+");
     assert.match(await as(w, `select string_agg(spot_id::text, ',') from top_places(null, 50)`), new RegExp(s));
     await assert.rejects(() => as(w, `update place_rankings set score = 0`), /permission denied/);
     await assert.rejects(() => as(w, `insert into place_rankings (person_id, spot_id, bucket, position, score) values ('${w}','${s}','loved',1,10)`), /permission denied/);
@@ -155,7 +156,7 @@ describe("085 privacy and community scores", { skip: SKIP }, () => {
 });
 
 describe("085 log_visit: I went here", { skip: SKIP }, () => {
-  test("logs a visit you can then rank; five a day; never in the future; only places you can see", async () => {
+  test("logs a visit you can then rank; five a day, and deleting one doesn't give the slot back; never in the future; only places you can see", async () => {
     const me = await user();
     const spots = await places(6);
     const log = async (spot: string, at = "null") => JSON.parse(await as(me, `select log_visit('${spot}', ${at})`));
@@ -164,6 +165,8 @@ describe("085 log_visit: I went here", { skip: SKIP }, () => {
     assert.equal((await rank(me, spots[0], "loved")).result, "ranked");
     for (const s of spots.slice(1, 5)) assert.equal((await log(s)).result, "logged");
     assert.deepEqual(await log(spots[5]), { result: "limited" });
+    await as(me, `delete from visits where id = '${first.visit_id}'`);
+    assert.deepEqual(await log(spots[5]), { result: "limited" }, "the counter, not the rows, is the limit");
     assert.deepEqual(await log(spots[5], "now() + interval '1 day'"), { result: "bad_date" });
 
     const other = await user();
@@ -174,6 +177,54 @@ describe("085 log_visit: I went here", { skip: SKIP }, () => {
     assert.deepEqual(JSON.parse(await as(other, `select log_visit('${privateSpot}')`)).result, "logged");
     const stranger = await user();
     assert.deepEqual(JSON.parse(await as(stranger, `select log_visit('${privateSpot}')`)), { result: "not_found" });
+  });
+
+  test("a plan visit must be the plan's winner", async () => {
+    const [me, other] = [await user(), await user()];
+    const [winner, elsewhere] = await places(2);
+    const plan = randomUUID();
+    await psql(`insert into plans (id,title,category,area,status,stage,pool_count,created_by_user_id,winner_spot_id,decided_at,event_time)
+        values ('${plan}','QA085','dinner','Dubai','decided','decided',1,'${me}','${winner}', now() - interval '1 day', now() - interval '2 hours');
+      insert into plan_access (plan_id,user_id) values ('${plan}','${me}'),('${plan}','${other}');`);
+    try {
+      await assert.rejects(() => as(me, `insert into visits (person_id, spot_id, plan_id) values ('${me}','${elsewhere}','${plan}')`), /row-level security/);
+      await as(me, `insert into visits (person_id, spot_id, plan_id) values ('${me}','${winner}','${plan}')`);
+    } finally {
+      await psql(`delete from plans where id = '${plan}'`);
+    }
+  });
+
+  test("the database sets a visit's time; a visit can't be moved into the future", async () => {
+    const me = await user();
+    const [s] = await places(1);
+    const id = await psql(`insert into visits (person_id, spot_id, plan_id, created_at) values ('${me}','${s}', null, now() - interval '400 days') returning id`);
+    assert.equal(await psql(`select created_at > now() - interval '1 minute' from visits where id = '${id}'`), "t");
+    await assert.rejects(() => as(me, `update visits set visited_at = now() + interval '30 days' where id = '${id}'`), /not one a visit can have/);
+  });
+
+  test("a ranking goes with the last visit to the place, and the bucket closes up", async () => {
+    const me = await user();
+    const [a, b] = await places(2);
+    await visited(me, a);
+    await visited(me, a);
+    await visited(me, b);
+    await rank(me, a, "loved");
+    await rank(me, b, "loved", a);
+    const ids = (await psql(`select id from visits where person_id = '${me}' and spot_id = '${a}' order by id`)).split("\n");
+    await as(me, `delete from visits where id = '${ids[0]}'`);
+    assert.equal((await list(me)).length, 2, "one visit to a is left: still ranked");
+    await as(me, `delete from visits where id = '${ids[1]}'`);
+    assert.deepEqual(await list(me), [`${b}:loved:1:10.0`], "a is gone and b rescored to the top");
+  });
+
+  test("a place you can't see can't be ranked, even with a visit row", async () => {
+    const [me, owner] = [await user(), await user()];
+    const hidden = randomUUID();
+    await psql(`insert into spots (id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, source, visibility, created_by_user_id)
+      values ('${hidden}','QA hidden','dinner','Jumeirah','Test','$$',0,'11pm','QA','custom','private','${owner}')`);
+    made.spots.push(hidden);
+    await visited(me, hidden);
+    assert.deepEqual(await rank(me, hidden, "loved"), { result: "not_visited" });
   });
 
   test("a plan-less visit can no longer be inserted directly", async () => {

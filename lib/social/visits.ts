@@ -18,8 +18,9 @@ export interface CompanionInput {
 export interface LogVisitInput {
   person_id: string; // whose log this is — the device profile's id
   spot_id: string;
-  /** Set to tie the visit back to the decided plan it came from. */
-  plan_id?: string | null;
+  /** The decided plan it came from (085: a visit without a plan is "I went
+   *  here", which only the log_visit RPC writes; use-ranking's logVisit). */
+  plan_id: string;
   /** Defaults to now. For a plan-derived visit, pass the plan's event_time. */
   visited_at?: string | null;
   /** "A group as well" — name the outing/crew, e.g. "Friday crew". */

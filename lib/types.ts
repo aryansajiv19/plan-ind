@@ -327,6 +327,22 @@ export interface PlaceRanking {
   updated_at: string;
 }
 
+/** my_ranking(): a place in your list, best first, with what a row shows. */
+export interface MyRankingRow {
+  spot_id: string;
+  bucket: RankingBucket;
+  position: number;
+  score: number;
+  answers: PlaceRanking["answers"];
+  updated_at: string;
+  name: string;
+  area: string;
+  category: string;
+  photo_url: string | null;
+  photo_attribution: string | null;
+  google_place_id: string | null;
+}
+
 export interface PlaceImport {
   id: string;
   person_id: string;
