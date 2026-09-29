@@ -48,3 +48,9 @@ export function approvedRecords(rows: readonly ReviewRow[]): CatalogueRecord[] {
     vibeSource: r.vibe_final!.trim() === r.proposed_vibe?.trim() && r.proposed_vibe_source ? r.proposed_vibe_source : "reviewer",
   }));
 }
+
+/** "node/123" or "way/456=shisha" (the --add form): the ref and its forced category, or null. */
+export function parseAddArg(arg: string): { ref: string; category: string | null } | null {
+  const m = /^(node|way|relation)\/(\d{1,15})(?:=([a-z_]+))?$/.exec(arg.trim());
+  return m ? { ref: `${m[1]}/${m[2]}`, category: m[3] ?? null } : null;
+}

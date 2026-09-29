@@ -8,6 +8,10 @@
 //     Writes data/catalogue-089.json (the source of truth, committed) and
 //     scripts/catalogue-089.review.local.csv (for reading). Re-running keeps
 //     every reviewer field (approved, vibe_final, reject_reason) by id.
+//   ... scripts/catalogue-osm.ts --add node/123 way/456=shisha ...
+//     Hand-picked OSM objects (for categories OSM rarely tags, like shisha,
+//     beach clubs and live music): the same rules, an optional forced
+//     category, appended to the review unapproved. Existing rows are untouched.
 //   ... scripts/catalogue-osm.ts --sql
 //     Emits supabase/migration-089-catalogue-growth.sql from APPROVED rows
 //     only; each needs vibe_final. Refuses otherwise.
@@ -19,7 +23,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { candidatesFrom, selectSpread, type CatalogueRow, type OsmElement } from "../lib/catalogue/osm.ts";
 import { catalogueSql } from "../lib/catalogue/sql.ts";
-import { approvedRecords, idFor, type ReviewRow } from "../lib/catalogue/review.ts";
+import { approvedRecords, idFor, parseAddArg, type ReviewRow } from "../lib/catalogue/review.ts";
 import { cleanVibe, siteMeta, USER_AGENT } from "./catalogue-web.ts";
 
 const root = path.resolve(import.meta.dirname, "..");
@@ -51,20 +55,8 @@ async function existingNames(): Promise<string[]> {
   return [...(facts.venues ?? []).map((v) => v.name ?? ""), ...[...seed.matchAll(/\('[0-9a-f-]{36}',\s*'([^']+)'/g)].map((m) => m[1])];
 }
 
-async function review() {
-  const elements = await overpass();
-  const tagsOf = new Map(elements.map((el) => [`${el.type}/${el.id}`, el.tags ?? {}]));
-  const { kept, skipped } = candidatesFrom(elements, await existingNames());
-  // Thin categories take every candidate; the rest share what's left.
-  const thin = kept.filter((row) => THIN.has(row.category));
-  const rest = selectSpread(kept.filter((row) => !THIN.has(row.category)), Math.max(0, REVIEW_SIZE - thin.length), 20);
-  const picks: CatalogueRow[] = [...selectSpread(thin, thin.length, Number.POSITIVE_INFINITY), ...rest];
-
-  const previous = new Map<string, ReviewRow>();
-  try {
-    for (const row of (JSON.parse(await readFile(DATA, "utf8")) as { rows: ReviewRow[] }).rows) previous.set(row.id, row);
-  } catch { /* first run */ }
-
+/** Review rows for picks, each with a proposed vibe; reviewer fields kept by id. */
+async function reviewRows(picks: readonly CatalogueRow[], tagsOf: ReadonlyMap<string, Record<string, string>>, previous: ReadonlyMap<string, ReviewRow>) {
   const rows: ReviewRow[] = [];
   const queue = [...picks];
   async function worker() {
@@ -84,9 +76,62 @@ async function review() {
     }
   }
   await Promise.all([worker(), worker(), worker(), worker()]);
+  return rows;
+}
+
+async function readData(): Promise<ReviewRow[]> {
+  try {
+    return (JSON.parse(await readFile(DATA, "utf8")) as { rows: ReviewRow[] }).rows;
+  } catch {
+    return [];
+  }
+}
+
+const writeData = (rows: readonly ReviewRow[]) =>
+  writeFile(DATA, `${JSON.stringify({ generated: new Date().toISOString().slice(0, 10), source: "OpenStreetMap (ODbL); proposed vibes from OSM or each venue's own site", rows }, null, 1)}\n`);
+
+async function add(args: readonly string[]) {
+  const parsed = args.map((arg) => ({ arg, add: parseAddArg(arg) }));
+  const bad = parsed.filter((p) => !p.add).map((p) => p.arg);
+  if (bad.length) throw new Error(`not an OSM ref (node/123, way/456=shisha): ${bad.join(", ")}`);
+  const wanted = parsed.map((p) => p.add!);
+  const forced = new Map(wanted.filter((w) => w.category).map((w) => [w.ref, w.category!]));
+  const query = `[out:json][timeout:60];(${wanted.map((w) => `${w.ref.replace("/", "(")});`).join("")});out center tags;`;
+  const res = await fetch(OVERPASS, { method: "POST", headers: { "User-Agent": USER_AGENT, "Content-Type": "application/x-www-form-urlencoded" }, body: `data=${encodeURIComponent(query)}` });
+  if (!res.ok) throw new Error(`Overpass answered ${res.status}`);
+  const elements = ((await res.json()) as { elements: OsmElement[] }).elements;
+  const found = new Set(elements.map((el) => `${el.type}/${el.id}`));
+  for (const w of wanted) if (!found.has(w.ref)) console.log(`${w.ref}: not found on OpenStreetMap`);
+
+  const existing = await readData();
+  const known = new Set(existing.map((row) => row.osm));
+  const { kept, skipped } = candidatesFrom(elements.filter((el) => !known.has(`${el.type}/${el.id}`)), await existingNames(), forced);
+  for (const el of elements) if (known.has(`${el.type}/${el.id}`)) console.log(`${el.type}/${el.id}: already in the review`);
+  for (const s of skipped) console.log(`${s.ref} ${s.name}: skipped, ${s.reason}`);
+  const tagsOf = new Map(elements.map((el) => [`${el.type}/${el.id}`, el.tags ?? {}]));
+  const added = await reviewRows(kept, tagsOf, new Map());
+  await writeData([...existing, ...added]);
+  for (const row of added) console.log(`${row.osm} ${row.name}: added as ${row.category} in ${row.area} (${row.id}), unapproved`);
+}
+
+async function review() {
+  const elements = await overpass();
+  const tagsOf = new Map(elements.map((el) => [`${el.type}/${el.id}`, el.tags ?? {}]));
+  const { kept, skipped } = candidatesFrom(elements, await existingNames());
+  // Thin categories take every candidate; the rest share what's left.
+  const thin = kept.filter((row) => THIN.has(row.category));
+  const rest = selectSpread(kept.filter((row) => !THIN.has(row.category)), Math.max(0, REVIEW_SIZE - thin.length), 20);
+  const picks: CatalogueRow[] = [...selectSpread(thin, thin.length, Number.POSITIVE_INFINITY), ...rest];
+
+  const previous = new Map<string, ReviewRow>();
+  try {
+    for (const row of (JSON.parse(await readFile(DATA, "utf8")) as { rows: ReviewRow[] }).rows) previous.set(row.id, row);
+  } catch { /* first run */ }
+
+  const rows = await reviewRows(picks, tagsOf, previous);
   rows.sort((a, b) => a.category.localeCompare(b.category) || b.upkeep - a.upkeep || a.name.localeCompare(b.name));
 
-  await writeFile(DATA, `${JSON.stringify({ generated: new Date().toISOString().slice(0, 10), source: "OpenStreetMap (ODbL); proposed vibes from OSM or each venue's own site", rows }, null, 1)}\n`);
+  await writeData(rows);
   const cols: (keyof ReviewRow)[] = ["id", "approved", "name", "category", "area", "district", "cuisine", "osm_url", "website", "opening_hours", "open_till", "minimum_age", "upkeep", "proposed_vibe", "proposed_vibe_source", "vibe_final", "reject_reason"];
   const csv = [cols.join(","), ...rows.map((r) => cols.map((c) => `"${String(r[c] ?? "").replace(/"/g, '""')}"`).join(","))].join("\n");
   await writeFile(path.join(root, "scripts/catalogue-089.review.local.csv"), `${csv}\n`);
@@ -130,6 +175,8 @@ if (process.argv.includes("--sql")) {
   console.log(`wrote 089 with ${records.length} approved rows`);
 } else if (process.argv.includes("--review")) {
   await review();
+} else if (process.argv.includes("--add")) {
+  await add(process.argv.slice(process.argv.indexOf("--add") + 1));
 } else {
-  console.log("usage: --review | --sql");
+  console.log("usage: --review | --add node/123 [way/456=shisha ...] | --sql");
 }

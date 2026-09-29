@@ -82,3 +82,20 @@ test("the review: stable ids per OSM object; only approved rows with a final vib
   assert.match(sql, /-- Rewritten · cafe · JBR · vibe: reviewer/);
   assert.match(sql, /Written by the plan-ind reviewer/);
 });
+
+test("--add: OSM refs with an optional forced category; a forced one must be ours, and the other rules still hold", async () => {
+  const { parseAddArg } = await import("../lib/catalogue/review.ts");
+  assert.deepEqual(parseAddArg("node/123"), { ref: "node/123", category: null });
+  assert.deepEqual(parseAddArg("way/456=shisha"), { ref: "way/456", category: "shisha" });
+  assert.equal(parseAddArg("node/abc"), null);
+  assert.equal(parseAddArg("https://www.openstreetmap.org/node/1"), null);
+  const el = (id: number, tags: Record<string, string>) => ({ type: "node" as const, id, lat: 25.08, lon: 55.14, tags });
+  const forced = new Map([["node/1", "shisha"], ["node/2", "jetski"], ["node/3", "beach_club"]]);
+  const { kept, skipped } = candidatesFrom([
+    el(1, { name: "Hookah Place", amenity: "cafe" }),
+    el(2, { name: "Odd One", amenity: "cafe" }),
+    el(3, { name: "Chain Beach", leisure: "beach_resort", brand: "Chain" }),
+  ], [], forced);
+  assert.deepEqual(kept.map((k) => [k.name, k.category]), [["Hookah Place", "shisha"]], "a shisha place tagged a cafe lands as shisha");
+  assert.deepEqual(skipped.map((s) => s.reason).sort(), ["chain (brand tag)", 'unknown category "jetski"']);
+});
