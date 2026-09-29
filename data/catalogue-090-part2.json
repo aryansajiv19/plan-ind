@@ -682,7 +682,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002f8abaef1",
@@ -726,7 +726,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001de508d2a",
@@ -768,8 +768,8 @@
    "upkeep": 7,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Lebanese restaurant in Barsha Heights near Grand Millennium, listed on Zomato and Talabat",
    "reject_reason": null
   },
   {
@@ -790,8 +790,8 @@
    "upkeep": 7,
    "proposed_vibe": "PRAGMATIC218 adalah link situs slot gacor terpercaya hari ini dan agen resmi slot88 gampang jackpot, selalu menyediakan",
    "proposed_vibe_source": "https://www.gharanarestaurant.com/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "North Indian dishes with live ghazal and Bollywood music at the Holiday Inn Al Barsha",
    "reject_reason": null
   },
   {
@@ -836,7 +836,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001072fde3a",
@@ -880,7 +880,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002023142c0",
@@ -902,7 +902,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000fae58562",
@@ -966,8 +966,8 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Lebanese street food with fresh saj, falafel and shawarma from an open kitchen on Hessa Street, Al Barsha",
    "reject_reason": null
   },
   {
@@ -1012,7 +1012,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00025a50b2b1",
@@ -1034,7 +1034,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-0000375490aa",
@@ -1056,7 +1056,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001ffafa5f7",
@@ -1078,7 +1078,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000683d75e7",
@@ -1142,8 +1142,8 @@
    "upkeep": 3,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Egyptian-style seafood where you pick the fish and how it is cooked, in Al Barsha 1 by Mashreq Metro",
    "reject_reason": null
   },
   {
@@ -1151,7 +1151,7 @@
    "osm": "node/2377115342",
    "osm_url": "https://www.openstreetmap.org/node/2377115342",
    "name": "Lila Cafe",
-   "category": "dinner",
+   "category": "shisha",
    "area": "Grand Millennium",
    "district": "Barsha & Dubai Hills",
    "cuisine": "Restaurant",
@@ -1160,12 +1160,12 @@
    "opening_hours": null,
    "open_till": "",
    "website": null,
-   "minimum_age": 0,
+   "minimum_age": 18,
    "upkeep": 3,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Arabic and Mediterranean dishes with coffee and shisha in Barsha Heights",
    "reject_reason": null
   },
   {
@@ -1232,7 +1232,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0002025be71d",
@@ -1298,7 +1298,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00015cc556d2",
@@ -1318,8 +1318,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Vegetarian North Indian street food and sweets such as gol gappa and jalebi, behind Mall of the Emirates",
    "reject_reason": null
   },
   {
@@ -1342,7 +1342,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000124338c96",
@@ -1364,7 +1364,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000184292650",
@@ -1452,7 +1452,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000123f72f4b",
@@ -1494,8 +1494,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Turkish kebabs, lahmacun and baklava near Mall of the Emirates, with outdoor seating",
    "reject_reason": null
   },
   {
@@ -1562,7 +1562,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001202f0109",
@@ -1584,7 +1584,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000123f72f4a",
@@ -1606,7 +1606,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000079cb248d",
@@ -1650,7 +1650,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-0000f292d099",
@@ -1672,7 +1672,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000b89c9231",
@@ -1760,7 +1760,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000124152492",
@@ -1780,8 +1780,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Thai menu of pad Thai and curries in a low-lit room under a large Buddha, at Holiday Inn Al Barsha",
    "reject_reason": null
   },
   {
@@ -1804,7 +1804,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-0001f05d32bd",
@@ -1848,7 +1848,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0001f95bc96d",
@@ -1934,8 +1934,8 @@
    "upkeep": 6,
    "proposed_vibe": "Restaurante TATEL es sinónimo de alta cocina, gracias a su cuidada oferta gastronómica con carácter español. TATEL",
    "proposed_vibe_source": "https://tatelrestaurants.com",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Spanish restaurant in Downtown Dubai with a lounge, an open-kitchen dining room and a Burj Khalifa terrace",
    "reject_reason": null
   },
   {
@@ -1978,8 +1978,8 @@
    "upkeep": 6,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Steakhouse with 17 cuts of Australian and US beef, dark wood and jazz, at Habtoor Palace",
    "reject_reason": null
   },
   {
@@ -2002,7 +2002,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00016658a4ce",
@@ -2022,8 +2022,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Korean-Japanese live-station dining on the 31st floor of V Hotel, Al Habtoor City, with canal and Gulf views",
    "reject_reason": null
   },
   {
@@ -2044,8 +2044,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Thai and pan-Asian dishes from Singapore, Malay and Indonesian kitchens at Bay Avenue in Business Bay",
    "reject_reason": null
   },
   {
@@ -2090,7 +2090,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00018429252f",
@@ -2176,8 +2176,8 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Iranian kebabs and Persian dishes from an Iranian chef on Bay Avenue in Business Bay",
    "reject_reason": null
   },
   {
@@ -2220,8 +2220,8 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Open-air courtyard restaurant and lounge at Habtoor Palace with Middle Eastern dishes and shisha",
    "reject_reason": null
   },
   {
@@ -2288,7 +2288,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00029388e399",
@@ -2352,8 +2352,8 @@
    "upkeep": 3,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "American gastropub with ribs, live music, TV sports, a golf simulator, darts and pool in Al Habtoor City",
    "reject_reason": null
   },
   {
@@ -2362,8 +2362,8 @@
    "osm_url": "https://www.openstreetmap.org/node/4215469091",
    "name": "Afghan Khorasan Restaurant",
    "category": "dinner",
-   "area": "Al Habtoor City",
-   "district": "Business Bay",
+   "area": "Al Quoz",
+   "district": "Al Quoz & Alserkal",
    "cuisine": "Kebab",
    "latitude": 25.174486,
    "longitude": 55.256754,
@@ -2374,8 +2374,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Afghan kebabs, kabuli palaw and lamb shanks on Sheikh Zayed Road in Al Quoz",
    "reject_reason": null
   },
   {
@@ -2396,8 +2396,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "French Euro-Mediterranean bistro at Habtoor Palace, with a patisserie next door and Thursday French nights",
    "reject_reason": null
   },
   {
@@ -2420,7 +2420,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00030b3b898e",
@@ -2442,7 +2442,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00012533f28d",
@@ -2528,8 +2528,8 @@
    "upkeep": 9,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Mughal-themed buffet of Mughlai, tandoori and Pakistani dishes with live barbecue, near 2nd December Street",
    "reject_reason": null
   },
   {
@@ -2640,7 +2640,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00014beed50d",
@@ -2660,8 +2660,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Cantonese and Malaysian noodles, dumplings and laksa in Al Satwa, in a small room with a lazy Susan table",
    "reject_reason": null
   },
   {
@@ -2726,8 +2726,8 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "French bistro and bakery over two floors at City Walk, open from breakfast to late dinner",
    "reject_reason": null
   },
   {
@@ -2770,8 +2770,8 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Indonesian siomay, batagor and gado gado on Al Mina Road in Satwa",
    "reject_reason": null
   },
   {
@@ -2779,7 +2779,7 @@
    "osm": "node/9452662431",
    "osm_url": "https://www.openstreetmap.org/node/9452662431",
    "name": "Seva table",
-   "category": "dinner",
+   "category": "cafe",
    "area": "Al Satwa",
    "district": "City Walk & Satwa",
    "cuisine": "Restaurant",
@@ -2792,8 +2792,8 @@
    "upkeep": 3,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Plant-based, gluten-free cafe in a Jumeirah 1 villa with a garden and a used-book shelf",
    "reject_reason": null
   },
   {
@@ -2904,7 +2904,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-0002ae652fda",
@@ -2926,7 +2926,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001245a1468",
@@ -2948,7 +2948,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-0001246c6247",
@@ -2970,7 +2970,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000124bce0d6",
@@ -3014,7 +3014,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000124c045d2",
@@ -3078,8 +3078,8 @@
    "upkeep": 9,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "British menu in a Dunhill-linked restaurant with leather banquettes, a bar and a lounge at Emirates Towers",
    "reject_reason": null
   },
   {
@@ -3124,7 +3124,7 @@
    "proposed_vibe_source": "https://grandiosa.ae",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0002196fa870",
@@ -3212,7 +3212,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-0002151e52de",
@@ -3232,8 +3232,8 @@
    "upkeep": 8,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Lebanese grills and mezze at Convention Tower, Trade Centre, with shisha, outdoor seating and live music",
    "reject_reason": null
   },
   {
@@ -3344,7 +3344,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000054386eb9",
@@ -3366,7 +3366,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-000085e5206e",
@@ -3386,8 +3386,8 @@
    "upkeep": 6,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Regional Indian cooking with tableside curries on the third floor of Armani Hotel, with live music",
    "reject_reason": null
   },
   {
@@ -3408,8 +3408,8 @@
    "upkeep": 6,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Moroccan tagines, couscous and tanjia on Mohammed bin Rashid Boulevard in Downtown Dubai",
    "reject_reason": null
   },
   {
@@ -3432,7 +3432,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00010e0cbcd8",
@@ -3528,8 +3528,8 @@
    "osm_url": "https://www.openstreetmap.org/node/10614164421",
    "name": "al turath Al maghiribi",
    "category": "dinner",
-   "area": "Emirates Towers",
-   "district": "Downtown & DIFC",
+   "area": "Al Satwa",
+   "district": "City Walk & Satwa",
    "cuisine": "Moroccan",
    "latitude": 25.220813,
    "longitude": 55.275175,
@@ -3540,8 +3540,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Moroccan tagines, couscous and mezze in Garden City, Satwa, open until midnight",
    "reject_reason": null
   },
   {
@@ -3549,7 +3549,7 @@
    "osm": "node/6357540086",
    "osm_url": "https://www.openstreetmap.org/node/6357540086",
    "name": "Armani Lounge Burj Khalifa",
-   "category": "dinner",
+   "category": "cafe",
    "area": "Downtown Dubai",
    "district": "Downtown & DIFC",
    "cuisine": "Restaurant",
@@ -3562,8 +3562,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Lobby lounge in Armani Hotel overlooking the Dubai Fountain, with afternoon tea, coffee and evening cocktails",
    "reject_reason": null
   },
   {
@@ -3586,7 +3586,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000235964ec8",
@@ -3652,7 +3652,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000031f7698f",
@@ -3762,7 +3762,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001056f8d1a",
@@ -3872,7 +3872,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00010fb7575d",
@@ -3936,8 +3936,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Argentinian charcoal grill at Palace Downtown with a fountain-view terrace and live music",
    "reject_reason": null
   },
   {
@@ -3958,8 +3958,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Lebanese restaurant on Mohammed Bin Rashid Boulevard near Burj Khalifa, open until 3 am",
    "reject_reason": null
   },
   {
@@ -4002,8 +4002,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Lebanese set-menu feasts with live music at The Address Downtown, overlooking the Burj Khalifa",
    "reject_reason": null
   },
   {
@@ -4070,7 +4070,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00004ca31c4b",
@@ -4136,7 +4136,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00009d4d287e",
@@ -4202,7 +4202,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00024146b9e3",
@@ -4246,7 +4246,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-00002893d7ce",
@@ -4312,7 +4312,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0001eaf62054",
@@ -4356,7 +4356,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-0000e4873105",
@@ -4398,8 +4398,8 @@
    "upkeep": 7,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Beachfront Italian pizza and pasta near Burj Al Arab at Jumeirah Beach Hotel, with a pool bar and shisha",
    "reject_reason": null
   },
   {
@@ -4430,7 +4430,7 @@
    "osm_url": "https://www.openstreetmap.org/node/10143696070",
    "name": "Lezzet Turkish Restaurant",
    "category": "dinner",
-   "area": "Pearl Jumeirah",
+   "area": "Jumeirah",
    "district": "Jumeirah coast",
    "cuisine": "Turkish",
    "latitude": 25.225435,
@@ -4442,8 +4442,8 @@
    "upkeep": 6,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Turkish kebabs, dry-aged steaks and Turkish breakfast with al fresco seating at La Mer",
    "reject_reason": null
   },
   {
@@ -4464,8 +4464,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Seafood restaurant with a floor-to-ceiling aquarium on the ground floor of Burj Al Arab; semi-formal",
    "reject_reason": null
   },
   {
@@ -4486,8 +4486,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Wood-fired sourdough Neapolitan pizza at the Umm Suqeim fishing harbour, with a small terrace on the water",
    "reject_reason": null
   },
   {
@@ -4552,8 +4552,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Budget fried fish and prawns with rice in Umm Suqeim Park, with outdoor seating facing Burj Al Arab",
    "reject_reason": null
   },
   {
@@ -4583,7 +4583,7 @@
    "osm": "node/10120348385",
    "osm_url": "https://www.openstreetmap.org/node/10120348385",
    "name": "Mamaesh",
-   "category": "dinner",
+   "category": "cafe",
    "area": "Umm Suqeim",
    "district": "Jumeirah coast",
    "cuisine": "Regional",
@@ -4596,8 +4596,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Palestinian manakish and fatayer baked with organic flour in a converted villa on Al Wasl Road",
    "reject_reason": null
   },
   {
@@ -4618,8 +4618,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Horse-themed cafe-restaurant in Dar Wasl Mall with Italian-leaning small plates, open 9am to midnight",
    "reject_reason": null
   },
   {
@@ -4672,7 +4672,7 @@
    "osm_url": "https://www.openstreetmap.org/node/8530995972",
    "name": "Nine Squares",
    "category": "dinner",
-   "area": "Jumeirah Beach",
+   "area": "Umm Suqeim",
    "district": "Jumeirah coast",
    "cuisine": "Restaurant",
    "latitude": 25.170334,
@@ -4684,8 +4684,8 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Chinese hot pot with a self-serve sauce bar in Umm Suqeim, open until 1am",
    "reject_reason": null
   },
   {
@@ -4706,8 +4706,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Fried and grilled fish and prawns bought daily from local fishermen, at the Umm Suqeim fishing harbour",
    "reject_reason": null
   },
   {
@@ -4715,7 +4715,7 @@
    "osm": "node/10084824650",
    "osm_url": "https://www.openstreetmap.org/node/10084824650",
    "name": "Arabian Tea House",
-   "category": "dinner",
+   "category": "cafe",
    "area": "Jumeirah",
    "district": "Jumeirah coast",
    "cuisine": "Arab",
@@ -4728,8 +4728,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Emirati machboos and harees plus over 100 teas, with a courtyard; original branch in Al Fahidi",
    "reject_reason": null
   },
   {
@@ -4774,7 +4774,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0000fb7eacd0",
@@ -4816,8 +4816,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Burgers with three organic patty options and shakes at the Umm Suqeim fishing harbour, with harbour seating",
    "reject_reason": null
   },
   {
@@ -4840,7 +4840,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0001116caf99",
@@ -4860,8 +4860,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Sushi-fusion rolls at Al Souq Mall, Fishing Harbour, with outdoor seating and Japanese floor seating",
    "reject_reason": null
   },
   {
@@ -4906,15 +4906,15 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001336aa4d2",
    "osm": "node/5157594322",
    "osm_url": "https://www.openstreetmap.org/node/5157594322",
    "name": "Stomping Grounds",
-   "category": "dinner",
-   "area": "Pearl Jumeirah",
+   "category": "cafe",
+   "area": "Jumeirah",
    "district": "Jumeirah coast",
    "cuisine": "Arab, chicken",
    "latitude": 25.223086,
@@ -4926,8 +4926,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Aussie-owned neighbourhood cafe in a Jumeirah 1 villa serving all-day breakfast and specialty coffee",
    "reject_reason": null
   },
   {
@@ -4950,7 +4950,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000955cb8fb",
@@ -4970,8 +4970,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Tuscan pasta, pizza and grilled meats at Souk Madinat Jumeirah, with a terrace on the waterways",
    "reject_reason": null
   },
   {
@@ -4994,7 +4994,7 @@
    "proposed_vibe_source": "https://awani.ae",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0900000-0000-0000-0001-00032a3cfac0",
@@ -5126,7 +5126,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001dc15d136",
@@ -5258,7 +5258,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00032fc53ef9",
@@ -5302,7 +5302,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000333be1551",
@@ -5324,7 +5324,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0000f41e2e8a",
@@ -5344,8 +5344,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Fusion and Indo-Chinese dishes in Fox Hill, Motor City, from a small local Chinese restaurant brand",
    "reject_reason": null
   },
   {
@@ -5390,7 +5390,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000f41c999d",
@@ -5410,8 +5410,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Indian and Indo-Chinese chaats, grills, curries and biryani on Main Boulevard, Motor City",
    "reject_reason": null
   },
   {
@@ -5434,7 +5434,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000124c20904",
@@ -5456,7 +5456,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002c560ff9e",
@@ -5478,7 +5478,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00014597fe5a",
@@ -5522,7 +5522,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000a8a15151",
@@ -5564,8 +5564,8 @@
    "upkeep": 9,
    "proposed_vibe": "Authentic Thai food cooked by incredible Thai chefs",
    "proposed_vibe_source": "https://linktr.ee/AsianStreet",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Isan-style Thai street food in a five-table JLT shop, cooked by chefs from Northeast Thailand",
    "reject_reason": null
   },
   {
@@ -5586,8 +5586,8 @@
    "upkeep": 9,
    "proposed_vibe": "Web site created using create-react-app",
    "proposed_vibe_source": "https://www.awani.ae/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Levantine dishes in a traditional-style room on The Beach at JBR, with outdoor seating facing the sea",
    "reject_reason": null
   },
   {
@@ -5720,7 +5720,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000332c99559",
@@ -5740,8 +5740,8 @@
    "upkeep": 9,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Australian outback-style steakhouse with game meats and barrel-aged drinks at Vida Emirates Hills",
    "reject_reason": null
   },
   {
@@ -5850,8 +5850,8 @@
    "upkeep": 9,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Russian dumplings, soups and baked goods at Trident Grand Mall, Dubai Marina, with dine-in seating",
    "reject_reason": null
   },
   {
@@ -5926,7 +5926,7 @@
    "osm_url": "https://www.openstreetmap.org/node/3725257507",
    "name": "The Observatory",
    "category": "dinner",
-   "area": "Le Royal Meridien",
+   "area": "Dubai Marina",
    "district": "Marina & JBR",
    "cuisine": "Restaurant",
    "latitude": 25.087961,
@@ -5938,8 +5938,8 @@
    "upkeep": 9,
    "proposed_vibe": "Experience the Restaurants at Dubai Harbour Restaurants",
    "proposed_vibe_source": "http://www.observatory.dubaimarriottharbourhotel.com/restaurant/hotels/hotel-information/travel/dxbhr-the-observatory-dubai-marriott-harbour-hotel/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Asian-Latin sushi and ceviche with cocktails on the 52nd floor of Marriott Harbour Hotel, with 360 views",
    "reject_reason": null
   },
   {
@@ -6248,7 +6248,7 @@
    "proposed_vibe_source": "https://www.facebook.com/MassimosItalianRestaurant?ref=hl",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000105f42fdb",
@@ -6292,7 +6292,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00015bfdb23c",
@@ -6314,7 +6314,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000062f475d3",
@@ -6336,7 +6336,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-0001459ba950",
@@ -6356,8 +6356,8 @@
    "upkeep": 6,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Pan-Asian and Latin menu with robata grill and sushi counter, at Le Royal Meridien Marina",
    "reject_reason": null
   },
   {
@@ -6380,7 +6380,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000293f12b0a",
@@ -6402,7 +6402,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000aaa78083",
@@ -6446,7 +6446,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002f3adcb20",
@@ -6454,7 +6454,7 @@
    "osm_url": "https://www.openstreetmap.org/node/12678187808",
    "name": "Kooya Filipino Eatery",
    "category": "dinner",
-   "area": "JBR",
+   "area": "Dubai Marina",
    "district": "Marina & JBR",
    "cuisine": "Filipino",
    "latitude": 25.069705,
@@ -6466,8 +6466,8 @@
    "upkeep": 5,
    "proposed_vibe": "39K Followers, 484 Following, 681 Posts - Kooya Filipino Eatery by chefjayps ( kooyafilipinoeatery) on Instagram: \" The",
    "proposed_vibe_source": "https://www.instagram.com/kooyafilipinoeatery/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Filipino food from chef JP Anglo on Marina Promenade, in a boho island-style room",
    "reject_reason": null
   },
   {
@@ -6532,8 +6532,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Smokehouse steaks and slow-smoked brisket with a late happy hour, at Dubai Marina",
    "reject_reason": null
   },
   {
@@ -6642,8 +6642,8 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Singapore, Malaysia and Thai hawker food in JLT's The Park, in a neon-lit room with a licensed bar open late",
    "reject_reason": null
   },
   {
@@ -6686,8 +6686,8 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Hand-pulled Shaanxi noodles such as biang biang, made in an open kitchen in a small JLT corner unit",
    "reject_reason": null
   },
   {
@@ -6708,8 +6708,8 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Australian-style cafe at The Park JLT with a specialty coffee bar, wraparound terrace and kids' play area",
    "reject_reason": null
   },
   {
@@ -6732,7 +6732,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000e541e2eb",
@@ -6754,7 +6754,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000ffb2e54f",
@@ -6820,7 +6820,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000124bc7d81",
@@ -6884,8 +6884,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Egyptian and Lebanese grills and mezze at JBR, with traditional music",
    "reject_reason": null
   },
   {
@@ -6893,7 +6893,7 @@
    "osm": "node/4946643823",
    "osm_url": "https://www.openstreetmap.org/node/4946643823",
    "name": "Al Kamil, Billiard",
-   "category": "dinner",
+   "category": "games",
    "area": "JLT",
    "district": "Marina & JBR",
    "cuisine": "Oriental",
@@ -6906,8 +6906,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Uzbek, Turkish and Indian dishes with Russian billiard and American pool tables in JLT Cluster O",
    "reject_reason": null
   },
   {
@@ -6928,8 +6928,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Mezze and Lebanese grills in a majlis-tent setting at Le Royal Meridien, with weekend live music",
    "reject_reason": null
   },
   {
@@ -6952,7 +6952,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00011909502a",
@@ -6972,8 +6972,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Home-style Egyptian dishes like fattah and grills, with a marina terrace and a shisha cafe area",
    "reject_reason": null
   },
   {
@@ -6996,7 +6996,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000870b105a",
@@ -7018,7 +7018,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-0000c8d44d3b",
@@ -7040,7 +7040,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002fece35a1",
@@ -7060,8 +7060,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Wood-fired Neapolitan pizza and antipasti on a rooftop above The Park in JLT, open from 5pm",
    "reject_reason": null
   },
   {
@@ -7084,7 +7084,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00011d61f2dc",
@@ -7092,7 +7092,7 @@
    "osm_url": "https://www.openstreetmap.org/node/4787925724",
    "name": "Kilby Cafe",
    "category": "dinner",
-   "area": "JLT",
+   "area": "Discovery Gardens",
    "district": "Marina & JBR",
    "cuisine": "Restaurant",
    "latitude": 25.049444,
@@ -7104,8 +7104,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Asian fusion restaurant in Discovery Gardens with live music evenings",
    "reject_reason": null
   },
   {
@@ -7128,7 +7128,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-0000762e26eb",
@@ -7150,7 +7150,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0001cc806210",
@@ -7170,8 +7170,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Neapolitan wood-fired pizza, pasta and calzones at Rixos Premium in JBR",
    "reject_reason": null
   },
   {
@@ -7194,7 +7194,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0000870b0751",
@@ -7216,7 +7216,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00009f54fe22",
@@ -7238,7 +7238,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000f462daa4",
@@ -7304,7 +7304,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0000ffb398fe",
@@ -7312,7 +7312,7 @@
    "osm_url": "https://www.openstreetmap.org/node/4289960190",
    "name": "Urban Tadka Vegetarian Restaurant",
    "category": "dinner",
-   "area": "JBR",
+   "area": "Discovery Gardens",
    "district": "Marina & JBR",
    "cuisine": "Indian",
    "latitude": 25.049251,
@@ -7324,8 +7324,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Vegetarian Indian chaat and street food in Discovery Gardens, with indoor and outdoor seating",
    "reject_reason": null
   },
   {
@@ -7434,8 +7434,8 @@
    "upkeep": 9,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "South American grill at Atlantis The Palm with live music, dancers and a Saturday brunch",
    "reject_reason": null
   },
   {
@@ -7502,7 +7502,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001de50c166",
@@ -7554,8 +7554,8 @@
    "osm_url": "https://www.openstreetmap.org/node/2246423608",
    "name": "Hunters Room & Grill",
    "category": "dinner",
-   "area": "One&Only Royal Mirage",
-   "district": "The Palm",
+   "area": "Dubai Marina",
+   "district": "Marina & JBR",
    "cuisine": "Steak house",
    "latitude": 25.092994,
    "longitude": 55.148868,
@@ -7566,8 +7566,8 @@
    "upkeep": 6,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Dry-aged steaks and a seafood tower in a dark-wood room with wine cellars at The Westin Mina Seyahi",
    "reject_reason": null
   },
   {
@@ -7612,7 +7612,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000211b24650",
@@ -7632,8 +7632,8 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "American smokehouse at Club Vista Mare on Palm Jumeirah, with a sand-floor beer garden and Saturday BBQ brunch",
    "reject_reason": null
   },
   {
@@ -7656,7 +7656,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000048b8206a",
@@ -7678,14 +7678,14 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001a30f90f8",
    "osm": "node/7030673656",
    "osm_url": "https://www.openstreetmap.org/node/7030673656",
    "name": "Wavehouse",
-   "category": "dinner",
+   "category": "games",
    "area": "Atlantis",
    "district": "The Palm",
    "cuisine": "Restaurant",
@@ -7698,8 +7698,8 @@
    "upkeep": 3,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Restaurant, bar, bowling, arcade and surf machine at Atlantis The Palm, with a terrace and live music",
    "reject_reason": null
   },
   {
@@ -7708,8 +7708,8 @@
    "osm_url": "https://www.openstreetmap.org/node/1455852554",
    "name": "Bussola",
    "category": "dinner",
-   "area": "One&Only Royal Mirage",
-   "district": "The Palm",
+   "area": "Dubai Marina",
+   "district": "Marina & JBR",
    "cuisine": "Pizza",
    "latitude": 25.093888,
    "longitude": 55.148277,
@@ -7720,8 +7720,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Stone-baked pizza and pasta at The Westin Mina Seyahi, with a pizzeria deck, a lounge and a restaurant",
    "reject_reason": null
   },
   {
@@ -7744,7 +7744,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00021185c0ef",
@@ -7764,8 +7764,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Mediterranean seafood and a beach with cabanas at Palm West Beach, with a daily seafood display",
    "reject_reason": null
   },
   {
@@ -7774,7 +7774,7 @@
    "osm_url": "https://www.openstreetmap.org/node/5167428666",
    "name": "Maiden Shanghai",
    "category": "dinner",
-   "area": "One&Only Royal Mirage",
+   "area": "Palm Jumeirah",
    "district": "The Palm",
    "cuisine": "Chinese",
    "latitude": 25.103986,
@@ -7786,8 +7786,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Modern Shanghainese Chinese dining on Palm Jumeirah, with private dining rooms",
    "reject_reason": null
   },
   {
@@ -7810,7 +7810,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00021185c0ec",
@@ -7818,7 +7818,7 @@
    "osm_url": "https://www.openstreetmap.org/node/8883912940",
    "name": "Blvd on One",
    "category": "dinner",
-   "area": "One&Only Royal Mirage",
+   "area": "Palm Jumeirah",
    "district": "The Palm",
    "cuisine": "Lebanese",
    "latitude": 25.104406,
@@ -7830,8 +7830,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Lebanese food, Beirut Night and shisha at FIVE Palm Jumeirah, with indoor and al fresco seating",
    "reject_reason": null
   },
   {
@@ -7854,7 +7854,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-00001ff3d20b",
@@ -7876,7 +7876,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000124b75271",
@@ -7884,8 +7884,8 @@
    "osm_url": "https://www.openstreetmap.org/node/4910961265",
    "name": "Jedoudna",
    "category": "dinner",
-   "area": "One&Only Royal Mirage",
-   "district": "The Palm",
+   "area": "Dubai Media City",
+   "district": "Marina & JBR",
    "cuisine": "Restaurant",
    "latitude": 25.096248,
    "longitude": 55.159118,
@@ -7896,8 +7896,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Lebanese village-style home recipes in Dubai Media City, run as a restaurant and cafe",
    "reject_reason": null
   },
   {
@@ -7918,8 +7918,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Italian pasta and pizza on the beach at Club Vista Mare, Palm Jumeirah, with live music on the terrace",
    "reject_reason": null
   }
  ]
