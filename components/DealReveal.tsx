@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { motion, useReducedMotion } from "motion/react";
-import PhotoCredit from "@/components/PhotoCredit";
 import VenuePhoto from "@/components/VenuePhoto";
 
 /** Length of the whole sequence. Kept under 1.5s (PRIORITIES X2). */
@@ -140,7 +139,6 @@ export default function DealReveal({
                           <>
                             {/* eslint-disable-next-line @next/next/no-img-element -- a 1.3s moment; same unoptimized posture as the cards */}
                             <img src={card.photo_url} alt="" className="absolute inset-0 h-full w-full object-cover" />
-                            <PhotoCredit spot={{ photo_url: card.photo_url, photo_attribution: card.photo_attribution ?? null }} />
                           </>
                         ) : null}
                         <span className="pointer-events-none absolute inset-0 flex items-end bg-[image:var(--photo-scrim)] p-3 font-display text-xl leading-tight tracking-tight">

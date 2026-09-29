@@ -379,6 +379,7 @@ export default function HomeExperience({
           <a href="https://github.com/aryansajiv19/plan-ind" target="_blank" rel="noopener noreferrer">GitHub</a>
           <Link href="/privacy">Privacy</Link>
           <Link href="/terms">Terms</Link>
+          <Link href="/credits">Photo credits</Link>
           <a href="#top">Back to top</a>
         </nav>
       </footer>

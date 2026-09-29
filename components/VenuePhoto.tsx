@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
-import PhotoCredit, { CreditMark } from "@/components/PhotoCredit";
+import { CreditMark } from "@/components/PhotoCredit";
+import CategoryArt from "@/components/CategoryArt";
 import { canOptimiseImage } from "@/lib/image-src";
 import type { PlacePhoto } from "@/lib/places/photo";
 import type { PhotoSpot } from "@/lib/venue-photo";
@@ -68,15 +69,15 @@ export default function VenuePhoto({
           className={className}
           unoptimized={!canOptimiseImage(spot.photo_url)}
         />
-        {/* Licence obligation, not decoration — see PhotoCredit. */}
-        <PhotoCredit spot={spot} />
       </>
     );
   }
-  return google && spot.google_place_id ? <GooglePhoto spotId={spot.id} className={className} /> : null;
+  if (google && spot.google_place_id) return <GooglePhoto spotId={spot.id} category={spot.category} className={className} />;
+  // No photo to show: the category's scene, so the box is never empty.
+  return spot.category ? <CategoryArt category={spot.category} /> : null;
 }
 
-function GooglePhoto({ spotId, className }: { spotId: string; className: string }) {
+function GooglePhoto({ spotId, category, className }: { spotId: string; category?: string; className: string }) {
   const anchor = useRef<HTMLSpanElement>(null);
   const [photo, setPhoto] = useState<PlacePhoto | null>(null);
 
@@ -104,6 +105,9 @@ function GooglePhoto({ spotId, className }: { spotId: string; className: string 
   const authors = photo?.attributions.map((author) => author.displayName).filter(Boolean).join(", ");
   return (
     <span ref={anchor} className="venue-photo" data-ready={photo ? "" : undefined}>
+      {/* The scene sits underneath: it shows while Google answers, and stays
+          when Google has no photo or the quota is spent. */}
+      {category && <CategoryArt category={category} />}
       {photo ? (
         <>
           {/* A plain img: the optimiser would store Google's image on our server. */}

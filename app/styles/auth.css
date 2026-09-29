@@ -32,7 +32,7 @@
   overflow: hidden;
   border: 1px solid var(--auth-line);
   border-radius: var(--radius-hero);
-  background: color-mix(in srgb, var(--auth-paper) 86%, transparent);
+  background: color-mix(in srgb, var(--auth-paper) 55%, transparent);
   box-shadow: var(--elevation-card);
 }
 .auth-intro {

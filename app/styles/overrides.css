@@ -1,12 +1,8 @@
 /* app/styles/overrides.css — Must load last: the photo credit and VenuePhoto frame. */
 
-/* ── Photo credit (licence obligation, kept out of the way) ─────────
-   Rendered by components/PhotoCredit.tsx on every spot photo. CC-BY and
-   Google photos must be credited, but the owner wants clean photos: so the
-   credit is a small "©" in the top corner, and the full line opens on
-   hover of the photo. Not focusable: photos often sit inside a button,
-   and a tab stop there is invalid nesting. Never display:none — the
-   text stays in the DOM, the title and the mark's accessible name. */
+/* ── Google photo attribution (components/PhotoCredit.tsx) ──────────
+   Google's terms want the author's name beside its photos: tiny text on
+   the image's top corner, no "©". Our own photos carry nothing; see /credits. */
 /* VenuePhoto's Google branch fills the card's photo frame, a quiet ink block
    until the browser has the photo. */
 .venue-photo {
@@ -21,33 +17,29 @@
   height: 100%;
   object-fit: cover;
 }
-.photo-credit {
+.photo-attrib {
   position: absolute;
-  top: 0.5rem;
+  top: 0.4rem;
   right: 0.5rem;
   z-index: 3;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
   max-width: calc(100% - 1rem);
-  min-height: 1.5rem;
-  padding: 0 0.45rem;
-  border-radius: var(--radius-pill);
-  background: rgba(7, 9, 13, 0.55);
-  color: var(--photo-ink);
-  font-size: max(0.7rem, var(--type-floor));
-  line-height: 1.35;
-  opacity: 0.7;
-  transition: opacity var(--dur-state) var(--ease-settle), background var(--dur-state);
+  overflow: hidden;
+  color: rgba(242, 242, 242, 0.75);
+  font-size: 10px;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
 }
-.photo-credit__text {
-  display: none;
-  overflow-wrap: anywhere;
+
+/* CategoryArt fills its box like a photo, under any photo that arrives. */
+.category-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
-:hover > .photo-credit {
-  opacity: 1;
-  background: rgba(7, 9, 13, 0.88);
-}
-:hover > .photo-credit .photo-credit__text {
-  display: inline;
+.venue-photo > img {
+  z-index: 1;
 }

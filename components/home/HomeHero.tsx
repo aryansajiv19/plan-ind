@@ -3,7 +3,7 @@
 import Link from "next/link";
 import WeightRise from "@/components/WeightRise";
 import VenuePhoto, { useGooglePhotos } from "@/components/VenuePhoto";
-import { hasVenuePhoto } from "@/lib/venue-photo";
+import { hasRealPhoto } from "@/lib/venue-photo";
 import type { CuratedCounts } from "@/lib/spots/catalogue";
 import type { Spot } from "@/lib/types";
 
@@ -31,7 +31,7 @@ export default function HomeHero({
 }) {
   // Photographed venues first; the wall already ranks them that way.
   const google = useGooglePhotos();
-  const pictured = (spot: Spot) => hasVenuePhoto(spot, google);
+  const pictured = (spot: Spot) => hasRealPhoto(spot, google); // the cover wants photographs, not art
   const tiles = [...spots.filter(pictured), ...spots.filter((spot) => !pictured(spot))].slice(0, MOSAIC_TILES);
 
   return (

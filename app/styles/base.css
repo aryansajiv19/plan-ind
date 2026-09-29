@@ -123,6 +123,14 @@ h3,
 [data-theme="night"] body {
   background: transparent;
 }
+/* Desert-night depth: a navy aurora overhead, a brown dune glow below. */
+:root[data-theme="night"] {
+  background:
+    radial-gradient(ellipse 90% 55% at 50% -12%, rgba(23, 64, 80, 0.55), transparent 70%),
+    radial-gradient(ellipse 80% 45% at 50% 115%, rgba(112, 65, 33, 0.38), transparent 70%),
+    var(--color-paper);
+  background-attachment: fixed;
+}
 [data-theme="night"] body::before,
 [data-theme="night"] body::after {
   content: "";
@@ -148,10 +156,10 @@ h3,
     radial-gradient(1px 1px at 197px 331px, rgba(242, 242, 242, 0.6), transparent),
     radial-gradient(1px 1px at 419px 409px, rgba(167, 192, 216, 0.55), transparent);
   background-size: 470px 470px;
-  animation: sky-twinkle 5s ease-in-out infinite alternate;
+  animation: sky-twinkle 3.2s ease-in-out infinite alternate;
 }
 @keyframes sky-twinkle {
-  from { opacity: 0.25; }
+  from { opacity: 0.15; }
   to { opacity: 1; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -178,12 +186,14 @@ h3,
   from { opacity: 0; transform: translateY(8px); }
 }
 
-/* Glints (components/SkySparkles): a four-point star per span, drawn by
-   clip-path, fading and scaling in on a slow 9s cycle each, staggered. */
+/* Glints (components/SkySparkles): four-point stars drawn by clip-path,
+   each twinkling on its own rhythm (inline duration/delay), a few drifting.
+   The star layer above twinkles on a second, slower beat. */
 .sky-sparkles {
   position: fixed;
   inset: 0;
   z-index: -1;
+  overflow: hidden;
   pointer-events: none;
 }
 :root:not([data-theme="night"]) .sky-sparkles {
@@ -194,16 +204,25 @@ h3,
   background: #f2f2f2;
   clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
   opacity: 0;
-  filter: drop-shadow(0 0 3px rgba(242, 242, 242, 0.8));
-  animation: sky-glint 9s ease-in-out infinite;
+  filter: drop-shadow(0 0 4px rgba(242, 242, 242, 0.9));
+  animation: sky-glint 5s ease-in-out infinite;
 }
 .sky-sparkles__glint--gold {
-  background: #e8c08f;
+  background: #ecc792;
+  filter: drop-shadow(0 0 5px rgba(206, 153, 99, 0.9));
+}
+.sky-sparkles__glint--drift {
+  animation-name: sky-glint-drift;
 }
 @keyframes sky-glint {
-  0%, 70%, 100% { opacity: 0; transform: scale(0.3) rotate(0deg); }
-  80% { opacity: 0.85; transform: scale(1) rotate(45deg); }
-  90% { opacity: 0.2; transform: scale(0.6) rotate(90deg); }
+  0%, 100% { opacity: 0; transform: scale(0.3) rotate(0deg); }
+  45% { opacity: 0.95; transform: scale(1) rotate(45deg); }
+  60% { opacity: 0.5; transform: scale(0.7) rotate(70deg); }
+}
+@keyframes sky-glint-drift {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.3); }
+  45% { opacity: 0.9; transform: translate(-12px, 6px) scale(1) rotate(45deg); }
+  100% { opacity: 0; transform: translate(-24px, 12px) scale(0.3) rotate(90deg); }
 }
 @media (prefers-reduced-motion: reduce) {
   .sky-sparkles__glint {

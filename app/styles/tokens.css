@@ -114,7 +114,7 @@
      (base.css). Cards are a navy-black lift; the owner's #174050 is the
      quiet fill. */
   --color-paper: #07090d;
-  --color-card: #101c24;
+  --color-card: rgba(16, 32, 42, 0.82); /* navy glass: the sky glints through */
   --color-ink: #f2f2f2; /* 17.8 canvas / 15.5 card */
   --color-muted: #d9c3ab; /* 11.7 / 10.2 */
   --color-punch: #ce9963;

@@ -409,3 +409,22 @@
     background-position: 200% 0;
   }
 }
+
+/* /credits: one row per photographed place. */
+.credits-list {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 1.2rem;
+  list-style: none;
+  padding: 0;
+}
+.credits-list li {
+  display: grid;
+  gap: 0.1rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-line) 35%, transparent);
+}
+.credits-list li span {
+  color: var(--color-muted);
+  font-size: max(0.82rem, var(--type-floor));
+}
