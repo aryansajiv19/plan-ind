@@ -69,8 +69,9 @@ export async function POST(request: Request) {
   });
   if (error || !data || typeof data !== "object") {
     console.error("Secure plan creation failed", JSON.stringify({ code: error?.code }));
-    const status = error?.code === "42501" ? 403 : error?.code === "22023" ? 400 : 500;
-    return Response.json({ error: status === 403
+    // PC429: the database's own daily cap (087), for a caller that skipped the quota above.
+    const status = error?.code === "42501" ? 403 : error?.code === "22023" ? 400 : error?.code === "PC429" ? 429 : 500;
+    return Response.json({ error: status === 429 ? "Too many plans started. Try again later." : status === 403
       ? "This account cannot create that plan."
       : status === 400
         ? "The plan details were not accepted."
