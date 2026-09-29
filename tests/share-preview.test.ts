@@ -91,9 +91,9 @@ test("a decided plan's card leads with the winner, its time and area", () => {
 test("a decided plan's share message announces the winner", () => {
   const url = `https://plan-ind.vercel.app/plan/${ID}`;
   const winner = { name: "Il Borro", area: "Jumeirah", eventTime: "2026-09-26T16:00:00Z" };
-  assert.equal(shareMessage("Friday dinner", url, winner), `We're going to Il Borro (Jumeirah) — Sat 26 Sep, 8 pm. RSVP: ${url}`);
+  assert.equal(shareMessage("Friday dinner", url, winner), `We're going to Il Borro (Jumeirah), Sat 26 Sep, 8 pm. RSVP: ${url}`);
   assert.equal(shareMessage("Friday dinner", url, { ...winner, area: null, eventTime: null }), `We're going to Il Borro. RSVP: ${url}`);
-  assert.equal(shareMessage("Friday dinner", "", winner), "We're going to Il Borro (Jumeirah) — Sat 26 Sep, 8 pm.");
+  assert.equal(shareMessage("Friday dinner", "", winner), "We're going to Il Borro (Jumeirah), Sat 26 Sep, 8 pm.");
   const wa = new URL(whatsappShareUrl("Friday dinner", url, winner));
   assert.equal(wa.searchParams.get("text"), shareMessage("Friday dinner", url, winner));
 });

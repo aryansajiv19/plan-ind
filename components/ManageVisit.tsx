@@ -47,7 +47,7 @@ export default function ManageVisit({
       note: draft.note.trim() || null,
     });
     setPending(false);
-    if (!stored) { setError("Couldn’t save that change. Nothing was edited — try again."); return; }
+    if (!stored) { setError("Couldn’t save that change. Nothing was edited, so try again."); return; }
     // Show what the server stored, not what was typed: it trims on write.
     setDraft({
       visited_at: stored.visited_at.slice(0, 10),
@@ -120,7 +120,7 @@ export default function ManageVisit({
                     : <span className="manage-visit__photo-missing">Photo {index + 1}</span>}
                   {armed === `photo:${photo.id}` ? (
                     <span className="manage-visit__confirm">
-                      <button type="button" disabled={pending} onClick={() => void run(() => deleteVisitPhoto(photo), "Couldn’t delete that photo. Nothing was removed — try again.")}>
+                      <button type="button" disabled={pending} onClick={() => void run(() => deleteVisitPhoto(photo), "Couldn’t delete that photo. Nothing was removed, so try again.")}>
                         Delete photo
                       </button>
                       <button type="button" disabled={pending} onClick={() => setArmed(null)}>Cancel</button>
@@ -182,7 +182,7 @@ export default function ManageVisit({
           {armedIsVisit ? (
             <p className="manage-visit__confirm" role="group" aria-label="Confirm delete">
               <span>Delete {label(visit)}? Its tags and photos go with it, and if it’s your only visit there it leaves your ranking too. This can’t be undone.</span>
-              <button type="button" disabled={pending} onClick={() => void run(() => deleteVisit(visit.id), "Couldn’t finish deleting that visit. Try again — it picks up where it stopped.")}>
+              <button type="button" disabled={pending} onClick={() => void run(() => deleteVisit(visit.id), "Couldn’t finish deleting that visit. Try again and it picks up where it stopped.")}>
                 {pending ? "Deleting…" : "Delete visit"}
               </button>
               <button type="button" disabled={pending} onClick={() => setArmed(null)}>Cancel</button>

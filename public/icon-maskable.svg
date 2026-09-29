@@ -1,9 +1,8 @@
-<!-- Maskable: the mark sits inside the 40% safe circle, so Android can crop
-     this to any shape without clipping the wordmark. -->
+<!-- Maskable: full-bleed ground, mark inside the 40% safe circle so any crop keeps it. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Deal three">
-  <rect width="512" height="512" fill="#17181b"/>
-  <text x="256" y="278" fill="#f6f3ed" font-family="Manrope, system-ui, -apple-system, sans-serif"
-        font-size="150" font-weight="800" letter-spacing="-18" text-anchor="middle">D/</text>
-  <text x="256" y="346" fill="#c3a573" font-family="Manrope, system-ui, -apple-system, sans-serif"
-        font-size="70" font-weight="800" letter-spacing="-3" text-anchor="middle">03</text>
+  <rect width="512" height="512" fill="#ce9963"/>
+  <g fill="#3f230b" font-family="'Cormorant Garamond', Georgia, 'Times New Roman', serif" font-weight="600" text-anchor="middle">
+    <text x="226" y="296" font-size="160" letter-spacing="-8">D/</text>
+    <text x="350" y="316" font-size="78" font-style="italic">03</text>
+  </g>
 </svg>

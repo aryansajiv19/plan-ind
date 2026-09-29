@@ -150,7 +150,7 @@ export default function InviteAccept({
         }
         // Naming the accepting account matters on a shared browser, where the
         // session may not be the person who opened the link.
-        body = `Friends can see each other’s visit log — where you’ve been, when, and who with. Only accept if you know them.${accountName ? ` You’re accepting as ${accountName}.` : ""}`;
+        body = `Friends can see each other’s visit log: where you’ve been, when, and who with. Only accept if you know them.${accountName ? ` You’re accepting as ${accountName}.` : ""}`;
         action = (
           <>
             <button type="button" className="vote-primary-action" disabled={pending} onClick={() => void accept(p.displayName)}>
@@ -161,7 +161,7 @@ export default function InviteAccept({
         );
       } else if (p.result === "self") {
         title = "That’s your own invite";
-        body = "Send this link to a friend — they accept it from their account.";
+        body = "Send this link to a friend. They accept it from their account.";
         action = toFriends;
       } else if (p.result === "invalid") {
         title = "This invite has expired or been used";

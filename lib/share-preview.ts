@@ -164,7 +164,7 @@ export function shareMessage(title: string | null | undefined, url: string, winn
   if (spot) {
     const area = oneLine(winner?.area, 40);
     const when = eventLabel(winner?.eventTime);
-    const line = `We're going to ${spot}${area ? ` (${area})` : ""}${when ? ` — ${when}` : ""}`;
+    const line = `We're going to ${spot}${area ? ` (${area})` : ""}${when ? `, ${when}` : ""}`;
     return url ? `${line}. RSVP: ${url}` : `${line}.`;
   }
   const name = title?.trim();

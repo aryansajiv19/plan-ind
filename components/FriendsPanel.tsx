@@ -51,7 +51,7 @@ export default function FriendsPanel({
       await navigator.clipboard.writeText(invite);
       setCopied(true);
     } catch {
-      setInviteNote("Couldn’t copy automatically — select the link and copy it.");
+      setInviteNote("Couldn’t copy automatically. Select the link and copy it.");
     }
   }
 

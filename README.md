@@ -15,7 +15,9 @@
 
 </div>
 
-https://github.com/user-attachments/assets/1cf86b4a-35e6-4089-8c7e-2d9dfe393809
+<a href="docs/media/brag.mp4"><img src="docs/media/brag.jpg" alt="plan-ind in 21 seconds: the group chat, the deal, the vote and the winner. Click to play." width="100%"></a>
+
+<p align="center"><a href="docs/media/brag.mp4">Watch the 21-second demo</a></p>
 
 ## Why I built this
 
