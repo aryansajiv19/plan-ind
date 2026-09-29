@@ -8,9 +8,11 @@ import { canOptimiseImage } from "@/lib/image-src";
 import type { PlacePhoto } from "@/lib/places/photo";
 import type { PhotoSpot } from "@/lib/venue-photo";
 
-// Google photos are billed per view, capped per day for the whole site, and
-// may not be cached (terms). Signed-out surfaces (the landing, /demo) show
-// our own photos only: a signed-out view used to spend 14-17 of the 300/day.
+// Google photos are billed per view, capped per day for the whole site (092:
+// 1,500) and per visitor, and may not be cached (terms). Every surface shows
+// them now (owner: every place has a picture); a refusal falls back to the
+// category art, never an empty frame. A surface that must not spend the cap
+// can still wrap itself in <NoGooglePhotos>.
 const GooglePhotos = createContext(true);
 export function NoGooglePhotos({ children, off = true }: { children: ReactNode; off?: boolean }) {
   return <GooglePhotos.Provider value={!off}>{children}</GooglePhotos.Provider>;

@@ -1,21 +1,16 @@
 import { test, expect } from "@playwright/test";
 
-// Signed out, the public pages show only our own photos (item 15): a Google
-// Places photo costs the shared daily cap (300/day, ~15 per landing view
-// before this), and past a visitor's limit it answered 429 and left an empty
-// dark frame. So: no request to /api/spots/:id/photo at all, and every wall
-// card is either a photo that actually loaded, its category art (wave 1a:
-// .category-art, an SVG scene), or the typographic tile, never a photo frame
-// with nothing in it. Scrolled through the whole page first,
+// Signed out, the public pages show Google photos too (owner, 2026-09-29:
+// every place has a picture; the site cap is 1,500/day since 092). What must
+// never happen: a photo frame with nothing in it. Every wall card is a photo
+// that actually loaded, its category art (.category-art, an SVG scene, which
+// is also what a refused or over-quota Google photo falls back to), or the
+// typographic tile. Scrolled through the whole page first,
 // because the wall and the composer mount only near the viewport.
 
 for (const path of ["/", "/demo"]) {
-  test(`${path} signed out: no Google photo requests, and no empty photo frames on the wall`, async ({ page }) => {
+  test(`${path} signed out: no empty photo frames on the wall`, async ({ page }) => {
     test.setTimeout(60_000);
-    const photoRequests: string[] = [];
-    page.on("request", (request) => {
-      if (/\/api\/spots\/[^/]+\/photo/.test(new URL(request.url()).pathname)) photoRequests.push(request.url());
-    });
     await page.goto(path);
 
     const tiles = page.locator("#right-now article.wall-tile");
@@ -42,9 +37,5 @@ for (const path of ["/", "/demo"]) {
           { message: `card ${i}'s photo never loaded`, timeout: 10_000 }).toBe(true);
       }
     }
-    // The rest of the page too (the composer deck), then the verdict.
-    await page.mouse.wheel(0, 20_000);
-    await page.waitForTimeout(2_000); // a Google photo is fetched as its card nears the viewport
-    expect(photoRequests, "signed out must never spend the Google photo cap").toEqual([]);
   });
 }

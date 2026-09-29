@@ -18,7 +18,6 @@ import YourPlans, { type PlanSummary } from "@/components/home/YourPlans";
 import { TAB_VIEWS, VIEW_LABELS, WALL_SIZE, viewFromParam, type AppView } from "@/lib/home-views";
 import NearViewport from "@/components/home/NearViewport";
 import ThemeToggle from "@/components/ThemeToggle";
-import { NoGooglePhotos } from "@/components/VenuePhoto";
 import { greetingFor } from "@/lib/right-now";
 
 // The account tabs are most of this component's weight and the signed-out
@@ -233,7 +232,7 @@ export default function HomeExperience({
 
 
   return (
-    <NoGooglePhotos off={demoMode}>
+    <>
     <main onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} className={`home-experience ${ready ? "home-experience--ready" : ""}`}>
       <div className="home-grid-field" aria-hidden="true" />
 
@@ -392,6 +391,6 @@ export default function HomeExperience({
         </nav>
       </footer>
     </main>
-    </NoGooglePhotos>
+    </>
   );
 }
