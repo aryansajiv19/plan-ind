@@ -59,3 +59,26 @@ test("the SQL stores only our columns: nothing from Google, unknown stays unknow
   assert.match(sql, /, null, 0, '', /, "price_band null, min_spend 0, open_till '' (unknown)");
   assert.match(sql, /on conflict \(id\) do nothing/);
 });
+
+test("the review: stable ids per OSM object; only approved rows with a final vibe become SQL, each with its vibe's source", async () => {
+  const { approvedRecords, idFor } = await import("../lib/catalogue/review.ts");
+  assert.equal(idFor("node/622542589"), "c0890000-0000-0000-0001-0000251b3efd");
+  assert.equal(idFor("way/1"), "c0890000-0000-0000-0002-000000000001");
+  const base = {
+    osm: "node/1", osm_url: "https://www.openstreetmap.org/node/1", category: "cafe", area: "JBR", district: "Marina & JBR",
+    cuisine: "Cafe", latitude: 25.08, longitude: 55.14, opening_hours: null, open_till: "", website: "https://x.test", minimum_age: 0,
+    upkeep: 5, proposed_vibe: "Sea-view terrace for slow coffees", proposed_vibe_source: "https://x.test", reject_reason: null,
+  };
+  const rows = [
+    { ...base, id: "c0890000-0000-0000-0001-000000000001", name: "Kept as proposed", approved: true, vibe_final: "Sea-view terrace for slow coffees" },
+    { ...base, id: "c0890000-0000-0000-0001-000000000002", name: "Rewritten", approved: true, vibe_final: "Our own honest line" },
+    { ...base, id: "c0890000-0000-0000-0001-000000000003", name: "Not approved", approved: false, vibe_final: "x" },
+  ];
+  const records = approvedRecords(rows);
+  assert.deepEqual(records.map((r) => [r.name, r.vibeSource]), [["Kept as proposed", "https://x.test"], ["Rewritten", "reviewer"]]);
+  assert.throws(() => approvedRecords([{ ...rows[0], vibe_final: " " }]), /approved without vibe_final/);
+  assert.throws(() => approvedRecords([{ ...rows[0], reject_reason: "closed" }]), /approved and rejected/);
+  const sql = catalogueSql(records, "2026-09-29");
+  assert.match(sql, /-- Rewritten · cafe · JBR · vibe: reviewer/);
+  assert.match(sql, /Written by the plan-ind reviewer/);
+});

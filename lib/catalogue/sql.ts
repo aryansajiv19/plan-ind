@@ -16,7 +16,8 @@ export interface CatalogueRecord {
   website: string | null;
   minimumAge: number;
   vibe: string;
-  vibeSource: string; // "osm:description" or the site URL it came from
+  /** Where the vibe line came from: "reviewer", "osm:description", or the site URL. */
+  vibeSource: string;
 }
 
 /** The only columns 089 writes. */
@@ -26,14 +27,19 @@ export const STORED_COLUMNS = [
 ] as const;
 
 const q = (value: string) => `'${value.replace(/'/g, "''")}'`;
+/** A SQL line comment can't be ended early by what's in it. */
+const comment = (value: string) => value.replace(/[\r\n]+/g, " ");
 
 export function catalogueSql(rows: readonly CatalogueRecord[], checkedOn: string): string {
   const values = rows.map((r) => {
+    const osmUrl = `https://www.openstreetmap.org/${r.osmRef}`;
+    const vibeFact = r.vibeSource === "reviewer" ? "Written by the plan-ind reviewer"
+      : r.vibeSource === "osm:description" ? "OpenStreetMap description" : "The venue's own site";
     const sources = JSON.stringify([
-      { field: "name, coordinates, category, cuisine, opening_hours, website", fact: `OpenStreetMap ${r.osmRef}`, url: `https://www.openstreetmap.org/${r.osmRef}` },
-      { field: "vibe", fact: "The venue's own description", url: r.vibeSource.startsWith("http") ? r.vibeSource : `https://www.openstreetmap.org/${r.osmRef}` },
+      { field: "name, coordinates, category, cuisine, opening_hours, website", fact: `OpenStreetMap ${r.osmRef}`, url: osmUrl },
+      { field: "vibe", fact: vibeFact, url: r.vibeSource.startsWith("http") ? r.vibeSource : osmUrl },
     ]);
-    return `  (${[
+    return `  -- ${comment(r.name)} · ${r.category} · ${r.area} · vibe: ${comment(r.vibeSource)}\n  (${[
       q(r.id), q(r.name), q(r.category), q(r.area), q(r.cuisine), "null", "0", q(r.openTill), q(r.vibe), String(r.minimumAge),
       String(r.latitude), String(r.longitude), r.website ? q(r.website) : "null", "'curated'", "'community'",
       q(checkedOn), `${q(sources)}::jsonb`,

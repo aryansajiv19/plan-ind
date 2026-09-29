@@ -38,6 +38,13 @@ export default async function CreditsPage() {
             ))}
           </ul>
         )}
+        {/* ODbL: the catalogue's venue data from OSM (089) and the metro network. */}
+        <h2>Venue data</h2>
+        <p>
+          Venue names, locations, opening hours and the metro network come in part from{" "}
+          <a href="https://www.openstreetmap.org/copyright" rel="noopener noreferrer" target="_blank">© OpenStreetMap contributors</a>,
+          available under the Open Database Licence (ODbL).
+        </p>
       </article>
     </main>
   );
