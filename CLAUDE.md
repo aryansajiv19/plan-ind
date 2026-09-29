@@ -43,7 +43,8 @@ not after.
 
 - A push to `main` deploys production (`https://plan-ind.vercel.app`); only
   commits touching nothing but `*.md` or `docs/` skip the build
-  (`vercel.json`). Gate before pushing. Other branches get protected previews.
+  (`vercel.json`). Gate before pushing. `lane/*` branches never deploy (CI only;
+  Hobby caps ~100 deployments a day); other branches get protected previews.
 - Commit promptly and push. Stage explicit paths while a subagent is working in
   the same tree — never `git add -A`.
 - Subagents for genuine fan-out only (independent audits, unrelated files).
