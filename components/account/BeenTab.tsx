@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import PhotoWall from "@/components/PhotoWall";
 import ManageVisit from "@/components/ManageVisit";
@@ -32,6 +33,9 @@ export default function BeenTab({
   onStartPlan: () => void;
 }) {
   const router = useRouter();
+  const [creating, setCreating] = useState(false);
+  const [pickVisit, setPickVisit] = useState("");
+  const [pickCollection, setPickCollection] = useState("");
   const {
     collections,
     collectionDeleteArmed,
@@ -88,7 +92,8 @@ export default function BeenTab({
         </div>
       ) : (
         <>
-          <div className="demo-collection-bar">
+          {/* One row of chips: your collections, then the two things you add. */}
+          <div className="been-bar">
             <div className="demo-collection-tabs" role="tablist" aria-label="Visit collections">
               <button type="button" role="tab" aria-selected={activeCollection === "all"} onClick={() => setActiveCollection("all")}>
                 All places <span>{visits.length}</span>
@@ -100,24 +105,37 @@ export default function BeenTab({
               ))}
             </div>
             {personId && (
-              <div className="demo-collection-create">
-                <label htmlFor="collection-name">New collection</label>
-                <div>
+              <div className="been-bar__adds">
+                <button type="button" className="been-add" aria-expanded={creating} onClick={() => setCreating((open) => !open)}>+ Collection</button>
+                <label className="been-add">
+                  + Photo
                   <input
-                    id="collection-name"
-                    value={newCollectionName}
-                    onChange={(event) => setNewCollectionName(event.target.value)}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter") { event.preventDefault(); void createCollection(); }
-                    }}
-                    placeholder="JBR brunch list, date nights…"
-                    maxLength={40}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="sr-only"
+                    onChange={(event) => void handleUploadChange(event.target.files?.[0])}
                   />
-                  <button type="button" onClick={() => void createCollection()} disabled={!newCollectionName.trim()}>Create</button>
-                </div>
+                </label>
               </div>
             )}
           </div>
+          {personId && creating && (
+            <form
+              className="been-inline"
+              onSubmit={(event) => { event.preventDefault(); void createCollection().then(() => setCreating(false)); }}
+            >
+              <label htmlFor="collection-name" className="sr-only">New collection name</label>
+              <input
+                id="collection-name"
+                value={newCollectionName}
+                onChange={(event) => setNewCollectionName(event.target.value)}
+                placeholder="JBR brunch list, date nights…"
+                maxLength={40}
+                autoFocus
+              />
+              <button type="submit" disabled={!newCollectionName.trim()}>Create</button>
+            </form>
+          )}
 
           <PhotoWall
             items={wallItems}
@@ -161,50 +179,34 @@ export default function BeenTab({
             </div>
           )}
           {!activeFolder && personId && collections.length > 0 && (
-            <div className="demo-visit__collection-action">
-              <label>
-                <span>Add {visits[0]?.spot?.name ? "a visit" : "one"} to a collection</span>
-                <select
-                  value=""
-                  onChange={(event) => {
-                    const [visitId, collectionId] = event.target.value.split("::");
-                    if (visitId && collectionId) void addToCollection(visitId, collectionId);
-                  }}
-                >
-                  <option value="">Choose a visit and collection…</option>
-                  {visits.flatMap((visit) => collections.map((collection) => (
-                    <option key={`${visit.id}::${collection.id}`} value={`${visit.id}::${collection.id}`}>
-                      {visit.spot?.name ?? "Removed place"} → {collection.name}
-                    </option>
-                  )))}
-                </select>
-              </label>
-            </div>
+            <form
+              className="been-inline"
+              onSubmit={(event) => {
+                event.preventDefault();
+                const target = pickCollection || collections[0].id;
+                if (pickVisit) void addToCollection(pickVisit, target).then(() => setPickVisit(""));
+              }}
+            >
+              <span>Add</span>
+              <select aria-label="Visit" value={pickVisit} onChange={(event) => setPickVisit(event.target.value)}>
+                <option value="">a place…</option>
+                {visits.map((visit) => <option key={visit.id} value={visit.id}>{visit.spot?.name ?? "Removed place"}</option>)}
+              </select>
+              <span>to</span>
+              <select aria-label="Collection" value={pickCollection || collections[0].id} onChange={(event) => setPickCollection(event.target.value)}>
+                {collections.map((collection) => <option key={collection.id} value={collection.id}>{collection.name}</option>)}
+              </select>
+              <button type="submit" disabled={!pickVisit}>Add</button>
+            </form>
           )}
 
-          {personId && (
+          {personId && (uploadFile || uploadError) && (
             <div className="demo-photo-composer">
-              <label className="demo-photo-upload">
-                <input
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  onChange={(event) => void handleUploadChange(event.target.files?.[0])}
-                />
-                {uploadPreview ? (
-                  <>
-                    <span className="demo-photo-upload__preview">
-                      <Image src={uploadPreview} alt="New visit upload preview" fill unoptimized />
-                    </span>
-                    <strong>Photo ready for {visits.find((v) => v.id === effectiveUploadVisitId)?.spot?.name ?? "your visit"}</strong>
-                    <small>Tap the image to choose another</small>
-                  </>
-                ) : (
-                  <>
-                    <strong>Add a photo from a visit</strong>
-                    <small>Choose an image from this device</small>
-                  </>
-                )}
-              </label>
+              {uploadPreview && (
+                <span className="demo-photo-upload__preview been-preview">
+                  <Image src={uploadPreview} alt="New visit upload preview" fill unoptimized />
+                </span>
+              )}
               {uploadError && <p role="alert" className="auth-error">{uploadError}</p>}
               <label className="demo-photo-target">
                 <span>Attach to</span>
