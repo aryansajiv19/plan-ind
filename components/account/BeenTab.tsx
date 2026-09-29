@@ -11,6 +11,8 @@ import type useBeenCollections from "@/components/account/useBeenCollections";
 import type { VisitStats } from "@/components/account/useVisitStats";
 import type { VisitPhotoView } from "@/lib/social";
 import type { ProfileVisit } from "@/lib/types";
+import MyRanking from "@/components/ranking/MyRanking";
+import type { useRanking } from "@/hooks/use-ranking";
 
 export default function BeenTab({
   personId,
@@ -20,6 +22,7 @@ export default function BeenTab({
   photosUnavailable,
   stats,
   been,
+  ranking,
   onStartPlan,
 }: {
   personId: string | null;
@@ -30,6 +33,7 @@ export default function BeenTab({
   photosUnavailable: boolean;
   stats: VisitStats;
   been: ReturnType<typeof useBeenCollections>;
+  ranking: ReturnType<typeof useRanking>;
   onStartPlan: () => void;
 }) {
   const router = useRouter();
@@ -92,6 +96,8 @@ export default function BeenTab({
         </div>
       ) : (
         <>
+          {personId && <MyRanking visits={visits} ranking={ranking} />}
+
           {/* One row of chips: your collections, then the two things you add. */}
           <div className="been-bar">
             <div className="demo-collection-tabs" role="tablist" aria-label="Visit collections">

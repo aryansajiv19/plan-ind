@@ -13,6 +13,7 @@ import { useSuggestions } from "@/hooks/use-suggestions";
 import DiscoverTab, { useDiscoverSearch } from "@/components/account/DiscoverTab";
 import BeenTab from "@/components/account/BeenTab";
 import SavedTab from "@/components/account/SavedTab";
+import { useRanking } from "@/hooks/use-ranking";
 import useBeenCollections from "@/components/account/useBeenCollections";
 import FriendsTab from "@/components/account/FriendsTab";
 import ProfileTab from "@/components/account/ProfileTab";
@@ -91,6 +92,8 @@ export default function AccountViews({
   // Loaded the first time Discover opens, then kept across tab switches.
   // Discover needs them for "save to board" on cards; Saved shows them.
   const boards = useMoodboards(personId, view === "discover" || view === "saved");
+  // Been's rating game and list (085), loaded when Been first opens.
+  const ranking = useRanking(view === "been" && Boolean(personId));
   const suggested = useSuggestions(visits, age, view === "discover" && !visitsUnavailable);
 
   if (view === "discover") {
@@ -120,6 +123,7 @@ export default function AccountViews({
         photosUnavailable={photosUnavailable}
         stats={stats}
         been={been}
+        ranking={ranking}
         onStartPlan={onStartPlan}
       />
     );

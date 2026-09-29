@@ -662,3 +662,271 @@
 @media (prefers-reduced-motion: reduce) {
   .mini-map__walk, .mini-map__pulse { animation: none; }
 }
+
+/* ── The rating game (components/ranking/RateGame.tsx) ───────────────
+   One step at a time: buckets as big emoji tiles, then two photo cards
+   face to face, then chips, then the score pops in. */
+.rate-game {
+  margin-top: 1rem;
+  padding: 1.1rem;
+  border: 1px solid color-mix(in srgb, var(--color-punch) 45%, transparent);
+  border-radius: var(--radius-panel);
+  background: linear-gradient(160deg, rgba(23, 64, 80, 0.55), rgba(68, 40, 22, 0.45));
+}
+.rate-game__place {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+.rate-game__photo {
+  position: relative;
+  flex: none;
+  width: 4.5rem;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: var(--radius-thumb);
+}
+.rate-game__kicker {
+  color: var(--color-punch-text);
+  font-size: max(0.75rem, var(--type-floor));
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.rate-game__place h3 {
+  font-size: 1.6rem;
+}
+.rate-game__area {
+  color: var(--color-muted);
+}
+.rate-game__step {
+  margin-top: 1rem;
+  animation: rate-step-in 360ms var(--ease-settle) both;
+}
+.rate-game__ask {
+  margin: 1rem 0 0.7rem;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.4rem;
+}
+.rate-game__buckets {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+}
+.rate-game__bucket {
+  display: grid;
+  place-items: center;
+  gap: 0.3rem;
+  min-height: 6.5rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-panel);
+  background: var(--color-card);
+  color: var(--color-ink);
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform var(--dur-press) var(--ease-spring), border-color var(--dur-state);
+}
+.rate-game__bucket span {
+  font-size: 2.2rem;
+}
+.rate-game__bucket:hover {
+  border-color: var(--color-punch);
+  transform: translateY(-3px);
+}
+.rate-game__bucket:active,
+.rate-game__card:active {
+  transform: scale(0.96);
+}
+.rate-game__versus {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 0.6rem;
+}
+.rate-game__or {
+  color: var(--color-muted);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.3rem;
+}
+.rate-game__card {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.5rem 0.5rem 0.8rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-panel);
+  background: var(--color-card);
+  color: var(--color-ink);
+  cursor: pointer;
+  transition: transform var(--dur-press) var(--ease-spring), border-color var(--dur-state), box-shadow var(--dur-state);
+}
+.rate-game__card:hover {
+  border-color: var(--color-punch);
+  box-shadow: 0 0 0 2px var(--color-punch);
+}
+.rate-game__card-photo {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--radius-thumb);
+}
+.rate-game__card strong {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.2rem;
+}
+.rate-game__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.6rem;
+}
+.rate-game__chips button {
+  min-height: 2.4rem;
+  padding: 0 0.9rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-muted);
+  text-transform: capitalize;
+  cursor: pointer;
+}
+.rate-game__chips button[aria-pressed="true"] {
+  border-color: var(--color-punch);
+  background: var(--color-accent-tint);
+  color: var(--color-ink);
+}
+.rate-game__save,
+.went-here__button {
+  min-height: 2.9rem;
+  margin-top: 0.4rem;
+  padding: 0 1.4rem;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--primary-fill);
+  color: var(--primary-ink);
+  font-weight: 700;
+  cursor: pointer;
+}
+.rate-game__result {
+  text-align: center;
+}
+.rate-game__score {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 4rem;
+  line-height: 1;
+  color: var(--color-punch-text);
+  animation: rate-score-pop 700ms var(--ease-spring) both;
+}
+.rate-game__score span {
+  font-size: 1.4rem;
+  color: var(--color-muted);
+}
+@keyframes rate-step-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+}
+@keyframes rate-score-pop {
+  from { opacity: 0; transform: scale(0.6); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rate-game__step, .rate-game__score { animation: none; }
+}
+
+/* My ranking: bands with 0-10 scores; places to rate as tap cards. */
+.my-ranking h2 {
+  margin-top: 1.5rem;
+  font-size: 1.8rem;
+}
+.my-ranking h2 span {
+  margin-left: 0.4rem;
+  padding: 0.05rem 0.5rem;
+  border-radius: var(--radius-pill);
+  background: var(--primary-fill);
+  color: var(--primary-ink);
+  font-family: var(--font-body);
+  font-style: normal;
+  font-size: 0.9rem;
+  vertical-align: middle;
+}
+.my-ranking__pending ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: 0.6rem;
+  margin-top: 0.8rem;
+  list-style: none;
+  padding: 0;
+}
+.my-ranking__pending li button {
+  display: grid;
+  gap: 0.2rem;
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border: 1px dashed color-mix(in srgb, var(--color-punch) 70%, transparent);
+  border-radius: var(--radius-panel);
+  background: var(--color-card);
+  color: var(--color-ink);
+  text-align: left;
+  cursor: pointer;
+  transition: transform var(--dur-press) var(--ease-spring);
+}
+.my-ranking__pending li button:hover {
+  transform: translateY(-2px);
+}
+.my-ranking__pending li span,
+.my-ranking__area {
+  color: var(--color-muted);
+  font-size: max(0.8rem, var(--type-floor));
+}
+.my-ranking__band h3 {
+  margin: 1rem 0 0.4rem;
+  color: var(--color-punch-text);
+  font-size: 1.2rem;
+}
+.my-ranking__band ol {
+  display: grid;
+  gap: 0.35rem;
+  list-style: none;
+  padding: 0;
+}
+.my-ranking__band li {
+  display: grid;
+  grid-template-columns: 3.2rem 1fr auto 2.5rem;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: var(--radius-control);
+  background: var(--color-card);
+}
+.my-ranking__score {
+  display: grid;
+  place-items: center;
+  height: 2.2rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent-tint);
+  color: var(--color-ink);
+  font-weight: 700;
+}
+.my-ranking__band[data-bucket="loved"] .my-ranking__score {
+  background: var(--primary-fill);
+  color: var(--primary-ink);
+}
+.my-ranking__band li button {
+  border: 0;
+  background: transparent;
+  color: var(--color-muted);
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+.went-here {
+  display: grid;
+  gap: 0.4rem;
+}
+.went-here__ranked {
+  color: var(--color-muted);
+}
+.went-here__ranked strong {
+  color: var(--color-punch-text);
+}

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import LandingNav from "@/components/landing/LandingNav";
+import WentHere from "@/components/ranking/WentHere";
 import { createClient } from "@/lib/supabase/server";
 import VenuePhoto from "@/components/VenuePhoto";
 import { hasVenuePhoto } from "@/lib/venue-photo";
@@ -148,6 +149,9 @@ export default async function PlacePage({
             />
           )}
           {user && <PlaceSaveToBoard spot={spot} />}
+          {user && (
+            <WentHere place={{ id: spot.id, name: spot.name, area: spot.area, category: spot.category, photo_url: spot.photo_url, photo_attribution: spot.photo_attribution, google_place_id: spot.google_place_id }} />
+          )}
           {/* P9: signed out, planning starts with an account; come back here after. */}
           {!user && (
             <Link href={`/login?next=/place/${spot.id}`} className="place-action">
