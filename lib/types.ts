@@ -202,6 +202,7 @@ export interface Person {
   emoji: string | null; // null = not chosen (052); else 1–8 chars, no controls or bidi overrides
   color: string; // "#rrggbb" — validated by the DB, LOWERCASED on write
   auth_user_id: string | null; // auth.users.id for signed-in profiles; null on legacy rows
+  hide_from_boards?: boolean; // 086 (staged): off the public leaderboards (friends and yourself still see you)
   created_at: string; // ISO timestamp
   updated_at: string; // ISO timestamp
 }
@@ -341,6 +342,20 @@ export interface MyRankingRow {
   photo_url: string | null;
   photo_attribution: string | null;
   google_place_id: string | null;
+}
+
+// 086 (staged): leaderboard(scope, key, period, limit). No ids: player_key is
+// an opaque stable hash, label is first name + last initial.
+export type BoardScope = "dubai" | "area" | "place" | "friends";
+export type BoardPeriod = "month" | "all";
+export interface LeaderboardRow {
+  rank: number | null; // null only on your own row before you have points
+  player_key: string;
+  label: string;
+  emoji: string | null;
+  points: number | null; // null on a place board, which ranks by score
+  band: RankingBucket | null; // a place board's ranking band
+  is_me: boolean;
 }
 
 export interface PlaceImport {
