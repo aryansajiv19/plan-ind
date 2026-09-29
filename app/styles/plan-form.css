@@ -740,7 +740,7 @@
    for every such card, never a grey box that reads as a failed load. */
 .deal-card__typographic,
 .kind-tile {
-  background: linear-gradient(160deg, var(--color-punch), #704121);
+  background: linear-gradient(160deg, var(--color-punch), #a35139);
   color: var(--photo-ink);
 }
 .kind-tile {

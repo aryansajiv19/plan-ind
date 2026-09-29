@@ -24,7 +24,7 @@
   z-index: 3;
   max-width: calc(100% - 1rem);
   overflow: hidden;
-  color: rgba(242, 242, 242, 0.75);
+  color: rgba(238, 233, 223, 0.75);
   font-size: 10px;
   line-height: 1.2;
   white-space: nowrap;

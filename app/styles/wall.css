@@ -35,7 +35,7 @@
   position: relative;
   overflow: hidden;
   border-radius: var(--radius-panel);
-  background: linear-gradient(160deg, var(--color-punch), #704121); /* the dune under the photo: a failed or refused load is never a dark box */
+  background: linear-gradient(160deg, var(--color-punch), #a35139); /* the dune under the photo: a failed or refused load is never a dark box */
 }
 .wall-tile__img {
   object-fit: cover;

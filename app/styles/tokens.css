@@ -16,27 +16,27 @@
 }
 
 /* ── Design tokens ─────────────────────────────────────────────────
-   Desert modern (owner, 2026-09-28): the owner's own hexes, #442816
-   #704121 #AB6F44 #174050 #0C657C and #7D9BBC #F2F2F2 #CE9963 #9F7652
-   #3F230B. Night (the identity, pinned in layout.tsx) is a desert sky:
-   navy-teal ground, sand as the one fill, dusty blue as the boundary.
-   Photography still carries most colour. Every text pair clears 4.5:1 and
-   --color-line clears 3:1 on both surfaces, measured when set. Day is the
-   base; night re-authors it. */
+   Desert night (owner palette, 2026-09-29): Palladian #EEE9DF, Oatmeal
+   #C9C1B1, Blue Fantastic #2C3B4D, Burning Flame #FFB162, Truffle Trouble
+   #A35139, Abyssal Anchorfish #1B2632. Night (the identity, pinned in
+   layout.tsx) keeps a black sky: Abyssal glass cards, Burning Flame as the
+   one fill, a lifted Blue Fantastic as the boundary, Truffle as warmth.
+   Every text pair clears 4.5:1 and --color-line clears 3:1 on both
+   surfaces, measured when set. Day is the base; night re-authors it. */
 @theme {
-  --color-paper: #f5f1ec; /* warm sand-white */
+  --color-paper: #eee9df; /* Palladian */
   --color-card: #ffffff;
-  --color-ink: #3f230b; /* 12.9 canvas / 14.4 card */
-  --color-muted: #704121; /* 7.6 / 8.5 */
-  --color-punch: #ce9963; /* sand: FILL only; ink on it 5.7 */
-  --color-punch-text: #0c657c; /* teal as text: 5.9 / 6.6 */
-  --color-fill-quiet: #ece3d8;
-  --color-line: #ab6f44; /* control boundary: 3.7 / 4.1 */
-  --color-accent-premium: #704121;
-  --color-live: #0c657c; /* live state only */
+  --color-ink: #1b2632; /* Abyssal: 12.7 canvas / 15.3 card */
+  --color-muted: #2c3b4d; /* Blue Fantastic: 9.4 / 11.4 */
+  --color-punch: #ffb162; /* Burning Flame: FILL only; ink on it 8.6 */
+  --color-punch-text: #a35139; /* Truffle as text: 4.6 / 5.5 */
+  --color-fill-quiet: #e2dccf; /* Oatmeal, lightened */
+  --color-line: #a35139; /* control boundary: 4.6 / 5.5 */
+  --color-accent-premium: #a35139;
+  --color-live: #2c3b4d; /* live state only */
   --color-error: #a3301f;
-  --color-grape: #0c657c;
-  --color-mint: #0c657c;
+  --color-grape: #a35139;
+  --color-mint: #2c3b4d;
 
   /* Cormorant for display (hero, titles), Hanken Grotesk for everything
      else (layout.tsx). Cormorant goes fragile under ~20px: keep it big. */
@@ -97,9 +97,9 @@
    tree-shakes unreferenced @theme vars (the day ground once lost its
    live-dot this way). */
 :root {
-  --color-accent-tint: rgba(206, 153, 99, 0.18); /* sand tint for inactive chips */
-  --color-live-dot: #0c657c; /* same as --color-live */
-  --color-shimmer: rgba(63, 35, 11, 0.06); /* skeleton sweep */
+  --color-accent-tint: rgba(255, 177, 98, 0.18); /* Burning Flame tint for inactive chips */
+  --color-live-dot: #2c3b4d; /* same as --color-live */
+  --color-shimmer: rgba(27, 38, 50, 0.06); /* skeleton sweep */
 
   /* Durations, named so they stop being pasted as magic numbers. */
   --dur-press: 200ms;
@@ -110,35 +110,34 @@
    Selected by the Dubai clock from ~17:00 (lib/dubai-phase.ts), at the
    document root so every screen flips. */
 [data-theme="night"] {
-  /* Owner experiment 2026-09-28: a near-black desert sky with faint stars
-     (base.css). Cards are a navy-black lift; the owner's #174050 is the
-     quiet fill. */
+  /* A near-black sky with real-looking stars (base.css, SkySparkles).
+     Cards are Abyssal glass; Blue Fantastic is the quiet fill. */
   --color-paper: #07090d;
-  --color-card: rgba(16, 32, 42, 0.82); /* navy glass: the sky glints through */
-  --color-ink: #f2f2f2; /* 17.8 canvas / 15.5 card */
-  --color-muted: #d9c3ab; /* 11.7 / 10.2 */
-  --color-punch: #ce9963;
-  --color-punch-text: #d8a877; /* 9.3 / 8.1 */
-  --color-fill-quiet: #174050;
-  --color-line: #7d9bbc; /* dusty blue: 6.9 / 6.0 */
-  --color-accent-premium: #d8a877;
-  --color-accent-tint: rgba(206, 153, 99, 0.18);
-  --color-shimmer: rgba(242, 242, 242, 0.07);
-  --color-live: #a7c0d8; /* 8.0 / 5.9 */
-  --color-live-dot: #a7c0d8;
+  --color-card: rgba(27, 38, 50, 0.82); /* Abyssal glass: the stars show through */
+  --color-ink: #eee9df; /* Palladian: 16.5 canvas / 12.7 card */
+  --color-muted: #c9c1b1; /* Oatmeal: 11.2 / 8.6 */
+  --color-punch: #ffb162;
+  --color-punch-text: #ffb162; /* 11.1 / 8.6 */
+  --color-fill-quiet: #2c3b4d;
+  --color-line: #8496ab; /* lifted Blue Fantastic: 6.6 / 5.1 */
+  --color-accent-premium: #ffb162;
+  --color-accent-tint: rgba(255, 177, 98, 0.18);
+  --color-shimmer: rgba(238, 233, 223, 0.07);
+  --color-live: #a9b8c8; /* 9.9 / 7.6 */
+  --color-live-dot: #a9b8c8;
   --color-error: #ff9b8a;
-  --color-grape: #d8a877;
-  --color-mint: #d8a877;
+  --color-grape: #d9876d; /* lifted Truffle: 7.3 / 5.6 */
+  --color-mint: #ffb162;
 
   /* Native controls, scrollbars and date pickers read this. */
   color-scheme: dark;
 }
 
-/* The primary button: a flat sand fill with deep-brown text (5.7:1), the
+/* The primary button: a flat Burning Flame fill with Abyssal text (8.6:1), the
    same in both themes. Not a --color-* because it is a paint, not a hue. */
 :root {
-  --primary-fill: #ce9963;
-  --primary-ink: #3f230b;
+  --primary-fill: #ffb162;
+  --primary-ink: #1b2632;
 }
 
 /* ── Text over photography ─────────────────────────────────────────

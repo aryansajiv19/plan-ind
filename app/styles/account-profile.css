@@ -875,7 +875,7 @@
   padding: 1.1rem 1.2rem;
   border: 1px solid color-mix(in srgb, var(--color-punch) 40%, transparent);
   border-radius: var(--radius-panel);
-  background: linear-gradient(170deg, rgba(23, 64, 80, 0.5), rgba(68, 40, 22, 0.35));
+  background: linear-gradient(170deg, rgba(44, 59, 77, 0.5), rgba(163, 81, 57, 0.35));
 }
 .boards__head {
   display: flex;
