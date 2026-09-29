@@ -84,11 +84,33 @@ test("an adversarial 512KB document cannot make metaContent spin", () => {
   // The shape that triggered it: the anchor the pattern looks for, repeated,
   // never followed by the attribute that would complete a match.
   const hostile = `<meta property="og:title" `.repeat(20_000).slice(0, 512 * 1024);
-  const started = performance.now();
-  const result = metaContent(hostile, "og:title");
-  const elapsed = performance.now() - started;
-  assert.equal(result, null, "no complete tag, so no match");
-  assert.ok(elapsed < 50, `took ${elapsed.toFixed(0)}ms — the pattern is backtracking again`);
+  assert.equal(metaContent(hostile, "og:title"), null, "no complete tag, so no match");
+
+  // What must hold is linear cost, not a wall-clock number: a fixed 50ms
+  // budget flaked on a loaded machine (load average ~43). So time the whole
+  // input (cut to the 16KB scan window inside) against a quarter of that
+  // window, in back-to-back pairs, and take the median of the pairs' ratios:
+  // machine load slows both halves of a pair alike, and a spike that hits one
+  // pair is outvoted. Linear is ~4x. The backtracking pattern grew ~cubically
+  // (30KB 3.9s, 45KB 13.7s above; an unbounded ATTR_RUN measures ~150x here).
+  const timed = (text: string) => {
+    const started = performance.now();
+    for (let i = 0; i < 3; i += 1) metaContent(text, "og:title");
+    return performance.now() - started;
+  };
+  const quarterText = hostile.slice(0, 4 * 1024);
+  const ratios: number[] = [];
+  let slowest = 0;
+  for (let pair = 0; pair < 9; pair += 1) {
+    const quarter = timed(quarterText);
+    const whole = timed(hostile);
+    slowest = Math.max(slowest, whole / 3);
+    ratios.push(whole / Math.max(quarter, 0.01));
+  }
+  const ratio = ratios.sort((a, b) => a - b)[4];
+  assert.ok(ratio < 24, `4x the text took ${ratio.toFixed(1)}x the time: the pattern is backtracking again`);
+  // Backstop for "never finishes", generous enough for any loaded machine.
+  assert.ok(slowest < 2_000, `one pass took ${slowest.toFixed(0)}ms on 512KB`);
 });
 
 test("a real tag past the head-scan window is not read", () => {
