@@ -26,6 +26,7 @@ test("budget reason names the plan's budget, and only when the spot fits it", ()
   assert.deepEqual(labels({ spot: spot(), maxBudget: 150 }), ["Fits AED 150"]);
   assert.deepEqual(labels({ spot: spot({ min_spend: 200 }), maxBudget: 150 }), []);
   assert.deepEqual(labels({ spot: spot({ min_spend: 150 }), maxBudget: 150 }), ["Fits AED 150"]);
+  assert.deepEqual(labels({ spot: spot({ min_spend: 0 }), maxBudget: 150 }), [], "unknown spend: no claim it fits");
 });
 
 test("distance is a reason only when the plan set a radius the spot is inside", () => {

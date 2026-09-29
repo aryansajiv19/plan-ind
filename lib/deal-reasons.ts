@@ -75,7 +75,9 @@ export function dealReasons(input: DealReasonInput): DealReason[] {
   const keyword = askedKeyword(spot, input.vibeKeywords ?? []);
   if (keyword) reasons.push({ kind: "asked", label: `${capitalise(keyword)}, as asked` });
 
-  if (input.maxBudget != null && spot.min_spend <= input.maxBudget) {
+  // min_spend 0 is "unknown" (lib/price.ts): such a place stays in the deal,
+  // but claiming it fits the budget would be invented.
+  if (input.maxBudget != null && spot.min_spend > 0 && spot.min_spend <= input.maxBudget) {
     reasons.push({ kind: "budget", label: `Fits AED ${input.maxBudget}` });
   }
 
