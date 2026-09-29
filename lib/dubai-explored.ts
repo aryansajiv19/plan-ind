@@ -18,7 +18,7 @@ export const DISTRICTS: readonly District[] = [
   { name: "Jumeirah coast", areas: ["Jumeirah", "Jumeirah Beach", "Umm Suqeim", "Madinat Jumeirah", "Pearl Jumeirah"] },
   { name: "City Walk & Satwa", areas: ["City Walk", "Al Wasl", "Al Satwa"] },
   { name: "Al Quoz & Alserkal", areas: ["Al Quoz", "Al Serkal Avenue", "Alserkal Avenue"] },
-  { name: "Creek & Old Dubai", areas: ["Dubai Creek", "Jaddaf Waterfront", "Dubai Festival City", "Design District", "Dubai Design District"] },
+  { name: "Creek & Old Dubai", areas: ["Dubai Creek", "Al Shindagha", "Jaddaf Waterfront", "Dubai Festival City", "Design District", "Dubai Design District"] },
   { name: "Barsha & Dubai Hills", areas: ["Al Barsha", "Mall of the Emirates", "Grand Millennium", "Dubai Hills", "The Lakes"] },
   { name: "Meydan & Nad Al Sheba", areas: ["Meydan", "Nad Al Sheba"] },
   { name: "Desert & beyond", areas: ["Dubai Desert", "Hatta", "Seih Al Salam", "Al Warqa", "Mushrif Park"] },
