@@ -69,6 +69,53 @@
   color: var(--photo-ink);
 }
 
+/* The lock: stamped on once the name lands, with the when and who below. */
+.winner-reveal__lock {
+  position: absolute;
+  top: 0.85rem;
+  left: 0.85rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: var(--primary-fill);
+  color: var(--primary-ink);
+  font-size: max(0.72rem, var(--type-floor));
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  animation: lock-stamp 460ms var(--ease-settle) both;
+}
+@keyframes lock-stamp {
+  from { opacity: 0; transform: scale(1.6) rotate(-8deg); }
+  to { opacity: 1; transform: scale(1) rotate(-2deg); }
+}
+.winner-reveal__when {
+  position: absolute;
+  bottom: 0.85rem;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  text-align: center;
+  color: var(--color-muted);
+  font-weight: 600;
+  animation: lock-when 420ms 200ms var(--ease-settle) both;
+}
+.winner-reveal[data-photo] .winner-reveal__when {
+  color: var(--photo-body);
+}
+@keyframes lock-when {
+  from { opacity: 0; transform: translateY(6px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .winner-reveal__lock,
+  .winner-reveal__when {
+    animation: none;
+  }
+}
+
 .vote-result__category {
   border: 1px solid var(--color-punch-text);
   border-radius: 50%;

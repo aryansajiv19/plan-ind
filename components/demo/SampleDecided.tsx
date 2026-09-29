@@ -56,7 +56,11 @@ export default function SampleDecided({
   return (
     <>
       <div className="vote-result mt-6 rounded-2xl border-2 border-punch bg-punch/5 p-4 sm:p-5">
-        <WinnerReveal name={winner.name} spot={winner} />
+        <WinnerReveal
+          name={winner.name}
+          spot={winner}
+          lockLine={`${new Date(eventTime).toLocaleString("en-GB", { timeZone: "Asia/Dubai", weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit", hour12: true })} · ${GROUP_SIZE} in the group`}
+        />
 
         <div className="flex items-center gap-3">
           <span className="vote-result__category grid h-12 w-12 shrink-0 place-items-center rounded-xl text-2xl" aria-hidden="true">

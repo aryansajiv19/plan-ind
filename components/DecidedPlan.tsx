@@ -159,7 +159,7 @@ export default function DecidedPlan({
           Ungated — it reconstructs the NAME, which every plan has, so it
           runs on every decided plan rather than the 7% with a photo. When
           there is a photo it still settles onto it. */}
-      <WinnerReveal name={winner.name} spot={winner} />
+      <WinnerReveal name={winner.name} spot={winner} lockLine={[plan.event_time && prettyTime(plan.event_time), coming > 0 && `${coming} going`].filter(Boolean).join(" · ") || null} />
 
       {/* Decision summary */}
       <div className="flex items-center gap-3">
