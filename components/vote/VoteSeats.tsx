@@ -61,7 +61,7 @@ export default function VoteSeats({
       </ul>
       <p className="vote-seats__summary">
         {picked.size} picked this round
-        {othersHere.length > 0 && ` · ${othersHere.slice(0, 3).join(", ")}${othersHere.length > 3 ? " and others" : ""} here now`}
+        {othersHere.length > 0 && ` · Online now: ${othersHere.slice(0, 3).join(", ")}${othersHere.length > 3 ? ` +${othersHere.length - 3}` : ""}`}
       </p>
     </div>
   );

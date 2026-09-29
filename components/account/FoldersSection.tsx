@@ -8,7 +8,7 @@ import {
 
 const REFUSED: Record<FolderRefusal, string> = {
   taken: "You already have a folder with that name.",
-  invalid: "That name or emoji has characters folders can’t hold. Try plain text and one emoji.",
+  invalid: "That name has characters folders can’t hold. Try plain text.",
   failed: "That didn’t save. Try again in a moment.",
 };
 
@@ -23,7 +23,6 @@ export default function FoldersSection({ personId }: { personId: string }) {
   const [data, setData] = useState<{ folders: FolderView[]; lists: FiledList[] } | "failed" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [name, setName] = useState("");
-  const [emoji, setEmoji] = useState("");
   const [renaming, setRenaming] = useState<{ id: string; name: string } | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
@@ -60,11 +59,10 @@ export default function FoldersSection({ personId }: { personId: string }) {
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          void run(createFolder(personId, name, emoji), REFUSED.failed)
-            .then((ok) => { if (ok) { setName(""); setEmoji(""); } });
+          void run(createFolder(personId, name, ""), REFUSED.failed)
+            .then((ok) => { if (ok) setName(""); });
         }}
       >
-        <label><span>Emoji</span><input value={emoji} onChange={(event) => setEmoji(event.target.value)} maxLength={8} placeholder="📁" /></label>
         <label><span>Folder name</span><input value={name} onChange={(event) => setName(event.target.value)} maxLength={40} placeholder="Date nights" /></label>
         <button type="submit" disabled={!name.trim()}>New folder</button>
       </form>
@@ -83,7 +81,7 @@ export default function FoldersSection({ personId }: { personId: string }) {
             </form>
           ) : (
             <h3>
-              {folder ? `${folder.emoji} ${folder.name}` : "Unfiled"}
+              {folder ? folder.name : "Unfiled"}
               {folder && <button type="button" onClick={() => setRenaming({ id: folder.id, name: folder.name })}>Rename</button>}
               {folder && (confirmDelete === folder.id ? (
                 <>
@@ -107,7 +105,7 @@ export default function FoldersSection({ personId }: { personId: string }) {
                       onChange={(event) => void run(moveToFolder(list.kind, list.id, event.target.value || null), "That list couldn’t be moved.")}
                     >
                       <option value="">Unfiled</option>
-                      {data.folders.map((f) => <option key={f.id} value={f.id}>{f.emoji} {f.name}</option>)}
+                      {data.folders.map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}
                     </select>
                   </label>
                 </li>

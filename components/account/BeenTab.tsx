@@ -10,8 +10,10 @@ import UnavailableState from "@/components/account/UnavailableState";
 import type useBeenCollections from "@/components/account/useBeenCollections";
 import type { VisitStats } from "@/components/account/useVisitStats";
 import type { VisitPhotoView } from "@/lib/social";
-import type { ProfileVisit } from "@/lib/types";
+import type { ProfileVisit, Spot } from "@/lib/types";
 import MyRanking from "@/components/ranking/MyRanking";
+import DubaiExploredCard from "@/components/been/DubaiExploredCard";
+import { dubaiExplored } from "@/lib/dubai-explored";
 import type { useRanking } from "@/hooks/use-ranking";
 
 export default function BeenTab({
@@ -23,10 +25,13 @@ export default function BeenTab({
   stats,
   been,
   ranking,
+  spots,
   onStartPlan,
 }: {
   personId: string | null;
   visits: ProfileVisit[];
+  /** The curated catalogue, for "Your Dubai" totals. */
+  spots: Spot[];
   photos: VisitPhotoView[];
   visitsUnavailable: boolean;
   /** The photos read failed (visits may still be fine): said, not hidden. */
@@ -89,14 +94,18 @@ export default function BeenTab({
       {visitsUnavailable ? (
         <UnavailableState what="visits" />
       ) : visits.length === 0 ? (
-        <div className="demo-collection-empty">
-          <strong>No visits logged yet.</strong>
-          <p>Rate a place after a plan is decided and it lands here, with whoever came along.</p>
-          <button type="button" onClick={onStartPlan}>Start a plan</button>
-        </div>
+        <>
+          <div className="demo-collection-empty">
+            <strong>No visits logged yet.</strong>
+            <p>Rate a place after a plan is decided and it lands here, with whoever came along.</p>
+            <button type="button" onClick={onStartPlan}>Start a plan</button>
+          </div>
+          <DubaiExploredCard explored={dubaiExplored([], spots)} />
+        </>
       ) : (
         <>
           {personId && <MyRanking visits={visits} ranking={ranking} />}
+          <DubaiExploredCard explored={dubaiExplored(visits.map((v) => v.spot), spots)} />
 
           {/* One row of chips: your collections, then the two things you add. */}
           <div className="been-bar">

@@ -6,9 +6,9 @@ import { DEMO_BOARDS } from "@/components/demo/DemoMoodboards";
 // here is anyone's, and nothing is saved.
 const [birthday, weekend] = DEMO_BOARDS;
 const FOLDERS = [
-  { emoji: "🎂", name: "Birthdays", lists: [{ name: birthday.name, kind: "Moodboard" }] },
-  { emoji: "🏜️", name: "Weekend escapes", lists: [{ name: weekend.name, kind: "Moodboard" }] },
-  { emoji: "☕", name: "Someday", lists: [{ name: "Want to try", kind: "Saved links" }] },
+  { name: "Birthdays", lists: [{ name: birthday.name, kind: "Moodboard" }] },
+  { name: "Weekend escapes", lists: [{ name: weekend.name, kind: "Moodboard" }] },
+  { name: "Someday", lists: [{ name: "Want to try", kind: "Saved links" }] },
 ];
 
 export default function DemoFolders() {
@@ -17,7 +17,7 @@ export default function DemoFolders() {
       <h2 id="demo-folders-title">Saved, in folders · sample</h2>
       {FOLDERS.map((folder) => (
         <div key={folder.name} className="saved-folders__group">
-          <h3>{folder.emoji} {folder.name}</h3>
+          <h3>{folder.name}</h3>
           <ul>
             {folder.lists.map((list) => (
               <li key={list.name}><span>{list.name} · {list.kind}</span></li>

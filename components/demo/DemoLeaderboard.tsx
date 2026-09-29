@@ -13,23 +13,22 @@ const SCOPES: { key: Scope; label: string }[] = [
   { key: "area", label: "By area" },
   { key: "place", label: "By place" },
 ];
-const MEDAL = ["🥇", "🥈", "🥉"];
 const BOARDS: Record<Exclude<Scope, "place">, Record<"month" | "all", Row[]>> = {
   friends: {
-    month: [{ name: "Sara K.", points: 95 }, { name: "You", points: 70, me: true }, { name: "Omar S.", points: 45 }, { name: "Zain M.", points: 15 }],
-    all: [{ name: "Sara K.", points: 410 }, { name: "Omar S.", points: 365 }, { name: "You", points: 330, me: true }, { name: "Zain M.", points: 240 }, { name: "Leila A.", points: 185 }],
+    month: [{ name: "Sara A.", points: 95 }, { name: "You", points: 70, me: true }, { name: "Omar A.", points: 45 }, { name: "Zain M.", points: 15 }],
+    all: [{ name: "Sara A.", points: 410 }, { name: "Omar A.", points: 365 }, { name: "You", points: 330, me: true }, { name: "Zain M.", points: 240 }, { name: "Leila N.", points: 185 }],
   },
   dubai: {
-    month: [{ name: "Noor H.", points: 160 }, { name: "Karan P.", points: 135 }, { name: "Sara K.", points: 95 }, { name: "Ali R.", points: 90 }, { name: "You", points: 70, me: true }],
-    all: [{ name: "Noor H.", points: 720 }, { name: "Karan P.", points: 655 }, { name: "Sara K.", points: 410 }, { name: "Omar S.", points: 365 }, { name: "You", points: 330, me: true }],
+    month: [{ name: "Noor H.", points: 160 }, { name: "Karan P.", points: 135 }, { name: "Sara A.", points: 95 }, { name: "Ali R.", points: 90 }, { name: "You", points: 70, me: true }],
+    all: [{ name: "Noor H.", points: 720 }, { name: "Karan P.", points: 655 }, { name: "Sara A.", points: 410 }, { name: "Omar A.", points: 365 }, { name: "You", points: 330, me: true }],
   },
   area: {
-    month: [{ name: "Omar S.", points: 25 }, { name: "You", points: 15, me: true }, { name: "Ali R.", points: 10 }],
-    all: [{ name: "Omar S.", points: 85 }, { name: "Ali R.", points: 60 }, { name: "You", points: 45, me: true }],
+    month: [{ name: "Omar A.", points: 25 }, { name: "You", points: 15, me: true }, { name: "Ali R.", points: 10 }],
+    all: [{ name: "Omar A.", points: 85 }, { name: "Ali R.", points: 60 }, { name: "You", points: 45, me: true }],
   },
 };
 // By place is you and your friends who ranked it, best first.
-const PLACE: Row[] = [{ name: "Sara K.", band: "Loved it" }, { name: "You", band: "Loved it", me: true }, { name: "Zain M.", band: "It was fine" }];
+const PLACE: Row[] = [{ name: "Sara A.", band: "Loved it" }, { name: "You", band: "Loved it", me: true }, { name: "Zain M.", band: "It was fine" }];
 
 export default function DemoLeaderboard() {
   const [scope, setScope] = useState<Scope>("friends");
@@ -57,7 +56,7 @@ export default function DemoLeaderboard() {
       <ol className="boards__list">
         {rows.map((row, i) => (
           <li key={row.name} className="boards__row" data-me={row.me ? "" : undefined}>
-            <span className="boards__rank">{MEDAL[i] ?? i + 1}</span>
+            <span className="boards__rank" data-top={i < 3 || undefined}>{i + 1}</span>
             <span className="boards__avatar" aria-hidden="true">{row.name.slice(0, 1)}</span>
             <span className="boards__name">{row.name}</span>
             <span className="boards__points">{row.points != null ? <>{row.points}<small> pts</small></> : row.band}</span>

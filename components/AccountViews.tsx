@@ -124,6 +124,7 @@ export default function AccountViews({
         stats={stats}
         been={been}
         ranking={ranking}
+        spots={spots}
         onStartPlan={onStartPlan}
       />
     );
@@ -154,6 +155,7 @@ export default function AccountViews({
       plannedWith={plannedWith}
       wrappedSummary={wrappedSummary}
       wrappedUnavailable={wrappedUnavailable}
+      visits={visits}
     />
   );
 }

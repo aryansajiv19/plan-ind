@@ -63,10 +63,10 @@
 }
 
 .home-logo__three {
-  /* A warm off-white on the ink badge (11.87:1): no warm accent in this
-     palette clears AA on it (the tan is 3.26:1). A stronger two-tone
-     needs a different badge background. */
-  color: var(--color-paper);
+  /* Deep brown on the sand badge (5.7:1); the two-tone is carried by the
+     italic, since no light ink clears AA on sand. */
+  color: var(--primary-ink);
+  font-style: italic;
   font-size: 0.82rem;
   transform: translateY(-1px);
 }

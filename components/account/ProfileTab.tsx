@@ -3,7 +3,9 @@ import WrappedRecap from "@/components/account/WrappedRecap";
 import type { VisitStats } from "@/components/account/useVisitStats";
 import { initialsOf } from "@/lib/avatar";
 import type { PlannedWith } from "@/lib/social";
-import type { WrappedSummary, WrappedSummaryError } from "@/lib/types";
+import type { ProfileVisit, WrappedSummary, WrappedSummaryError } from "@/lib/types";
+import PersonalityCard from "@/components/profile/PersonalityCard";
+import { planPersonality } from "@/lib/personality";
 
 export default function ProfileTab({
   name,
@@ -13,6 +15,7 @@ export default function ProfileTab({
   plannedWith,
   wrappedSummary,
   wrappedUnavailable,
+  visits,
 }: {
   name: string;
   emoji: string | null;
@@ -21,6 +24,7 @@ export default function ProfileTab({
   plannedWith: PlannedWith[];
   wrappedSummary: WrappedSummary | null;
   wrappedUnavailable: WrappedSummaryError | null;
+  visits: ProfileVisit[];
 }) {
   return (
     <section className="demo-view" aria-labelledby="profile-title">
@@ -28,6 +32,21 @@ export default function ProfileTab({
         <span className={`demo-profile-avatar${emoji ? " demo-profile-avatar--emoji" : ""}`} aria-hidden="true">{emoji ?? initialsOf(name)}</span>
         <div><h1 id="profile-title">{name}</h1><p>Dubai</p></div>
       </header>
+
+      <PersonalityCard
+        name={name}
+        personality={planPersonality(
+          visits.map((v) => ({
+            visitedAt: v.visited_at,
+            spotId: v.spot_id,
+            category: v.spot?.category ?? null,
+            cuisine: v.spot?.cuisine ?? null,
+            area: v.spot?.area ?? null,
+            crewSize: v.companions.length + 1,
+            fromPlan: v.plan_id !== null,
+          })),
+        )}
+      />
 
       <SettingsBlock name={name} emoji={emoji} personId={personId} />
 

@@ -1012,3 +1012,138 @@
 .place-score-chip small {
   font-weight: 500;
 }
+
+/* ── Your Dubai (components/been/DubaiExploredCard.tsx) ────────────────
+   Districts are tiles that light up in sand once you've been out there;
+   the rest stay visible, dashed, as the collection still to finish. */
+.explored {
+  margin-block: 1.5rem 2rem;
+  padding: 1.2rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-panel);
+  background: var(--color-card);
+}
+.explored__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.4rem 1rem;
+}
+.explored__head h2 {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(1.5rem, 2.4vw, 1.9rem);
+}
+.explored__percent {
+  color: var(--color-muted);
+}
+.explored__percent strong {
+  color: var(--color-punch-text);
+  font-size: 1.6rem;
+}
+.explored__districts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr));
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+.explored__district {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0 0.5rem;
+  align-items: center;
+  padding: 0.6rem 0.7rem;
+  border: 1px dashed var(--color-line);
+  border-radius: var(--radius-control);
+  opacity: 0.72;
+}
+.explored__district[data-been] {
+  border-style: solid;
+  border-color: var(--color-punch);
+  background: var(--color-accent-tint);
+  opacity: 1;
+}
+.explored__mark {
+  grid-row: span 2;
+  width: 0.7rem;
+  height: 0.7rem;
+  border: 1.5px solid var(--color-line);
+  border-radius: 50%;
+}
+.explored__district[data-been] .explored__mark {
+  border-color: var(--color-punch);
+  background: var(--color-punch);
+}
+.explored__name {
+  font-weight: 600;
+  font-size: max(0.82rem, var(--type-floor));
+}
+.explored__count {
+  color: var(--color-muted);
+  font-size: max(0.72rem, var(--type-floor));
+}
+.explored__next {
+  margin-top: 0.8rem;
+  color: var(--color-muted);
+}
+.explored__icons {
+  margin-top: 1.2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-line);
+}
+.explored__icons-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.explored__icons-head h3 {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.3rem;
+}
+.explored__icons-head span {
+  color: var(--color-punch-text);
+  font-weight: 700;
+}
+.explored__bar {
+  height: 0.5rem;
+  margin-top: 0.5rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--color-fill-quiet);
+}
+.explored__bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--color-punch);
+  transition: width 600ms var(--ease-settle);
+}
+.explored__icon-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.8rem;
+}
+.explored__icon-list li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.65rem;
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  color: var(--color-muted);
+  font-size: max(0.78rem, var(--type-floor));
+}
+.explored__icon-list li[data-done] {
+  border-color: var(--color-punch);
+  background: var(--color-punch);
+  color: var(--primary-ink);
+  font-weight: 600;
+}
+@media (prefers-reduced-motion: reduce) {
+  .explored__bar span {
+    transition: none;
+  }
+}

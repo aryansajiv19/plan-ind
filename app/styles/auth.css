@@ -85,8 +85,11 @@
 /* §20's second and third italic sites — /login and /onboarding — the same
    single-phrase-in-a-headline shape as the front door, one per screen. */
 .auth-intro h1 em {
-  color: var(--auth-metal);
+  color: #ab6f44; /* copper: 3.6:1 on day paper, large display text */
   font-style: italic;
+}
+[data-theme="night"] .auth-intro h1 em {
+  color: var(--auth-metal);
 }
 .auth-copy {
   max-width: 27rem;

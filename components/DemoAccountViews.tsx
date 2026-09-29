@@ -6,6 +6,11 @@ import PlaceLinkImporter from "@/components/PlaceLinkImporter";
 import DemoFolders from "@/components/demo/DemoFolders";
 import DemoLeaderboard from "@/components/demo/DemoLeaderboard";
 import DemoRanking from "@/components/demo/DemoRanking";
+import DubaiExploredCard from "@/components/been/DubaiExploredCard";
+import { dubaiExplored } from "@/lib/dubai-explored";
+import PersonalityCard from "@/components/profile/PersonalityCard";
+import { planPersonality } from "@/lib/personality";
+import type { Spot } from "@/lib/types";
 import DemoMoodboards from "@/components/demo/DemoMoodboards";
 import { friendPlanPrefill, originForArea, type PlanPrefill } from "@/lib/board-plan";
 import { validateImageFile } from "@/lib/upload";
@@ -104,6 +109,29 @@ const STAT_VISITS = VISITS.map((visit) => ({ id: visit.id, placeName: visit.plac
 const STATS = visitStats(STAT_VISITS);
 const FRIENDS = FRIEND_ROWS.map((friend) => ({ ...friend, ...friendStats(STAT_VISITS, friend.id) }))
   .sort((a, b) => b.outings - a.outings);
+// The sample visits are fixtures; match them to catalogue places by name so
+// "Your Dubai" lights the right districts. An unmatched one falls back to its area.
+const demoVisitedSpots = (spots: Spot[]) =>
+  VISITS.map((visit) => {
+    const name = visit.place.name.toLowerCase();
+    return spots.find((s) => s.name.toLowerCase().startsWith(name)) ?? { id: visit.id, area: visit.place.area };
+  });
+// The fixtures carry dates, not times: the hours the notes describe.
+const DEMO_HOURS: Record<string, number> = { ninive: 21, "padel-art": 19, "drift-beach": 17, "al-qudra": 5 };
+const demoPersonalityVisits = (spots: Spot[]) =>
+  demoVisitedSpots(spots).map((spot, i) => {
+    const visit = VISITS[i];
+    const catalogue = "category" in spot ? spot : null;
+    return {
+      visitedAt: new Date(`${visit.date}T${String(DEMO_HOURS[visit.id] ?? 20).padStart(2, "0")}:00:00+04:00`).toISOString(),
+      spotId: spot.id,
+      category: catalogue?.category ?? visit.place.key,
+      cuisine: catalogue?.cuisine ?? null,
+      area: spot.area,
+      crewSize: visit.with.length + 1,
+      fromPlan: true,
+    };
+  });
 const firstLetter = (id: string) => FRIEND_ROWS.find((friend) => friend.id === id)?.name.slice(0, 1) ?? "?";
 const dayLabel = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" });
 
@@ -118,10 +146,13 @@ function FaceStack({ people }: { people: readonly string[] }) {
 export default function DemoAccountViews({
   view,
   name,
+  spots,
   onStartPlan,
 }: {
   view: AccountView;
   name: string;
+  /** The real catalogue: "Your Dubai" totals are real, the sample visits are not. */
+  spots: Spot[];
   /** Opens the composer; a prefill sets it up the way the button said. */
   onStartPlan: (prefill?: PlanPrefill) => void;
 }) {
@@ -257,6 +288,7 @@ export default function DemoAccountViews({
         </header>
 
         <DemoRanking />
+        <DubaiExploredCard sample explored={dubaiExplored(demoVisitedSpots(spots), spots)} />
 
         <div className="demo-collection-bar">
           <div className="demo-collection-tabs" role="tablist" aria-label="Visit collections">
@@ -349,6 +381,8 @@ export default function DemoAccountViews({
         <span className="demo-profile-avatar" aria-hidden="true">{initialsOf(name)}</span>
         <div><h1 id="profile-title">{name}</h1><p>Dubai · planning since March 2026</p></div>
       </header>
+
+      <PersonalityCard sample name={name} personality={planPersonality(demoPersonalityVisits(spots))} />
 
       <div className="demo-profile-stats"><span><strong>{STATS.places}</strong> places</span><span><strong>{FRIENDS.length}</strong> friends</span><span><strong>{VISITS.length}</strong> photos</span></div>
 

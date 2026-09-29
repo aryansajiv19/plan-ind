@@ -948,9 +948,19 @@
   box-shadow: 0 0 0 2px var(--color-punch);
 }
 .boards__rank {
-  font-size: 1.2rem;
-  font-weight: 700;
-  text-align: center;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+.boards__rank[data-top] {
+  border-radius: 50%;
+  background: var(--primary-fill);
+  color: var(--primary-ink);
 }
 .boards__avatar {
   display: grid;
@@ -998,4 +1008,106 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .boards__row { animation: none; }
+}
+
+/* ── Plan Personality (components/profile/PersonalityCard.tsx) ─────── */
+.personality {
+  margin-block: 1.5rem;
+  padding: 1.2rem;
+  border: 1px solid var(--color-punch);
+  border-radius: var(--radius-panel);
+  background: var(--color-card);
+}
+.personality h2 {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(1.4rem, 2.2vw, 1.8rem);
+}
+.personality__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.personality__share {
+  min-height: 2.75rem;
+  padding: 0 1rem;
+  border: 1px solid var(--color-line);
+  background: transparent;
+  color: var(--color-ink);
+  font-weight: 600;
+  cursor: pointer;
+}
+.personality__headline {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: var(--radius-control);
+  background: var(--color-accent-tint);
+}
+.personality__kicker {
+  color: var(--color-muted);
+  font-size: max(0.72rem, var(--type-floor));
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.personality__title {
+  animation: personality-in 520ms var(--ease-settle) both;
+}
+@keyframes personality-in {
+  from { transform: translateY(0.4em); opacity: 0; }
+}
+.personality__title {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 2rem;
+  line-height: 1.1;
+  color: var(--color-punch-text);
+}
+.personality__traits {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+}
+.personality__traits li {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-control);
+}
+.personality__traits li > span:last-child {
+  color: var(--color-muted);
+  font-size: max(0.78rem, var(--type-floor));
+}
+.personality--locked p {
+  margin-top: 0.5rem;
+  color: var(--color-muted);
+}
+.personality__dots {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.8rem;
+}
+.personality__dots span {
+  width: 0.8rem;
+  height: 0.8rem;
+  border: 1px solid var(--color-punch);
+  border-radius: 50%;
+}
+.personality__dots span[data-done] {
+  background: var(--color-punch);
+}
+.personality__error {
+  margin-top: 0.5rem;
+  color: var(--color-error);
+}
+@media (prefers-reduced-motion: reduce) {
+  .personality__title {
+    animation: none;
+  }
 }

@@ -121,7 +121,7 @@ test("the demo's Friends leaderboard is sample people, labelled so, with your ro
 
   await boards.getByRole("tab", { name: "All Dubai" }).click();
   await boards.getByRole("button", { name: "All time" }).click();
-  await expect(boards.locator(".boards__row").first()).toContainText("🥇");
+  await expect(boards.locator(".boards__row").first().locator(".boards__rank[data-top]")).toHaveText("1");
   await expect(me).toContainText("330 pts");
 
   // By place ranks by how each of you felt, not points, and has no period.

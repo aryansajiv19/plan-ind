@@ -11,7 +11,6 @@ const SCOPES: { key: Scope; label: string }[] = [
   { key: "area", label: "By area" },
   { key: "place", label: "By place" },
 ];
-const MEDAL = ["🥇", "🥈", "🥉"];
 const BAND = { loved: "Loved it", fine: "It was fine", meh: "Not for them" } as const;
 
 /**
@@ -64,7 +63,7 @@ export default function Leaderboards({ spots, visits }: { spots: Spot[]; visits:
           <ol className="boards__list">
             {board.rows.map((row) => (
               <li key={row.player_key} className="boards__row" data-me={row.is_me ? "" : undefined}>
-                <span className="boards__rank">{row.rank != null && row.rank <= 3 ? MEDAL[row.rank - 1] : row.rank ?? "–"}</span>
+                <span className="boards__rank" data-top={(row.rank != null && row.rank <= 3) || undefined}>{row.rank ?? "–"}</span>
                 <span className="boards__avatar" aria-hidden="true">{row.emoji ?? row.label.slice(0, 1)}</span>
                 <span className="boards__name">{row.is_me ? "You" : row.label}</span>
                 <span className="boards__points">

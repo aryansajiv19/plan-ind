@@ -24,6 +24,8 @@ export const SAMPLE_VOTER = "You";
 export const SAMPLE_FRIENDS = ["Maya Haddad", "Omar Khalid", "Priya Nair", "Sam Carter"] as const;
 
 type SpotSeed = Pick<Spot, "id" | "name" | "area" | "cuisine" | "price_band" | "min_spend" | "open_till" | "vibe" | "booking_url">
+  // The catalogue's own photo, where it has one (same file and credit).
+  & Partial<Pick<Spot, "photo_url" | "photo_attribution">>
   // The four real catalogue venues keep their real ids and Google place ids,
   // so the sample shows their real photos; the other five stay sample-only.
   & Partial<Pick<Spot, "google_place_id">>
@@ -36,9 +38,9 @@ function dinner(seed: SpotSeed): Spot {
     ...seed,
     category: "dinner",
     minimum_age: 0,
-    photo_url: null,
-    photo_source: null,
-    photo_attribution: null,
+    photo_url: seed.photo_url ?? null,
+    photo_source: seed.photo_url ? "wikimedia" : null,
+    photo_attribution: seed.photo_attribution ?? null,
     description: null,
     source: "curated",
     visibility: "community",
@@ -56,7 +58,7 @@ export const SAMPLE_POOLS: readonly (readonly Spot[])[] = [
     dinner({ id: "a0000000-0000-0000-0000-000000000003", google_place_id: "ChIJc_qkbD5CXz4RjckbjFAB3eM", name: "3Fils", area: "Jumeirah", cuisine: "Seafood", price_band: "$$", min_spend: 180, open_till: "11pm", vibe: "Marina side, no reservations, quietly excellent", booking_url: null, address: "Shop 02, Jumeirah Fishing Harbour 1, Al Urouba Street, Jumeirah 1, Dubai", latitude: 25.2103004, longitude: 55.2433123 }),
   ],
   [
-    dinner({ id: "a0000000-0000-0000-0000-000000000004", google_place_id: "ChIJlbbiwENqXz4RYs-mK1C-G8o", name: "Bu Qtair", area: "Umm Suqeim", cuisine: "Seafood", price_band: "$", min_spend: 60, open_till: "11:30pm", vibe: "Fry shack by the beach, catch of the day", booking_url: null, address: "Old 32B Street, Fishing Harbour 2, Dubai", latitude: 25.1515093, longitude: 55.1971669 }),
+    dinner({ id: "a0000000-0000-0000-0000-000000000004", google_place_id: "ChIJlbbiwENqXz4RYs-mK1C-G8o", name: "Bu Qtair", photo_url: "/venues/a0000000-0000-0000-0000-000000000004.webp", photo_attribution: "Ankur P from Pune, India / Wikimedia Commons / CC BY 2.0", area: "Umm Suqeim", cuisine: "Seafood", price_band: "$", min_spend: 60, open_till: "11:30pm", vibe: "Fry shack by the beach, catch of the day", booking_url: null, address: "Old 32B Street, Fishing Harbour 2, Dubai", latitude: 25.1515093, longitude: 55.1971669 }),
     dinner({ id: "sample-orfali", name: "Orfali Bros Bistro", area: "Jumeirah", cuisine: "Middle Eastern", price_band: "$$", min_spend: 160, open_till: "11pm", vibe: "Three brothers, inventive small plates, worth the queue", booking_url: null }),
     dinner({ id: "sample-baitmaryam", name: "Bait Maryam", area: "JLT", cuisine: "Levantine", price_band: "$$", min_spend: 110, open_till: "11pm", vibe: "Home style Levantine, like dinner at an aunt's", booking_url: null }),
   ],

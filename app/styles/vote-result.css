@@ -582,13 +582,24 @@
 
 /* ── Our map (components/map/DubaiMiniMap.tsx) ──────────────────────
    The metro in its line colours, the nearest station lit, the walk dashed,
-   the venue a sand pin with a slow pulse. */
+   the venue a sand pin with a still halo. Its ground follows the theme
+   through the four --map-* values; night re-sets them below. */
 .mini-map {
+  --map-ground: #ece3d8;
+  --map-ink: #3f230b;
+  --map-halo: #f5f1ec;
+  --map-grid: rgba(112, 65, 33, 0.1);
   margin: 1rem 0 0;
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--color-line) 55%, transparent);
   border-radius: var(--radius-panel);
-  background: rgba(9, 28, 36, 0.6);
+  background: var(--map-ground);
+}
+[data-theme="night"] .mini-map {
+  --map-ground: rgba(9, 28, 36, 0.6);
+  --map-ink: #f2f2f2;
+  --map-halo: #0f2a36;
+  --map-grid: rgba(125, 155, 188, 0.08);
 }
 .mini-map svg {
   display: block;
@@ -596,16 +607,16 @@
   height: auto;
 }
 .mini-map__grid {
-  stroke: rgba(125, 155, 188, 0.08);
+  stroke: var(--map-grid);
   stroke-width: 1;
 }
 .mini-map__station {
-  fill: #0f2a36;
-  stroke: #f2f2f2;
+  fill: var(--map-halo);
+  stroke: var(--map-ink);
   stroke-width: 1.5;
 }
 .mini-map__near {
-  fill: #0f2a36;
+  fill: var(--map-halo);
   stroke: var(--color-punch);
   stroke-width: 3;
 }
@@ -621,16 +632,13 @@
   stroke-width: 1.5;
 }
 .mini-map__pulse {
-  fill: rgba(206, 153, 99, 0.35);
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: mini-map-pulse 2.4s var(--ease-settle) infinite;
+  fill: rgba(206, 153, 99, 0.3);
 }
 .mini-map__label {
-  fill: #f2f2f2;
+  fill: var(--map-ink);
   font-size: 13px;
   paint-order: stroke;
-  stroke: #0f2a36;
+  stroke: var(--map-halo);
   stroke-width: 4px;
 }
 .mini-map__label--venue {
@@ -654,10 +662,6 @@
 }
 @keyframes mini-map-walk {
   to { stroke-dashoffset: -22; }
-}
-@keyframes mini-map-pulse {
-  0% { transform: scale(0.6); opacity: 0.9; }
-  100% { transform: scale(1.8); opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
   .mini-map__walk, .mini-map__pulse { animation: none; }

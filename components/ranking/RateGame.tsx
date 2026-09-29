@@ -8,10 +8,10 @@ import type { PlaceRanking, RankingBucket } from "@/lib/types";
 
 type Place = { id: string; name: string; area: string; category: string; photo_url: string | null; photo_attribution: string | null; google_place_id?: string | null };
 
-const BUCKETS: { key: RankingBucket; label: string; face: string }[] = [
-  { key: "loved", label: "Loved it", face: "😍" },
-  { key: "fine", label: "It was fine", face: "🙂" },
-  { key: "meh", label: "Not for me", face: "😕" },
+const BUCKETS: { key: RankingBucket; label: string }[] = [
+  { key: "loved", label: "Loved it" },
+  { key: "fine", label: "It was fine" },
+  { key: "meh", label: "Not for me" },
 ];
 const VIBES = ["buzzing", "chill", "romantic", "family", "fancy"] as const;
 
@@ -72,7 +72,6 @@ export default function RateGame({ place, ranking, onDone }: { place: Place; ran
           <div className="rate-game__buckets">
             {BUCKETS.map((option) => (
               <button key={option.key} type="button" className="rate-game__bucket" data-bucket={option.key} onClick={() => choose(option.key)}>
-                <span aria-hidden="true">{option.face}</span>
                 {option.label}
               </button>
             ))}

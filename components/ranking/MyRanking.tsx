@@ -31,7 +31,7 @@ export default function MyRanking({ visits, ranking }: { visits: ProfileVisit[];
     <div className="my-ranking">
       {(pending.length > 0 || playing) && (
         <section aria-labelledby="rate-pending-title" className="my-ranking__pending">
-          <h2 id="rate-pending-title">Rate your places <span>{pending.length}</span></h2>
+          <h2 id="rate-pending-title">Rate your places {pending.length > 0 && <span>{pending.length}</span>}</h2>
           {playing ? (
             <RateGame place={playing} ranking={ranking} onDone={() => setTimeout(() => setPlaying(null), 2200)} />
           ) : (

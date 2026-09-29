@@ -8,9 +8,9 @@ const GROUP_OF = new Map<string, GroupKey>(
 );
 
 const SCENES: Record<GroupKey, { sky: [string, string]; orb: string; orbY: number; moon?: boolean; skyline?: boolean; waves?: boolean; arch?: boolean }> = {
-  food: { sky: ["#174050", "#704121"], orb: "#ce9963", orbY: 205 },
-  night: { sky: ["#07090d", "#174050"], orb: "#f2f2f2", orbY: 80, moon: true, skyline: true },
-  water: { sky: ["#0c657c", "#7d9bbc"], orb: "#ce9963", orbY: 150, waves: true },
+  food: { sky: ["#174050", "#704121"], orb: "#ce9963", orbY: 80 },
+  night: { sky: ["#0f2a36", "#174050"], orb: "#f2f2f2", orbY: 80, moon: true, skyline: true },
+  water: { sky: ["#0c657c", "#7d9bbc"], orb: "#ce9963", orbY: 90, waves: true },
   active: { sky: ["#704121", "#ce9963"], orb: "#f2e3cf", orbY: 110 },
   leisure: { sky: ["#0f2a36", "#704121"], orb: "#ce9963", orbY: 120, arch: true },
 };
@@ -28,9 +28,6 @@ export default function CategoryArt({ category, className = "" }: { category: st
         </linearGradient>
       </defs>
       <rect width="400" height="300" fill={`url(#${id}-sky)`} />
-      {[[40, 40], [120, 25], [300, 50], [350, 30], [220, 60], [70, 95]].map(([x, y]) => (
-        <circle key={`${x}-${y}`} cx={x} cy={y} r="1.3" fill="#f2f2f2" opacity={group === "night" ? 0.8 : 0.35} />
-      ))}
       <circle cx="290" cy={scene.orbY} r={scene.moon ? 26 : 38} fill={scene.orb} opacity="0.9" />
       {scene.moon && <circle cx="302" cy={scene.orbY - 8} r="24" fill={scene.sky[0]} />}
       {scene.skyline && (
