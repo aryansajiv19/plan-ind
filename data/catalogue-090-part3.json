@@ -286,7 +286,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "wrong category"
   },
   {
    "id": "c0900000-0000-0000-0001-0002e09a34fb",
@@ -1122,7 +1122,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000124fa2151",
@@ -1364,7 +1364,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "wrong category"
   },
   {
    "id": "c0900000-0000-0000-0001-0002b56c085e",
@@ -1826,7 +1826,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "wrong category"
   },
   {
    "id": "c0900000-0000-0000-0001-00033ec36daa",
@@ -1846,9 +1846,9 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Canal-facing cafe on Al Abraj Street, Business Bay, with pastries and indoor and outdoor seating",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0001665970f4",
@@ -2010,8 +2010,8 @@
    "osm_url": "https://www.openstreetmap.org/node/5367853522",
    "name": "DailyDose Café",
    "category": "cafe",
-   "area": "Al Wasl",
-   "district": "City Walk & Satwa",
+   "area": "Jumeirah",
+   "district": "Jumeirah coast",
    "cuisine": "Coffee shop",
    "latitude": 25.218262,
    "longitude": 55.252558,
@@ -2022,9 +2022,9 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Coffee lounge on Jumeirah Street in Jumeirah 1, serving breakfast and brunch dishes, open 8am to midnight",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-00016d2e17d7",
@@ -2200,7 +2200,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-00010b6650a5",
@@ -2273,9 +2273,9 @@
    "osm": "way/438390170",
    "osm_url": "https://www.openstreetmap.org/way/438390170",
    "name": "Cocoville",
-   "category": "cafe",
-   "area": "Al Satwa",
-   "district": "City Walk & Satwa",
+   "category": "dessert",
+   "area": "Jumeirah",
+   "district": "Jumeirah coast",
    "cuisine": "Cafe",
    "latitude": 25.222198,
    "longitude": 55.259454,
@@ -2286,9 +2286,9 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Chocolate cafe on Jumeirah Road, Jumeirah 1, serving midnight pancakes, brownies and hot chocolate shots",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-000263b181aa",
@@ -2442,7 +2442,7 @@
    "proposed_vibe_source": "http://yorkvivant.com/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002a5951d7d",
@@ -2552,7 +2552,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0003266bb962",
@@ -2618,7 +2618,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "office, not a venue"
   },
   {
    "id": "c0900000-0000-0000-0001-0002e8e8fb3d",
@@ -2836,9 +2836,9 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Casual cafe in Al Karama's Sheikh Hamdan Colony with sandwiches, burgers, pizzas, pasta and desserts",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0001243b6d7a",
@@ -3124,7 +3124,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00012516fa2e",
@@ -3212,7 +3212,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "wrong category"
   },
   {
    "id": "c0900000-0000-0000-0001-00012605345a",
@@ -4202,7 +4202,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "wrong category"
   },
   {
    "id": "c0900000-0000-0000-0001-0001de50f8b3",
@@ -4224,7 +4224,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "wrong category"
   },
   {
    "id": "c0900000-0000-0000-0001-000290647257",
@@ -4422,7 +4422,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "wrong category"
   },
   {
    "id": "c0900000-0000-0000-0001-0001057060d1",
@@ -4532,7 +4532,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00011f59f38e",
@@ -4598,7 +4598,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-00012e3bec32",
@@ -4642,7 +4642,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "wrong category"
   },
   {
    "id": "c0900000-0000-0000-0001-000135d84c51",
@@ -4708,7 +4708,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000291ca070c",
@@ -4928,7 +4928,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "wrong category"
   },
   {
    "id": "c0900000-0000-0000-0001-0001aa8842ed",
@@ -5222,7 +5222,7 @@
    "osm_url": "https://www.openstreetmap.org/way/497512349",
    "name": "Cat Café",
    "category": "cafe",
-   "area": "Madinat Jumeirah",
+   "area": "Umm Suqeim",
    "district": "Jumeirah coast",
    "cuisine": "Cafe",
    "latitude": 25.143596,
@@ -5234,9 +5234,9 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Ailuromania, a cat cafe on Jumeirah Beach Road, Umm Suqeim 3, with rescue cats; AED 30 entry includes a drink",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0001094a0c13",
@@ -5463,9 +5463,9 @@
    "osm": "node/11876728281",
    "osm_url": "https://www.openstreetmap.org/node/11876728281",
    "name": "The Sugar Artistry",
-   "category": "cafe",
-   "area": "Motor City",
-   "district": "JVC, Sports City & Motor City",
+   "category": "dessert",
+   "area": "Al Barsha",
+   "district": "Barsha & Dubai Hills",
    "cuisine": "Cafe",
    "latitude": 25.069429,
    "longitude": 55.245437,
@@ -5476,9 +5476,9 @@
    "upkeep": 3,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
-   "reject_reason": "can't verify"
+   "approved": true,
+   "vibe_final": "Cafe and cake shop by Reem Al Redha in Al Barsha South 2, open 8am-10pm, closed Mondays",
+   "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-000101251f9c",
@@ -5654,7 +5654,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "wrong category"
   },
   {
    "id": "c0900000-0000-0000-0001-000138c78f3b",
@@ -5830,7 +5830,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "wrong category"
   },
   {
    "id": "c0900000-0000-0000-0001-00013a50e4e4",
@@ -5918,7 +5918,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "wrong category"
   },
   {
    "id": "c0900000-0000-0000-0001-0000c2b46a50",
@@ -5962,7 +5962,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "wrong category"
   },
   {
    "id": "c0900000-0000-0000-0001-00002a83d75c",
@@ -6292,7 +6292,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "wrong category"
   },
   {
    "id": "c0900000-0000-0000-0001-000204188f4b",
@@ -6952,7 +6952,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000047f44034",
@@ -7018,7 +7018,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000058d16762",
@@ -7304,7 +7304,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0001237fc47c",
@@ -7810,7 +7810,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": "can't verify"
+   "reject_reason": "wrong category"
   },
   {
    "id": "c0900000-0000-0000-0001-0002ca6aebaa",
