@@ -13,7 +13,7 @@ export const STORY_SIZE = { width: 1080, height: 1920 };
 
 export const STORY = {
   ground: "#07090d",
-  sand: "#ffb162",
+  sand: "#ce9963",
   ink: "#efe7dc",
   muted: "#a39d95",
 };

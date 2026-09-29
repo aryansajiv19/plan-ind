@@ -311,7 +311,7 @@
 .cover__tile {
   position: relative;
   overflow: hidden;
-  background: #2c3b4d;
+  background: #174050;
 }
 .cover__tile:nth-child(1) { grid-column: span 2; grid-row: span 2; }
 .cover__tile:nth-child(5),

@@ -786,7 +786,7 @@
   padding: 1.1rem 1.1rem 1rem;
   border: 1px solid color-mix(in srgb, var(--color-punch) 35%, transparent);
   border-radius: 4px var(--radius-panel) var(--radius-panel) var(--radius-panel);
-  background: linear-gradient(160deg, rgba(163, 81, 57, 0.55), rgba(44, 59, 77, 0.55));
+  background: linear-gradient(160deg, rgba(112, 65, 33, 0.55), rgba(23, 64, 80, 0.55));
   transition: transform var(--dur-state) var(--ease-settle), box-shadow var(--dur-state) var(--ease-settle);
 }
 .saved-folders__group::before {
@@ -802,10 +802,10 @@
   background: inherit;
 }
 .saved-folders__group:nth-of-type(3n + 2) {
-  background: linear-gradient(160deg, rgba(44, 59, 77, 0.7), rgba(44, 59, 77, 0.35));
+  background: linear-gradient(160deg, rgba(23, 64, 80, 0.7), rgba(12, 101, 124, 0.35));
 }
 .saved-folders__group:nth-of-type(3n + 3) {
-  background: linear-gradient(160deg, rgba(255, 177, 98, 0.35), rgba(163, 81, 57, 0.6));
+  background: linear-gradient(160deg, rgba(206, 153, 99, 0.35), rgba(68, 40, 22, 0.6));
 }
 @media (hover: hover) and (pointer: fine) {
   .saved-folders__group:hover {
@@ -978,7 +978,7 @@
   font-family: var(--font-display);
   font-style: italic;
   font-size: 2.4rem;
-  color: #eee9df;
+  color: #f2f2f2;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
 }
 .top-places__card strong {

@@ -1,14 +1,9 @@
-// The night sky's stars (base.css): round points, not shapes. Brightness
-// follows a real sky — many faint, a few bright — with a slight colour
-// temperature (warm, white, cool). The brighter ones scintillate: small,
-// irregular flickers in brightness on their own rhythm; faint ones hold
-// still. Nothing moves, spins or grows. Positions come from a fixed seed, so
-// the server and browser agree. Server-rendered, no JS; hidden from
-// assistive tech and pointers.
-import type { CSSProperties } from "react";
-
-const COUNT = 110;
-const TINTS = ["#fdfbf7", "#fdfbf7", "#ffe6c7", "#dde5f5"]; // white, white, warm, cool
+// Continuous sparkle over the night sky (base.css): four-point glints,
+// each on its own rhythm (length, delay, size and a slow drift differ), so
+// some are always catching the light and the page never goes still.
+// Positions come from a fixed seed, so the server and browser agree.
+// Server-rendered, no JS; hidden from assistive tech and pointers.
+const COUNT = 44;
 
 function seeded(seed: number) {
   let t = seed;
@@ -19,39 +14,31 @@ function seeded(seed: number) {
 }
 
 const rand = seeded(29);
-const STARS = Array.from({ length: COUNT }, () => {
-  const magnitude = rand() ** 3; // skewed: most stars faint, a few bright
-  return {
-    top: rand() * 100,
-    left: rand() * 100,
-    size: 1 + magnitude * 1.8,
-    brightness: 0.3 + magnitude * 0.7,
-    tint: TINTS[Math.floor(rand() * TINTS.length)],
-    twinkles: magnitude > 0.08,
-    duration: 1.8 + rand() * 3.4,
-    delay: -rand() * 5, // mid-cycle from the first frame
-  };
-});
+const GLINTS = Array.from({ length: COUNT }, (_, i) => ({
+  top: rand() * 100,
+  left: rand() * 100,
+  size: 4 + Math.round(rand() * 10),
+  duration: 3 + rand() * 4,
+  delay: -rand() * 7, // negative: mid-cycle from the first frame, never all dark
+  gold: i % 3 !== 0,
+  drift: i % 5 === 0,
+}));
 
 export default function SkySparkles() {
   return (
     <div className="sky-sparkles" aria-hidden="true">
-      {STARS.map((star, i) => (
+      {GLINTS.map((glint, i) => (
         <span
           key={i}
-          className={`sky-sparkles__star${star.twinkles ? " sky-sparkles__star--twinkle" : ""}`}
-          style={
-            {
-              top: `${star.top.toFixed(2)}%`,
-              left: `${star.left.toFixed(2)}%`,
-              width: `${star.size.toFixed(2)}px`,
-              height: `${star.size.toFixed(2)}px`,
-              "--b": star.brightness.toFixed(2),
-              "--tint": star.tint,
-              animationDuration: `${star.duration.toFixed(2)}s`,
-              animationDelay: `${star.delay.toFixed(2)}s`,
-            } as CSSProperties
-          }
+          className={`sky-sparkles__glint${glint.gold ? " sky-sparkles__glint--gold" : ""}${glint.drift ? " sky-sparkles__glint--drift" : ""}`}
+          style={{
+            top: `${glint.top.toFixed(2)}%`,
+            left: `${glint.left.toFixed(2)}%`,
+            width: glint.size,
+            height: glint.size,
+            animationDuration: `${glint.duration.toFixed(2)}s`,
+            animationDelay: `${glint.delay.toFixed(2)}s`,
+          }}
         />
       ))}
     </div>

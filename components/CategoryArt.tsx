@@ -8,11 +8,11 @@ const GROUP_OF = new Map<string, GroupKey>(
 );
 
 const SCENES: Record<GroupKey, { sky: [string, string]; orb: string; orbY: number; moon?: boolean; skyline?: boolean; waves?: boolean; arch?: boolean }> = {
-  food: { sky: ["#2c3b4d", "#a35139"], orb: "#ffb162", orbY: 205 },
-  night: { sky: ["#07090d", "#2c3b4d"], orb: "#eee9df", orbY: 80, moon: true, skyline: true },
-  water: { sky: ["#2c3b4d", "#8496ab"], orb: "#ffb162", orbY: 150, waves: true },
-  active: { sky: ["#a35139", "#ffb162"], orb: "#eee9df", orbY: 110 },
-  leisure: { sky: ["#1b2632", "#a35139"], orb: "#ffb162", orbY: 120, arch: true },
+  food: { sky: ["#174050", "#704121"], orb: "#ce9963", orbY: 205 },
+  night: { sky: ["#07090d", "#174050"], orb: "#f2f2f2", orbY: 80, moon: true, skyline: true },
+  water: { sky: ["#0c657c", "#7d9bbc"], orb: "#ce9963", orbY: 150, waves: true },
+  active: { sky: ["#704121", "#ce9963"], orb: "#f2e3cf", orbY: 110 },
+  leisure: { sky: ["#0f2a36", "#704121"], orb: "#ce9963", orbY: 120, arch: true },
 };
 
 export default function CategoryArt({ category, className = "" }: { category: string; className?: string }) {
@@ -29,25 +29,25 @@ export default function CategoryArt({ category, className = "" }: { category: st
       </defs>
       <rect width="400" height="300" fill={`url(#${id}-sky)`} />
       {[[40, 40], [120, 25], [300, 50], [350, 30], [220, 60], [70, 95]].map(([x, y]) => (
-        <circle key={`${x}-${y}`} cx={x} cy={y} r="1.3" fill="#eee9df" opacity={group === "night" ? 0.8 : 0.35} />
+        <circle key={`${x}-${y}`} cx={x} cy={y} r="1.3" fill="#f2f2f2" opacity={group === "night" ? 0.8 : 0.35} />
       ))}
       <circle cx="290" cy={scene.orbY} r={scene.moon ? 26 : 38} fill={scene.orb} opacity="0.9" />
       {scene.moon && <circle cx="302" cy={scene.orbY - 8} r="24" fill={scene.sky[0]} />}
       {scene.skyline && (
-        <path fill="#1b2632" d="M0 230 h40 v-40 h20 v40 h25 v-70 h14 v70 h30 v-30 h22 v30 h18 l6 -150 l6 150 h20 v-55 h24 v55 h30 v-35 h28 v35 h97 v70 H0z" />
+        <path fill="#0f2a36" d="M0 230 h40 v-40 h20 v40 h25 v-70 h14 v70 h30 v-30 h22 v30 h18 l6 -150 l6 150 h20 v-55 h24 v55 h30 v-35 h28 v35 h97 v70 H0z" />
       )}
       {scene.arch && (
-        <path fill="#a35139" opacity="0.9" d="M150 300 v-90 a50 50 0 0 1 100 0 v90 h-22 v-88 a28 28 0 0 0 -56 0 v88z" />
+        <path fill="#442816" opacity="0.9" d="M150 300 v-90 a50 50 0 0 1 100 0 v90 h-22 v-88 a28 28 0 0 0 -56 0 v88z" />
       )}
       {scene.waves ? (
         <>
-          <path fill="#2c3b4d" opacity="0.85" d="M0 225 q50 -18 100 0 t100 0 t100 0 t100 0 v75 H0z" />
-          <path fill="#1b2632" d="M0 255 q50 -14 100 0 t100 0 t100 0 t100 0 v45 H0z" />
+          <path fill="#174050" opacity="0.85" d="M0 225 q50 -18 100 0 t100 0 t100 0 t100 0 v75 H0z" />
+          <path fill="#0f2a36" d="M0 255 q50 -14 100 0 t100 0 t100 0 t100 0 v45 H0z" />
         </>
       ) : (
         <>
-          <path fill="#a35139" opacity="0.85" d="M0 240 C90 200 170 215 240 235 S360 250 400 225 V300 H0z" />
-          <path fill="#1b2632" d="M0 265 C110 240 200 250 280 268 S370 280 400 262 V300 H0z" />
+          <path fill="#704121" opacity="0.85" d="M0 240 C90 200 170 215 240 235 S360 250 400 225 V300 H0z" />
+          <path fill="#3f230b" d="M0 265 C110 240 200 250 280 268 S370 280 400 262 V300 H0z" />
         </>
       )}
     </svg>

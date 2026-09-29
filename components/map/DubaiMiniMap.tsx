@@ -30,7 +30,7 @@ export default function DubaiMiniMap({ venue }: { venue: MappableVenue }) {
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Map: ${venue.name}${near ? `, ${near.walkMin} min walk from ${near.station.name} metro` : ""}`}>
         <defs>
           <radialGradient id="mini-map-glow" cx="50%" cy="50%" r="60%">
-            <stop offset="0" stopColor="#2c3b4d" stopOpacity="0.55" />
+            <stop offset="0" stopColor="#174050" stopOpacity="0.55" />
             <stop offset="1" stopColor="#07090d" stopOpacity="0" />
           </radialGradient>
         </defs>
