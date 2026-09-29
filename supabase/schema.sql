@@ -7894,3 +7894,39 @@ begin
 end $$;
 revoke all on function leaderboard(text, text, text, integer) from public, anon, authenticated;
 grant execute on function leaderboard(text, text, text, integer) to authenticated;
+
+-- ── 087 (staged): per-account daily plan-create cap ────────────────────────
+-- See supabase/migration-087-plan-create-cap.sql for the reasoning.
+create table if not exists plan_create_counts (
+  user_id uuid not null references auth.users(id) on delete cascade,
+  day     date not null,
+  n       integer not null default 0,
+  primary key (user_id, day)
+);
+alter table plan_create_counts enable row level security;
+revoke all on table plan_create_counts from public, anon, authenticated;
+
+create or replace function enforce_plan_create_cap() returns trigger
+language plpgsql security definer set search_path = public, pg_temp as $$
+declare
+  uid uuid := auth.uid();
+  used integer;
+begin
+  if uid is null then
+    return new;
+  end if;
+  insert into plan_create_counts as c (user_id, day, n)
+  values (uid, (now() at time zone 'Asia/Dubai')::date, 1)
+  on conflict (user_id, day) do update set n = c.n + 1
+  returning n into used;
+  if used > 50 then
+    -- The whole insert rolls back, the counter's increment with it.
+    raise exception 'Too many plans started today. Try again tomorrow.' using errcode = 'PC429';
+  end if;
+  return new;
+end $$;
+revoke all on function enforce_plan_create_cap() from public, anon, authenticated;
+
+drop trigger if exists plans_create_cap on plans;
+create trigger plans_create_cap before insert on plans
+  for each row execute function enforce_plan_create_cap();
