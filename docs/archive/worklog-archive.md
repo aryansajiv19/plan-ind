@@ -4585,3 +4585,40 @@ sign-ins, then set the Turnstile secret; (4) verify on plan-ind.vercel.app;
 (5) apply 075; (6) Places ingestion (the key is in .env.local and Vercel;
 platform lane doing a local dry run first). Owner is setting up Google OAuth
 (steps given in chat).
+
+## 2026-09-27 — Lead: WE ARE LIVE (main on plan-ind.vercel.app)
+
+070 fingerprint resolved: 22 of 23 columns identical across the 49 shared
+curated rows; only `minimum_age` differs, and live is stricter (21+ vibes and
+beach, 18+ shisha from live-only migration 013; 070's greatest() kept them).
+`vercel.json` no longer blocks `main` (2253c84); the push deployed production
+(dpl_C2E6XaT9Qk6ipDheQD25kVd7jz4N). Verified on the live URL: / /demo
+/demo/vote /login /privacy /terms /api/health all 200, health reads the DB,
+the new landing renders, a signed-out plan link 307s to /login with `next`,
+CSP and Permissions-Policy (geolocation=(self)) present. 075 being applied.
+Owner still to do: turn off anonymous sign-ins, then set the Turnstile
+secret; Google OAuth in progress. Owner direction: bold UI experiments with
+the impeccable skill, standards advisory, on `lane/frontend-exp` only.
+- **Hydration fix (d1c0eb9):** PhotoWall and WeightRise rendered their first frame
+  from useReducedMotion(); now server and client agree. First post-go-live
+  push; auto-deployed and verified on the live URL.
+- **075 additions (staged) + perf fix 1 (f411aeb):** mark_booked for the claim
+  holder or host, one result shape for claim/release/mark (test:db 108); the
+  landing hero now paints from first paint instead of waiting for hydration
+  (baseline mobile LCP 10.47 s, 92% render delay). Fixes 2 (images), 3 (JS),
+  the Realtime readiness race and a coalesce test flake running as a workflow.
+- **Workflow batch merged (b610d98):** our own Supabase spot photos go through
+  the image optimiser (remotePatterns pinned to the project host and the
+  spot-photos path; Google photos stay unoptimised per ToS), the wall no
+  longer preloads every tile; account views are lazy off the signed-out
+  landing (-81 KB raw, -21 KB gzip); Realtime refetches once postgres_changes
+  reports ok, closing the subscribe-then-miss race; the coalesce test runs on
+  mocked timers. Gate: tsc, 299 unit, lint, build green. A "winner photo has
+  no credit" finding was false (DecidedPlan renders PhotoCredit after the
+  reveal) and was dropped. Merged worktrees removed.
+- **Perf batch measured (live, Lighthouse 12, median of 3, same runner as the
+  baseline):** home mobile perf 72→81, LCP 10.47→4.60 s, TBT 202→64 ms; home
+  desktop 91→98, LCP 2.07→1.14 s; demo desktop 91→98; JS 323→300 KB. A paired
+  alternating local run (5 reps) confirms the JS drop and demo-mobile LCP -7%;
+  it cannot show the image fix, whose photos point at the live host.
+- **075, 066, 076 applied live** (ledger above); P35 merged (8d2277f).
