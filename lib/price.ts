@@ -3,8 +3,8 @@ import type { Spot } from "@/lib/types";
 const aed = (n: number) => `AED ${n.toLocaleString("en-US")}`;
 
 // A place's price, only where it is a real fact (house rule 1: no invented
-// data). Every custom place stores min_spend 0 and a forced price_band '$$'
-// (the column is NOT NULL), and no place is "from AED 0", so neither shows.
+// data). min_spend 0 means unknown (every custom place, and 089's OSM places);
+// price_band is null when unknown (089), and a custom place's band was forced.
 
 /** The minimum spend per person, or null when there is none to state. */
 export function knownMinSpend(spot: Pick<Spot, "min_spend">): number | null {

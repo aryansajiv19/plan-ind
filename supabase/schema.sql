@@ -100,7 +100,7 @@ create table spots (
   minimum_age smallint not null default 0 check (minimum_age between 0 and 99),
   area        text not null,
   cuisine     text not null,            -- or a type label for non-food categories
-  price_band  text not null check (price_band in ('$', '$$', '$$$')),
+  price_band  text check (price_band in ('$', '$$', '$$$')), -- 089: null = unknown
   min_spend   int  not null,            -- AED per person
   open_till   text not null,            -- e.g. '12am', '3am'
   vibe        text not null,

@@ -109,3 +109,6 @@ skills-lock.json
 
 # /brag-slim renders (share the mp4, do not commit it)
 /brag-output*/
+# scripts/catalogue-osm.ts review outputs (a source per field; skip reasons).
+/scripts/catalogue-089.review.local.csv
+/scripts/catalogue-089-skipped.local.json

@@ -20,7 +20,7 @@ export interface Spot {
   minimum_age: number;
   area: string;
   cuisine: string; // for non-food categories: a short type label ("cinema", "arcade")
-  price_band: PriceBand;
+  price_band: PriceBand | null; // 089: null = unknown (no made-up bands)
   min_spend: number; // AED per person
   open_till: string; // e.g. "12am", "3am"
   vibe: string;

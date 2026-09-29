@@ -70,7 +70,7 @@ function cached<A extends unknown[], R>(name: string, fn: (...args: A) => Promis
 
 export interface WallSpotRow {
   id: string; name: string; area: string; min_spend: number; vibe: string;
-  photo_url: string | null; photo_attribution: string | null; category: string; price_band: string;
+  photo_url: string | null; photo_attribution: string | null; category: string; price_band: string | null;
   open_till: string | null; google_place_id: string | null;
 }
 
@@ -116,7 +116,7 @@ export const DISCOVER_COLUMNS =
   "id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, photo_url, photo_attribution, description, minimum_age, address, google_place_id, source, latitude, longitude";
 
 export interface DiscoverSpotRow {
-  id: string; name: string; category: string; area: string; cuisine: string; price_band: string;
+  id: string; name: string; category: string; area: string; cuisine: string; price_band: string | null;
   min_spend: number; open_till: string; vibe: string; photo_url: string | null;
   photo_attribution: string | null; description: string | null; minimum_age: number | null;
   address: string | null; google_place_id: string | null;
