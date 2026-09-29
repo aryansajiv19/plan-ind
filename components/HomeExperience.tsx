@@ -49,6 +49,7 @@ export default function HomeExperience({
   initialView = "plan",
   personId = null,
   spots = [],
+  demoCatalogue,
   counts = null,
   visits = [],
   visitsUnavailable = false,
@@ -85,6 +86,8 @@ export default function HomeExperience({
   initialView?: AppView;
   personId?: string | null;
   spots?: Spot[];
+  /** /demo only: Discover's catalogue (with coordinates), as the signed-in home loads it. */
+  demoCatalogue?: Spot[];
   /** Landing only: real curated counts, or null (then no counts line). */
   counts?: CuratedCounts | null;
   visits?: ProfileVisit[];
@@ -348,7 +351,7 @@ export default function HomeExperience({
               reaches here at all. Presenting invented friends and history as
               someone's own record is not a demo. */}
           {fixtures ? (
-            <DemoAccountViews view={activeView} name={name} spots={spots} onStartPlan={(prefill) => { if (prefill) setPlanPrefill(prefill); showView("plan"); }} />
+            <DemoAccountViews view={activeView} name={name} spots={spots} catalogue={demoCatalogue} onStartPlan={(prefill) => { if (prefill) setPlanPrefill(prefill); showView("plan"); }} />
           ) : (
             <AccountViews
               view={activeView}
