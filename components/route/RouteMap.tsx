@@ -115,6 +115,14 @@ export default function RouteMap({ venue, planOrigin, eventTime = null }: { venu
   const result = requestKey ? results[requestKey] : undefined;
   const fallback = metroEstimate(origin, venue);
   const showFallback = !usable || result === "failed";
+  const ours = origin != null && venue.latitude != null && venue.longitude != null;
+  const modeButtons = (
+    <div role="group" aria-label="How you’re getting there" className="route-map__modes">
+      {MODES.map(([value, label]) => (
+        <button key={value} type="button" aria-pressed={mode === value} onClick={() => setMode(value)}>{label}</button>
+      ))}
+    </div>
+  );
   // Google's minutes for the mode on screen, else the drive estimate.
   const travel = result && result !== "failed" && result.minutes != null
     ? { minutes: result.minutes, how: MODES.find(([value]) => value === mode)![1].toLowerCase() }
@@ -141,34 +149,12 @@ export default function RouteMap({ venue, planOrigin, eventTime = null }: { venu
         </p>
       )}
 
-      {usable && !shown && <button type="button" onClick={() => setShown(true)}>Show the route</button>}
-
-      {usable && shown && (
+      {/* Our animated map leads whenever the route can be drawn. Google's exact
+          directions sit behind a button and always on Google's own map, since
+          Google's terms don't allow its routes on a non-Google map. */}
+      {ours ? (
         <>
-          <div role="group" aria-label="How you’re getting there" className="route-map__modes">
-            {MODES.map(([value, label]) => (
-              <button key={value} type="button" aria-pressed={mode === value} onClick={() => setMode(value)}>{label}</button>
-            ))}
-          </div>
-          <div ref={canvas} className="route-map__canvas" style={{ minHeight: "18rem" }} />
-          {result && result !== "failed" && (
-            <>
-              {result.minutes != null && <p className="route-map__total">About {result.minutes} min</p>}
-              <ol className="route-map__steps">{result.steps.map((step, i) => <li key={i}>{step}</li>)}</ol>
-            </>
-          )}
-          {!result && origin && <p role="status">Finding the route…</p>}
-          {result === "failed" && <p role="status">Google couldn’t route this right now. Here’s the estimate instead.</p>}
-        </>
-      )}
-
-      {showFallback && origin && venue.latitude != null && venue.longitude != null ? (
-        <>
-          <div role="group" aria-label="How you’re getting there" className="route-map__modes">
-            {MODES.map(([value, label]) => (
-              <button key={value} type="button" aria-pressed={mode === value} onClick={() => setMode(value)}>{label}</button>
-            ))}
-          </div>
+          {modeButtons}
           <RouteJourney venue={venue} origin={origin} mode={mode} />
         </>
       ) : showFallback && (
@@ -178,6 +164,27 @@ export default function RouteMap({ venue, planOrigin, eventTime = null }: { venu
           )}
           {fallback?.driveMin != null && <p className="route-map__total">≈ {fallback.driveMin} min drive (estimate)</p>}
           <DubaiMiniMap venue={venue} />
+        </>
+      )}
+
+      {usable && !shown && (
+        <button type="button" className="route-map__google" onClick={() => setShown(true)}>
+          {ours ? "Exact directions from Google" : "Show the route"}
+        </button>
+      )}
+
+      {usable && shown && (
+        <>
+          {ours ? <p className="route-map__google-head">Exact directions from Google</p> : modeButtons}
+          <div ref={canvas} className="route-map__canvas" style={{ minHeight: "18rem" }} />
+          {result && result !== "failed" && (
+            <>
+              {result.minutes != null && <p className="route-map__total">About {result.minutes} min</p>}
+              <ol className="route-map__steps">{result.steps.map((step, i) => <li key={i}>{step}</li>)}</ol>
+            </>
+          )}
+          {!result && origin && <p role="status">Finding the route…</p>}
+          {result === "failed" && <p role="status">Google couldn’t route this right now. The map above is our estimate.</p>}
         </>
       )}
     </section>
