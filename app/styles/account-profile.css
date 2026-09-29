@@ -867,3 +867,132 @@
 .settings-delete__error {
   color: var(--color-error);
 }
+
+/* ── Leaderboards (components/leaderboard/Leaderboards.tsx) ──────────
+   A game board: medals for the top three, your row lit in sand. */
+.boards {
+  margin-block: 1.5rem 2rem;
+  padding: 1.1rem 1.2rem;
+  border: 1px solid color-mix(in srgb, var(--color-punch) 40%, transparent);
+  border-radius: var(--radius-panel);
+  background: linear-gradient(170deg, rgba(23, 64, 80, 0.5), rgba(68, 40, 22, 0.35));
+}
+.boards__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+.boards__head h2 {
+  font-size: 1.9rem;
+}
+.boards__period,
+.boards__scopes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.boards__scopes {
+  margin-top: 0.8rem;
+}
+.boards__period button,
+.boards__scopes button {
+  min-height: 2.3rem;
+  padding: 0 0.9rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-muted);
+  font-weight: 600;
+  cursor: pointer;
+}
+.boards__period button[aria-pressed="true"],
+.boards__scopes button[aria-selected="true"] {
+  border-color: var(--color-punch);
+  background: var(--primary-fill);
+  color: var(--primary-ink);
+}
+.boards__pick {
+  margin-top: 0.7rem;
+  min-height: 2.5rem;
+  padding: 0 0.8rem;
+  border: 1px solid var(--color-line);
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+.boards__list {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 0.9rem;
+  padding: 0;
+  list-style: none;
+}
+.boards__row {
+  display: grid;
+  grid-template-columns: 2.4rem 2.4rem 1fr auto;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.7rem;
+  border-radius: var(--radius-control);
+  background: var(--color-card);
+  animation: rate-step-in 360ms var(--ease-settle) both;
+}
+.boards__row:nth-child(2) { animation-delay: 40ms; }
+.boards__row:nth-child(3) { animation-delay: 80ms; }
+.boards__row:nth-child(n + 4) { animation-delay: 120ms; }
+.boards__row[data-me] {
+  box-shadow: 0 0 0 2px var(--color-punch);
+}
+.boards__rank {
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-align: center;
+}
+.boards__avatar {
+  display: grid;
+  place-items: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 999px;
+  background: var(--color-fill-quiet);
+  font-size: 1.1rem;
+}
+.boards__name {
+  font-weight: 600;
+}
+.boards__points {
+  color: var(--color-punch-text);
+  font-weight: 700;
+}
+.boards__points small {
+  color: var(--color-muted);
+  font-weight: 500;
+}
+.boards__note {
+  margin-top: 0.8rem;
+  color: var(--color-muted);
+  font-size: max(0.78rem, var(--type-floor));
+}
+.settings-toggle {
+  display: grid;
+  gap: 0.3rem;
+  margin-top: 1rem;
+}
+.settings-toggle label {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 600;
+}
+.settings-toggle input {
+  width: 1.2rem;
+  height: 1.2rem;
+  accent-color: var(--color-punch);
+}
+.settings-toggle small {
+  color: var(--color-muted);
+}
+@media (prefers-reduced-motion: reduce) {
+  .boards__row { animation: none; }
+}

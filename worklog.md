@@ -86,6 +86,8 @@ Apply in order. Every migration is additive and re-run safe unless noted.
 | 083 | `migration-083-member-photo-quota.sql` | **yes — applied live 2026-09-29 (owner approved); pre-apply body hash matched 063 exactly; catalog-verified.** consume_app_quota 'place-photo' for members 20→40/min, 60→150/day; the global 300/day unchanged. schema.sql already carries it; live does not. |
 | 084 | `migration-084-expire-due-plans.sql` | **yes — applied live 2026-09-29 (owner approved); pre-apply expire_plan hash matched 069; catalog-verified: job scheduled, sweep/step not client-executable, table unpublished.** A pg_cron job every 5 min moves overdue open plans on via the same step expire_plan uses (advance_due_plan), skip-locked, per-plan savepoints, failures recorded in plan_sweep_failures (no client access) with a 1 h cooldown. Heads-up: live has one plan overdue since 2026-08-02; the first tick moves it on. |
 | 085 | `migration-085-place-ranking.sql` | **yes — applied live 2026-09-29 via Supabase MCP (owner approved), after B's security review (no Critical/High; Mediums fixed). Catalog-verified: RLS + 1 read policy, no client writes, anon locked out, tighter visits insert, 4 triggers, unpublished.** Beli-style ranking (buckets, positions, 0–10 scores, answers), log_visit (5/day), community scores at ≥5 raters as bands. Owner-accepted residual: a mean moves when one more person ranks. |
+| 086 | `migration-086-leaderboards.sql` | **yes — applied live 2026-09-29 (owner approved, public boards; place boards friends-only by the lead's privacy call). Catalog-verified: leaderboard authenticated-only, board_points internal, hide_from_boards owner-updatable, people unpublished.** Points derived from rows (curated places, voted plans ≥2 accounts, caps per Dubai day). Recorded: L2 area/month timing (accepted), L3 month points recyclable. |
+| 087 | `migration-087-plan-create-cap.sql` (lane/platform-plan-cap) | **no — STAGED, security-reviewed (no Critical/High/Medium).** 50 plan creates per account per Dubai day, enforced in the database. |
 | 049 / 051 | `migration-049-hide-voter-user-id.sql`, `migration-051-hide-creator-user-id.sql` | **yes — applied live 2026-09-19 13:20Z via Supabase MCP (T0), owner-approved.** Confirmed 2026-09-26 by `list_migrations` (`migration_049_hide_voter_user_id`, `migration_051_hide_creator_user_id`). This row said "NOT applied" for a week because the entry recording it lived only on the unpushed `ai-engineering`. |
 
 `npm run test:smoke` asserts the 019 guards against the live project. All ten
@@ -282,4 +284,5 @@ drop it, since the Google photo is credited and free of doubt. Estimate to "all 
   pins it). Demo numbers derived from fixtures. 082/083/084 staged on main
   (schema.sql verified on a fresh stack, test:db 140/140). CI green at
   134676d, baselines from run 36487685828.
+
 

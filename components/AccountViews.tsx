@@ -139,6 +139,8 @@ export default function AccountViews({
         plannedWithUnavailable={plannedWithUnavailable}
         onStartPlan={onStartPlan}
         onPlanWith={onPlanFromBoard}
+        spots={spots}
+        visits={visits}
       />
     );
   }

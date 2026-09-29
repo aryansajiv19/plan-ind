@@ -5,7 +5,8 @@ import FriendsPanel from "@/components/FriendsPanel";
 import UnavailableState from "@/components/account/UnavailableState";
 import { avatarStyle, initialsOf } from "@/lib/avatar";
 import type { PlannedWith } from "@/lib/social";
-import type { PersonCard } from "@/lib/types";
+import type { PersonCard, ProfileVisit, Spot } from "@/lib/types";
+import Leaderboards from "@/components/leaderboard/Leaderboards";
 import { friendPlanPrefill, type PlanPrefill } from "@/lib/board-plan";
 
 export default function FriendsTab({
@@ -16,6 +17,8 @@ export default function FriendsTab({
   plannedWithUnavailable,
   onStartPlan,
   onPlanWith,
+  spots,
+  visits,
 }: {
   personId: string | null;
   friends: PersonCard[];
@@ -25,6 +28,8 @@ export default function FriendsTab({
   onStartPlan: () => void;
   /** Opens the composer set up for a plan with this person. */
   onPlanWith: (prefill: PlanPrefill) => void;
+  spots: Spot[];
+  visits: ProfileVisit[];
 }) {
   const router = useRouter();
   return (
@@ -33,6 +38,8 @@ export default function FriendsTab({
         <div><h1 id="friends-title">The people you actually go out with.</h1></div>
         <button type="button" className="demo-primary-action" onClick={onStartPlan}>Start a group plan</button>
       </header>
+
+      {personId && <Leaderboards spots={spots} visits={visits} />}
 
       {personId && (
         <FriendsPanel personId={personId} friends={friends} unavailable={friendsUnavailable} onChanged={() => router.refresh()} />

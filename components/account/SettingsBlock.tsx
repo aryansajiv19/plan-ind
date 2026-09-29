@@ -3,6 +3,7 @@ import ProfileEmojiForm from "@/components/ProfileEmojiForm";
 import BirthdayCorrection from "@/components/BirthdayCorrection";
 import DeleteAccount from "@/components/account/DeleteAccount";
 import SignOutForm from "@/components/account/SignOutForm";
+import BoardsVisibility from "@/components/account/BoardsVisibility";
 
 // P14: Settings, at the top of Profile rather than a sixth tab: the name and
 // emoji friends see, the one birthday correction, sign out, and deletion.
@@ -13,6 +14,7 @@ export default function SettingsBlock({ name, emoji, personId }: { name: string;
       {personId && <ProfileNameForm personId={personId} name={name} />}
       {personId && <ProfileEmojiForm personId={personId} emoji={emoji} />}
       {personId && <BirthdayCorrection />}
+      {personId && <BoardsVisibility personId={personId} />}
       <div className="settings-block__account">
         <SignOutForm name={name} />
         <DeleteAccount />

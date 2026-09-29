@@ -25,6 +25,8 @@ export default function PrivacyPage() {
         <p>We use data to provide and secure the service, enforce age and usage limits, maintain plan history, troubleshoot failures, and prevent abuse. Smart-search text is sent to our AI provider to interpret your request; do not include secrets or sensitive personal information.</p>
         <h2>Sharing and retention</h2>
         <p>We use service providers for hosting, authentication, database storage, bot protection, and AI search. We do not sell personal data. We retain account and plan data while needed to provide the service, and retain minimized security records for a limited operational period.</p>
+        <h2>Leaderboards and rankings</h2>
+        <p>Leaderboards show points from places you visit, rank, host and photograph. Dubai-wide and area boards show your first name, last initial and emoji to other signed-in members; turn this off with “Hide me from public leaderboards” in Settings. Your friends see you on their boards either way. Your own place rankings are private; a place’s community score is shown only as an average once at least five people have ranked it, and a place’s board lists only you and your friends.</p>
         <h2>Your choices</h2>
         <p>You can avoid optional profile information and can request access, correction, or deletion where applicable. Some records may be retained when required for security, legal obligations, or dispute handling.</p>
         <h2>Contact</h2>
