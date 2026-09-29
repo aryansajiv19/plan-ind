@@ -113,8 +113,8 @@
     grid-template-columns: repeat(5, 1fr);
     padding: 0.45rem max(0.45rem, env(safe-area-inset-right)) calc(0.45rem + env(safe-area-inset-bottom)) max(0.45rem, env(safe-area-inset-left));
     border-width: 1px 0 0;
-    background: color-mix(in srgb, var(--color-card) 94%, transparent);
-    backdrop-filter: blur(18px);
+    /* Solid: at 94% the page read through the labels (C, 390 sweep). */
+    background: var(--color-card);
   }
   .home-app-tab {
     min-width: 0;

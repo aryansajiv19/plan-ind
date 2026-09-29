@@ -74,10 +74,15 @@ export default function RouteJourney({ venue, origin, mode }: { venue: Venue; or
   const whole = drawn.length ? `${start(drawn[0])} ${drawn.map(segment).join(" ")}` : "";
 
   // Area names that fall in the frame, for a map you can read.
+  // Area names in the frame, clear of the route and of each other: the list
+  // holds aliases at the same spot ("Design District", "Dubai Design District").
   const areas = Object.entries(AREA_CENTRES)
     .map(([name, c]) => ({ name, p: { lat: c.latitude, lng: c.longitude } }))
     .filter((a) => inFrame(a.p) && all.every((p) => Math.hypot(x(p) - x(a.p), y(p) - y(a.p)) > 46))
-    .slice(0, 12);
+    .reduce<{ name: string; p: Pt }[]>(
+      (kept, a) => (kept.length < 12 && kept.every((k) => Math.abs(x(k.p) - x(a.p)) > 90 || Math.abs(y(k.p) - y(a.p)) > 18) ? [...kept, a] : kept),
+      [],
+    );
   const noteDelay = (i: number) => plan!.starts[i];
   // A mode switch can shorten the route before the timers catch up.
   const current = active !== null ? j.legs[active] : undefined;
