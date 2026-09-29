@@ -6515,9 +6515,9 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": true,
-   "vibe_final": "Floodlit pay-and-play 9-hole course at Meydan with six lakes, a driving range and Burj Khalifa views",
-   "reject_reason": null
+   "approved": false,
+   "vibe_final": null,
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0900000-0000-0000-0002-00003709448e",
