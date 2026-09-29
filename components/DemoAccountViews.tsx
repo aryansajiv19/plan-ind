@@ -4,6 +4,8 @@ import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import PlaceLinkImporter from "@/components/PlaceLinkImporter";
 import DemoFolders from "@/components/demo/DemoFolders";
+import DemoLeaderboard from "@/components/demo/DemoLeaderboard";
+import DemoRanking from "@/components/demo/DemoRanking";
 import DemoMoodboards from "@/components/demo/DemoMoodboards";
 import { friendPlanPrefill, originForArea, type PlanPrefill } from "@/lib/board-plan";
 import { validateImageFile } from "@/lib/upload";
@@ -254,6 +256,8 @@ export default function DemoAccountViews({
           <div className="demo-account-stats"><span><strong>{STATS.inYear}</strong> in {STATS.year}</span><span><strong>{STATS.average}</strong> average</span><span><strong>{VISITS.length}</strong> photos</span></div>
         </header>
 
+        <DemoRanking />
+
         <div className="demo-collection-bar">
           <div className="demo-collection-tabs" role="tablist" aria-label="Visit collections">
             <button type="button" role="tab" aria-selected={activeCollection === "all"} onClick={() => setActiveCollection("all")}>All places <span>{VISITS.length}</span></button>
@@ -320,6 +324,8 @@ export default function DemoAccountViews({
           <div><h1 id="friends-title">The people you actually go out with.</h1></div>
           <button type="button" className="demo-primary-action" onClick={() => onStartPlan()}>Start a group plan</button>
         </header>
+
+        <DemoLeaderboard />
 
         <div className="demo-friend-layout">
           <div className="demo-friend-list">

@@ -76,3 +76,57 @@ test("the demo's Saved tab files its sample boards in sample folders; Discover h
   await expect(page.locator("#workspace section.saved-folders"), "folders belong on Saved").toHaveCount(0);
   for (const name of filed) await expect(page.locator("#workspace").getByText(name, { exact: true }), `${name} still on Discover`).toHaveCount(0);
 });
+
+test("the demo's Been game ranks a sample place in the page alone, and scores it by 085's rule", async ({ page }) => {
+  const rpcs: string[] = [];
+  page.on("request", (request) => { if (request.url().includes("/rest/v1/")) rpcs.push(request.url()); });
+  await page.goto("/demo?view=been");
+  const pending = page.locator("#workspace .my-ranking__pending");
+  await expect(pending.getByRole("heading", { name: /Rate your places/ })).toContainText("1", { timeout: 20_000 });
+  const loved = page.locator("#workspace .my-ranking__band[data-bucket=loved] li");
+  await expect(loved).toHaveCount(2);
+  await expect(loved.nth(0)).toContainText("10.0");
+  await expect(loved.nth(1)).toContainText("8.5");
+
+  // Ninive, loved, better than both: two taps (ceil(log2 3)), then the chips.
+  await pending.getByRole("button", { name: /Ninive/ }).click();
+  const game = page.getByRole("region", { name: "Rate Ninive" });
+  await game.locator('.rate-game__bucket[data-bucket="loved"]').click();
+  for (let tap = 0; tap < 2; tap += 1) await game.locator(".rate-game__card").filter({ hasText: "Ninive" }).click();
+  await game.getByRole("button", { name: "Rank it" }).click();
+  await expect(game.locator(".rate-game__score")).toHaveText("10.0/10");
+  await expect(game).toContainText("#1 of your loved places");
+
+  // Three loved places score 10, 9, 8; nothing is left to rate.
+  await expect(loved).toHaveCount(3);
+  await expect(loved.nth(0)).toContainText("Ninive");
+  expect(await loved.locator(".my-ranking__score").allInnerTexts()).toEqual(["10.0", "9.0", "8.0"]);
+  await expect(pending).toHaveCount(0, { timeout: 10_000 });
+
+  // Taking it out rescores the rest and offers it again.
+  await page.getByRole("button", { name: "Remove Ninive from your ranking" }).click();
+  expect(await loved.locator(".my-ranking__score").allInnerTexts()).toEqual(["10.0", "8.5"]);
+  await expect(pending.getByRole("button", { name: /Ninive/ })).toBeVisible();
+  expect(rpcs).toEqual([]); // sample data: the database is never asked
+});
+
+test("the demo's Friends leaderboard is sample people, labelled so, with your row marked", async ({ page }) => {
+  await page.goto("/demo?view=friends");
+  const boards = page.locator("#workspace section.boards");
+  await expect(boards.getByRole("heading", { name: /Leaderboards · sample/ })).toBeVisible({ timeout: 20_000 });
+  await expect(boards).toContainText("Sample people, not real members.");
+  const me = boards.locator(".boards__row[data-me]");
+  await expect(me).toHaveCount(1);
+  await expect(me).toContainText("You");
+
+  await boards.getByRole("tab", { name: "All Dubai" }).click();
+  await boards.getByRole("button", { name: "All time" }).click();
+  await expect(boards.locator(".boards__row").first()).toContainText("🥇");
+  await expect(me).toContainText("330 pts");
+
+  // By place ranks by how each of you felt, not points, and has no period.
+  await boards.getByRole("tab", { name: "By place" }).click();
+  await expect(boards.getByRole("group", { name: "Period" })).toHaveCount(0);
+  await expect(me).toContainText("Loved it");
+  await expect(boards.locator(".boards__points", { hasText: "pts" })).toHaveCount(0);
+});
