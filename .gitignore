@@ -112,3 +112,4 @@ skills-lock.json
 # scripts/catalogue-osm.ts review outputs (a source per field; skip reasons).
 /scripts/catalogue-089.review.local.csv
 /scripts/catalogue-089-skipped.local.json
+/scripts/catalogue-090-skipped.local.json

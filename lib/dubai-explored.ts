@@ -3,7 +3,7 @@
 // from visits and the curated catalogue only; nothing is stored.
 //
 // A spot's `area` is whatever the venue calls home ("Atlantis", "Emirates
-// Towers"), so districts group those into the ten parts of Dubai people
+// Towers"), so districts group those into the parts of Dubai people
 // actually talk about. An area missing here counts toward no district.
 
 export interface District {
@@ -14,14 +14,21 @@ export interface District {
 export const DISTRICTS: readonly District[] = [
   { name: "Marina & JBR", areas: ["Dubai Marina", "JBR", "La Vie, JBR", "JLT", "Dubai Harbour", "Le Royal Meridien"] },
   { name: "The Palm", areas: ["Palm Jumeirah", "Atlantis", "One&Only Royal Mirage"] },
-  { name: "Downtown & DIFC", areas: ["Downtown Dubai", "Dubai Mall", "Address Dubai Mall", "Address Sky View", "Emirates Towers", "Trade Centre", "Dubai World Trade Centre", "JW Marriott Marquis", "Al Habtoor City"] },
+  { name: "Downtown & DIFC", areas: ["Downtown Dubai", "Dubai Mall", "Address Dubai Mall", "Address Sky View", "Emirates Towers", "DIFC", "Trade Centre", "Dubai World Trade Centre"] },
+  { name: "Business Bay", areas: ["Business Bay", "JW Marriott Marquis", "The Oberoi", "Al Habtoor City"] },
   { name: "Jumeirah coast", areas: ["Jumeirah", "Jumeirah Beach", "Umm Suqeim", "Madinat Jumeirah", "Pearl Jumeirah"] },
   { name: "City Walk & Satwa", areas: ["City Walk", "Al Wasl", "Al Satwa"] },
   { name: "Al Quoz & Alserkal", areas: ["Al Quoz", "Al Serkal Avenue", "Alserkal Avenue"] },
-  { name: "Creek & Old Dubai", areas: ["Dubai Creek", "Al Shindagha", "Jaddaf Waterfront", "Dubai Festival City", "Design District", "Dubai Design District"] },
+  { name: "Creek & Old Dubai", areas: ["Dubai Creek", "Al Shindagha", "Bur Dubai", "Al Karama", "Oud Metha", "Jaddaf Waterfront", "Design District", "Dubai Design District"] },
+  { name: "Deira & Al Rigga", areas: ["Deira", "Al Rigga", "Al Ras", "Port Saeed"] },
+  { name: "Festival City & Garhoud", areas: ["Dubai Festival City", "Al Garhoud"] },
+  { name: "Al Nahda & Qusais", areas: ["Al Nahda", "Al Qusais", "Al Twar"] },
+  { name: "Mirdif & Al Warqa", areas: ["Mirdif", "Al Warqa", "Mushrif Park", "Al Khawaneej"] },
+  { name: "Silicon Oasis & Academic City", areas: ["Dubai Silicon Oasis", "Academic City"] },
   { name: "Barsha & Dubai Hills", areas: ["Al Barsha", "Mall of the Emirates", "Grand Millennium", "Dubai Hills", "The Lakes"] },
+  { name: "JVC, Sports City & Motor City", areas: ["JVC", "JVT", "Dubai Sports City", "Motor City"] },
   { name: "Meydan & Nad Al Sheba", areas: ["Meydan", "Nad Al Sheba"] },
-  { name: "Desert & beyond", areas: ["Dubai Desert", "Hatta", "Seih Al Salam", "Al Warqa", "Mushrif Park"] },
+  { name: "Desert & beyond", areas: ["Dubai Desert", "Hatta", "Seih Al Salam"] },
 ];
 
 const DISTRICT_OF = new Map(
@@ -60,7 +67,7 @@ export interface DistrictProgress extends District {
 
 export interface DubaiExplored {
   districts: DistrictProgress[];
-  /** Districts with at least one visit, out of all ten. */
+  /** Districts with at least one visit. */
   districtsBeen: number;
   percent: number; // 0-100, districts visited
   icons: { spotId: string; label: string; done: boolean }[];

@@ -53,14 +53,14 @@ export function categoryOf(tags: Record<string, string>): string | null {
   if (t("amenity") === "bar" || t("amenity") === "pub") return "vibes";
   if (t("amenity") === "cinema") return "movie";
   if (["museum", "gallery"].includes(t("tourism")) || ["theatre", "arts_centre"].includes(t("amenity"))) return "culture";
-  if (["zoo", "aquarium", "theme_park"].includes(t("tourism"))) return "family";
+  if (["zoo", "aquarium", "theme_park"].includes(t("tourism")) || t("leisure") === "indoor_play") return "family";
   if (t("leisure") === "water_park") return "water";
   if (t("leisure") === "beach_resort") return "beach_club";
   if (t("natural") === "beach") return "beach";
-  if (["bowling_alley", "amusement_arcade"].includes(t("leisure"))) return "games";
+  if (["bowling_alley", "amusement_arcade", "miniature_golf"].includes(t("leisure"))) return "games";
   if (t("leisure") === "trampoline_park" || ["climbing", "karting", "skydiving"].some((s) => t("sport").split(";").includes(s))) return "adventure";
   if (["park", "nature_reserve"].includes(t("leisure"))) return "outdoors";
-  if (t("leisure") === "sports_centre") return "sports";
+  if (["sports_centre", "ice_rink", "golf_course"].includes(t("leisure"))) return "sports";
   if (t("amenity") === "spa" || t("leisure") === "spa") return "wellness";
   if (t("shop") === "mall") return "shopping";
   if (t("amenity") === "ice_cream" || ((t("amenity") === "cafe" || t("amenity") === "restaurant") && RESTAURANT_DESSERT.test(cuisine))) return "dessert";
