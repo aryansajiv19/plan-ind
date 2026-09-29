@@ -22,7 +22,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000124ff9951",
@@ -44,14 +44,14 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00013a672bb5",
    "osm": "node/5274807221",
    "osm_url": "https://www.openstreetmap.org/node/5274807221",
    "name": "Wild & The Moon",
-   "category": "dinner",
+   "category": "cafe",
    "area": "Al Serkal Avenue",
    "district": "Al Quoz & Alserkal",
    "cuisine": "Restaurant",
@@ -64,8 +64,8 @@
    "upkeep": 9,
    "proposed_vibe": "Découvrez l agence digitale dans le Cantal Z-INDEX, spécialiste en création de sites internet sur-mesure, communication",
    "proposed_vibe_source": "https://www.wildandthemoon.com/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Organic, plant-based and gluten-free plates and cold-pressed juices in a calm, plant-filled Alserkal space",
    "reject_reason": null
   },
   {
@@ -88,7 +88,7 @@
    "proposed_vibe_source": "https://www.reemalbawadi.com/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000143239c9f",
@@ -110,7 +110,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000f6ce03b6",
@@ -132,7 +132,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0001045cbded",
@@ -154,7 +154,7 @@
    "proposed_vibe_source": "https://www.jonesthegrocer.com/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0001116bd6aa",
@@ -176,7 +176,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0001116bd6a9",
@@ -198,7 +198,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000948816d9",
@@ -220,7 +220,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000d44c074e",
@@ -242,7 +242,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000103553a4c",
@@ -264,7 +264,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "office, not a venue"
   },
   {
    "id": "c0900000-0000-0000-0001-000125005c9a",
@@ -286,7 +286,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00001d3f7b60",
@@ -308,7 +308,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000124ff9963",
@@ -330,7 +330,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001240c18ef",
@@ -352,7 +352,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000124ff9914",
@@ -374,7 +374,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000125005e1f",
@@ -396,7 +396,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000123eee8d6",
@@ -418,7 +418,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000125005c7c",
@@ -440,7 +440,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002746a4b90",
@@ -462,7 +462,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000125005caf",
@@ -484,7 +484,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00012c4a6ec2",
@@ -506,7 +506,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0001237cef16",
@@ -528,7 +528,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002746a9f9a",
@@ -550,7 +550,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00016d06aa6d",
@@ -572,7 +572,7 @@
    "proposed_vibe_source": "http://goldenfork.ae",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0000f6d65b02",
@@ -594,7 +594,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000284ff7af2",
@@ -616,7 +616,7 @@
    "proposed_vibe_source": "https://www.facebook.com/Nawabirestaurantuae",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000dddb51f0",
@@ -638,7 +638,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00014f5bf6d4",
@@ -660,7 +660,7 @@
    "proposed_vibe_source": "https://www.dubaifishhutrestaurant.com/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00020d9a9165",
@@ -704,7 +704,7 @@
    "proposed_vibe_source": "https://gcruae.com/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0001d3848a94",
@@ -748,7 +748,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00011d61f2db",
@@ -814,7 +814,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000128506488",
@@ -858,7 +858,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000094c721f4",
@@ -924,7 +924,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00010a994cac",
@@ -944,8 +944,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Uzbek plov and kazan kebab in Al Barsha, with a terrace, live music and a traditional-style private room",
    "reject_reason": null
   },
   {
@@ -990,7 +990,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0002da1298ee",
@@ -1100,7 +1100,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00032c15c793",
@@ -1122,7 +1122,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00010b6e7950",
@@ -1188,7 +1188,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00012415248f",
@@ -1210,7 +1210,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000123f4f94c",
@@ -1254,7 +1254,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000123f72f44",
@@ -1276,7 +1276,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00012430a907",
@@ -1386,7 +1386,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0001243d165e",
@@ -1408,7 +1408,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000108dbed6f",
@@ -1430,7 +1430,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00012410fbbe",
@@ -1474,7 +1474,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000124152490",
@@ -1518,7 +1518,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000265f96d17",
@@ -1540,7 +1540,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0000c3b3e5bc",
@@ -1628,7 +1628,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000103c47dc5",
@@ -1694,7 +1694,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000108c6f4db",
@@ -1716,7 +1716,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000103c47d62",
@@ -1738,7 +1738,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0002ea7a403e",
@@ -1826,7 +1826,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001de50c167",
@@ -1870,7 +1870,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0002967011ea",
@@ -1890,8 +1890,8 @@
    "upkeep": 6,
    "proposed_vibe": "Best Italian restaurant in Dubai for fine dining — fresh pasta, seafood & Beverly Hills heritage. Reserve your table at",
    "proposed_vibe_source": "https://www.ilpastaiodubai.ae/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Sicilian-rooted Italian at Al Habtoor City with a lemon-tree terrace, Thursday pasta nights and aperitivo",
    "reject_reason": null
   },
   {
@@ -1912,8 +1912,8 @@
    "upkeep": 6,
    "proposed_vibe": "Authentic Italian Pizzeria in Dubai Business Bay 🇦🇪 — gourmet pizzas, fresh dishes, and fast delivery through top",
    "proposed_vibe_source": "https://www.mordi.ae/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Roman pizza al taglio sold by weight at Peninsula One, Business Bay, made to share standing at the counter",
    "reject_reason": null
   },
   {
@@ -1956,8 +1956,8 @@
    "upkeep": 6,
    "proposed_vibe": "The TOTÓ Dubai restaurant represents the essence of traditional Italian-Mediterranean cuisine, with traditional",
    "proposed_vibe_source": "https://totorestaurants.com/dubai/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Italian-Mediterranean on the Downtown boulevard, styled on 1950s Italian cinema, with weekend live music",
    "reject_reason": null
   },
   {
@@ -2066,8 +2066,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Mediterranean-Asian plates and cocktails on the Business Bay canal, with DJs and shisha until 4am",
    "reject_reason": null
   },
   {
@@ -2110,8 +2110,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Thai classics such as tom yum and pad thai at dinner in the JW Marriott Marquis, Business Bay",
    "reject_reason": null
   },
   {
@@ -2134,7 +2134,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001104d73e3",
@@ -2156,7 +2156,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00018440d40a",
@@ -2184,7 +2184,7 @@
    "id": "c0900000-0000-0000-0001-000293362b6d",
    "osm": "node/11059735405",
    "osm_url": "https://www.openstreetmap.org/node/11059735405",
-   "name": "Izayaka",
+   "name": "Izakaya",
    "category": "dinner",
    "area": "JW Marriott Marquis",
    "district": "Business Bay",
@@ -2198,8 +2198,8 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Japanese restaurant inside the JW Marriott Marquis in Business Bay, with sushi and izakaya-style dishes",
    "reject_reason": null
   },
   {
@@ -2244,7 +2244,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002151e27cf",
@@ -2266,7 +2266,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00030b3b89f1",
@@ -2310,13 +2310,13 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-0002c34e49ec",
    "osm": "node/11866622444",
    "osm_url": "https://www.openstreetmap.org/node/11866622444",
-   "name": "Kimura-ya Restaurant Anantara",
+   "name": "Kimura-ya",
    "category": "dinner",
    "area": "The Oberoi",
    "district": "Business Bay",
@@ -2330,8 +2330,8 @@
    "upkeep": 3,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Izakaya-style Japanese at the Anantara Downtown with sushi, yakitori, wagyu and sake, open until 1am",
    "reject_reason": null
   },
   {
@@ -2464,7 +2464,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00018429252b",
@@ -2486,7 +2486,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00011d61f1ae",
@@ -2508,7 +2508,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00011d61f1ad",
@@ -2550,8 +2550,8 @@
    "upkeep": 9,
    "proposed_vibe": "RAYU Japanese Restaurant in Jumeirah, Dubai. Discover sushi, Japanese favourites, AED 99 unlimited sushi and one-page",
    "proposed_vibe_source": "https://www.rayujapaneserestaurant.com/home",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Jumeirah sushi spot with sushi boats, a two-hour unlimited sushi deal and cherry-blossom, shoji-lit interiors",
    "reject_reason": null
   },
   {
@@ -2572,8 +2572,8 @@
    "upkeep": 8,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Licensed ramen and izakaya plates in City Walk's C2 district from the Daikan ramen team, casual but polished",
    "reject_reason": null
   },
   {
@@ -2596,7 +2596,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000101e9482e",
@@ -2618,7 +2618,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000110ca763a",
@@ -2682,8 +2682,8 @@
    "upkeep": 5,
    "proposed_vibe": "Award-winning modern brasserie in City Walk, Dubai. Premium steaks, wood fire cooking, live music and signature",
    "proposed_vibe_source": "https://therare.ae/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Wood-fire steaks, steak-frites Mondays and cocktails at a City Walk brasserie with weekend live piano",
    "reject_reason": null
   },
   {
@@ -2706,7 +2706,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002da3bef2f",
@@ -2748,8 +2748,8 @@
    "upkeep": 4,
    "proposed_vibe": "Orfali Bros is a family-led restaurant in Dubai presenting a contemporary expression of Middle Eastern cuisine. Guided",
    "proposed_vibe_source": "https://orfalibros.com/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Aleppo-rooted modern Middle Eastern tasting menus from the Orfali brothers at Wasl 51, Michelin-recognised",
    "reject_reason": null
   },
   {
@@ -2816,7 +2816,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00012518e3f0",
@@ -2838,7 +2838,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001077f9479",
@@ -2860,7 +2860,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00010a01ad09",
@@ -2882,7 +2882,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0001245a146d",
@@ -2992,7 +2992,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00014497ad71",
@@ -3036,7 +3036,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00012518f43f",
@@ -3058,7 +3058,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000ddd9f9e2",
@@ -3100,8 +3100,8 @@
    "upkeep": 9,
    "proposed_vibe": "Experience exquisite dining at Bull & Bear, located in DIFC, Dubai. Offering a refined menu, perfect for business",
    "proposed_vibe_source": "https://bullandbeardifc.com/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Steaks, Wellington Wednesdays and Sunday roasts on Waldorf Astoria DIFC's 18th floor, facing Burj Khalifa",
    "reject_reason": null
   },
   {
@@ -3144,8 +3144,8 @@
    "upkeep": 9,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "African food, a bar and music nights at Emirates Financial Towers in DIFC, open until 3am",
    "reject_reason": null
   },
   {
@@ -3166,8 +3166,8 @@
    "upkeep": 9,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Iranian kebabs, stews and seafood at the Trade Centre branch of a Dubai Persian restaurant with two outlets",
    "reject_reason": null
   },
   {
@@ -3188,8 +3188,8 @@
    "upkeep": 9,
    "proposed_vibe": "Looking for a restaurant near me in DIFC Dubai? Rowley’s offers premium steaks and fries with stunning Burj Khalifa",
    "proposed_vibe_source": "https://rowleysrestaurants.com/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Steak with unlimited frites in DIFC's Central Park Towers, with a Burj Khalifa-view terrace and speakeasy",
    "reject_reason": null
   },
   {
@@ -3256,7 +3256,7 @@
    "proposed_vibe_source": "https://carlucciosme.com/locations/the-dubai-mall/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0002-0000469c07b3",
@@ -3278,7 +3278,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0001de50c162",
@@ -3300,7 +3300,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00008a76e1e8",
@@ -3322,7 +3322,7 @@
    "proposed_vibe_source": "https://www.reemalbawadi.com/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000119a8365c",
@@ -3454,7 +3454,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00013342c565",
@@ -3474,8 +3474,8 @@
    "upkeep": 6,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "French Riviera cooking in DIFC's Gate Village, with a bougainvillea-lined terrace and a wall-length bar",
    "reject_reason": null
   },
   {
@@ -3496,8 +3496,8 @@
    "upkeep": 6,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Cantonese and regional Chinese from Sichuan to Huaiyang at the Shangri-La, Sheikh Zayed Road, Michelin-listed",
    "reject_reason": null
   },
   {
@@ -3520,7 +3520,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000278a74bc5",
@@ -3606,8 +3606,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Slow-fermented, stone-baked pizza and Italian comfort food at a Burj Views pizzeria with shared tables",
    "reject_reason": null
   },
   {
@@ -3630,7 +3630,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000196cf6749",
@@ -3674,7 +3674,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0000e6f995f4",
@@ -3696,7 +3696,7 @@
    "proposed_vibe_source": "https://tonyromas.com/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0000ec43f0d3",
@@ -3718,7 +3718,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-000129bc4076",
@@ -3740,7 +3740,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0002-00004327b849",
@@ -3784,7 +3784,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0002c1738a15",
@@ -3804,8 +3804,8 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Homestyle Georgian cooking in a 19th-century-styled room at Dunya Tower, opposite Address Fountain Views",
    "reject_reason": null
   },
   {
@@ -3828,7 +3828,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00013850bffd",
@@ -3848,8 +3848,8 @@
    "upkeep": 3,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Modern Indian from the Tresind team at The Buildings by Daman in DIFC, festive in spirit, Michelin-recognised",
    "reject_reason": null
   },
   {
@@ -3894,7 +3894,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000119a8365d",
@@ -3916,7 +3916,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000054386eb6",
@@ -3982,7 +3982,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00014497f99d",
@@ -4026,7 +4026,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000031f7698d",
@@ -4048,7 +4048,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000119a8365b",
@@ -4092,7 +4092,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00012c4c2720",
@@ -4114,7 +4114,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000115894e1f",
@@ -4158,7 +4158,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0900000-0000-0000-0001-00009541bc30",
@@ -4180,7 +4180,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "wrong category"
   },
   {
    "id": "c0900000-0000-0000-0002-00001ffd1b49",
@@ -4222,8 +4222,8 @@
    "upkeep": 9,
    "proposed_vibe": "Nestled along the famous Turtle Lagoon and luxurious surroundings, Beefbar is back in Dubai to enhance the culinary",
    "proposed_vibe_source": "https://dubai.beefbar.com/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Beef-led street food like Kobe bao and shawarma on terraces by the Turtle Lagoon at Jumeirah Al Naseem",
    "reject_reason": null
   },
   {
@@ -4266,8 +4266,8 @@
    "upkeep": 9,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "French restaurant, rooftop and gourmet market with cheesemonger and bakery in a Jumeirah 3 beach-road villa",
    "reject_reason": null
   },
   {
@@ -4290,7 +4290,7 @@
    "proposed_vibe_source": "https://www.rhotels.ae/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "office, not a venue"
   },
   {
    "id": "c0900000-0000-0000-0001-0002e8229239",
@@ -4332,8 +4332,8 @@
    "upkeep": 8,
    "proposed_vibe": "OSH Dubai, La Mer’s authentic restaurant and lounge with a modern twist of Central Asian and contemporary Uzbek cuisine",
    "proposed_vibe_source": "https://www.oshdubai.com/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Uzbek cooking served in a modern way at a La Mer restaurant and lounge open until 3am",
    "reject_reason": null
   },
   {
@@ -4362,7 +4362,7 @@
    "id": "c0900000-0000-0000-0001-0000e4873105",
    "osm": "node/3834065157",
    "osm_url": "https://www.openstreetmap.org/node/3834065157",
-   "name": "D&A",
+   "name": "Dhow & Anchor",
    "category": "dinner",
    "area": "Madinat Jumeirah",
    "district": "Jumeirah coast",
@@ -4376,8 +4376,8 @@
    "upkeep": 7,
    "proposed_vibe": "Enjoy authentic British cuisine at Dhow and Anchor. Experience warm hospitality and traditional British dishes at",
    "proposed_vibe_source": "https://www.jumeirah.com/en/hotels-resorts/dubai/jumeirah-beach-hotel/restaurants/dhow-and-anchor/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "British gastropub dishes with terrace views at the Jumeirah Beach Hotel, with a bar and casual dress code",
    "reject_reason": null
   },
   {
@@ -4420,8 +4420,8 @@
    "upkeep": 6,
    "proposed_vibe": "Inspired by Latin American cuisine, AMARU restaurant & lounge is Dubai's new home for festive latin soul",
    "proposed_vibe_source": "https://www.amarudubai.com/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Latin American restaurant in Souk Madinat Jumeirah built around Mesoamerican flavours, rhythm and cocktails",
    "reject_reason": null
   },
   {
@@ -4510,7 +4510,7 @@
    "proposed_vibe_source": "https://www.dibbabay.com/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-00001dd99225",
@@ -4530,8 +4530,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Charcoal-grilled Persian kebabs and saffron rice on Jumeirah Beach Road, set up for big family tables",
    "reject_reason": null
   },
   {
@@ -4576,7 +4576,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00025b3842e1",
@@ -4642,7 +4642,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00021d0e1608",
@@ -4664,7 +4664,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001fc7cab04",
@@ -4752,7 +4752,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00020b1b4d42",
@@ -4796,7 +4796,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0900000-0000-0000-0001-0001116caf9a",
@@ -4884,7 +4884,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000123804d19",
@@ -5016,7 +5016,7 @@
    "proposed_vibe_source": "https://www.bentoya.ae",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00034ff99778",
@@ -5038,7 +5038,7 @@
    "proposed_vibe_source": "https://whgym.com/aboutgymnearme/dubai-science-park",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00034ffa1240",
@@ -5060,7 +5060,7 @@
    "proposed_vibe_source": "https://whgym.com/aboutgymnearme/jumeirah-park",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002b0ae1ef8",
@@ -5082,7 +5082,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002e2481645",
@@ -5104,7 +5104,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001f05d32b5",
@@ -5148,7 +5148,7 @@
    "proposed_vibe_source": "https://www.patialahouse.ae/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002151e27d4",
@@ -5168,8 +5168,8 @@
    "upkeep": 8,
    "proposed_vibe": "Pide Keyfi — authentic Turkish cuisine in Jumeirah Village Circle, Dubai. Order pide, kebabs, shawarma and more online",
    "proposed_vibe_source": "https://pidekeyfi.ae/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Turkish pide flatbreads and kebabs at a casual JVC restaurant with dine-in and table bookings",
    "reject_reason": null
   },
   {
@@ -5192,7 +5192,7 @@
    "proposed_vibe_source": "https://rickysrestaurant.com/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001b3adc787",
@@ -5212,8 +5212,8 @@
    "upkeep": 8,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "JVC neighbourhood bistro serving Southeast Asian-leaning dishes made to share in a cosy, warm-toned room",
    "reject_reason": null
   },
   {
@@ -5234,8 +5234,8 @@
    "upkeep": 6,
    "proposed_vibe": "Maison Mathis is a unique restaurant & bar which pays tribute to the rich heritage of European food culture. The Maison",
    "proposed_vibe_source": "https://www.maison-mathis.com/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "European bakery, restaurant and bar in Arabian Ranches, running from breakfast through dinner",
    "reject_reason": null
   },
   {
@@ -5280,7 +5280,7 @@
    "proposed_vibe_source": "https://pizzadirocco.com/store-location/dubai/motor-city/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00028a60b896",
@@ -5368,7 +5368,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000079ca3e53",
@@ -5500,7 +5500,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00010125686d",
@@ -5542,8 +5542,8 @@
    "upkeep": 9,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Homegrown seafood spot at The Beach JBR for lobster rolls, gumbo and seafood buckets, started on a dhow",
    "reject_reason": null
   },
   {
@@ -5608,8 +5608,8 @@
    "upkeep": 9,
    "proposed_vibe": "CLAW BBQ is the incarnation of America’s favorite style eatery featuring Southern hospitality at its best. The mood is",
    "proposed_vibe_source": "osm:description",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "American barbecue and seafood with strong cocktails at The Beach, JBR, with a loud, party-leaning mood",
    "reject_reason": null
   },
   {
@@ -5630,8 +5630,8 @@
    "upkeep": 9,
    "proposed_vibe": "At CQ French Brasserie, we bring you the classics of French dining - unpretentious, brilliantly prepared, and always",
    "proposed_vibe_source": "https://cqbrasserie.com/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Steak frites, escargots and well-priced wine at a Parisian-style brasserie in JLT's Movenpick",
    "reject_reason": null
   },
   {
@@ -5654,7 +5654,7 @@
    "proposed_vibe_source": "https://www.eatgreekkouzina.com/restaurants/#91",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0002-00001f5108d8",
@@ -5674,8 +5674,8 @@
    "upkeep": 9,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Bluewaters meat restaurant known for 24-hour slow-cooked ribs, with happy hours and Sunday roasts",
    "reject_reason": null
   },
   {
@@ -5696,8 +5696,8 @@
    "upkeep": 9,
    "proposed_vibe": "Experience the best steakhouse in Dubai with premium beef cuts, South African flavours and elegant dining in Dubai",
    "proposed_vibe_source": "https://www.thegrandgrillsteakhouse.com/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "South African-style steakhouse at Al Habtoor Grand in Dubai Marina, with in-house aged cuts and a terrace",
    "reject_reason": null
   },
   {
@@ -5764,14 +5764,14 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00031fc662f8",
    "osm": "node/13417997048",
    "osm_url": "https://www.openstreetmap.org/node/13417997048",
    "name": "Marbar Rooftop Tapas Bar",
-   "category": "dinner",
+   "category": "vibes",
    "area": "JBR",
    "district": "Marina & JBR",
    "cuisine": "Tapas, spanish",
@@ -5780,12 +5780,12 @@
    "opening_hours": "Mon-Sun 17:00-01:00",
    "open_till": "1am",
    "website": "https://www.jbr-restaurants.com/marbar",
-   "minimum_age": 0,
+   "minimum_age": 21,
    "upkeep": 9,
    "proposed_vibe": "Discover MarBar Rooftop Tapas Bar at Hilton Dubai JBR – sunset views, tapas, cocktails and vibrant rooftop evenings",
    "proposed_vibe_source": "https://www.jbr-restaurants.com/marbar",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Tapas and cocktails on the Hilton JBR's 10th-floor rooftop facing the Palm and Ain Dubai, live music at night",
    "reject_reason": null
   },
   {
@@ -5806,8 +5806,8 @@
    "upkeep": 9,
    "proposed_vibe": "Nola is a New Orleans inspired restaurant & bar open for lunch and dinner offering live jazz, daily happy hours",
    "proposed_vibe_source": "https://www.noladubai.com/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "New Orleans-inspired restaurant and bar in JLT Cluster P with live jazz and soul from a house band and DJ",
    "reject_reason": null
   },
   {
@@ -5830,7 +5830,7 @@
    "proposed_vibe_source": "https://www.pfchangsme.com/ae/dubai/jbr-the-beach?utm_source=GMB&utm_medium=Yext&y_source=1_MTU0NzkxMTktNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000316a25070",
@@ -5874,7 +5874,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0900000-0000-0000-0001-000289fcef18",
@@ -5894,8 +5894,8 @@
    "upkeep": 9,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Pasta, pizza and shisha on Dubai Marina Walk, open from 2pm until 2am",
    "reject_reason": null
   },
   {
@@ -5918,7 +5918,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000de0aeb23",
@@ -5962,7 +5962,7 @@
    "proposed_vibe_source": "https://www.jbr-restaurants.com/trader-vics-jbr",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00030a522908",
@@ -5982,8 +5982,8 @@
    "upkeep": 9,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Coastal Italian cooking on the ground floor of the Hilton Dubai Jumeirah on JBR, with a set-menu lunch offer",
    "reject_reason": null
   },
   {
@@ -6006,7 +6006,7 @@
    "proposed_vibe_source": "https://thebosporus.com/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00031e1c8bf1",
@@ -6028,7 +6028,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0002416b77a8",
@@ -6048,8 +6048,8 @@
    "upkeep": 8,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Fine-dining lunches and dinners at a table hung 50 metres up from a crane at Skydive Dubai in Al Sufouh",
    "reject_reason": null
   },
   {
@@ -6072,7 +6072,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002918bbe7d",
@@ -6092,8 +6092,8 @@
    "upkeep": 8,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Latin American street food from Mexico to Chile in JLT Cluster R: ceviches, tacos al pastor and arroz chaufa",
    "reject_reason": null
   },
   {
@@ -6116,7 +6116,7 @@
    "proposed_vibe_source": "https://kimurayadubai.com/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0900000-0000-0000-0001-0001dc15d12c",
@@ -6138,7 +6138,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-00001daf5c8a",
@@ -6160,7 +6160,7 @@
    "proposed_vibe_source": "osm:description",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0001fe65ed8f",
@@ -6180,8 +6180,8 @@
    "upkeep": 8,
    "proposed_vibe": "We opened a restaurant that specializes in Russian food. Our meals are prepared with a lot of love, with a lot of",
    "proposed_vibe_source": "https://www.russianrestaurantdxb.com/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Russian and Uzbek cooking at a JLT Cluster M restaurant from a Dubai Russian-food name running since 1997",
    "reject_reason": null
   },
   {
@@ -6202,8 +6202,8 @@
    "upkeep": 8,
    "proposed_vibe": "Order authentic Persian food online from Sofreh in Dubai. Char-grilled kebabs, wraps, salads & cold press juices",
    "proposed_vibe_source": "https://www.sofrehdubai.com/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Persian kebabs, grills and fresh naan at a JLT Cluster X restaurant set up for family-style meals",
    "reject_reason": null
   },
   {
@@ -6226,7 +6226,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0000a03cb3c2",
@@ -6270,7 +6270,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000062f3653e",
@@ -6424,7 +6424,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0001b0985028",
@@ -6488,8 +6488,8 @@
    "upkeep": 5,
    "proposed_vibe": "No knives. No forks. Just fire. Cajun seafood boils with an Asian twist in JLT, Dubai",
    "proposed_vibe_source": "https://www.shellfish-bar.com",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Cajun-Asian seafood boils eaten by hand, no cutlery, at a JLT Cluster J spot built for messy group meals",
    "reject_reason": null
   },
   {
@@ -6510,8 +6510,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Upscale Chinese and Japanese on Bluewaters with a cocktail programme, open until 1am and 2am on weekends",
    "reject_reason": null
   },
   {
@@ -6554,8 +6554,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Uzbek and Russian plov, shashlik and manti in a brass-lit, velvet-seated room facing Dubai Marina Walk",
    "reject_reason": null
   },
   {
@@ -6578,7 +6578,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00016ee98970",
@@ -6600,7 +6600,7 @@
    "proposed_vibe_source": "https://drink.brewdog.com/uk/dubai-bluewaters",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0001dc15d133",
@@ -6622,7 +6622,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002918bbe6b",
@@ -6666,7 +6666,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0002918bbe85",
@@ -6776,7 +6776,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0000c2b42617",
@@ -6798,7 +6798,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0900000-0000-0000-0001-00013866aa25",
@@ -6842,7 +6842,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000128126831",
@@ -6864,7 +6864,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0002-000028d4447d",
@@ -7260,7 +7260,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0000a8863067",
@@ -7282,7 +7282,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0000c0c952dc",
@@ -7348,7 +7348,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0000c32fa658",
@@ -7370,14 +7370,14 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000264569857",
    "osm": "node/10273331287",
    "osm_url": "https://www.openstreetmap.org/node/10273331287",
    "name": "Barfly by Buddha-Bar Dubai",
-   "category": "dinner",
+   "category": "vibes",
    "area": "One&Only Royal Mirage",
    "district": "The Palm",
    "cuisine": "International, asian fusion",
@@ -7386,12 +7386,12 @@
    "opening_hours": "Su-Th 17:00-01:00, Fr-Sa 17:00-02:00",
    "open_till": "",
    "website": "https://barflydubai.ae/",
-   "minimum_age": 0,
+   "minimum_age": 21,
    "upkeep": 9,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Paris-born supper club at the Hilton Dubai Palm Jumeirah with Asian-fusion plates, open until 2am on weekends",
    "reject_reason": null
   },
   {
@@ -7414,7 +7414,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0900000-0000-0000-0001-0002ec208704",
@@ -7456,8 +7456,8 @@
    "upkeep": 9,
    "proposed_vibe": "Discover Karaf by Bahçe, an authentic Turkish restaurant in Dubai at Club Vista Mare, Palm Jumeirah. Enjoy Turkish",
    "proposed_vibe_source": "https://www.karaf.ae/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Turkish grill house at Club Vista Mare: charcoal kebabs, pide and mezze on a sea-facing terrace with shisha",
    "reject_reason": null
   },
   {
@@ -7480,7 +7480,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00031de8f7c2",
@@ -7524,7 +7524,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00025518a85c",
@@ -7546,7 +7546,7 @@
    "proposed_vibe_source": "https://letocaffe.com",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000085e5b438",
@@ -7588,8 +7588,8 @@
    "upkeep": 6,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Meatpacking-style steakhouse at Oceana Beach Club on the Palm, with a terrace, loungers and themed nights",
    "reject_reason": null
   },
   {
