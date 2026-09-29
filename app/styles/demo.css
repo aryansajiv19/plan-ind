@@ -308,3 +308,41 @@
 .vote-experience > .home-demo-banner {
   margin-bottom: 2rem;
 }
+
+/* ── Boards, Pinterest-style ─────────────────────────────────────────
+   Rounded glass tiles in varied heights (MoodboardTile's RATIOS); photos
+   ease-zoom on hover; on desktop the actions float in over the tile's
+   foot instead of a permanent bar. */
+.board-tile {
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--color-line) 30%, transparent);
+  border-radius: var(--radius-panel);
+  background: var(--color-card);
+  transition: transform var(--dur-state) var(--ease-settle), box-shadow var(--dur-state) var(--ease-settle);
+}
+.board-tile__photo :is(img, svg) {
+  transition: transform 700ms var(--ease-settle);
+}
+.board-tile__actions > * {
+  border-radius: 0;
+}
+@media (hover: hover) and (pointer: fine) {
+  .board-tile {
+    position: relative;
+  }
+  .board-tile:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--elevation-card);
+  }
+  .board-tile:hover .board-tile__photo :is(img, svg) {
+    transform: scale(1.05);
+  }
+  .board-tile__actions {
+    opacity: 0;
+    transition: opacity var(--dur-state) var(--ease-settle);
+  }
+  .board-tile:hover .board-tile__actions,
+  .board-tile:focus-within .board-tile__actions {
+    opacity: 1;
+  }
+}
