@@ -6,7 +6,7 @@
    "id": "c0900000-0000-0000-0001-0000dc0e82fc",
    "osm": "node/3691938556",
    "osm_url": "https://www.openstreetmap.org/node/3691938556",
-   "name": "Dubai Indoor Kartdrome",
+   "name": "Dubai Kartdrome",
    "category": "adventure",
    "area": "Motor City",
    "district": "JVC, Sports City & Motor City",
@@ -20,8 +20,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Indoor 620m and floodlit outdoor 1.2km kart tracks at Dubai Autodrome, plus laser tag; 15-minute sessions",
    "reject_reason": null
   },
   {
@@ -44,13 +44,13 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0900000-0000-0000-0003-00000073fcd3",
    "osm": "relation/7601363",
    "osm_url": "https://www.openstreetmap.org/relation/7601363",
-   "name": "Al Mamzar Beach",
+   "name": "Al Mamzar Beach Park",
    "category": "beach",
    "area": "Al Nahda",
    "district": "Al Nahda & Qusais",
@@ -64,8 +64,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Five beaches, pools, bike paths and picnic lawns; Mondays and Wednesdays are for women and children only",
    "reject_reason": null
   },
   {
@@ -88,7 +88,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002a8ad9dac",
@@ -110,7 +110,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-00001d1b6f21",
@@ -132,7 +132,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00020529fc79",
@@ -152,8 +152,8 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Al Quoz arts hub built from reclaimed materials, with galleries, a small playhouse and Cassette cafe",
    "reject_reason": null
   },
   {
@@ -176,7 +176,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001244ed37e",
@@ -198,7 +198,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00030e350bb9",
@@ -220,7 +220,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002f91057f0",
@@ -242,7 +242,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-000001b5f8ed",
@@ -262,8 +262,8 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Free open-air living museum at Shindagha with barasti houses, craft demos and a pearl diving village",
    "reject_reason": null
   },
   {
@@ -286,7 +286,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002c6f57778",
@@ -308,7 +308,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0900000-0000-0000-0001-0002c6f57777",
@@ -330,7 +330,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0900000-0000-0000-0001-000123f5bd2e",
@@ -352,13 +352,13 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-000009d887a9",
    "osm": "way/165185449",
    "osm_url": "https://www.openstreetmap.org/way/165185449",
-   "name": "Queen Elizabeth 2 Museum",
+   "name": "QE2 Heritage Tour",
    "category": "culture",
    "area": "Al Shindagha",
    "district": "Creek & Old Dubai",
@@ -372,8 +372,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Guided walk through the docked QE2 at Mina Rashid: old cabins, the captain's quarters and the Boat Deck",
    "reject_reason": null
   },
   {
@@ -396,7 +396,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-00001a15842a",
@@ -416,8 +416,8 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Free museum in a restored creekside building by the Deira souk, with old city maps and civic documents",
    "reject_reason": null
   },
   {
@@ -440,7 +440,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-0002e8390117",
@@ -462,7 +462,7 @@
    "proposed_vibe_source": "https://www.mikearnold.art/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00013df4fe2d",
@@ -482,8 +482,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Two-floor Al Fahidi house on coffee history, with live roasting and brewing demos; free entry",
    "reject_reason": null
   },
   {
@@ -506,7 +506,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00017128a201",
@@ -528,7 +528,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-000164a02f61",
@@ -550,7 +550,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002e839682e",
@@ -572,7 +572,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002e839681c",
@@ -592,8 +592,8 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Free Al Fahidi museum of 470+ rare coins in a coral-stone house; open weekday mornings only",
    "reject_reason": null
   },
   {
@@ -616,7 +616,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-0000279d1baf",
@@ -636,8 +636,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Free heritage village in Hatta, open daily until 8:30pm; allow a couple of hours",
    "reject_reason": null
   },
   {
@@ -660,7 +660,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001477b8f36",
@@ -682,7 +682,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "office, not a venue"
   },
   {
    "id": "c0900000-0000-0000-0002-00001d3fd4e9",
@@ -702,8 +702,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Sheikh Rashid's 1955 coral-stone summer majlis on Jumeirah Road, with gardens and a small cafe",
    "reject_reason": null
   },
   {
@@ -726,7 +726,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000bf99642e",
@@ -748,7 +748,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001308f67f1",
@@ -768,8 +768,8 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "442-seat theatre inside Souk Madinat Jumeirah for musicals, plays, ballet and stand-up",
    "reject_reason": null
   },
   {
@@ -790,8 +790,8 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "50+ interactive illusions and hologram rooms at The Wharf on Bluewaters, at the foot of Ain Dubai",
    "reject_reason": null
   },
   {
@@ -814,7 +814,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0900000-0000-0000-0001-00005be82483",
@@ -836,7 +836,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001fedb38d9",
@@ -858,7 +858,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0900000-0000-0000-0001-0002c52e99ef",
@@ -878,8 +878,8 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Indoor trampoline park in Al Quoz with a ninja course, zipline, dodgeball and a cafe",
    "reject_reason": null
   },
   {
@@ -902,7 +902,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0002fac09331",
@@ -924,7 +924,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-000015703d95",
@@ -944,8 +944,8 @@
    "upkeep": 10,
    "proposed_vibe": "Butterfly park which consists of ten custom built domes",
    "proposed_vibe_source": "osm:description",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Covered domes with 15,000+ butterflies of 50+ species, next to Dubai Miracle Garden",
    "reject_reason": null
   },
   {
@@ -968,14 +968,14 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000126856403",
    "osm": "node/4941243395",
    "osm_url": "https://www.openstreetmap.org/node/4941243395",
-   "name": "Freddy's",
-   "category": "games",
+   "name": "Freddy's Restrocafe & Bowling",
+   "category": "vibes",
    "area": "Al Qusais",
    "district": "Al Nahda & Qusais",
    "cuisine": "Games",
@@ -984,12 +984,12 @@
    "opening_hours": null,
    "open_till": "",
    "website": null,
-   "minimum_age": 0,
+   "minimum_age": 21,
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Sports bar with its own bowling alley, pool table and arcade games at Dubai Grand Hotel, Al Qusais",
    "reject_reason": null
   },
   {
@@ -1012,7 +1012,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002dcce69c4",
@@ -1034,7 +1034,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001eedbb396",
@@ -1054,8 +1054,8 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "24-hour gaming cafe with PCs, PS5s, foosball and VIP rooms above Dubai International Bowling Centre",
    "reject_reason": null
   },
   {
@@ -1078,7 +1078,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0001fe7aec82",
@@ -1098,8 +1098,8 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Late-night lounge at Mövenpick Oud Metha, open 9pm to 3am, with Desi nights most of the week",
    "reject_reason": null
   },
   {
@@ -1122,7 +1122,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0900000-0000-0000-0002-00002bb76093",
@@ -1144,7 +1144,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00001de8a97b",
@@ -1166,7 +1166,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00000435cb5d",
@@ -1188,7 +1188,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00000ea88815",
@@ -1210,7 +1210,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00000e479fb7",
@@ -1232,7 +1232,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00000e47508d",
@@ -1254,7 +1254,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000019ef137c",
@@ -1276,7 +1276,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0900000-0000-0000-0002-00004bf0e2f1",
@@ -1298,7 +1298,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000153571de6",
@@ -1320,7 +1320,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00000cf53545",
@@ -1342,7 +1342,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00005d0c4bed",
@@ -1364,7 +1364,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00002c1e57d5",
@@ -1386,7 +1386,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00002c1e57e4",
@@ -1408,7 +1408,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00002c1e57de",
@@ -1430,7 +1430,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00002c201548",
@@ -1452,7 +1452,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00002c5570c9",
@@ -1474,7 +1474,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00002c20154b",
@@ -1496,7 +1496,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00002c1e57da",
@@ -1518,7 +1518,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00002c1e57e2",
@@ -1540,7 +1540,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00004228ebcb",
@@ -1562,7 +1562,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00002c202119",
@@ -1584,7 +1584,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00001d556911",
@@ -1606,7 +1606,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "office, not a venue"
   },
   {
    "id": "c0900000-0000-0000-0002-00001d556809",
@@ -1628,7 +1628,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-0000331fcc2c",
@@ -1648,8 +1648,8 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Large Dubai Hills Estate park with a skate park, splash park, dog area and a 2.5km jogging track",
    "reject_reason": null
   },
   {
@@ -1672,7 +1672,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00000e6d5d2c",
@@ -1694,7 +1694,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00000e6d5c96",
@@ -1716,7 +1716,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000014ef9b2e",
@@ -1738,7 +1738,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000016c5e8f3",
@@ -1760,7 +1760,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00001d87f75e",
@@ -1780,8 +1780,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Wide lawns and shaded trees with Downtown skyline views; small entry fee",
    "reject_reason": null
   },
   {
@@ -1804,7 +1804,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00005afb9b57",
@@ -1826,7 +1826,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000047a3561e",
@@ -1848,7 +1848,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-0000433760fb",
@@ -1870,7 +1870,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000047a35571",
@@ -1892,7 +1892,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00005afb9b58",
@@ -1914,7 +1914,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00002caf5a30",
@@ -1936,7 +1936,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00000dbf0422",
@@ -1958,7 +1958,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00001f52f2b8",
@@ -1980,7 +1980,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000006bce537",
@@ -2002,7 +2002,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-0000176cc51f",
@@ -2022,8 +2022,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Free bird hides at the head of the creek to watch flamingos; busiest November to March",
    "reject_reason": null
   },
   {
@@ -2044,8 +2044,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Big central park for picnics, lawns and photo stops",
    "reject_reason": null
   },
   {
@@ -2068,7 +2068,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0003431bfdc9",
@@ -2090,7 +2090,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00034d61d413",
@@ -2112,7 +2112,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00034ddf7b5e",
@@ -2134,14 +2134,14 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002d138ee37",
    "osm": "node/12100103735",
    "osm_url": "https://www.openstreetmap.org/node/12100103735",
    "name": "Mercedes-Benz Off-Road Experience Center",
-   "category": "outdoors",
+   "category": "adventure",
    "area": "Design District",
    "district": "Creek & Old Dubai",
    "cuisine": "Park",
@@ -2154,8 +2154,8 @@
    "upkeep": 0,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Drive or ride along in a G-Class over 18 off-road obstacles with an instructor in Dubai Design District",
    "reject_reason": null
   },
   {
@@ -2178,7 +2178,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000011ca1941",
@@ -2200,13 +2200,13 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000024981a29",
    "osm": "way/613947945",
    "osm_url": "https://www.openstreetmap.org/way/613947945",
-   "name": "Creekside Park",
+   "name": "Creek Park",
    "category": "outdoors",
    "area": "Deira",
    "district": "Deira & Al Rigga",
@@ -2220,8 +2220,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Creekside park with lawns, go-karting and mini golf by the water",
    "reject_reason": null
   },
   {
@@ -2244,7 +2244,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00000c5524b4",
@@ -2266,7 +2266,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00001a18251a",
@@ -2288,7 +2288,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000014e0aedf",
@@ -2310,7 +2310,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00001b9bb4c0",
@@ -2332,7 +2332,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00002d89c270",
@@ -2354,7 +2354,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00002d89a155",
@@ -2376,7 +2376,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000151bc26ff",
@@ -2398,7 +2398,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00002d8b2f1d",
@@ -2420,7 +2420,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000022d449f4",
@@ -2442,7 +2442,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00000dbf0421",
@@ -2464,7 +2464,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00000a177503",
@@ -2484,8 +2484,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Lawn island on Burj Lake beside Burj Khalifa that hosts markets, concerts and outdoor films; free entry",
    "reject_reason": null
   },
   {
@@ -2508,7 +2508,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00005b166533",
@@ -2530,7 +2530,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00005b16652c",
@@ -2552,7 +2552,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00004abfee2e",
@@ -2574,7 +2574,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00001b888ff3",
@@ -2596,7 +2596,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00003be4c8c9",
@@ -2618,7 +2618,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00002bb7608e",
@@ -2640,7 +2640,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00001be84588",
@@ -2662,7 +2662,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-0000017619ac",
@@ -2684,7 +2684,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00033c75c759",
@@ -2706,7 +2706,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-000012726a24",
@@ -2726,8 +2726,8 @@
    "upkeep": 10,
    "proposed_vibe": "World's Largest Natural Flower Garden",
    "proposed_vibe_source": "osm:description",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "150 million flowers in themed displays; season 15 opens on 8 October 2026",
    "reject_reason": null
   },
   {
@@ -2750,7 +2750,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00001dcd4d97",
@@ -2772,7 +2772,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000015766a9b",
@@ -2794,7 +2794,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00001dd038b0",
@@ -2816,7 +2816,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000014d4a4cc",
@@ -2838,7 +2838,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001067e2b3c",
@@ -2860,7 +2860,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00002ff522cb",
@@ -2882,7 +2882,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00001dcd51fa",
@@ -2904,7 +2904,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00001dccfaaa",
@@ -2926,7 +2926,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000015766a86",
@@ -2948,7 +2948,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00001dcd29a9",
@@ -2970,7 +2970,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000015766a9c",
@@ -2992,7 +2992,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00003e8da4d5",
@@ -3014,7 +3014,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00003ef98991",
@@ -3036,7 +3036,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000040cc3d65",
@@ -3058,7 +3058,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00004630a3ed",
@@ -3080,7 +3080,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-0000157665c2",
@@ -3102,7 +3102,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000015766a98",
@@ -3124,7 +3124,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000015766a95",
@@ -3146,7 +3146,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00001dd0762d",
@@ -3168,7 +3168,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00001ee86651",
@@ -3190,7 +3190,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000049b52be4",
@@ -3212,7 +3212,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00001ee85f49",
@@ -3234,7 +3234,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00004a0562b2",
@@ -3256,7 +3256,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000015766a99",
@@ -3278,7 +3278,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-0000157603ba",
@@ -3300,7 +3300,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000023d7fb3f",
@@ -3322,7 +3322,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00000a9362a6",
@@ -3344,7 +3344,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00001576511b",
@@ -3366,7 +3366,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-0000433461f8",
@@ -3388,7 +3388,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00002bb7608f",
@@ -3410,7 +3410,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00001a889e9c",
@@ -3432,7 +3432,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-0000128d5de5",
@@ -3452,8 +3452,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Old wooded park with graded green, blue and red mountain bike trails and bike rental",
    "reject_reason": null
   },
   {
@@ -3476,7 +3476,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000019d383b4",
@@ -3498,7 +3498,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-0000198cc3a6",
@@ -3520,7 +3520,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00005afaa237",
@@ -3542,7 +3542,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-000015c4b27f",
@@ -3564,7 +3564,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000015c4b27e",
@@ -3586,7 +3586,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000015c4b27d",
@@ -3608,7 +3608,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000015785d8d",
@@ -3630,7 +3630,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000015785d8e",
@@ -3652,7 +3652,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000015beb57c",
@@ -3674,7 +3674,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00005c967341",
@@ -3696,7 +3696,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00002aa927d0",
@@ -3718,7 +3718,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-0000133e1010",
@@ -3740,7 +3740,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00000eb31baf",
@@ -3762,7 +3762,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00000bff7997",
@@ -3784,7 +3784,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000042609567",
@@ -3806,7 +3806,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000008b991f9",
@@ -3828,7 +3828,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00001ddd2304",
@@ -3850,7 +3850,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0003-0000007090d3",
@@ -3872,7 +3872,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00000ea06f2b",
@@ -3894,7 +3894,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00001dc32bc4",
@@ -3916,7 +3916,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00001ab16604",
@@ -3938,7 +3938,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00000ead9663",
@@ -3960,7 +3960,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00000e519af9",
@@ -3982,7 +3982,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00005c8224f2",
@@ -4004,7 +4004,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-0000057345ea",
@@ -4026,7 +4026,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00010f4a2eb3",
@@ -4048,7 +4048,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00000e612ecc",
@@ -4070,7 +4070,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000038fb8081",
@@ -4092,7 +4092,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000303d465b4",
@@ -4114,7 +4114,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00001dcc0d9a",
@@ -4136,7 +4136,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00004f3739c1",
@@ -4158,7 +4158,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000005728be6",
@@ -4180,7 +4180,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-0000062146cd",
@@ -4202,7 +4202,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00010977804e",
@@ -4224,7 +4224,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000dd3a88f6",
@@ -4246,7 +4246,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000042ffe9af",
@@ -4268,7 +4268,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001258d80ee",
@@ -4290,7 +4290,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000006210894",
@@ -4312,7 +4312,7 @@
    "proposed_vibe_source": "https://burjuman.com",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0900000-0000-0000-0002-00000d737e68",
@@ -4332,8 +4332,8 @@
    "upkeep": 5,
    "proposed_vibe": "Visit BurJuman Mall Dubai for top shopping, dining, and entertainment. Explore BurJuman Shopping Mall in Bur Dubai for",
    "proposed_vibe_source": "https://www.burjuman.com",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Long-running Bur Dubai mall for shopping, dining and entertainment",
    "reject_reason": null
   },
   {
@@ -4356,7 +4356,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00000e6cc652",
@@ -4378,7 +4378,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000009d6120e",
@@ -4400,7 +4400,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00000e6cc676",
@@ -4422,7 +4422,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-0000119719d9",
@@ -4444,7 +4444,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000881b93c4",
@@ -4466,7 +4466,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0003-00000057b923",
@@ -4486,8 +4486,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Egyptian-themed mall in Oud Metha for shopping and dining",
    "reject_reason": null
   },
   {
@@ -4510,7 +4510,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002ddae0c25",
@@ -4532,7 +4532,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00031a2f5fd7",
@@ -4554,7 +4554,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00001e5f6099",
@@ -4574,8 +4574,8 @@
    "upkeep": 6,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Deira's fresh food market, trading since 1958",
    "reject_reason": null
   },
   {
@@ -4598,7 +4598,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000011ca1938",
@@ -4618,8 +4618,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Deira mall open since 1981, the region's first modern mall, with 250+ stores",
    "reject_reason": null
   },
   {
@@ -4642,7 +4642,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000011cbf861",
@@ -4664,7 +4664,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000f912c0e4",
@@ -4686,7 +4686,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000095188727",
@@ -4706,8 +4706,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Local Deira market for bargains and Dubai souvenirs",
    "reject_reason": null
   },
   {
@@ -4730,7 +4730,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00001a003105",
@@ -4752,7 +4752,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000011cbf860",
@@ -4774,7 +4774,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0003-0000001a2d9b",
@@ -4794,8 +4794,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Arabesque souk in Downtown Dubai for shopping, dining and entertainment",
    "reject_reason": null
   },
   {
@@ -4816,8 +4816,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "DIFC lifestyle promenade of shops and places to eat",
    "reject_reason": null
   },
   {
@@ -4840,7 +4840,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00000572675b",
@@ -4862,7 +4862,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000005728beb",
@@ -4884,7 +4884,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000bd71ab61",
@@ -4906,13 +4906,13 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0003-0000013bfa66",
    "osm": "relation/20707942",
    "osm_url": "https://www.openstreetmap.org/relation/20707942",
-   "name": "Festival City Mall",
+   "name": "Dubai Festival City Mall",
    "category": "shopping",
    "area": "Dubai Festival City",
    "district": "Festival City & Garhoud",
@@ -4926,8 +4926,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "400+ stores, a Hard Rock Cafe and the nightly IMAGINE light show",
    "reject_reason": null
   },
   {
@@ -4950,7 +4950,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00000f4f2e8f",
@@ -4972,7 +4972,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-00000dbf1f0e",
@@ -4994,7 +4994,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00000dbf1f10",
@@ -5016,7 +5016,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00000dbf1f0f",
@@ -5038,7 +5038,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00000f4f2e95",
@@ -5060,7 +5060,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-000015ff071a",
@@ -5082,7 +5082,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000004891205",
@@ -5104,7 +5104,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000029bf4d4a",
@@ -5126,7 +5126,7 @@
    "proposed_vibe_source": "https://www.circlemall.ae/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00002dc33fe2",
@@ -5148,7 +5148,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000e8800357",
@@ -5170,7 +5170,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000026f7b050",
@@ -5192,7 +5192,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000057d46b9d",
@@ -5214,7 +5214,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000057f35b4e",
@@ -5236,7 +5236,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000130a7eb97",
@@ -5258,13 +5258,13 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0900000-0000-0000-0002-000020ca13ac",
    "osm": "way/550114220",
    "osm_url": "https://www.openstreetmap.org/way/550114220",
-   "name": "The Wharf",
+   "name": "The Wharf, Bluewaters",
    "category": "shopping",
    "area": "JBR",
    "district": "Marina & JBR",
@@ -5278,8 +5278,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Bluewaters mall at the foot of Ain Dubai, home to Illusion City",
    "reject_reason": null
   },
   {
@@ -5302,7 +5302,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000016a2a381",
@@ -5324,7 +5324,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0900000-0000-0000-0002-0000198ce216",
@@ -5346,7 +5346,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00003bdc47ff",
@@ -5368,7 +5368,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000258f50777",
@@ -5390,7 +5390,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00001a7e3d5d",
@@ -5412,7 +5412,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00001a889e97",
@@ -5434,7 +5434,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00001dd895db",
@@ -5456,7 +5456,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00001a8b3485",
@@ -5478,7 +5478,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-0000198ce215",
@@ -5500,7 +5500,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001101a7ce6",
@@ -5522,7 +5522,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00034731b97e",
@@ -5544,7 +5544,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0900000-0000-0000-0002-000043746a14",
@@ -5566,7 +5566,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-00005afb085f",
@@ -5588,7 +5588,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-0000425f9d6e",
@@ -5610,7 +5610,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-0000428343c3",
@@ -5632,7 +5632,7 @@
    "proposed_vibe_source": "osm:description",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00004246fcd3",
@@ -5654,7 +5654,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000005a0a574",
@@ -5676,7 +5676,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000088e3af37",
@@ -5698,7 +5698,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00000eb31bbe",
@@ -5720,7 +5720,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001020de248",
@@ -5742,7 +5742,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00004a8dfb03",
@@ -5764,7 +5764,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000f827ca06",
@@ -5786,7 +5786,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000000a276db",
@@ -5806,8 +5806,8 @@
    "upkeep": 7,
    "proposed_vibe": "Emirates Golf Club was the first golf course in the Dubai, UAE. Emirates Golf Club is the most established & famous",
    "proposed_vibe_source": "https://www.dubaigolf.com/emirates-golf-club/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Dubai's first golf club, home of the Majlis championship course, par 72 over 7,301 yards",
    "reject_reason": null
   },
   {
@@ -5830,7 +5830,7 @@
    "proposed_vibe_source": "https://www.dubaigolf.com/egc/golf/courses-and-academy/the-majlis-course/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0900000-0000-0000-0002-00001dd56ad8",
@@ -5852,7 +5852,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-0000156d9409",
@@ -5874,7 +5874,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0900000-0000-0000-0003-000000948b74",
@@ -5896,7 +5896,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-000041d528af",
@@ -5918,7 +5918,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000096501627",
@@ -5940,7 +5940,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00004b22eac8",
@@ -5962,7 +5962,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00000cb54f1c",
@@ -5984,13 +5984,13 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000000a3e661",
    "osm": "way/10741345",
    "osm_url": "https://www.openstreetmap.org/way/10741345",
-   "name": "Dubai Creek Golf Course",
+   "name": "Dubai Creek Golf & Yacht Club",
    "category": "sports",
    "area": "Dubai Creek",
    "district": "Creek & Old Dubai",
@@ -6004,8 +6004,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Par 71 creekside championship course open since 1993, with the Peter Cowen Academy",
    "reject_reason": null
   },
   {
@@ -6028,7 +6028,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-00000d85889f",
@@ -6050,7 +6050,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000036853364",
@@ -6072,7 +6072,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000005e12bc3",
@@ -6094,7 +6094,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00012c4c2712",
@@ -6114,8 +6114,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Olympic-sized skating rink inside Dubai Mall",
    "reject_reason": null
   },
   {
@@ -6138,7 +6138,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00000c03d4e9",
@@ -6158,8 +6158,8 @@
    "upkeep": 5,
    "proposed_vibe": "Want to play Golf in Dubai? Al Badia Golf Club is best Golf course located in Dubai Festival City. The Club offers",
    "proposed_vibe_source": "https://www.albadiagolfclub.ae/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Golf club and course in Dubai Festival City",
    "reject_reason": null
   },
   {
@@ -6182,7 +6182,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0900000-0000-0000-0002-00000cbadbb6",
@@ -6202,8 +6202,8 @@
    "upkeep": 8,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Greg Norman-designed golf community in Dubai Sports City",
    "reject_reason": null
   },
   {
@@ -6224,8 +6224,8 @@
    "upkeep": 6,
    "proposed_vibe": "World-class Race Track No Speed Cameras Learn from Experienced Instructors World renowned Karting Track Combo Packages",
    "proposed_vibe_source": "https://dubaiautodrome.ae",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Motor City race circuit for instructor-led track driving, with karting combo packages",
    "reject_reason": null
   },
   {
@@ -6248,7 +6248,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-000008ee9211",
@@ -6270,7 +6270,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000dc0e82fb",
@@ -6292,7 +6292,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0900000-0000-0000-0002-000015704763",
@@ -6314,13 +6314,13 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0003-00000051b194",
    "osm": "relation/5353876",
    "osm_url": "https://www.openstreetmap.org/relation/5353876",
-   "name": "The Els Golf Course",
+   "name": "The Els Club",
    "category": "sports",
    "area": "Dubai Sports City",
    "district": "JVC, Sports City & Motor City",
@@ -6334,8 +6334,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Ernie Els-designed golf course with dining in Dubai Sports City",
    "reject_reason": null
   },
   {
@@ -6356,8 +6356,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "18-hole course plus a floodlit 9-hole par 3 and a TrackMan range in DAMAC Hills",
    "reject_reason": null
   },
   {
@@ -6380,7 +6380,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-000005324ee6",
@@ -6402,7 +6402,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000c32f94c1",
@@ -6424,7 +6424,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00010f6209bd",
@@ -6446,7 +6446,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-000020869c25",
@@ -6468,7 +6468,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-000000a370f0",
@@ -6490,7 +6490,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000097c88662",
@@ -6512,7 +6512,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-00003709448e",
@@ -6534,7 +6534,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-00001dd8fa46",
@@ -6556,7 +6556,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002bcd566d7",
@@ -6578,7 +6578,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000107d3a7dd",
@@ -6600,7 +6600,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000dbde2c9f",
@@ -6622,7 +6622,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000dbdd1937",
@@ -6644,7 +6644,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000dbdd18eb",
@@ -6666,7 +6666,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00034fb8f249",
@@ -6688,7 +6688,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000085e6c8bb",
@@ -6710,7 +6710,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000106824d6b",
@@ -6730,8 +6730,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Industrial-style bar with a full stage and mega screens; live shows three nights a week plus sport",
    "reject_reason": null
   },
   {
@@ -6754,7 +6754,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000f292d098",
@@ -6776,7 +6776,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00012430a8f3",
@@ -6798,7 +6798,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00007b72de82",
@@ -6820,7 +6820,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002023142bc",
@@ -6842,7 +6842,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0001ffb6447c",
@@ -6864,7 +6864,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00020036034d",
@@ -6886,7 +6886,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000203af698d",
@@ -6908,7 +6908,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001ffb6447a",
@@ -6930,7 +6930,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000200833ce0",
@@ -6952,7 +6952,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00020036034c",
@@ -6974,7 +6974,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0900000-0000-0000-0001-0001ffb6447e",
@@ -6996,7 +6996,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000200002f80",
@@ -7018,7 +7018,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000200de9963",
@@ -7040,7 +7040,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000165c95344",
@@ -7062,7 +7062,7 @@
    "proposed_vibe_source": "osm:description",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000165c8eb74",
@@ -7084,7 +7084,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000162e88001",
@@ -7106,7 +7106,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-00001dd8edf2",
@@ -7128,7 +7128,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002932ab319",
@@ -7150,7 +7150,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002931716c9",
@@ -7172,7 +7172,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000162e88065",
@@ -7194,7 +7194,7 @@
    "proposed_vibe_source": "https://livelaville.com/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001f61b0a40",
@@ -7216,7 +7216,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000dd949565",
@@ -7238,7 +7238,7 @@
    "proposed_vibe_source": "https://www.seaviewhoteldubai.com/restaurants",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000162e8a009",
@@ -7260,7 +7260,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00021b42e90e",
@@ -7282,7 +7282,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000fbb9c489",
@@ -7304,7 +7304,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0900000-0000-0000-0001-0001137f773a",
@@ -7326,7 +7326,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000117213ea7",
@@ -7348,7 +7348,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000dd9435c7",
@@ -7370,7 +7370,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000dd948b8d",
@@ -7392,7 +7392,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00011cf78fb2",
@@ -7414,7 +7414,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00011147d26b",
@@ -7436,7 +7436,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001a40e675d",
@@ -7458,7 +7458,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00011b0e1894",
@@ -7480,7 +7480,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000dd94548e",
@@ -7502,7 +7502,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0003204f2931",
@@ -7524,7 +7524,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-000022e3dbde",
@@ -7546,7 +7546,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001fe7aec86",
@@ -7568,7 +7568,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000134eebcc5",
@@ -7590,7 +7590,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0900000-0000-0000-0001-0001fe7aec81",
@@ -7612,7 +7612,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001459c4399",
@@ -7634,7 +7634,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-000022e3dbe1",
@@ -7656,7 +7656,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000dd481bdd",
@@ -7678,7 +7678,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00018429252e",
@@ -7700,7 +7700,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000dd9407e0",
@@ -7722,7 +7722,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00011b0e3c82",
@@ -7744,7 +7744,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001253dc294",
@@ -7766,7 +7766,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000120ede793",
@@ -7788,7 +7788,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "office, not a venue"
   },
   {
    "id": "c0900000-0000-0000-0001-000172ae7bad",
@@ -7810,7 +7810,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000085e62ca5",
@@ -7832,7 +7832,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000085e6adb6",
@@ -7854,7 +7854,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00034293b0d1",
@@ -7874,15 +7874,15 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Bavarian beer hall at 25hours One Central with German draught beer, pork knuckle, live music and sport",
    "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0003287de5e5",
    "osm": "node/13564241381",
    "osm_url": "https://www.openstreetmap.org/node/13564241381",
-   "name": "The Irish Vicker's",
+   "name": "The Irish Vickers",
    "category": "vibes",
    "area": "Address Dubai Mall",
    "district": "Downtown & DIFC",
@@ -7896,8 +7896,8 @@
    "upkeep": 4,
    "proposed_vibe": "☘️ Irish Sports Bar - Live Music - Live Sports ☘️ Souk Al Bahar Level 3",
    "proposed_vibe_source": "https://linktr.ee/theirishvickersdxb",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Irish sports bar on Souk Al Bahar level 3 with live music and live sport",
    "reject_reason": null
   },
   {
@@ -7920,7 +7920,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000e7e72196",
@@ -7942,7 +7942,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000117fcc1fd",
@@ -7964,7 +7964,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001056fe36c",
@@ -7986,7 +7986,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000cc8d04c8",
@@ -8008,7 +8008,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002cfcff049",
@@ -8030,7 +8030,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001f5b63a37",
@@ -8052,7 +8052,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000ddd9b2d0",
@@ -8074,7 +8074,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000085e5feae",
@@ -8094,8 +8094,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Garhoud's long-running Irish pub, winner of 67 awards over the years",
    "reject_reason": null
   },
   {
@@ -8118,7 +8118,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000de07cf67",
@@ -8140,7 +8140,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00015b9238b0",
@@ -8162,7 +8162,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002bcbd0b70",
@@ -8184,7 +8184,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002bcbd54da",
@@ -8206,7 +8206,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-000045f6c3bb",
@@ -8228,7 +8228,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000123f49894",
@@ -8250,7 +8250,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001459ba94d",
@@ -8272,7 +8272,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00021d0e15fd",
@@ -8294,7 +8294,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002f465763a",
@@ -8316,7 +8316,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0900000-0000-0000-0001-00021af87f16",
@@ -8338,7 +8338,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00032716318b",
@@ -8360,7 +8360,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000eef39005",
@@ -8382,7 +8382,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001f05d32a0",
@@ -8404,7 +8404,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001f4484cb7",
@@ -8426,7 +8426,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001a4ae9559",
@@ -8448,7 +8448,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000062f47162",
@@ -8470,7 +8470,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000062f47c32",
@@ -8492,14 +8492,14 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002de381e37",
    "osm": "node/12318154295",
    "osm_url": "https://www.openstreetmap.org/node/12318154295",
-   "name": "Be Beach DXB",
-   "category": "vibes",
+   "name": "Be Beach",
+   "category": "beach_club",
    "area": "JBR",
    "district": "Marina & JBR",
    "cuisine": "Bar and lounge",
@@ -8512,8 +8512,8 @@
    "upkeep": 4,
    "proposed_vibe": "Discover Be Beach Dubai, a premier destination at Dubai Marina. Indulge in Mediterranean dining, crafted cocktails",
    "proposed_vibe_source": "https://www.bebeachdxb.com/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Dubai Harbour beach club with an infinity pool, cabanas, resident DJs and a Mediterranean kitchen",
    "reject_reason": null
   },
   {
@@ -8536,7 +8536,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002bd8202a1",
@@ -8558,7 +8558,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00030b0bb389",
@@ -8580,7 +8580,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000079ea49ae",
@@ -8602,7 +8602,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00017db73715",
@@ -8624,7 +8624,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "duplicate"
   },
   {
    "id": "c0900000-0000-0000-0001-00005fa2cac5",
@@ -8646,7 +8646,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000f466263b",
@@ -8668,7 +8668,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000e4b9623c",
@@ -8690,7 +8690,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000117dcaad8",
@@ -8712,7 +8712,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000079ea49af",
@@ -8734,7 +8734,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002ddcd4635",
@@ -8756,7 +8756,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001459b9561",
@@ -8778,7 +8778,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000293171791",
@@ -8800,7 +8800,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-0000257bb5eb",
@@ -8822,7 +8822,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00029317172d",
@@ -8844,7 +8844,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-0000257bb5f2",
@@ -8866,7 +8866,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001459b9562",
@@ -8888,7 +8888,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001459ba951",
@@ -8910,7 +8910,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000299632c3a",
@@ -8932,7 +8932,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-000010a964de",
@@ -8954,7 +8954,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-0000433d5436",
@@ -8976,7 +8976,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000ff6777ed",
@@ -8998,7 +8998,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000dbde2ca2",
@@ -9020,7 +9020,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000106971e52",
@@ -9042,7 +9042,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00014a5b556a",
@@ -9064,7 +9064,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00021185c0e9",
@@ -9086,7 +9086,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00009def5d60",
@@ -9108,7 +9108,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00021185c0eb",
@@ -9130,7 +9130,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00021185c0f4",
@@ -9152,7 +9152,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000e2ff10f1",
@@ -9174,7 +9174,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000e2ff10f2",
@@ -9196,7 +9196,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001267f408e",
@@ -9218,7 +9218,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00012667826f",
@@ -9240,7 +9240,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   }
  ]
 }
