@@ -10,33 +10,27 @@ Legend: `S` under a day · `M` a day or two · `L` more.
 ## Live
 
 `main` auto-deploys to https://plan-ind.vercel.app (docs-only commits skip
-the build). Migrations through 084 are live.
+the build). Migrations through 086 are live; 087 (plan-create cap) is staged.
 Everyone signs in (064). One CV link: the landing's "Try it, no sign-up" runs
 the whole journey on /demo/vote with sample data.
 
-## Now (2026-09-28, owner away; three sessions: lead + B platform + C journey)
+## Now (2026-09-29, lead + B platform + C journey)
 
-Plan: `~/.claude/plans/rippling-puzzling-donut.md`. Lanes hand off to the
-lead, who reviews, gates and merges; migrations are staged, security-reviewed,
-then applied only with the owner's yes.
-
-Done today: desert palette + Cormorant italic + night sky with stars and
-glints; shared nav everywhere; photo tiles; Luna leads the composer; host
-removes a member (080); folders (081); custom-place edit/delete; saved-link
-remove; live route map (fallback until the key); reminders, leave-by, cost per
-head; For you; Tonight/At a glance; story share cards; Discover constellation
-map; UX-audit pass; hooks hardening (silent failures, vote ordering); client
-error reporting; demo journey; Tresind photo swapped.
-
-Next: visual baselines regenerated (in progress), E2E for today's features (C),
-match.ts split (B), then the owner's decisions below.
+Plan: `~/.claude/plans/rippling-puzzling-donut.md` ("finish line"). Shipped
+today: no © on photos + /credits, category art for every photo-less place,
+continuous sparkle + desert-night depth + glass cards, a Saved tab (folders,
+boards, saved links) with folder cards, Pinterest boards, our own metro
+mini-map (no Google embed), a simpler Been, the Beli-style rating game + My
+ranking + "I went here" (085), leaderboards + hide-me (086). Next: Top places
+on Discover, demo versions of the game and boards (C), E2E per wave (C), the
+styled Google map once the key and Map ID exist.
 
 ## Waiting on the owner
 
 | # | Item | Why it matters |
 |---|---|---|
 | O2 | Supabase Auth: anonymous sign-ins **off**, then the Turnstile secret, then the Google provider | Closes free guest sessions and the Luna quota drain |
-| O4 | Google Cloud: a browser key restricted by referrer to Maps JavaScript API + Routes API, set as `NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY` in Vercel; per-API daily quotas; a ~$20 budget alert | Live route map with real metro steps |
+| O4 | Google Cloud: a browser key restricted by referrer to Maps JavaScript API + Routes API (`NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY`), a Map ID with docs/MAP_STYLE.md's style (`NEXT_PUBLIC_GOOGLE_MAP_ID`), per-API quotas, a ~$20 budget alert | The styled route map with real metro steps |
 | O8 | Catalogue growth: run `npm run places:discover` (prints cost, calls nothing), then one cell, then the grid (~$0 in the free tier, worst case ~$16) and review the CSV | 76 venues is the biggest product gap |
 | O6 | Housekeeping: delete merged `lane/*` branches; delete the unreferenced Tresind object from the spot-photos bucket | One branch that is always true |
 
