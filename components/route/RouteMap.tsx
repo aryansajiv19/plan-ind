@@ -55,8 +55,9 @@ export default function RouteMap({ venue, planOrigin, eventTime = null }: { venu
     loadMaps(KEY)
       .then(async (maps) => {
         const { Map } = await maps.importLibrary("maps");
-        // createPolylines needs a map id; DEMO_MAP_ID is Google's stock style.
-        const map = new Map(el, { center: point(destination), zoom: 13, mapId: "DEMO_MAP_ID", disableDefaultUI: true, zoomControl: true });
+        // createPolylines needs a map id. Ours (docs/MAP_STYLE.md) paints the
+        // map in the app's palette; DEMO_MAP_ID is Google's stock style.
+        const map = new Map(el, { center: point(destination), zoom: 13, mapId: process.env.NEXT_PUBLIC_GOOGLE_MAP_ID || "DEMO_MAP_ID", disableDefaultUI: true, zoomControl: true });
         if (live) setGoogle({ maps, map });
       })
       .catch(() => { if (live) setGoogle("failed"); });
