@@ -263,14 +263,14 @@
 .demo-wrapped__actions button {
   min-height: var(--btn-h-md);
   padding: var(--btn-pad-md);
-  border: 1px solid #07090d;
+  border: 1px solid #0f2a36;
   background: transparent;
   color: var(--primary-ink);
   font-weight: 700;
   cursor: pointer;
 }
 .demo-wrapped__actions button:first-child {
-  background: #07090d;
+  background: #0f2a36;
   color: var(--color-punch);
 }
 .demo-wrapped .demo-wrapped__status {

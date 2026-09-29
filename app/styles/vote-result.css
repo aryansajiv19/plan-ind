@@ -588,7 +588,7 @@
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--color-line) 55%, transparent);
   border-radius: var(--radius-panel);
-  background: rgba(7, 9, 13, 0.6);
+  background: rgba(9, 28, 36, 0.6);
 }
 .mini-map svg {
   display: block;
@@ -600,12 +600,12 @@
   stroke-width: 1;
 }
 .mini-map__station {
-  fill: #07090d;
+  fill: #0f2a36;
   stroke: #f2f2f2;
   stroke-width: 1.5;
 }
 .mini-map__near {
-  fill: #07090d;
+  fill: #0f2a36;
   stroke: var(--color-punch);
   stroke-width: 3;
 }
@@ -630,7 +630,7 @@
   fill: #f2f2f2;
   font-size: 13px;
   paint-order: stroke;
-  stroke: #07090d;
+  stroke: #0f2a36;
   stroke-width: 4px;
 }
 .mini-map__label--venue {
@@ -671,6 +671,9 @@
   padding: 1.1rem;
   border: 1px solid color-mix(in srgb, var(--color-punch) 45%, transparent);
   border-radius: var(--radius-panel);
+  background: var(--color-card);
+}
+[data-theme="night"] .rate-game {
   background: linear-gradient(160deg, rgba(23, 64, 80, 0.55), rgba(68, 40, 22, 0.45));
 }
 .rate-game__place {

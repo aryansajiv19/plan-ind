@@ -11,8 +11,8 @@
 export type Ground = "day" | "night";
 export type ThemePreference = "auto" | Ground;
 
-/** Where the preference is persisted. Shared with the older night toggle. */
-export const THEME_KEY = "deal-three:theme";
+/** The cookie holding a chosen ground, read by the server for first paint. */
+export const THEME_COOKIE = "deal-three-theme";
 
 /** Night starts at 17:00 Asia/Dubai — "roughly 5 PM" in the handoff. */
 export const NIGHT_FROM_HOUR = 17;

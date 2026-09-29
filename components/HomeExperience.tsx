@@ -17,6 +17,7 @@ import HowItWorks from "@/components/landing/HowItWorks";
 import YourPlans, { type PlanSummary } from "@/components/home/YourPlans";
 import { TAB_VIEWS, VIEW_LABELS, WALL_SIZE, viewFromParam, type AppView } from "@/lib/home-views";
 import NearViewport from "@/components/home/NearViewport";
+import ThemeToggle from "@/components/ThemeToggle";
 import { NoGooglePhotos } from "@/components/VenuePhoto";
 import { greetingFor } from "@/lib/right-now";
 
@@ -258,6 +259,7 @@ export default function HomeExperience({
           <div className="home-nav__search" style={{ maxWidth: "18rem" }}>
             <ActionSearchBar age={age} onQuickAction={showView} />
           </div>
+          <ThemeToggle />
           <button type="button" className="home-nav__link" onClick={() => showView("plan")}>Make a plan</button>
           <button
             type="button"

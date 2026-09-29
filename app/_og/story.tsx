@@ -12,7 +12,7 @@ import { getSupabaseConfig } from "@/lib/supabase/config";
 export const STORY_SIZE = { width: 1080, height: 1920 };
 
 export const STORY = {
-  ground: "#07090d",
+  ground: "#0f2a36",
   sand: "#ce9963",
   ink: "#efe7dc",
   muted: "#a39d95",

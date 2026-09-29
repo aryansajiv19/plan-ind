@@ -92,7 +92,7 @@ h3,
    light outside, ink inside, each band separating from the other. */
 [data-theme="night"] {
   --ring-outer: #f2f2f2;
-  --ring-inner: #07090d;
+  --ring-inner: #0f2a36;
 }
 /* `:root[...]` is load-bearing: (0,3,0) beats the per-component
    :focus-visible rules, so night's two-band ring replaces them. */
@@ -116,58 +116,6 @@ h3,
   color: var(--color-ink);
 }
 
-/* ── The night sky: faint stars behind everything ───────────────────
-   Two tiled layers of 1px dots (different tile sizes, so the pattern
-   never visibly repeats); the second twinkles slowly. CSS only, fixed,
-   never over content, and still under prefers-reduced-motion. */
-[data-theme="night"] body {
-  background: transparent;
-}
-/* Desert-night depth: a navy aurora overhead, a brown dune glow below. */
-:root[data-theme="night"] {
-  background:
-    radial-gradient(ellipse 90% 55% at 50% -12%, rgba(23, 64, 80, 0.55), transparent 70%),
-    radial-gradient(ellipse 80% 45% at 50% 115%, rgba(112, 65, 33, 0.38), transparent 70%),
-    var(--color-paper);
-  background-attachment: fixed;
-}
-[data-theme="night"] body::before,
-[data-theme="night"] body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-}
-[data-theme="night"] body::before {
-  background-image:
-    radial-gradient(1px 1px at 23px 41px, rgba(242, 242, 242, 0.5), transparent),
-    radial-gradient(1px 1px at 131px 17px, rgba(242, 242, 242, 0.35), transparent),
-    radial-gradient(1px 1px at 211px 97px, rgba(216, 168, 119, 0.45), transparent),
-    radial-gradient(1px 1px at 67px 173px, rgba(242, 242, 242, 0.3), transparent),
-    radial-gradient(1.5px 1.5px at 251px 223px, rgba(242, 242, 242, 0.55), transparent),
-    radial-gradient(1px 1px at 157px 263px, rgba(167, 192, 216, 0.4), transparent);
-  background-size: 290px 290px;
-}
-[data-theme="night"] body::after {
-  background-image:
-    radial-gradient(1px 1px at 91px 59px, rgba(242, 242, 242, 0.7), transparent),
-    radial-gradient(1.5px 1.5px at 313px 151px, rgba(216, 168, 119, 0.6), transparent),
-    radial-gradient(1px 1px at 197px 331px, rgba(242, 242, 242, 0.6), transparent),
-    radial-gradient(1px 1px at 419px 409px, rgba(167, 192, 216, 0.55), transparent);
-  background-size: 470px 470px;
-  animation: sky-twinkle 3.2s ease-in-out infinite alternate;
-}
-@keyframes sky-twinkle {
-  from { opacity: 0.15; }
-  to { opacity: 1; }
-}
-@media (prefers-reduced-motion: reduce) {
-  [data-theme="night"] body::after {
-    animation: none;
-  }
-}
-
 /* Tab switches on /home (HomeExperience): the page cross-fades with a
    short rise; the nav keeps its own name so it holds still. */
 .home-nav {
@@ -184,50 +132,4 @@ h3,
 }
 @keyframes vt-in {
   from { opacity: 0; transform: translateY(8px); }
-}
-
-/* Glints (components/SkySparkles): four-point stars drawn by clip-path,
-   each twinkling on its own rhythm (inline duration/delay), a few drifting.
-   The star layer above twinkles on a second, slower beat. */
-.sky-sparkles {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  overflow: hidden;
-  pointer-events: none;
-}
-:root:not([data-theme="night"]) .sky-sparkles {
-  display: none;
-}
-.sky-sparkles__glint {
-  position: absolute;
-  background: #f2f2f2;
-  clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
-  opacity: 0;
-  filter: drop-shadow(0 0 4px rgba(242, 242, 242, 0.9));
-  animation: sky-glint 5s ease-in-out infinite;
-}
-.sky-sparkles__glint--gold {
-  background: #ecc792;
-  filter: drop-shadow(0 0 5px rgba(206, 153, 99, 0.9));
-}
-.sky-sparkles__glint--drift {
-  animation-name: sky-glint-drift;
-}
-@keyframes sky-glint {
-  0%, 100% { opacity: 0; transform: scale(0.3) rotate(0deg); }
-  45% { opacity: 0.95; transform: scale(1) rotate(45deg); }
-  60% { opacity: 0.5; transform: scale(0.7) rotate(70deg); }
-}
-@keyframes sky-glint-drift {
-  0% { opacity: 0; transform: translate(0, 0) scale(0.3); }
-  45% { opacity: 0.9; transform: translate(-12px, 6px) scale(1) rotate(45deg); }
-  100% { opacity: 0; transform: translate(-24px, 12px) scale(0.3) rotate(90deg); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .sky-sparkles__glint {
-    animation: none;
-    opacity: 0.35;
-    transform: scale(0.7);
-  }
 }

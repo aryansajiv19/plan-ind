@@ -4,6 +4,7 @@ import Link from "next/link";
 import { TAB_VIEWS, VIEW_LABELS } from "@/lib/home-views";
 import { dubaiMinuteOfDay } from "@/lib/dubai-phase";
 import { useMinuteClock } from "@/hooks/use-minute-clock";
+import ThemeToggle from "@/components/ThemeToggle";
 
 // "Dubai · 7:42 pm", on the Dubai clock whatever the visitor's own zone.
 function dubaiClock(now: Date): string {
@@ -35,6 +36,7 @@ export default function LandingNav({ signedIn = false }: { signedIn?: boolean })
 
       <div className="home-nav__right">
         {now && <span className="home-nav__clock">Dubai · {dubaiClock(now)}</span>}
+        <ThemeToggle />
         {!signedIn && <Link href="/login" className="home-nav__login">Sign in</Link>}
         <Link href={signedIn ? "/home" : "/#plan-lab"} className="home-nav__signin">
           {signedIn ? "Make a plan" : "Start a plan"}

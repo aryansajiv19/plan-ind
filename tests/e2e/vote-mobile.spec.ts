@@ -1,6 +1,7 @@
 import { test, expect, type BrowserContext, type Page } from "@playwright/test";
 import { planIdFor, NO_FIXTURE_REASON } from "./fixture";
 import { signInAsMember } from "./local-stack";
+import { pinGround } from "./page-helpers";
 
 // The vote screen, on a phone.
 //
@@ -164,6 +165,7 @@ test.describe("the vote screen", () => {
   });
 
   test("keyboard focus draws the dark two-band ring", async ({ page, context, baseURL }) => {
+    await pinGround(page, baseURL!, "night");
     await openVoteScreen(page, context, baseURL!);
 
     // A REAL key press. SPECS.md §23.7 records that a scripted `.focus()`

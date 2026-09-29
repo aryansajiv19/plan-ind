@@ -147,6 +147,18 @@
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
+.theme-toggle {
+  display: inline-grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-ink);
+  font-size: 1.05rem;
+  cursor: pointer;
+}
 .home-nav__login {
   display: inline-flex;
   align-items: center;
@@ -270,7 +282,7 @@
   min-height: min(calc(100svh - 4.5rem), 54rem);
   display: grid;
   grid-template-rows: auto 1fr;
-  background: transparent;
+  background: #0a1f28;
   color: var(--photo-ink);
   overflow: hidden;
 }
@@ -339,8 +351,8 @@
   z-index: 2;
   pointer-events: none;
   background:
-    linear-gradient(90deg, #07090d 0%, rgba(7, 9, 13, 0.5) 18%, transparent 38%),
-    linear-gradient(0deg, rgba(7, 9, 13, 0.6) 0%, transparent 30%);
+    linear-gradient(90deg, #0a1f28 0%, rgba(9, 28, 36, 0.5) 18%, transparent 38%),
+    linear-gradient(0deg, rgba(9, 28, 36, 0.6) 0%, transparent 30%);
 }
 /* Credits ride above the fade, top-right of each tile. */
 
@@ -576,7 +588,7 @@
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: linear-gradient(0deg, rgba(7, 9, 13, 0.92), rgba(7, 9, 13, 0.2) 75%);
+  background: linear-gradient(0deg, rgba(9, 28, 36, 0.92), rgba(9, 28, 36, 0.2) 75%);
 }
 .how__decided > div {
   position: relative;

@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { pinGround } from "./page-helpers";
 
 // Visual regression baselines for the public pages, at the four widths the
 // owner named. Sibling to layout-consistency.spec.ts: that one asserts
@@ -53,7 +54,9 @@ test.describe("visual regression", () => {
 
   for (const page_ of PAGES) {
     for (const vp of VIEWPORTS) {
-      test(`${page_.name} @ ${vp.name}`, async ({ page }) => {
+      test(`${page_.name} @ ${vp.name}`, async ({ page, baseURL }) => {
+        // The server picks the ground from the real Dubai clock; pin it.
+        await pinGround(page, baseURL!, "night");
         await page.clock.setFixedTime(FIXED_TIME);
         await page.setViewportSize({ width: vp.width, height: vp.height });
         await page.goto(page_.path, { waitUntil: "networkidle" });

@@ -1,4 +1,5 @@
 import { expect, type Page } from "@playwright/test";
+import { THEME_COOKIE } from "@/lib/dubai-phase";
 
 /**
  * Resolves once Realtime says row changes will flow ("Subscribed to
@@ -27,4 +28,9 @@ export async function mountLandingSection(page: Page, id: "plan-lab" | "right-no
   const section = page.locator(`#${id}`);
   await section.scrollIntoViewIfNeeded();
   await expect(section.locator("[aria-busy=true]")).toHaveCount(0, { timeout: 20_000 });
+}
+
+/** Pins the ground (day/night) by the nav toggle's cookie, so a check doesn't depend on the Dubai clock. */
+export async function pinGround(page: Page, baseURL: string, ground: "day" | "night") {
+  await page.context().addCookies([{ name: THEME_COOKIE, value: ground, url: baseURL }]);
 }
