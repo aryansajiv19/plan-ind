@@ -50,12 +50,27 @@ async function horizontalOverflow(page: Page) {
         scroller = scroller.parentElement;
       }
       if (inScroller) continue;
-      const overhang = Math.max(r.right - vw, -r.left);
+      // Judge only what can be seen: an ancestor that clips (overflow hidden
+      // or clip) cuts the element's box to its own. Category art is an SVG
+      // scene sliced to fill its frame, so its shapes run past the frame by
+      // design and are clipped there. A clipping ancestor that itself crosses
+      // the edge is still caught, as an element of its own.
+      let left = r.left;
+      let right = r.right;
+      for (let a = el.parentElement; a; a = a.parentElement) {
+        const o = getComputedStyle(a).overflowX;
+        if (o !== "hidden" && o !== "clip") continue;
+        const box = a.getBoundingClientRect();
+        left = Math.max(left, box.left);
+        right = Math.min(right, box.right);
+      }
+      if (right - left < 2) continue; // clipped away entirely
+      const overhang = Math.max(right - vw, -left);
       if (overhang > 1) {
         const cls = typeof el.className === "string" ? el.className.trim().split(/\s+/).slice(0, 3).join(".") : "";
         offenders.push({
           sel: el.tagName.toLowerCase() + (cls ? `.${cls}` : ""),
-          left: Math.round(r.left), right: Math.round(r.right), overhang: Math.round(overhang),
+          left: Math.round(left), right: Math.round(right), overhang: Math.round(overhang),
         });
       }
     }
