@@ -15,7 +15,7 @@ import { localAdmin } from "./local-stack";
 
 test.skip(!canProvision(), "skipped: reads and provisions spots on a local stack.");
 
-const PLACE = `/place/${SEEDED.threeFils}`; // 3Fils, Jumeirah, open till 11pm; no coordinates in the seed
+const PLACE = `/place/${SEEDED.threeFils}`; // 3Fils, Jumeirah, open till 11pm
 const dubai = (hhmm: string) => new Date(`2026-09-25T${hhmm}:00+04:00`);
 
 // A curated spot a short walk from Business Bay metro, provisioned per test:
@@ -51,14 +51,27 @@ test("the map is ours: metro, the nearest station, the walk, the pin, and a way 
   }
 });
 
-test("a place without coordinates draws no map but is never a dead end", async ({ page }) => {
-  await page.goto(PLACE);
-  await expect(page.getByRole("heading", { level: 1, name: "3Fils" })).toBeVisible({ timeout: 20_000 });
-  await expect(page.locator("figure.mini-map")).toHaveCount(0);
-  const where = page.locator("section", { has: page.getByRole("heading", { name: "Where" }) });
-  await expect(where).toContainText("Jumeirah");
-  await expect(page.getByRole("link", { name: "Open in Google Maps" }).first()).toHaveAttribute("href", /^https:\/\/www\.google\.com\/maps\//);
-  await expect(page.locator("iframe")).toHaveCount(0);
+test("a place without coordinates gets the whole-city metro map, its area named, never a blank", async ({ page }) => {
+  // Its own coordinate-less spot: a stack with the full catalogue has 3Fils mapped.
+  const admin = localAdmin();
+  const id = randomUUID();
+  const { error } = await admin.from("spots").insert({
+    id, name: "E2E Unmapped Spot", category: "dinner", area: "Jumeirah", cuisine: "Test", price_band: "$$",
+    min_spend: 100, open_till: "11pm", vibe: "Fixture without coordinates", source: "curated",
+  });
+  if (error) throw new Error(`provisioning the unmapped spot failed: ${error.message}`);
+  try {
+    await page.goto(`/place/${id}`);
+    const map = page.locator("figure.mini-map");
+    await expect(map).toBeVisible({ timeout: 20_000 });
+    await expect(map.locator("svg polyline").first()).toBeVisible();
+    await expect(map.locator("path.mini-map__pin")).toHaveCount(0); // no pin: the spot itself isn't mapped
+    await expect(map.locator("figcaption")).toContainText("Jumeirah · the exact spot isn’t mapped yet");
+    await expect(map.getByRole("link", { name: "Open in Google Maps" })).toHaveAttribute("href", /^https:\/\/www\.google\.com\/maps\//);
+    await expect(page.locator("iframe")).toHaveCount(0);
+  } finally {
+    await admin.from("spots").delete().eq("id", id);
+  }
 });
 
 test("the hours line follows the Dubai clock: listed, closing soon, closed", async ({ page }) => {
