@@ -22,10 +22,13 @@ test("a photo lands in its owner's folder only, signs for its owner only, and ca
     const foreign = await mine.storage.from("visit-photos").upload(`${friend.userId}/${randomUUID()}.jpg`, bytes(), { contentType: "image/jpeg" });
     expect(foreign.error, "an upload into another member's folder must be refused").not.toBeNull();
 
-    const { data: visit, error: visitError } = await mine.from("visits").insert({ person_id: me.userId, spot_id: SEEDED.threeFils }).select("id").single();
+    // "I went here" (085's log_visit): a direct plan-less visit insert is refused.
+    const { data: logged, error: visitError } = await mine.rpc("log_visit", { p_spot: SEEDED.threeFils, p_visited_at: null });
     expect(visitError).toBeNull();
+    const visit = { id: (logged as { result: string; visit_id: string }).visit_id };
+    expect(visit.id).toBeTruthy();
     const { error: rowError } = await mine.from("visit_photos")
-      .insert({ visit_id: visit!.id, person_id: me.userId, storage_path: own, visibility: "private" });
+      .insert({ visit_id: visit.id, person_id: me.userId, storage_path: own, visibility: "private" });
     expect(rowError).toBeNull();
 
     const signed = await mine.storage.from("visit-photos").createSignedUrls([own], 60);

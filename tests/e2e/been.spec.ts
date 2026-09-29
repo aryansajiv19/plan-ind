@@ -8,7 +8,8 @@ import { canProvision, SEEDED } from "./plan-factory";
 // just the screen: a collection is created, a visit filed in it (its chip
 // counts 1, still after a reload), and the collection deleted with the visit
 // kept; a photo picked, saved, and shown on the wall. The member's visit is
-// logged on their own session, as the app does after a rated plan.
+// logged on their own session with log_visit, as "I went here" does (085:
+// a direct plan-less insert is refused).
 
 test.skip(!canProvision(), "needs the local stack to mint an account");
 
@@ -23,8 +24,9 @@ async function openBeen(page: Page) {
 
 test("a collection is made, a visit filed in it, and the collection deleted with the visit kept", async ({ page, context, baseURL }) => {
   const me = await signInAsMember(context, baseURL!, `Beenie ${Date.now()}`);
-  const { error } = await clientAs(me).from("visits").insert({ person_id: me.userId, spot_id: SEEDED.threeFils });
+  const { data: logged, error } = await clientAs(me).rpc("log_visit", { p_spot: SEEDED.threeFils, p_visited_at: null });
   expect(error).toBeNull();
+  expect((logged as { result: string }).result).toBe("logged");
   const name = `Date nights ${Date.now().toString(36)}`;
 
   await openBeen(page);
@@ -61,20 +63,21 @@ test("a collection is made, a visit filed in it, and the collection deleted with
 
 test("a photo picked on Been is saved to the visit and shows on the wall", async ({ page, context, baseURL }) => {
   const me = await signInAsMember(context, baseURL!, `Snapper ${Date.now()}`);
-  const { data: visit, error } = await clientAs(me).from("visits")
-    .insert({ person_id: me.userId, spot_id: SEEDED.threeFils }).select("id").single();
+  const { data, error } = await clientAs(me).rpc("log_visit", { p_spot: SEEDED.threeFils, p_visited_at: null });
   expect(error).toBeNull();
+  const visit = { id: (data as { result: string; visit_id: string }).visit_id };
+  expect(visit.id).toBeTruthy();
 
   await openBeen(page);
   // The composer appears only once a file is picked.
   await expect(page.getByRole("button", { name: "Save photo" })).toHaveCount(0);
   await page.locator(".been-bar input[type=file]").setInputFiles({ name: "night.png", mimeType: "image/png", buffer: PNG });
-  await expect(page.getByLabel("Attach to")).toHaveValue(visit!.id);
+  await expect(page.getByLabel("Attach to")).toHaveValue(visit.id);
   await page.getByRole("button", { name: "Save photo" }).click();
 
   // The world: one photo row on that visit, its file in the owner's own folder.
   // Polled: the button reads "Uploading…" while it works, so its absence alone proves nothing.
-  const photoRows = async () => (await localAdmin().from("visit_photos").select("storage_path").eq("visit_id", visit!.id)).data ?? [];
+  const photoRows = async () => (await localAdmin().from("visit_photos").select("storage_path").eq("visit_id", visit.id)).data ?? [];
   await expect.poll(async () => (await photoRows()).length, { timeout: 20_000 }).toBe(1);
   const rows = await photoRows();
   // Saved: the composer closes, with no error left behind.
