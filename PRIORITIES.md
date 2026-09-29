@@ -31,7 +31,7 @@ styled Google map once the key and Map ID exist.
 |---|---|---|
 | O2 | Supabase Auth: anonymous sign-ins **off**, then the Turnstile secret, then the Google provider | Closes free guest sessions and the Luna quota drain |
 | O4 | Google Cloud: a browser key restricted by referrer to Maps JavaScript API + Routes API (`NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY`), a Map ID with docs/MAP_STYLE.md's style (`NEXT_PUBLIC_GOOGLE_MAP_ID`), per-API quotas, a ~$20 budget alert | The styled route map with real metro steps |
-| O8 | Catalogue growth: discovery grid RUN 2026-09-29 by the lead (owner approved); pick which candidates join the catalogue from the review file | 76 venues is the biggest product gap |
+| O8 | Catalogue growth: 089 (81 hand-reviewed OSM venues, security-reviewed) merged at aa2343f; the LEAD APPLIES IT once aa2343f is deployed (Vercel cap until ~11:15Z 2026-09-30), so the honest-budget-chip fix is live first. Google results are not a source (terms) | 76 venues is the biggest product gap |
 | O6 | Housekeeping: merged `lane/*` branches DELETED 2026-09-29. Left: delete `a0000000000000000000000000000005.jpg` (unreferenced Tresind photo) from the spot-photos bucket in the Supabase dashboard; SQL deletes are blocked and there is no service key by design | A tidy bucket |
 
 ## Roadmap (product audit 2026-09-27, detail in `docs/ROADMAP.md`)
