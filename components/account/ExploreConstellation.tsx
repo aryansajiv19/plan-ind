@@ -12,6 +12,9 @@ const W = 1000;
 const H = 620;
 const PAD = 40;
 
+const CORE = { minLat: 24.95, maxLat: 25.33, minLng: 55.02, maxLng: 55.45 };
+const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n));
+
 type Located = Spot & { latitude: number; longitude: number };
 
 export default function ExploreConstellation({ spots }: { spots: Spot[] }) {
@@ -20,7 +23,11 @@ export default function ExploreConstellation({ spots }: { spots: Spot[] }) {
     if (located.length === 0) return { stars: [], lines: [] };
     const lats = located.map((spot) => spot.latitude);
     const lngs = located.map((spot) => spot.longitude);
-    const [minLat, maxLat, minLng, maxLng] = [Math.min(...lats), Math.max(...lats), Math.min(...lngs), Math.max(...lngs)];
+    // Framed on the city, not on every place: Hatta and the desert sit 50+ km
+    // out and would squash Dubai into a corner. They are pinned to the edge in
+    // their direction instead.
+    const [minLat, maxLat] = [Math.max(Math.min(...lats), CORE.minLat), Math.min(Math.max(...lats), CORE.maxLat)];
+    const [minLng, maxLng] = [Math.max(Math.min(...lngs), CORE.minLng), Math.min(Math.max(...lngs), CORE.maxLng)];
     // Equirectangular, longitude shrunk by cos(latitude) so distances read true.
     const k = Math.cos(((minLat + maxLat) / 2) * (Math.PI / 180));
     const spanX = Math.max((maxLng - minLng) * k, 1e-6);
@@ -30,8 +37,8 @@ export default function ExploreConstellation({ spots }: { spots: Spot[] }) {
     const offY = (H - spanY * scale) / 2;
     const stars = located.map((spot) => ({
       spot,
-      x: offX + (spot.longitude - minLng) * k * scale,
-      y: H - (offY + (spot.latitude - minLat) * scale),
+      x: clamp(offX + (spot.longitude - minLng) * k * scale, PAD / 2, W - PAD / 2),
+      y: clamp(H - (offY + (spot.latitude - minLat) * scale), PAD / 2, H - PAD / 2),
     }));
     // ponytail: O(n²) nearest neighbour; fine to a few hundred places, a grid index past that.
     const lines = stars.flatMap((a, i) => {
