@@ -15,7 +15,7 @@
 
 </div>
 
-<img src="docs/media/brag.gif" alt="plan-ind in 21 seconds: the group chat, the deal, the vote and the winner." width="100%">
+<img src="docs/media/brag.webp" alt="plan-ind in 21 seconds: the group chat, the deal, the vote and the winner." width="100%">
 
 <p align="center"><a href="https://raw.githubusercontent.com/aryansajiv19/plan-ind/main/docs/media/brag.mp4">Full quality with sound (mp4)</a></p>
 
