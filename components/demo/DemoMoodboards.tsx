@@ -24,7 +24,7 @@ const item = (id: string, spot: BoardSpot, note: string | null): { item: Moodboa
   spot,
 });
 
-const BOARDS = [
+export const DEMO_BOARDS = [
   { id: "sample-birthday", name: "Sara’s birthday", items: [item("b1", SPOTS.tresind, "If we can get a table"), item("b2", SPOTS.threeFils, "Backup, no booking needed")] },
   { id: "sample-weekend", name: "Weekend outside", items: [item("w1", SPOTS.qudra, "Leave before sunrise"), item("w2", SPOTS.hatta, null), item("w3", SPOTS.greenPlanet, "If it’s too hot")] },
 ];
@@ -40,7 +40,7 @@ export default function DemoMoodboards({ onPlan }: { onPlan: (prefill: PlanPrefi
           <h2 id="demo-moodboards-title">Keep the feeling, not just the venue.</h2>
         </div>
       </div>
-      {BOARDS.map((board) => {
+      {DEMO_BOARDS.map((board) => {
         const items = board.items.filter((entry) => !removed.includes(entry.item.id));
         const places = items.map((entry) => entry.spot);
         return (

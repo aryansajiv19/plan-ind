@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import PlaceLinkImporter from "@/components/PlaceLinkImporter";
+import DemoFolders from "@/components/demo/DemoFolders";
 import DemoMoodboards from "@/components/demo/DemoMoodboards";
 import { friendPlanPrefill, originForArea, type PlanPrefill } from "@/lib/board-plan";
 import { validateImageFile } from "@/lib/upload";
@@ -196,6 +197,7 @@ export default function DemoAccountViews({
           <div><h1 id="saved-title">Saved.</h1></div>
           <p>Your folders, boards and saved links. Keep a place now, plan it later.</p>
         </header>
+        <DemoFolders />
         <DemoMoodboards onPlan={onStartPlan} />
         <PlaceLinkImporter demoMode />
       </section>

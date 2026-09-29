@@ -55,3 +55,24 @@ test("Plan together carries the friend into the composer", async ({ page }) => {
   await expect(page.getByText(`Set up for a plan with ${name}.`, { exact: false })).toBeVisible();
   await expect(page.locator(".plan-tune > summary")).toContainText(`“${name.split(" ")[0]}, where to?”`);
 });
+
+test("the demo's Saved tab files its sample boards in sample folders; Discover holds neither", async ({ page }) => {
+  await page.goto("/demo?view=saved");
+  const folders = page.locator("#workspace section.saved-folders");
+  await expect(folders).toBeVisible({ timeout: 20_000 });
+  await expect(folders.getByRole("heading", { level: 2 })).toContainText("sample");
+  const groups = folders.locator(".saved-folders__group");
+  await expect(groups).toHaveCount(3);
+  // Every folder holds something, and the boards it names are the demo's own boards.
+  for (const group of await groups.all()) await expect(group.locator("li")).not.toHaveCount(0);
+  const filed = (await folders.locator("li").allInnerTexts()).filter((text) => text.endsWith("Moodboard")).map((text) => text.split(" · ")[0]);
+  expect(filed.length).toBeGreaterThan(0);
+  for (const name of filed) {
+    await expect(page.locator("#workspace").getByText(name, { exact: true }).first(), `${name} is filed but not shown as a board`).toBeVisible();
+  }
+
+  await page.goto("/demo?view=discover");
+  await expect(page.locator("#workspace h1")).toBeVisible({ timeout: 20_000 });
+  await expect(page.locator("#workspace section.saved-folders"), "folders belong on Saved").toHaveCount(0);
+  for (const name of filed) await expect(page.locator("#workspace").getByText(name, { exact: true }), `${name} still on Discover`).toHaveCount(0);
+});
