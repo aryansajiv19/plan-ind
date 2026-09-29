@@ -22,7 +22,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00011d615bb2",
@@ -44,7 +44,7 @@
    "proposed_vibe_source": "https://www.gazebo.ae/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000125b1f10b",
@@ -66,7 +66,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001267f4053",
@@ -88,7 +88,7 @@
    "proposed_vibe_source": "http://www.artistaone.co",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001b3a8a0d5",
@@ -110,7 +110,7 @@
    "proposed_vibe_source": "https://biryaniwallaandco.com/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0000f827c684",
@@ -132,7 +132,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0000d7f210b8",
@@ -154,7 +154,7 @@
    "proposed_vibe_source": "https://www.yokosizzlers.com/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0002dcca7be6",
@@ -176,7 +176,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00011f5a845c",
@@ -198,7 +198,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002dcca79f7",
@@ -220,7 +220,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002dcca7a6a",
@@ -242,13 +242,13 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002c11fc4d7",
    "osm": "node/11830019287",
    "osm_url": "https://www.openstreetmap.org/node/11830019287",
-   "name": "CucIina Mesob Ethiopian Restaurant",
+   "name": "Mesob Ethiopian Restaurant",
    "category": "dinner",
    "area": "Al Nahda",
    "district": "Al Nahda & Qusais",
@@ -262,8 +262,8 @@
    "upkeep": 6,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Habesha restaurant serving Ethiopian stews and grilled meats on injera, open from breakfast to 2am.",
    "reject_reason": null
   },
   {
@@ -286,7 +286,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00004e09d13c",
@@ -308,7 +308,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002c0ca145c",
@@ -330,7 +330,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000f85e9c6a",
@@ -352,7 +352,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-0000f83811a4",
@@ -374,7 +374,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002dcca79f5",
@@ -396,13 +396,13 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002c0f367a1",
    "osm": "node/11827111841",
    "osm_url": "https://www.openstreetmap.org/node/11827111841",
-   "name": "Spicy Kaara Saaram Restaurant",
+   "name": "Kaara Saaram Restaurant",
    "category": "dinner",
    "area": "Al Nahda",
    "district": "Al Nahda & Qusais",
@@ -416,8 +416,8 @@
    "upkeep": 6,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Tamil and Chettinad cooking in Al Nahda 2, open from early breakfast until midnight.",
    "reject_reason": null
   },
   {
@@ -440,7 +440,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000f8e6c1f9",
@@ -462,7 +462,7 @@
    "proposed_vibe_source": "https://almarhabani.com/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00012667825c",
@@ -484,7 +484,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001185514e5",
@@ -506,7 +506,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001259182c1",
@@ -528,7 +528,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00011d61a651",
@@ -550,7 +550,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002c0f3678a",
@@ -572,7 +572,7 @@
    "proposed_vibe_source": "https://www.chaatbazaar.ae/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0001b3a7a9b0",
@@ -592,8 +592,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Uzbek restaurant in the Al Jabri building opposite Sahara Centre, open until midnight.",
    "reject_reason": null
   },
   {
@@ -616,7 +616,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00010141ca7d",
@@ -638,7 +638,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000d7f1657f",
@@ -660,7 +660,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002c0ca145b",
@@ -682,7 +682,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-0003314cc2e5",
@@ -704,7 +704,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000159a164f0",
@@ -726,7 +726,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000206f430cd",
@@ -748,7 +748,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000121aa2976",
@@ -770,7 +770,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001f05d32b1",
@@ -792,7 +792,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000315140165",
@@ -814,7 +814,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00011d01bb35",
@@ -836,7 +836,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00004b8f7722",
@@ -858,7 +858,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00021036c3ae",
@@ -880,7 +880,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0002-00000eae5f83",
@@ -902,7 +902,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000125ae427a",
@@ -924,7 +924,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002dcca88c9",
@@ -946,7 +946,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002dcca7aba",
@@ -968,7 +968,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000264e3afe7",
@@ -990,7 +990,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00015738cf7d",
@@ -1012,7 +1012,7 @@
    "proposed_vibe_source": "osm:description",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002c1238088",
@@ -1034,7 +1034,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-0002e09a34fd",
@@ -1056,7 +1056,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0000ed9a28ff",
@@ -1078,7 +1078,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002dcce69c2",
@@ -1100,7 +1100,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00004b8f758e",
@@ -1122,7 +1122,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0002e303c5bd",
@@ -1144,7 +1144,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0002c1238099",
@@ -1166,7 +1166,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002c11fc4e7",
@@ -1188,7 +1188,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00011d61f1b2",
@@ -1210,7 +1210,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00004b8f754a",
@@ -1232,7 +1232,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0002e8e0e414",
@@ -1254,7 +1254,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-000018cda65c",
@@ -1276,7 +1276,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00032a2c98f5",
@@ -1298,7 +1298,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00004b8f75cf",
@@ -1320,7 +1320,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00030aa7621a",
@@ -1342,7 +1342,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001027b312e",
@@ -1364,7 +1364,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000108e9768b",
@@ -1386,7 +1386,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00004b8f7515",
@@ -1408,7 +1408,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0000e3b44f42",
@@ -1430,7 +1430,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002dcca7cae",
@@ -1452,7 +1452,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002dcce69c1",
@@ -1474,7 +1474,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-0002c0f3679f",
@@ -1496,7 +1496,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00011d61a64d",
@@ -1518,7 +1518,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002e8fcb760",
@@ -1540,7 +1540,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0000fb18bc51",
@@ -1562,7 +1562,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0002c0f367a2",
@@ -1584,7 +1584,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002c125e59a",
@@ -1604,8 +1604,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Syrian grills, shawarma and stews opposite Al Falaj Supermarket in Hor Al Anz, with outdoor seating.",
    "reject_reason": null
   },
   {
@@ -1626,8 +1626,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Malaysian restaurant in Mamzar Centre, Hor Al Anz East, open from breakfast to 10:30pm.",
    "reject_reason": null
   },
   {
@@ -1650,7 +1650,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000125aef8c4",
@@ -1672,7 +1672,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002c0f367a4",
@@ -1694,7 +1694,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-00004b8f738a",
@@ -1716,7 +1716,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00004b8f773f",
@@ -1738,7 +1738,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00004b8f722d",
@@ -1760,7 +1760,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000097470f48",
@@ -1782,7 +1782,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00012534f67d",
@@ -1804,7 +1804,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001267f4073",
@@ -1826,7 +1826,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00010b838ca4",
@@ -1848,7 +1848,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000c3a9c1c1",
@@ -1870,7 +1870,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000d98ccc5b",
@@ -1892,7 +1892,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000f8e6ca32",
@@ -1914,7 +1914,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000127e5ddfb",
@@ -1936,7 +1936,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000129f05c4e",
@@ -1956,8 +1956,8 @@
    "upkeep": 10,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "French brasserie in d3 with floor-to-ceiling windows, a terrace and a Saturday brunch.",
    "reject_reason": null
   },
   {
@@ -1980,7 +1980,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000264ebecef",
@@ -2000,8 +2000,8 @@
    "upkeep": 10,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "All-day Mediterranean restaurant, bar and concept store in d3 with a terrace facing the Business Bay skyline.",
    "reject_reason": null
   },
   {
@@ -2024,7 +2024,7 @@
    "proposed_vibe_source": "https://www.dubaifishhutrestaurant.com/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000123a2932e",
@@ -2046,7 +2046,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001c5822ddb",
@@ -2068,7 +2068,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002859c6879",
@@ -2088,8 +2088,8 @@
    "upkeep": 9,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Gujarati and Rajasthani thali restaurant near BurJuman, with unlimited servings on the set platter.",
    "reject_reason": null
   },
   {
@@ -2110,15 +2110,15 @@
    "upkeep": 9,
    "proposed_vibe": "Indulge in the Tastiest Lebanese Cuisine in UAE at Wafi Gourmet. Visit us at convenient locations - Wafi Mall, Dubai",
    "proposed_vibe_source": "https://www.wafigourmet.com",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Middle Eastern dishes in an open marble courtyard inside Wafi's Khan Murjan souk, open until 1am.",
    "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-00035025878d",
    "osm": "node/14229538701",
    "osm_url": "https://www.openstreetmap.org/node/14229538701",
-   "name": "La casbah D'alger restaurant",
+   "name": "La Casbah d'Alger",
    "category": "dinner",
    "area": "Jaddaf Waterfront",
    "district": "Creek & Old Dubai",
@@ -2132,8 +2132,8 @@
    "upkeep": 9,
    "proposed_vibe": "15K Followers, 2 Following, 19 Posts - La Casbah d Alger Restaurant Dubai ( lacasbah.restaurant) on Instagram",
    "proposed_vibe_source": "https://www.instagram.com/lacasbah.restaurant?stkn=aTh0enc5MTh3Zjc2",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Algerian and Mediterranean cooking at Zabeel Stadium: traditional stews, flatbreads and grills.",
    "reject_reason": null
   },
   {
@@ -2156,7 +2156,7 @@
    "proposed_vibe_source": "https://www.mumbaimastijuicecenter.com/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00012452f959",
@@ -2176,8 +2176,8 @@
    "upkeep": 9,
    "proposed_vibe": "Order Punjabi food online, for takeaway, or dine-in at Dubai",
    "proposed_vibe_source": "https://www.patialahouse.ae/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Punjabi dine-in in Karama: tandoori chicken, butter chicken, mutton chops and pani puri.",
    "reject_reason": null
   },
   {
@@ -2198,8 +2198,8 @@
    "upkeep": 9,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Karama biryani joint serving South Indian bucket biryani, open until midnight.",
    "reject_reason": null
   },
   {
@@ -2220,8 +2220,8 @@
    "upkeep": 9,
    "proposed_vibe": "Ready for an authentic Indian feast? Explore Swades",
    "proposed_vibe_source": "https://swades.ae",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "The original Karama branch of a Gujarati vegetarian restaurant: thalis, vada pav, dabeli and Indian sweets.",
    "reject_reason": null
   },
   {
@@ -2242,8 +2242,8 @@
    "upkeep": 9,
    "proposed_vibe": "our story Since 1986, YOKO SIZZLERS® – belonging to the Y. H. Rizvi group of companies specializes in quality sizzlers",
    "proposed_vibe_source": "https://www.yokosizzlers.com/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Karama branch of the Mumbai sizzler house going since 1986: steak, chicken and seafood sizzlers on hot plates.",
    "reject_reason": null
   },
   {
@@ -2264,8 +2264,8 @@
    "upkeep": 8,
    "proposed_vibe": "Looking for the most romantic Italian restaurant in Dubai? Taste Palazzo Italian restaurant Amalfi located at the",
    "proposed_vibe_source": "https://www.palazzoversace.ae/restaurants-and-bars/amalfi",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Poolside Italian at Palazzo Versace: wood-fired pizza and Mediterranean plates al fresco by the lagoon.",
    "reject_reason": null
   },
   {
@@ -2286,8 +2286,8 @@
    "upkeep": 8,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Kerala restaurant in Karama with fish curries, parotta and biryani, open from 5am until 2am.",
    "reject_reason": null
   },
   {
@@ -2310,7 +2310,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0001de50d81a",
@@ -2330,8 +2330,8 @@
    "upkeep": 8,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Casual Karama spot for handmade steamed, fried and tandoori momos, Indo-Chinese noodles and chai.",
    "reject_reason": null
   },
   {
@@ -2354,7 +2354,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0001377c8c8d",
@@ -2376,7 +2376,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-00011167dc5e",
@@ -2396,8 +2396,8 @@
    "upkeep": 6,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Mughlai and kebab restaurant in Karama's Wasl Ruby building, open until close to midnight.",
    "reject_reason": null
   },
   {
@@ -2418,8 +2418,8 @@
    "upkeep": 6,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Gujarati thali restaurant in the Meena Bazaar lanes of Bur Dubai.",
    "reject_reason": null
   },
   {
@@ -2442,7 +2442,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-00010c393b91",
@@ -2464,7 +2464,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000124193b45",
@@ -2486,7 +2486,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001109e4de8",
@@ -2508,14 +2508,14 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000ddd9bbfa",
    "osm": "node/3722034170",
    "osm_url": "https://www.openstreetmap.org/node/3722034170",
    "name": "Azur",
-   "category": "dinner",
+   "category": "brunch",
    "area": "Oud Metha",
    "district": "Creek & Old Dubai",
    "cuisine": "Restaurant",
@@ -2528,8 +2528,8 @@
    "upkeep": 5,
    "proposed_vibe": "Savor a vibrant international breakfast at Azur, overlooking lush gardens in Raffles Dubai. Delight in European",
    "proposed_vibe_source": "https://www.raffles.com/dubai/dining/azur/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "International buffet with live cooking stations and a Friday roast, overlooking the Raffles garden.",
    "reject_reason": null
   },
   {
@@ -2552,7 +2552,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000303ad1b5a",
@@ -2574,7 +2574,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002e71534f7",
@@ -2596,13 +2596,13 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000123a29326",
    "osm": "node/4892824358",
    "osm_url": "https://www.openstreetmap.org/node/4892824358",
-   "name": "Kamat Restaurant",
+   "name": "Kamat Vegetarian",
    "category": "dinner",
    "area": "Bur Dubai",
    "district": "Creek & Old Dubai",
@@ -2616,8 +2616,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Pure-vegetarian Indian restaurant on Kuwait Street in Mankhool.",
    "reject_reason": null
   },
   {
@@ -2640,7 +2640,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-0000944f2964",
@@ -2662,7 +2662,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000dd968d38",
@@ -2682,8 +2682,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Classic steakhouse inside the sail-shaped Creek Golf clubhouse, with a wide terrace over the creek.",
    "reject_reason": null
   },
   {
@@ -2704,8 +2704,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Small Turkish kitchen in Azizi Riviera serving manti, kofte and pilav.",
    "reject_reason": null
   },
   {
@@ -2728,7 +2728,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002994d37ad",
@@ -2750,7 +2750,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0002151e52db",
@@ -2772,7 +2772,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001eaf62056",
@@ -2794,7 +2794,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002bc91abad",
@@ -2814,8 +2814,8 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Japanese ramen house in Wasl Port Views by Port Rashid.",
    "reject_reason": null
   },
   {
@@ -2838,7 +2838,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001f95bc974",
@@ -2860,7 +2860,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002a400e20c",
@@ -2880,15 +2880,15 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Vegetarian Indian restaurant in Meena Bazaar with all-you-can-eat thalis, open until midnight.",
    "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-00021b42e90f",
    "osm": "node/9047304463",
    "osm_url": "https://www.openstreetmap.org/node/9047304463",
-   "name": "Souk",
+   "name": "Souk Restaurant",
    "category": "dinner",
    "area": "Jaddaf Waterfront",
    "district": "Creek & Old Dubai",
@@ -2902,8 +2902,8 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Restaurant at the Barcelo Al Jaddaf hotel with buffet dinners and outdoor seating.",
    "reject_reason": null
   },
   {
@@ -2926,7 +2926,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00029f91bba3",
@@ -2948,7 +2948,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00029fd8c4d7",
@@ -2968,8 +2968,8 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Pure-vegetarian Indian restaurant in Meena Bazaar, with thalis and all-you-can-eat options.",
    "reject_reason": null
   },
   {
@@ -2992,7 +2992,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00011d61a64c",
@@ -3012,8 +3012,8 @@
    "upkeep": 3,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Syrian restaurant and cafe in Oud Metha with themed dining rooms, busy until 1am.",
    "reject_reason": null
   },
   {
@@ -3036,7 +3036,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000ce72efdf",
@@ -3056,8 +3056,8 @@
    "upkeep": 3,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Indian street-food spot by BurJuman metro exit 2, serving chaat and South and North Indian snacks.",
    "reject_reason": null
   },
   {
@@ -3080,7 +3080,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001a83a3908",
@@ -3102,7 +3102,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000f7d00098",
@@ -3122,8 +3122,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Seafood picked from the day's catch, eaten on a creekside terrace in Shindagha Heritage Village.",
    "reject_reason": null
   },
   {
@@ -3146,7 +3146,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00014d224a02",
@@ -3166,8 +3166,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Seafood restaurant and cafe on Creek Street in Al Shindagha, with Arabic breakfasts and outdoor seating.",
    "reject_reason": null
   },
   {
@@ -3190,7 +3190,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00011168d715",
@@ -3212,7 +3212,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00018ba3cf05",
@@ -3232,8 +3232,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Tapas and paella in a rustic bodega-style bar at Dubai Creek Yacht Club, with creek views.",
    "reject_reason": null
   },
   {
@@ -3256,7 +3256,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00011167dc5f",
@@ -3278,13 +3278,13 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00012452f97a",
    "osm": "node/4904384890",
    "osm_url": "https://www.openstreetmap.org/node/4904384890",
-   "name": "Dasprakash Restaurant",
+   "name": "New Dasprakash Restaurant",
    "category": "dinner",
    "area": "Al Karama",
    "district": "Creek & Old Dubai",
@@ -3298,8 +3298,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "North and South Indian vegetarian restaurant on Zabeel Street in Karama.",
    "reject_reason": null
   },
   {
@@ -3320,8 +3320,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Female-led Italian restaurant at SLS Dubai in Business Bay, known for handmade pasta.",
    "reject_reason": null
   },
   {
@@ -3344,7 +3344,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000944c588f",
@@ -3366,7 +3366,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00013850bed2",
@@ -3388,7 +3388,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-0000944bb587",
@@ -3410,7 +3410,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00011147c910",
@@ -3432,7 +3432,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0001126f12ca",
@@ -3454,7 +3454,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0000f18f8aa6",
@@ -3476,7 +3476,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-0000944bb582",
@@ -3498,7 +3498,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001243ac6b3",
@@ -3520,7 +3520,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001ff0eb72f",
@@ -3542,7 +3542,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-000134b89cea",
@@ -3562,15 +3562,15 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "North Indian dhaba-style restaurant opposite the Dubai Frame, with kebabs and curries.",
    "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0000942d185c",
    "osm": "node/2485983324",
    "osm_url": "https://www.openstreetmap.org/node/2485983324",
-   "name": "Puranmal",
+   "name": "Puranmal Vegetarian Restaurant",
    "category": "dinner",
    "area": "Al Shindagha",
    "district": "Creek & Old Dubai",
@@ -3584,15 +3584,15 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Long-standing vegetarian restaurant and sweet shop in Meena Bazaar, Bur Dubai.",
    "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-00008dafb50c",
    "osm": "node/2377102604",
    "osm_url": "https://www.openstreetmap.org/node/2377102604",
-   "name": "Sind Punjab Restaurant",
+   "name": "New Sind Punjab Restaurant",
    "category": "dinner",
    "area": "Al Karama",
    "district": "Creek & Old Dubai",
@@ -3606,8 +3606,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Punjabi restaurant in Karama Shopping Centre behind the fish market, with outdoor seating.",
    "reject_reason": null
   },
   {
@@ -3630,7 +3630,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-0000944bb584",
@@ -3652,7 +3652,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000110f92119",
@@ -3672,8 +3672,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Indo-Chinese restaurant opposite BurJuman in Karama.",
    "reject_reason": null
   },
   {
@@ -3694,8 +3694,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "All-day vegetarian Indian food on Al Fahidi Street: parathas, dosas, puris and bhajis.",
    "reject_reason": null
   },
   {
@@ -3718,13 +3718,13 @@
    "proposed_vibe_source": "https://www.doorsdubai.com/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001260b987d",
    "osm": "node/4933261437",
    "osm_url": "https://www.openstreetmap.org/node/4933261437",
-   "name": "Al Saha Restaurant",
+   "name": "Skazka Al Saha",
    "category": "dinner",
    "area": "Deira",
    "district": "Deira & Al Rigga",
@@ -3738,8 +3738,8 @@
    "upkeep": 9,
    "proposed_vibe": "We opened a restaurant that specializes in Russian food. Our meals are prepared with a lot of love, with a lot of",
    "proposed_vibe_source": "https://www.russianrestaurantdxb.com",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Russian and Uzbek restaurant in Al Murar serving since 1997, open around the clock.",
    "reject_reason": null
   },
   {
@@ -3762,13 +3762,13 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000126844213",
    "osm": "node/4941169171",
    "osm_url": "https://www.openstreetmap.org/node/4941169171",
-   "name": "Marina Restaurant",
+   "name": "New Marina Restaurant",
    "category": "dinner",
    "area": "Al Rigga",
    "district": "Deira & Al Rigga",
@@ -3782,8 +3782,8 @@
    "upkeep": 9,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Late-night Al Rigga Road restaurant with Indian, Arabic and grill dishes, open until 5am.",
    "reject_reason": null
   },
   {
@@ -3806,7 +3806,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000210d5cd44",
@@ -3828,7 +3828,7 @@
    "proposed_vibe_source": "https://ilforno.me/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0001de50c15a",
@@ -3850,7 +3850,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0002ebf9cc95",
@@ -3872,7 +3872,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0000dd4920dd",
@@ -3892,15 +3892,15 @@
    "upkeep": 6,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Revolving 25th-floor buffet restaurant at Hyatt Regency Deira with 360-degree views over the city and sea.",
    "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-0002ece9d3e5",
    "osm": "node/12564681701",
    "osm_url": "https://www.openstreetmap.org/node/12564681701",
-   "name": "Al Mashawi Alhalabya Restaurant, Garhoud",
+   "name": "Al Mashawi Al Halabya",
    "category": "dinner",
    "area": "Port Saeed",
    "district": "Deira & Al Rigga",
@@ -3914,8 +3914,8 @@
    "upkeep": 6,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Aleppo-style grills on Sheikh Rashid Road over two floors, smoking and non-smoking, open until 2am.",
    "reject_reason": null
   },
   {
@@ -3936,8 +3936,8 @@
    "upkeep": 6,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Awadhi kebabs and slow-cooked curries at one of Dubai's oldest Indian restaurants, in the Sheraton Creek.",
    "reject_reason": null
   },
   {
@@ -3958,8 +3958,8 @@
    "upkeep": 6,
    "proposed_vibe": "Bayt Al Wakeel Come and enjoy the historic ambience of Bay Al Wakeel. You may choose to relax on the jetty overlooking",
    "proposed_vibe_source": "https://www.wakeel.ae/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Arabic and seafood dishes on a jetty over the creek in a restored 1935 shipping office by the abra stops.",
    "reject_reason": null
   },
   {
@@ -3980,8 +3980,8 @@
    "upkeep": 6,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Iraqi restaurant on Al Rigga Road known for masgouf fish and kebabs, open until 2am.",
    "reject_reason": null
   },
   {
@@ -4004,7 +4004,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000085e5282c",
@@ -4026,13 +4026,13 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000ce85b1ef",
    "osm": "node/3464868335",
    "osm_url": "https://www.openstreetmap.org/node/3464868335",
-   "name": "Al Safadi Lebanese Grill",
+   "name": "Al Safadi Restaurant",
    "category": "dinner",
    "area": "Al Rigga",
    "district": "Deira & Al Rigga",
@@ -4046,8 +4046,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Long-standing Lebanese restaurant on Al Rigga Road, open until 1am.",
    "reject_reason": null
   },
   {
@@ -4070,7 +4070,7 @@
    "proposed_vibe_source": "https://www.alfanarrestaurant.com/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00027e11726c",
@@ -4092,7 +4092,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000ce85b1f1",
@@ -4114,7 +4114,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002e9fbf36f",
@@ -4134,8 +4134,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Cafe in the Al Fahidi historical district known for its camel meat burger.",
    "reject_reason": null
   },
   {
@@ -4158,7 +4158,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "office, not a venue"
   },
   {
    "id": "c0900000-0000-0000-0001-00021b42e927",
@@ -4180,13 +4180,13 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001f05d3298",
    "osm": "node/8327606936",
    "osm_url": "https://www.openstreetmap.org/node/8327606936",
-   "name": "Aryana Afghani Darbar",
+   "name": "Ariana Afghan Restaurant",
    "category": "dinner",
    "area": "Deira",
    "district": "Deira & Al Rigga",
@@ -4200,8 +4200,8 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Afghan restaurant in Naif near Naif Park, open until 1am, with a private dining room.",
    "reject_reason": null
   },
   {
@@ -4224,7 +4224,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002cff64591",
@@ -4246,7 +4246,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002eb3a4561",
@@ -4266,8 +4266,8 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Hands-on Korean barbecue at Al Ghurair Centre, with all-you-can-eat options.",
    "reject_reason": null
   },
   {
@@ -4290,7 +4290,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002eb910d66",
@@ -4312,7 +4312,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001f043b392",
@@ -4334,7 +4334,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000332024f01",
@@ -4356,13 +4356,13 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000223be917",
    "osm": "node/574351639",
    "osm_url": "https://www.openstreetmap.org/node/574351639",
-   "name": "Afghan Kebab House",
+   "name": "Afghan Kabab House",
    "category": "dinner",
    "area": "Deira",
    "district": "Deira & Al Rigga",
@@ -4376,8 +4376,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Afghan kebab house near Al Manal Center in Deira.",
    "reject_reason": null
   },
   {
@@ -4400,7 +4400,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000d6fb42bf",
@@ -4422,13 +4422,13 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000b438bd0d",
    "osm": "node/3023617293",
    "osm_url": "https://www.openstreetmap.org/node/3023617293",
-   "name": "Aroos Damascus",
+   "name": "Aroos Damascus Restaurant",
    "category": "dinner",
    "area": "Al Rigga",
    "district": "Deira & Al Rigga",
@@ -4442,8 +4442,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Syrian restaurant on the ground floor of the Green Palace Hotel in Al Muraqqabat, busy until 1am.",
    "reject_reason": null
   },
   {
@@ -4466,7 +4466,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000223be91b",
@@ -4488,13 +4488,13 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000177176fbd",
    "osm": "node/6292991933",
    "osm_url": "https://www.openstreetmap.org/node/6292991933",
-   "name": "Bestoon Samad",
+   "name": "Bestoon Samad Iraqi Food Restaurant",
    "category": "dinner",
    "area": "Al Rigga",
    "district": "Deira & Al Rigga",
@@ -4508,8 +4508,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Iraqi restaurant at Al Ghurair Centre serving grills, seafood and Iraqi staples.",
    "reject_reason": null
   },
   {
@@ -4532,7 +4532,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000b438bceb",
@@ -4554,7 +4554,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000b7a7e818",
@@ -4576,7 +4576,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00009dcd28e6",
@@ -4598,7 +4598,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00009dcd28ea",
@@ -4620,13 +4620,13 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000106f0a6a3",
    "osm": "node/4411401891",
    "osm_url": "https://www.openstreetmap.org/node/4411401891",
-   "name": "Dampa",
+   "name": "Dampa Seafood Grill",
    "category": "dinner",
    "area": "Port Saeed",
    "district": "Deira & Al Rigga",
@@ -4640,8 +4640,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Seafood grill on Baniyas Road in Port Saeed, with outdoor seating.",
    "reject_reason": null
   },
   {
@@ -4664,7 +4664,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000b438c364",
@@ -4686,7 +4686,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0000ce85b1f8",
@@ -4708,7 +4708,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000125a86960",
@@ -4730,7 +4730,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0003374c2051",
@@ -4752,7 +4752,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000ce85b0ba",
@@ -4774,7 +4774,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000a8bb0ff1",
@@ -4796,7 +4796,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000b9fd3fe2",
@@ -4818,7 +4818,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000106f09b52",
@@ -4840,7 +4840,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000106f0a6a4",
@@ -4862,7 +4862,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000b7a80257",
@@ -4884,7 +4884,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000b7a7deb6",
@@ -4906,7 +4906,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000332024ed9",
@@ -4928,7 +4928,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00014989bb9e",
@@ -4950,7 +4950,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002362a810b",
@@ -4972,7 +4972,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001366bd29d",
@@ -4994,7 +4994,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-000172ae7bae",
@@ -5014,8 +5014,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "International a la carte restaurant at the JA Hatta Fort Hotel in the Hajar mountains.",
    "reject_reason": null
   },
   {
@@ -5036,8 +5036,8 @@
    "upkeep": 10,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Trattoria-style Italian at Le Meridien since 1993, with wood-fired pizza and a terrace on the village piazza.",
    "reject_reason": null
   },
   {
@@ -5060,7 +5060,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-0000de07cf62",
@@ -5080,8 +5080,8 @@
    "upkeep": 10,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Long-running Thai restaurant at Le Meridien Airport Road, cooking with herbs imported from Thailand.",
    "reject_reason": null
   },
   {
@@ -5102,8 +5102,8 @@
    "upkeep": 9,
    "proposed_vibe": "Dive into a world of spices and aromas at Kashkan by Chef Ranveer Brar, the delicious Indian dining destination and the",
    "proposed_vibe_source": "http://kashkanrestaurants.com",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Chef Ranveer Brar's Indian restaurant on Festival City's first level, facing the evening light show.",
    "reject_reason": null
   },
   {
@@ -5124,8 +5124,8 @@
    "upkeep": 9,
    "proposed_vibe": "French-Persian restaurant in Dubai Creek Harbour: saffron grills, French pastries and waterfront dining. Family and",
    "proposed_vibe_source": "https://leflamantrose.ae",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "French-Persian cafe and grill at Creek Harbour: charcoal kebabs, house pastries and a creekside terrace.",
    "reject_reason": null
   },
   {
@@ -5148,7 +5148,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-0000de07cf63",
@@ -5170,13 +5170,13 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-0001a981630c",
    "osm": "node/7138796300",
    "osm_url": "https://www.openstreetmap.org/node/7138796300",
-   "name": "Fujiya Restaurant",
+   "name": "Fujiya",
    "category": "dinner",
    "area": "Al Garhoud",
    "district": "Festival City & Garhoud",
@@ -5190,8 +5190,8 @@
    "upkeep": 8,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Japanese izakaya food in the Millennium Airport Hotel since 2018, with outdoor seating.",
    "reject_reason": null
   },
   {
@@ -5214,7 +5214,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-0001055a1d3a",
@@ -5236,7 +5236,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002858e2051",
@@ -5258,7 +5258,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0000dd490e92",
@@ -5280,7 +5280,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-00023e1826dc",
@@ -5300,8 +5300,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "All-day restaurant on the Creek Harbour North Promenade, with outdoor seating until midnight.",
    "reject_reason": null
   },
   {
@@ -5322,8 +5322,8 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Emirati majboos, harees and luqaimat in a recreated 1960s Dubai courtyard inside Festival City Mall.",
    "reject_reason": null
   },
   {
@@ -5346,7 +5346,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0001461d33d7",
@@ -5368,7 +5368,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000121d01ee5",
@@ -5390,7 +5390,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00034007cfb8",
@@ -5412,7 +5412,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000340080b5e",
@@ -5434,7 +5434,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000340080dad",
@@ -5456,7 +5456,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00034007f8cd",
@@ -5478,7 +5478,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000111c8fdca",
@@ -5500,7 +5500,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000124db3e64",
@@ -5522,7 +5522,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000026414710",
@@ -5544,7 +5544,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0002-00001e01adc7",
@@ -5566,7 +5566,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-00001dd0dc96",
@@ -5588,7 +5588,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-00001df7a96a",
@@ -5610,7 +5610,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000125edf815",
@@ -5632,7 +5632,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000f844a5e7",
@@ -5654,7 +5654,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00010d5dd059",
@@ -5676,7 +5676,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-00015b8e97b8",
@@ -5698,7 +5698,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000124db3e65",
@@ -5720,7 +5720,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00027ebafcb8",
@@ -5742,7 +5742,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00033985e8b1",
@@ -5764,7 +5764,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000124dafffb",
@@ -5786,7 +5786,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000124db3e68",
@@ -5808,7 +5808,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00010772450f",
@@ -5830,7 +5830,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00033985e8af",
@@ -5852,7 +5852,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000107723e69",
@@ -5874,7 +5874,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000112aafc32",
@@ -5896,7 +5896,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001077245d7",
@@ -5918,7 +5918,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0001077206f4",
@@ -5940,7 +5940,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00033985e8b3",
@@ -5962,7 +5962,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000107633b71",
@@ -5984,7 +5984,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002660fc642",
@@ -6006,7 +6006,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000265b90dec",
@@ -6028,7 +6028,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002e35cc149",
@@ -6050,7 +6050,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-0001de50c15d",
@@ -6072,7 +6072,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0001de50c161",
@@ -6094,7 +6094,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0001f05d32aa",
@@ -6116,7 +6116,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000299e70682",
@@ -6138,7 +6138,7 @@
    "proposed_vibe_source": "https://www.instagram.com/smoulder.kebab/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-000337181726",
@@ -6158,15 +6158,15 @@
    "upkeep": 7,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Neighbourhood burger joint in Al Warqa 1, open until 1am.",
    "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-000172acf4d5",
    "osm": "node/6218904789",
    "osm_url": "https://www.openstreetmap.org/node/6218904789",
-   "name": "Warsan Mandi",
+   "name": "Warsan Mandi Restaurant",
    "category": "dinner",
    "area": "Al Warqa",
    "district": "Mirdif & Al Warqa",
@@ -6180,8 +6180,8 @@
    "upkeep": 7,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Yemeni mandi and madhbi chicken in International City's CBD, with outdoor seating and private dining rooms.",
    "reject_reason": null
   },
   {
@@ -6204,7 +6204,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0003096af01d",
@@ -6226,7 +6226,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00011218fd4e",
@@ -6248,7 +6248,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0000fef5768a",
@@ -6270,7 +6270,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000085e54eda",
@@ -6292,7 +6292,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000107d5a7dc",
@@ -6314,7 +6314,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000219853be0",
@@ -6336,7 +6336,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0002-000037852987",
@@ -6356,15 +6356,15 @@
    "upkeep": 5,
    "proposed_vibe": "105K Followers, 194 Following, 322 Posts - MAMA ESH ( mamaeshme) on Instagram: \" Palestine is a bite away 420",
    "proposed_vibe_source": "https://www.mamaesh.com/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Palestinian oven bakery in Aswaaq Mall Al Warqa: mana'esh, fatayer, sawani pans and Nabulsi kunafa.",
    "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-00033d80ddcd",
    "osm": "node/13916757453",
    "osm_url": "https://www.openstreetmap.org/node/13916757453",
-   "name": "San Xian Dumplings",
+   "name": "San Xian Dumpling",
    "category": "dinner",
    "area": "Al Warqa",
    "district": "Mirdif & Al Warqa",
@@ -6378,8 +6378,8 @@
    "upkeep": 5,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Chinese dumpling and noodle shop in International City, open until 11pm.",
    "reject_reason": null
   },
   {
@@ -6402,7 +6402,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000206f430c8",
@@ -6424,7 +6424,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001dc15c44f",
@@ -6446,7 +6446,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002eb1776d6",
@@ -6468,7 +6468,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0001f05d32ad",
@@ -6490,7 +6490,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000107d6041b",
@@ -6512,7 +6512,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000171e60961",
@@ -6532,8 +6532,8 @@
    "upkeep": 3,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Large Levantine restaurant in International City's Russia cluster, busy until 2am, with private rooms.",
    "reject_reason": null
   },
   {
@@ -6556,7 +6556,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0002eb22f2ad",
@@ -6576,15 +6576,15 @@
    "upkeep": 3,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Burger restaurant at Last Exit Al Khawaneej with outdoor seating, open until midnight.",
    "reject_reason": null
   },
   {
    "id": "c0900000-0000-0000-0001-000274dfa254",
    "osm": "node/10550747732",
    "osm_url": "https://www.openstreetmap.org/node/10550747732",
-   "name": "Red Shrimp Seafood Restaurant",
+   "name": "Red Shrimps Restaurant",
    "category": "dinner",
    "area": "Al Khawaneej",
    "district": "Mirdif & Al Warqa",
@@ -6598,8 +6598,8 @@
    "upkeep": 3,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Homegrown seafood restaurant on Al Khawaneej Street.",
    "reject_reason": null
   },
   {
@@ -6622,7 +6622,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-000107d28340",
@@ -6644,7 +6644,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0000fef5d324",
@@ -6666,7 +6666,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00032eea50b3",
@@ -6688,7 +6688,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00018e27a0ea",
@@ -6710,7 +6710,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000107d3a7dc",
@@ -6732,7 +6732,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000107d47bd1",
@@ -6754,7 +6754,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000107d47bd2",
@@ -6776,7 +6776,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002e09adf8c",
@@ -6798,7 +6798,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000107d47bd4",
@@ -6820,7 +6820,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0001090dd1b8",
@@ -6842,7 +6842,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00032eea5063",
@@ -6862,8 +6862,8 @@
    "upkeep": 2,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "American diner on Tripoli Street serving breakfast, burgers and pasta, busy until 1am.",
    "reject_reason": null
   },
   {
@@ -6886,7 +6886,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00010763a102",
@@ -6908,7 +6908,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000124728978",
@@ -6930,7 +6930,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000309be5e49",
@@ -6952,7 +6952,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000124b898c0",
@@ -6972,8 +6972,8 @@
    "upkeep": 1,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Emirati and Arabic dishes near Al Rashidiya Park, with private dining rooms.",
    "reject_reason": null
   },
   {
@@ -6996,7 +6996,7 @@
    "proposed_vibe_source": "http://www.grillsnmorerestaurant.com/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-0002861d8bf1",
@@ -7018,7 +7018,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000285e6ef35",
@@ -7040,7 +7040,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00027fb3d9ad",
@@ -7062,7 +7062,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-000281161e35",
@@ -7082,8 +7082,8 @@
    "upkeep": 9,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Italian cafe-restaurant in Dubai Digital Park, open from breakfast until 9pm.",
    "reject_reason": null
   },
   {
@@ -7104,8 +7104,8 @@
    "upkeep": 9,
    "proposed_vibe": "Voted a hidden gem and one of the best Indian restaurants & cafés in Dubai — 5 cafés across Dubai & Sharjah serving",
    "proposed_vibe_source": "https://www.thebhukkadcafe.com/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Indian street-food cafe on the first floor of Silicon Central Mall, with live music on its listing.",
    "reject_reason": null
   },
   {
@@ -7126,8 +7126,8 @@
    "upkeep": 9,
    "proposed_vibe": "Order legendary Lucknowi Tunday kebabs, biryani, and authentic Awadhi cuisine online. Delivery across Dubai from our",
    "proposed_vibe_source": "https://tundaykababi.ae",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Lucknowi galawati kebabs and Awadhi biryani from the Tunday Kababi name, dine-in until midnight.",
    "reject_reason": null
   },
   {
@@ -7150,7 +7150,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-000295b4d3bb",
@@ -7170,8 +7170,8 @@
    "upkeep": 8,
    "proposed_vibe": "Make Reservation Make Reservation CULINARY COLLAB WITH GHEE RICE Enjoy the Summer Monsoon at Clove Tree in",
    "proposed_vibe_source": "https://www.clovetreerestaurant.com/",
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Indian restaurant in Silicon Central Mall with bamboo biryani, prawn biryani and grill platters.",
    "reject_reason": null
   },
   {
@@ -7194,7 +7194,7 @@
    "proposed_vibe_source": "https://www.frappy.ae/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002d26c1478",
@@ -7216,7 +7216,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-0002d26c147e",
@@ -7238,7 +7238,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0002-000044cb6dd1",
@@ -7258,8 +7258,8 @@
    "upkeep": 8,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Vietnamese restaurant in Silicon Gates 1 with pho, rolls and outdoor seating.",
    "reject_reason": null
   },
   {
@@ -7282,7 +7282,7 @@
    "proposed_vibe_source": "https://swades.ae/",
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00027fdba6cc",
@@ -7304,7 +7304,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-000285ec17c9",
@@ -7326,7 +7326,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002d1dc5d89",
@@ -7348,7 +7348,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002936f2259",
@@ -7370,7 +7370,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-0002d56b3230",
@@ -7392,7 +7392,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00011d61f1b6",
@@ -7414,7 +7414,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002d1de7a2a",
@@ -7436,7 +7436,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002d2412c91",
@@ -7458,7 +7458,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002d56b3224",
@@ -7480,7 +7480,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002d56b322f",
@@ -7502,7 +7502,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002d1dc73cd",
@@ -7524,7 +7524,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002d1dc7946",
@@ -7546,7 +7546,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00014dd043fd",
@@ -7568,13 +7568,13 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00018b77a147",
    "osm": "node/6634840391",
    "osm_url": "https://www.openstreetmap.org/node/6634840391",
-   "name": "Sarhad",
+   "name": "Sarhad Darbar Restaurant",
    "category": "dinner",
    "area": "Dubai Silicon Oasis",
    "district": "Silicon Oasis & Academic City",
@@ -7588,8 +7588,8 @@
    "upkeep": 4,
    "proposed_vibe": null,
    "proposed_vibe_source": null,
-   "approved": false,
-   "vibe_final": null,
+   "approved": true,
+   "vibe_final": "Pakistani, Indian and Indo-Chinese dishes at Silicon Heights 2, open 5am to midnight.",
    "reject_reason": null
   },
   {
@@ -7612,7 +7612,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "chain outlet"
   },
   {
    "id": "c0900000-0000-0000-0001-00009ce13ce3",
@@ -7634,7 +7634,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-0002c93e843d",
@@ -7656,7 +7656,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "closed"
   },
   {
    "id": "c0900000-0000-0000-0001-00025ed6ab3a",
@@ -7678,7 +7678,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0002d40dd579",
@@ -7700,7 +7700,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000280a0d36e",
@@ -7722,7 +7722,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-000112939ac1",
@@ -7744,7 +7744,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00027fdba6ce",
@@ -7766,7 +7766,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000dba28966",
@@ -7788,7 +7788,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-0000dba2895c",
@@ -7810,7 +7810,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-00014bdc5bd6",
@@ -7832,7 +7832,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "not a hangout"
   },
   {
    "id": "c0900000-0000-0000-0001-000112946261",
@@ -7854,7 +7854,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00014bdc3118",
@@ -7876,7 +7876,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00011293847d",
@@ -7898,7 +7898,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   },
   {
    "id": "c0900000-0000-0000-0001-00027fdba6cb",
@@ -7920,7 +7920,7 @@
    "proposed_vibe_source": null,
    "approved": false,
    "vibe_final": null,
-   "reject_reason": null
+   "reject_reason": "can't verify"
   }
  ]
 }
