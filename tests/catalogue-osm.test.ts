@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { candidatesFrom, categoryOf, cuisineOf, excluded, openTillFrom, selectSpread } from "../lib/catalogue/osm.ts";
-import { catalogueSql, STORED_COLUMNS, type CatalogueRecord } from "../lib/catalogue/sql.ts";
+import { catalogueSql, STORED_COLUMNS, websiteUrl, type CatalogueRecord } from "../lib/catalogue/sql.ts";
 
 test("OSM tags map to our categories, the most specific first", () => {
   assert.equal(categoryOf({ amenity: "restaurant", cuisine: "italian" }), "dinner");
@@ -138,4 +138,19 @@ test("090's added tags: indoor play is family, mini golf is games, ice rinks and
   assert.equal(categoryOf({ leisure: "miniature_golf" }), "games");
   assert.equal(categoryOf({ leisure: "ice_rink" }), "sports");
   assert.equal(categoryOf({ leisure: "golf_course" }), "sports");
+});
+
+test("a website reaches the SQL only as http(s), so spots_website_http can't abort the migration", () => {
+  assert.equal(websiteUrl("https://a.test/x"), "https://a.test/x");
+  assert.equal(websiteUrl("http://a.test"), "http://a.test");
+  assert.equal(websiteUrl("clawbbq.com"), "https://clawbbq.com", "OSM's bare domain");
+  assert.equal(websiteUrl("www.a.test/menu"), "https://www.a.test/menu");
+  assert.equal(websiteUrl("javascript:alert(1)"), null);
+  assert.equal(websiteUrl("instagram: @place"), null);
+  assert.equal(websiteUrl(" "), null);
+  const row: CatalogueRecord = {
+    id: "c0900000-0000-0000-0001-000000000001", osmRef: "node/1", name: "C", category: "dinner", area: "JBR", cuisine: "Grill",
+    latitude: 25.08, longitude: 55.14, openTill: "", website: "clawbbq.com", minimumAge: 0, vibe: "A grill", vibeSource: "reviewer",
+  };
+  assert.match(catalogueSql([row], "2026-09-29"), /'https:\/\/clawbbq\.com'/);
 });

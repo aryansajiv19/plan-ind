@@ -27,11 +27,24 @@ export const STORED_COLUMNS = [
 ] as const;
 
 const q = (value: string) => `'${value.replace(/'/g, "''")}'`;
+
+/**
+ * The website as spots_website_http accepts it (^https?://): OSM often has a
+ * bare domain ("clawbbq.com"), which would abort the whole migration. A bare
+ * domain gets https://; anything else that isn't http(s) is dropped.
+ */
+export function websiteUrl(raw: string | null): string | null {
+  const url = raw?.trim();
+  if (!url) return null;
+  if (/^https?:\/\//i.test(url)) return url;
+  return /^[a-z0-9-]+(\.[a-z0-9-]+)+(\/\S*)?$/i.test(url) ? `https://${url}` : null;
+}
 /** A SQL line comment can't be ended early by what's in it. */
 const comment = (value: string) => value.replace(/[\r\n]+/g, " ");
 
 export function catalogueSql(rows: readonly CatalogueRecord[], checkedOn: string): string {
   const values = rows.map((r) => {
+    const website = websiteUrl(r.website);
     const osmUrl = `https://www.openstreetmap.org/${r.osmRef}`;
     const vibeFact = r.vibeSource === "reviewer" ? "Written by the plan-ind reviewer"
       : r.vibeSource === "osm:description" ? "OpenStreetMap description" : "The venue's own site";
@@ -41,7 +54,7 @@ export function catalogueSql(rows: readonly CatalogueRecord[], checkedOn: string
     ]);
     return `  -- ${comment(r.name)} · ${r.category} · ${r.area} · vibe: ${comment(r.vibeSource)}\n  (${[
       q(r.id), q(r.name), q(r.category), q(r.area), q(r.cuisine), "null", "0", q(r.openTill), q(r.vibe), String(r.minimumAge),
-      String(r.latitude), String(r.longitude), r.website ? q(r.website) : "null", "'curated'", "'community'",
+      String(r.latitude), String(r.longitude), website ? q(website) : "null", "'curated'", "'community'",
       q(checkedOn), `${q(sources)}::jsonb`,
     ].join(", ")})`;
   });
