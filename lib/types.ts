@@ -358,6 +358,24 @@ export interface LeaderboardRow {
   is_me: boolean;
 }
 
+// 085: community scores. The mean of members' scores, only at 5+ raters,
+// with the count as a band so one person's score can't be backed out.
+export type RatersBand = "5+" | "10+" | "20+" | "50+";
+export interface PlaceScore {
+  spot_id: string;
+  score: number;
+  raters: RatersBand;
+}
+/** top_places(area?, limit): the best-scored curated places. */
+export interface TopPlace extends PlaceScore {
+  name: string;
+  area: string;
+  category: string;
+  photo_url: string | null;
+  photo_attribution: string | null;
+  google_place_id: string | null;
+}
+
 export interface PlaceImport {
   id: string;
   person_id: string;
