@@ -108,7 +108,7 @@ jobs:
           # the quota RPCs fail closed without it (docs/SECURITY_SETUP.md)
           psql "$DB" -v ON_ERROR_STOP=1 -q -c "insert into app_control_secrets(name, secret_hash) values ('server-control', encode(extensions.digest('$SECURITY_CONTROL_SECRET', 'sha256'), 'hex'))"
       - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e -- --project=chromium --project="Mobile Chrome" ${{ inputs.update_visual && '--update-snapshots' || '' }}
+      - run: npm run test:e2e -- --project=chromium --project="Mobile Chrome" ${{ inputs.update_visual && '--update-snapshots=all' || '' }}
       - if: inputs.update_visual
         uses: actions/upload-artifact@v4
         with:
