@@ -1,5 +1,5 @@
-// Migration 083 -- a signed-in member's Google photo quota: 40 a minute and
-// 150 a day (was 20 and 60); the global 300 a day still binds. Each test runs
+// Migrations 083/094 -- a signed-in member's Google photo quota: 120 a minute
+// and 400 a day (094; was 40 and 150); the global 1,500 a day (092) still binds. Each test runs
 // in one transaction that is rolled back (the secret row and the counters are
 // global). Fails against a pre-083 database (no skip gate). NEVER point
 // TEST_DATABASE_URL at the live project.
@@ -48,23 +48,23 @@ const allowed = (n: number) => `do $$ declare ok int := 0; begin
     perform set_config('qa.ok', ok::text, true); end $$;`;
 
 describe("083 member photo quota", { skip: SKIP }, () => {
-  test("a member gets 40 photos in a minute, not 41", async () => {
+  test("a member gets 120 photos in a minute, not 121", async () => {
     const member = randomUUID();
-    assert.equal(await rolledBack(as(member), allowed(41), "select current_setting('qa.ok')"), "40");
+    assert.equal(await rolledBack(as(member), allowed(121), "select current_setting('qa.ok')"), "120");
   });
 
-  test("and 150 a day: the 150th is allowed, the 151st refused", async () => {
+  test("and 400 a day: the 400th is allowed, the 401st refused", async () => {
     const member = randomUUID();
     assert.equal(await rolledBack(
-      `insert into app_rate_limits values ('place-photo-day', '${member}', ${DAY}, 149);`,
+      `insert into app_rate_limits values ('place-photo-day', '${member}', ${DAY}, 399);`,
       as(member), `select consume_app_quota('${SECRET}', 'place-photo')::text`, `select consume_app_quota('${SECRET}', 'place-photo')::text`,
     ), "true,false");
   });
 
-  test("the global 300 a day still binds a member with quota to spare", async () => {
+  test("the global 1,500 a day still binds a member with quota to spare", async () => {
     const member = randomUUID();
     assert.equal(await rolledBack(
-      `insert into app_rate_limits values ('place-photo-global', 'global', ${DAY}, 300);`,
+      `insert into app_rate_limits values ('place-photo-global', 'global', ${DAY}, 1500);`,
       as(member), `select consume_app_quota('${SECRET}', 'place-photo')::text`,
     ), "false");
   });

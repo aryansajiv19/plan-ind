@@ -48,35 +48,35 @@ const allowedOf = (subject: string, n: number) => `do $$ declare ok int := 0; be
     perform set_config('qa.ok', ok::text, true); end $$;`;
 
 describe("077 venue photos for signed-out visitors", { skip: SKIP }, () => {
-  test("a visitor's IP gets 40 photos a minute, and another IP its own", async () => {
+  test("a visitor's IP gets 120 photos a minute (094), and another IP its own", async () => {
     const ip = `ip:${randomUUID()}`;
-    assert.equal(await rolledBack(allowedOf(ip, 45), "select current_setting('qa.ok')", `select ${visitor(`ip:${randomUUID()}`)}::text`), "40,true");
+    assert.equal(await rolledBack(allowedOf(ip, 125), "select current_setting('qa.ok')", `select ${visitor(`ip:${randomUUID()}`)}::text`), "120,true");
   });
 
-  test("and 120 a day: the 120th is allowed, the 121st refused", async () => {
+  test("and 400 a day: the 400th is allowed, the 401st refused", async () => {
     const ip = `ip:${randomUUID()}`;
     assert.equal(await rolledBack(
-      `insert into app_rate_limits values ('place-photo-anon-day', '${ip}', ${DAY}, 119);`,
+      `insert into app_rate_limits values ('place-photo-anon-day', '${ip}', ${DAY}, 399);`,
       `select ${visitor(ip)}::text`, `select ${visitor(ip)}::text`), "true,false");
   });
 
-  test("visitors stop at 200 of the global 300 a day; members keep the last 100", async () => {
+  test("visitors stop at 1,200 of the global 1,500 a day (092); members keep the last 300", async () => {
     const member = randomUUID();
     const asMember = `set local request.jwt.claims to '{"sub":"${member}","role":"authenticated","is_anonymous":false}';`;
     assert.equal(await rolledBack(
-      `insert into app_rate_limits values ('place-photo-global', 'global', ${DAY}, 199);`,
-      `select ${visitor(`ip:${randomUUID()}`)}::text`, `select ${visitor(`ip:${randomUUID()}`)}::text`, // the 200th, then the 201st
+      `insert into app_rate_limits values ('place-photo-global', 'global', ${DAY}, 1199);`,
+      `select ${visitor(`ip:${randomUUID()}`)}::text`, `select ${visitor(`ip:${randomUUID()}`)}::text`, // the 1,200th, then the 1,201st
       `select ${visitor(`ip:${randomUUID()}`)}::text`,
       "select request_count from app_rate_limits where scope = 'place-photo-global'", // refusals don't count
       asMember, `select consume_app_quota('${SECRET}', 'place-photo')::text`,
-    ), "true,false,false,200,true");
+    ), "true,false,false,1200,true");
     assert.equal(await rolledBack(
-      `insert into app_rate_limits values ('place-photo-global', 'global', ${DAY}, 250);`, asMember,
+      `insert into app_rate_limits values ('place-photo-global', 'global', ${DAY}, 1250);`, asMember,
       `select consume_app_quota('${SECRET}', 'place-photo')::text`, `select ${visitor(`ip:${randomUUID()}`)}::text`,
-    ), "true,false"); // a member at 251 still gets one; a visitor there doesn't
+    ), "true,false"); // a member at 1,251 still gets one; a visitor there doesn't
     assert.equal(await rolledBack(
-      `insert into app_rate_limits values ('place-photo-global', 'global', ${DAY}, 300);`, asMember,
-      `select consume_app_quota('${SECRET}', 'place-photo')::text`), "false"); // 300 still binds everyone
+      `insert into app_rate_limits values ('place-photo-global', 'global', ${DAY}, 1500);`, asMember,
+      `select consume_app_quota('${SECRET}', 'place-photo')::text`), "false"); // 1,500 still binds everyone
   });
 
   test("the sample deal never spends the photo budget; a wrong secret is refused; the anon role may call it", async () => {
