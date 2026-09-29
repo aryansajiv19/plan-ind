@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMinuteClock } from "@/hooks/use-minute-clock";
+import { useRanking } from "@/hooks/use-ranking";
+import RateGame from "@/components/ranking/RateGame";
 import { saveDraft } from "@/lib/plan-draft";
 import Link from "next/link";
 import type { Plan, Rating, Rsvp, Spot } from "@/lib/types";
@@ -135,8 +137,20 @@ export default function DecidedPlan({
     });
     router.push("/home");
   }
+  // Once you've rated the night, rank the place against your others (085).
+  const iRated = ratings.some(mine.rating);
+  const ranking = useRanking(afterTheNight && iRated);
+  const ranked = ranking.rows.some((row) => row.spot_id === winner.id);
   const rating = (
-    <RatingSection planId={plan.id} spotId={winner.id} opensAt={rateOpensAt} isMine={mine.rating} ratings={ratings} onRate={onRate} />
+    <>
+      <RatingSection planId={plan.id} spotId={winner.id} opensAt={rateOpensAt} isMine={mine.rating} ratings={ratings} onRate={onRate} />
+      {afterTheNight && iRated && ranking.status === "ready" && !ranked && (
+        <RateGame
+          place={{ id: winner.id, name: winner.name, area: winner.area, category: winner.category, photo_url: winner.photo_url, photo_attribution: winner.photo_attribution, google_place_id: winner.google_place_id }}
+          ranking={ranking}
+        />
+      )}
+    </>
   );
 
   return (
