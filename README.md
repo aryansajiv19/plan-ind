@@ -15,9 +15,9 @@
 
 </div>
 
-<a href="docs/media/brag.mp4"><img src="docs/media/brag.jpg" alt="plan-ind in 21 seconds: the group chat, the deal, the vote and the winner. Click to play." width="100%"></a>
+<img src="docs/media/brag.gif" alt="plan-ind in 21 seconds: the group chat, the deal, the vote and the winner." width="100%">
 
-<p align="center"><a href="docs/media/brag.mp4">Watch the 21-second demo</a></p>
+<p align="center"><a href="https://raw.githubusercontent.com/aryansajiv19/plan-ind/main/docs/media/brag.mp4">Full quality with sound (mp4)</a></p>
 
 ## Why I built this
 
