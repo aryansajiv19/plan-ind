@@ -268,3 +268,11 @@ drop it, since the Google photo is credited and free of doubt. Estimate to "all 
 - **CI:** baseline dispatch now `--update-snapshots=all` ("changed" kept
   stale dark baselines at threshold 0.2). Merged lane/platform-discovery;
   lane/platform-plan-cap (087) waits on the owner's apply.
+- **Live data (owner approved):** 087 applied (runbook row). Coordinates for
+  9 of 18 unplaced venues from OSM Nominatim, each checked against its area
+  (address or host building; Bab Al Shams, Bounce, Padel Art rejected as
+  wrong matches). Still unplaced: Bab Al Shams, Bounce, Garage, Kickers,
+  Padel Art, Scoopi, SEVEN, Tresind, World Padel Academy (city map shown).
+- **Demo:** /demo opens on the app's first screen with "See a sample vote",
+  not the landing pitch; deck tiles get distinct covers or category art.
+

@@ -292,23 +292,26 @@ export default function HomeExperience({
           onto the composer the way an app opens onto its first screen.
           scrolling past a marketing headline to reach your own tool is a
           website habit, and on a phone it costs the whole first screen. */}
-      {demoMode ? (
+      {/* The pitch is for the front door only; /demo is an account, so it
+          opens on the app's first screen like a signed-in one. */}
+      {demoMode && !fixtures ? (
       <HomeHero greeting={greeting} dateLabel={dateLabel} name={name} fixtures={fixtures} spots={spots} counts={counts} />
       ) : (
         <section id="top" className="home-appbar" aria-labelledby="home-title">
           {/* The heading speaks first; the greeting follows it, not a label above it. */}
           <h1 id="home-title" className="home-appbar__title">What are we doing?</h1>
           <p className="home-appbar__hello">{greeting}{name ? `, ${name}` : ""}.</p>
+          {fixtures && <Link href="/demo/vote" className="home-appbar__sample">See a sample vote, start to finish</Link>}
         </section>
       )}
-      {demoMode ? <HowItWorks /> : <YourPlans plans={myPlans} unavailable={myPlansUnavailable} />}
+      {demoMode ? !fixtures && <HowItWorks /> : <YourPlans plans={myPlans} unavailable={myPlansUnavailable} />}
 
       {/* Signed in, "What are we doing?" above is already the page's headline;
           a second big heading beside the form said the same thing again. */}
-      <section id="plan-lab" className={`home-plan-section${demoMode ? "" : " home-plan-section--app"}`}>
+      <section id="plan-lab" className={`home-plan-section${demoMode && !fixtures ? "" : " home-plan-section--app"}`}>
         <div className="home-plan-section__intro">
-          {demoMode && <h2>What does the group feel like doing?</h2>}
-          <p className={`home-plan-steps__lede${demoMode ? " home-plan-steps__lede--pitch" : ""}`}>Pick a kind of night, pin a place if one is calling, and deal nine across three quick rounds.</p>
+          {demoMode && !fixtures && <h2>What does the group feel like doing?</h2>}
+          <p className={`home-plan-steps__lede${demoMode && !fixtures ? " home-plan-steps__lede--pitch" : ""}`}>Pick a kind of night, pin a place if one is calling, and deal nine across three quick rounds.</p>
         </div>
 
         <div className="home-plan-card">

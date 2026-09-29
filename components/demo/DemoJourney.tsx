@@ -3,6 +3,7 @@
 import { useState } from "react";
 import DealReveal from "@/components/DealReveal";
 import SampleVote from "@/components/demo/SampleVote";
+import type { Spot } from "@/lib/types";
 import VenuePhoto from "@/components/VenuePhoto";
 import DemoLuna from "@/components/demo/DemoLuna";
 import { SAMPLE_FRIENDS, SAMPLE_PLAN } from "@/components/demo/sampleDecision";
@@ -23,6 +24,13 @@ const CONSTRAINTS = [
 export default function DemoJourney({ decks, eventTime }: { decks: DemoDeck[]; eventTime: string }) {
   const [stage, setStage] = useState<"compose" | "deal" | "vote">("compose");
   const [deck, setDeck] = useState(decks[0]);
+  // Each tile's cover: its deck's first photographed place that no earlier
+  // tile already uses (decks share venues); none left, its category art.
+  const covers = decks.reduce<Spot[]>((picked, option) => {
+    const used = new Set(picked.map((spot) => spot.id));
+    const all = option.pools.flat();
+    return [...picked, all.find((spot) => spot.photo_url && !used.has(spot.id)) ?? all[0]];
+  }, []);
   // Each stage replaces the one above it, so it starts at the top of the page.
   const go = (next: typeof stage) => { setStage(next); window.scrollTo({ top: 0 }); };
 
@@ -49,9 +57,8 @@ export default function DemoJourney({ decks, eventTime }: { decks: DemoDeck[]; e
       <fieldset className="mt-6">
         <legend className="plan-form__label">What kind of hangout?</legend>
         <div className="kind-tiles">
-          {decks.map((option) => {
-            // The deck's first photographed place is the tile's cover; none, and the tile is type on sand.
-            const cover = option.pools.flat().find((spot) => spot.photo_url);
+          {decks.map((option, i) => {
+            const cover = covers[i];
             return (
               <button key={option.key} type="button" onClick={() => setDeck(option)} aria-pressed={deck.key === option.key} aria-label={option.label} className="kind-tile">
                 {cover && <VenuePhoto spot={cover} sizes="(max-width: 640px) 50vw, 18rem" className="kind-tile__img" />}

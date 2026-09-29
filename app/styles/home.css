@@ -713,3 +713,17 @@
   font-size: max(0.72rem, var(--type-floor));
   font-weight: 700;
 }
+
+/* /demo's first screen: the way into the full sample vote. */
+.home-appbar__sample {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  margin-top: 0.75rem;
+  padding: 0 1.1rem;
+  border-radius: var(--radius-control);
+  background: var(--primary-fill);
+  color: var(--primary-ink);
+  font-weight: 600;
+  text-decoration: none;
+}
