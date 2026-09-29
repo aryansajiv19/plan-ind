@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import DubaiMiniMap from "@/components/map/DubaiMiniMap";
+import RouteJourney from "@/components/map/RouteJourney";
 import { leaveBy, LEAVE_BY_SPARE_MIN, type MappableVenue } from "@/lib/directions";
 import type { Coordinates } from "@/lib/dubai-areas";
 import { loadMaps, onMapsAuthFailure, type MapsApi, type MapsMap, type MapsMarker, type MapsOverlay, type RoutesRoute } from "@/lib/maps-loader";
@@ -29,7 +30,7 @@ type Result = { steps: string[]; minutes: number | null } | "failed";
 const round = (c: Coordinates, places: number) => `${c.latitude.toFixed(places)},${c.longitude.toFixed(places)}`;
 const point = (c: Coordinates) => ({ lat: c.latitude, lng: c.longitude });
 
-export default function RouteMap({ venue, planOrigin, eventTime = null }: { venue: MappableVenue; planOrigin: Coordinates | null; eventTime?: string | null }) {
+export default function RouteMap({ venue, planOrigin, eventTime = null }: { venue: MappableVenue & { parking?: string | null }; planOrigin: Coordinates | null; eventTime?: string | null }) {
   const viewer = useViewerOrigin();
   const [live, setLive] = useState(false);
   const livePosition = useLivePosition(live);
@@ -161,7 +162,16 @@ export default function RouteMap({ venue, planOrigin, eventTime = null }: { venu
         </>
       )}
 
-      {showFallback && (
+      {showFallback && origin && venue.latitude != null && venue.longitude != null ? (
+        <>
+          <div role="group" aria-label="How you’re getting there" className="route-map__modes">
+            {MODES.map(([value, label]) => (
+              <button key={value} type="button" aria-pressed={mode === value} onClick={() => setMode(value)}>{label}</button>
+            ))}
+          </div>
+          <RouteJourney venue={venue} origin={origin} mode={mode} />
+        </>
+      ) : showFallback && (
         <>
           {fallback && fallback.steps.length > 0 && (
             <ol className="route-map__steps">{fallback.steps.map((step) => <li key={step}>{step}</li>)}</ol>

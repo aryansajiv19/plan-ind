@@ -19,7 +19,7 @@ export const DUBAI_ORIGINS = [
   { label: "Sharjah", value: "sharjah", coordinates: { latitude: 25.346, longitude: 55.42 } },
 ] as const;
 
-const AREA_CENTRES: Record<string, Coordinates> = {
+export const AREA_CENTRES: Record<string, Coordinates> = {
   "address dubai mall": { latitude: 25.197, longitude: 55.279 },
   "address sky view": { latitude: 25.201, longitude: 55.269 },
   "al barsha": { latitude: 25.11, longitude: 55.2 },

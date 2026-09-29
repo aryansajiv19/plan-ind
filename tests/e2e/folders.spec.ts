@@ -29,7 +29,7 @@ test("a folder is created, renamed, filled, and deleted with its list kept", asy
   await expect(group(page, /Weekend plans/)).toBeVisible();
   await expect(group(page, /Date nights/)).toHaveCount(0);
 
-  await section.getByLabel("Move Want to try to folder").selectOption({ label: "📁 Weekend plans" });
+  await section.getByLabel("Move Want to try to folder").selectOption({ label: "Weekend plans" });
   await expect(group(page, /Weekend plans/)).toContainText("Want to try");
 
   await group(page, /Weekend plans/).getByRole("button", { name: "Delete", exact: true }).click();
