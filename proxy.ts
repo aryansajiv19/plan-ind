@@ -54,9 +54,9 @@ export async function proxy(request: NextRequest) {
     `img-src 'self' data: blob: https:${isDev && supabaseOrigin.startsWith("http:") ? ` ${supabaseOrigin}` : ""}`,
     "font-src 'self' data: https://fonts.gstatic.com",
     `connect-src 'self' ${supabaseOrigin} ${supabaseSocket} https://challenges.cloudflare.com https://maps.googleapis.com https://routes.googleapis.com`,
-    // Turnstile, and the venue map (components/VenueMap.tsx). The map's own
-    // tiles and scripts load under Google's policy inside the frame; only its
-    // document URL is ours to allow. The keyed Maps Embed API is the same host.
+    // Turnstile's challenge frame, and www.google.com for Google's own frames
+    // (the Maps JavaScript API behind RouteMap can open one). Nothing of ours
+    // embeds a Google page any more; the place page's map is our own SVG.
     "frame-src https://challenges.cloudflare.com https://www.google.com",
     "worker-src 'self' blob:",
     "manifest-src 'self'",

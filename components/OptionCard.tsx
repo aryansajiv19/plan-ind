@@ -37,10 +37,11 @@ interface OptionCardProps {
   onToggle: () => void;
 }
 
-// "· 9 km · ≈ 25 min drive" from this voter's own origin (P18).
+// "· 9 km · ≈ 25 min drive (estimate)" from this voter's own origin (P18):
+// a straight-line guess (lib/directions.ts), said so as everywhere else.
 function yourTrip(km: number): string {
   const drive = driveMinutesEstimate(km);
-  return ` · ${Math.max(1, Math.round(km))}\u00a0km${drive != null ? ` · ≈\u00a0${drive}\u00a0min drive` : ""}`;
+  return ` · ${Math.max(1, Math.round(km))}\u00a0km${drive != null ? ` · ≈\u00a0${drive}\u00a0min drive (estimate)` : ""}`;
 }
 
 export default function OptionCard({
