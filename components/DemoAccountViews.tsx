@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import PlaceLinkImporter from "@/components/PlaceLinkImporter";
 import DemoFolders from "@/components/demo/DemoFolders";
 import DemoLeaderboard from "@/components/demo/DemoLeaderboard";
@@ -12,128 +12,14 @@ import PersonalityCard from "@/components/profile/PersonalityCard";
 import { planPersonality } from "@/lib/personality";
 import type { Spot } from "@/lib/types";
 import DemoMoodboards from "@/components/demo/DemoMoodboards";
-import { friendPlanPrefill, originForArea, type PlanPrefill } from "@/lib/board-plan";
+import DemoDiscover from "@/components/demo/DemoDiscover";
+import { DEFAULT_COLLECTIONS, FRIENDS, STATS, VISITS, dayLabel, demoPersonalityVisits, demoVisitedSpots, firstLetter, type DemoCollection } from "@/components/demo/demoFixtures";
+import { friendPlanPrefill, type PlanPrefill } from "@/lib/board-plan";
 import { validateImageFile } from "@/lib/upload";
-import { categoryLabel, categoryMeta } from "@/lib/categories";
 import { initialsOf } from "@/lib/avatar";
-import { friendStats, visitStats } from "@/components/demo/demoStats";
 
 type AccountView = "discover" | "saved" | "been" | "friends" | "profile";
 
-const PLACES = [
-  {
-    name: "Ninive",
-    area: "Emirates Towers",
-    category: "Dinner",
-    key: "dinner",
-    group: "food",
-    district: "Downtown and DIFC",
-    // Catalogue truth (070): AED 250 minimum spend, 18+.
-    price: "AED 250 pp",
-    rating: "4.8",
-    friendNote: "Sara and 3 friends would return",
-    image: "/demo/alserkal-dinner.webp",
-    note: "Garden seating, shared Middle Eastern plates and enough atmosphere without shouting over dinner.",
-  },
-  {
-    name: "Drift Beach",
-    area: "One&Only Royal Mirage",
-    category: "Beach club",
-    key: "beach_club",
-    group: "water",
-    district: "Al Sufouh",
-    price: "AED 350 pp",
-    rating: "4.6",
-    friendNote: "Maya saved this for Saturday",
-    image: "/demo/beach-club.webp",
-    note: "A calmer pool day with a proper lunch and a clean transition into sunset.",
-  },
-  {
-    name: "Padel Art",
-    area: "Al Quoz",
-    category: "Sports",
-    key: "padel",
-    group: "active",
-    district: "Al Quoz",
-    price: "AED 100 pp",
-    rating: "4.7",
-    friendNote: "You, Zain and Omar have been",
-    image: "/demo/padel-night.webp",
-    note: "Reliable evening courts, good lighting and enough space to stay after the match.",
-  },
-  {
-    name: "Al Qudra Lakes",
-    area: "Seih Al Salam",
-    category: "Escape",
-    key: "outdoors",
-    group: "leisure",
-    district: "Outside the city",
-    // The catalogue's spend (the wall shows the same); entry itself is free.
-    price: "AED 20 pp",
-    rating: "4.9",
-    friendNote: "Your group rated sunrise highest",
-    image: "/demo/al-qudra-morning.webp",
-    note: "Best before the city wakes up: bikes, coffee and a quiet loop beside the lakes.",
-  },
-] as const;
-
-const VISITS = [
-  { id: "ninive", place: PLACES[0], date: "2026-08-02", score: 4.8, with: ["sara", "maya", "zain"], note: "The garden table was the right call. Stayed for another round and nobody wanted to leave." },
-  { id: "padel-art", place: PLACES[2], date: "2026-07-27", score: 4.6, with: ["omar", "zain"], note: "Booked ninety minutes, played for two hours. Tuesday evenings are quieter." },
-  { id: "drift-beach", place: PLACES[1], date: "2026-07-19", score: 4.5, with: ["maya", "leila", "sara"], note: "Go early for the calm pool, stay through sunset, skip the loud late session." },
-  { id: "al-qudra", place: PLACES[3], date: "2026-07-06", score: 4.9, with: ["omar", "leila", "zain"], note: "Left at 5:10, reached before sunrise. Coffee and bikes made the morning." },
-] as const;
-
-interface DemoCollection {
-  id: string;
-  name: string;
-  visitIds: string[];
-}
-
-const DEFAULT_COLLECTIONS: DemoCollection[] = [
-  { id: "late-dinners", name: "Late dinners", visitIds: ["ninive"] },
-  { id: "active-dubai", name: "Sport and outdoors", visitIds: ["padel-art", "al-qudra"] },
-  { id: "weekends", name: "Weekend reset", visitIds: ["drift-beach", "al-qudra"] },
-];
-
-const FRIEND_ROWS = [
-  { id: "sara", name: "Sara Ahmed", note: "Dinner · arts · low-key nights" },
-  { id: "zain", name: "Zain Malik", note: "Padel · games · late food" },
-  { id: "maya", name: "Maya Khan", note: "Beach clubs · brunch · wellness" },
-  { id: "omar", name: "Omar Ali", note: "Outdoors · sports · coffee" },
-  { id: "leila", name: "Leila Noor", note: "Cinema · live music · dessert" },
-] as const;
-
-// Every number on Been, Friends and Profile comes from the visits above.
-const STAT_VISITS = VISITS.map((visit) => ({ id: visit.id, placeName: visit.place.name, date: visit.date, score: visit.score, district: visit.place.district, with: visit.with }));
-const STATS = visitStats(STAT_VISITS);
-const FRIENDS = FRIEND_ROWS.map((friend) => ({ ...friend, ...friendStats(STAT_VISITS, friend.id) }))
-  .sort((a, b) => b.outings - a.outings);
-// The sample visits are fixtures; match them to catalogue places by name so
-// "Your Dubai" lights the right districts. An unmatched one falls back to its area.
-const demoVisitedSpots = (spots: Spot[]) =>
-  VISITS.map((visit) => {
-    const name = visit.place.name.toLowerCase();
-    return spots.find((s) => s.name.toLowerCase().startsWith(name)) ?? { id: visit.id, area: visit.place.area };
-  });
-// The fixtures carry dates, not times: the hours the notes describe.
-const DEMO_HOURS: Record<string, number> = { ninive: 21, "padel-art": 19, "drift-beach": 17, "al-qudra": 5 };
-const demoPersonalityVisits = (spots: Spot[]) =>
-  demoVisitedSpots(spots).map((spot, i) => {
-    const visit = VISITS[i];
-    const catalogue = "category" in spot ? spot : null;
-    return {
-      visitedAt: new Date(`${visit.date}T${String(DEMO_HOURS[visit.id] ?? 20).padStart(2, "0")}:00:00+04:00`).toISOString(),
-      spotId: spot.id,
-      category: catalogue?.category ?? visit.place.key,
-      cuisine: catalogue?.cuisine ?? null,
-      area: spot.area,
-      crewSize: visit.with.length + 1,
-      fromPlan: true,
-    };
-  });
-const firstLetter = (id: string) => FRIEND_ROWS.find((friend) => friend.id === id)?.name.slice(0, 1) ?? "?";
-const dayLabel = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" });
 
 function FaceStack({ people }: { people: readonly string[] }) {
   return (
@@ -147,17 +33,18 @@ export default function DemoAccountViews({
   view,
   name,
   spots,
+  catalogue,
   onStartPlan,
 }: {
   view: AccountView;
   name: string;
   /** The real catalogue: "Your Dubai" totals are real, the sample visits are not. */
   spots: Spot[];
+  /** Discover's catalogue, with coordinates for its map; the wall sample otherwise. */
+  catalogue?: Spot[];
   /** Opens the composer; a prefill sets it up the way the button said. */
   onStartPlan: (prefill?: PlanPrefill) => void;
 }) {
-  const [placeFilter, setPlaceFilter] = useState("All");
-  const [query, setQuery] = useState("");
   const [uploadedPhoto, setUploadedPhoto] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadVisitId, setUploadVisitId] = useState<string>(VISITS[0].id);
@@ -184,15 +71,6 @@ export default function DemoAccountViews({
   useEffect(() => () => {
     if (uploadedPhoto) URL.revokeObjectURL(uploadedPhoto);
   }, [uploadedPhoto]);
-
-  const visiblePlaces = useMemo(() => {
-    const cleanQuery = query.trim().toLowerCase();
-    return PLACES.filter((place) => {
-      const matchesFilter = placeFilter === "All" || place.category === placeFilter;
-      const matchesQuery = !cleanQuery || `${place.name} ${place.area} ${place.category}`.toLowerCase().includes(cleanQuery);
-      return matchesFilter && matchesQuery;
-    });
-  }, [placeFilter, query]);
 
   const activeFolder = collections.find((collection) => collection.id === activeCollection);
   const visibleVisits = activeFolder
@@ -237,47 +115,7 @@ export default function DemoAccountViews({
     );
   }
 
-  if (view === "discover") {
-    return (
-      <section className="demo-view" aria-labelledby="discover-title">
-        <header className="demo-view__header">
-          <div><h1 id="discover-title">Places worth considering.</h1></div>
-          <p>Real context from your circle, alongside the details that decide whether a place works tonight.</p>
-        </header>
-
-        <div className="demo-discover-tools">
-          <label><span>Search places</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Area, place or category" /></label>
-          <div className="demo-filter-tabs" aria-label="Filter places">
-            {["All", "Dinner", "Beach club", "Sports", "Escape"].map((filter) => (
-              <button key={filter} type="button" onClick={() => setPlaceFilter(filter)} aria-pressed={placeFilter === filter}>{categoryLabel(filter)}</button>
-            ))}
-          </div>
-        </div>
-
-        {visiblePlaces.length ? (
-          <div className="demo-place-grid">
-            {visiblePlaces.map((place) => (
-              <article key={place.name} className="demo-place-card">
-                <div className="demo-place-card__band" data-photo>
-                  <Image src={place.image} alt={`Community visit at ${place.name}`} fill sizes="(max-width: 700px) 100vw, 20rem" />
-                  <div className="demo-place-card__over">
-                    <span className="demo-place-card__chip" aria-hidden="true">{categoryMeta(place.key).code}</span>
-                    <div><h2>{place.name}</h2><p className="demo-place-card__area">{place.area} · {place.price}</p></div>
-                  </div>
-                </div>
-                <div className="demo-place-card__body">
-                  <div className="demo-place-card__meta"><span>{categoryLabel(place.category)}</span><span>{place.rating} / 5</span></div>
-                  <p>{place.note}</p><p className="demo-place-card__context">{place.friendNote}</p>
-                  {/* The preview deal can't hold a sample place, so it promises what it does. */}
-                  <button type="button" onClick={() => onStartPlan({ key: `${place.name}:${Date.now()}`, boardName: place.name, category: place.key, origin: originForArea(place.area) ?? "anywhere", title: `Somewhere like ${place.name}?`, source: "like" })}>Plan something like this</button>
-                </div>
-              </article>
-            ))}
-          </div>
-        ) : <p className="demo-empty">No places match that search.</p>}
-      </section>
-    );
-  }
+  if (view === "discover") return <DemoDiscover spots={catalogue ?? spots} />;
 
   if (view === "been") {
     return (

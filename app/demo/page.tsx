@@ -1,5 +1,5 @@
 import HomeExperience from "@/components/HomeExperience";
-import { curatedWall } from "@/lib/spots/catalogue";
+import { curatedDiscover, curatedWall } from "@/lib/spots/catalogue";
 import type { Spot } from "@/lib/types";
 import { viewFromParam, WALL_POOL, WALL_SIZE } from "@/lib/home-views";
 import { greetingFor, issueDate, pickRightNow } from "@/lib/right-now";
@@ -21,9 +21,11 @@ export const dynamic = "force-dynamic";
 export default async function DemoPage({ searchParams }: { searchParams: Promise<{ view?: string }> }) {
   // The same bounded, cached catalogue sample as the landing page
   // (app/page.tsx). Without it the wall showed "no places in the catalog".
-  const { data } = await curatedWall(WALL_POOL);
+  // Discover gets what the signed-in home loads (app/home/page.tsx): the first
+  // 120 by name, with the coordinates its map needs.
+  const [{ data }, discover] = await Promise.all([curatedWall(WALL_POOL), curatedDiscover(120)]);
   const now = new Date();
   // The landing's tabs link here (?view=been): open that tab on first paint.
   const initialView = viewFromParam((await searchParams).view);
-  return <HomeExperience name="Sample member" greeting={greetingFor(now)} dateLabel={issueDate(now)} demoMode fixtures initialView={initialView} spots={pickRightNow(data ?? [], now, WALL_SIZE) as unknown as Spot[]} smartSearchAvailable={Boolean(process.env.OPENAI_API_KEY)} />;
+  return <HomeExperience name="Sample member" greeting={greetingFor(now)} dateLabel={issueDate(now)} demoMode fixtures initialView={initialView} demoCatalogue={(discover.data ?? undefined) as unknown as Spot[] | undefined} spots={pickRightNow(data ?? [], now, WALL_SIZE) as unknown as Spot[]} smartSearchAvailable={Boolean(process.env.OPENAI_API_KEY)} />;
 }

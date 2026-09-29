@@ -130,3 +130,53 @@ test("the demo's Friends leaderboard is sample people, labelled so, with your ro
   await expect(me).toContainText("Loved it");
   await expect(boards.locator(".boards__points", { hasText: "pts" })).toHaveCount(0);
 });
+
+test("the demo's Discover is the real catalogue: a sample Top places, a photo wall, and a Grid/Map toggle", async ({ page }) => {
+  await page.goto("/demo?view=discover");
+  const top = page.locator("#workspace section.top-places");
+  await expect(top.getByRole("heading", { name: /Top places in Dubai · sample/ })).toBeVisible({ timeout: 20_000 });
+  await expect(top).toContainText("Sample scores on real places.");
+  const scores = (await top.locator(".top-places__card b").allInnerTexts()).map(Number);
+  expect(scores.length).toBeGreaterThan(0);
+  expect(scores, "best first").toEqual([...scores].sort((a, b) => b - a));
+
+  // Grid: the landing's wall, one tile per place.
+  const tiles = page.locator("#workspace .wall .wall-tile");
+  await expect(tiles.first()).toBeVisible();
+  const tileCount = await tiles.count();
+  expect(tileCount).toBeGreaterThan(0);
+
+  // Map: the wall goes, the places are stars (or it says none is located yet).
+  const toggle = page.getByRole("group", { name: "Show places as" });
+  await toggle.getByRole("button", { name: "Map" }).click();
+  await expect(toggle.getByRole("button", { name: "Map" })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator("#workspace .wall")).toHaveCount(0);
+  const sky = page.locator("#workspace figure.explore-sky");
+  if (await sky.count()) {
+    const stars = sky.locator("a.explore-sky__star");
+    expect(await stars.count()).toBeGreaterThan(0);
+    expect(await stars.count()).toBeLessThanOrEqual(tileCount);
+    await expect(stars.first()).toHaveAttribute("href", /^\/place\/[0-9a-f-]{36}$/);
+  } else {
+    await expect(page.locator("#workspace")).toContainText("None of these places has a location yet.");
+  }
+  await toggle.getByRole("button", { name: "Grid" }).click();
+  await expect(tiles).toHaveCount(tileCount);
+
+  // A filter narrows the wall to that category.
+  const filters = page.getByLabel("Filter places").getByRole("button");
+  await filters.nth(1).click();
+  await expect.poll(() => tiles.count()).toBeLessThan(tileCount);
+});
+
+test("a demo Discover tile opens the real place page", async ({ page }) => {
+  await page.goto("/demo?view=discover");
+  const link = page.locator("#workspace .wall .wall-tile__link").first();
+  await expect(link).toBeVisible({ timeout: 20_000 });
+  const name = (await link.getAttribute("aria-label"))!;
+  const href = (await link.getAttribute("href"))!;
+  expect(href).toMatch(/^\/place\/[0-9a-f-]{36}$/);
+  await link.click();
+  await expect(page).toHaveURL(new RegExp(`${href}$`));
+  await expect(page.getByRole("heading", { level: 1, name })).toBeVisible({ timeout: 20_000 });
+});
