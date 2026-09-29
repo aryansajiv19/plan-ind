@@ -78,6 +78,9 @@ next-env.d.ts
 # wait here for the owner's dashboard upload.
 /scripts/places-review.local.json
 /scripts/places-photos.local/
+# scripts/places-discover.ts: candidate venues, Google content -- review, then delete.
+/scripts/places-discovery.local.json
+/scripts/places-discovery.local.csv
 
 # Playwright global-setup writes the disposable local plan id here.
 /tests/e2e/.fixture.local.json

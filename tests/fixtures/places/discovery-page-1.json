@@ -1,0 +1,9 @@
+{
+  "places": [
+    { "id": "ChIJfixtureDiscoveryAAAA1", "displayName": { "text": "Fixture Grill Marina", "languageCode": "en" }, "formattedAddress": "Marina Walk, Dubai Marina, Dubai", "location": { "latitude": 25.0781, "longitude": 55.1402 }, "types": ["restaurant", "food", "point_of_interest"], "priceLevel": "PRICE_LEVEL_MODERATE", "userRatingCount": 1840, "websiteUri": "https://fixture-grill.example" },
+    { "id": "ChIJfixtureKnownSpotBBBB2", "displayName": { "text": "Already In Catalogue", "languageCode": "en" }, "location": { "latitude": 25.08, "longitude": 55.14 }, "types": ["restaurant"], "userRatingCount": 312 },
+    { "id": "bad id with spaces", "displayName": { "text": "Refused Id" } },
+    { "id": "ChIJfixtureFormulaCCCC3", "displayName": { "text": "=HYPERLINK(\"x\")" }, "types": ["restaurant"] }
+  ],
+  "nextPageToken": "fixture-page-2"
+}

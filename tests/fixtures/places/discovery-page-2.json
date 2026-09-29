@@ -1,0 +1,6 @@
+{
+  "places": [
+    { "id": "ChIJfixtureDiscoveryAAAA1", "displayName": { "text": "Fixture Grill Marina" }, "types": ["restaurant"] },
+    { "id": "ChIJfixtureSecondPageDDD4", "displayName": { "text": "Page Two Bistro" }, "location": { "latitude": 25.079, "longitude": 55.139 }, "types": ["restaurant"], "priceLevel": "PRICE_LEVEL_EXPENSIVE", "userRatingCount": 95 }
+  ]
+}
