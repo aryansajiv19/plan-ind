@@ -12,7 +12,7 @@ const H = 360;
 const LINE = { Red: "#e25c5c", Green: "#4caf7d" } as const;
 
 export default function DubaiMiniMap({ venue }: { venue: MappableVenue }) {
-  if (venue.latitude == null || venue.longitude == null) return null;
+  if (venue.latitude == null || venue.longitude == null) return <CityMap venue={venue} />;
   const at = { lat: venue.latitude, lng: venue.longitude };
   const near = nearestStation(at.lat, at.lng);
   // Frame the venue and its nearest station, with at least ~2.5 km around.
@@ -67,6 +67,32 @@ export default function DubaiMiniMap({ venue }: { venue: MappableVenue }) {
         {near ? (
           <span>{near.walkable ? `≈ ${near.walkMin} min walk from ${near.station.name} (${near.station.lines.join(" / ")} Line)` : `Nearest metro: ${near.station.name}, ${near.km.toFixed(1)} km: take a taxi or drive`}</span>
         ) : <span>{venue.area}</span>}
+        <a href={googleMapsUrl(venue)} target="_blank" rel="noopener noreferrer">Open in Google Maps</a>
+      </figcaption>
+    </figure>
+  );
+}
+
+// No coordinates yet: the whole metro network, the area named, and the
+// hand-off to Google Maps. Never an empty "Where".
+function CityMap({ venue }: { venue: MappableVenue }) {
+  const all = METRO_LINES.flatMap((line) => line.stations);
+  const lats = all.map((s) => s.lat), lngs = all.map((s) => s.lng);
+  const [minLat, maxLat, minLng, maxLng] = [Math.min(...lats), Math.max(...lats), Math.min(...lngs), Math.max(...lngs)];
+  const pad = 30;
+  const x = (lng: number) => pad + ((lng - minLng) / (maxLng - minLng)) * (W - 2 * pad);
+  const y = (lat: number) => pad + (1 - (lat - minLat) / (maxLat - minLat)) * (H - 2 * pad);
+  return (
+    <figure className="mini-map">
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Dubai Metro map; ${venue.name} is in ${venue.area}`}>
+        {METRO_LINES.map((line) => (
+          <polyline key={line.key} points={line.stations.map((s) => `${x(s.lng).toFixed(1)},${y(s.lat).toFixed(1)}`).join(" ")}
+            fill="none" stroke={LINE[line.color]} strokeWidth="3" strokeLinejoin="round" opacity="0.8" />
+        ))}
+        {all.map((s) => <circle key={`${s.name}-${s.lat}`} cx={x(s.lng)} cy={y(s.lat)} r="3" className="mini-map__station" />)}
+      </svg>
+      <figcaption>
+        <span>{venue.area} · the exact spot isn’t mapped yet</span>
         <a href={googleMapsUrl(venue)} target="_blank" rel="noopener noreferrer">Open in Google Maps</a>
       </figcaption>
     </figure>

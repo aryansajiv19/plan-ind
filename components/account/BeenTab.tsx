@@ -184,24 +184,30 @@ export default function BeenTab({
               </label>
             </div>
           )}
-          {!activeFolder && personId && collections.length > 0 && (
+          {personId && collections.length > 0 && (
             <form
               className="been-inline"
               onSubmit={(event) => {
                 event.preventDefault();
-                const target = pickCollection || collections[0].id;
+                const target = activeFolder?.id ?? (pickCollection || collections[0].id);
                 if (pickVisit) void addToCollection(pickVisit, target).then(() => setPickVisit(""));
               }}
             >
               <span>Add</span>
               <select aria-label="Visit" value={pickVisit} onChange={(event) => setPickVisit(event.target.value)}>
                 <option value="">a place…</option>
-                {visits.map((visit) => <option key={visit.id} value={visit.id}>{visit.spot?.name ?? "Removed place"}</option>)}
+                {visits.filter((visit) => !activeFolder?.visitIds.includes(visit.id)).map((visit) => <option key={visit.id} value={visit.id}>{visit.spot?.name ?? "Removed place"}</option>)}
               </select>
-              <span>to</span>
-              <select aria-label="Collection" value={pickCollection || collections[0].id} onChange={(event) => setPickCollection(event.target.value)}>
-                {collections.map((collection) => <option key={collection.id} value={collection.id}>{collection.name}</option>)}
-              </select>
+              {activeFolder ? (
+                <span>to {activeFolder.name}</span>
+              ) : (
+                <>
+                  <span>to</span>
+                  <select aria-label="Collection" value={pickCollection || collections[0].id} onChange={(event) => setPickCollection(event.target.value)}>
+                    {collections.map((collection) => <option key={collection.id} value={collection.id}>{collection.name}</option>)}
+                  </select>
+                </>
+              )}
               <button type="submit" disabled={!pickVisit}>Add</button>
             </form>
           )}
