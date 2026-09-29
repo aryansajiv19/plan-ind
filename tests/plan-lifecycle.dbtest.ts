@@ -318,7 +318,9 @@ describe("069 security review: visits, unrate, booking backfill", { skip: SKIP }
     await psql(`insert into people (id, display_name, auth_user_id) values ('${stranger}', 'S', '${stranger}')`);
     await assert.rejects(logVisit(stranger, d.winner, d.p.id), /row-level security/); // not a member
     await assert.rejects(logVisit(member, d.winner, d.p.id), /row-level security/);   // outing not yet
-    await logVisit(member, d.winner, null);                                            // no plan: fine
+    // 085: no plan is "I went here", which goes only through log_visit (capped).
+    await assert.rejects(logVisit(member, d.winner, null), /row-level security/);
+    assert.equal(JSON.parse(await as(member, `select log_visit('${d.winner}')`)).result, "logged");
     await psql(`update plans set event_time = now() - interval '1 hour' where id = '${d.p.id}'`);
     await logVisit(member, d.winner, d.p.id);                                          // the real thing
     assert.equal(await psql(`delete from visits where person_id = '${stranger}' returning 1`), "");

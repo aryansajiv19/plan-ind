@@ -313,6 +313,20 @@ export interface Folder {
   created_at: string;
 }
 
+// 085 (staged): one place in a person's Beli-style ranking. Private (owner-only
+// read); written only by rank_place / unrank_place, which rescore the bucket.
+export type RankingBucket = "loved" | "fine" | "meh";
+export interface PlaceRanking {
+  person_id: string;
+  spot_id: string;
+  bucket: RankingBucket;
+  position: number; // 1 = best in the bucket
+  score: number; // 0-10: loved 7-10, fine 4-7, meh 0-4
+  answers: { vibe?: string; value?: "great" | "fair" | "pricey"; again?: boolean };
+  created_at: string;
+  updated_at: string;
+}
+
 export interface PlaceImport {
   id: string;
   person_id: string;
