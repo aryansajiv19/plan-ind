@@ -104,3 +104,38 @@ test("catalogue ages follow the app's policy: shisha 18, beach clubs 21, karaoke
   const { minimumAgeFor } = await import("@/lib/catalogue/osm");
   assert.deepEqual(["shisha", "beach_club", "nightlife", "vibes", "karaoke", "live_music", "cafe"].map(minimumAgeFor), [18, 21, 21, 21, 0, 21, 0]);
 });
+
+test("090: its own id range, four parts that never share a row, dinner and cafes capped per part, the thin rest all kept", async () => {
+  const { idFor, part090, pool090 } = await import("../lib/catalogue/review.ts");
+  assert.equal(idFor("way/1", "090"), "c0900000-0000-0000-0002-000000000001");
+  assert.equal(idFor("way/1"), "c0890000-0000-0000-0002-000000000001", "089's ids unchanged");
+  assert.equal(part090({ category: "dinner", district: "Deira & Al Rigga" }), 1);
+  assert.equal(part090({ category: "dinner", district: "Marina & JBR" }), 2);
+  assert.equal(part090({ category: "dessert", district: "Deira & Al Rigga" }), 3);
+  assert.equal(part090({ category: "outdoors", district: "Marina & JBR" }), 4);
+  const row = (i: number, category: string, district: string) => ({
+    osmRef: `node/${i}`, name: `P${i}`, category, area: "X", district, cuisine: "", latitude: 25, longitude: 55,
+    openTill: "", website: null, minimumAge: 0, score: i % 5,
+  });
+  const kept = [
+    ...Array.from({ length: 10 }, (_, i) => row(i, "dinner", i % 2 ? "Deira & Al Rigga" : "Al Nahda & Qusais")),
+    ...Array.from({ length: 10 }, (_, i) => row(100 + i, "dinner", "Marina & JBR")),
+    ...Array.from({ length: 10 }, (_, i) => row(200 + i, "cafe", "JVC, Sports City & Motor City")),
+    row(300, "brunch", "Business Bay"),
+    ...Array.from({ length: 7 }, (_, i) => row(400 + i, i % 2 ? "culture" : "sports", "Mirdif & Al Warqa")),
+  ];
+  const pool = pool090(kept, 4);
+  const byPart = [1, 2, 3, 4].map((n) => pool.filter((r) => part090(r) === n).length);
+  assert.deepEqual(byPart, [4, 4, 4, 7], "three capped parts, the thin rest all in");
+  assert.equal(new Set(pool.map((r) => r.osmRef)).size, pool.length, "no row twice");
+  assert.ok(pool.some((r) => r.category === "brunch"), "a thin category in a capped part still gets in");
+  const east = pool.filter((r) => part090(r) === 1).map((r) => r.district);
+  assert.deepEqual(new Set(east), new Set(["Deira & Al Rigga", "Al Nahda & Qusais"]), "spread across districts");
+});
+
+test("090's added tags: indoor play is family, mini golf is games, ice rinks and golf are sports", () => {
+  assert.equal(categoryOf({ leisure: "indoor_play" }), "family");
+  assert.equal(categoryOf({ leisure: "miniature_golf" }), "games");
+  assert.equal(categoryOf({ leisure: "ice_rink" }), "sports");
+  assert.equal(categoryOf({ leisure: "golf_course" }), "sports");
+});

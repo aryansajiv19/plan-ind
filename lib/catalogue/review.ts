@@ -1,7 +1,9 @@
-// The human pick for migration 089: one row per OSM candidate in
-// data/catalogue-089.json. The reviewer sets approved, writes vibe_final (or
-// keeps the proposed line), or gives a reject_reason. Pure, for the tests.
+// The human pick for migrations 089 and 090: one row per OSM candidate in
+// data/catalogue-089.json or data/catalogue-090-part{1-4}.json. The reviewer
+// sets approved, writes vibe_final (or keeps the proposed line), or gives a
+// reject_reason. Pure, for the tests.
 
+import { selectSpread, type CatalogueRow } from "@/lib/catalogue/osm";
 import type { CatalogueRecord } from "@/lib/catalogue/sql";
 
 export interface ReviewRow {
@@ -27,10 +29,34 @@ export interface ReviewRow {
   reject_reason: string | null;
 }
 
-/** Stable per OSM object, so a re-run never reshuffles: type digit + the id in hex, in the c0890000- range. */
-export function idFor(osmRef: string): string {
+export type Batch = "089" | "090";
+
+/** Stable per OSM object, so a re-run never reshuffles: type digit + the id in hex, in the batch's c0890000-/c0900000- range. */
+export function idFor(osmRef: string, batch: Batch = "089"): string {
   const [type, id] = osmRef.split("/");
-  return `c0890000-0000-0000-000${type === "node" ? 1 : type === "way" ? 2 : 3}-${Number(id).toString(16).padStart(12, "0")}`;
+  return `c${batch}0000-0000-0000-000${type === "node" ? 1 : type === "way" ? 2 : 3}-${Number(id).toString(16).padStart(12, "0")}`;
+}
+
+/** 090's dinner splits east/west so four reviewers never share a row. */
+const EAST = new Set(["Deira & Al Rigga", "Al Nahda & Qusais", "Festival City & Garhoud", "Mirdif & Al Warqa",
+  "Silicon Oasis & Academic City", "Creek & Old Dubai", "Meydan & Nad Al Sheba", "Desert & beyond"]);
+const SWEET = new Set(["cafe", "brunch", "dessert"]);
+
+/** Which of 090's four review files a row belongs in: dinner east, dinner west, cafes and sweets, everything else. */
+export function part090(row: Pick<CatalogueRow, "category" | "district">): 1 | 2 | 3 | 4 {
+  if (row.category === "dinner") return EAST.has(row.district) ? 1 : 2;
+  return SWEET.has(row.category) ? 3 : 4;
+}
+
+/**
+ * 090's pool (~1,500): every candidate outside dinner and cafe (OSM is thin
+ * there), and the best-kept dinners and cafes, spread by district, up to
+ * `perPart` in each of the three parts they fill.
+ */
+export function pool090(kept: readonly CatalogueRow[], perPart = 360): CatalogueRow[] {
+  const inPart = (n: number) => kept.filter((row) => part090(row) === n);
+  const all = (rows: CatalogueRow[]) => selectSpread(rows, rows.length, Number.POSITIVE_INFINITY);
+  return [1, 2, 3].flatMap((n) => selectSpread(inPart(n), perPart, Number.POSITIVE_INFINITY)).concat(all(inPart(4)));
 }
 
 /** Approved rows as records. Every approved row must have its final vibe, or nothing is emitted. */
