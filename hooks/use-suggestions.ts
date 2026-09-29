@@ -5,8 +5,10 @@ import { getSupabase } from "@/lib/supabase";
 import { listableToday } from "@/lib/venue-facts";
 import { minimumAgeForCategory } from "@/lib/age-policy";
 import { suggestFromVisits, topCategories, type Suggestion } from "@/lib/suggestions";
+import { useRanking } from "@/hooks/use-ranking";
 import type { ProfileVisit, Spot } from "@/lib/types";
 
+const NO_RANKINGS: readonly never[] = [];
 const COLUMNS = "id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, photo_url, photo_attribution, description, minimum_age, google_place_id, source";
 
 /**
@@ -16,7 +18,11 @@ const COLUMNS = "id, name, category, area, cuisine, price_band, min_spend, open_
  * nothing, so it isn't reported.
  */
 export function useSuggestions(visits: ProfileVisit[], age: number, enabled: boolean) {
-  const categories = useMemo(() => topCategories(visits), [visits]);
+  // What you loved leads and what you found meh drops out (lib/suggestions).
+  // Until the ranking has read, or if it can't, plain visit counts stand in.
+  const ranking = useRanking(enabled);
+  const rankings = ranking.status === "ready" ? ranking.rows : NO_RANKINGS;
+  const categories = useMemo(() => topCategories(visits, 3, rankings), [visits, rankings]);
   const key = categories.join("|");
   const [read, setRead] = useState<{ key: string; rows: Spot[] } | null>(null);
   // Discover opens and closes with the tab; the same categories aren't re-read.
@@ -39,7 +45,7 @@ export function useSuggestions(visits: ProfileVisit[], age: number, enabled: boo
 
   const current = read?.key === key ? read : null;
   const suggestions: Suggestion<Spot>[] = useMemo(() => current
-    ? suggestFromVisits(visits, current.rows.filter((spot) => age >= Math.max(minimumAgeForCategory(spot.category), spot.minimum_age ?? 0)))
-    : [], [current, visits, age]);
+    ? suggestFromVisits(visits, current.rows.filter((spot) => age >= Math.max(minimumAgeForCategory(spot.category), spot.minimum_age ?? 0)), 6, new Date(), rankings)
+    : [], [current, visits, age, rankings]);
   return { suggestions };
 }
