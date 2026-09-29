@@ -6576,9 +6576,9 @@ begin
   -- signed-out visitor's page asks for up to ~20 venue photos at once, and
   -- the browser keeps each answer an hour.
   minute_limit := case p_scope when 'otp-request' then 3 when 'deal-preview' then 30
-    when 'place-photo-anon' then 40 else 8 end;
+    when 'place-photo-anon' then 120 else 8 end;
   day_limit := case p_scope when 'otp-request' then 10 when 'deal-preview' then 300
-    when 'place-photo-anon' then 120 else 20 end;
+    when 'place-photo-anon' then 400 else 20 end;
   insert into app_rate_limits values(p_scope||'-minute', subject_key, minute_start, 1)
     on conflict(scope,subject,window_start) do update set request_count = app_rate_limits.request_count+1
     returning request_count into current_count;
@@ -7176,10 +7176,10 @@ begin
   -- route with zero rate limiting.
   minute_limit := case p_scope
     when 'smart-search' then 10 when 'plan-create' then 12 when 'spot-deal' then 30
-    when 'plan-command' then 20 when 'place-photo' then 40 else 20 end;
+    when 'plan-command' then 20 when 'place-photo' then 120 else 20 end;
   day_limit := case p_scope
     when 'smart-search' then 30 when 'plan-create' then 50 when 'spot-deal' then 300
-    when 'plan-command' then 100 when 'place-photo' then 150 else 200 end;
+    when 'plan-command' then 100 when 'place-photo' then 400 else 200 end;
   insert into app_rate_limits values(p_scope||'-minute',uid::text,minute_start,1)
     on conflict(scope,subject,window_start) do update set request_count=app_rate_limits.request_count+1
     returning request_count into current_count;
