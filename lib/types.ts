@@ -376,6 +376,27 @@ export interface TopPlace extends PlaceScore {
   google_place_id: string | null;
 }
 
+// 088 (staged): crew match and streak with one friend. Aggregates only.
+export type CategoryGroupKey = "food" | "night" | "water" | "active" | "leisure";
+export type CrewMatch =
+  | { status: "not_enough"; signals: number; needed: number }
+  | {
+      status: "ready";
+      score: number; // 0-100
+      parts: {
+        plans: { agreement: number; rounds: number } | null; // same place picked, per shared round
+        rankings: { agreement: number } | null; // same bucket, at 5+ places both ranked; a once-a-day snapshot
+        categories: { overlap: number; shared: number } | null; // kinds of place both have been to
+      };
+      biggest_split: CategoryGroupKey | null; // where our plan votes agree least (3+ rounds, under 60%)
+      signals: number; // shared plan rounds + shared kinds of place (never rankings)
+    };
+export interface CrewStreak {
+  months: number; // consecutive Dubai months with a decided plan both have a visit from
+  since: string | null; // "YYYY-MM"
+  this_month_open: boolean; // this month hasn't counted yet: a nudge
+}
+
 export interface PlaceImport {
   id: string;
   person_id: string;
