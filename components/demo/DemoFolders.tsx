@@ -14,7 +14,7 @@ const FOLDERS = [
 export default function DemoFolders() {
   return (
     <section className="saved-folders" aria-labelledby="demo-folders-title">
-      <h2 id="demo-folders-title">Saved, in folders · sample</h2>
+      <h2 id="demo-folders-title">Saved, in folders</h2>
       {FOLDERS.map((folder) => (
         <div key={folder.name} className="saved-folders__group">
           <h3>{folder.name}</h3>

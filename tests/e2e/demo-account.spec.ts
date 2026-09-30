@@ -113,7 +113,11 @@ test("the demo's Been game ranks a sample place in the page alone, and scores it
 test("the demo's Friends leaderboard is sample people, labelled so, with your row marked", async ({ page }) => {
   await page.goto("/demo?view=friends");
   const boards = page.locator("#workspace section.boards");
-  await expect(boards.getByRole("heading", { name: /Leaderboards · sample/ })).toBeVisible({ timeout: 20_000 });
+  await expect(boards.getByRole("heading", { name: "Leaderboards" })).toBeVisible({ timeout: 20_000 });
+  // Folded by default: the closed board says where you stand, the list waits.
+  await expect(boards.locator("summary")).toContainText("You’re 2nd of 4 friends this month");
+  await expect(boards.locator(".boards__row").first()).toBeHidden();
+  await boards.locator("summary").click();
   await expect(boards).toContainText("Sample people, not real members.");
   const me = boards.locator(".boards__row[data-me]");
   await expect(me).toHaveCount(1);
@@ -134,7 +138,7 @@ test("the demo's Friends leaderboard is sample people, labelled so, with your ro
 test("the demo's Discover is the real catalogue: a sample Top places, a photo wall, and a Grid/Map toggle", async ({ page }) => {
   await page.goto("/demo?view=discover");
   const top = page.locator("#workspace section.top-places");
-  await expect(top.getByRole("heading", { name: /Top places in Dubai · sample/ })).toBeVisible({ timeout: 20_000 });
+  await expect(top.getByRole("heading", { name: "Top places in Dubai" })).toBeVisible({ timeout: 20_000 });
   await expect(top).toContainText("Sample scores on real places.");
   const scores = (await top.locator(".top-places__card b").allInnerTexts()).map(Number);
   expect(scores.length).toBeGreaterThan(0);

@@ -15,7 +15,8 @@ test.describe("demo", () => {
   test("every sample friend switches the card; Maya is locked, Sara is 87%", async ({ page }) => {
     await page.goto("/demo?view=friends");
     const crew = page.locator("#workspace section.crew");
-    await expect(crew.getByRole("heading", { name: "Crew match · sample" })).toBeVisible({ timeout: 20_000 });
+    await expect(crew.getByRole("heading", { name: "Crew match" })).toBeVisible({ timeout: 20_000 });
+    await crew.locator("summary").click(); // folded by default; the people come first
     const chips = crew.getByRole("group", { name: "Friend" }).getByRole("button");
     const names = await chips.allInnerTexts();
     expect(names.length).toBeGreaterThan(1);
@@ -52,6 +53,7 @@ test.describe("signed in", () => {
     await page.goto("/home?view=friends");
     const crew = page.locator("#workspace section.crew");
     await expect(crew.getByRole("heading", { name: "Crew match" })).toBeVisible({ timeout: 20_000 });
+    await crew.locator("summary").click(); // folded by default
     return crew;
   }
 

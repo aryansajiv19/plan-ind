@@ -46,7 +46,7 @@ function SampleTopPlaces({ spots }: { spots: Spot[] }) {
   return (
     <section className="top-places" aria-labelledby="top-places-title">
       <div className="top-places__head">
-        <h2 id="top-places-title">Top places {area ? `in ${area}` : "in Dubai"} · sample</h2>
+        <h2 id="top-places-title">Top places {area ? `in ${area}` : "in Dubai"}</h2>
         <select aria-label="Area" value={area ?? ""} onChange={(e) => setArea(e.target.value || null)}>
           <option value="">All Dubai</option>
           {areas.map((a) => <option key={a} value={a}>{a}</option>)}

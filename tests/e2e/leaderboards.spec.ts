@@ -44,6 +44,7 @@ async function openBoards(page: Page) {
   await page.goto("/home?view=friends");
   const boards = page.locator("section.boards");
   await expect(boards).toBeVisible({ timeout: 20_000 });
+  await boards.locator("summary").click(); // folded by default; friends come first
   return boards;
 }
 const scopeTab = (boards: ReturnType<Page["locator"]>, name: string) => boards.getByRole("tablist", { name: "Board" }).getByRole("tab", { name, exact: true });

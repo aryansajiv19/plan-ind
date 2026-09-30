@@ -6,7 +6,7 @@ import type { Personality } from "@/lib/personality";
 // Plan Personality: the headline trait big, the rest as evidence rows, and a
 // share that sends it as text (the native sheet on a phone, the clipboard on
 // a desktop). Locked, it says how many outings are left instead of guessing.
-export default function PersonalityCard({ name, personality, sample = false }: { name: string; personality: Personality; sample?: boolean }) {
+export default function PersonalityCard({ name, personality }: { name: string; personality: Personality; sample?: boolean }) {
   const [shared, setShared] = useState<"idle" | "copied" | "failed">("idle");
 
   if (!personality.unlocked) {
@@ -47,7 +47,7 @@ export default function PersonalityCard({ name, personality, sample = false }: {
   return (
     <section className="personality" aria-labelledby="personality-title">
       <div className="personality__head">
-        <h2 id="personality-title">Your Plan Personality{sample ? " · sample" : ""}</h2>
+        <h2 id="personality-title">Your Plan Personality</h2>
         <button type="button" className="personality__share" onClick={share}>
           {shared === "copied" ? "Copied" : "Share"}
         </button>

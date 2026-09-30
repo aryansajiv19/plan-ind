@@ -70,7 +70,7 @@ export default function MyPlacesShelf({ composer, age, sample }: { composer: Com
   return (
     <PlaceRow
       titleId="my-places-title"
-      title={sample ? "My places · sample, as your saved places would show" : full ? "My places. Three pinned, one per round." : "My places. Tap one to put it in the vote."}
+      title={sample ? "My places, as your saved places would show" : full ? "My places. Three pinned, one per round." : "My places. Tap one to put it in the vote."}
       cards={cards as RowCard[]}
       loading={!sample && (!custom.loaded || collected === null)}
       interactive={!sample}

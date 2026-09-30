@@ -19,7 +19,7 @@ export default function DemoLuna({ decks, onPick }: { decks: DemoDeck[]; onPick:
 
   return (
     <section className="plan-smart-search mt-6" aria-labelledby="demo-luna-heading">
-      <label id="demo-luna-heading" htmlFor="demo-luna-input" className="plan-form__label">Describe the night · sample</label>
+      <label id="demo-luna-heading" htmlFor="demo-luna-input" className="plan-form__label">Describe the night</label>
       <div className="plan-smart-search__bar">
         <input id="demo-luna-input" value={BRIEF} readOnly />
         <button type="button" onClick={() => { setAsked(true); onPick(deck); }}>Build it</button>

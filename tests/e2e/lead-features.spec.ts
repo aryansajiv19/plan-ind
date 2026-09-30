@@ -15,6 +15,9 @@ test.describe("Your Dubai", () => {
     await page.goto("/demo?view=been");
     const card = page.locator("#workspace section.explored");
     await expect(card).toBeVisible({ timeout: 20_000 });
+    // Folded by default: the closed card already says how far you've got.
+    await expect(card.locator("summary .explored__percent")).toBeVisible();
+    await card.locator("summary").click();
 
     // The districts marked visited are exactly the sample visits' districts.
     const lit = (await card.locator(".explored__district[data-been] .explored__name").allInnerTexts()).sort();
