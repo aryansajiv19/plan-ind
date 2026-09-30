@@ -567,7 +567,7 @@
   justify-content: center;
   gap: 0.45rem;
   padding: 1rem;
-  border: 1px dashed color-mix(in srgb, var(--color-ink) 35%, transparent);
+  border: 1px solid var(--color-line);
   color: var(--color-ink);
   cursor: pointer;
 }
@@ -580,8 +580,7 @@
 .demo-photo-upload strong {
   font-family: var(--font-display);
   font-size: 1.35rem;
-  font-weight: 700;
-  text-transform: uppercase;
+  font-weight: 600;
 }
 .demo-photo-upload small {
   color: var(--color-muted);

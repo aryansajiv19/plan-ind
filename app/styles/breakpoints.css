@@ -235,7 +235,9 @@
   }
   .demo-visit--featured .demo-visit__content {
     padding: 1rem 0 1.4rem;
-    border: 0;
+  }
+  .explored__districts {
+    grid-template-columns: 1fr 1fr;
   }
   .demo-account-stats {
     grid-template-columns: repeat(2, 1fr);
