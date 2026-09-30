@@ -43,6 +43,9 @@
 
 /* The wordmark: the display serif alone, no badge (owner, 2026-09-30). */
 .home-logo {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem; /* the 44px tap floor; the old badge got it from its box */
   flex-shrink: 0;
   color: var(--color-ink);
   font-family: var(--font-display);
@@ -396,6 +399,7 @@
    together" reads on the first screen. */
 .home-hero__group {
   margin-top: 1.5rem;
+  min-height: 2.75rem;
   display: inline-flex;
   align-items: center;
   gap: 0.7rem;

@@ -43,7 +43,9 @@
   border-right: 1px solid var(--auth-line);
 }
 .auth-mark {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
   color: var(--auth-ink);
   font-family: var(--font-display);
   font-size: 1.7rem;
