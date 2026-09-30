@@ -1,16 +1,15 @@
 /* app/styles/tokens.css — Design tokens: the text floor, @theme, the night palette, radii, button padding. */
 
 /* ── Desktop text floor and page gutter ─────────────────────────────
-   Small sizes are written max(value, var(--type-floor)): 0 on phones,
-   12px from tablet up (a web app first). --page-gutter is the one side
-   margin every rail shares. */
+   Small sizes are written max(value, var(--type-floor)): 12px on every
+   screen. Phones had no floor, and the tab bar and chips fell to 10px.
+   --page-gutter is the one side margin every rail shares. */
 :root {
-  --type-floor: 0px;
+  --type-floor: 0.75rem;
   --page-gutter: 1rem;
 }
 @media (min-width: 641px) {
   :root {
-    --type-floor: 0.75rem;
     --page-gutter: 2rem;
   }
 }

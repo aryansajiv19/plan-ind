@@ -704,6 +704,10 @@
   font-size: max(0.85rem, var(--type-floor));
 }
 .mini-map figcaption a {
+  /* A 44px tap target that doesn't push the caption taller. */
+  display: inline-block;
+  padding-block: 0.75rem;
+  margin-block: -0.75rem;
   color: var(--color-punch-text);
   font-weight: 600;
 }

@@ -281,6 +281,10 @@
   font-weight: 700;
 }
 .home-demo-banner a {
+  /* A 44px tap target that doesn't push the banner taller. */
+  display: inline-block;
+  padding-block: 0.8rem;
+  margin-block: -0.8rem;
   color: var(--color-ink);
   font-weight: 600;
   text-decoration: underline;
