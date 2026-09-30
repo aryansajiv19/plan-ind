@@ -5,6 +5,8 @@ import { motion, useReducedMotion } from "motion/react";
 import type { ProfileVisit, Spot } from "@/lib/types";
 import PhotoTile, { type WallNote } from "@/components/PhotoTile";
 import VisitTile from "@/components/VisitTile";
+import { useGooglePhotos } from "@/components/VenuePhoto";
+import { hasRealPhoto } from "@/lib/venue-photo";
 
 /** A pin is a non-photo card that sits IN the wall, not in a sidebar. */
 export interface WallPin {
@@ -32,6 +34,8 @@ const HEIGHTS = [330, 250, 240, 360, 200, 300, 230, 280, 210, 270];
 /** The stagger. Four columns, four different starting offsets. */
 const COLUMN_OFFSETS = [0, 46, 16, 64];
 const COLUMNS = 4;
+/** A photo-less tile: the printed kind needs a band, not a photograph's height. */
+const PRINTED_HEIGHT = 150;
 
 /**
  * The four-column staggered wall from turn 9 / 10a.
@@ -56,6 +60,7 @@ export default function PhotoWall({
   emptyMessage?: string;
 }) {
   const reduced = useReducedMotion();
+  const google = useGooglePhotos();
 
   if (loading) {
     return (
@@ -110,7 +115,9 @@ export default function PhotoWall({
                   <PhotoTile
                     spot={item.spot}
                     note={item.note}
-                    height={HEIGHTS[index % HEIGHTS.length]}
+                    // A printed tile (no photograph) stays short: tall empty
+                    // panels read as missing photos, not as a choice.
+                    height={hasRealPhoto(item.spot, google) ? HEIGHTS[index % HEIGHTS.length] : PRINTED_HEIGHT}
                   />
                 ) : item.kind === "visit" ? (
                   <VisitTile
