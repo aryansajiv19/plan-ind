@@ -40,7 +40,6 @@ const ActionSearchBar = dynamic(() => import("@/components/kokonutui/action-sear
 export default function HomeExperience({
   name,
   greeting: serverGreeting,
-  dateLabel,
   emoji = null,
   age = 21,
   demoMode = false,
@@ -68,8 +67,6 @@ export default function HomeExperience({
   name: string;
   /** P28: computed on the server on the Dubai clock, so the first paint says it. */
   greeting?: string;
-  /** Landing only: today on the Dubai calendar, for the cover's issue band. */
-  dateLabel?: string;
   /** The account's chosen emoji, or null when none is chosen. */
   emoji?: string | null;
   age?: number;
@@ -261,7 +258,7 @@ export default function HomeExperience({
             <ActionSearchBar age={age} onQuickAction={showView} />
           </div>
           <ThemeToggle />
-          <button type="button" className="home-nav__link" onClick={() => showView("plan")}>Make a plan</button>
+          <button type="button" className="home-nav__link" onClick={() => showView("plan")}>Start a plan</button>
           <button
             type="button"
             className="home-avatar"
@@ -283,7 +280,7 @@ export default function HomeExperience({
       {fixtures && (
         <p className="home-demo-banner" role="note">
           <strong>Sample data.</strong> This is a demo account. The people, visits and photos are made up, and nothing here saves.{" "}
-          <Link href="/login?next=/home">Start your own plan →</Link>
+          <Link href="/login?next=/home">Start a plan</Link>
         </p>
       )}
 
@@ -296,13 +293,13 @@ export default function HomeExperience({
       {/* The pitch is for the front door only; /demo is an account, so it
           opens on the app's first screen like a signed-in one. */}
       {demoMode && !fixtures ? (
-      <HomeHero greeting={greeting} dateLabel={dateLabel} name={name} fixtures={fixtures} spots={spots} counts={counts} />
+      <HomeHero spots={spots} counts={counts} />
       ) : (
         <section id="top" className="home-appbar" aria-labelledby="home-title">
           {/* The heading speaks first; the greeting follows it, not a label above it. */}
           <h1 id="home-title" className="home-appbar__title">What are we doing?</h1>
           <p className="home-appbar__hello">{greeting}{name ? `, ${name}` : ""}.</p>
-          {fixtures && <Link href="/demo/vote" className="home-appbar__sample">See a sample vote, start to finish</Link>}
+          {fixtures && <Link href="/demo/vote" className="home-appbar__sample">Try the vote</Link>}
         </section>
       )}
       {demoMode ? !fixtures && <HowItWorks /> : <YourPlans plans={myPlans} unavailable={myPlansUnavailable} />}

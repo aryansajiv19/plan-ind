@@ -4,7 +4,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { curatedCounts, curatedWall } from "@/lib/spots/catalogue";
 import type { Spot } from "@/lib/types";
 import { WALL_POOL, WALL_SIZE } from "@/lib/home-views";
-import { greetingFor, issueDate, pickRightNow } from "@/lib/right-now";
+import { greetingFor, pickRightNow } from "@/lib/right-now";
 
 // The front door: the pitch, a live sample vote, the composer in its
 // sign-in-first state, and the "Dubai, right now" wall, so a visitor sees
@@ -26,5 +26,5 @@ export default async function IndexPage() {
   const now = new Date();
   const spots = pickRightNow(wall.data ?? [], now, WALL_SIZE) as unknown as Spot[];
 
-  return <HomeExperience name="" greeting={greetingFor(now)} dateLabel={issueDate(now)} demoMode spots={spots} counts={counts.data} smartSearchAvailable={Boolean(process.env.OPENAI_API_KEY)} />;
+  return <HomeExperience name="" greeting={greetingFor(now)} demoMode spots={spots} counts={counts.data} smartSearchAvailable={Boolean(process.env.OPENAI_API_KEY)} />;
 }

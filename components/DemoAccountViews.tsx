@@ -193,7 +193,7 @@ export default function DemoAccountViews({
       <section className="demo-view" aria-labelledby="friends-title">
         <header className="demo-view__header demo-view__header--split">
           <div><h1 id="friends-title">The people you actually go out with.</h1></div>
-          <button type="button" className="demo-primary-action" onClick={() => onStartPlan()}>Start a group plan</button>
+          <button type="button" className="demo-primary-action" onClick={() => onStartPlan()}>Start a plan</button>
         </header>
 
         <DemoLeaderboard />

@@ -2,7 +2,7 @@ import HomeExperience from "@/components/HomeExperience";
 import { curatedDiscover, curatedWall } from "@/lib/spots/catalogue";
 import type { Spot } from "@/lib/types";
 import { viewFromParam, WALL_POOL, WALL_SIZE } from "@/lib/home-views";
-import { greetingFor, issueDate, pickRightNow } from "@/lib/right-now";
+import { greetingFor, pickRightNow } from "@/lib/right-now";
 
 // The public demo: the account tabs filled with DemoAccountViews' fixtures,
 // so someone can see a finished plan, a visit log and a friends list without
@@ -27,5 +27,5 @@ export default async function DemoPage({ searchParams }: { searchParams: Promise
   const now = new Date();
   // The landing's tabs link here (?view=been): open that tab on first paint.
   const initialView = viewFromParam((await searchParams).view);
-  return <HomeExperience name="Sample member" greeting={greetingFor(now)} dateLabel={issueDate(now)} demoMode fixtures initialView={initialView} demoCatalogue={(discover.data ?? undefined) as unknown as Spot[] | undefined} spots={pickRightNow(data ?? [], now, WALL_SIZE) as unknown as Spot[]} smartSearchAvailable={Boolean(process.env.OPENAI_API_KEY)} />;
+  return <HomeExperience name="Sample member" greeting={greetingFor(now)} demoMode fixtures initialView={initialView} demoCatalogue={(discover.data ?? undefined) as unknown as Spot[] | undefined} spots={pickRightNow(data ?? [], now, WALL_SIZE) as unknown as Spot[]} smartSearchAvailable={Boolean(process.env.OPENAI_API_KEY)} />;
 }

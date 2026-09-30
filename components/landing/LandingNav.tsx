@@ -38,7 +38,7 @@ export default function LandingNav({ signedIn = false }: { signedIn?: boolean })
         <ThemeToggle />
         {!signedIn && <Link href="/login" className="home-nav__login">Sign in</Link>}
         <Link href={signedIn ? "/home" : "/#plan-lab"} className="home-nav__signin">
-          {signedIn ? "Make a plan" : "Start a plan"}
+          Start a plan
         </Link>
       </div>
     </header>

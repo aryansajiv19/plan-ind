@@ -23,17 +23,9 @@ const GROUP_LINE = `${first(SAMPLE_FRIENDS[0])}, ${first(SAMPLE_FRIENDS[1])} + $
  * still takes its tile, set as type, so the cover is never a hole.
  */
 export default function HomeHero({
-  greeting,
-  dateLabel,
-  name,
-  fixtures,
   spots,
   counts,
 }: {
-  greeting: string;
-  dateLabel?: string;
-  name: string;
-  fixtures: boolean;
   spots: Spot[];
   counts?: CuratedCounts | null;
 }) {
@@ -44,11 +36,10 @@ export default function HomeHero({
 
   return (
     <section id="top" className="home-hero" aria-labelledby="home-title">
+      {/* One line, not a ticker: the steps are told just below the cover. */}
       <p className="cover__band">
-        <span className="cover__issue">{greeting}{name ? `, ${name}` : ""}{dateLabel ? ` · ${dateLabel}` : ""}</span>
         <strong>Tonight in Dubai</strong>
-        {counts ? <span>{counts.places} places{counts.categories ? ` · ${counts.categories} kinds of night` : ""}</span> : null}
-        <span>Nine dealt · three rounds · one winner</span>
+        {counts ? <span>{counts.places} places, {counts.categories} kinds of night</span> : null}
       </p>
 
       <div className="cover__mosaic" aria-hidden="true">
@@ -76,12 +67,10 @@ export default function HomeHero({
         </p>
 
         <div className="home-actions">
-          <a href="#plan-lab" className="home-primary-cta">Start a plan</a>
-          {/* The product without an email: /demo/vote plays the whole journey,
-              sample data, no account. */}
-          <Link href="/demo/vote" className="home-secondary-cta">
-            {fixtures ? "See a sample vote" : "Try it, no sign-up"}
-          </Link>
+          {/* The product without an email leads: /demo/vote plays the whole
+              journey on sample data, no account. Planning for real follows. */}
+          <Link href="/demo/vote" className="home-primary-cta">Try the demo</Link>
+          <a href="#plan-lab" className="home-secondary-cta">Start a plan</a>
         </div>
 
         <Link href="/demo/vote" className="home-hero__group">

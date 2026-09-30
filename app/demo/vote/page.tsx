@@ -41,7 +41,7 @@ export default async function DemoVotePage() {
     <main className="vote-experience mx-auto w-full max-w-4xl px-4 py-6 sm:py-10">
       <p className="home-demo-banner" role="note">
         <strong>Sample data.</strong> Real places, a made up group. Your votes stay on this screen and nothing saves.{" "}
-        <Link href="/login" className="inline-flex min-h-11 items-center">Start your own plan →</Link>
+        <Link href="/login" className="inline-flex min-h-11 items-center">Start a plan</Link>
       </p>
       <NoGooglePhotos>
         <DemoJourney decks={decks} eventTime={nextThursdayEvening(new Date())} />

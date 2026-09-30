@@ -134,7 +134,7 @@ export default function SampleDecided({
           champagne, which would put champagne text on the ink-filled CTA. */}
       <div className="mt-5 flex flex-col gap-3 sm:flex-row">
         <Link href="/login?next=/home" className="vote-primary-action flex-1 rounded-2xl border-2 border-ink text-lg">
-          Start your own plan
+          Start a plan
         </Link>
         <button type="button" onClick={onReplay} className="vote-secondary-action rounded-2xl border-2 border-ink bg-card">
           Try another kind of night
