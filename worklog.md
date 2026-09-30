@@ -271,3 +271,20 @@ Owner brief: coherence, not a redesign. No features, palette, DB or voting chang
 - Open: the landing group line sits below the fold on phones (the mosaic comes
   first there); docs/FRONTEND_DESIGN_STANDARDS.md colour/type tables are stale
   (Newsreader, palette v3); two demo fixture sets spell Maya/Omar differently.
+
+## 2026-09-30 — Quiet refinement pass (reference-led: Beli, Apple Invites, Luma, Dorsia)
+
+Only screens that failed "would Beli or Apple need this box?"; vote, hero,
+composer, winner and nav left alone.
+- **Friends:** leaderboard and crew match are ranked rows on the page (hairlines,
+  numerals, your row tinted), not bordered panels of filled pills.
+- **Been:** 17 districts as a two-column list, no dashed boxes (~1,100px to ~450px
+  on a phone); every visit card alike; a plain upload target.
+- **Discover:** photo-less tiles are short printed bands; generic cuisines
+  (Restaurant, International, Regional, Multi) print the kind of night.
+- **Saved:** one filled action per screen; "Plan from this board" is an outline.
+- **Place page:** "Plan a night here" under the description; hero chip in words.
+- **Test:** lead-features route replay raced a sub-100 ms blank caption (failed on
+  main's code too, by time of day); it now asserts the reset to step 1 after the
+  run passes step 1, which fails without Replay (checked on production).
+
