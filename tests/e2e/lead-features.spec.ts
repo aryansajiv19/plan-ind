@@ -126,11 +126,14 @@ test.describe("the decided sample plan", () => {
     // Driving ends at the door: parking, or a drop-off.
     await expect(steps.last()).toHaveText(/^(Park: .+|Drop off at the entrance)$/);
 
-    // Replay: the caption clears, then the run starts again from step 1.
+    // Replay: the run starts again from step 1. Wait until it has moved past
+    // step 1 first, or a mode change's own restart would pass for a replay.
+    // (The caption's blank moment between runs is under 100 ms, too short to
+    // assert on reliably; the reset to 1 is the behaviour that matters.)
     const now = route.locator(".route-journey__now");
     await expect(now).toBeVisible({ timeout: 10_000 });
+    await expect(now.locator("span")).not.toHaveText("1", { timeout: 15_000 });
     await route.getByRole("button", { name: "Replay" }).click();
-    await expect(now).toHaveCount(0);
     await expect(now.locator("span")).toHaveText("1", { timeout: 5_000 });
     expect(errors).toEqual([]);
   });
