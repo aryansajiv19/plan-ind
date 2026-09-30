@@ -8,7 +8,8 @@ import PlaceScoreChip from "@/components/ranking/PlaceScoreChip";
 import { createClient } from "@/lib/supabase/server";
 import VenuePhoto from "@/components/VenuePhoto";
 import { hasVenuePhoto } from "@/lib/venue-photo";
-import { categoryLabel, categoryMeta } from "@/lib/categories";
+import { categoryMeta } from "@/lib/categories";
+import { categoryName } from "@/components/categoryGroups";
 import { knownMinSpend, knownPriceBand } from "@/lib/price";
 import { getCurrentUser, safeNextPath } from "@/lib/auth";
 import PlaceDirectPlanCta from "@/components/PlaceDirectPlanCta";
@@ -87,7 +88,7 @@ export default async function PlacePage({
         <div className="place-hero__scrim" aria-hidden="true" />
         {/* The kind in words, a chip in the band's corner: not a code, and not
             a label stacked over the name. */}
-        <p className="place-hero__category">{categoryLabel(spot.category)}</p>
+        <p className="place-hero__category">{categoryName(spot.category)}</p>
         <div className="place-hero__body">
           <h1 className="place-hero__name">{spot.name}</h1>
           <p className="place-hero__area">{spot.area}</p>
