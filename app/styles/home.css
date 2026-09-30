@@ -267,8 +267,10 @@
   min-height: min(calc(100svh - 4.5rem), 54rem);
   display: grid;
   grid-template-rows: auto 1fr;
-  background: #0a1f28;
-  color: var(--photo-ink);
+  /* The page's own ground and ink, so nav and cover are one surface in both
+     themes (a fixed navy here left a white nav over a navy cover by day). */
+  background: var(--color-paper);
+  color: var(--color-ink);
   overflow: hidden;
 }
 
@@ -336,8 +338,8 @@
   z-index: 2;
   pointer-events: none;
   background:
-    linear-gradient(90deg, #0a1f28 0%, rgba(9, 28, 36, 0.5) 18%, transparent 38%),
-    linear-gradient(0deg, rgba(9, 28, 36, 0.6) 0%, transparent 30%);
+    linear-gradient(90deg, var(--color-paper) 0%, color-mix(in srgb, var(--color-paper) 50%, transparent) 18%, transparent 38%),
+    linear-gradient(0deg, color-mix(in srgb, var(--color-paper) 60%, transparent) 0%, transparent 30%);
 }
 /* Credits ride above the fade, top-right of each tile. */
 
@@ -374,15 +376,20 @@
 }
 @keyframes home-rise-line { from { transform: translateY(1.15em); opacity: 0; } 60% { opacity: 1; } }
 
+/* Sand by night; by day the sand fill is 2.3:1 on paper, so the copper
+   line tone (3.7:1, large display text) carries the gold. */
 .home-title strong {
-  color: var(--color-punch);
+  color: var(--color-line);
   font-weight: 700;
+}
+[data-theme="night"] .home-title strong {
+  color: var(--color-punch);
 }
 
 .home-deck {
   max-width: 34rem;
   margin-top: 1.6rem;
-  color: var(--photo-body);
+  color: var(--color-muted);
   font-size: clamp(1rem, 1.4vw, 1.2rem);
   line-height: 1.5;
 }
@@ -397,18 +404,22 @@
 
 /* One line of the sample group mid-vote: faces first, so "friends deciding
    together" reads on the first screen. */
+/* A little less overlap than the vote cards' stack, so every initial reads. */
+.home-hero__group .vote-face-stack > span + span {
+  margin-left: -0.2rem;
+}
 .home-hero__group {
   margin-top: 1.5rem;
   min-height: 2.75rem;
   display: inline-flex;
   align-items: center;
   gap: 0.7rem;
-  color: color-mix(in srgb, var(--photo-ink) 82%, transparent);
+  color: var(--color-muted);
   font-size: max(0.8rem, var(--type-floor));
   text-decoration: none;
 }
 .home-hero__group strong {
-  color: var(--photo-ink);
+  color: var(--color-ink);
   font-weight: 500;
 }
 .home-hero__group:hover > span:last-child {
@@ -433,7 +444,7 @@
 
 .home-secondary-cta {
   padding: 0.75rem 0.25rem;
-  color: var(--photo-ink);
+  color: var(--color-ink);
   font-weight: 700;
   text-decoration: underline;
   text-decoration-color: var(--color-punch);
