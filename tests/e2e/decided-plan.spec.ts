@@ -37,7 +37,7 @@ test("a decided plan shows at a glance, Who's in above When, a story card, and p
     expect(card.headers()["content-type"]).toContain("image/png");
     const download = page.waitForEvent("download");
     await page.getByRole("button", { name: "Share to story" }).click();
-    expect((await download).suggestedFilename()).toBe("deal-three-plan.png");
+    expect((await download).suggestedFilename()).toBe("planind-plan.png");
 
     await page.getByRole("button", { name: "Plan another like this" }).click();
     await expect(page).toHaveURL(/\/home$/, { timeout: 20_000 });

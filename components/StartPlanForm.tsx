@@ -70,7 +70,7 @@ export default function StartPlanForm({
   const modeToggle = !demoMode && (
     <div className="plan-mode-toggle" role="group" aria-label="How do you want to plan?">
       <button type="button" aria-pressed={mode === "deal"} onClick={() => setMode("deal")}>
-        Deal three rounds
+        Let the group vote
       </button>
       <button type="button" aria-pressed={mode === "direct"} onClick={() => setMode("direct")}>
         I already know where

@@ -29,7 +29,7 @@ export function validateBirthDate(value: unknown, now = new Date()): { dateOfBir
   const dateOfBirth = typeof value === "string" ? value.trim() : "";
   const age = ageOnDate(dateOfBirth, now);
   if (age === null) return { error: "Enter a real date of birth." };
-  if (age < MIN_ACCOUNT_AGE) return { error: `Deal three is for people ${MIN_ACCOUNT_AGE} and older.` };
+  if (age < MIN_ACCOUNT_AGE) return { error: `Planind is for people ${MIN_ACCOUNT_AGE} and older.` };
   return { dateOfBirth, age };
 }
 

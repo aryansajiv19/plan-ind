@@ -1,7 +1,6 @@
 import Link from "next/link";
 import WinnerReveal from "@/components/WinnerReveal";
 import { avatarStyle, initialsOf } from "@/lib/avatar";
-import { categoryMeta } from "@/lib/categories";
 import { votersFor, yesCount, type Round } from "@/lib/tally";
 import type { Spot, Vote } from "@/lib/types";
 import { SAMPLE_FRIENDS, SAMPLE_PLAN, SAMPLE_VOTER } from "@/components/demo/sampleDecision";
@@ -55,7 +54,7 @@ export default function SampleDecided({
 
   return (
     <>
-      <div className="vote-result mt-6 rounded-2xl border-2 border-punch bg-punch/5 p-4 sm:p-5">
+      <div className="vote-result mt-6">
         <WinnerReveal
           name={winner.name}
           spot={winner}
@@ -63,9 +62,6 @@ export default function SampleDecided({
         />
 
         <div className="flex items-center gap-3">
-          <span className="vote-result__category grid h-12 w-12 shrink-0 place-items-center rounded-xl text-2xl" aria-hidden="true">
-            {categoryMeta(winner.category).code}
-          </span>
           <div>
             <p className="vote-kicker text-xs font-bold uppercase tracking-wide">Decided · you’re going</p>
             <p className="mt-1 inline-flex items-center gap-2 text-sm text-muted">
@@ -88,29 +84,9 @@ export default function SampleDecided({
           <span className="text-muted"> · {[winner.area, hoursLabel(winner.open_till), knownMinSpend(winner) != null && `from AED ${winner.min_spend}pp`].filter(Boolean).join(" · ")}</span>
         </p>
 
-        <div className="mt-4 border-t border-line pt-4">
-          <p className="text-xs font-bold uppercase tracking-wide text-muted">How the group got here</p>
-          <ol className="mt-2 grid gap-1.5 text-sm">
-            {finalists.map((id, index) => {
-              const spot = pools[index].find((candidate) => candidate.id === id);
-              const round: Round = { phase: "pool", poolNumber: index + 1 };
-              return (
-                <li key={id} className="flex justify-between gap-3">
-                  <span><span className="text-muted">Round {index + 1} · </span>{spot?.name}</span>
-                  <span className="shrink-0 tabular-nums text-muted">{yesCount(votes, id, round)} of {GROUP_SIZE}</span>
-                </li>
-              );
-            })}
-            <li className="flex justify-between gap-3 font-medium">
-              <span><span className="text-muted">Final · </span>{winner.name}</span>
-              <span className="shrink-0 tabular-nums">{finalVoters.length} of {GROUP_SIZE}</span>
-            </li>
-          </ol>
-        </div>
-
+        {/* The payoff first: when and booking, who's in, how to get there.
+            The round-by-round recap is history, so it waits behind a toggle. */}
         <DemoBooking winner={winner} title={title} eventTime={eventTime} />
-
-        <GettingThere plan={SAMPLE_START} winner={winner} />
 
         <div className="mt-4 border-t border-line pt-4">
           <p className="text-xs font-bold uppercase tracking-wide text-muted">Who’s in and how they’re getting there · sample</p>
@@ -129,6 +105,29 @@ export default function SampleDecided({
             On a real plan everyone sets their own, from their own phone.
           </p>
         </div>
+
+        <GettingThere plan={SAMPLE_START} winner={winner} />
+
+        <details className="mt-4 border-t border-line pt-4">
+          <summary className="cursor-pointer text-xs font-medium uppercase tracking-wide text-muted">How the group got here</summary>
+          <ol className="mt-2 grid gap-1.5 text-sm">
+            {finalists.map((id, index) => {
+              const spot = pools[index].find((candidate) => candidate.id === id);
+              const round: Round = { phase: "pool", poolNumber: index + 1 };
+              return (
+                <li key={id} className="flex justify-between gap-3">
+                  <span><span className="text-muted">Round {index + 1} · </span>{spot?.name}</span>
+                  <span className="shrink-0 tabular-nums text-muted">{yesCount(votes, id, round)} of {GROUP_SIZE}</span>
+                </li>
+              );
+            })}
+            <li className="flex justify-between gap-3 font-medium">
+              <span><span className="text-muted">Final · </span>{winner.name}</span>
+              <span className="shrink-0 tabular-nums">{finalVoters.length} of {GROUP_SIZE}</span>
+            </li>
+          </ol>
+        </details>
+
       </div>
 
       {/* Outside .vote-result on purpose: its `a` rule recolours links to

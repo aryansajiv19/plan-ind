@@ -17,7 +17,7 @@ export function isPlanId(id: unknown): id is string {
   return typeof id === "string" && UUID_RE.test(id);
 }
 
-export const SITE_NAME = "Deal three";
+export const SITE_NAME = "Planind";
 export const GENERIC_PLAN_TITLE = "A Dubai plan to vote on";
 const SIGN_IN_NOTE = "Sign in with Google or an email code in seconds.";
 export const GENERIC_PLAN_DESCRIPTION =

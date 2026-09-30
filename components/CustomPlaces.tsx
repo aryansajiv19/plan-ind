@@ -148,7 +148,7 @@ export function useCustomPlaces(category: string, setError: (message: string | n
       return;
     }
     if (prohibitedVenueReason(cleanName, note, address)) {
-      setError("That place is outside Deal three's mainstream social venue policy.");
+      setError("That place is outside Planind's mainstream social venue policy.");
       return;
     }
     if (editingId) return update(editingId);

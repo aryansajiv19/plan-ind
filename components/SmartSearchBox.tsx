@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { secureJsonFetch } from "@/lib/security/csrf-client";
+import { intentFacts } from "@/lib/composer-intent";
 
 export interface SmartIntent {
   category: string;
@@ -59,10 +60,10 @@ export default function SmartSearchBox({
       });
       const result = await response.json() as { intent?: SmartIntent; error?: string };
       if (response.status === 401) setSignedOut(true);
-      if (!response.ok || !result.intent) throw new Error(result.error ?? "Smart search failed.");
+      if (!response.ok || !result.intent) throw new Error(result.error ?? "That didn’t work. Try again.");
       setNote(onIntent(result.intent));
     } catch (smartSearchError) {
-      setError(smartSearchError instanceof Error ? smartSearchError.message : "Smart search failed.");
+      setError(smartSearchError instanceof Error ? smartSearchError.message : "That didn’t work. Try again.");
     } finally {
       setLoading(false);
     }
@@ -72,7 +73,7 @@ export default function SmartSearchBox({
     // The composer's first line (StartPlanForm). Enter builds the search here; it must
     // never submit the deal form this sits in.
     <section className="plan-smart-search" aria-labelledby="smart-search-heading">
-      <label id="smart-search-heading" htmlFor="smart-search-input" className="plan-form__label">Describe the night to Luna</label>
+      <label id="smart-search-heading" htmlFor="smart-search-input" className="plan-form__label">Describe the night</label>
       <div className="plan-smart-search__bar">
         <input
           id="smart-search-input"
@@ -88,7 +89,7 @@ export default function SmartSearchBox({
             if (demoMode) onSignIn();
             else if (!loading) void interpret();
           }}
-          placeholder="A quiet terrace near Jumeirah, about AED 250 each"
+          placeholder="Quiet dinner near Jumeirah, around AED 250 each"
           maxLength={600}
         />
         {demoMode ? (
@@ -105,9 +106,8 @@ export default function SmartSearchBox({
       )}
       {intent && (
         <div className="plan-smart-result" aria-live="polite">
-          <div><strong>{intent.summary}</strong></div>
+          <p className="plan-smart-result__facts">{intentFacts(intent).join(" · ")}</p>
           {note && <p>{note}</p>}
-          <div>{intent.occasion && <span>{intent.occasion}</span>}{intent.vibeKeywords.map((keyword) => <span key={keyword}>{keyword}</span>)}{intent.maxBudget != null && <span>≤ AED {intent.maxBudget} pp</span>}</div>
         </div>
       )}
     </section>

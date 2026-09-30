@@ -26,8 +26,8 @@ export default function Error({
   return (
     <main className="auth-shell error-shell">
       <div className="error-panel">
-        <Link href="/" className="auth-mark" aria-label="Deal three home">
-          <span>D/</span><b>03</b>
+        <Link href="/" className="auth-mark" aria-label="Planind home">
+          Planind
         </Link>
         <p className="auth-kicker">Something broke</p>
         <h1>That didn’t load right.</h1>
@@ -35,7 +35,7 @@ export default function Error({
           Try again, or head back and pick up where you left off.
         </p>
         <button type="button" className="auth-submit" onClick={reset}>Try again</button>
-        <Link href="/" className="auth-link">Back to Deal three</Link>
+        <Link href="/" className="auth-link">Back to Planind</Link>
       </div>
     </main>
   );

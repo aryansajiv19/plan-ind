@@ -31,7 +31,7 @@ export default async function OnboardingPage({
     <main className="auth-shell">
       <div className="auth-frame">
         <section className="auth-intro" aria-labelledby="onboarding-title">
-          <Link href="/" className="auth-mark" aria-label="Deal three home"><span>D/</span><b>03</b></Link>
+          <Link href="/" className="auth-mark" aria-label="Planind home">Planind</Link>
           <p className="auth-kicker">One quick detail</p>
           <h1 id="onboarding-title">Suggestions that<br /><em>fit the group.</em></h1>
           <p className="auth-copy">Some places in Dubai have an age requirement. Knowing your date of birth lets us leave those out instead of suggesting somewhere the group can&rsquo;t actually get into.</p>

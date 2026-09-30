@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getLegalConfig } from "@/lib/legal";
 
-export const metadata: Metadata = { title: "Privacy | Deal three" };
+export const metadata: Metadata = { title: "Privacy | Planind" };
 
 // This page has no dynamic API in its tree, so Next would otherwise
 // prerender it once at build time — baking in whatever hour the build
@@ -14,7 +14,7 @@ export default function PrivacyPage() {
   const legal = getLegalConfig();
   return (
     <main className="legal-page">
-      <Link href="/" className="legal-page__back">Deal three</Link>
+      <Link href="/" className="legal-page__back">Planind</Link>
       <article>
         <h1>Privacy policy</h1>
         <p className="legal-page__date">Effective 19 August 2026</p>

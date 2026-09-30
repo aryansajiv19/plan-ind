@@ -4,7 +4,7 @@ import { minimumAgeForCategory } from "@/lib/age-policy";
 import { CATEGORIES, CATEGORY_GROUPS, type GroupKey } from "@/components/categoryGroups";
 import type { SmartIntent } from "@/components/SmartSearchBox";
 
-/** P25: Luna's budget or radius, snapped to the nearest chip the form offers (ties go up). */
+/** P25: the brief's budget or radius, snapped to the nearest chip the form offers (ties go up). */
 export function nearestOption(options: readonly (number | null)[], value: number | null): number | null {
   if (value == null) return null;
   const numbers = options.filter((option): option is number => option != null);
@@ -21,7 +21,7 @@ export interface IntentForm {
   message: string | null;
 }
 
-/** Luna's intent as the composer form should take it. A kind it can't use keeps `currentLabel`, and says so. */
+/** The described night as the composer form should take it. A kind it can't use keeps `currentLabel`, and says so. */
 export function intentToForm(intent: SmartIntent, age: number, currentLabel: string): IntentForm {
   const matched = CATEGORIES.find((item) => item.key === intent.category);
   const group = CATEGORY_GROUPS.find((g) => g.categories.some((item) => item.key === intent.category))?.key ?? null;
@@ -32,8 +32,19 @@ export function intentToForm(intent: SmartIntent, age: number, currentLabel: str
     origin: DUBAI_ORIGINS.find((origin) => origin.value === intent.origin)?.value ?? null,
     maxBudget: nearestOption(DEAL_BUDGET_OPTIONS, intent.maxBudget),
     radiusKm: intent.origin === "anywhere" ? null : nearestOption(DEAL_RADIUS_OPTIONS_KM, intent.radiusKm ?? 20),
-    message: !matched ? `Luna suggested a kind of place the app doesn’t list, so this stays ${currentLabel}.`
+    message: !matched ? `That kind of place isn’t listed here, so this stays ${currentLabel}.`
       : !usable ? `${matched.label} is ${minimumAge}+, so this stays ${currentLabel}.`
         : null,
   };
+}
+
+/**
+ * What the brief set, as one line of facts: "Dinner · Jumeirah · ≤ AED 250 · relaxed".
+ * Only what the form can take: an unlisted kind and "anywhere" are left out.
+ */
+export function intentFacts(intent: Pick<SmartIntent, "category" | "origin" | "maxBudget" | "vibeKeywords">): string[] {
+  const kind = CATEGORIES.find((item) => item.key === intent.category)?.label;
+  const area = intent.origin === "anywhere" ? null : DUBAI_ORIGINS.find((origin) => origin.value === intent.origin)?.label;
+  return [kind, area, intent.maxBudget != null ? `≤ AED ${intent.maxBudget}` : null, intent.vibeKeywords[0]]
+    .filter((fact): fact is string => Boolean(fact));
 }

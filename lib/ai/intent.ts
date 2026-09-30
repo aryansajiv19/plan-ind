@@ -172,7 +172,7 @@ export function intentFromResponse(response: IntentResponse, age: number): Inten
     return {
       ok: false,
       status: 422,
-      error: "Smart search can’t help with that request. Describe a different plan instead.",
+      error: "That isn’t something Planind can plan. Describe a different night instead.",
       reason: "refused",
     };
   }
@@ -193,7 +193,7 @@ export function intentFromResponse(response: IntentResponse, age: number): Inten
     return {
       ok: false,
       status: 502,
-      error: "Smart search couldn’t interpret that right now. Try again.",
+      error: "That couldn’t be read right now. Try again.",
       reason: "unparseable",
     };
   }
@@ -245,9 +245,9 @@ export function mapModelError(error: unknown): {
   if (api && (api.status === 429 || api.code === "insufficient_quota")) {
     return {
       status: 503,
-      error: "Smart search is temporarily unavailable because its AI usage credits are exhausted.",
+      error: "Describing the night is paused because its usage credits are exhausted. Pick a kind of place below instead.",
       details,
     };
   }
-  return { status: 502, error: "Smart search couldn’t interpret that right now. Try again.", details };
+  return { status: 502, error: "That couldn’t be read right now. Try again.", details };
 }

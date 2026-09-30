@@ -6,7 +6,7 @@ import InviteAccept from "@/components/InviteAccept";
 // The token lives in the URL fragment, which browsers never send to a server
 // or put in a Referer — no-referrer is the second belt on the same leak.
 export const metadata: Metadata = {
-  title: "Friend invite | Deal three",
+  title: "Friend invite | Planind",
   referrer: "no-referrer",
   robots: { index: false, follow: false },
 };

@@ -1,7 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Deal three">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Planind">
   <rect width="512" height="512" rx="96" fill="#ce9963"/>
-  <g fill="#3f230b" font-family="'Cormorant Garamond', Georgia, 'Times New Roman', serif" font-weight="600" text-anchor="middle">
-    <text x="215" y="325" font-size="240" letter-spacing="-12">D/</text>
-    <text x="405" y="350" font-size="118" font-style="italic">03</text>
-  </g>
+  <text x="262" y="372" fill="#3f230b" font-family="'Cormorant Garamond', Georgia, 'Times New Roman', serif" font-size="360" font-style="italic" font-weight="600" text-anchor="middle">P</text>
 </svg>

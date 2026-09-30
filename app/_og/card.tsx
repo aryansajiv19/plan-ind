@@ -41,27 +41,11 @@ export async function ogFonts() {
   ];
 }
 
-/** The D/03 badge from the front-door nav, at share-card scale. */
+/** The wordmark from the front-door nav, at share-card scale. */
 function Mark() {
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        width: 76,
-        height: 76,
-        borderRadius: 16,
-        background: NIGHT.ink,
-        color: NIGHT.paper,
-        fontFamily: "Hanken",
-        fontWeight: 700,
-        fontSize: 26,
-        letterSpacing: -1,
-      }}
-    >
-      <span>D/</span>
-      <span style={{ fontSize: 22, marginTop: 2 }}>03</span>
+    <div style={{ display: "flex", fontFamily: "Cormorant", fontWeight: 500, fontSize: 56, letterSpacing: -1.5, color: NIGHT.ink }}>
+      Planind
     </div>
   );
 }
@@ -110,7 +94,7 @@ export function OgFrame({ kicker, children, footer }: { kicker: string; children
         }}
       >
         <span>{footer}</span>
-        <span style={{ color: NIGHT.ink, fontWeight: 700 }}>Deal three</span>
+        <span style={{ color: NIGHT.ink, fontWeight: 700 }}>plan-ind.vercel.app</span>
       </div>
     </div>
   );

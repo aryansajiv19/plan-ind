@@ -118,7 +118,7 @@ test("/demo/vote: the sample Luna brief picks its kind of night, labelled, with 
   await page.goto("/demo/vote");
   await expect(page.locator("#demo-luna-input")).toHaveValue(/active for the five of us/);
   await page.getByRole("button", { name: "Build it" }).click();
-  await expect(page.getByText("A fixed sample answer, no model call.", { exact: false })).toBeVisible();
+  await expect(page.getByText("A sample answer.", { exact: false })).toBeVisible();
   await expect(page.getByRole("button", { name: "Move and play" })).toHaveAttribute("aria-pressed", "true");
   expect(modelCalls).toBe(0);
 });

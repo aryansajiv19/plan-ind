@@ -21,9 +21,8 @@ export default function LandingNav({ signedIn = false }: { signedIn?: boolean })
   const now = useMinuteClock(); // null during SSR, so the clock never mismatches
   return (
     <header className="home-nav">
-      <Link href="/" className="home-logo" aria-label="Deal three home">
-        <span>D/</span>
-        <span className="home-logo__three">03</span>
+      <Link href="/" className="home-logo" aria-label="Planind home">
+        Planind
       </Link>
 
       <nav className="home-app-tabs" aria-label={signedIn ? "App" : "Explore the app with sample data"}>

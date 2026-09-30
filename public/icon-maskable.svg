@@ -1,8 +1,5 @@
-<!-- Maskable: full-bleed ground, mark inside the 40% safe circle so any crop keeps it. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Deal three">
+<!-- Maskable: full-bleed ground, the P inside the 40% safe circle so any crop keeps it. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Planind">
   <rect width="512" height="512" fill="#ce9963"/>
-  <g fill="#3f230b" font-family="'Cormorant Garamond', Georgia, 'Times New Roman', serif" font-weight="600" text-anchor="middle">
-    <text x="226" y="296" font-size="160" letter-spacing="-8">D/</text>
-    <text x="350" y="316" font-size="78" font-style="italic">03</text>
-  </g>
+  <text x="260" y="340" fill="#3f230b" font-family="'Cormorant Garamond', Georgia, 'Times New Roman', serif" font-size="250" font-style="italic" font-weight="600" text-anchor="middle">P</text>
 </svg>

@@ -172,7 +172,7 @@
   font-size: max(0.85rem, var(--type-floor));
   font-weight: 700;
   cursor: pointer;
-  transition: transform var(--dur-press) var(--ease-spring);
+  transition: transform var(--dur-press) var(--ease-settle);
 }
 .plan-smart-search__bar button:active:not(:disabled) {
   transform: scale(0.96);
@@ -186,31 +186,15 @@
   color: var(--color-punch-text);
   font-size: max(0.7rem, var(--type-floor));
 }
+/* What the brief set, as one line of facts; a refusal note may follow. */
 .plan-smart-result {
-  margin-top: 0.85rem;
-  padding-top: 0.8rem;
-  border-top: 1px solid var(--color-line);
-}
-.plan-smart-result > div:first-child {
-  display: block;
-}
-.plan-smart-result strong {
-  max-width: 28rem;
-  font-size: 0.76rem;
-  line-height: 1.45;
-}
-.plan-smart-result > div:last-child {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-  margin-top: 0.7rem;
-}
-.plan-smart-result span {
-  padding: 0.35rem 0.45rem;
-  border: 1px solid var(--color-line);
+  margin-top: 0.75rem;
   color: var(--color-muted);
-  font-size: max(0.6rem, var(--type-floor));
-  text-transform: capitalize;
+  font-size: max(0.75rem, var(--type-floor));
+}
+.plan-smart-result__facts {
+  color: var(--color-ink);
+  font-weight: 500;
 }
 
 .plan-category-groups {
@@ -259,6 +243,9 @@
 /* P25: the types as one chip row; it wraps on desktop and scrolls on a phone. */
 .plan-form fieldset {
   min-width: 0; /* fieldsets default to min-content, which the chip row would set */
+  margin: 0;
+  padding: 0;
+  border: 0; /* the UA's groove border was drawing a box inside the composer */
 }
 .plan-category-options {
   display: flex;
@@ -694,7 +681,7 @@
   z-index: 5;
   margin-top: 0.5rem;
   padding-block: 0.75rem;
-  background: var(--color-card);
+  background: var(--color-paper); /* the composer sits on the ground now, not a card */
   box-shadow: 0 -1px 0 var(--color-line); /* reads as floating when it covers the form */
 }
 .plan-deal-bar .plan-submit {

@@ -30,7 +30,7 @@ export default function PersonalityCard({ name, personality, sample = false }: {
   const text = [
     `${first}'s Dubai Plan Personality: ${headline.title}`,
     ...traits.map((t) => `${t.title}: ${t.evidence}`),
-    "Made with Deal three",
+    "Made with Planind",
   ].join("\n");
 
   async function share() {

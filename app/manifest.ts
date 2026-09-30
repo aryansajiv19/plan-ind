@@ -6,8 +6,8 @@ import type { MetadataRoute } from "next";
 // unauthenticated visitor is redirected to /login from there anyway.
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Deal three | Dubai hangout decider",
-    short_name: "Deal three",
+    name: "Planind | Dubai hangout decider",
+    short_name: "Planind",
     description:
       "Pick a vibe, deal nine Dubai places across three rounds, and let the group choose.",
     start_url: "/home",

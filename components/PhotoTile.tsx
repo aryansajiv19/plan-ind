@@ -4,7 +4,7 @@ import Link from "next/link";
 import type { Spot } from "@/lib/types";
 import VenuePhoto, { useGooglePhotos } from "@/components/VenuePhoto";
 import { hasVenuePhoto } from "@/lib/venue-photo";
-import { categoryLabel, categoryMeta } from "@/lib/categories";
+import { categoryLabel } from "@/lib/categories";
 
 export interface WallNote {
   /** What HAPPENED — "Sara + 2 saved", "In Friday's deal". Never the category. */
@@ -57,7 +57,7 @@ export default function PhotoTile({
         {/* Photo-less tiles carry the category code as texture (no hue: the
             group colours are retired), where a photo would carry the mood. */}
         {!hasPhoto ? (
-          <p className="wall-tile__code">{categoryMeta(spot.category).code} · {categoryLabel(spot.category)}</p>
+          <p className="wall-tile__code">{categoryLabel(spot.category)}</p>
         ) : null}
         <h3 className="wall-tile__name">{spot.name}</h3>
         {meta ? <p className="wall-tile__meta">{meta}</p> : null}

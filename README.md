@@ -1,6 +1,6 @@
 <div align="center">
 
-# plan-ind
+# Planind
 
 **Group plans in Dubai, decided in three rounds instead of three hundred messages.**
 

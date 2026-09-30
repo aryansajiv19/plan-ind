@@ -30,7 +30,7 @@ export function classifyPlaceLink(input: string): PlaceLinkCandidate {
 
   const host = url.hostname.toLowerCase().replace(/^www\./, "");
   if (prohibitedVenueReason(host, url.pathname, url.search)) {
-    throw new Error("Adult-entertainment venues are not supported on Deal three.");
+    throw new Error("Adult-entertainment venues are not supported on Planind.");
   }
   const provider: PlaceLinkProvider = host === "instagram.com" || host.endsWith(".instagram.com")
     ? "instagram"

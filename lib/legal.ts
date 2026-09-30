@@ -20,7 +20,7 @@ export function getLegalConfig(): LegalConfig {
   }
 
   return {
-    operator: operator || "Deal three (development)",
+    operator: operator || "Planind (development)",
     email: email || "privacy@example.invalid",
     jurisdiction: jurisdiction || "Development environment",
     isPlaceholder: missing,

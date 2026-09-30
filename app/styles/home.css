@@ -38,37 +38,19 @@
   top: 0;
   z-index: 20;
   border-bottom: 1px solid var(--color-line);
-  background: color-mix(in srgb, var(--color-paper) 90%, transparent);
-  backdrop-filter: blur(18px);
+  background: var(--color-paper); /* solid: content never shows through the nav */
 }
 
+/* The wordmark: the display serif alone, no badge (owner, 2026-09-30). */
 .home-logo {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   flex-shrink: 0;
-  width: 2.75rem;
-  height: 2.75rem;
-  border: 1px solid var(--color-ink);
-  border-radius: var(--radius-control);
-  /* The filled-primary pair, so the label reads on both grounds. */
-  background: var(--primary-fill);
-  color: var(--primary-ink);
-  box-shadow: none;
+  color: var(--color-ink);
   font-family: var(--font-display);
+  font-size: 1.6rem;
   font-weight: 600;
-  font-size: 0.9rem;
-  letter-spacing: -0.04em;
-  transform: none;
-}
-
-.home-logo__three {
-  /* Deep brown on the sand badge (5.7:1); the two-tone is carried by the
-     italic, since no light ink clears AA on sand. */
-  color: var(--primary-ink);
-  font-style: italic;
-  font-size: 0.82rem;
-  transform: translateY(-1px);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  text-decoration: none;
 }
 
 .home-nav__right {
@@ -410,6 +392,26 @@
   gap: 1.25rem;
 }
 
+/* One line of the sample group mid-vote: faces first, so "friends deciding
+   together" reads on the first screen. */
+.home-hero__group {
+  margin-top: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  color: color-mix(in srgb, var(--photo-ink) 82%, transparent);
+  font-size: max(0.8rem, var(--type-floor));
+  text-decoration: none;
+}
+.home-hero__group strong {
+  color: var(--photo-ink);
+  font-weight: 500;
+}
+.home-hero__group:hover > span:last-child {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
 .home-primary-cta {
   min-height: 3.5rem;
   display: inline-flex;
@@ -625,17 +627,13 @@
     grid-template-columns: 1fr;
   }
 }
+/* Page-level composition, not a card: the composer sits on the ground under
+   one hairline, and the describe-the-night panel is its one active surface. */
 .home-plan-card {
   position: relative;
   min-width: 0; /* a grid item: the deck and chip rows scroll inside it, never widen it */
-  padding: clamp(1.3rem, 4vw, 2.4rem);
-  border: 0;
-  border-radius: var(--radius-panel);
-  background: var(--color-card);
-  backdrop-filter: none;
-  /* Separates from the canvas by value plus a soft lift, no hairline. */
-  box-shadow: var(--elevation-card);
-  transform: none;
+  padding-top: clamp(1.25rem, 3vw, 2rem);
+  border-top: 1px solid var(--color-line);
 }
 
 /* Your plans (P3): the signed-in way back into a plan, a rail above the

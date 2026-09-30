@@ -70,7 +70,8 @@ const CELL = 2;
 // failure the 7px cell had. Re-sampling those at CELL 1 restores them to
 // ~900-1,100 without touching the 400x220 grid, which must not grow.
 const MIN_PARTICLES = 500;
-const DURATION_MS = 1100;
+// Short on purpose: the settled result is the payoff, the particles only a flourish.
+const DURATION_MS = 700;
 const SIDE_PADDING = 28;
 const MAX_FONT = 96; // in buffer units; ~153px rendered at a 640px panel
 const MIN_FONT = 26;

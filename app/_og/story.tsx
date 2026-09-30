@@ -50,11 +50,8 @@ export async function storyPhoto(photoUrl: string | null): Promise<string | null
 
 function Mark() {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 88, height: 88, borderRadius: 20, background: STORY.sand, color: STORY.ground, fontFamily: "Hanken", fontWeight: 700, fontSize: 30 }}>
-        <span>D/</span><span style={{ fontSize: 26, marginTop: 2 }}>03</span>
-      </div>
-      <div style={{ display: "flex", fontFamily: "Hanken", fontWeight: 700, fontSize: 36, color: STORY.ink }}>Deal three</div>
+    <div style={{ display: "flex", fontFamily: "Cormorant", fontWeight: 500, fontSize: 64, letterSpacing: -1.5, color: STORY.ink }}>
+      Planind
     </div>
   );
 }

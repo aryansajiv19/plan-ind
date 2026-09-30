@@ -99,8 +99,7 @@
   margin: 0;
   padding: 6px 12px;
   border-radius: var(--radius-pill);
-  background: rgba(14, 12, 14, 0.6);
-  backdrop-filter: blur(8px);
+  background: rgba(14, 12, 14, 0.72);
   color: var(--photo-ink);
   font-size: max(0.72rem, var(--type-floor));
   font-weight: 600;
@@ -108,7 +107,6 @@
 .wall-tile__note--live {
   background: var(--color-punch);
   color: var(--primary-ink);
-  backdrop-filter: none;
 }
 
 /* Pins sit IN the wall at tile width, on surface rather than photography. */

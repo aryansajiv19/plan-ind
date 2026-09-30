@@ -3,7 +3,7 @@
 import { useRef, type KeyboardEvent, type ReactNode } from "react";
 import VenuePhoto, { useGooglePhotos } from "@/components/VenuePhoto";
 import { hasVenuePhoto } from "@/lib/venue-photo";
-import { categoryMeta } from "@/lib/categories";
+import { categoryLabel } from "@/lib/categories";
 
 /** A place as a composer row shows it: the deck (P25) and My places. */
 export type RowCard = {
@@ -40,7 +40,7 @@ function Face({ card }: { card: RowCard }) {
     <span className="plan-deck__band deal-card__typographic" data-photo={photo || undefined}>
       {photo && <VenuePhoto spot={card} sizes="11rem" />}
       <span className="plan-deck__type">
-        {card.category && <span className="plan-deck__code">{categoryMeta(card.category).code}{card.cuisine ? ` · ${card.cuisine}` : ""}</span>}
+        {card.category && <span className="plan-deck__code">{card.cuisine || categoryLabel(card.category)}</span>}
         <span className="plan-deck__foot">
           <span className="plan-deck__name">{card.name}</span>
           <span className="plan-deck__where">{card.area}{card.min_spend ? ` · from AED ${card.min_spend}` : ""}</span>

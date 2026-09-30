@@ -9,7 +9,7 @@ import { shareCopy } from "@/lib/share-preview";
 // card, so this route always answers 200 image/png and never throws on data.
 // A decided plan with a winner announces it: the winner is the headline, the
 // plan title drops to a smaller line under it.
-export const alt = "A Dubai plan to vote on, on Deal three";
+export const alt = "A Dubai plan to vote on, on Planind";
 export const size = OG_SIZE;
 export const contentType = "image/png";
 
@@ -50,7 +50,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
       </OgFrame>
     ) : (
       <OgFrame
-        kicker={copy.host ?? "A plan on Deal three"}
+        kicker={copy.host ?? "A plan on Planind"}
         footer={copy.closes ?? "Tap to vote. The app calls it."}
       >
         <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>

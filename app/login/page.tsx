@@ -35,7 +35,7 @@ export default async function LoginPage({
     <main className="auth-shell">
       <div className="auth-frame">
         <section className="auth-intro" aria-labelledby="auth-title">
-          <Link href="/" className="auth-mark" aria-label="Deal three home"><span>D/</span><b>03</b></Link>
+          <Link href="/" className="auth-mark" aria-label="Planind home">Planind</Link>
           {planId ? (
             <>
               <p className="auth-kicker">

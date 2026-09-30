@@ -27,7 +27,7 @@ export default function GlobalError({
       >
         <div style={{ maxWidth: "24rem" }}>
           <p style={{ margin: 0, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" }}>
-            Deal three
+            Planind
           </p>
           <h1 style={{ margin: "0.75rem 0 0.5rem", fontSize: "1.5rem" }}>Something went wrong.</h1>
           <p style={{ margin: "0 0 1.25rem", lineHeight: 1.5 }}>

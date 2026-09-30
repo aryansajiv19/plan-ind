@@ -96,12 +96,16 @@
   body:has(.home-app-tabs) {
     padding-bottom: 4.8rem;
   }
+  /* Never give .home-nav a filter or backdrop-filter: it would become the
+     containing block for the fixed tab bar below and pin it inside the header. */
   .home-nav {
     width: 100%;
+    gap: 0.75rem;
     padding-inline: 0.75rem;
-    backdrop-filter: none;
   }
-  /* a filter makes the nav the containing block for the fixed tab bar below, pinning it inside the header */
+  .home-logo {
+    font-size: 1.3rem;
+  }
   .home-nav__link {
     display: none;
   }
@@ -141,11 +145,6 @@
   .home-plan-section {
     width: min(100% - 1.5rem, 68rem);
     padding-block: 5.5rem;
-  }
-  .home-plan-card {
-    padding: 1.25rem;
-    box-shadow: var(--elevation-card);
-    transform: none;
   }
   /* Signed in, the page heading already asks the question, so the form
      comes first and "Deal nine" stays above the tab bar (P25). */

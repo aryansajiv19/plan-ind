@@ -278,7 +278,7 @@ export default function DecidedPlan({
       </div>
 
       <TonightPanel plan={plan} winner={winner} coming={coming} />
-      <ShareStoryButton href={`/plan/${plan.id}/story`} fileName="deal-three-plan.png" />
+      <ShareStoryButton href={`/plan/${plan.id}/story`} fileName="planind-plan.png" />
 
       <BookingSection
         plan={plan}

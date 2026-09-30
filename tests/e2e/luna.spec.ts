@@ -32,7 +32,8 @@ test.describe("Luna into the composer", () => {
     await signInAsMember(context, baseURL!, `Luna ${Date.now()}`);
     await page.goto("/home");
     await ask(page, { intent: intent({}) });
-    await expect(page.getByText("Padel near the Marina, about AED 150 each")).toBeVisible();
+    // The brief shows as what it set, not as a model-written sentence.
+    await expect(page.locator(".plan-smart-result__facts")).toHaveText("Padel · Dubai Marina · ≤ AED 150 · casual");
     await expect(kind(page, "Padel")).toHaveAttribute("aria-pressed", "true");
     await expect(tuneSummary(page)).toContainText("“Padel after work”");
     await expect(page.getByText(/so this stays/)).toHaveCount(0);
@@ -55,15 +56,15 @@ test.describe("Luna into the composer", () => {
     await signInAsMember(context, baseURL!, `Luna odd ${Date.now()}`);
     await page.goto("/home");
     await ask(page, { intent: intent({ category: "yachting", title: "On the water" }) });
-    await expect(page.getByText("Luna suggested a kind of place the app doesn’t list, so this stays Dinner.")).toBeVisible();
+    await expect(page.getByText("That kind of place isn’t listed here, so this stays Dinner.")).toBeVisible();
     await expect(tuneSummary(page)).not.toContainText("On the water");
   });
 
   test("a session that ended offers the way back to sign in", async ({ page, context, baseURL }) => {
     await signInAsMember(context, baseURL!, `Luna late ${Date.now()}`);
     await page.goto("/home");
-    await ask(page, { error: "Sign in to use smart search." }, 401);
-    await expect(page.locator(".plan-smart-search__error")).toContainText("Sign in to use smart search.");
+    await ask(page, { error: "Sign in to describe the night." }, 401);
+    await expect(page.locator(".plan-smart-search__error")).toContainText("Sign in to describe the night.");
     // The navigation, not where it settles: this session is really still
     // valid (only the route said 401), so /login sends it straight back home.
     const toLogin = page.waitForRequest((request) => /\/login\?next=(%2F|\/)home/.test(request.url()));

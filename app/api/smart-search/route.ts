@@ -40,7 +40,7 @@ export async function POST(request: Request) {
   // mint, so it must not be able to spend model calls.
   if (user === "unavailable") return Response.json({ error: AUTH_UNAVAILABLE_MESSAGE }, { status: 503 });
   if (user === "signed-out" || user.is_anonymous) {
-    return Response.json({ error: "Sign in to use smart search." }, { status: 401 });
+    return Response.json({ error: "Sign in to describe the night." }, { status: 401 });
   }
 
   const query = typeof body === "object" && body !== null && "query" in body
@@ -51,7 +51,7 @@ export async function POST(request: Request) {
     return Response.json({ error: lengthError }, { status: 400 });
   }
   if (prohibitedVenueReason(query)) {
-    return Response.json({ error: "Deal three does not recommend sexually explicit or adult-entertainment venues." }, { status: 400 });
+    return Response.json({ error: "Planind does not recommend sexually explicit or adult-entertainment venues." }, { status: 400 });
   }
   // Fail closed, same as /api/spots/deal: a missing age must not default to
   // an adult, or an age-restricted category becomes reachable for a caller
@@ -62,7 +62,7 @@ export async function POST(request: Request) {
   // daily searches on a refusal (the page hides the box there anyway).
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
-    return Response.json({ error: "Smart search is not configured yet." }, { status: 503 });
+    return Response.json({ error: "Describing the night isn’t available yet. Pick a kind of place below." }, { status: 503 });
   }
 
   const safetyIdentifier = privateIdentifier(user.id);

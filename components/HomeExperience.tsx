@@ -238,9 +238,8 @@ export default function HomeExperience({
 
       {accountTabs ? (
       <header className="home-nav">
-        <a href="#top" className="home-logo" aria-label="Deal three home">
-          <span>D/</span>
-          <span className="home-logo__three">03</span>
+        <a href="#top" className="home-logo" aria-label="Planind home">
+          Planind
         </a>
 
         <nav className="home-app-tabs" aria-label="Main app navigation">
@@ -381,8 +380,8 @@ export default function HomeExperience({
       )}
 
       <footer className="home-footer">
-        <span>Deal three · Made by Aryan Sajiv in Dubai</span>
-        <nav className="home-footer__links" aria-label="About Deal three">
+        <span>Planind · Made by Aryan Sajiv in Dubai</span>
+        <nav className="home-footer__links" aria-label="About Planind">
           <a href="https://github.com/aryansajiv19/plan-ind" target="_blank" rel="noopener noreferrer">GitHub</a>
           <Link href="/privacy">Privacy</Link>
           <Link href="/terms">Terms</Link>

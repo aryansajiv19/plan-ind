@@ -52,7 +52,7 @@ export default function ShareActions({ title, winner = null }: { title: string |
   async function nativeShare() {
     if (!url) return;
     try {
-      await navigator.share({ title: title ?? "Deal three", text: shareMessage(title, "", winner).trim(), url });
+      await navigator.share({ title: title ?? "Planind", text: shareMessage(title, "", winner).trim(), url });
     } catch {
       // AbortError when the sheet is dismissed; nothing to report either way
     }

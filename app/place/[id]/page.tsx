@@ -57,7 +57,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const spot = await getSpot(id);
-  return { title: spot ? `${spot.name} | Deal three` : "Place not found | Deal three" };
+  return { title: spot ? `${spot.name} | Planind` : "Place not found | Planind" };
 }
 
 export default async function PlacePage({
