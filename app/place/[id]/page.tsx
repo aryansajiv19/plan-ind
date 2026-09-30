@@ -8,7 +8,7 @@ import PlaceScoreChip from "@/components/ranking/PlaceScoreChip";
 import { createClient } from "@/lib/supabase/server";
 import VenuePhoto from "@/components/VenuePhoto";
 import { hasVenuePhoto } from "@/lib/venue-photo";
-import { categoryMeta } from "@/lib/categories";
+import { categoryLabel, categoryMeta } from "@/lib/categories";
 import { knownMinSpend, knownPriceBand } from "@/lib/price";
 import { getCurrentUser, safeNextPath } from "@/lib/auth";
 import PlaceDirectPlanCta from "@/components/PlaceDirectPlanCta";
@@ -85,9 +85,9 @@ export default async function PlacePage({
       <div className={`place-hero ${hasPhoto ? "" : "place-hero--typographic"}`} data-code={cat.code}>
         <VenuePhoto spot={spot} sizes="100vw" preload className="place-hero__img" />
         <div className="place-hero__scrim" aria-hidden="true" />
-        {/* The code is a chip in the band's corner, as on the vote card: not a
-            label stacked over the name. */}
-        <p className="place-hero__category">{cat.code}</p>
+        {/* The kind in words, a chip in the band's corner: not a code, and not
+            a label stacked over the name. */}
+        <p className="place-hero__category">{categoryLabel(spot.category)}</p>
         <div className="place-hero__body">
           <h1 className="place-hero__name">{spot.name}</h1>
           <p className="place-hero__area">{spot.area}</p>
@@ -106,6 +106,31 @@ export default async function PlacePage({
         {(spot.description ?? spot.vibe) && (
           <p className="place-description">{spot.description ?? spot.vibe}</p>
         )}
+
+        {/* The one primary action, where the eye already is: under what the
+            place is, before the ways to get there and the map.
+            SPECS.md §10.1: the direct-plan entry point. Signed-in only —
+            create_direct_plan rejects a signed-out/anonymous caller
+            server-side either way, but showing the CTA to someone who can't
+            use it would mean building a whole form that fails at the end
+            rather than not showing it. */}
+        <div className="mt-6 grid justify-items-start gap-3">
+          {user && (
+            <PlaceDirectPlanCta
+              spot={{ id: spot.id, name: spot.name, area: spot.area, category: spot.category }}
+            />
+          )}
+          {user && <PlaceSaveToBoard spot={spot} />}
+          {user && (
+            <WentHere place={{ id: spot.id, name: spot.name, area: spot.area, category: spot.category, photo_url: spot.photo_url, photo_attribution: spot.photo_attribution, google_place_id: spot.google_place_id }} />
+          )}
+          {/* P9: signed out, planning starts with an account; come back here after. */}
+          {!user && (
+            <Link href={`/login?next=/place/${spot.id}`} className="place-action">
+              Plan a night here
+            </Link>
+          )}
+        </div>
 
         <div className="place-actions">
           {spot.booking_url && (
@@ -138,29 +163,6 @@ export default async function PlacePage({
           <p className="mt-1 text-sm">{spot.address ?? `${spot.area}, Dubai`}</p>
           <DubaiMiniMap venue={spot} />
         </section>
-
-        {/* SPECS.md §10.1: the direct-plan entry point. Signed-in only —
-            create_direct_plan rejects a signed-out/anonymous caller
-            server-side either way, but showing the CTA to someone who can't
-            use it would mean building a whole form that fails at the end
-            rather than not showing it. */}
-        <div className="mt-6 grid justify-items-start gap-3">
-          {user && (
-            <PlaceDirectPlanCta
-              spot={{ id: spot.id, name: spot.name, area: spot.area, category: spot.category }}
-            />
-          )}
-          {user && <PlaceSaveToBoard spot={spot} />}
-          {user && (
-            <WentHere place={{ id: spot.id, name: spot.name, area: spot.area, category: spot.category, photo_url: spot.photo_url, photo_attribution: spot.photo_attribution, google_place_id: spot.google_place_id }} />
-          )}
-          {/* P9: signed out, planning starts with an account; come back here after. */}
-          {!user && (
-            <Link href={`/login?next=/place/${spot.id}`} className="place-action">
-              Plan a night here
-            </Link>
-          )}
-        </div>
 
         {/* P9: back to where the card was (a plan passes ?from=), else Discover
             signed in or the front door signed out. */}
