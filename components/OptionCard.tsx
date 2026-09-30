@@ -6,7 +6,7 @@ import VenuePhoto, { useGooglePhotos } from "@/components/VenuePhoto";
 import { hasVenuePhoto } from "@/lib/venue-photo";
 import { avatarStyle, initialsOf } from "@/lib/avatar";
 import type { Spot } from "@/lib/types";
-import { categoryMeta } from "@/lib/categories";
+import { categoryName } from "@/components/categoryGroups";
 import { knownMinSpend } from "@/lib/price";
 import type { DealReason } from "@/lib/deal-reasons";
 import { hoursLabel, openStatus } from "@/lib/open-hours";
@@ -37,11 +37,11 @@ interface OptionCardProps {
   onToggle: () => void;
 }
 
-// "· 9 km · ≈ 25 min drive (estimate)" from this voter's own origin (P18):
+// "9 km · ≈ 25 min drive (estimate)" from this voter's own origin (P18):
 // a straight-line guess (lib/directions.ts), said so as everywhere else.
 function yourTrip(km: number): string {
   const drive = driveMinutesEstimate(km);
-  return ` · ${Math.max(1, Math.round(km))}\u00a0km${drive != null ? ` · ≈\u00a0${drive}\u00a0min drive (estimate)` : ""}`;
+  return `${Math.max(1, Math.round(km))}\u00a0km${drive != null ? ` · ≈\u00a0${drive}\u00a0min drive (estimate)` : ""}`;
 }
 
 export default function OptionCard({
@@ -59,22 +59,23 @@ export default function OptionCard({
   onToggle,
 }: OptionCardProps) {
   const dimmed = decided && !isWinner;
-  const cat = categoryMeta(spot.category);
-  // The distance chip carries the km itself; saying it twice is clutter.
+  // The chip says what kind of place in words: the cuisine, else the category.
+  const kind = spot.cuisine || categoryName(spot.category);
   const fromYou = viewerFrom && spot.latitude != null && spot.longitude != null
     ? straightLineKm(viewerFrom, { latitude: spot.latitude, longitude: spot.longitude }) : null;
-  // Your own distance wins over the host-based chip, so the card never shows two.
-  const reasons = fromYou != null ? dealtReasons?.filter((reason) => reason.kind !== "distance") : dealtReasons;
-  const shownKm = reasons?.some((reason) => reason.kind === "distance") ? null : distanceKm;
+  // The fact line carries the distance, so the "Why this" reasons never repeat it.
+  const trip = fromYou != null ? yourTrip(fromYou) : distanceKm != null ? `${Math.max(1, Math.round(distanceKm))} km away` : null;
+  const reasons = dealtReasons?.filter((reason) => reason.kind !== "distance");
   // The vote is for later, so "Closed now" would mislead a card; only the
   // last hour before closing (which also proves it is open) replaces the
-  // listing, so the meta line stays one line.
+  // listing.
   const now = useMinuteClock();
   const status = now ? openStatus(spot.open_till, now) : null;
   const hours = status?.kind === "closing-soon" ? status.label : hoursLabel(spot.open_till);
   // P17: a walkable metro station is worth a word on the card; none isn't.
   const near = metroFor(spot);
   const reopens = reopensLabel(spot.reopens_on);
+  const when = [hours, near?.walkable ? `Metro ≈\u00a0${near.walkMin}\u00a0min walk` : null].filter(Boolean).join(" · ");
 
   // A vote arriving over realtime is the only "someone else is here" signal
   // this screen has. Acknowledge it once, then clear — a permanent highlight
@@ -107,10 +108,9 @@ export default function OptionCard({
   }, [voters]);
 
   const photo = hasVenuePhoto(spot, useGooglePhotos());
-  // The meta line drops the spend on a typographic band, which already says
-  // it. No spend to state (a custom place), no spend shown.
+  // No spend to state (a custom place), no spend shown.
   const spend = knownMinSpend(spot);
-  const spendMeta = photo && spend != null ? `from AED ${spend}pp` : "";
+  const facts = [spend != null ? `from AED ${spend}pp` : null, trip].filter((fact): fact is string => fact != null);
 
   // P27: the card is an article, not one big button. A real Select button
   // carries the vote (its ::after stretches over the card, so the whole card
@@ -122,7 +122,6 @@ export default function OptionCard({
       className={[
         "opt token vote-option relative flex w-full flex-col bg-card text-left",
         isWinner ? "vote-option--winner z-[3]" : "",
-        isLeader && !decided ? "vote-option--leader" : "",
         dimmed ? "opacity-55" : "",
       ].join(" ")}
     >
@@ -136,10 +135,7 @@ export default function OptionCard({
           <>
             <VenuePhoto spot={spot} sizes="(min-width: 641px) 22rem, 85vw" />
             <div className="vote-option__overlay">
-              <span className="vote-option__category inline-flex min-w-0 items-center gap-1.5 self-start px-2 py-0.5 text-xs font-bold">
-                <span aria-hidden="true">{cat.code}</span>
-                <span className="vote-option__cuisine">{spot.cuisine}</span>
-              </span>
+              <span className="vote-option__category self-start px-2 py-0.5 text-xs">{kind}</span>
               <div>
                 <h3 className="vote-option__name">{spot.name}</h3>
                 <p className="vote-option__where">{spot.area}</p>
@@ -148,48 +144,39 @@ export default function OptionCard({
           </>
         ) : (
           <div className="vote-option__type">
-            <span className="vote-option__category inline-flex min-w-0 items-center gap-1.5 self-start px-2.5 py-1 text-xs font-bold">
-              <span aria-hidden="true">{cat.code}</span>
-              <span className="vote-option__cuisine">{spot.cuisine}</span>
-            </span>
+            <span className="vote-option__category self-start px-2.5 py-1 text-xs">{kind}</span>
             <h3 className="mt-auto text-balance font-display text-3xl font-semibold leading-[1.1] tracking-tight">{spot.name}</h3>
-            <p className="mt-1 text-xs font-medium text-muted">{spot.area}{spend != null ? ` · from AED ${spend}pp` : ""}</p>
+            <p className="mt-1 text-xs font-medium text-muted">{spot.area}</p>
           </div>
         )}
       </div>
 
       <div className="vote-option__body flex flex-1 flex-col p-4">
-      {/* 070: closed since the deal, until a date. Never dealt again till then. */}
-      {reopens && <p className="mt-1 text-xs font-bold">{reopens}</p>}
-
-      {/* The "review" blurb — why you'd go */}
-      <p className="mt-2 text-sm leading-snug text-ink/80">
-        {spot.description ?? spot.vibe}
+      {/* The one fact line: what it costs, how far, and whether it leads. */}
+      <p className="vote-option__meta text-sm text-muted">
+        {facts.map((fact, index) => (
+          <Fragment key={fact}>{index > 0 ? " · " : null}<span>{fact}</span></Fragment>
+        ))}
+        {isLeader && !decided && <>{facts.length > 0 ? " · " : null}<span className="vote-option__leading">Leading</span></>}
       </p>
 
-      <p className="vote-option__meta mt-2 text-xs text-muted">
-        {[hours, spendMeta].filter(Boolean).join(" · ")}
-        {fromYou != null ? yourTrip(fromYou) : shownKm != null ? ` · ${Math.max(1, Math.round(shownKm))} km away` : ""}
-        {near?.walkable ? ` · Metro ≈\u00a0${near.walkMin}\u00a0min walk` : ""}
-      </p>
-
-      {/* Why the deal picked it: one muted fact line. It explains; it is not state. */}
-      {reasons && reasons.length > 0 && (
-        <p className="mt-2 text-xs font-semibold text-muted">
-          <span className="sr-only">Why this: </span>
-          {reasons.map((reason, index) => (
-            <Fragment key={reason.kind}>{index > 0 ? " · " : null}<span>{reason.label}</span></Fragment>
-          ))}
-        </p>
-      )}
-
-      {/* State on its own line: category marks identity and never state. */}
-      {isLeader && !decided && (
-        <span className="mt-2 block">
-          <span className="vote-option__leading">leading</span>
-        </span>
-      )}
-
+      {/* Everything else, one tap away: the card leads with the choice. */}
+      <details className="vote-option__more">
+        <summary>More</summary>
+        {/* 070: closed since the deal, until a date. Never dealt again till then. */}
+        {reopens && <p className="text-xs font-bold">{reopens}</p>}
+        <p className="text-sm leading-snug text-ink/80">{spot.description ?? spot.vibe}</p>
+        {when && <p className="text-xs text-muted">{when}</p>}
+        {/* Why the deal picked it: one muted fact line. It explains; it is not state. */}
+        {reasons && reasons.length > 0 && (
+          <p className="text-xs font-semibold text-muted">
+            <span className="sr-only">Why this: </span>
+            {reasons.map((reason, index) => (
+              <Fragment key={reason.kind}>{index > 0 ? " · " : null}<span>{reason.label}</span></Fragment>
+            ))}
+          </p>
+        )}
+      </details>
       {/* mt-auto pins the action row to the card's bottom, so uneven content
           above can never stagger the Select buttons. */}
       <div className="mt-auto flex items-center justify-between pt-3">

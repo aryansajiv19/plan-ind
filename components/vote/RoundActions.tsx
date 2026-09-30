@@ -43,6 +43,9 @@ export default function RoundActions({
   const movesOn = deadline
     ? new Date(deadline).toLocaleString("en-GB", { timeZone: "Asia/Dubai", weekday: "short", hour: "numeric", minute: "2-digit", hour12: true })
     : null;
+  // The row sticks above the tab bar on a phone once the next step is live.
+  const memberMoves = !isHost && stage === "pool" && !allPoolsChosen;
+  const ready = hasCurrentSelection && (memberMoves || (isHost && !(stage === "pool" && activePool === poolCount && !allPoolsChosen)));
   return (
     <>
       {nudge && stage === "final" && (
@@ -54,8 +57,8 @@ export default function RoundActions({
           <button type="button" onClick={nudge.dismiss} className="ml-auto min-h-11 text-muted underline underline-offset-4">Dismiss</button>
         </p>
       )}
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-        {!isHost && stage === "pool" && !allPoolsChosen ? (
+      <div className="vote-next mt-6 flex flex-col gap-3 sm:flex-row" data-ready={ready ? "" : undefined}>
+        {memberMoves ? (
           // P2: moving between pool rounds is local, so every member does it
           // alone; only building the shortlist and deciding are host-only
           // (execute_plan_command checks the host on every command).

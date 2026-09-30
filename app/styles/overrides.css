@@ -1,10 +1,7 @@
 /* app/styles/overrides.css — Must load last: the photo credit and VenuePhoto frame. */
 
-/* ── Google photo attribution (components/PhotoCredit.tsx) ──────────
-   Google's terms want the author's name beside its photos: tiny text on
-   the image's top corner, no "©". Our own photos carry nothing; see /credits. */
-/* VenuePhoto's Google branch fills the card's photo frame, a quiet ink block
-   until the browser has the photo. */
+/* VenuePhoto's Google branch fills the frame; Google's author credit
+   (PhotoCredit.tsx) sits small on the top corner, as its terms require. */
 .venue-photo {
   position: absolute;
   inset: 0;
@@ -15,6 +12,7 @@
   inset: 0;
   width: 100%;
   height: 100%;
+  z-index: 1;
   object-fit: cover;
 }
 .photo-attrib {
@@ -33,13 +31,22 @@
   pointer-events: none;
 }
 
-/* CategoryArt fills its box like a photo, under any photo that arrives. */
+/* CategoryArt: the kind of place, printed on a flat card, under any photo. */
 .category-art {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
+  container-type: inline-size;
+  padding: 0.9rem 1rem;
+  background: color-mix(in srgb, var(--color-punch) 16%, var(--color-card));
 }
-.venue-photo > img {
-  z-index: 1;
+.category-art__word {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid var(--color-punch);
+  color: var(--color-muted);
+  font: italic 500 clamp(1.25rem, 12cqi, 2.75rem) / 1.05 var(--font-display);
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }

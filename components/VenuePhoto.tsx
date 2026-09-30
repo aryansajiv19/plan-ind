@@ -74,12 +74,12 @@ export default function VenuePhoto({
       </>
     );
   }
-  if (google && spot.google_place_id) return <GooglePhoto spotId={spot.id} category={spot.category} className={className} />;
+  if (google && spot.google_place_id) return <GooglePhoto spotId={spot.id} category={spot.category} cuisine={spot.cuisine} className={className} />;
   // No photo to show: the category's scene, so the box is never empty.
-  return spot.category ? <CategoryArt category={spot.category} /> : null;
+  return spot.category ? <CategoryArt category={spot.category} cuisine={spot.cuisine} /> : null;
 }
 
-function GooglePhoto({ spotId, category, className }: { spotId: string; category?: string; className: string }) {
+function GooglePhoto({ spotId, category, cuisine, className }: { spotId: string; category?: string; cuisine?: string | null; className: string }) {
   const anchor = useRef<HTMLSpanElement>(null);
   const [photo, setPhoto] = useState<PlacePhoto | null>(null);
 
@@ -109,7 +109,7 @@ function GooglePhoto({ spotId, category, className }: { spotId: string; category
     <span ref={anchor} className="venue-photo" data-ready={photo ? "" : undefined}>
       {/* The scene sits underneath: it shows while Google answers, and stays
           when Google has no photo or the quota is spent. */}
-      {category && <CategoryArt category={category} />}
+      {category && <CategoryArt category={category} cuisine={cuisine} />}
       {photo ? (
         <>
           {/* A plain img: the optimiser would store Google's image on our server. */}

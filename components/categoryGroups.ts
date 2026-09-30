@@ -69,3 +69,6 @@ export type Category = { key: string; label: string; title: string };
 export const CATEGORIES: readonly Category[] = CATEGORY_GROUPS.flatMap((group) => [
   ...group.categories,
 ]);
+
+/** "Cafes", "Padel": the human word for a category key; the key itself if unknown. */
+export const categoryName = (key: string) => CATEGORIES.find((category) => category.key === key)?.label ?? key.replace(/_/g, " ");
