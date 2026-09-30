@@ -115,6 +115,16 @@ h3,
   background: color-mix(in srgb, var(--color-punch) 35%, transparent);
   color: var(--color-ink);
 }
+/* Placeholders and the caret from the palette too: the browser's faint grey
+   placeholder was 4.4:1 on the night ground. */
+::placeholder {
+  color: var(--color-muted);
+  opacity: 1;
+}
+input,
+textarea {
+  caret-color: var(--color-punch);
+}
 
 /* Tab switches on /home (HomeExperience): the page cross-fades with a
    short rise; the nav keeps its own name so it holds still. */

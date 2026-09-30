@@ -1108,12 +1108,11 @@
   color: var(--color-punch-text);
   font-weight: 700;
 }
+/* A thin line of progress on no track: the "1 of 12" beside it carries the value. */
 .explored__bar {
-  height: 0.5rem;
+  height: 2px;
   margin-top: 0.5rem;
   overflow: hidden;
-  border-radius: 999px;
-  background: var(--color-fill-quiet);
 }
 .explored__bar span {
   display: block;
