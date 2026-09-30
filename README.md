@@ -1,62 +1,33 @@
-<div align="center">
-
 # Planind
 
-Real-time group decision-making for plans in Dubai: shortlist, vote in rounds, then coordinate the outing.
+A real-time group planning app for Dubai: the host sets constraints, the app shortlists venues, and the group votes through elimination rounds to a decision.
 
-[Live app](https://plan-ind.vercel.app) · [Demo (no account required)](https://plan-ind.vercel.app/demo)
-
-[![CI](https://github.com/aryansajiv19/plan-ind/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/aryansajiv19/plan-ind/actions/workflows/ci.yml)
-![Next.js 16](https://img.shields.io/badge/Next.js-16-000?logo=nextdotjs)
-![React 19](https://img.shields.io/badge/React-19-149eca?logo=react&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-3178c6?logo=typescript&logoColor=white)
-![Supabase](https://img.shields.io/badge/Supabase-3ecf8e?logo=supabase&logoColor=white)
-![Playwright](https://img.shields.io/badge/Playwright-2ead33?logo=playwright&logoColor=white)
-
-</div>
+[Live app](https://plan-ind.vercel.app) · [Demo, no account required](https://plan-ind.vercel.app/demo)
 
 https://github.com/user-attachments/assets/b4d43a6f-cfd2-4ab5-9c11-1d6dfedcd3f4
 
 ## Overview
 
-Planind addresses the stage of group planning before any decision exists. A host sets constraints (budget, travel distance and type of outing), the application deals nine candidate venues from a curated Dubai catalogue with a stated reason for each, and participants vote live through three elimination rounds and a final. The plan then continues into RSVPs, carpools, calendar invites, directions, weather and post-visit ratings.
+Most planning tools help once a group has already decided. Planind targets the step before that, when a group chat has six suggestions and no decision. A host picks a budget, a travel radius and the kind of outing; the app deals nine venues from a curated Dubai catalogue, each with the reason it qualified, and participants vote live.
 
-Voting integrity is enforced in PostgreSQL: clients never write votes directly, every ballot passes through a database function, and concurrency, authorization and idempotency are covered by tests that run against a real database.
+After a winner is chosen the plan continues into RSVPs, carpools, calendar invites, directions, weather and post-visit ratings.
 
-## Contents
+## Highlights
 
-- [Features](#features)
-- [Architecture](#architecture)
-- [Engineering highlights](#engineering-highlights)
-- [Performance](#performance)
-- [Testing](#testing)
-- [Getting started](#getting-started)
-- [Project structure](#project-structure)
-- [Documentation](#documentation)
+- **Votes are enforced by the database.** Every ballot goes through a PostgreSQL function; concurrent duplicate votes resolve to a single row, verified by race-condition tests.
+- **Search indexed for the slow case.** A trigram index cut venue searches that match nothing from 2.26 ms to 0.07 ms on a 5,082-venue benchmark dataset.
+- **Hardened external fetching.** Importing a venue from a user-supplied URL is protected against SSRF, including DNS rebinding.
+- **Measured under load.** 200 simultaneous voters completed in under 250 ms on a local stack, at about 0.5 ms of database time per vote.
 
-## Features
+## How it works
 
-- **Constraint-based shortlisting.** Nine venues dealt into three rounds of three, filtered by budget, distance and outing type, each with the reason it was selected.
-- **Live elimination voting.** Rounds and a final with presence, live tallies and animated ballot placement over Supabase Realtime.
-- **Natural-language search.** An LLM maps free-text requests to structured search intent, validated server-side before use.
-- **Post-decision coordination.** RSVPs, carpools, calendar invites, directions, weather and ratings.
-- **Dubai-local behaviour.** All times, opening hours and time-of-day styling follow Dubai time regardless of the viewer's time zone.
-- **Private by default.** Plans are readable only by members; shared links expose a minimal read-only preview.
+1. The host creates a plan with a budget, maximum drive and outing type.
+2. Nine venues are dealt into three rounds of three, filtered by those constraints and opening hours in Dubai time.
+3. Members open the shared link, sign in and vote. Each round produces a finalist, and a final round picks the winner.
+4. Presence and tallies stream to every participant through Supabase Realtime.
+5. The plan moves into coordination: attendance, drivers, calendar events, directions and weather.
 
 <p align="center"><img src="docs/media/flow.gif" alt="A group voting through three rounds to a winner" width="720"></p>
-
-<table>
-  <tr>
-    <td><img src="docs/media/deal.png" alt="Nine venues dealt into three rounds"></td>
-    <td><img src="docs/media/vote.png" alt="Live voting with participant avatars on selected cards"></td>
-    <td><img src="docs/media/winner.png" alt="The winning venue"></td>
-  </tr>
-  <tr>
-    <td align="center">Shortlist</td>
-    <td align="center">Live voting</td>
-    <td align="center">Result</td>
-  </tr>
-</table>
 
 ## Architecture
 
@@ -84,63 +55,53 @@ flowchart TB
     UI --> AUTH
 ```
 
-| Layer | Technology |
-|---|---|
-| Client | Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4 |
-| Server | Next.js route handlers on Vercel |
-| Database | Supabase PostgreSQL with row-level security, database functions for all voting, `pg_trgm` search indexes |
-| Realtime | Supabase Realtime for presence and vote updates |
-| Auth | Supabase Auth (Google OAuth, email) |
-| AI | OpenAI Responses API with JSON Schema structured output |
-| Testing | Node test runner, database integration tests, Playwright, load scripts |
+The Next.js app reads plan data directly under row-level security and writes votes only through database functions. Route handlers on Vercel cover operations that need secrets or external services, such as AI search and venue import. Supabase Realtime carries presence and vote updates, so no separate WebSocket service is required.
 
-## Engineering highlights
+## Engineering decisions
 
-**Server-enforced voting.** Ballots are cast only through database functions that verify the round is open, the caller is a plan member and no ballot already exists. Concurrent submissions from the same participant resolve to exactly one row, verified by dedicated race-condition tests.
+**Votes as database functions, not client writes.** A ballot must respect several rules at once: the round is open, the voter is a member, and they have not already voted. Encoding these in a PostgreSQL function makes them atomic under concurrency, at the cost of logic that lives outside the TypeScript codebase and needs its own database test suite.
 
-**One account, one vote.** Guest voting was removed after it was shown that a private browsing window allowed a second ballot. Voting now requires authentication.
+**Mandatory sign-in for voting.** Guest voting was originally allowed to reduce friction. Testing showed a private browsing window could cast a second ballot, so voting now requires an account. One vote per account was judged more important than zero-friction entry.
 
-**Structured AI output behind a trust boundary.** Smart search uses the OpenAI Responses API with a JSON Schema output format. Every decision made after the model responds is a pure function, so a hermetic test suite drives it with hostile and malformed model outputs without network access or an API key. A separate scored evaluation (`npm run eval:ai`) runs against the live model on demand.
+**Realtime through the database provider.** Live tallies needed push updates without running a separate WebSocket service. Supabase Realtime kept the architecture to one backend, with the trade-off of tighter coupling to the provider.
 
-**SSRF-hardened fetching.** Venue import from user-supplied URLs uses a fetch primitive that checks every resolved address against private and reserved ranges and pins the connection to the checked address, closing DNS-rebinding attacks. Response bodies are capped across chunk boundaries.
+**A trigram index for misses.** Venue search uses `ILIKE '%term%'`, which a B-tree cannot serve. The existing index was fast for common terms because the scan stopped early, but a typo or a missing venue scanned the whole table. A `pg_trgm` GIN index made misses 30 times faster while adding about 0.005 ms to common-term searches, which was accepted because misses are what users actually generate.
 
-**ReDoS mitigation.** Pasting a long link previously stalled the server in a regular expression. Parsing now terminates in under 50 ms, enforced by a regression test.
+**Structured AI output behind a trust boundary.** Smart search maps free text to a search intent using the OpenAI Responses API with a JSON Schema output format. All logic after the model responds is pure, so hermetic tests can feed it hostile or malformed outputs without network access. A scored evaluation against the live model runs separately, on demand.
 
-**Link previews without data leakage.** Shared links render a minimal read-only summary for messaging-app previews; plan contents remain restricted to members by RLS.
+**SSRF protection for venue import.** Users can import a venue from a URL, which means the server fetches a host the user chose. The fetch primitive checks every resolved address against private and reserved ranges, then pins the connection to the checked address so a second DNS lookup cannot redirect it internally. Response bodies are capped across chunk boundaries.
+
+## Tech stack
+
+**Frontend:** Next.js 16, React 19, TypeScript, Tailwind CSS 4  
+**Backend:** Supabase (PostgreSQL, Auth, Realtime), Next.js route handlers  
+**AI:** OpenAI Responses API with structured outputs  
+**Testing:** Node test runner, Playwright, custom load scripts  
+**Infrastructure:** Vercel, GitHub Actions
+
+## Testing
+
+- **Unit (380+ tests):** dealing, tallying and ties, opening hours, parsing, AI guardrails and the SSRF guard.
+- **Database (170+ tests):** run against real PostgreSQL, covering vote idempotency and races, membership, permissions and plan lifecycle.
+- **Browser:** Playwright on desktop Chrome, Safari and Firefox, plus mobile Safari and Chrome.
+- **AI evaluation:** a scored smart-search evaluation against the live model (`npm run eval:ai`).
+- **Load:** vote bursts and Realtime fan-out in [`scripts/load/`](scripts/load).
+
+CI runs linting, type checking, the database tests and a production build on every push.
 
 ## Performance
 
 | Measurement | Before | After |
 |---|---:|---:|
-| Venue search with no match, 5,082 venues | 2.256 ms (sequential scan) | **0.074 ms** (trigram GIN index), 30× |
-| Venue search, rare term | 2.302 ms | **0.109 ms**, 21× |
-| 200 simultaneous voters (local stack) | | All ballots under 250 ms, no errors |
-| Database time per vote | | About 0.5 ms |
+| Venue search, no match (5,082-venue dataset) | 2.256 ms | 0.074 ms |
+| Venue search, rare term | 2.302 ms | 0.109 ms |
+| 200 simultaneous voters, local stack | | under 250 ms, no errors |
 
-Methodology is recorded alongside the change in [`supabase/migration-040-scale-indexes-and-rsvp-guard.sql`](supabase/migration-040-scale-indexes-and-rsvp-guard.sql) and the load scripts in [`scripts/load/`](scripts/load). Beyond 200 concurrent voters the local API gateway exhausted its connections before the database did; 1,000 votes sent directly to the database all succeeded. The same indexing work uncovered and fixed results being silently capped at 1,000 rows.
-
-Benchmarks compare builds run side by side: an initial sequential comparison reported a 40% improvement that measured 8.5% once server warm-up was controlled for.
-
-## Testing
-
-| Suite | Scope | Command |
-|---|---|---|
-| Unit | 380+ tests: dealing, tallying and ties, opening hours, parsing, AI guardrails, SSRF guard | `npm test` |
-| Database | 170+ tests against real PostgreSQL: vote idempotency and races, membership and permissions, plan lifecycle | `npm run test:db` |
-| End-to-end | Playwright on desktop Chrome, Safari and Firefox, and mobile Safari and Chrome | `npm run test:e2e` |
-| AI evaluation | Scored evaluation of smart search against the live model (opt-in) | `npm run eval:ai` |
-| Load | Vote bursts and Realtime fan-out | [`scripts/load/`](scripts/load) |
-
-CI runs linting, type checking, the database tests and a production build on every push.
+Beyond 200 concurrent voters, the local API gateway ran out of connections before the database did; 1,000 votes sent directly to the database all succeeded. Benchmarks compare builds run side by side, after an early sequential comparison reported a 40% gain that was really server warm-up (the controlled figure was 8.5%). The index benchmark is recorded in [`migration-040`](supabase/migration-040-scale-indexes-and-rsvp-guard.sql).
 
 ## Getting started
 
-### Prerequisites
-
-- Node.js 22 or later
-- A Supabase project, or the Supabase CLI and Docker for a local stack
-
-### Installation
+Requires Node.js 22+ and a Supabase project (or the Supabase CLI with Docker).
 
 ```bash
 npm ci
@@ -148,30 +109,26 @@ cp .env.local.example .env.local    # Supabase URL and publishable key
 npm run dev
 ```
 
-For a local database, run `supabase start` and load [`supabase/schema.sql`](supabase/schema.sql). The schema script drops and recreates every table, so use it only against a disposable project. Setup for the database and browser suites is documented in [`tests/README.md`](tests/README.md).
+[`supabase/schema.sql`](supabase/schema.sql) rebuilds every table, so run it only against a disposable project. Test setup is in [`tests/README.md`](tests/README.md).
 
 ## Project structure
 
-| Path | Contents |
-|---|---|
-| [`app/`](app) | Pages and route handlers |
-| [`components/`](components) | UI components |
-| [`lib/`](lib) | Domain logic: dealing, tallying, opening hours, AI intent, place import, security, search |
-| [`supabase/`](supabase) | Schema and ordered migrations |
-| [`tests/`](tests) | Unit, database and end-to-end tests |
-| [`scripts/`](scripts) | Load testing, AI evaluation, data backfill |
-| [`docs/`](docs) | Product flow, design standards, security and deployment |
+```
+app/          Pages and route handlers
+components/   UI components
+lib/          Dealing, tallying, opening hours, AI intent, place import, search
+supabase/     Schema and ordered migrations
+tests/        Unit, database and end-to-end tests
+scripts/      Load testing, AI evaluation, data backfill
+docs/         Product flow, design standards, security, deployment
+```
 
-## Documentation
+## Future work
 
-- [Product flow](docs/PRODUCT_FLOW.md)
-- [Frontend design standards](docs/FRONTEND_DESIGN_STANDARDS.md)
-- [Security setup](docs/SECURITY_SETUP.md)
-- [Deployment](docs/DEPLOYMENT.md)
-- [Roadmap](docs/ROADMAP.md)
+- Server-side round deadlines, so rounds close on time without any participant online.
+- Live opening hours and routing from Google Places in place of the curated data.
+- Self-service account deletion from settings.
 
-<div align="center">
+---
 
-Built by [Aryan Sajiv](https://github.com/aryansajiv19)
-
-</div>
+Built by [Aryan Sajiv](https://github.com/aryansajiv19).
