@@ -324,8 +324,8 @@
 .demo-place-card {
   min-width: 0;
 }
-/* The band: the photo, or plain, with the code chip up top and the name set
-   over its foot on a scrim (the vote card's overlay). */
+/* The band: the photo, or plain, with the name set over its foot on a scrim
+   (the vote card's overlay). */
 .demo-place-card__band {
   aspect-ratio: 4 / 5;
   background: color-mix(in srgb, var(--color-ink) 7%, var(--color-card));
@@ -342,31 +342,19 @@
   line-height: 1;
   text-align: center;
 }
-.demo-place-card__band:not([data-photo]) .demo-place-card__chip {
-  visibility: hidden;
-}
 .demo-place-card__over {
   position: absolute;
   inset: 0;
   z-index: 2;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-end; /* the name sits on the photo's foot */
   padding: 0.85rem;
   pointer-events: none;
 }
 .demo-place-card__band[data-photo] .demo-place-card__over {
   background: linear-gradient(0deg, rgba(9, 28, 36, 0.9) 0%, rgba(9, 28, 36, 0.3) 48%, transparent 72%);
   color: var(--photo-ink);
-}
-.demo-place-card__chip {
-  align-self: flex-start;
-  padding: 0.15rem 0.4rem;
-  background: var(--color-punch);
-  color: var(--primary-ink);
-  font-size: max(0.7rem, var(--type-floor));
-  font-weight: 600;
-  letter-spacing: 0.06em;
 }
 .demo-place-card__over h2 {
   font-size: clamp(1.5rem, 2vw, 1.9rem);

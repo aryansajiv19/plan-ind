@@ -29,7 +29,6 @@ export default function PlaceCard({
       <div className="demo-place-card__band" data-photo={photo || undefined} data-code={meta.code}>
         {photo && <VenuePhoto spot={spot} sizes="(max-width: 700px) 100vw, 20rem" />}
         <div className="demo-place-card__over">
-          <span className="demo-place-card__chip" aria-hidden="true">{meta.code}</span>
           <div>
             <h2>{spot.name}</h2>
             <p className="demo-place-card__area">{[spot.area, priceLabel(spot)].filter(Boolean).join(" · ")}</p>

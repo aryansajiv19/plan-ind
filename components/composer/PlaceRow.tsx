@@ -2,7 +2,7 @@
 
 import { useRef, type KeyboardEvent, type ReactNode } from "react";
 import VenuePhoto, { useGooglePhotos } from "@/components/VenuePhoto";
-import { hasVenuePhoto } from "@/lib/venue-photo";
+import { hasRealPhoto, hasVenuePhoto } from "@/lib/venue-photo";
 import { categoryLabel } from "@/lib/categories";
 
 /** A place as a composer row shows it: the deck (P25) and My places. */
@@ -35,12 +35,16 @@ function walk(event: KeyboardEvent<HTMLUListElement>) {
 // A listing: the photo when there is one, the name and area set over its
 // foot (the vote card's overlay); without one, the same type on a plain band.
 function Face({ card }: { card: RowCard }) {
-  const photo = hasVenuePhoto(card, useGooglePhotos());
+  const google = useGooglePhotos();
+  const photo = hasVenuePhoto(card, google);
+  // Without a real photograph the art already prints the kind, so the chip
+  // would sit on top of the same word.
+  const pictured = hasRealPhoto(card, google);
   return (
     <span className="plan-deck__band deal-card__typographic" data-photo={photo || undefined}>
       {photo && <VenuePhoto spot={card} sizes="11rem" />}
       <span className="plan-deck__type">
-        {card.category && <span className="plan-deck__code">{card.cuisine || categoryLabel(card.category)}</span>}
+        {card.category && pictured && <span className="plan-deck__code">{card.cuisine || categoryLabel(card.category)}</span>}
         <span className="plan-deck__foot">
           <span className="plan-deck__name">{card.name}</span>
           <span className="plan-deck__where">{card.area}{card.min_spend ? ` · from AED ${card.min_spend}` : ""}</span>
