@@ -493,6 +493,7 @@
 .plan-deck__foot {
   display: grid;
   gap: 0.25rem;
+  margin-top: auto; /* the name sits at the foot even with no chip above it, clear of the art's word */
 }
 .plan-deck__name {
   font-family: var(--font-display);

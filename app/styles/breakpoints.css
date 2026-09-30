@@ -90,7 +90,10 @@
   }
 }
 
-@media (max-width: 520px) {
+/* The tab bar moves to the bottom from 760px down: below that the top row
+   (wordmark, five tabs, search, theme, Start a plan, avatar) crushes the
+   search field and wraps "Start a plan" onto three lines. */
+@media (max-width: 760px) {
   /* Any page carrying the tab bar (now fixed to the bottom) keeps its last
      control clear of it, not only /home. */
   body:has(.home-app-tabs) {
@@ -125,6 +128,9 @@
     padding: 0.7rem 0.18rem;
     font-size: max(0.62rem, var(--type-floor));
   }
+}
+
+@media (max-width: 520px) {
   .home-title__line {
     white-space: normal;
   }
