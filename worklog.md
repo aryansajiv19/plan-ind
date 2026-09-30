@@ -112,43 +112,6 @@ ratings.
 `docs/archive/worklog-archive.md` holds everything before go-live (through
 the 2026-09-27 go-live checkpoint). Read it only when chasing *why*.
 
-## 2026-09-28 — Lead: redesign "night-listings magazine" (owner: "go all out")
-
-Impeccable direction (seed 571d077f, code-led; contract in the local-only
-.impeccable/surfaces brief; PRODUCT.md local-only). Owner answers: audience
-everyone, all screens, nothing off limits, place ids approved.
-- **Photos everywhere:** VenuePhoto (own photo first, else the matched
-  Google place's, fetched per card near the viewport); 076 ids + 077 visitor
-  quota live. Verified live signed-out: 12/12 photo calls 200, 0 errors.
-- **1/5 tokens + type (f08b0e0):** Archivo variable replaces Cormorant +
-  Hanken (90 KB vs ~240 KB); paper/ink, souk-gold fill, coral live; every
-  text pair re-measured; tokens.css 26 -> 12 KB.
-- **2/5 landing cover (6581478):** photo mosaic behind a poster-scale cover
-  line, gold issue band with real counts; card-stack deleted.
-- **3/5 vote (2f588e1):** name over the photo, the bracket wired into the
-  final, gold primary; fixed the current round's label vanishing once picked.
-- **Lanes:** A on 4/5 (signed-in pages); B on 078 (booking F1/F2/F6); an
-  agent is sourcing CC-licensed venue photos for 079 (own photos cost nothing
-  per view; Google's are capped at 300/day).
-- **Outage, found and fixed:** every /place/[id] rendered its error boundary
-  in production from ef84c2b (VenuePhoto) until 222f732, roughly 2 hours on
-  2026-09-27/28: the place page (a server component) called hasVenuePhoto,
-  exported from a "use client" module. tsc, lint, unit tests and the lead's
-  screenshots (landing and vote only) all passed; B's E2E caught it. Fix
-  (B): pure helpers in lib/venue-photo.ts; rule added to app/CLAUDE.md.
-  Verified live: 3 place pages 200 with photo and credit, no console errors.
-  Also from B: the photo route answers "nothing to show" with 200 null (no
-  console noise), CI pins the Supabase CLI (a "latest" lookup hit the GitHub
-  rate limit and failed test-db).
-- **Finish review (impeccable) of landing + vote, two rounds, stopped at the
-  unattended budget:** fixed credits (full wrap, none under the headline),
-  band (greeting + Dubai date), wall as listings, vote listings on the ground
-  (no hairline boxes, coral pick, gold winner, one fact line), gold section
-  heads, kickers out; A fixed the composer overlap and dead column. Declined:
-  mono face and tally needles (owner: "don't over engineer"), photos on the
-  tiny dealt squares (no room for a visible credit). Cover revised to a split
-  (cover line on ink, mosaic right) so no photo hides under the headline.
-
 ## 2026-09-28 — CHECKPOINT: stopped for the night by the owner (read this first)
 
 **Live (main = production, auto-deploy):** migrations through 079 applied and
@@ -286,3 +249,25 @@ drop it, since the Google photo is credited and free of doubt. Estimate to "all 
 - **Demo:** /demo opens on the app's first screen with "See a sample vote",
   not the landing pitch; deck tiles get distinct covers or category art.
 
+## 2026-09-30 — Premium polish pass (lead + vote lane, merged)
+
+Owner brief: coherence, not a redesign. No features, palette, DB or voting changes.
+- **One name: Planind.** Metadata, manifest, OG cards, nav, footer, share text,
+  legal and error pages. D/03 retired (owner picked wordmark only); favicon is an
+  italic P on sand. Storage keys, `deal-three-theme` cookie, calendar UID, domain
+  and repo name unchanged on purpose.
+- **Composer:** no card around it (fill, radius, shadow gone); describe-the-night
+  is the one tinted surface; the UA fieldset border inside it reset.
+- **Describe the night** replaces "Luna" in the UI; the result is one line of what
+  the form took (`intentFacts`, lib/composer-intent.ts). Model and route unchanged.
+- **Vote card (lane V):** cuisine chip in words, one fact line (price, distance,
+  Leading), description/hours/metro/reasons behind "More"; unpicked cards recede;
+  the next-round button sticks above the phone tab bar once the round has a pick.
+- **Photo-less places:** CategoryArt prints the kind in the display serif instead
+  of the desert-moon scene (Discover was a wall of identical moons).
+- **Landing:** the sample group's faces under the hero CTAs. **Winner:** particles
+  700 ms; the demo's decided screen leads with when, booking, who's in, getting there.
+- Nav and wall notes solid (no backdrop blur). App CSS net -33 lines.
+- Open: the landing group line sits below the fold on phones (the mosaic comes
+  first there); docs/FRONTEND_DESIGN_STANDARDS.md colour/type tables are stale
+  (Newsreader, palette v3); two demo fixture sets spell Maya/Omar differently.

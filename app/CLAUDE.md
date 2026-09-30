@@ -2,6 +2,13 @@
 
 Loads for sessions touching UI (`components/CLAUDE.md` imports this file). Root `CLAUDE.md` has the invariants.
 
+## Naming
+
+- The public name is **Planind** (owner, 2026-09-30), set as a serif wordmark;
+  "Deal three" and D/03 are retired. Internal keys keep their old names on
+  purpose (`deal-three-*` storage and cookie, calendar UID): renaming them
+  logs people out of settings and breaks imported events.
+
 ## Traps that have already caused real bugs here
 
 Not hypotheticals — every one of these shipped a bug in this repo.
