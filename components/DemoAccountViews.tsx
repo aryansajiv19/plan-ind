@@ -154,7 +154,11 @@ export default function DemoAccountViews({
                   {activeFolder ? (
                     <button type="button" onClick={() => removeVisitFromActiveCollection(visit.id)}>Remove from {activeFolder.name}</button>
                   ) : (
-                    <label><span>Add to collection</span><select value="" onChange={(event) => addVisitToCollection(visit.id, event.target.value)}><option value="">Choose…</option>{collections.map((collection) => <option key={collection.id} value={collection.id}>{collection.name}</option>)}</select></label>
+                    // Filing a visit is an occasional chore, so it waits behind one line.
+                    <details className="demo-visit__collect">
+                      <summary>Add to collection</summary>
+                      <label><span className="sr-only">Collection</span><select value="" onChange={(event) => addVisitToCollection(visit.id, event.target.value)}><option value="">Choose…</option>{collections.map((collection) => <option key={collection.id} value={collection.id}>{collection.name}</option>)}</select></label>
+                    </details>
                   )}
                 </div>
               </div>

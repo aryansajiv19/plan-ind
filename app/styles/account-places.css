@@ -426,6 +426,21 @@
   background: transparent;
   color: var(--color-ink);
 }
+/* A demo visit's "Add to collection": a quiet line that opens to the select. */
+.demo-visit__collect > summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  color: var(--color-muted);
+  font-size: max(0.8rem, var(--type-floor));
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+  list-style: none;
+}
+.demo-visit__collect > summary::-webkit-details-marker {
+  display: none;
+}
 /* The next page of Discover: an outline, one per list. */
 .discover-more {
   display: block;
