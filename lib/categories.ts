@@ -1,3 +1,4 @@
+import { CATEGORIES } from "@/components/categoryGroups";
 // Per-category short codes for the place cards — DIN, PDL, CIN. A plan is
 // always one category, so the code reads as identity without adding an icon
 // set or an emoji.
@@ -49,11 +50,10 @@ export function categoryMeta(category: string): CategoryMeta {
   return META[category] ?? FALLBACK;
 }
 
-// The category strings are DB enum values (snake_case); most read fine as-is
-// ("beach", "brunch") but the few with an underscore ("beach_club",
-// "live_music") rendered raw in the Discover filter pills and place-card
-// meta line. One-line fix, not a label dictionary -- nothing here needs a
-// different word, just a space where the underscore is.
+// The category strings are DB enum values (snake_case). Shown to people they
+// take the composer's own label ("beach_club" -> "Beach clubs", "cafe" ->
+// "Cafes"), so a filter pill, a tile and the composer all say the same word.
+// Anything not in the list (e.g. the "All" filter) keeps its text, spaced.
 export function categoryLabel(category: string): string {
-  return category.replace(/_/g, " ");
+  return CATEGORIES.find((item) => item.key === category)?.label ?? category.replace(/_/g, " ");
 }
