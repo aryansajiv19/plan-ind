@@ -40,7 +40,3 @@ export function greetingFor(now: Date): string {
   return "Good evening";
 }
 
-/** "Sun 28 Sep" on the Dubai calendar, for the landing's issue band. */
-export function issueDate(now: Date): string {
-  return new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Dubai", weekday: "short", day: "numeric", month: "short" }).format(now);
-}
