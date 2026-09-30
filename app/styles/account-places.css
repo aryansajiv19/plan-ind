@@ -431,7 +431,9 @@
   font-weight: 600;
   cursor: pointer;
 }
-.demo-place-card__body > button {
+/* Secondary: an outline, so a screen keeps one filled action (e.g. one per board). */
+.demo-place-card__body > button,
+.demo-quiet-action {
   border-color: var(--color-line);
   background: transparent;
   color: var(--color-ink);

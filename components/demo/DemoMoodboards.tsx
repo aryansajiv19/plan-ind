@@ -48,7 +48,7 @@ export default function DemoMoodboards({ onPlan }: { onPlan: (prefill: PlanPrefi
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h3 className="font-display text-lg">{board.name}</h3>
               {places.length > 0 && (
-                <button type="button" className="demo-primary-action" onClick={() => onPlan(boardPlanPrefill(board, places, allowed, `${board.id}:${Date.now()}`))}>
+                <button type="button" className="demo-primary-action demo-quiet-action" onClick={() => onPlan(boardPlanPrefill(board, places, allowed, `${board.id}:${Date.now()}`))}>
                   Plan from this board
                 </button>
               )}
