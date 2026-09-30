@@ -4659,3 +4659,15 @@ everyone, all screens, nothing off limits, place ids approved.
   mono face and tally needles (owner: "don't over engineer"), photos on the
   tiny dealt squares (no room for a visible credit). Cover revised to a split
   (cover line on ink, mosaic right) so no photo hides under the headline.
+
+## 2026-09-28 (evening) — owner redirect, three sessions
+
+- Owner: keep the redesign's energy, restore the Dubai palette and a sleek italic face. Shipped: desert palette (owner's hexes, night = desert sky), Cormorant italic display + Hanken, Archivo deleted, soft corners, photo credits as a hover (c) mark, shared nav on /place, /plan and /demo/vote, photo tiles for kinds of night, sand-dune cards for photo-less places.
+- Sessions: B (Platform, plan-ind-e6) and C (Journey, plan-ind-4f) work in lanes and hand off to the lead, who merges. Plan: ~/.claude/plans/rippling-puzzling-donut.md.
+- Merged: B health (abort on unmount), B CRUD (edit/delete own custom places, remove a saved link, host removes a member + 080), B live route map (Maps JS + Routes computeRoutes, falls back to lib/dubai-metro.ts until NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY exists), C demo journey (whole flow signed out on /demo/vote), C journey E2E.
+- CI: only the 24 visual baselines fail (redesign); regenerate once the design settles.
+- Owner-only: create the referrer-restricted browser key (Maps JavaScript API + Routes API, per-API daily quotas) and set NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY in Vercel; Supabase Auth (anon off → Turnstile → Google provider).
+
+- Data (owner-approved 2026-09-28): Tresind Studio's unlicensed venue-site photo cleared live (photo_url/photo_source null); its credited Google photo shows instead. The object stays in the spot-photos bucket, unreferenced; delete it from Storage when convenient. Demo moodboard fixture updated to match.
+- Merged: B folders (081 live), B Tonight-at-a-glance panel, C Luna fixes (honest age-gate note, sign-in-again, demo Luna sample, luna.spec). Luna moved to the composer's first line.
+

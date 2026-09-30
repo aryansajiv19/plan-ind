@@ -169,17 +169,6 @@ promotional image) or drop it for its Google photo (credited). Lead's lean:
 drop it, since the Google photo is credited and free of doubt. Estimate to "all together": ~6-10 working hours from resume.
 
 
-## 2026-09-28 (evening) — owner redirect, three sessions
-
-- Owner: keep the redesign's energy, restore the Dubai palette and a sleek italic face. Shipped: desert palette (owner's hexes, night = desert sky), Cormorant italic display + Hanken, Archivo deleted, soft corners, photo credits as a hover (c) mark, shared nav on /place, /plan and /demo/vote, photo tiles for kinds of night, sand-dune cards for photo-less places.
-- Sessions: B (Platform, plan-ind-e6) and C (Journey, plan-ind-4f) work in lanes and hand off to the lead, who merges. Plan: ~/.claude/plans/rippling-puzzling-donut.md.
-- Merged: B health (abort on unmount), B CRUD (edit/delete own custom places, remove a saved link, host removes a member + 080), B live route map (Maps JS + Routes computeRoutes, falls back to lib/dubai-metro.ts until NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY exists), C demo journey (whole flow signed out on /demo/vote), C journey E2E.
-- CI: only the 24 visual baselines fail (redesign); regenerate once the design settles.
-- Owner-only: create the referrer-restricted browser key (Maps JavaScript API + Routes API, per-API daily quotas) and set NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY in Vercel; Supabase Auth (anon off → Turnstile → Google provider).
-
-- Data (owner-approved 2026-09-28): Tresind Studio's unlicensed venue-site photo cleared live (photo_url/photo_source null); its credited Google photo shows instead. The object stays in the spot-photos bucket, unreferenced; delete it from Storage when convenient. Demo moodboard fixture updated to match.
-- Merged: B folders (081 live), B Tonight-at-a-glance panel, C Luna fixes (honest age-gate note, sign-in-again, demo Luna sample, luna.spec). Luna moved to the composer's first line.
-
 ## 2026-09-28 (late) — audits, the lead's merges, CI back to green
 
 - **Three audits** (read-only subagents): UX from a Dubai user's view (12
@@ -288,3 +277,24 @@ composer, winner and nav left alone.
   main's code too, by time of day); it now asserts the reset to step 1 after the
   run passes step 1, which fails without Replay (checked on production).
 
+
+## 2026-09-30 — Navigation and the last vibe-coded tells (impeccable critique, 20/40)
+
+- **Hero bug:** the landing hero now follows the theme (day paper and night navy),
+  so it no longer sits dark under a light nav. The day headline accent is copper
+  (3.7:1).
+- **Two actions, two names everywhere:** "Try the demo" (filled, /demo/vote) and
+  "Start a plan".
+- **Phones:** `--type-floor` is 0.75rem on every screen (tab labels were 9.9px).
+  The banner link and the mini-map link now have 44px targets.
+- **Tiles:** the category chip only shows over a real photo; before, it printed
+  over CategoryArt's own word.
+- **Folds (native `<details>`, `components/Fold.tsx`):**
+  - Friends list people first; the leaderboard and crew match fold behind one
+    line each.
+  - Been: "Your Dubai" folds; "Add to collection" folds per visit.
+  - Discover shows 24 places, then "Show more".
+- **Quieter:** one-line hero band, one sample banner instead of per-heading
+  suffixes, no-bounce press curve, 2px progress lines on no track, and
+  placeholder and caret colours from the palette.
+- Open: PRODUCT.md still says "Deal three" and describes Luna (report only).
