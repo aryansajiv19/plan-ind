@@ -175,7 +175,7 @@ function SampleRun({ deck, eventTime, onReplay }: { deck: DemoDeck; eventTime: s
   return (
     <div
       ref={shellRef}
-      className="vote-shell relative overflow-hidden border border-line bg-card p-4 sm:p-7"
+      className="vote-shell relative overflow-clip border border-line bg-card p-4 sm:p-7"
     >
       <div className="vote-header flex items-start justify-between gap-3">
         <div>
@@ -238,7 +238,10 @@ function SampleRun({ deck, eventTime, onReplay }: { deck: DemoDeck; eventTime: s
 
       {!decided ? (
         <>
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <div
+            className="vote-next mt-6 flex flex-col gap-3 sm:flex-row"
+            data-ready={myPick && (stage === "final" || activePool < SAMPLE_PLAN.poolCount || allPoolsChosen) ? "" : undefined}
+          >
             {stage === "pool" ? (
               <button
                 type="button"
