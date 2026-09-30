@@ -196,21 +196,22 @@ export default function DemoAccountViews({
           <button type="button" className="demo-primary-action" onClick={() => onStartPlan()}>Start a plan</button>
         </header>
 
-        <DemoLeaderboard />
-        <DemoCrewMatch />
-
         <div className="demo-friend-layout">
           <div className="demo-friend-list">
             {FRIENDS.map((friend) => (
               <article key={friend.name} className="demo-friend-row">
                 <span className="demo-friend-avatar" aria-hidden="true">{initialsOf(friend.name)}</span>
-                <div><h2>{friend.name}</h2><p>{friend.note}</p>{friend.last && <small>Last together · {friend.last}</small>}</div>
+                <div><h2>{friend.name}</h2><p>{friend.note}</p>{friend.last && <small>Last together at {friend.last}</small>}</div>
                 <div className="demo-friend-row__numbers"><strong>{friend.outings}</strong><span>outings</span></div>
                 <button type="button" onClick={() => onStartPlan(friendPlanPrefill(friend.name, `${friend.name}:${Date.now()}`))}>Plan together</button>
               </article>
             ))}
           </div>
         </div>
+
+        {/* The people come first; the games around them fold away. */}
+        <DemoLeaderboard />
+        <DemoCrewMatch />
       </section>
     );
   }

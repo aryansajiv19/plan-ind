@@ -875,6 +875,38 @@
   color: var(--color-error);
 }
 
+/* ── Fold (components/Fold.tsx) ──────────────────────────────────────
+   A section's heading and one line of what's inside; the rest one tap away.
+   The cue is a word, not a glyph. */
+.fold > summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 1rem;
+  min-height: 2.75rem;
+  padding-block: 0.5rem;
+  cursor: pointer;
+  list-style: none;
+}
+.fold > summary::-webkit-details-marker {
+  display: none;
+}
+.fold > summary::after {
+  content: "Show";
+  margin-left: auto;
+  color: var(--color-muted);
+  font-size: max(0.8rem, var(--type-floor));
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.fold[open] > summary::after {
+  content: "Hide";
+}
+.fold__hint {
+  color: var(--color-muted);
+}
+
 /* ── Leaderboards (components/leaderboard/Leaderboards.tsx) ──────────
    A plain ranked list on the page, no panel: numerals, hairlines, your row
    lit in sand. */
@@ -888,7 +920,7 @@
   justify-content: space-between;
   gap: 0.6rem;
 }
-.boards__head h2 {
+.boards h2 {
   font-size: 1.9rem;
 }
 .boards__period,

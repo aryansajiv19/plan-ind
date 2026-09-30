@@ -40,14 +40,7 @@ export default function FriendsTab({
         <button type="button" className="demo-primary-action" onClick={onStartPlan}>Start a plan</button>
       </header>
 
-      {personId && <Leaderboards spots={spots} visits={visits} />}
-
-      {personId && (
-        <>
-          <FriendsPanel personId={personId} friends={friends} unavailable={friendsUnavailable} onChanged={() => router.refresh()} />
-          {!friendsUnavailable && <CrewMatch friends={friends} />}
-        </>
-      )}
+      {personId && <FriendsPanel personId={personId} friends={friends} unavailable={friendsUnavailable} onChanged={() => router.refresh()} />}
 
       <h2 className="friends-panel__subhead">People you’ve been out with</h2>
       {plannedWithUnavailable ? (
@@ -80,6 +73,10 @@ export default function FriendsTab({
           </div>
         </div>
       )}
+
+      {/* The people come first; the games around them fold away. */}
+      {personId && <Leaderboards spots={spots} visits={visits} />}
+      {personId && !friendsUnavailable && <CrewMatch friends={friends} />}
     </section>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Fold from "@/components/Fold";
 import { useLeaderboard } from "@/hooks/use-leaderboard";
 import type { ProfileVisit, Spot } from "@/lib/types";
 
@@ -30,8 +31,8 @@ export default function Leaderboards({ spots, visits }: { spots: Spot[]; visits:
 
   return (
     <section className="boards" aria-labelledby="boards-title">
+      <Fold heading={<h2 id="boards-title">Leaderboards</h2>} hint="Where you rank among friends, in Dubai and by area">
       <div className="boards__head">
-        <h2 id="boards-title">Leaderboards</h2>
         {scope !== "place" && (
           <div className="boards__period" role="group" aria-label="Period">
             <button type="button" aria-pressed={period === "month"} onClick={() => setPeriod("month")}>This month</button>
@@ -75,6 +76,7 @@ export default function Leaderboards({ spots, visits }: { spots: Spot[]; visits:
         )
       )}
       <p className="boards__note">Shown as first name and initial. Hide yourself from Dubai and area boards in Settings.</p>
+      </Fold>
     </section>
   );
 }

@@ -1007,14 +1007,7 @@
 .explored {
   margin-block: 1.5rem 2rem;
 }
-.explored__head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.4rem 1rem;
-}
-.explored__head h2 {
+.explored h2 {
   font-family: var(--font-display);
   font-style: italic;
   font-size: clamp(1.5rem, 2.4vw, 1.9rem);

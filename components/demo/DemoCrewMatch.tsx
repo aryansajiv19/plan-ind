@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Fold from "@/components/Fold";
 import { CrewMatchView } from "@/components/crew/CrewMatch";
 import { FRIEND_ROWS } from "@/components/demo/demoFixtures";
 import type { CrewMatch, CrewStreak } from "@/lib/types";
@@ -36,13 +37,14 @@ export default function DemoCrewMatch() {
   const sample = SAMPLE[picked];
   return (
     <section className="crew" aria-labelledby="crew-title">
-      <h2 id="crew-title">Crew match · sample</h2>
+      <Fold heading={<h2 id="crew-title">Crew match</h2>} hint="How your taste lines up with each friend">
       <div className="crew__friends" role="group" aria-label="Friend">
         {FRIEND_ROWS.map((f) => (
           <button key={f.id} type="button" aria-pressed={f.id === picked} onClick={() => setPicked(f.id)}>{f.name}</button>
         ))}
       </div>
       <CrewMatchView name={friend.name} match={sample.match} streak={sample.streak} />
+      </Fold>
     </section>
   );
 }

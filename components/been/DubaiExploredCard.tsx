@@ -1,18 +1,17 @@
 import type { DubaiExplored } from "@/lib/dubai-explored";
+import Fold from "@/components/Fold";
 
 // "Your Dubai": districts light up as you go out in them, and the Dubai icons
-// fill in one by one. Collection, not score: the unvisited ones stay visible.
-export default function DubaiExploredCard({ explored, sample = false }: { explored: DubaiExplored; sample?: boolean }) {
+// fill in one by one. Collection, not score: the unvisited ones stay visible,
+// one tap away. The closed card says how far you've got.
+export default function DubaiExploredCard({ explored }: { explored: DubaiExplored; sample?: boolean }) {
   const { districts, districtsBeen, percent, icons, iconsDone, next } = explored;
   return (
     <section className="explored" aria-labelledby="explored-title">
-      <header className="explored__head">
-        <h2 id="explored-title">Your Dubai{sample ? " · sample" : ""}</h2>
-        <p className="explored__percent">
-          <strong>{percent}%</strong> explored
-          <span> · {districtsBeen} of {districts.length} districts</span>
-        </p>
-      </header>
+      <Fold
+        heading={<h2 id="explored-title">Your Dubai</h2>}
+        hint={<span className="explored__percent"><strong>{percent}%</strong> explored<span>, {districtsBeen} of {districts.length} districts</span></span>}
+      >
 
       <ul className="explored__districts">
         {districts.map((d) => (
@@ -46,6 +45,7 @@ export default function DubaiExploredCard({ explored, sample = false }: { explor
           ))}
         </ul>
       </div>
+      </Fold>
     </section>
   );
 }

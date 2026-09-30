@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Fold from "@/components/Fold";
 
 // The demo's Friends leaderboard, in the real Leaderboards' markup (.boards)
 // so it takes the same styling. Sample people, labelled as such; the points
@@ -27,6 +28,9 @@ const BOARDS: Record<Exclude<Scope, "place">, Record<"month" | "all", Row[]>> = 
     all: [{ name: "Omar A.", points: 85 }, { name: "Ali R.", points: 60 }, { name: "You", points: 45, me: true }],
   },
 };
+// The closed board says where you stand, so the list is one tap away.
+const MY_RANK = BOARDS.friends.month.findIndex((row) => row.me) + 1;
+const MY_LINE = `You’re ${MY_RANK === 1 ? "1st" : MY_RANK === 2 ? "2nd" : MY_RANK === 3 ? "3rd" : `${MY_RANK}th`} of ${BOARDS.friends.month.length} friends this month`;
 // By place is you and your friends who ranked it, best first.
 const PLACE: Row[] = [{ name: "Sara A.", band: "Loved it" }, { name: "You", band: "Loved it", me: true }, { name: "Zain M.", band: "It was fine" }];
 
@@ -37,8 +41,8 @@ export default function DemoLeaderboard() {
 
   return (
     <section className="boards" aria-labelledby="demo-boards-title">
+      <Fold heading={<h2 id="demo-boards-title">Leaderboards</h2>} hint={MY_LINE}>
       <div className="boards__head">
-        <h2 id="demo-boards-title">Leaderboards · sample</h2>
         {scope !== "place" && (
           <div className="boards__period" role="group" aria-label="Period">
             <button type="button" aria-pressed={period === "month"} onClick={() => setPeriod("month")}>This month</button>
@@ -64,6 +68,7 @@ export default function DemoLeaderboard() {
         ))}
       </ol>
       <p className="boards__note">Sample people, not real members. On your own account it’s your friends and Dubai, shown as first name and initial.</p>
+      </Fold>
     </section>
   );
 }

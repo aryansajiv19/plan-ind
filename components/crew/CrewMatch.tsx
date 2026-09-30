@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Fold from "@/components/Fold";
 import { useCrewMatch } from "@/hooks/use-crew-match";
 import type { CategoryGroupKey, CrewMatch as Match, CrewStreak, PersonCard } from "@/lib/types";
 
@@ -82,7 +83,7 @@ export default function CrewMatch({ friends }: { friends: PersonCard[] }) {
 
   return (
     <section className="crew" aria-labelledby="crew-title">
-      <h2 id="crew-title">Crew match</h2>
+      <Fold heading={<h2 id="crew-title">Crew match</h2>} hint="How your taste lines up with each friend">
       <div className="crew__friends" role="group" aria-label="Friend">
         {friends.map((f) => (
           <button key={f.id} type="button" aria-pressed={f.id === friendId} onClick={() => setPicked(f.id)}>
@@ -93,6 +94,7 @@ export default function CrewMatch({ friends }: { friends: PersonCard[] }) {
       {read.status === "loading" && <p role="status" className="crew__muted">Working out your match…</p>}
       {read.status === "failed" && <p role="alert" className="crew__muted">Couldn&rsquo;t load your match with {friend.display_name} right now.</p>}
       {read.status === "ready" && <CrewMatchView name={friend.display_name} match={read.match} streak={read.streak} />}
+      </Fold>
     </section>
   );
 }
