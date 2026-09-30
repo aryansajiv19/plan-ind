@@ -60,7 +60,7 @@ test("the demo's Saved tab files its sample boards in sample folders; Discover h
   await page.goto("/demo?view=saved");
   const folders = page.locator("#workspace section.saved-folders");
   await expect(folders).toBeVisible({ timeout: 20_000 });
-  await expect(folders.getByRole("heading", { level: 2 })).toContainText("sample");
+  await expect(folders.getByRole("heading", { level: 2 })).toHaveText("Saved, in folders"); // the page banner says sample, not each heading
   const groups = folders.locator(".saved-folders__group");
   await expect(groups).toHaveCount(3);
   // Every folder holds something, and the boards it names are the demo's own boards.

@@ -75,7 +75,7 @@ test("points by board and period, my row pinned, a friend on Friends", async ({ 
     // once they earn, they are, with their points.
     await expect(rowOf(boards, b.me.name)).toHaveCount(0);
     await wentAndRanked(b.me, SEEDED.buQtair); // Umm Suqeim: 10 + 20 + 5
-    await boards.page().reload();
+    await openBoards(a.page); // reloads, and the fold starts closed again
     await expect(rowOf(boards, b.me.name).locator(".boards__points")).toHaveText("35 pts", { timeout: 20_000 });
 
     await boards.getByRole("group", { name: "Period" }).getByRole("button", { name: "All time" }).click();
