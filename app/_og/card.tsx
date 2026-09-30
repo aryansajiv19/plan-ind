@@ -5,9 +5,8 @@
  *
  * Night palette, copied from app/globals.css's dark ground because ImageResponse
  * (Satori) cannot read CSS variables. Change them there, change them here.
- * Fonts: Satori reads TTF/OTF/WOFF, not WOFF2, so Cormorant ships as two static
- * Latin instances cut from the site's own variable files (roman 500 for the
- * title, italic 600 for the one emphasised phrase, as .home-title does).
+ * Fonts: Satori reads TTF/OTF/WOFF, not WOFF2, so the display face ships as a
+ * static Latin TTF (Plus Jakarta Sans 700) beside the site's variable woff2.
  */
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -27,15 +26,13 @@ export const NIGHT = {
 const font = (file: string) => readFile(join(process.cwd(), "public/fonts", file));
 
 export async function ogFonts() {
-  const [roman, italic, body, bodyBold] = await Promise.all([
-    font("cormorant-500-latin.ttf"),
-    font("cormorant-italic-600-latin.ttf"),
+  const [display, body, bodyBold] = await Promise.all([
+    font("plus-jakarta-sans-700-latin.ttf"),
     font("hanken-grotesk-500.ttf"),
     font("hanken-grotesk-700.ttf"),
   ]);
   return [
-    { name: "Cormorant", data: roman, weight: 500 as const, style: "normal" as const },
-    { name: "Cormorant", data: italic, weight: 600 as const, style: "italic" as const },
+    { name: "Jakarta", data: display, weight: 700 as const, style: "normal" as const },
     { name: "Hanken", data: body, weight: 500 as const, style: "normal" as const },
     { name: "Hanken", data: bodyBold, weight: 700 as const, style: "normal" as const },
   ];
@@ -44,7 +41,7 @@ export async function ogFonts() {
 /** The wordmark from the front-door nav, at share-card scale. */
 function Mark() {
   return (
-    <div style={{ display: "flex", fontFamily: "Cormorant", fontWeight: 500, fontSize: 56, letterSpacing: -1.5, color: NIGHT.ink }}>
+    <div style={{ display: "flex", fontFamily: "Jakarta", fontWeight: 700, fontSize: 46, letterSpacing: -1, color: NIGHT.ink }}>
       Planind
     </div>
   );

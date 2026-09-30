@@ -772,7 +772,6 @@
 }
 .kind-tile__label strong {
   font-family: var(--font-display);
-  font-style: italic;
   font-size: 1.5rem;
   font-weight: 500;
   line-height: 1.05;

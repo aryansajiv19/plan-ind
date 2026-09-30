@@ -37,9 +37,9 @@
   --color-grape: #0c657c;
   --color-mint: #0c657c;
 
-  /* Cormorant for display (hero, titles), Hanken Grotesk for everything
-     else (layout.tsx). Cormorant goes fragile under ~20px: keep it big. */
-  --font-display: var(--font-display-family), Georgia, serif;
+  /* Plus Jakarta Sans for display (hero, titles), Hanken Grotesk for
+     everything else (layout.tsx). */
+  --font-display: var(--font-display-family), system-ui, sans-serif;
   --font-body: var(--font-hanken), system-ui, sans-serif;
 
   /* Two curves only: --ease-settle for entrances and returns, --ease-spring

@@ -5,14 +5,11 @@ import { cookies } from "next/headers";
 import { THEME_COOKIE, readPreference, resolveGround } from "@/lib/dubai-phase";
 import "./globals.css";
 
-// Cormorant (display: hero, titles) with a real italic src, so
-// `font-style: italic` gets the drawn face, not a synthetic slant.
-// Hanken Grotesk carries body, labels, chips and numerals.
+// Plus Jakarta Sans for display (hero, titles): clean, upright, variable
+// 200-800 so WeightRise can animate the axis. Hanken Grotesk carries body,
+// labels, chips and numerals. Owner, 2026-09-30: no slanted type anywhere.
 const display = localFont({
-  src: [
-    { path: "../public/fonts/cormorant-variable-latin.woff2", weight: "300 700", style: "normal" },
-    { path: "../public/fonts/cormorant-italic-variable-latin.woff2", weight: "300 700", style: "italic" },
-  ],
+  src: [{ path: "../public/fonts/plus-jakarta-sans-variable-latin.woff2", weight: "200 800", style: "normal" }],
   variable: "--font-display-family",
   display: "swap",
 });

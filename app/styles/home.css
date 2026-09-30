@@ -51,7 +51,7 @@
   font-family: var(--font-display);
   font-size: 1.6rem;
   font-weight: 600;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   line-height: 1;
   text-decoration: none;
 }
@@ -714,7 +714,6 @@
   margin-top: 0.2rem;
   color: var(--color-punch-text);
   font-family: var(--font-display);
-  font-style: italic;
   font-size: 1.05rem;
 }
 .your-plans__needed {

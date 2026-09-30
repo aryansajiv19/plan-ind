@@ -583,7 +583,6 @@
 .vote-alone > p {
   margin-bottom: 0.6rem;
   font-family: var(--font-display);
-  font-style: italic;
   font-size: 1.4rem;
 }
 
@@ -691,7 +690,6 @@
 .mini-map__label--venue {
   fill: var(--color-punch-text);
   font-family: var(--font-display);
-  font-style: italic;
   font-size: 18px;
 }
 .mini-map figcaption {
@@ -764,7 +762,6 @@
 .rate-game__ask {
   margin: 1rem 0 0.7rem;
   font-family: var(--font-display);
-  font-style: italic;
   font-size: 1.4rem;
 }
 .rate-game__buckets {
@@ -805,7 +802,6 @@
 .rate-game__or {
   color: var(--color-muted);
   font-family: var(--font-display);
-  font-style: italic;
   font-size: 1.3rem;
 }
 .rate-game__card {
@@ -832,7 +828,6 @@
 }
 .rate-game__card strong {
   font-family: var(--font-display);
-  font-style: italic;
   font-size: 1.2rem;
 }
 .rate-game__chips {
@@ -873,7 +868,6 @@
 }
 .rate-game__score {
   font-family: var(--font-display);
-  font-style: italic;
   font-size: 4rem;
   line-height: 1;
   color: var(--color-punch-text);

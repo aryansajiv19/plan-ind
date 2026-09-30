@@ -10,18 +10,20 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Display type is Cormorant ITALIC (the drawn italic, layout.tsx): sleek
-   and slanted, carried by air rather than size or weight. Body is Hanken. */
+/* Display type is Plus Jakarta Sans, upright (layout.tsx); body is Hanken. */
 h1,
 h2,
 h3,
 .font-display {
   font-family: var(--font-display);
-  font-style: italic;
-  font-weight: 500;
-  letter-spacing: -0.01em;
-  line-height: 1.02;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.08;
   text-wrap: balance;
+}
+/* Emphasis is colour and weight, never a slant (owner, 2026-09-30). */
+em {
+  font-style: normal;
 }
 
 /* Controls are soft-cornered by default; a component that sets its own

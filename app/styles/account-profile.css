@@ -982,7 +982,6 @@
 .boards__rank {
   color: var(--color-muted);
   font-family: var(--font-display);
-  font-style: italic;
   font-size: 1.3rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
@@ -1048,7 +1047,6 @@
 }
 .personality h2 {
   font-family: var(--font-display);
-  font-style: italic;
   font-size: clamp(1.4rem, 2.2vw, 1.8rem);
 }
 .personality__head {
@@ -1090,7 +1088,6 @@
 }
 .personality__title {
   font-family: var(--font-display);
-  font-style: italic;
   font-size: 2rem;
   line-height: 1.1;
   color: var(--color-punch-text);
@@ -1148,7 +1145,6 @@
 }
 .crew h2 {
   font-family: var(--font-display);
-  font-style: italic;
   font-size: clamp(1.4rem, 2.2vw, 1.8rem);
 }
 .crew__friends {
@@ -1187,7 +1183,6 @@
 }
 .crew__score strong {
   font-family: var(--font-display);
-  font-style: italic;
   font-size: 3.2rem;
   line-height: 1;
   color: var(--color-punch-text);
@@ -1217,7 +1212,6 @@
 .crew__split {
   margin-top: 0.9rem;
   font-family: var(--font-display);
-  font-style: italic;
   font-size: 1.3rem;
 }
 .crew__streak {

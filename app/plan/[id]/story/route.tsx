@@ -31,13 +31,13 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   const voters = new Set((votes ?? []).map((v) => v.seat_key).filter(Boolean)).size;
   const when = eventLabel(plan.event_time);
   const n = spot.name.length;
-  const nameSize = n <= 14 ? 150 : n <= 22 ? 124 : n <= 34 ? 100 : 84;
+  const nameSize = n <= 14 ? 124 : n <= 22 ? 102 : n <= 34 ? 84 : 70;
 
   return new ImageResponse(
     <StoryFrame photo={photo} kicker="Decided" credit={photo ? spot.photo_attribution : null}>
-      <div style={{ display: "flex", fontFamily: "Cormorant", fontWeight: 500, fontSize: nameSize, lineHeight: 1, letterSpacing: -2 }}>{spot.name}</div>
+      <div style={{ display: "flex", fontFamily: "Jakarta", fontWeight: 700, fontSize: nameSize, lineHeight: 1, letterSpacing: -2 }}>{spot.name}</div>
       <div style={{ display: "flex", fontSize: 40, fontWeight: 500, color: STORY.muted }}>{[spot.area, when].filter(Boolean).join(" · ")}</div>
-      <div style={{ display: "flex", fontFamily: "Cormorant", fontStyle: "italic", fontWeight: 600, fontSize: 60, color: STORY.sand }}>
+      <div style={{ display: "flex", fontFamily: "Jakarta", fontWeight: 700, fontSize: 60, color: STORY.sand }}>
         {voters >= 2 ? `Decided by ${voters} friends` : plan.title}
       </div>
     </StoryFrame>,

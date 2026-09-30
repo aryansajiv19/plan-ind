@@ -1,6 +1,6 @@
 /**
  * Instagram-story share cards (1080x1920), for the decided plan and Wrapped.
- * Private folder: nothing here is a route. Fonts are the OG cards' (Cormorant
+ * Private folder: nothing here is a route. Fonts are the OG cards' (Plus Jakarta Sans
  * + Hanken, from public/fonts); the palette is the night tokens, copied
  * because Satori cannot read CSS variables.
  */
@@ -50,7 +50,7 @@ export async function storyPhoto(photoUrl: string | null): Promise<string | null
 
 function Mark() {
   return (
-    <div style={{ display: "flex", fontFamily: "Cormorant", fontWeight: 500, fontSize: 64, letterSpacing: -1.5, color: STORY.ink }}>
+    <div style={{ display: "flex", fontFamily: "Jakarta", fontWeight: 700, fontSize: 52, letterSpacing: -1, color: STORY.ink }}>
       Planind
     </div>
   );

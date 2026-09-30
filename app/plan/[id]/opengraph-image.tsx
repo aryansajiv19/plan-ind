@@ -18,11 +18,11 @@ export default async function Image({ params }: { params: Promise<{ id: string }
   const copy = shareCopy(await fetchPlanSharePreview(id));
   const headline = copy.winner ?? copy.title;
   const n = headline.length;
-  const titleSize = n <= 16 ? 116 : n <= 22 ? 100 : n <= 34 ? 84 : 72;
+  const titleSize = n <= 16 ? 96 : n <= 22 ? 84 : n <= 34 ? 70 : 60;
   const headlineStyle = {
     display: "flex",
-    fontFamily: "Cormorant",
-    fontWeight: 500,
+    fontFamily: "Jakarta",
+    fontWeight: 700,
     fontSize: titleSize,
     lineHeight: 1.02,
     letterSpacing: -1.5,
@@ -38,7 +38,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
           {copy.details && (
             <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
               {rule}
-              <div style={{ display: "flex", fontFamily: "Cormorant", fontStyle: "italic", fontWeight: 600, fontSize: 48 }}>
+              <div style={{ display: "flex", fontFamily: "Jakarta", fontWeight: 700, fontSize: 48 }}>
                 {copy.details}
               </div>
             </div>
@@ -57,7 +57,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
           <div style={headlineStyle}>{copy.title}</div>
           <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
             {rule}
-            <div style={{ display: "flex", fontFamily: "Cormorant", fontStyle: "italic", fontWeight: 600, fontSize: 52 }}>
+            <div style={{ display: "flex", fontFamily: "Jakarta", fontWeight: 700, fontSize: 52 }}>
               {copy.state}
             </div>
           </div>

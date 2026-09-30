@@ -50,7 +50,7 @@
   font-family: var(--font-display);
   font-size: 1.7rem;
   font-weight: 600;
-  letter-spacing: -.03em;
+  letter-spacing: -0.02em;
   line-height: 1;
   text-decoration: none;
 }
@@ -67,14 +67,13 @@
   margin: auto 0 1.25rem;
   font-size: clamp(2.27rem, 4.55vw, 4.42rem);
   line-height: .96;
-  letter-spacing: -.03em;
+  letter-spacing: -0.02em;
   font-weight: 500;
 }
-/* §20's second and third italic sites — /login and /onboarding — the same
+/* §20's second and third emphasis sites — /login and /onboarding — the same
    single-phrase-in-a-headline shape as the front door, one per screen. */
 .auth-intro h1 em {
   color: #ab6f44; /* copper: 3.6:1 on day paper, large display text */
-  font-style: italic;
 }
 [data-theme="night"] .auth-intro h1 em {
   color: var(--auth-metal);
@@ -100,7 +99,7 @@
   margin: .45rem 0 0;
   font-size: clamp(1.3rem, 2.6vw, 2.08rem);
   line-height: .95;
-  letter-spacing: -.06em;
+  letter-spacing: -0.02em;
 }
 .auth-form {
   width: 100%;
@@ -294,7 +293,7 @@
 .error-panel h1 {
   margin: .6rem 0 .5rem;
   font-size: clamp(1.6rem, 4vw, 2.2rem);
-  letter-spacing: -.03em;
+  letter-spacing: -0.02em;
 }
 .error-panel .auth-copy {
   margin: 0 auto 1.5rem;

@@ -36,13 +36,13 @@ export async function GET() {
       <div style={{ display: "flex", gap: 72 }}>
         {stats.map(([value, label]) => (
           <div key={label} style={{ display: "flex", flexDirection: "column", gap: 28 }}>
-            <div style={{ display: "flex", fontFamily: "Cormorant", fontWeight: 500, fontSize: 200, lineHeight: 1.1 }}>{value}</div>
+            <div style={{ display: "flex", fontFamily: "Jakarta", fontWeight: 700, fontSize: 160, lineHeight: 1.1 }}>{value}</div>
             <div style={{ display: "flex", fontSize: 36, color: STORY.muted }}>{label}</div>
           </div>
         ))}
       </div>
       {lines.map((line) => (
-        <div key={line} style={{ display: "flex", fontFamily: "Cormorant", fontStyle: "italic", fontWeight: 600, fontSize: 56, color: STORY.sand }}>{line}</div>
+        <div key={line} style={{ display: "flex", fontFamily: "Jakarta", fontWeight: 700, fontSize: 56, color: STORY.sand }}>{line}</div>
       ))}
     </StoryFrame>,
     { ...STORY_SIZE, fonts: await ogFonts(), headers: PRIVATE },

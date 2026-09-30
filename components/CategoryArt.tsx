@@ -1,7 +1,7 @@
 import { categoryName } from "@/components/categoryGroups";
 
 // A place with no photo gets a quiet printed card, never a stand-in scene:
-// the kind of place ("Japanese", else "Padel") set in the display italic on
+// the kind of place ("Japanese", else "Padel") set in the display face on
 // a flat surface. Every caller prints the venue's name on or beside it, so
 // the name is never repeated here. Fills its positioned parent like a photo.
 // Cuisine words that say nothing about the place; the kind of night reads better.
