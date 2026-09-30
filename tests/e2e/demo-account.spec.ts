@@ -145,6 +145,7 @@ test("the demo's Discover is the real catalogue: a sample Top places, a photo wa
   await expect(tiles.first()).toBeVisible();
   const tileCount = await tiles.count();
   expect(tileCount).toBeGreaterThan(0);
+  expect(tileCount, "a page at a time, not the whole catalogue").toBeLessThanOrEqual(24);
 
   // Map: the wall goes, the places are stars (or it says none is located yet).
   const toggle = page.getByRole("group", { name: "Show places as" });
@@ -154,8 +155,7 @@ test("the demo's Discover is the real catalogue: a sample Top places, a photo wa
   const sky = page.locator("#workspace figure.explore-sky");
   if (await sky.count()) {
     const stars = sky.locator("a.explore-sky__star");
-    expect(await stars.count()).toBeGreaterThan(0);
-    expect(await stars.count()).toBeLessThanOrEqual(tileCount);
+    expect(await stars.count()).toBeGreaterThan(0); // the map shows every match, not just the first page
     await expect(stars.first()).toHaveAttribute("href", /^\/place\/[0-9a-f-]{36}$/);
   } else {
     await expect(page.locator("#workspace")).toContainText("None of these places has a location yet.");
@@ -167,6 +167,15 @@ test("the demo's Discover is the real catalogue: a sample Top places, a photo wa
   const filters = page.getByLabel("Filter places").getByRole("button");
   await filters.nth(1).click();
   await expect.poll(() => tiles.count()).toBeLessThan(tileCount);
+
+  // Back to All starts again at the first page; Show more adds the next one.
+  await filters.first().click();
+  await expect(tiles).toHaveCount(tileCount);
+  const more = page.getByRole("button", { name: /^Show \d+ more/ });
+  if (await more.count()) {
+    await more.click();
+    await expect.poll(() => tiles.count()).toBeGreaterThan(tileCount);
+  }
 });
 
 test("a demo Discover tile opens the real place page", async ({ page }) => {

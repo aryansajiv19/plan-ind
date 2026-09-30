@@ -18,6 +18,8 @@ import type { Spot } from "@/lib/types";
 
 // Called from AccountViews, not DiscoverTab: AccountViews stays mounted
 // across a tab switch, so a search typed here survives a trip to another tab.
+export const DISCOVER_PAGE = 24;
+
 export function useDiscoverSearch(spots: Spot[], age: number) {
   const [query, setQuery] = useState("");
   const [placeFilter, setPlaceFilter] = useState("All");
@@ -109,7 +111,15 @@ export function useDiscoverSearch(spots: Spot[], age: number) {
 
   // The search on screen failed: said as such, never as "no matches" (P13).
   const searchFailed = searching && remote?.key === remoteKey && remote.failed;
-  return { query, setQuery, placeFilter, setPlaceFilter, categories, visiblePlaces, searchFailed };
+
+  // A page at a time, not the whole catalogue in one wall. The count belongs
+  // to one search: a new query or filter starts again at the first page
+  // (derived from the key, so no effect has to reset it).
+  const pageKey = `${query}\u0000${placeFilter}`;
+  const [page, setPage] = useState({ key: pageKey, count: DISCOVER_PAGE });
+  const shown = page.key === pageKey ? page.count : DISCOVER_PAGE;
+  const showMore = () => setPage({ key: pageKey, count: shown + DISCOVER_PAGE });
+  return { query, setQuery, placeFilter, setPlaceFilter, categories, visiblePlaces, searchFailed, shown, showMore };
 }
 
 export default function DiscoverTab({
@@ -127,7 +137,7 @@ export default function DiscoverTab({
   onPlanFromBoard: (prefill: PlanPrefill) => void;
   suggested: ReturnType<typeof useSuggestions>;
 }) {
-  const { query, setQuery, placeFilter, setPlaceFilter, categories, visiblePlaces, searchFailed } = search;
+  const { query, setQuery, placeFilter, setPlaceFilter, categories, visiblePlaces, searchFailed, shown, showMore } = search;
   const [layout, setLayout] = useState<"grid" | "map">("grid");
   const allowedCategory = (category: string) => CATEGORIES.some((c) => c.key === category) && age >= minimumAgeForCategory(category);
   return (
@@ -172,8 +182,9 @@ export default function DiscoverTab({
       ) : visiblePlaces.length && layout === "map" ? (
         <ExploreConstellation spots={visiblePlaces} />
       ) : visiblePlaces.length ? (
+        <>
         <div className="demo-place-grid">
-          {visiblePlaces.map((spot) => (
+          {visiblePlaces.slice(0, shown).map((spot) => (
             <PlaceCard
               key={spot.id}
               spot={spot}
@@ -183,6 +194,8 @@ export default function DiscoverTab({
             />
           ))}
         </div>
+        <MorePlaces left={visiblePlaces.length - shown} onMore={showMore} />
+        </>
       ) : (
         <p className="demo-empty">
           {spots.length === 0
@@ -193,5 +206,15 @@ export default function DiscoverTab({
         </p>
       )}
     </section>
+  );
+}
+
+/** "Show 24 more", or nothing once every match is on screen. */
+export function MorePlaces({ left, onMore }: { left: number; onMore: () => void }) {
+  if (left <= 0) return null;
+  return (
+    <button type="button" className="discover-more" onClick={onMore}>
+      Show {Math.min(left, DISCOVER_PAGE)} more <span className="discover-more__left">of {left}</span>
+    </button>
   );
 }

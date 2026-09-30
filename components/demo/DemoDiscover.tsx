@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import PhotoWall from "@/components/PhotoWall";
 import VenuePhoto from "@/components/VenuePhoto";
 import ExploreConstellation from "@/components/account/ExploreConstellation";
-import { useDiscoverSearch } from "@/components/account/DiscoverTab";
+import { MorePlaces, useDiscoverSearch } from "@/components/account/DiscoverTab";
 import { categoryLabel } from "@/lib/categories";
 import { hasVenuePhoto } from "@/lib/venue-photo";
 import type { Spot } from "@/lib/types";
@@ -76,7 +76,7 @@ function SampleTopPlaces({ spots }: { spots: Spot[] }) {
 }
 
 export default function DemoDiscover({ spots }: { spots: Spot[] }) {
-  const { query, setQuery, placeFilter, setPlaceFilter, categories, visiblePlaces, searchFailed } = useDiscoverSearch(spots, DEMO_AGE);
+  const { query, setQuery, placeFilter, setPlaceFilter, categories, visiblePlaces, searchFailed, shown, showMore } = useDiscoverSearch(spots, DEMO_AGE);
   const [layout, setLayout] = useState<"grid" | "map">("grid");
 
   return (
@@ -107,7 +107,10 @@ export default function DemoDiscover({ spots }: { spots: Spot[] }) {
       ) : layout === "map" && visiblePlaces.length ? (
         <ExploreConstellation spots={visiblePlaces} />
       ) : (
-        <PhotoWall items={photoFirst(visiblePlaces).map((spot) => ({ id: spot.id, kind: "photo" as const, spot }))} emptyMessage="No places match that search." />
+        <>
+        <PhotoWall items={photoFirst(visiblePlaces).slice(0, shown).map((spot) => ({ id: spot.id, kind: "photo" as const, spot }))} emptyMessage="No places match that search." />
+        <MorePlaces left={visiblePlaces.length - shown} onMore={showMore} />
+        </>
       )}
     </section>
   );
