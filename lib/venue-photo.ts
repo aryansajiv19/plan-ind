@@ -4,7 +4,7 @@ import type { Spot } from "@/lib/types";
 // hasVenuePhoto too, and a function exported from a client module is only a
 // reference on the server -- calling it there throws.
 
-export type PhotoSpot = Pick<Spot, "id" | "photo_url" | "photo_attribution"> & { google_place_id?: string | null; category?: string };
+export type PhotoSpot = Pick<Spot, "id" | "photo_url" | "photo_attribution"> & { google_place_id?: string | null; category?: string; cuisine?: string | null };
 
 /** A real photograph: our own, or a matched Google place's where Google photos are on. */
 export const hasRealPhoto = (spot: PhotoSpot, google = true) => Boolean(spot.photo_url || (google && spot.google_place_id));
