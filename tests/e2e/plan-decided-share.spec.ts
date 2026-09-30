@@ -39,6 +39,8 @@ test("dealt cards say why they were picked, and only what the deal filtered on",
     const buQtair = cardFor(page, "Bu Qtair");
     const tresind = cardFor(page, "Tresind Studio");
     await expect(threeFils).toBeVisible({ timeout: 20_000 });
+    // The reasons sit behind each card's "More"; the distance is on the fact line.
+    for (const card of [threeFils, buQtair, tresind]) await card.locator("summary", { hasText: "More" }).click();
 
     // Same area as the origin: 0 km, which the chip floors to 1.
     await expect(threeFils.getByText("Fits AED 200", { exact: true })).toBeVisible();
