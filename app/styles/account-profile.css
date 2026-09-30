@@ -873,16 +873,10 @@
 }
 
 /* ── Leaderboards (components/leaderboard/Leaderboards.tsx) ──────────
-   A game board: medals for the top three, your row lit in sand. */
+   A plain ranked list on the page, no panel: numerals, hairlines, your row
+   lit in sand. */
 .boards {
   margin-block: 1.5rem 2rem;
-  padding: 1.1rem 1.2rem;
-  border: 1px solid color-mix(in srgb, var(--color-punch) 40%, transparent);
-  border-radius: var(--radius-panel);
-  background: var(--color-fill-quiet);
-}
-[data-theme="night"] .boards {
-  background: linear-gradient(170deg, rgba(23, 64, 80, 0.5), rgba(68, 40, 22, 0.35));
 }
 .boards__head {
   display: flex;
@@ -930,41 +924,36 @@
 }
 .boards__list {
   display: grid;
-  gap: 0.35rem;
   margin-top: 0.9rem;
+  border-top: 1px solid var(--color-line);
   padding: 0;
   list-style: none;
 }
 .boards__row {
   display: grid;
-  grid-template-columns: 2.4rem 2.4rem 1fr auto;
+  grid-template-columns: 1.6rem 2.2rem 1fr auto;
   align-items: center;
   gap: 0.6rem;
-  padding: 0.5rem 0.7rem;
-  border-radius: var(--radius-control);
-  background: var(--color-card);
+  padding: 0.55rem 0.5rem;
+  border-bottom: 1px solid var(--color-line);
   animation: rate-step-in 360ms var(--ease-settle) both;
 }
 .boards__row:nth-child(2) { animation-delay: 40ms; }
 .boards__row:nth-child(3) { animation-delay: 80ms; }
 .boards__row:nth-child(n + 4) { animation-delay: 120ms; }
 .boards__row[data-me] {
-  box-shadow: 0 0 0 2px var(--color-punch);
+  background: var(--color-accent-tint);
 }
 .boards__rank {
-  display: grid;
-  place-items: center;
-  width: 2rem;
-  height: 2rem;
+  color: var(--color-muted);
   font-family: var(--font-display);
   font-style: italic;
   font-size: 1.3rem;
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 .boards__rank[data-top] {
-  border-radius: 50%;
-  background: var(--primary-fill);
-  color: var(--primary-ink);
+  color: var(--color-punch-text);
 }
 .boards__avatar {
   display: grid;
@@ -1119,10 +1108,8 @@
 /* ── Crew match (components/crew/CrewMatch.tsx) ─────────────────────── */
 .crew {
   margin-block: 1.5rem;
-  padding: 1.2rem;
-  border: 1px solid var(--color-line);
-  border-radius: var(--radius-panel);
-  background: var(--color-card);
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--color-line);
 }
 .crew h2 {
   font-family: var(--font-display);
