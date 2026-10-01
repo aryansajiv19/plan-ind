@@ -1,4 +1,4 @@
-import { guard, reply } from "@/lib/gathering-api";
+import { groupPrefsMissing, guard, reply } from "@/lib/gathering-api";
 import { isUuid, parsePrefs } from "@/lib/gathering";
 
 export const runtime = "nodejs";
@@ -17,6 +17,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     p_plan_id: id, p_budget_cap: prefs.budgetCap, p_origin_value: prefs.origin, p_vibes: prefs.vibes, p_avoid: prefs.avoid,
   });
   if (error) {
+    const missing = groupPrefsMissing(error);
+    if (missing) return missing;
     console.error("Preferences save failed", JSON.stringify({ planId: id, code: error.code }));
     if (error.code === "42501") return reply(403, "You are not on this plan.");
     if (error.code === "22023") return reply(400, "Those answers were not accepted.");

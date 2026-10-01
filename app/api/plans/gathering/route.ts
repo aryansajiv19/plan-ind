@@ -1,4 +1,4 @@
-import { guard, reply } from "@/lib/gathering-api";
+import { groupPrefsMissing, guard, reply } from "@/lib/gathering-api";
 import { plainText } from "@/lib/security/request";
 
 export const runtime = "nodejs";
@@ -15,6 +15,8 @@ export async function POST(request: Request) {
 
   const { data, error } = await supabase.rpc("create_gathering_plan", { p_plan: { title, category } });
   if (error || !data || typeof data !== "object") {
+    const missing = groupPrefsMissing(error);
+    if (missing) return missing;
     console.error("Gathering plan creation failed", JSON.stringify({ code: error?.code }));
     // PC429: the database's own daily cap (087); 42501: age or account rules.
     if (error?.code === "PC429") return reply(429, "Too many plans started. Try again later.");

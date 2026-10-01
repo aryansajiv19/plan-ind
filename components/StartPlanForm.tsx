@@ -40,9 +40,10 @@ export default function StartPlanForm({
   const [mode, setMode] = useState<"deal" | "direct">("deal");
   const composer = useComposer({ age, demoMode, prefill });
   const { when, pinnedIds } = composer;
-  const gather = useStartGathering({ category: composer.category, title: composer.title, times: when.picks });
-  // Ask first unless a place is pinned: pins live in the nine, which only exist after a deal.
-  const askFirst = !demoMode && pinnedIds.length === 0;
+  // deal: when the group SQL is not live, this submit runs the old deal instead, no error shown.
+  const gather = useStartGathering({ category: composer.category, title: composer.title, times: when.picks, deal: () => void composer.start() });
+  // Ask first unless a place is pinned (pins live in the nine, which only exist after a deal) or asking is unavailable.
+  const askFirst = !demoMode && pinnedIds.length === 0 && !gather.unavailable;
   const { category, title, creating, error, revealing, setRevealing, revealCards, revealShown, smartQuery, setSmartQuery, smartIntent, setSmartIntent, applyIntent, stashDraft, signIn, start, constraintChips } = composer;
 
   if (revealing) {
@@ -126,7 +127,7 @@ export default function StartPlanForm({
         // Signed out there is no one's shelf to show, except /demo's labelled samples.
         shelf={(!demoMode || sampleShelf) && <MyPlacesShelf composer={composer} age={age} sample={demoMode} />}
       >
-        <TuneIt composer={composer} demoMode={demoMode} />
+        <TuneIt composer={composer} demoMode={demoMode} askFirst={askFirst} />
 
         {/* The deal stays in reach from anywhere in the form, Tune it included:
             sticky at the bottom edge, on the card's own surface. */}

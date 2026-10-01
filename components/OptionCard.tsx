@@ -165,8 +165,10 @@ export default function OptionCard({
 
       {/* Why this fits the whole group: the product's promise, so it is not folded away. */}
       {fit && fit.length > 0 && (
-        <p className="mt-1 text-sm font-medium">
-          <span className="sr-only">Fits the group: </span>{fit.join(" · ")}
+        <p className="mt-2 border-t border-line pt-2 text-xs leading-snug">
+          <span className="font-semibold text-punch-text">Fits the group</span>
+          <span className="sr-only">: </span>
+          <span aria-hidden="true">{" · "}</span>{fit.join(" · ")}
         </p>
       )}
 

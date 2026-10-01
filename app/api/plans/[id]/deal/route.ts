@@ -1,4 +1,4 @@
-import { guard, reply } from "@/lib/gathering-api";
+import { groupPrefsMissing, guard, reply } from "@/lib/gathering-api";
 import { isUuid, parseHostSettings, toGroupPref } from "@/lib/gathering";
 import { dealForGroup } from "@/lib/group-prefs";
 import { MIN_ACCOUNT_AGE, memberAge } from "@/lib/age-policy";
@@ -39,6 +39,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (plan.stage !== "gathering") return reply(409, "Already dealt");
 
   const { data: rows, error: prefsError } = await supabase.from("plan_preferences").select("*").eq("plan_id", id);
+  const missing = groupPrefsMissing(prefsError);
+  if (missing) return missing;
   if (prefsError || !rows) return reply(503, "Couldn't read the group's answers. Try again in a moment.");
 
   // Age is the account's, never the body's; the pool is the shared curated cache.
@@ -82,6 +84,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   };
   const { data, error } = await supabase.rpc("start_group_plan", { p_plan_id: id, p_spot_ids: dealt.ids, p_group: group });
   if (error) {
+    const gone = groupPrefsMissing(error);
+    if (gone) return gone;
     console.error("Group deal failed", JSON.stringify({ planId: id, code: error.code }));
     if (error.code === "42501") return reply(403, "Only the host can deal.");
     if (error.code === "22023") return reply(422, "Those places were not accepted. Try again.");

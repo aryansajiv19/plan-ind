@@ -19,7 +19,10 @@ function Chip({ on, onClick, disabled, children }: { on: boolean; onClick: () =>
   );
 }
 
-function Group({ legend, hint, children }: { legend: string; hint?: string; children: React.ReactNode }) {
+// Where people actually set out from; the rest sit behind "More areas" so the card stays short on a phone.
+const COMMON_ORIGINS: readonly string[] = ["anywhere", "downtown", "marina", "jumeirah", "business-bay"];
+
+function Group({ legend, hint, more, moreOpen, children }: { legend: string; hint?: string; more?: React.ReactNode; moreOpen?: boolean; children: React.ReactNode }) {
   return (
     <fieldset className="m-0 min-w-0 border-0 p-0">
       <legend className="mb-2 p-0 text-base font-semibold">
@@ -27,6 +30,12 @@ function Group({ legend, hint, children }: { legend: string; hint?: string; chil
         {hint && <span className="ml-2 text-sm font-normal text-muted">{hint}</span>}
       </legend>
       <div className="flex flex-wrap gap-2">{children}</div>
+      {more && (
+        <details className="mt-1" open={moreOpen}>
+          <summary className="inline-flex min-h-11 cursor-pointer items-center text-sm font-medium underline underline-offset-4">More areas</summary>
+          <div className="mt-1 flex flex-wrap gap-2">{more}</div>
+        </details>
+      )}
     </fieldset>
   );
 }
@@ -56,6 +65,9 @@ export default function PrefsCard({ mine, onSave }: { mine: PlanPreferences | nu
     );
   }
 
+  const originChip = (o: (typeof DUBAI_ORIGINS)[number]) => (
+    <Chip key={o.value} on={origin === o.value} onClick={() => setOrigin(o.value)}>{o.value === "anywhere" ? "Anywhere" : o.label}</Chip>
+  );
   const toggle = (list: string[], set: (next: string[]) => void, value: string) =>
     set(list.includes(value) ? list.filter((v) => v !== value) : list.length < 2 ? [...list, value] : list);
 
@@ -80,8 +92,12 @@ export default function PrefsCard({ mine, onSave }: { mine: PlanPreferences | nu
         {GROUP_BUDGET_OPTIONS.map((cap) => <Chip key={cap ?? "any"} on={budget === cap} onClick={() => setBudget(cap)}>{budgetLabel(cap)}</Chip>)}
       </Group>
 
-      <Group legend="Coming from">
-        {DUBAI_ORIGINS.map((o) => <Chip key={o.value} on={origin === o.value} onClick={() => setOrigin(o.value)}>{o.value === "anywhere" ? "Anywhere" : o.label}</Chip>)}
+      <Group
+        legend="Coming from"
+        more={<>{DUBAI_ORIGINS.filter((o) => !COMMON_ORIGINS.includes(o.value)).map(originChip)}</>}
+        moreOpen={!COMMON_ORIGINS.includes(origin)}
+      >
+        {DUBAI_ORIGINS.filter((o) => COMMON_ORIGINS.includes(o.value)).map(originChip)}
       </Group>
 
       <Group legend="Vibe" hint="Up to 2">

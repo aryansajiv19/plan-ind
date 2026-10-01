@@ -6,8 +6,20 @@ import { createClient } from "@/lib/supabase/server";
 import { AUTH_UNAVAILABLE_MESSAGE, sessionUser } from "@/lib/auth";
 import { CONTROL_UNAVAILABLE_MESSAGE, consumeQuota, recordSecurityEvent, reportControlUnavailable } from "@/lib/security/controls";
 import { readJsonBody, requestError, validateMutationRequest } from "@/lib/security/request";
+import { GROUP_PREFS_UNAVAILABLE, isMissingGroupPrefs } from "@/lib/gathering";
 
-export const reply = (status: number, error: string) => Response.json({ error }, { status, headers: { "Cache-Control": "no-store" } });
+let warned = false;
+/**
+ * A typed 503 when the group-preferences SQL (migration 100) is not there yet,
+ * else null. Logged once per server process, no stack: it is a state, not a bug.
+ */
+export function groupPrefsMissing(error: { code?: string } | null | undefined): Response | null {
+  if (!error || !isMissingGroupPrefs(error.code)) return null;
+  if (!warned) { warned = true; console.warn("Group preferences unavailable: migration 100 is not applied", JSON.stringify({ code: error.code })); }
+  return Response.json({ error: "Asking the group is not available yet.", code: GROUP_PREFS_UNAVAILABLE }, { status: 503, headers: { "Cache-Control": "no-store" } });
+}
+
+export const reply =(status: number, error: string) => Response.json({ error }, { status, headers: { "Cache-Control": "no-store" } });
 
 export async function guard(request: Request, scope: "plan-create" | "plan-command", signedInMessage: string):
   Promise<{ supabase: SupabaseClient; user: User; body: unknown } | Response> {

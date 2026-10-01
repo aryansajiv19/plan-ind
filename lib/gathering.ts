@@ -2,7 +2,7 @@
 // the API routes and the row -> GroupPref fold the screens use. No I/O.
 import { DUBAI_ORIGINS } from "./dubai-areas.ts";
 import { GROUP_AVOID_OPTIONS, GROUP_BUDGET_OPTIONS, GROUP_VIBE_OPTIONS, originFor, type GroupPref } from "./group-prefs.ts";
-import type { PlanPreferences } from "./types.ts";
+import type { PlanGroupSummary, PlanPreferences } from "./types.ts";
 
 export interface PrefsInput {
   budgetCap: number | null;
@@ -74,12 +74,38 @@ const originLabel = (value: string | null) => DUBAI_ORIGINS.find((o) => o.value 
 const vibeLabel = (value: string) => GROUP_VIBE_OPTIONS.find((o) => o.value === value)?.label ?? value;
 const avoidLabel = (value: string) => GROUP_AVOID_OPTIONS.find((o) => o.value === value)?.label ?? value;
 
+/**
+ * The dealt plan's header line, from group_summary, so the stored origin label
+ * ("Fair point for the group", whatever the origin was) is never printed.
+ * Two or more answers: the group's. Fewer: the host's own settings, with the
+ * area name recovered from the saved coordinates when they are one of the list.
+ */
+export function constraintLine(summary: PlanGroupSummary): string {
+  const budget = summary.budgetCap != null ? `up to AED ${summary.budgetCap} per person` : "any budget";
+  if (summary.answered >= 2) {
+    return `Chosen for the group: ${budget}${summary.radiusKm != null ? `, within ${summary.radiusKm} km of the group’s middle` : ""}`;
+  }
+  const c = summary.centroid;
+  const area = c && DUBAI_ORIGINS.find((o) => o.coordinates && o.coordinates.latitude === c.latitude && o.coordinates.longitude === c.longitude)?.label;
+  return `Set by the host: ${budget}${summary.radiusKm != null ? `, within ${summary.radiusKm} km of ${area ?? "their starting point"}` : ""}`;
+}
+
 /** What one person said, in one line. */
 export function answerSummary(row: Pick<PlanPreferences, "budget_cap" | "origin_value" | "vibes" | "avoid">): string {
+  if (row.budget_cap == null && !row.origin_value && !row.vibes.length && !row.avoid.length) return "No preferences, that’s fine";
   return [
-    budgetLabel(row.budget_cap),
-    row.origin_value ? `From ${originLabel(row.origin_value)}` : "From anywhere",
+    row.budget_cap == null ? "Any budget" : budgetLabel(row.budget_cap),
+    row.origin_value ? `Coming from ${originLabel(row.origin_value)}` : "Coming from anywhere",
     ...(row.vibes.length ? [row.vibes.map(vibeLabel).join(" and ")] : []),
     ...(row.avoid.length ? [`No ${row.avoid.map((a) => avoidLabel(a).toLowerCase()).join(" or ")}`] : []),
   ].join(", ");
 }
+
+/**
+ * Migration 100 not applied yet: PostgREST says PGRST202 (function) or PGRST205
+ * (table), Postgres 42883 (function) or 42P01 (table). Routes answer a typed 503
+ * and the composer falls back to the old deal, so the code can ship before the SQL.
+ */
+export const GROUP_PREFS_UNAVAILABLE = "group_prefs_unavailable";
+export const isMissingGroupPrefs = (code: string | null | undefined): boolean =>
+  code === "PGRST202" || code === "PGRST205" || code === "42883" || code === "42P01";

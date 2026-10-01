@@ -1,13 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { getSupabase, readAccount } from "@/lib/supabase";
 import { coalesce } from "@/lib/coalesce";
 import { secureJsonFetch } from "@/lib/security/csrf-client";
 import type { PrefsInput } from "@/lib/gathering";
 import type { Access } from "@/hooks/use-plan-data";
 import { fitFor } from "@/lib/group-prefs";
-import { relaxedNote, toGroupPref } from "@/lib/gathering";
+import { constraintLine, relaxedNote, toGroupPref } from "@/lib/gathering";
 import type { PlanGroupSummary, PlanPreferences, Spot } from "@/lib/types";
 
 const COLUMNS = "plan_id,user_id,voter_name,budget_cap,origin_value,origin_latitude,origin_longitude,vibes,avoid,updated_at";
@@ -94,7 +94,7 @@ export function usePlanPreferences({ id, access, live }: { id: string; access: A
   // What the vote cards say about the deal: null on a plan that was not dealt from group answers.
   const group = summary && rows ? rows.map(toGroupPref) : null;
   const fit = group && ((spot: Spot) => fitFor(spot, group));
-  return { rows, failed, summary, userId, refetch, save, fit, note: summary ? relaxedNote(summary) : null };
+  return { rows, failed, summary, userId, refetch, save, fit, note: summary ? relaxedNote(summary) : null, line: summary ? constraintLine(summary) : null };
 }
 
 /**
@@ -113,4 +113,12 @@ export function useReloadWhenDealt(stage: string | undefined, reload: () => void
     const frame = requestAnimationFrame(() => { sawGathering.current = false; reload(); });
     return () => cancelAnimationFrame(frame);
   }, [stage, reload]);
+}
+
+/** Everything the plan page needs from group answers, in one call: the data, and the reload once dealt. */
+export function usePlanGroup(id: string, access: Access, stage: string | undefined, setReloadKey: Dispatch<SetStateAction<number>>) {
+  const prefs = usePlanPreferences({ id, access, live: stage === "gathering" });
+  const reload = useCallback(() => setReloadKey((k) => k + 1), [setReloadKey]);
+  useReloadWhenDealt(stage, reload);
+  return prefs;
 }

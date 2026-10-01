@@ -19,14 +19,14 @@ const countChip = (n: number | null) => n != null && (
  * so the summary says what they are as real text (read by screen readers),
  * and it opens downward, so nothing above it moves.
  */
-export default function TuneIt({ composer, demoMode }: { composer: Composer; demoMode: boolean }) {
+export default function TuneIt({ composer, demoMode, askFirst = false }: { composer: Composer; demoMode: boolean; /** Asking the group first: the plan has no voting deadline yet, so none is offered. */ askFirst?: boolean }) {
   const { preview, need, maxBudget, setMaxBudget, originValue, setOriginValue, radiusKm, setRadiusKm, when, title, setTitle, setTitleEdited, presetIdx, setPresetIdx, custom, signIn, tuneOpen, setTuneOpen } = composer;
   const origin = DUBAI_ORIGINS.find((option) => option.value === originValue);
   const summary = [
     title.trim() ? `“${title.trim()}”` : "No title yet",
     budgetLabel(maxBudget),
     origin?.coordinates ? (radiusKm != null ? `Within ${radiusKm} km of ${origin.label}` : `From ${origin.label}`) : "Anywhere in Dubai",
-    `Voting closes ${PRESETS[presetIdx].label.toLowerCase()}`,
+    ...(askFirst ? [] : [`Voting closes ${PRESETS[presetIdx].label.toLowerCase()}`]),
     ...(when.picks.length > 0 ? [`${when.picks.length} times offered`] : []),
     ...(custom.selectedIds.length > 0 ? [`${custom.selectedIds.length} of your places`] : []),
   ];
@@ -98,8 +98,8 @@ export default function TuneIt({ composer, demoMode }: { composer: Composer; dem
         className="plan-form__input"
       />
 
-      <p className="plan-form__label plan-form__label--spaced">Voting closes</p>
-      <div className="plan-deadlines">
+      {!askFirst && <p className="plan-form__label plan-form__label--spaced">Voting closes</p>}
+      {!askFirst && <div className="plan-deadlines">
         {PRESETS.map((p, i) => (
           <button
             key={p.label}
@@ -111,7 +111,7 @@ export default function TuneIt({ composer, demoMode }: { composer: Composer; dem
             {p.label}
           </button>
         ))}
-      </div>
+      </div>}
     </details>
   );
 }

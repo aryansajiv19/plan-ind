@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { answerSummary, parseHostSettings, parsePrefs, relaxedNote, toGroupPref } from "../lib/gathering.ts";
+import { answerSummary, constraintLine, isMissingGroupPrefs, parseHostSettings, parsePrefs, relaxedNote, toGroupPref } from "../lib/gathering.ts";
 import type { PlanPreferences } from "../lib/types.ts";
 
 const ok = (value: unknown) => { const r = parsePrefs(value); assert.ok(!("error" in r), JSON.stringify(r)); return r as Exclude<typeof r, { error: string }>; };
@@ -35,6 +35,12 @@ test("parseHostSettings: skip-path settings are bounded; a radius needs an origi
   }
 });
 
+test("isMissingGroupPrefs: only 'the SQL is not there' codes fall back; real failures do not", () => {
+  for (const code of ["PGRST202", "PGRST205", "42883", "42P01"]) assert.equal(isMissingGroupPrefs(code), true, code);
+  // A refusal or an outage must keep its own message: 42501 not allowed, 22023 bad input, PC429 capped, 500s, no code.
+  for (const code of ["42501", "22023", "PC429", "PGRST301", "08006", "", null, undefined]) assert.equal(isMissingGroupPrefs(code), false, String(code));
+});
+
 const row = (over: Partial<PlanPreferences> = {}): PlanPreferences => ({
   plan_id: "p", user_id: "u", voter_name: "Maya", budget_cap: null, origin_value: null, origin_latitude: null, origin_longitude: null,
   vibes: [], avoid: [], updated_at: "2026-10-01T00:00:00Z", ...over,
@@ -43,9 +49,20 @@ const row = (over: Partial<PlanPreferences> = {}): PlanPreferences => ({
 test("toGroupPref and answerSummary: a stored row reads back as what was tapped", () => {
   const r = row({ budget_cap: 100, origin_value: "marina", origin_latitude: 25.08, origin_longitude: 55.14, vibes: ["chill", "quiet"], avoid: ["shisha"] });
   assert.deepEqual(toGroupPref(r).origin, { value: "marina", latitude: 25.08, longitude: 55.14 });
-  assert.equal(answerSummary(r), "Up to AED 100, From Dubai Marina, Chill and Quiet, No shisha");
-  assert.equal(answerSummary(row()), "Any, From anywhere");
+  assert.equal(answerSummary(r), "Up to AED 100, Coming from Dubai Marina, Chill and Quiet, No shisha");
+  assert.equal(answerSummary(row()), "No preferences, that’s fine");
+  assert.equal(answerSummary(row({ vibes: ["chill"] })), "Any budget, Coming from anywhere, Chill");
   assert.equal(toGroupPref(row({ origin_value: "marina" })).origin, null); // no coordinates: never half an origin
+});
+
+test("constraintLine: the group's words, never the stored 'Fair point' label", () => {
+  const at = { latitude: 25.0805, longitude: 55.1403 }; // Dubai Marina
+  const group = { answered: 3, budgetCap: 200, centroid: at, radiusKm: 20, relaxed: [] as ("budget" | "distance")[] };
+  assert.equal(constraintLine(group), "Chosen for the group: up to AED 200 per person, within 20 km of the group’s middle");
+  assert.equal(constraintLine({ ...group, budgetCap: null, radiusKm: null }), "Chosen for the group: any budget");
+  assert.equal(constraintLine({ ...group, answered: 0 }), "Set by the host: up to AED 200 per person, within 20 km of Dubai Marina");
+  assert.equal(constraintLine({ ...group, answered: 1, centroid: { latitude: 1, longitude: 1 } }), "Set by the host: up to AED 200 per person, within 20 km of their starting point");
+  for (const s of [group, { ...group, answered: 0 }]) assert.ok(!/fair point/i.test(constraintLine(s)));
 });
 
 test("relaxedNote: says what was loosened, and nothing when nothing was", () => {

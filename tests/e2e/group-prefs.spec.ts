@@ -60,7 +60,9 @@ test.describe("group preferences", () => {
 
       // Cards, each with the computed fit line, not the generic reasons.
       await expect(page.locator(CARDS)).toHaveCount(3, { timeout: 20_000 });
-      await expect(page.locator(".vote-options-grid article").first().getByText(/km or less for all 2/)).toBeVisible();
+      await expect(page.locator(".vote-options-grid article").first().getByText(/km or less for both of you/)).toBeVisible();
+      await expect(page.getByText(/^Chosen for the group: .*within \d+ km of the group’s middle$/)).toBeVisible();
+      await expect(page.getByText(/Fair point/)).toHaveCount(0); // the stored label never reaches the screen
       const { data: plan } = await admin.from("plans").select("stage, group_summary").eq("id", planId).single();
       expect(plan?.stage).toBe("pool");
       expect((plan?.group_summary as { answered: number }).answered).toBe(2);
@@ -100,6 +102,32 @@ test.describe("group preferences", () => {
       await expect(page.locator(CARDS)).toHaveCount(3, { timeout: 20_000 });
       const { count } = await admin.from("plan_spots").select("plan_id", { count: "exact", head: true }).eq("plan_id", planId);
       expect(count).toBe(9);
+    } finally {
+      if (planId) await admin.from("plans").delete().eq("id", planId);
+    }
+  });
+
+  test("asking the group is unavailable (migration 100 not applied): the old deal completes, no error", async ({ page, context, baseURL }) => {
+    test.setTimeout(90_000);
+    await signInAsMember(context, baseURL!, `Fallback ${Date.now()}`);
+    const admin = localAdmin();
+    let planId = "";
+    try {
+      await page.route("**/api/plans/gathering", (route) => route.fulfill({
+        status: 503, contentType: "application/json",
+        body: JSON.stringify({ error: "Asking the group is not available yet.", code: "group_prefs_unavailable" }),
+      }));
+      await page.goto("/home");
+      // No "Voting closes" while asking first: a gathering plan has no voting deadline to choose.
+      await page.locator("summary", { hasText: "Tune it" }).click();
+      await expect(page.getByText("Voting closes")).toHaveCount(0);
+      await page.getByRole("button", { name: "Share and ask the group" }).click();
+      // The submit becomes the old deal, transparently: a plan with nine places, three rounds.
+      await page.waitForURL(/\/plan\/[0-9a-f-]{36}/, { timeout: 30_000 });
+      planId = new URL(page.url()).pathname.split("/").pop()!;
+      await expect(page.locator(CARDS)).toHaveCount(3, { timeout: 20_000 });
+      const { data } = await admin.from("plans").select("stage").eq("id", planId).single();
+      expect(data?.stage).toBe("pool");
     } finally {
       if (planId) await admin.from("plans").delete().eq("id", planId);
     }

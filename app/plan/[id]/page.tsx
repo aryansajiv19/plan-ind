@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import UndoBar from "@/components/UndoBar";
 import { useParams } from "next/navigation";
@@ -21,7 +21,7 @@ import { useLeavePlan } from "@/hooks/use-leave-plan";
 import { useRoundFold } from "@/hooks/use-round-fold";
 import { usePlanDevice } from "@/hooks/use-plan-device";
 import { usePlanSeen } from "@/hooks/use-plan-seen";
-import { usePlanPreferences, useReloadWhenDealt } from "@/hooks/use-plan-preferences";
+import { usePlanGroup } from "@/hooks/use-plan-preferences";
 import Gathering from "@/components/vote/Gathering";
 import OptionCard from "@/components/OptionCard";
 import DecidedPlan from "@/components/DecidedPlan";
@@ -74,10 +74,7 @@ export default function VotePage() {
   const stage = plan?.stage ?? (decided ? "decided" : "final");
   const poolCount = plan?.pool_count ?? 1;
   const { nightMode, been } = usePlanDevice();
-  // Group answers: the gathering screen's data, and the cards' "fits" line once dealt.
-  const prefs = usePlanPreferences({ id, access, live: stage === "gathering" });
-  const reloadPlan = useCallback(() => setReloadKey((k) => k + 1), [setReloadKey]);
-  useReloadWhenDealt(plan?.stage, reloadPlan);
+  const prefs = usePlanGroup(id, access, plan?.stage, setReloadKey); // group answers (gathering screen, cards' fit line)
 
   const host = useHostCommands({ id, plan, setPlan, setPlanSpots, stage, spots, deleted, setDeleted, setNotice });
   const removeMember = useRemoveMember({ id, setNotice, refetchVotes, refetchRsvps });
@@ -133,9 +130,7 @@ export default function VotePage() {
     return <VoteState kind={accountNameTried ? "needs-name" : "loading"} planTitle={plan?.title} />;
   }
 
-  if (stage === "gathering") {
-    return <Gathering plan={plan!} voterName={voterName} isHost={isHost} prefs={prefs} onDealt={() => void refetchPlan()} />;
-  }
+  if (stage === "gathering") return <Gathering plan={plan!} voterName={voterName} isHost={isHost} prefs={prefs} onDealt={() => void refetchPlan()} />;
 
   const {
     voterCount, canEdit, roster, pickedThisRound, othersHere, winnerSpot, visibleSpots,
@@ -157,6 +152,7 @@ export default function VotePage() {
         <PlanHeader
           plan={plan!}
           voterName={voterName}
+          constraintLine={prefs.line}
           decided={decided}
           stage={stage}
           activePool={activePool}
@@ -206,9 +202,7 @@ export default function VotePage() {
           </div>
         )}
 
-        {/* Honest about a loosened limit, once, not on every card. */}
         {prefs.note && !decided && <p className="vote-live-paused" role="note">{prefs.note}</p>}
-
         {!foldDone && (
           <VoteOptionsGrid
             key={`round-${currentPoolNumber}`}

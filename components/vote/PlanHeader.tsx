@@ -32,6 +32,7 @@ export default function PlanHeader({
   when,
   onRemove,
   voterName,
+  constraintLine,
 }: {
   plan: Plan;
   decided: boolean;
@@ -49,6 +50,8 @@ export default function PlanHeader({
   onRemove?: (seatKey: string) => void;
   /** Also the E2E suite's "this plan loaded as me" anchor. */
   voterName: string;
+  /** A plan dealt from group answers states its limits in its own words (lib/gathering.ts constraintLine). */
+  constraintLine?: string | null;
 }) {
   useMinuteClock(); // re-render each minute, so the "Closes in" chip counts down
   return (
@@ -58,7 +61,7 @@ export default function PlanHeader({
       <p className="mt-1 text-sm text-muted">
         Hey {voterName}
       </p>
-      {(plan.budget_per_person != null || plan.radius_km != null) && (
+      {constraintLine ? <p className="vote-plan-constraints">{constraintLine}</p> : (plan.budget_per_person != null || plan.radius_km != null) && (
         <p className="vote-plan-constraints">
           {plan.budget_per_person != null ? `Up to AED ${plan.budget_per_person} per person` : "Any budget"}
           {plan.radius_km != null ? ` · within ${plan.radius_km} km of ${plan.origin_label ?? "the starting point"}` : ""}
