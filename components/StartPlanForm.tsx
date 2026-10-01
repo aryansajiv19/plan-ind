@@ -143,7 +143,7 @@ export default function StartPlanForm({
               <button type="button" disabled={gather.asking || creating || !title.trim() || !when.valid} onClick={() => void gather.ask()} className="plan-submit">
                 {gather.asking ? "Setting up…" : "Share and ask the group"}
               </button>
-              <p className="plan-form__demo-note">Friends answer three quick taps, then you deal places that suit everyone.</p>
+              <p className="plan-form__demo-note px-3">Friends answer three quick taps, then you deal places that suit everyone.</p>
             </>
           )}
           <button

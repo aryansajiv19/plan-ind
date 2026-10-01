@@ -1,7 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import { scanPage, headingsClearNav, type Finding } from "./ui-scan";
-import { localAdmin, signInAsMember } from "./local-stack";
-import { canProvision, withPlan, SEEDED, FILLER } from "./plan-factory";
+import { clientAs, localAdmin, signInAsMember } from "./local-stack";
+import { canProvision, withPlan, withGatheringPlan, SEEDED, FILLER } from "./plan-factory";
 
 // Walks every public page and every state of the sample vote at the sizes and
 // in both themes a visitor meets, and fails on the shape of the bugs the owner
@@ -97,6 +97,34 @@ test.describe("ui bug scan", () => {
             problems.push(...(await check(page, `${tag} /plan ${shape.state}`)));
           });
         }
+        // Group preferences: a plan still gathering, from nobody to everyone answered, then dealt.
+        const friendContext = await browser.newContext({ viewport });
+        await withGatheringPlan({ title: `Scan gathering ${stamp}`, createdBy: member.userId }, async (planId) => {
+          const at = async (state: string) => {
+            await settle(page);
+            problems.push(...(await check(page, `${tag} /plan gathering ${state}`)));
+            if (process.env.SHOT_DIR) await page.screenshot({ path: `${process.env.SHOT_DIR}/gathering-${state.replace(/\W+/g, "-")}-${theme}-${viewport.width}.png`, fullPage: true });
+          };
+          await page.goto(`/plan/${planId}`);
+          await expect(page.getByRole("heading", { name: "What works for you?" })).toBeVisible({ timeout: 15_000 });
+          await at("no answers");
+          await page.getByRole("button", { name: "Downtown / DIFC", exact: true }).click();
+          await page.getByRole("button", { name: "Chill", exact: true }).click();
+          await page.getByRole("button", { name: "Save my answers" }).click();
+          await expect(page.getByRole("heading", { name: "You’re in" })).toBeVisible();
+          await at("one answer");
+          const friend = clientAs(await signInAsMember(friendContext, baseURL!, `Scan friend ${stamp}`));
+          await friend.rpc("claim_plan_access", { p_plan_id: planId });
+          await friend.rpc("set_plan_preferences", { p_plan_id: planId, p_budget_cap: null, p_origin_value: "downtown", p_vibes: ["chill"], p_avoid: [] });
+          await expect(page.getByText("2 answered")).toBeVisible({ timeout: 15_000 });
+          await page.getByRole("button", { name: "Skip, use my settings" }).click();
+          await at("two answers, my settings open");
+          await page.getByRole("button", { name: "Skip, use my settings" }).click();
+          await page.getByRole("button", { name: "Deal for the group" }).click();
+          await expect(page.locator(".vote-options-grid .vote-option__choice")).toHaveCount(3, { timeout: 20_000 });
+          await at("dealt, fit lines");
+        });
+        await friendContext.close();
         await context.close();
         expect(problems, problems.join("\n")).toEqual([]);
       });
@@ -112,6 +140,10 @@ test.describe("ui bug scan", () => {
         await page.goto("/demo/vote");
         await expect(page.getByText(/^4 picked this round/)).toBeVisible({ timeout: 10_000 });
         await at("opens in round 1");
+        await page.getByText("How these were chosen").click();
+        await at("the group's sample answers open");
+        if (process.env.SHOT_DIR) await page.screenshot({ path: `${process.env.SHOT_DIR}/demo-group-answers-${theme}-${viewport.width}.png`, fullPage: true });
+        await page.getByText("How these were chosen").click();
         // The compose and deal steps, one tap away.
         await page.getByRole("button", { name: "Pick a different night" }).click();
         await at("compose");

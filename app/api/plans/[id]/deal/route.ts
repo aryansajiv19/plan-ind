@@ -27,10 +27,15 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const host = parseHostSettings(raw);
   if ("error" in host) return reply(400, host.error);
 
-  const { data: plan, error: planError } = await supabase.from("plans").select("category, stage, created_by_user_id").eq("id", id).maybeSingle();
-  if (planError) return reply(503, "Couldn't read the plan. Try again in a moment.");
+  // The creator column is not readable by clients (051): the host check is am_plan_host (067).
+  // start_group_plan re-checks it, so this is the early, friendly refusal.
+  const [{ data: plan, error: planError }, { data: isHost, error: hostError }] = await Promise.all([
+    supabase.from("plans").select("category, stage").eq("id", id).maybeSingle(),
+    supabase.rpc("am_plan_host", { p_plan_id: id }),
+  ]);
+  if (planError || hostError) return reply(503, "Couldn't read the plan. Try again in a moment.");
   if (!plan) return reply(404, "That plan was not found.");
-  if (plan.created_by_user_id !== user.id) return reply(403, "Only the host can deal.");
+  if (isHost !== true) return reply(403, "Only the host can deal.");
   if (plan.stage !== "gathering") return reply(409, "Already dealt");
 
   const { data: rows, error: prefsError } = await supabase.from("plan_preferences").select("*").eq("plan_id", id);

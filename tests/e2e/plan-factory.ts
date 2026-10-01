@@ -90,6 +90,30 @@ export async function withSpot(
   }
 }
 
+/**
+ * A plan still in the gathering stage (group preferences): no places, the
+ * host a member. Removed afterwards (plan_access and answers cascade).
+ */
+export async function withGatheringPlan(
+  shape: { title: string; createdBy: string; category?: string },
+  run: (planId: string) => Promise<void>,
+): Promise<void> {
+  const admin = localAdmin();
+  const planId = randomUUID();
+  const { error } = await admin.from("plans").insert({
+    id: planId, title: shape.title, category: shape.category ?? "dinner", status: "open", stage: "gathering",
+    pool_count: 3, created_by_user_id: shape.createdBy, deadline: new Date(Date.now() + 86_400_000).toISOString(),
+  });
+  if (error) throw new Error(`plan-factory: creating the gathering plan failed -- ${error.message}`);
+  try {
+    const { error: accessError } = await admin.from("plan_access").insert({ plan_id: planId, user_id: shape.createdBy });
+    if (accessError) throw new Error(`plan-factory: host access failed -- ${accessError.message}`);
+    await run(planId);
+  } finally {
+    await admin.from("plans").delete().eq("id", planId);
+  }
+}
+
 /** Seeded curated spots (supabase/seed.sql) the specs read by id. */
 export const SEEDED = {
   threeFils: "a0000000-0000-0000-0000-000000000003", // Jumeirah, AED 180, 11pm
