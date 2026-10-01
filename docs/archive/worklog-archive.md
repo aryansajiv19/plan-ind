@@ -4714,3 +4714,88 @@ everyone, all screens, nothing off limits, place ids approved.
   (schema.sql verified on a fresh stack, test:db 140/140). CI green at
   134676d, baselines from run 36487685828.
 
+
+## 2026-09-28 — CHECKPOINT: stopped for the night by the owner (read this first)
+
+**Live (main = production, auto-deploy):** migrations through 079 applied and
+catalog-verified (078 by function fingerprints). Full flow works end to end:
+email-code sign-in → compose → deal → vote (Realtime) → decide → claim/mark
+booking (any member; host can clear) → directions, photos. 64 of 76 visible
+venues photographable (23 self-hosted CC, the rest Google within the 300/day
+cap). Redesign live on landing, demo, vote and the Plan tab.
+
+**Resume tomorrow, in order (PRIORITIES "Now"):**
+1. Frontend lane (A): the bolder composer pass (kinds of night as photo tiles,
+   deck cards as photo listings, no grey panel, no dead band, readable helper
+   copy), then decided plan, login/onboarding (Discover through the place page
+   are built on the parked branch; review and merge them first). Lead reviews each surface with viewport captures
+   (full-page captures smear sticky bars).
+2. Platform lane (B): full-journey E2E on a throwaway stack + a signed-out
+   Playwright sweep of the live URL.
+3. Lead: resume the post-launch review workflow (stopped mid-run, cache kept):
+   Workflow({scriptPath: ".../workflows/scripts/post-launch-review-wf_4c0cfe8f-46a.js",
+   resumeFromRunId: "wf_4c0cfe8f-46a"}) in this session's project dir; fix
+   what it confirms; security subagent on any RLS/RPC change.
+4. Once the redesign lands: regenerate visual baselines once (CI dispatch,
+   hold pushes while it runs), final CI green, live sweep, owner screenshots.
+
+**Branches parked tonight (pushed, not merged):**
+- `lane/frontend-redesign-app` @ 8092f18 (A): Discover, Been, Friends,
+  Profile/Wrapped and the place page already redesigned on top of the merged
+  Plan tab; app/styles +33 lines over main (A pays it back in the composer
+  and decided passes). Lead reviews with viewport captures, then merges.
+  A's next: composer pass (photo tiles need one small cached read per
+  category group: approved), decided plan, login/onboarding.
+- `lane/frontend-booking-078` @ eb2c82c: already merged (256bcb3).
+- A's local lane stack has 079 applied and a decided plan (247bafed) kept
+  for tomorrow's screenshots; local only.
+
+- `lane/platform-journey` @ d87c079 (B): runtime-health sweep extended
+  (/demo, /demo/vote, a credit on every venue photo); journey.spec written
+  (onboarding → deal → join by link → rounds → decide → joined_after_decision
+  and not_holder refused → booked). Next: onboarding selector (getByLabel
+  "Date of birth" matches 2; use #onboarding-dateOfBirth), CI, hand back.
+- `lane/platform-booking-fixes` @ b0b7e27 (B): the host-clears E2E after the
+  078 merge; merge it tomorrow (matches A's "Clear the booking").
+- Live signed-out sweep (B): 17 pass, 3 fail on one finding: Tresind
+  Studio's photo (039, photo_source venue_site, no licence, no credit) shows
+  on /, /demo and its page. Owner decision (below).
+
+**CI state:** functional green except what the redesign changed in visual
+baselines (24 visual failures expected until step 4). test-db 112+ green;
+the Supabase CLI is pinned.
+
+**Owner-only, still open:** Supabase Auth (anonymous sign-ins off → Turnstile
+secret → Google provider); Routes API on the key's project; a Cloud budget
+alert; Tresind Studio's unlicensed venue-site photo: keep it (the venue's own
+promotional image) or drop it for its Google photo (credited). Lead's lean:
+drop it, since the Google photo is credited and free of doubt. Estimate to "all together": ~6-10 working hours from resume.
+
+
+## 2026-09-29 — Lead: original design back, day mode, Beli loop, our route map
+
+- **Design:** owner rejected the new palette and the starry sky within the
+  hour; back to the first desert design (7e51449 tokens), no stars/glows,
+  hero is the navy cover in both themes. **Day mode** unparked: Dubai clock
+  picks the ground, a nav toggle overrides (cookie `deal-three-theme`, server
+  paints it). No decorative emoji anywhere (owner: looks cheap).
+- **Beli, re-cut for groups** (derived, no migration): Been → "Your Dubai"
+  (10 districts, 12 Dubai icons, next district); Profile → Plan Personality
+  (evidence per trait, locked under 3 outings, share as text).
+- **Route map** (`components/map/RouteJourney.tsx`): the way there draws
+  itself with numbered steps, a travelling marker, Replay, Metro/Drive/Walk;
+  shown wherever Google's route isn't (no browser key in prod yet).
+- **Audit (Playwright, one agent):** no console errors/overflow; fixed art
+  stars, sample photos, day map, contrast, badge, copy. Open: demo Discover
+  is a stub vs the real one; "Plan" tab re-shows the landing.
+- **CI:** baseline dispatch now `--update-snapshots=all` ("changed" kept
+  stale dark baselines at threshold 0.2). Merged lane/platform-discovery;
+  lane/platform-plan-cap (087) waits on the owner's apply.
+- **Live data (owner approved):** 087 applied (runbook row). Coordinates for
+  9 of 18 unplaced venues from OSM Nominatim, each checked against its area
+  (address or host building; Bab Al Shams, Bounce, Padel Art rejected as
+  wrong matches). Still unplaced: Bab Al Shams, Bounce, Garage, Kickers,
+  Padel Art, Scoopi, SEVEN, Tresind, World Padel Academy (city map shown).
+- **Demo:** /demo opens on the app's first screen with "See a sample vote",
+  not the landing pitch; deck tiles get distinct covers or category art.
+
