@@ -83,10 +83,7 @@ test.describe("Plan Personality", () => {
 // The dinner deck, first card each round (FRIEND_PICKS is fixed, so the
 // winner is too). Returns the winner's name once the reveal has settled.
 async function voteToWinner(page: Page) {
-  await page.goto("/demo/vote");
-  await page.getByRole("button", { name: /^Dinner\b/ }).click();
-  await page.getByRole("button", { name: "Deal nine" }).click();
-  await page.getByRole("button", { name: "Start round one" }).click();
+  await page.goto("/demo/vote"); // opens in round 1 of the dinner deck
   const cards = page.locator(".vote-options-grid .vote-option__choice");
   const primary = page.locator("button.vote-primary-action");
   for (const next of ["Continue to round 2", "Continue to round 3", "Build the final shortlist", "Choose the final place"]) {
