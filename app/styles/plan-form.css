@@ -482,6 +482,11 @@
   line-height: 1.2;
   overflow-wrap: anywhere;
 }
+/* While the photo has not loaded (or never will) the art prints the kind in
+   the same corner, so the chip is read aloud only: the vote card does the same. */
+.plan-deck__band:has(.category-art) .plan-deck__code {
+  clip-path: inset(50%);
+}
 /* On a photo the code is a gold chip, like the vote card's. */
 .plan-deck__band[data-photo] .plan-deck__code {
   max-width: 80%;

@@ -141,8 +141,8 @@ export default function DealReveal({
                             <img src={card.photo_url} alt="" className="absolute inset-0 h-full w-full object-cover" />
                           </>
                         ) : null}
-                        <span className="pointer-events-none absolute inset-0 flex items-end bg-[image:var(--photo-scrim)] p-3 font-display text-xl leading-tight tracking-tight">
-                          <span className="line-clamp-3">{card.name}</span>
+                        <span className="pointer-events-none absolute inset-0 flex items-end bg-[image:var(--photo-scrim)] p-2 font-display text-base leading-tight tracking-tight sm:p-3 sm:text-xl">
+                          <span className="line-clamp-3 min-w-0 [overflow-wrap:anywhere]">{card.name}</span>
                         </span>
                       </span>
                       <span className="px-2.5 py-1.5">

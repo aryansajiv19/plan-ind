@@ -896,7 +896,7 @@
 }
 .my-ranking h2 span {
   margin-left: 0.4rem;
-  padding: 0.05rem 0.5rem;
+  padding: 0.2rem 0.6rem;
   border-radius: var(--radius-pill);
   background: var(--primary-fill);
   color: var(--primary-ink);
