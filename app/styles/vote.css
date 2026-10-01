@@ -423,7 +423,7 @@
 /* A fixed 5:4 band: the photo with the name over it, or the name alone. */
 .vote-option__media {
   position: relative;
-  aspect-ratio: 5 / 4;
+  aspect-ratio: 1 / 1; /* room for the credit row, the chip and a three-line name */
   overflow: hidden;
   border-radius: var(--radius-control) var(--radius-control) 0 0;
   background: color-mix(in srgb, var(--color-ink) 5%, var(--color-card));
@@ -442,7 +442,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 0.85rem;
+  padding: 1.75rem 0.85rem 0.85rem; /* the top 1.75rem is the credit's row (.photo-attrib) */
   background: linear-gradient(0deg, rgba(9, 28, 36, 0.9) 0%, rgba(9, 28, 36, 0.3) 48%, transparent 72%);
   color: var(--photo-ink);
   pointer-events: none;

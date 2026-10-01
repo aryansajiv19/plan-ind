@@ -53,7 +53,7 @@ export default function HomeHero({
       </div>
 
       <div className="home-hero__copy">
-        <h1 id="home-title" className="home-title" aria-label="Dubai plans without the group chat.">
+        <h1 id="home-title" className="home-title" aria-label="Dubai plans without the group chat." data-ui-ok="tight display leading: lines are 0.95 apart on purpose; glyphs do not touch">
           <span className="home-title__line home-title__line--one">Dubai plans,</span>
           <span className="home-title__line home-title__line--two">without the</span>
           <span className="home-title__line home-title__line--three">

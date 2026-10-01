@@ -133,7 +133,7 @@ export async function scanPage(page: Page): Promise<Finding[]> {
     // overlap: two lines of text drawn over each other. Fixed or sticky bars
     // (tab bar, nav, action bar) are meant to float over content; and two
     // tight display lines may graze (line boxes include air), so the overlap
-    // must cover a quarter of the shorter line.
+    // must cover 15% of the shorter line.
     for (let i = 0; i < boxes.length; i++) {
       for (let j = i + 1; j < boxes.length; j++) {
         const a = boxes[i], b = boxes[j];
@@ -142,7 +142,7 @@ export async function scanPage(page: Page): Promise<Finding[]> {
         for (const p of a.lines) for (const q of b.lines) {
           const w = Math.min(p.right, q.right) - Math.max(p.left, q.left);
           const h = Math.min(p.bottom, q.bottom) - Math.max(p.top, q.top);
-          if (w > 4 && h > 4 && h > Math.min(p.height, q.height) * 0.25) hit = true;
+          if (w > 4 && h > 3 && h > Math.min(p.height, q.height) * 0.15) hit = true;
         }
         if (hit) add("overlap", `"${a.text.slice(0, 26)}" (${name(a.el)}) over "${b.text.slice(0, 26)}" (${name(b.el)})`);
       }

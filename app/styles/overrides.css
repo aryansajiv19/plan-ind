@@ -20,6 +20,8 @@
   top: 0.4rem;
   right: 0.5rem;
   z-index: 3;
+  /* One line along the top edge of the photo; anything else in the photo's
+     top corners (the kind chip) starts below it, so the two never share a row. */
   max-width: calc(100% - 1rem);
   overflow: hidden;
   color: rgba(242, 242, 242, 0.75);
