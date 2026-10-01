@@ -145,11 +145,13 @@ test("proxy skips /api/* (routes authenticate themselves) but still runs on ever
   }
 });
 
-test("proxy still sends a signed-out visitor, or a rejected token, to /login", async () => {
+test("proxy lets a signed-out visitor, or a rejected token, onto the plan page (guest join)", async () => {
+  // Migration 099: the page offers the guest join card; the database still
+  // refuses every read and write without a member or guest session.
   const signedOut = await planPageWith(json(200, {}));
   assert.equal(signedOut.calls, 0);
-  assert.match(signedOut.location ?? "", /\/login\?next=%2Fplan%2F2{8}-/);
+  assert.equal(signedOut.location, null);
   const rejected = await planPageWith(json(403, { code: "bad_jwt", msg: "invalid JWT" }), sessionCookie());
-  assert.ok(rejected.calls > 0);
-  assert.match(rejected.location ?? "", /\/login\?next=/);
+  assert.ok(rejected.calls > 0, "the stub must actually be reached");
+  assert.equal(rejected.location, null);
 });

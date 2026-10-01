@@ -9,11 +9,9 @@ import { signInAsMember } from "./local-stack";
 // which is why the matrix in playwright.config.ts runs it on WebKit and two
 // phone profiles.
 //
-// "Guest" in the file name is historical: since the owner decision of
-// 2026-09-25 there are no anonymous guests. Everyone who opens a plan holds a
-// permanent account (proxy.ts redirects anyone else to /login, migration 064
-// refuses anonymous sessions), so the friend here is a real local account
-// with its session injected -- see local-stack.ts for why not the OTP UI.
+// This file is the signed-in friend's path. The friend with no account (a
+// guest, migration 099) is guest-join.spec.ts. The friend here is a real local
+// account with its session injected -- see local-stack.ts for why not the OTP UI.
 //
 // ── Why this does not touch the live project ─────────────────────────────
 //

@@ -30,6 +30,9 @@ import RoundActions from "@/components/vote/RoundActions";
 import VoteOptionsGrid from "@/components/vote/VoteOptionsGrid";
 import { RoundDots } from "@/components/vote/RoundProgress";
 import { useFaceFlight } from "@/components/vote/useFaceFlight";
+import JoinPlan from "@/components/vote/JoinPlan";
+import GuestBar from "@/components/vote/GuestBar";
+import { useGuestMerge } from "@/hooks/use-guest-session";
 import { planStateScreen } from "@/components/vote/PlanStates";
 import { HostPlanControls, LeaveControl, ReopenControl } from "@/components/vote/PlanControls";
 import { participantFailure } from "@/lib/participant-errors";
@@ -41,12 +44,16 @@ export default function VotePage() {
 
   const {
     load, setLoad, setReloadKey,
-    access, accessMessage, setAccess, runAccess,
+    access, accessMessage, guestName, setAccess, runAccess,
     plan, setPlan, spots, planSpots, setPlanSpots, votes, setVotes, rsvps, setRsvps, ratings, setRatings, myRows, refetchMine,
     participantHash, refetchVotes, refetchRsvps, refetchRatings, refetchPlanSpots, refetchPlan,
   } = usePlanData(id);
-  const { voterName, accountNameTried, nameFailed, retryName } = useVoterName();
-  usePlanSeen(id, access, plan?.stage); // P31: clears this plan's "changed" on the /home rail
+  const { voterName: accountName, accountNameTried, nameFailed, retryName } = useVoterName();
+  // A guest (099) has no profile: the name it joined with labels its ballot.
+  // Rating, leaving, the When poll, booking, Luna and the story are account-only.
+  const isGuest = guestName !== null;
+  const voterName = accountName ?? guestName;
+  usePlanSeen(id, isGuest ? "checking" : access, plan?.stage); // P31: clears this plan's "changed" on the /home rail
   // Which rows are this account's: by id once my_plan_rows exists, by name before (F2).
   const mine = mineFrom(myRows, voterName);
   const [notice, setNotice] = useState<string | null>(null);
@@ -107,11 +114,20 @@ export default function VotePage() {
 
   const retryAccess = () => { setAccess("checking"); void runAccess(); };
 
+  // An account arriving from "Save your votes: sign in" carries its guest ballots over.
+  const guestMerge = useGuestMerge({
+    planId: id, ready: access === "ready" && !isGuest,
+    onMerged: () => Promise.all([refetchVotes(), refetchRsvps(), refetchMine()]),
+  });
+
   const { sawOpenRound, foldDone } = useRoundFold(plan, decided);
 
   // §25.3 beat 1: a voter's face flies from their seat onto the card they
   // chose. See components/vote/useFaceFlight.ts.
   useFaceFlight();
+
+  // No member session: join as a guest with a first name (or sign in).
+  if (access === "signed-out" && isPlanId(id) && !deleted) return <JoinPlan planId={id} />;
 
   const stateScreen = planStateScreen({
     // A link that is not even a plan id (mistyped, cut off) is a cold link, not
@@ -156,7 +172,7 @@ export default function VotePage() {
           pickedThisRound={pickedThisRound}
           othersHere={othersHere}
           viewer={viewer}
-          when={{ planId: id, seatKey: myRows?.seatKey ?? null }}
+          when={isGuest ? undefined : { planId: id, seatKey: myRows?.seatKey ?? null }}
           onRemove={host.isHost ? removeMember : undefined}
         />
 
@@ -227,7 +243,7 @@ export default function VotePage() {
                     viewerFrom={viewer.origin}
                     onToggle={() => toggleVote(spot.id)}
                   />
-                  <Link href={`/place/${spot.id}?from=/plan/${id}`} className="vote-option__details">Details</Link>
+                  {!isGuest && <Link href={`/place/${spot.id}?from=/plan/${id}`} className="vote-option__details">Details</Link>}
                 </>
               );
             }}
@@ -272,21 +288,26 @@ export default function VotePage() {
               onSetCarpool={setCarpool}
               booking={booking}
               onRate={rateWinner}
+              guest={isGuest}
             />
           )
         )}
 
         <ReopenControl host={host} plan={plan} decided={decided} ratingCount={ratings.length} />
 
-        <LeaveControl
-          isHost={isHost}
-          plan={plan}
-          decided={decided}
-          confirmLeave={confirmLeave}
-          setConfirmLeave={setConfirmLeave}
-          leaving={leaving}
-          leavePlan={leavePlan}
-        />
+        {!isGuest && (
+          <LeaveControl
+            isHost={isHost}
+            plan={plan}
+            decided={decided}
+            confirmLeave={confirmLeave}
+            setConfirmLeave={setConfirmLeave}
+            leaving={leaving}
+            leavePlan={leavePlan}
+          />
+        )}
+
+        <GuestBar planId={id} isGuest={isGuest} voted={votes.some(mine.vote)} {...guestMerge} />
 
         {voteUndo && !decided && (
           <UndoBar key={voteUndo.message} message={voteUndo.message} onUndo={voteUndo.restore} onDone={() => setVoteUndo(null)} />

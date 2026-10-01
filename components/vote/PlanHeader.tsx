@@ -44,7 +44,7 @@ export default function PlanHeader({
   othersHere: string[];
   viewer: ViewerOrigin;
   /** P21: the plan's time poll, and this account's seat on it. */
-  when: { planId: string; seatKey: string | null };
+  when?: { planId: string; seatKey: string | null };
   /** 080: set for the host only; removes a member by seat key. */
   onRemove?: (seatKey: string) => void;
   /** Also the E2E suite's "this plan loaded as me" anchor. */
@@ -74,7 +74,7 @@ export default function PlanHeader({
       )}
       {/* §26.1: the group, not just the people who acted. */}
       {!decided && <ComingFrom viewer={viewer} />}
-      {!decided && <WhenPoll planId={when.planId} seatKey={when.seatKey} roster={roster} />}
+      {!decided && when && <WhenPoll planId={when.planId} seatKey={when.seatKey} roster={roster} />}
       {!decided && roster.length > 1 && (
         <VoteSeats roster={roster} picked={pickedThisRound} othersHere={othersHere} onRemove={onRemove} />
       )}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
+import { resumeGuest } from "@/hooks/use-guest-session";
 import { getSupabase, claimPlanAccess, type PlanAccessDenial } from "@/lib/supabase";
 import { participantTokenHash } from "@/lib/participant";
 import { parseMyRows, type MyRows } from "@/lib/my-rows";
@@ -20,6 +21,8 @@ export function usePlanData(id: string) {
   const [load, setLoad] = useState<Load>("loading");
   const [access, setAccess] = useState<Access>("checking");
   const [accessMessage, setAccessMessage] = useState<string | null>(null);
+  // Set when this session is a guest of the plan (099); null for an account.
+  const [guestName, setGuestName] = useState<string | null>(null);
   const [plan, setPlanRow] = useState<Plan | null>(null);
   const [spots, setSpots] = useState<Spot[]>([]);
   const [planSpots, setPlanSpots] = useState<PlanSpot[]>([]);
@@ -35,6 +38,11 @@ export function usePlanData(id: string) {
   // screen (components/vote/PlanStates.tsx).
   const runAccess = useCallback(async () => {
     const result = await claimPlanAccess(id);
+    if (!result.ok && result.reason === "signed-out") {
+      const guest = await resumeGuest(id);
+      if (guest) { setGuestName(guest); setAccess("ready"); setAccessMessage(null); return; }
+    }
+    setGuestName(null);
     setAccess(result.ok ? "ready" : result.reason);
     setAccessMessage(result.ok ? null : result.message ?? null);
   }, [id]);
@@ -245,6 +253,7 @@ export function usePlanData(id: string) {
     setReloadKey,
     access,
     accessMessage,
+    guestName,
     setAccess,
     runAccess,
     plan,

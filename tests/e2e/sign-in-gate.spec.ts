@@ -4,19 +4,15 @@ import { createServerClient } from "@supabase/ssr";
 import { planIdFor, planTitleFor, NO_FIXTURE_REASON } from "./fixture";
 import { localStackUrl, signInAsMember } from "./local-stack";
 
-// The sign-in gate on a shared plan link (owner decision 2026-09-25).
+// A shared plan link for a visitor with no member session (guest voting,
+// migration 099, docs/GUEST_VOTE.md; it replaced the 2026-09-25 sign-in wall).
 //
-// proxy.ts answers /plan/<uuid> before render: a visitor without a permanent
-// account session gets a redirect to /login?next=/plan/<uuid>, so sign-in
-// brings them back to the plan they were sent. Link crawlers are let through
-// so WhatsApp still unfurls the PLAN's title, not the login page's. Both
-// halves break silently -- a lost `next` just lands people on /home, a gated
-// crawler just shows a generic card -- so each refusal here is paired with
-// its positive control in the same run.
-//
-// Needs the local fixture: the og:title assertion is only meaningful against
-// a plan whose exact title this run chose (global-setup), since an unknown
-// plan still renders the generic card with a 200.
+// proxy.ts no longer redirects /plan/<uuid>: the page itself shows the guest
+// join card, and the database still refuses every read and write without a
+// member or guest session. Link crawlers still read the PLAN's title. Each
+// "open" claim is paired with a positive control in the same run, and the
+// og:title assertion needs the local fixture: an unknown plan renders the
+// generic card with a 200.
 const PLAN_ID = planIdFor("sign-in-gate");
 const PLAN_TITLE = planTitleFor("sign-in-gate");
 const PLAN_PATH = `/plan/${PLAN_ID}`;
@@ -26,32 +22,32 @@ const CRAWLER_UA = "WhatsApp/2.24.6.77 A";
 const BROWSER_UA =
   "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1";
 
-test.describe("sign-in gate on a shared plan link", () => {
+test.describe("a shared plan link without a member session", () => {
   test.skip(!PLAN_ID || !PLAN_TITLE, NO_FIXTURE_REASON);
 
-  test("a signed-out browser lands on /login with the plan preserved as next", async ({ page }) => {
+  test("a signed-out browser stays on the plan and is offered the join card", async ({ page }) => {
     await page.goto(PLAN_PATH);
 
-    await expect(page).toHaveURL((url) =>
-      url.pathname === "/login" && url.searchParams.get("next") === PLAN_PATH);
-    // `next` must survive into the forms that actually sign in, or the round
-    // trip ends on /home (login-redirect.spec.ts covers the validation).
-    await expect(page.locator('#email-auth input[name="next"]')).toHaveValue(PLAN_PATH);
+    await expect(page).toHaveURL((url) => url.pathname === PLAN_PATH);
+    await expect(page.getByLabel("Your first name")).toBeVisible({ timeout: 20_000 });
+    // The account door keeps `next`, so signing in returns to this plan.
+    await expect(page.getByRole("main").getByRole("link", { name: "Sign in", exact: true }))
+      .toHaveAttribute("href", `/login?next=${encodeURIComponent(PLAN_PATH)}`);
   });
 
-  test("positive control: a signed-in account on the same link stays on the plan", async ({ page, context, baseURL }) => {
+  test("positive control: a signed-in account on the same link gets the plan, not the card", async ({ page, context, baseURL }) => {
     const me = await signInAsMember(context, baseURL!, `Gate ${Date.now()}`);
     await page.goto(PLAN_PATH);
 
     await expect(page).toHaveURL((url) => url.pathname === PLAN_PATH);
     await expect(page.getByText(`Hey ${me.name}`, { exact: true })).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByLabel("Your first name")).toHaveCount(0);
   });
 
-  test("an anonymous session is treated as signed out, and ended", async ({ page, context, baseURL }) => {
-    // The live project still has anonymous sign-ins switched on, so a guest
-    // session minted before the decision can still arrive. It must be
-    // redirected like no session at all, not let through to a page whose
-    // every read and write migration 064 now refuses.
+  test("an anonymous session with no guest pass is kept, and offered the join card", async ({ page, context, baseURL }) => {
+    // A leftover anonymous session (no guest_sessions row) reads nothing: the
+    // database refuses it. It is no longer ended on the plan link (only /login
+    // and /invite end it), and it joins with a name like anyone else.
     const url = localStackUrl();
     const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     test.skip(!key, "needs NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (or ANON_KEY) for the local stack");
@@ -71,24 +67,21 @@ test.describe("sign-in gate on a shared plan link", () => {
 
     await page.goto(PLAN_PATH);
 
-    await expect(page).toHaveURL((u) => u.pathname === "/login" && u.searchParams.get("next") === PLAN_PATH);
-    // proxy.ts signs the guest session out on the way, so sign-in starts a
-    // fresh account instead of grafting onto the throwaway anonymous uid.
-    expect((await context.cookies()).filter((c) => authCookie(c.name) && c.value !== "")).toEqual([]);
+    await expect(page).toHaveURL((u) => u.pathname === PLAN_PATH);
+    await expect(page.getByLabel("Your first name")).toBeVisible({ timeout: 20_000 });
+    expect((await context.cookies()).some((c) => authCookie(c.name) && c.value !== "")).toBe(true);
   });
 
-  test("a link crawler still reads the plan's og:title, and a browser UA does not", async ({ request }) => {
+  test("a link crawler reads the plan's og:title, and a browser gets the page too", async ({ request }) => {
     const crawler = await request.get(PLAN_PATH, { headers: { "user-agent": CRAWLER_UA }, maxRedirects: 0 });
     expect(crawler.status()).toBe(200);
     const ogTitle = (await crawler.text()).match(/<meta[^>]+property="og:title"[^>]+content="([^"]*)"/)?.[1];
     expect(ogTitle, "og:title in the crawler's HTML").toBe(PLAN_TITLE);
 
-    // Pair: the same request as a phone browser is gated. Without this, a
-    // proxy that stopped gating anyone would pass the assertion above.
+    // Pair: a phone browser is no longer redirected, and its HTML carries the
+    // same plan title (the join card's server-rendered preview).
     const browser = await request.get(PLAN_PATH, { headers: { "user-agent": BROWSER_UA }, maxRedirects: 0 });
-    expect(browser.status()).toBe(307);
-    const location = new URL(browser.headers()["location"] ?? "", "http://x");
-    expect(location.pathname).toBe("/login");
-    expect(location.searchParams.get("next")).toBe(PLAN_PATH);
+    expect(browser.status()).toBe(200);
+    expect(await browser.text()).toContain(PLAN_TITLE);
   });
 });

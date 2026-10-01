@@ -61,21 +61,21 @@ test.describe("a failed auth read on the plan page", () => {
     });
   }
 
-  test("control: with no session at all, the plan link still asks to sign in", async ({ page }) => {
+  test("control: with no session at all, the plan link offers the guest join card", async ({ page }) => {
     await withPlan({ title: `E2E auth signed out ${Date.now()}`, spotIds }, async (planId) => {
       await page.goto(`/plan/${planId}`);
-      await expect(page).toHaveURL(new RegExp(`/login\\?next=%2Fplan%2F${planId}`));
-      await expect(page.locator("#email")).toBeVisible();
+      await expect(page).toHaveURL(new RegExp(`/plan/${planId}$`));
+      await expect(page.getByLabel("Your first name")).toBeVisible({ timeout: 30_000 });
     });
   });
 
-  test("control: when the auth server says 401, the page believes it and offers sign in", async ({ page, context, baseURL }) => {
+  test("control: when the auth server says 401, the page believes it and offers the join card", async ({ page, context, baseURL }) => {
     const stamp = Date.now();
     await signInAsMember(context, baseURL!, `Noor ${stamp}`);
     await withPlan({ title: `E2E auth refused ${stamp}`, spotIds }, async (planId) => {
       const failures = await failUserReads(page, 401, Number.POSITIVE_INFINITY);
       await page.goto(`/plan/${planId}`);
-      await expect(page.getByText("Sign in to join this plan")).toBeVisible({ timeout: 30_000 });
+      await expect(page.getByLabel("Your first name")).toBeVisible({ timeout: 30_000 });
       expect(failures()).toBeGreaterThan(0);
     });
   });

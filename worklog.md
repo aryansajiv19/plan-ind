@@ -313,3 +313,20 @@ Lane gp-db, docs/GROUP_PREFS.md "Schema". `supabase/migration-100-group-prefs.sq
   State conflicts return `{result:'not_gathering'}`; access and input errors raise 42501 / 22023.
 - `gathering_origins()` holds the origin list in SQL; a dbtest compares it to `DUBAI_ORIGINS`.
 - Tests: `tests/group-prefs.dbtest.ts` (9, 15 of 16 sed mutants killed; the survivor is an equivalent mutant).
+
+## 2026-10-01 — Guest voting, frontend (lane/guest-ui), waits on 099
+
+**WHEN 099 IS APPLIED the root `CLAUDE.md` identity invariant must change** ("joining or voting on a plan
+requires sign-in" becomes: voters may be a guest, an anonymous session bound to one plan; hosts, Luna, ratings
+and the rest stay account-only). It is deliberately NOT edited yet: until 099 is live, production still refuses guests.
+- **Owner dashboard checks before applying 099** (Authentication): anonymous sign-ins ON; CAPTCHA ON with the Turnstile secret;
+  `NEXT_PUBLIC_TURNSTILE_SITE_KEY` set in Vercel (without it the join card says guest joining is unavailable).
+- **Shipped in code:** `proxy.ts` no longer redirects `/plan/<uuid>`; the plan page shows `JoinPlan` (name + Turnstile ->
+  `POST /api/guest/join` -> reload as member). Guests: vote and RSVP only (rating, leave, When poll, booking, story, Luna,
+  Plan another, Details link hidden). `GuestBar` offers "Save your votes: sign in" (stores the merge token, then /login) and
+  merges after sign-in with a plain retry. Specs: `guest-join.spec.ts`, `sign-in-gate`/`login-redirect`/`auth-transient`/`auth.test.ts` updated.
+- **CI step NOT pushed** (the push token has no `workflow` scope; someone with it adds this to the `test-e2e` job in `ci.yml`
+  after the main e2e run). The join specs skip without the key, so until then they never run:
+  `- run: npm run test:e2e -- guest-join ui-bugs -g join --project=chromium --project="Mobile Chrome"` with
+  `env: NEXT_PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000AA` (Cloudflare's public always-pass key; a second build, so the login baseline stays keyless).
+  The real join path (anonymous session + `join_plan_as_guest`) has not run anywhere yet.

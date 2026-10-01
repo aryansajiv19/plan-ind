@@ -53,6 +53,8 @@ interface DecidedPlanProps {
   /** 075: any member takes or hands back the booking. */
   booking: BookingClaim;
   onRate: (partial: { stars?: number; again?: boolean }) => void;
+  /** 099: a guest RSVPs but has no rating, time poll, booking, story or "plan another". */
+  guest?: boolean;
 }
 
 // Always Dubai wall time (P23): the venue's clock, whoever is looking.
@@ -82,6 +84,7 @@ export default function DecidedPlan({
   onSetCarpool,
   booking,
   onRate,
+  guest = false,
 }: DecidedPlanProps) {
   // P23: the time is a draft until Save; null means not editing. A host
   // with no time set yet edits straight away.
@@ -200,7 +203,7 @@ export default function DecidedPlan({
         <Link href={`/place/${winner.id}?from=/plan/${plan.id}`}>Place details</Link>
       </p>
 
-      {afterTheNight && rating}
+      {!guest && afterTheNight && rating}
       {/* A guest's one real action (are you coming?) sits right under the answer. */}
       <WhosInSection rsvps={rsvps} roster={roster} isMine={mine.rsvp} onSetRsvp={onSetRsvp} onSetCarpool={onSetCarpool} />
 
@@ -232,7 +235,7 @@ export default function DecidedPlan({
               </button>
             )}
           </div>
-          <WhenChosen planId={plan.id} eventTime={plan.event_time} />
+          {!guest && <WhenChosen planId={plan.id} eventTime={plan.event_time} />}
           {/* The forecast at the venue for that hour. Renders nothing while
               loading, on failure, or with no venue coordinates. */}
           {winner.latitude != null && winner.longitude != null && (
@@ -278,24 +281,26 @@ export default function DecidedPlan({
       </div>
 
       <TonightPanel plan={plan} winner={winner} coming={coming} />
-      <ShareStoryButton href={`/plan/${plan.id}/story`} fileName="planind-plan.png" />
+      {!guest && <ShareStoryButton href={`/plan/${plan.id}/story`} fileName="planind-plan.png" />}
 
-      <BookingSection
-        plan={plan}
-        winner={winner}
-        isHost={isHost}
-        booking={booking}
-      />
+      {!guest && (
+        <BookingSection
+          plan={plan}
+          winner={winner}
+          isHost={isHost}
+          booking={booking}
+        />
+      )}
 
       <GettingThere plan={plan} winner={winner} />
       <KnowBeforeYouGo spot={winner} className="mt-4 border-t border-line pt-4" />
 
 
-      {!afterTheNight && rating}
+      {!guest && !afterTheNight && rating}
 
-      <button type="button" onClick={planAnother} className="vote-secondary-action decided-again mt-5 w-full rounded-2xl">
+      {!guest && <button type="button" onClick={planAnother} className="vote-secondary-action decided-again mt-5 w-full rounded-2xl">
         Plan another like this
-      </button>
+      </button>}
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { scanPage, headingsClearNav, type Finding } from "./ui-scan";
 import { localAdmin, signInAsMember } from "./local-stack";
 import { canProvision, withPlan, SEEDED, FILLER } from "./plan-factory";
+import { HAS_TURNSTILE_KEY, NO_KEY_REASON, REFUSALS, stubJoin, stubTurnstile, submitJoin } from "./guest-stubs";
 
 // Walks every public page and every state of the sample vote at the sizes and
 // in both themes a visitor meets, and fails on the shape of the bugs the owner
@@ -34,6 +35,9 @@ const PAGES = [
   "/credits",
   "/this-page-does-not-exist",
   "/plan/not-a-plan-id",
+  // The guest join card a signed-out visitor meets on a plan link (here with
+  // no Turnstile key in the build when none is set: its honest "didn't load" state).
+  "/plan/00000000-0000-0000-0000-000000000000",
 ];
 
 async function settle(page: Page) {
@@ -96,6 +100,27 @@ test.describe("ui bug scan", () => {
             await settle(page);
             problems.push(...(await check(page, `${tag} /plan ${shape.state}`)));
           });
+        }
+        await context.close();
+        expect(problems, problems.join("\n")).toEqual([]);
+      });
+
+      test(`join card, every refusal: ${tag}`, async ({ browser, baseURL }) => {
+        test.skip(!HAS_TURNSTILE_KEY, NO_KEY_REASON);
+        test.setTimeout(120_000);
+        const context = await browser.newContext({ viewport });
+        await context.addCookies([{ name: "deal-three-theme", value: theme, url: baseURL! }]);
+        const problems: string[] = [];
+        for (const refusal of REFUSALS) {
+          const page = await context.newPage();
+          await stubTurnstile(page);
+          await stubJoin(page, refusal);
+          await page.goto("/plan/00000000-0000-0000-0000-000000000000");
+          await submitJoin(page, "Lena");
+          await expect(page.getByRole("alert").filter({ hasText: refusal.error })).toBeVisible();
+          await settle(page);
+          problems.push(...(await check(page, `${tag} join card: ${refusal.label}`)));
+          await page.close();
         }
         await context.close();
         expect(problems, problems.join("\n")).toEqual([]);

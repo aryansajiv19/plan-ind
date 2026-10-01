@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import LandingNav from "@/components/landing/LandingNav";
 import { fetchPlanSharePreview } from "@/lib/share-preview-server";
 import { SITE_NAME, shareCopy } from "@/lib/share-preview";
+import { getCurrentUser } from "@/lib/auth";
+import { PlanPreviewProvider } from "@/components/vote/PlanPreview";
 
 // Server layout whose only job is the link preview. The page stays a client
 // component; this adds nothing to its tree.
@@ -37,13 +39,16 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   };
 }
 
-// Plans are members-only (proxy.ts sends signed-out visitors to /login), so
-// the shared nav is always the signed-in one.
-export default function PlanLayout({ children }: { children: React.ReactNode }) {
+// A plan opens for a signed-out visitor too (guest voting, migration 099), so
+// the app nav (Home, Start a plan) is only for a permanent account; guests and
+// visitors get the plain one. The preview rides along for the join card.
+export default async function PlanLayout({ params, children }: { params: Promise<{ id: string }>; children: React.ReactNode }) {
+  const { id } = await params;
+  const [preview, user] = await Promise.all([fetchPlanSharePreview(id), getCurrentUser().catch(() => null)]);
   return (
     <>
-      <LandingNav signedIn />
-      {children}
+      <LandingNav signedIn={Boolean(user)} />
+      <PlanPreviewProvider value={preview}>{children}</PlanPreviewProvider>
     </>
   );
 }
