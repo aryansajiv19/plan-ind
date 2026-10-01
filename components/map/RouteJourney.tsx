@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import { AREA_CENTRES, type Coordinates } from "@/lib/dubai-areas";
+import type { Coordinates } from "@/lib/dubai-areas";
+import Basemap, { basemapLabels } from "@/components/map/Basemap";
+import MapLabels, { useMapScale } from "@/components/map/MapLabels";
 import { METRO_LINES } from "@/lib/metro-lines";
 import { journey, type JourneyMode, type Leg, type Pt } from "@/lib/route-journey";
 import type { MappableVenue } from "@/lib/directions";
@@ -14,6 +16,8 @@ import type { MappableVenue } from "@/lib/directions";
 const W = 640;
 const H = 420;
 const LINE = { Red: "#e25c5c", Green: "#4caf7d" } as const;
+/** Rendered height the step caption (.route-journey__now) can take, two lines on a phone. */
+const CAPTION_PX = 100;
 
 type Venue = MappableVenue & { parking?: string | null };
 
@@ -23,6 +27,10 @@ export default function RouteJourney({ venue, origin, mode }: { venue: Venue; or
   // The step the marker is on; null before it starts and under reduced motion.
   const [active, setActive] = useState<number | null>(null);
   const motion = useRef<SVGAnimateMotionElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+  // The step caption sits over the top of the map (about 100px on a phone):
+  // the route is framed in the band below it, at whatever scale the map renders.
+  const band = Math.min(H * 0.45, CAPTION_PX * useMapScale(svgRef, W));
   // Keyed on values, not objects: a parent re-render must not restart the run.
   const { latitude: oLat, longitude: oLng } = origin;
   const { latitude: vLat, longitude: vLng, parking } = venue;
@@ -52,10 +60,9 @@ export default function RouteJourney({ venue, origin, mode }: { venue: Venue; or
   const cLng = (minLng + maxLng) / 2;
   const spanY = Math.max(maxLat - minLat, 0.012);
   const spanX = Math.max((maxLng - minLng) * k, 0.012);
-  const s = Math.min((W * 0.72) / spanX, (H * 0.68) / spanY);
+  const s = Math.min((W * 0.72) / spanX, ((H - band) * 0.72) / spanY);
   const x = (p: Pt) => W / 2 + (p.lng - cLng) * k * s;
-  const y = (p: Pt) => H / 2 - (p.lat - cLat) * s;
-  const inFrame = (p: Pt) => x(p) > 24 && x(p) < W - 24 && y(p) > 18 && y(p) < H - 18;
+  const y = (p: Pt) => (H + band) / 2 - (p.lat - cLat) * s;
 
   // Each drawn leg as a path segment continuing from the previous one.
   const drawn = j.legs.filter((l) => l.points.length > 1);
@@ -73,29 +80,16 @@ export default function RouteJourney({ venue, origin, mode }: { venue: Venue; or
   const timing = drawn.map((l) => plan!.timing[j.legs.indexOf(l)]);
   const whole = drawn.length ? `${start(drawn[0])} ${drawn.map(segment).join(" ")}` : "";
 
-  // Area names that fall in the frame, for a map you can read.
-  // Area names in the frame, clear of the route and of each other: the list
-  // holds aliases at the same spot ("Design District", "Dubai Design District").
-  const areas = Object.entries(AREA_CENTRES)
-    .map(([name, c]) => ({ name, p: { lat: c.latitude, lng: c.longitude } }))
-    .filter((a) => inFrame(a.p) && all.every((p) => Math.hypot(x(p) - x(a.p), y(p) - y(a.p)) > 46))
-    .reduce<{ name: string; p: Pt }[]>(
-      (kept, a) => (kept.length < 12 && kept.every((k) => Math.abs(x(k.p) - x(a.p)) > 90 || Math.abs(y(k.p) - y(a.p)) > 18) ? [...kept, a] : kept),
-      [],
-    );
+  const project = (lng: number, lat: number): [number, number] => [x({ lat, lng }), y({ lat, lng })];
+  const base = basemapLabels(project, W, H);
   const noteDelay = (i: number) => plan!.starts[i];
   // A mode switch can shorten the route before the timers catch up.
   const current = active !== null ? j.legs[active] : undefined;
 
   return (
     <figure className="mini-map route-journey">
-      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Route to ${venue.name}: ${j.legs.map((l) => l.note).join("; ")}`}>
-        {Array.from({ length: 9 }, (_, i) => (
-          <line key={`g${i}`} x1={(i + 1) * (W / 10)} y1="0" x2={(i + 1) * (W / 10)} y2={H} className="mini-map__grid" />
-        ))}
-        {areas.map((a) => (
-          <text key={a.name} x={x(a.p)} y={y(a.p)} className="route-journey__area">{a.name.replace(/\b\w/g, (c) => c.toUpperCase())}</text>
-        ))}
+      <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Route to ${venue.name}: ${j.legs.map((l) => l.note).join("; ")}`}>
+        <Basemap project={project} w={W} h={H} />
         {METRO_LINES.map((line) => (
           <polyline key={line.key} points={line.stations.map((st) => `${x({ lat: st.lat, lng: st.lng }).toFixed(1)},${y({ lat: st.lat, lng: st.lng }).toFixed(1)}`).join(" ")}
             fill="none" stroke={LINE[line.color]} strokeWidth="3" strokeLinejoin="round" className="route-journey__network" />
@@ -121,7 +115,7 @@ export default function RouteJourney({ venue, origin, mode }: { venue: Venue; or
           {j.legs.map((l, i) => (
             <g key={i} className="route-journey__note" data-active={active === i || undefined} style={{ animationDelay: `${noteDelay(i)}s` }}>
               <circle cx={x(l.noteAt)} cy={y(l.noteAt)} r="11" className="route-journey__badge" />
-              <text x={x(l.noteAt)} y={y(l.noteAt) + 4} textAnchor="middle" className="route-journey__badge-text">{i + 1}</text>
+              <text x={x(l.noteAt)} y={y(l.noteAt)} textAnchor="middle" dominantBaseline="central" className="route-journey__badge-text">{i + 1}</text>
             </g>
           ))}
           <circle r="6" className="route-journey__traveller">
@@ -130,9 +124,16 @@ export default function RouteJourney({ venue, origin, mode }: { venue: Venue; or
         </g>
 
         <circle cx={x(from)} cy={y(from)} r="7" className="route-journey__you" />
-        <text x={x(from)} y={y(from) + 24} textAnchor="middle" className="mini-map__label">You</text>
         <path d={`M${x(to)} ${y(to) + 2} l-9 -15 a10.5 10.5 0 1 1 18 0 z`} className="mini-map__pin" />
-        <text x={x(to)} y={y(to) - 22} textAnchor="middle" className="mini-map__label mini-map__label--venue">{venue.name}</text>
+        {/* Every word, on top, sized for the figure's width; the step caption's band stays clear. */}
+        <MapLabels
+          w={W} h={H} candidates={base.candidates} reserveTop={{ w: W, h: CAPTION_PX }}
+          keep={[...base.keep, { x: x(from), y: y(from), r: 12 }, { x: x(to), y: y(to) - 8, r: 18 }, ...j.legs.map((l) => ({ x: x(l.noteAt), y: y(l.noteAt), r: 14, grows: true }))]}
+          fixed={[
+            { text: venue.name, x: x(to), y: y(to), size: 18, perChar: 0.46, place: "above", className: "mini-map__label mini-map__label--venue" },
+            { text: "You", x: x(from), y: y(from), size: 13, place: "below", className: "mini-map__label" },
+          ]}
+        />
       </svg>
       {current && (
         <p className="route-journey__now" aria-live="polite">
