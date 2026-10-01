@@ -81,6 +81,11 @@ export async function scanPage(page: Page): Promise<Finding[]> {
         const pos = getComputedStyle(n).position;
         if (pos === "fixed" || pos === "sticky") { floating = true; break; }
       }
+      // Text a photo is drawn over (the cover mosaic keeps each venue's name
+      // under its picture) is not seen; the photo counts as covering it.
+      const cx = Math.min(Math.max(r.left + r.width / 2, 0), vw - 1), cy = r.top + r.height / 2;
+      const top = cy >= 0 && cy < window.innerHeight ? document.elementFromPoint(cx, cy) : null;
+      if (top && /^(IMG|PICTURE|VIDEO|CANVAS)$/.test(top.tagName) && !el.contains(top)) continue;
       const lines = Array.from(range.getClientRects()).filter((q) => q.width > 1 && q.height > 1);
       boxes.push({ el, r, text, lines: lines.length ? lines : [r], floating });
     }
