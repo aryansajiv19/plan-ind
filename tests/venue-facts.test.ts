@@ -55,9 +55,13 @@ test("Reopens shows only while the date is after today in Dubai", () => {
   assert.equal(reopensLabel(null, "2026-09-27"), null);
 });
 
-test("listable filters drop retired curated rows and future reopenings", () => {
+test("listable filters drop retired curated rows, future reopenings and curated rows with no real photo", () => {
   const seen: string[] = [];
   const query = { or(filters: string) { seen.push(filters); return query; } };
   listableToday(query, "2026-09-27");
-  assert.deepEqual(seen, ["source.neq.curated,visibility.neq.private", "reopens_on.is.null,reopens_on.lte.2026-09-27"]);
+  assert.deepEqual(seen, [
+    "source.neq.curated,visibility.neq.private",
+    "reopens_on.is.null,reopens_on.lte.2026-09-27",
+    "source.neq.curated,photo_url.not.is.null,google_place_id.not.is.null",
+  ]);
 });

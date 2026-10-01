@@ -1,6 +1,7 @@
 import type { Spot } from "@/lib/types";
 import { minimumAgeForCategory } from "@/lib/age-policy";
 import { dubaiToday } from "@/lib/spots/match";
+import { REAL_PHOTO_FILTER } from "@/lib/venue-photo";
 
 // P20 "Know before you go": only facts 070 actually holds, each with the
 // source that says it. Unknown is null in the data and no row here.
@@ -46,10 +47,12 @@ export function spendLabel(raw: string): string | null {
 const MONTH = new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric", timeZone: "UTC" });
 const DAY = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
 
-/** 070 for a client spots read: no retired curated row (visibility private)
- *  and nothing closed until a later Dubai date. Two or() params AND together. */
+/** 070 for a client spots read: no retired curated row (visibility private),
+ *  nothing closed until a later Dubai date, and no curated row without a real
+ *  photo (lib/venue-photo.ts). Each or() param ANDs with the others. */
 export function listableToday<Q extends { or(filters: string): Q }>(query: Q, today: string = dubaiToday()): Q {
-  return query.or("source.neq.curated,visibility.neq.private").or(`reopens_on.is.null,reopens_on.lte.${today}`);
+  return query.or("source.neq.curated,visibility.neq.private").or(`reopens_on.is.null,reopens_on.lte.${today}`)
+    .or(`source.neq.curated,${REAL_PHOTO_FILTER}`);
 }
 
 /** "Reopens 31 October 2026" while reopens_on is after today in Dubai, else null. */

@@ -1,5 +1,6 @@
 import { minimumAgeForCategory, prohibitedVenueReason } from "../age-policy.ts";
 import { coordinatesForArea, distanceKm, type Coordinates } from "../dubai-areas.ts";
+import { hasRealPhoto } from "../venue-photo.ts";
 
 export interface DealConstraints {
   age?: number;
@@ -27,7 +28,8 @@ export interface DealSpotRow {
   // one has reopens_on. Optional so hand-built pools (tests) stay valid.
   visibility?: string | null;
   reopens_on?: string | null;
-  // P26: the deal can show real cards. Optional so hand-built pools stay valid.
+  // P26: the deal can show real cards. Optional in the type, but a row with
+  // neither is never dealt (passesHardFilters).
   photo_url?: string | null;
   photo_attribution?: string | null;
   google_place_id?: string | null;
@@ -144,6 +146,9 @@ function passesHardFilters(spot: DealSpotRow, constraints: DealConstraints, toda
   // Evaluated per deal, not in the cached pool read: the cache isn't keyed by
   // date, so a query filter there could hide a place for an hour after it reopens.
   if (!isDealableToday(spot, today)) return false;
+  // Owner (2026-10-01): never deal a place that can't show a real photo. The
+  // pool read already filters (lib/spots/catalogue.ts); this holds for any pool.
+  if (!hasRealPhoto({ id: spot.id, photo_url: spot.photo_url ?? null, photo_attribution: null, google_place_id: spot.google_place_id })) return false;
   const minimumAge = Math.max(minimumAgeForCategory(spot.category), Number(spot.minimum_age ?? 0));
   if (constraints.age != null && constraints.age < minimumAge) return false;
   if (prohibitedVenueReason(spot.name, spot.cuisine, spot.vibe, spot.description)) return false;

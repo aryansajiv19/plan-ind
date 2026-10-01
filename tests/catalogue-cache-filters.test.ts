@@ -21,7 +21,7 @@ function spot(id: string, overrides: Partial<DealSpotRow> = {}): DealSpotRow {
   return {
     id, name: `Spot ${id}`, category: "dinner", area: "Dubai Marina", cuisine: "Levantine",
     min_spend: 100, vibe: "relaxed", description: null, latitude: null, longitude: null,
-    minimum_age: null, ...overrides,
+    minimum_age: null, photo_url: "https://photos.test/a.jpg", ...overrides,
   };
 }
 
@@ -249,7 +249,7 @@ test("a deal's spots line up with its ids, and a photo never travels without its
   const { dealCard } = await import("../lib/spots/deal-spots.ts");
   const pool = [
     spot("a", { photo_url: "https://img.example/a.jpg", photo_attribution: "Photo: A Venue" }),
-    spot("b"),
+    spot("b", { photo_url: null, google_place_id: "ChIJplaceB1234" }), // a matched place: its photo is fetched per view
     spot("c", { min_spend: 250 }),
   ];
   const outcome = await dealSpotIds(ratingsDb().db, { category: "dinner", count: 3, constraints: { age: 25 }, rng: () => 0.3 }, async () => pool);

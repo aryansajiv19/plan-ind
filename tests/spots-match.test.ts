@@ -22,6 +22,7 @@ function spot(id: string, overrides: Partial<DealSpotRow> = {}): DealSpotRow {
     latitude: null,
     longitude: null,
     minimum_age: null,
+    photo_url: "https://photos.test/a.jpg",
     ...overrides,
   };
 }

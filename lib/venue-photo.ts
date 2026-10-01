@@ -10,6 +10,13 @@ export type PhotoSpot = Pick<Spot, "id" | "photo_url" | "photo_attribution"> & {
 export const hasRealPhoto = (spot: PhotoSpot, google = true) => Boolean(spot.photo_url || (google && spot.google_place_id));
 
 /**
+ * hasRealPhoto as a PostgREST or() filter. Owner (2026-10-01): a curated
+ * place is only LISTED (Discover, search, the wall, the deal) when it can
+ * show a real photo; one already in a plan, visit or board stays visible.
+ */
+export const REAL_PHOTO_FILTER = "photo_url.not.is.null,google_place_id.not.is.null";
+
+/**
  * A card lays out around a picture when it has a real photo or, failing
  * that, a known category: VenuePhoto then draws its CategoryArt, so no
  * photo box is ever empty (owner, 2026-09-29).
