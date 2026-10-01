@@ -6,7 +6,7 @@
 
 export type PriceBand = "$" | "$$" | "$$$";
 export type PlanStatus = "open" | "decided";
-export type PlanStage = "pool" | "final" | "decided";
+export type PlanStage = "gathering" | "pool" | "final" | "decided";
 export type SpotSource = "curated" | "custom";
 export type SpotVisibility = "private" | "friends" | "community";
 export type PhotoSource = "venue_site" | "wikimedia" | "stock";
@@ -99,11 +99,37 @@ export interface Plan {
   vibe_preferences: string[];
   avoid_preferences: string[];
   intelligence_model: string | null;
+  /** 098 (staged): what the group deal used; null unless dealt from group preferences. */
+  group_summary?: PlanGroupSummary | null;
   created_at: string; // ISO timestamp
 }
 // NOTE: the host token hash is deliberately absent. It lives in
 // `plan_host_tokens`, which has no select policy, so it never reaches a
 // client — see supabase/migration-019-secret-isolation-and-rpc-integrity.sql.
+
+/** 098 (staged): plans.group_summary. `answered` is counted by the server. */
+export interface PlanGroupSummary {
+  answered: number;
+  budgetCap: number | null;
+  centroid: { latitude: number; longitude: number } | null;
+  radiusKm: number | null;
+  relaxed: ("budget" | "distance")[];
+}
+
+/** 098 (staged): one member's answers on a 'gathering' plan; members read them,
+ *  only set_plan_preferences writes them. */
+export interface PlanPreferences {
+  plan_id: string;
+  user_id: string;
+  voter_name: string;
+  budget_cap: number | null;
+  origin_value: string | null;
+  origin_latitude: number | null;
+  origin_longitude: number | null;
+  vibes: string[];
+  avoid: string[];
+  updated_at: string;
+}
 
 export interface PlanSpot {
   plan_id: string;
