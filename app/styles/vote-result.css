@@ -1033,14 +1033,6 @@
 .route-journey__network {
   opacity: 0.28;
 }
-.route-journey__area {
-  fill: var(--map-ink);
-  opacity: 0.45;
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  text-anchor: middle;
-  text-transform: uppercase;
-}
 .route-journey__reveal {
   fill: none;
   stroke: #fff;
