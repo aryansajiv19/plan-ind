@@ -3,7 +3,7 @@ import HomeExperience from "@/components/HomeExperience";
 import { getCurrentUser } from "@/lib/auth";
 import { curatedCounts, curatedWall } from "@/lib/spots/catalogue";
 import type { Spot } from "@/lib/types";
-import { WALL_POOL, WALL_SIZE } from "@/lib/home-views";
+import { WALL_POOL } from "@/lib/home-views";
 import { greetingFor, pickRightNow } from "@/lib/right-now";
 
 // The front door: the pitch, a live sample vote, the composer in its
@@ -16,6 +16,11 @@ import { greetingFor, pickRightNow } from "@/lib/right-now";
 // (lib/spots/catalogue.ts): identical for every signed-out visitor, read at
 // most hourly, and a failed read is logged there and never cached. The
 // counts line then simply doesn't render; it never shows a guessed number.
+// The front door's wall is two rows, not the app's 18 tiles: it sits far
+// below the fold but inside the browser's lazy-load distance, so every tile
+// is a request on first load.
+const FRONT_DOOR_WALL = 8;
+
 export default async function IndexPage() {
   const user = await getCurrentUser();
   if (user) redirect("/home");
@@ -24,7 +29,7 @@ export default async function IndexPage() {
   // P28: picked per request from the hourly-cached pool (open now first, two
   // per category at most), and greeted on the Dubai clock with no addressee.
   const now = new Date();
-  const spots = pickRightNow(wall.data ?? [], now, WALL_SIZE) as unknown as Spot[];
+  const spots = pickRightNow(wall.data ?? [], now, FRONT_DOOR_WALL) as unknown as Spot[];
 
   return <HomeExperience name="" greeting={greetingFor(now)} demoMode spots={spots} counts={counts.data} smartSearchAvailable={Boolean(process.env.OPENAI_API_KEY)} />;
 }

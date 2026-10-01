@@ -258,16 +258,15 @@
 }
 
 /* ── The cover ─────────────────────────────────────────────────────
-   Real venue photography in a dense mosaic behind a cover line set at
-   poster scale, the gold issue band on top, the action bottom-left. The
-   cover is photographic in both themes, so its text takes the photo inks,
-   never the surface theme. */
+   A cover line at poster scale and one action, beside six hand-picked
+   photographs (components/landing/heroTiles.ts). The cover takes the page's
+   own ground and ink in both themes. */
 .home-hero {
   position: relative;
   isolation: isolate;
   min-height: min(calc(100svh - 4.5rem), 54rem);
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: 1fr;
   /* The page's own ground and ink, so nav and cover are one surface in both
      themes (a fixed navy here left a white nav over a navy cover by day). */
   background: var(--color-paper);
@@ -275,37 +274,17 @@
   overflow: hidden;
 }
 
-.cover__band {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.3rem 1.75rem;
-  padding: 0.55rem var(--page-gutter);
-  background: var(--color-punch);
-  color: var(--primary-ink);
-  font-weight: 600;
-  font-size: max(0.82rem, var(--type-floor));
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-.cover__band strong {
-  font-weight: 700;
-  font-size: 1.15em;
-}
-
-/* The mosaic owns the right of the cover, in the row under the band, and
-   fades into the ink under the cover line, so no photo (or its credit)
-   hides under the band or the headline. */
+/* The mosaic owns the right of the cover and fades into the ground under
+   the cover line, so no photo hides the headline. */
 .cover__mosaic {
   position: relative;
   z-index: 0; /* its own stack: the fade and credits stay under the cover line */
-  grid-row: 2;
+  grid-row: 1;
   grid-column: 1;
   margin-left: 50%;
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   grid-template-rows: repeat(3, minmax(0, 1fr));
-  grid-auto-flow: dense;
   gap: 3px;
 }
 .cover__tile {
@@ -313,13 +292,10 @@
   overflow: hidden;
   background: #174050;
 }
-.cover__tile:nth-child(1) { grid-column: span 2; grid-row: span 2; }
-.cover__tile:nth-child(5),
-.cover__tile:nth-child(11) { grid-column: span 2; }
-.cover__tile:nth-child(8) { grid-row: span 2; }
-/* Under the photo when there is one; the tile's type when there isn't. */
+.cover__tile:first-child { grid-column: span 2; grid-row: span 2; }
 .cover__tile-name {
   position: absolute;
+  z-index: 1;
   inset: auto 0.7rem 0.6rem auto;
   max-width: calc(100% - 1.4rem);
   color: var(--photo-body);
@@ -328,9 +304,8 @@
   line-height: 0.95;
   text-align: right;
 }
-.cover__tile .venue-photo,
 .cover__tile img {
-  z-index: 1;
+  object-fit: cover;
 }
 .cover__mosaic::after {
   content: "";
@@ -338,16 +313,19 @@
   inset: 0;
   z-index: 2;
   pointer-events: none;
-  background:
-    linear-gradient(90deg, var(--color-paper) 0%, color-mix(in srgb, var(--color-paper) 50%, transparent) 18%, transparent 38%),
-    linear-gradient(0deg, color-mix(in srgb, var(--color-paper) 60%, transparent) 0%, transparent 30%);
+  background: linear-gradient(90deg, var(--color-paper) 0%, color-mix(in srgb, var(--color-paper) 50%, transparent) 18%, transparent 38%);
 }
-/* Credits ride above the fade, top-right of each tile. */
-
+/* Each name sits on its own shade of the photo, legible on sand or sky. */
+.cover__tile::after {
+  content: "";
+  position: absolute;
+  inset: 45% 0 0;
+  background: linear-gradient(0deg, rgba(7, 22, 29, 0.62), transparent);
+}
 .home-hero__copy {
   position: relative;
   z-index: 1;
-  grid-row: 2;
+  grid-row: 1;
   grid-column: 1;
   align-self: center;
   width: min(100%, 64rem);
