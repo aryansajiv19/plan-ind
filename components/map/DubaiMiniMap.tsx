@@ -1,12 +1,15 @@
 import { METRO_LINES } from "@/lib/metro-lines";
 import { nearestStation } from "@/lib/dubai-metro";
 import { googleMapsUrl, type MappableVenue } from "@/lib/directions";
+import Basemap, { basemapLabels } from "@/components/map/Basemap";
+import MapLabels from "@/components/map/MapLabels";
 
 // Our own map of how to reach a place: the Dubai Metro drawn through its real
 // stations, the nearest one lit, the walk from it dashed, and the venue as a
-// sand pin, framed on the neighbourhood. No map tiles and no Google: open
-// data we hold (lib/dubai-metro.ts, OSM/ODbL). "Open in Google Maps" hands
-// off for turn-by-turn.
+// sand pin, framed on the neighbourhood, over a drawn Dubai (components/map/
+// Basemap.tsx: coast, water, roads, district names). No map tiles and no
+// Google: open data we hold (OSM/ODbL). "Open in Google Maps" hands off for
+// turn-by-turn.
 const W = 640;
 const H = 360;
 const LINE = { Red: "#e25c5c", Green: "#4caf7d" } as const;
@@ -24,20 +27,14 @@ export default function DubaiMiniMap({ venue }: { venue: MappableVenue }) {
   const x = (lng: number) => ((lng - cLng) / spanLng + 0.5) * W;
   const y = (lat: number) => (0.5 - (lat - cLat) / spanLat) * H;
   const pin = { x: x(at.lng), y: y(at.lat) };
+  const st = near ? { x: x(near.station.lng), y: y(near.station.lat) } : null;
+  const project = (lng: number, lat: number): [number, number] => [x(lng), y(lat)];
+  const base = basemapLabels(project, W, H);
 
   return (
     <figure className="mini-map">
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Map: ${venue.name}${near ? `, ${near.walkMin} min walk from ${near.station.name} metro` : ""}`}>
-        <defs>
-          <radialGradient id="mini-map-glow" cx="50%" cy="50%" r="60%">
-            <stop offset="0" stopColor="#174050" stopOpacity="0.55" />
-            <stop offset="1" stopColor="#07090d" stopOpacity="0" />
-          </radialGradient>
-        </defs>
-        <rect width={W} height={H} fill="url(#mini-map-glow)" />
-        {Array.from({ length: 9 }, (_, i) => (
-          <line key={`g${i}`} x1={(i + 1) * (W / 10)} y1="0" x2={(i + 1) * (W / 10)} y2={H} className="mini-map__grid" />
-        ))}
+        <Basemap project={project} w={W} h={H} />
         {METRO_LINES.map((line) => (
           <polyline
             key={line.key}
@@ -52,16 +49,22 @@ export default function DubaiMiniMap({ venue }: { venue: MappableVenue }) {
         {METRO_LINES.flatMap((line) => line.stations).map((s) => (
           <circle key={`${s.name}-${s.lat}`} cx={x(s.lng)} cy={y(s.lat)} r="4" className="mini-map__station" />
         ))}
-        {near && (
+        {near && st && (
           <>
-            <line x1={x(near.station.lng)} y1={y(near.station.lat)} x2={pin.x} y2={pin.y} className="mini-map__walk" />
-            <circle cx={x(near.station.lng)} cy={y(near.station.lat)} r="8" className="mini-map__near" />
-            <text x={x(near.station.lng) + 12} y={y(near.station.lat) + 4} className="mini-map__label">{near.station.name}</text>
+            <line x1={st.x} y1={st.y} x2={pin.x} y2={pin.y} className="mini-map__walk" />
+            <circle cx={st.x} cy={st.y} r="8" className="mini-map__near" />
           </>
         )}
         <circle cx={pin.x} cy={pin.y} r="16" className="mini-map__pulse" />
         <path d={`M${pin.x} ${pin.y + 2} l-9 -15 a10.5 10.5 0 1 1 18 0 z`} className="mini-map__pin" />
-        <text x={pin.x + 14} y={pin.y - 12} className="mini-map__label mini-map__label--venue">{venue.name}</text>
+        <MapLabels
+          w={W} h={H} candidates={base.candidates}
+          keep={[...base.keep, { x: pin.x, y: pin.y - 8, r: 18 }, ...(st ? [{ x: st.x, y: st.y, r: 10 }] : [])]}
+          fixed={[
+            { text: venue.name, x: pin.x, y: pin.y, dy: -12, size: 18, perChar: 0.46, place: "side", className: "mini-map__label mini-map__label--venue" },
+            ...(near && st ? [{ text: near.station.name, x: st.x, y: st.y, dy: 4, gap: 12, size: 13, place: "side" as const, className: "mini-map__label" }] : []),
+          ]}
+        />
       </svg>
       <figcaption>
         {near ? (
@@ -79,17 +82,23 @@ function CityMap({ venue }: { venue: MappableVenue }) {
   const all = METRO_LINES.flatMap((line) => line.stations);
   const lats = all.map((s) => s.lat), lngs = all.map((s) => s.lng);
   const [minLat, maxLat, minLng, maxLng] = [Math.min(...lats), Math.max(...lats), Math.min(...lngs), Math.max(...lngs)];
-  const pad = 30;
-  const x = (lng: number) => pad + ((lng - minLng) / (maxLng - minLng)) * (W - 2 * pad);
-  const y = (lat: number) => pad + (1 - (lat - minLat) / (maxLat - minLat)) * (H - 2 * pad);
+  // The network fitted at its true shape (longitude shrunk for Dubai's latitude).
+  const k = Math.cos((((minLat + maxLat) / 2) * Math.PI) / 180);
+  const s = Math.min((W - 60) / ((maxLng - minLng) * k), (H - 60) / (maxLat - minLat));
+  const x = (lng: number) => W / 2 + (lng - (minLng + maxLng) / 2) * k * s;
+  const y = (lat: number) => H / 2 - (lat - (minLat + maxLat) / 2) * s;
+  const city = basemapLabels((lng, lat) => [x(lng), y(lat)], W, H);
   return (
     <figure className="mini-map">
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Dubai Metro map; ${venue.name} is in ${venue.area}`}>
+        <Basemap project={(lng, lat) => [x(lng), y(lat)]} w={W} h={H} />
         {METRO_LINES.map((line) => (
-          <polyline key={line.key} points={line.stations.map((s) => `${x(s.lng).toFixed(1)},${y(s.lat).toFixed(1)}`).join(" ")}
+          <polyline key={line.key} points={line.stations.map((st) => `${x(st.lng).toFixed(1)},${y(st.lat).toFixed(1)}`).join(" ")}
             fill="none" stroke={LINE[line.color]} strokeWidth="3" strokeLinejoin="round" opacity="0.8" />
         ))}
-        {all.map((s) => <circle key={`${s.name}-${s.lat}`} cx={x(s.lng)} cy={y(s.lat)} r="3" className="mini-map__station" />)}
+        {all.map((st) => <circle key={`${st.name}-${st.lat}`} cx={x(st.lng)} cy={y(st.lat)} r="3" className="mini-map__station" />)}
+        <MapLabels w={W} h={H} fixed={[]} maxLabels={6} candidates={city.candidates}
+          keep={[...city.keep, ...all.map((st) => ({ x: x(st.lng), y: y(st.lat), r: 5 }))]} />
       </svg>
       <figcaption>
         <span>{venue.area} · the exact spot isn’t mapped yet</span>

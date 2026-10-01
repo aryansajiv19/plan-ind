@@ -628,15 +628,17 @@
   justify-self: start;
 }
 
-/* ── Our map (components/map/DubaiMiniMap.tsx) ──────────────────────
-   The metro in its line colours, the nearest station lit, the walk dashed,
-   the venue a sand pin with a still halo. Its ground follows the theme
-   through the four --map-* values; night re-sets them below. */
+/* ── Our map (components/map/DubaiMiniMap.tsx, Basemap.tsx) ──────────
+   A drawn Dubai (sea, land, motorways, district names, the Burj Khalifa)
+   under the metro in its line colours, the nearest station lit, the walk
+   dashed, the venue a sand pin with a still halo. It follows the theme
+   through the --map-* values, built from the tokens; night re-sets them. */
 .mini-map {
-  --map-ground: #ece3d8;
+  --map-ground: color-mix(in srgb, var(--color-live) 20%, var(--color-paper));
+  --map-land: var(--color-fill-quiet);
+  --map-road: color-mix(in srgb, var(--color-line) 50%, transparent);
   --map-ink: #3f230b;
   --map-halo: #f5f1ec;
-  --map-grid: rgba(112, 65, 33, 0.1);
   margin: 1rem 0 0;
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--color-line) 55%, transparent);
@@ -644,19 +646,59 @@
   background: var(--map-ground);
 }
 [data-theme="night"] .mini-map {
-  --map-ground: rgba(9, 28, 36, 0.6);
+  --map-ground: color-mix(in srgb, var(--color-paper) 72%, #000);
+  --map-road: color-mix(in srgb, var(--color-line) 42%, transparent);
   --map-ink: #f2f2f2;
   --map-halo: #0f2a36;
-  --map-grid: rgba(125, 155, 188, 0.08);
 }
 .mini-map svg {
   display: block;
   width: 100%;
   height: auto;
 }
-.mini-map__grid {
-  stroke: var(--map-grid);
-  stroke-width: 1;
+.mini-map__sea {
+  fill: var(--map-ground);
+}
+.mini-map__land {
+  fill: var(--map-land);
+  stroke: color-mix(in srgb, var(--map-ink) 18%, transparent);
+  stroke-width: 0.75;
+}
+.mini-map__road {
+  fill: none;
+  stroke: var(--map-road);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.mini-map__landmark {
+  fill: var(--map-ink);
+  opacity: 0.6;
+}
+.mini-map__district {
+  fill: var(--map-ink);
+  opacity: 0.55;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-anchor: middle;
+  text-transform: uppercase;
+  paint-order: stroke;
+  stroke: var(--map-land);
+  stroke-width: 3px;
+}
+.mini-map__district--landmark {
+  opacity: 0.75;
+  text-transform: none;
+  letter-spacing: 0;
+  font-style: italic;
+}
+/* MapLabels sets --map-k (640 / the figure's width, at least 1) so the step
+   numbers render at 12px or more on a phone, like every other word. */
+.mini-map .route-journey__badge-text {
+  font-size: calc(12px * var(--map-k, 1));
+}
+.mini-map .route-journey__badge {
+  r: calc(11px * var(--map-k, 1));
 }
 .mini-map__station {
   fill: var(--map-halo);
