@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { DEMO_PHOTO_SOURCES } from "@/components/demo/sampleDecision";
+import { HERO_PHOTOS } from "@/lib/hero-photos";
 
 export const metadata: Metadata = { title: "Photo credits | Planind" };
 // Credits follow the catalogue, so read them per request.
@@ -55,6 +56,16 @@ export default async function CreditsPage() {
               </li>
             );
           })}
+        </ul>
+        <h2>City photos</h2>
+        <p>The photos of Dubai on the front page are from Wikimedia Commons, each under the licence named.</p>
+        <ul className="credits-list">
+          {HERO_PHOTOS.map((photo) => (
+            <li key={photo.src}>
+              <a href={photo.source} rel="noopener noreferrer" target="_blank">{photo.alt}</a>
+              <span>{photo.attribution}</span>
+            </li>
+          ))}
         </ul>
         {/* ODbL: the catalogue's venue data from OSM (089) and the metro network. */}
         <h2>Venue data</h2>
