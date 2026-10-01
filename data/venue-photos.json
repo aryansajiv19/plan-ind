@@ -151,5 +151,50 @@
     "license": "CC BY-SA 4.0",
     "author": "Chris Olszewski",
     "photo_attribution": "Chris Olszewski / Wikimedia Commons / CC BY-SA 4.0"
+  },
+  {
+    "spot_id": "a0000000-0000-0000-0000-000000000001",
+    "name": "Reif Japanese Kushiyaki",
+    "file": "/venues/a0000000-0000-0000-0000-000000000001.webp",
+    "source_page": "https://www.reifkushiyaki.com/dubai-hills",
+    "license": "The venue's own image",
+    "author": "Reif Japanese Kushiyaki",
+    "photo_attribution": null
+  },
+  {
+    "spot_id": "a0000000-0000-0000-0000-000000000003",
+    "name": "3Fils",
+    "file": "/venues/a0000000-0000-0000-0000-000000000003.webp",
+    "source_page": "https://www.3fils.com/",
+    "license": "The venue's own image",
+    "author": "3Fils",
+    "photo_attribution": null
+  },
+  {
+    "spot_id": "sample-baitmaryam",
+    "name": "Bait Maryam",
+    "file": "/venues/sample-baitmaryam.webp",
+    "source_page": "https://baitmaryam.com/",
+    "license": "The venue's own image",
+    "author": "Bait Maryam",
+    "photo_attribution": null
+  },
+  {
+    "spot_id": "sample-zuma",
+    "name": "Zuma",
+    "file": "/venues/sample-zuma.webp",
+    "source_page": "https://www.zumarestaurant.com/locations/dubai/",
+    "license": "The venue's own image",
+    "author": "Zuma",
+    "photo_attribution": null
+  },
+  {
+    "spot_id": "85000000-0000-0000-0000-000000000002",
+    "name": "Padel Art",
+    "file": "/venues/85000000-0000-0000-0000-000000000002.webp",
+    "source_page": "https://www.padelart.ae/",
+    "license": "The venue's own image",
+    "author": "Padel Art",
+    "photo_attribution": null
   }
 ]

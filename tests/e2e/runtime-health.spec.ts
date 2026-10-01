@@ -299,7 +299,7 @@ async function withPhotoSpot(run: (spotId: string) => Promise<void>): Promise<vo
   const { error } = await admin.from("spots").insert({
     id: spotId, name: "E2E photo spot", category: "culture", area: "Trade Centre", cuisine: "Museum",
     price_band: "$$", min_spend: 100, open_till: "9pm", vibe: "Fixture for the photo check",
-    source: "curated", photo_url: "/demo/alserkal-dinner.webp", photo_source: "wikimedia",
+    source: "curated", photo_url: "/venues/50000000-0000-0000-0000-000000000001.webp", photo_source: "wikimedia",
     photo_attribution: "E2E fixture / Wikimedia Commons / CC BY 4.0",
   });
   if (error) throw new Error(`provisioning the photo spot failed: ${error.message}`);

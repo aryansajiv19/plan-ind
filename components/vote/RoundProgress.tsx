@@ -67,7 +67,7 @@ export function RoundDots({
             data-complete={chosen.has(poolNumber) || undefined}
             aria-label={`Round ${poolNumber} of ${poolCount}${chosen.has(poolNumber) ? ", chosen" : ""}`}
           >
-            <span aria-hidden="true">Round {poolNumber}</span>
+            <span aria-hidden="true">{poolNumber}</span>
           </button>
         ))}
       </div>

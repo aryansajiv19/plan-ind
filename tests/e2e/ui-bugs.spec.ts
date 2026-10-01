@@ -110,6 +110,10 @@ test.describe("ui bug scan", () => {
         const at = async (step: string) => { await settle(page); problems.push(...(await check(page, `${tag} /demo/vote ${step}`))); };
 
         await page.goto("/demo/vote");
+        await expect(page.getByText(/^4 picked this round/)).toBeVisible({ timeout: 10_000 });
+        await at("opens in round 1");
+        // The compose and deal steps, one tap away.
+        await page.getByRole("button", { name: "Pick a different night" }).click();
         await at("compose");
         await page.getByRole("button", { name: /^Dinner\b/ }).click();
         await page.getByRole("button", { name: "Deal nine" }).click();

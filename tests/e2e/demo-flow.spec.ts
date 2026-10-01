@@ -43,11 +43,21 @@ test("/demo: the reveal deals nine places of the picked type, then links to the 
   await expect(next).toHaveAttribute("href", "/demo/vote");
   await next.click();
   await expect(page).toHaveURL(/\/demo\/vote$/);
-  await expect(page.getByRole("button", { name: "Deal nine" })).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Where are we eating Thursday?", { timeout: 20_000 });
+});
+
+test("/demo/vote opens mid-vote: round 1 of the dinner deck, the friends already picking, no form first", async ({ page }) => {
+  await page.goto("/demo/vote");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Where are we eating Thursday?");
+  await expect(page.getByRole("button", { name: "Deal nine" })).toHaveCount(0);
+  await expect(page.getByRole("navigation", { name: "Voting pools" }).getByRole("button")).toHaveCount(3);
+  await expect(page.getByText(/^4 picked this round/)).toBeVisible({ timeout: 10_000 });
+  await expect(page.locator(".vote-options-grid .vote-option__choice")).toHaveCount(3);
 });
 
 test("/demo/vote plays the whole journey: compose, deal, rounds, final, reveal, booking", async ({ page }) => {
   await page.goto("/demo/vote");
+  await page.getByRole("button", { name: "Pick a different night" }).click(); // the demo opens mid-vote
   // A kind tile is named for its label and its count ("Dinner 9 places").
   const dinner = page.getByRole("button", { name: /^Dinner\b/ });
   await dinner.click();
@@ -87,7 +97,7 @@ test("/demo/vote plays the whole journey: compose, deal, rounds, final, reveal, 
   await expect(page.locator("canvas.winner-reveal__canvas")).toHaveCount(0, { timeout: 10_000 });
   await expect(name).not.toHaveAttribute("data-hidden", /.*/);
   await expect(name).toHaveText(
-    /^(Reif Japanese Kushiyaki|Ravi Restaurant|3Fils|Bu Qtair|Orfali Bros Bistro|Bait Maryam|Al Ustad Special Kebab|Zuma|Al Mallah)$/,
+    /^(Reif Japanese Kushiyaki|Afghan Khorasan Restaurant|3Fils|Bu Qtair|Il Pastaio Dubai|Bait Maryam|Farsi|Zuma|Al Khayma)$/,
   );
 
   // Booking round trip: claim, mark, unmark, give it back, and the offer is
@@ -116,6 +126,7 @@ test("/demo/vote: the sample Luna brief picks its kind of night, labelled, with 
   let modelCalls = 0;
   await page.route("**/api/smart-search", (route) => { modelCalls += 1; return route.abort(); });
   await page.goto("/demo/vote");
+  await page.getByRole("button", { name: "Pick a different night" }).click();
   await expect(page.locator("#demo-luna-input")).toHaveValue(/active for the five of us/);
   await page.getByRole("button", { name: "Build it" }).click();
   await expect(page.getByText("A sample answer.", { exact: false })).toBeVisible();

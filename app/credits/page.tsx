@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { DEMO_PHOTO_SOURCES } from "@/components/demo/sampleDecision";
+import { HERO_PHOTOS } from "@/lib/hero-photos";
 
 export const metadata: Metadata = { title: "Photo credits | Planind" };
 // Credits follow the catalogue, so read them per request.
@@ -8,8 +10,10 @@ export const dynamic = "force-dynamic";
 
 // Our own venue photos carry no mark on the image; their licence credits
 // (CC BY / BY-SA, each with its author and licence) are listed here, which
-// the licences allow ("in any reasonable manner"). Google photos show their
-// author beside the image, as Google's terms require.
+// the licences allow ("in any reasonable manner"). A venue's own site image
+// needs no licence credit, but the sample decision's are listed with their
+// source. Google photos show their author beside the image, as Google's
+// terms require.
 export default async function CreditsPage() {
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -24,7 +28,7 @@ export default async function CreditsPage() {
       <Link href="/" className="legal-page__back">Planind</Link>
       <article>
         <h1>Photo credits</h1>
-        <p>Venue photos we host are used under Creative Commons licences. Each is credited to its author below, with its licence. Photos from Google Maps show their author on the photo.</p>
+        <p>Venue photos we host are either used under Creative Commons licences, each credited to its author below with its licence, or are the venue’s own image from its website. Photos from Google Maps show their author on the photo.</p>
         {error ? (
           <p role="alert">The credits didn’t load. Refresh to try again.</p>
         ) : (
@@ -38,6 +42,31 @@ export default async function CreditsPage() {
             ))}
           </ul>
         )}
+        <h2>The demo</h2>
+        <p>These venue photos in the demo are each venue’s own image, from its website.</p>
+        <ul className="credits-list">
+          {DEMO_PHOTO_SOURCES.map((photo) => {
+            const site = new URL(photo.site).hostname.replace(/^www\./, "");
+            return (
+              <li key={photo.spotId}>
+                {photo.spotId.startsWith("sample-")
+                  ? <a href={photo.site} rel="noopener noreferrer" target="_blank">{photo.name}</a>
+                  : <Link href={`/place/${photo.spotId}`}>{photo.name}</Link>}
+                <span>The venue’s own photo / {site}</span>
+              </li>
+            );
+          })}
+        </ul>
+        <h2>City photos</h2>
+        <p>The photos of Dubai on the front page are from Wikimedia Commons, each under the licence named.</p>
+        <ul className="credits-list">
+          {HERO_PHOTOS.map((photo) => (
+            <li key={photo.src}>
+              <a href={photo.source} rel="noopener noreferrer" target="_blank">{photo.alt}</a>
+              <span>{photo.attribution}</span>
+            </li>
+          ))}
+        </ul>
         {/* ODbL: the catalogue's venue data from OSM (089) and the metro network. */}
         <h2>Venue data</h2>
         <p>
