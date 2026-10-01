@@ -22,7 +22,7 @@ const CONSTRAINTS = [
 ];
 
 export default function DemoJourney({ decks, eventTime }: { decks: DemoDeck[]; eventTime: string }) {
-  const [stage, setStage] = useState<"compose" | "deal" | "vote">("compose");
+  const [stage, setStage] = useState<"compose" | "deal" | "vote">("vote"); // the demo opens mid-vote: the friends are already picking
   const [deck, setDeck] = useState(decks[0]);
   // Each tile's cover: its deck's first photographed place that no earlier
   // tile already uses (decks share venues); none left, its category art.

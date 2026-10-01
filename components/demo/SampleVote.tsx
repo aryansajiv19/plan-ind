@@ -180,29 +180,30 @@ function SampleRun({ deck, eventTime, onReplay }: { deck: DemoDeck; eventTime: s
       <div className="vote-header flex items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold sm:text-3xl">{deck.title}</h1>
-          <p className="mt-1 text-sm text-muted">You and four friends, deciding: {deck.label.toLowerCase()}.</p>
           <p className="vote-plan-constraints">
-            Up to AED {SAMPLE_PLAN.budgetPerPerson} per person · within {SAMPLE_PLAN.radiusKm} km of {SAMPLE_PLAN.originLabel}
+            {deck.label} for {SAMPLE_FRIENDS.length + 1} · up to AED {SAMPLE_PLAN.budgetPerPerson} each · within {SAMPLE_PLAN.radiusKm} km of {SAMPLE_PLAN.originLabel}
           </p>
-          {!decided && (
-            <RoundLabel stage={stage === "pool" ? "pool" : "final"} activePool={activePool} poolCount={SAMPLE_PLAN.poolCount} nightMode={false} />
-          )}
-          {!decided && (
-            <VoteSeats roster={roster} picked={pickedThisRound} othersHere={[...SAMPLE_FRIENDS]} />
-          )}
         </div>
         <span className="vote-deadline shrink-0 whitespace-nowrap px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-grape">
           {decided ? "Decided" : "Sample plan"}
         </span>
       </div>
 
-      {stage === "pool" && (
-        <RoundDots
-          poolCount={SAMPLE_PLAN.poolCount}
-          activePool={activePool}
-          chosen={poolsChosen}
-          onSelect={(pool) => { enterPool(pool); haptic(6); }}
-        />
+      {/* One row: where we are in the three rounds, and who has picked. */}
+      {!decided && (
+        <div className="vote-strip">
+          {stage === "pool" ? (
+            <RoundDots
+              poolCount={SAMPLE_PLAN.poolCount}
+              activePool={activePool}
+              chosen={poolsChosen}
+              onSelect={(pool) => { enterPool(pool); haptic(6); }}
+            />
+          ) : (
+            <RoundLabel stage="final" activePool={activePool} poolCount={SAMPLE_PLAN.poolCount} nightMode={false} />
+          )}
+          <VoteSeats roster={roster} picked={pickedThisRound} othersHere={[...SAMPLE_FRIENDS]} />
+        </div>
       )}
 
       {!foldDone && (
@@ -289,6 +290,7 @@ export default function SampleVote({ deck, eventTime, onReplay }: { deck: DemoDe
     <>
       <SampleRun deck={deck} eventTime={eventTime} onReplay={onReplay} />
       <p className="mt-2 text-center text-sm text-muted">
+        <button type="button" onClick={onReplay} className="inline-flex min-h-11 items-center px-3 underline underline-offset-2">Pick a different night</button>
         <Link href="/demo" className="inline-flex min-h-11 items-center px-3 underline underline-offset-2">Back to the demo</Link>
       </p>
     </>
