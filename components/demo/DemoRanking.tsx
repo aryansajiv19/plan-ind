@@ -10,10 +10,10 @@ import type { MyRankingRow, ProfileVisit, RankingBucket } from "@/lib/types";
 // so the links open), nothing saved; a reload starts over.
 type Place = Pick<MyRankingRow, "spot_id" | "name" | "area" | "category" | "photo_url">;
 const PLACES: Place[] = [
-  { spot_id: "50000000-0000-0000-0000-000000000001", name: "Al Qudra Lakes", area: "Seih Al Salam", category: "outdoors", photo_url: "/demo/al-qudra-morning.webp" },
-  { spot_id: "83000000-0000-0000-0000-000000000001", name: "DRIFT Beach Dubai", area: "One&Only Royal Mirage", category: "beach_club", photo_url: "/demo/beach-club.webp" },
-  { spot_id: "85000000-0000-0000-0000-000000000002", name: "Padel Art", area: "Al Quoz", category: "padel", photo_url: "/demo/padel-night.webp" },
-  { spot_id: "10000000-0000-0000-0000-000000000003", name: "Ninive", area: "Emirates Towers", category: "brunch", photo_url: "/demo/alserkal-dinner.webp" },
+  { spot_id: "50000000-0000-0000-0000-000000000001", name: "Al Qudra Lakes", area: "Seih Al Salam", category: "outdoors", photo_url: "/venues/50000000-0000-0000-0000-000000000001.webp" },
+  { spot_id: "83000000-0000-0000-0000-000000000001", name: "DRIFT Beach Dubai", area: "One&Only Royal Mirage", category: "beach_club", photo_url: "/venues/83000000-0000-0000-0000-000000000001.webp" },
+  { spot_id: "85000000-0000-0000-0000-000000000002", name: "Padel Art", area: "Al Quoz", category: "padel", photo_url: "/venues/85000000-0000-0000-0000-000000000002.webp" },
+  { spot_id: "10000000-0000-0000-0000-000000000003", name: "Ninive", area: "Emirates Towers", category: "brunch", photo_url: "/venues/10000000-0000-0000-0000-000000000003.webp" },
 ];
 // Ranked to start with; Ninive is the one left to rate.
 const START: [number, RankingBucket][] = [[0, "loved"], [1, "loved"], [2, "fine"]];

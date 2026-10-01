@@ -10,28 +10,28 @@ export const PLACES = [
     area: "Emirates Towers",
     key: "dinner",
     district: "Downtown and DIFC",
-    image: "/demo/alserkal-dinner.webp",
+    image: "/venues/10000000-0000-0000-0000-000000000003.webp",
   },
   {
     name: "Drift Beach",
     area: "One&Only Royal Mirage",
     key: "beach_club",
     district: "Al Sufouh",
-    image: "/demo/beach-club.webp",
+    image: "/venues/83000000-0000-0000-0000-000000000001.webp",
   },
   {
     name: "Padel Art",
     area: "Al Quoz",
     key: "padel",
     district: "Al Quoz",
-    image: "/demo/padel-night.webp",
+    image: "/venues/85000000-0000-0000-0000-000000000002.webp",
   },
   {
     name: "Al Qudra Lakes",
     area: "Seih Al Salam",
     key: "outdoors",
     district: "Outside the city",
-    image: "/demo/al-qudra-morning.webp",
+    image: "/venues/50000000-0000-0000-0000-000000000001.webp",
   },
 ] as const;
 
