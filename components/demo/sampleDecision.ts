@@ -2,9 +2,11 @@
 // invented and only ever rendered under the "Sample data" banner (house rule
 // 1: never show invented data as someone's own). No Supabase, no persistence.
 //
-// The spots are real Dubai venues in the curated catalog's shape; four match
-// supabase/seed.sql so the sample and a fresh local database agree. Every one
-// fits the sample budget: a card the real deal could never produce is a lie.
+// The spots are real Dubai venues in the curated catalog's shape; three match
+// supabase/seed.sql and four are 095 catalogue rows, so the sample and the
+// database agree. Every one fits the sample budget: a card the real deal
+// could never produce is a lie. Every one shows a self-hosted photo; a spend
+// the catalogue doesn't know stays 0 (no price shown), never invented.
 // The people are made up and render as initials only (lib/avatar.ts), never
 // as photos or faces.
 import type { Spot } from "@/lib/types";
@@ -28,8 +30,8 @@ type SpotSeed = Pick<Spot, "id" | "name" | "area" | "cuisine" | "price_band" | "
   // venue's own site image (photo_source "venue_site", credited on /credits).
   // Never Google's per-view photo: the demo must not depend on a third party.
   & Partial<Pick<Spot, "photo_url" | "photo_attribution" | "photo_source">>
-  // The four real catalogue venues keep their real ids and Google place ids,
-  // so the sample shows their real photos; the other five stay sample-only.
+  // Catalogue venues keep their real ids (and Google place ids, unused while
+  // a self-hosted photo exists); Bait Maryam and Zuma stay sample-only.
   & Partial<Pick<Spot, "google_place_id">>
   // P29: where the catalogue knows it (data/venue-facts.json), so the sample
   // winner's directions are real. Unknown stays null, never invented.
@@ -57,6 +59,10 @@ function dinner(seed: SpotSeed): Spot {
  * website image, checked by hand to show the venue itself. Listed on /credits.
  */
 export const DEMO_PHOTO_SOURCES: readonly { spotId: string; name: string; site: string }[] = [
+  { spotId: "c0900000-0000-0000-0001-0000fb42f423", name: "Afghan Khorasan Restaurant", site: "https://afghankhorasankabab.shop/" },
+  { spotId: "c0900000-0000-0000-0001-0002967011ea", name: "Il Pastaio Dubai", site: "https://www.ilpastaiodubai.ae/" },
+  { spotId: "c0900000-0000-0000-0001-00018440d40a", name: "Farsi", site: "http://www.farsi-restaurant.com/" },
+  { spotId: "c0900000-0000-0000-0001-00004809e103", name: "Al Khayma", site: "http://www.alkhaima-dubai.com/" },
   { spotId: "a0000000-0000-0000-0000-000000000001", name: "Reif Japanese Kushiyaki", site: "https://www.reifkushiyaki.com/dubai-hills" },
   { spotId: "a0000000-0000-0000-0000-000000000003", name: "3Fils", site: "https://www.3fils.com/" },
   { spotId: "sample-baitmaryam", name: "Bait Maryam", site: "https://baitmaryam.com/" },
@@ -68,18 +74,18 @@ export const DEMO_PHOTO_SOURCES: readonly { spotId: string; name: string; site: 
 export const SAMPLE_POOLS: readonly (readonly Spot[])[] = [
   [
     dinner({ id: "a0000000-0000-0000-0000-000000000001", google_place_id: "ChIJN0PuVXJpXz4RTi-IEGAvito", name: "Reif Japanese Kushiyaki", photo_url: "/venues/a0000000-0000-0000-0000-000000000001.webp", photo_source: "venue_site", area: "Dubai Hills", cuisine: "Japanese", price_band: "$$$", min_spend: 250, open_till: "12am", vibe: "Smoky skewers, tight room, always buzzing", booking_url: "https://www.reifother.com", address: "Dubai Hills Business Park, Building 3, Dubai", latitude: 25.1067369, longitude: 55.2401865 }),
-    dinner({ id: "a0000000-0000-0000-0000-000000000002", google_place_id: "ChIJN81uvipDXz4RH_4cyTocRMI", name: "Ravi Restaurant", area: "Al Satwa", cuisine: "Pakistani", price_band: "$", min_spend: 45, open_till: "3am", vibe: "Legendary cheap eats, plastic chairs, no bookings", booking_url: null, address: "Shop 245, Al Dhiyafa Road, opposite Union Co-operative Society, Al Satwa, Dubai", latitude: 25.2336615, longitude: 55.2790297 }),
+    dinner({ id: "c0900000-0000-0000-0001-0000fb42f423", name: "Afghan Khorasan Restaurant", photo_url: "/venues/c0900000-0000-0000-0001-0000fb42f423.webp", photo_source: "venue_site", area: "Al Quoz", cuisine: "Afghan", price_band: null, min_spend: 0, open_till: "", vibe: "Afghan kebabs, kabuli palaw and lamb shanks", booking_url: null, latitude: 25.174486, longitude: 55.256754 }),
     dinner({ id: "a0000000-0000-0000-0000-000000000003", google_place_id: "ChIJc_qkbD5CXz4RjckbjFAB3eM", name: "3Fils", photo_url: "/venues/a0000000-0000-0000-0000-000000000003.webp", photo_source: "venue_site", area: "Jumeirah", cuisine: "Seafood", price_band: "$$", min_spend: 180, open_till: "11pm", vibe: "Marina side, no reservations, quietly excellent", booking_url: null, address: "Shop 02, Jumeirah Fishing Harbour 1, Al Urouba Street, Jumeirah 1, Dubai", latitude: 25.2103004, longitude: 55.2433123 }),
   ],
   [
     dinner({ id: "a0000000-0000-0000-0000-000000000004", google_place_id: "ChIJlbbiwENqXz4RYs-mK1C-G8o", name: "Bu Qtair", photo_url: "/venues/a0000000-0000-0000-0000-000000000004.webp", photo_attribution: "Ankur P from Pune, India / Wikimedia Commons / CC BY 2.0", area: "Umm Suqeim", cuisine: "Seafood", price_band: "$", min_spend: 60, open_till: "11:30pm", vibe: "Fry shack by the beach, catch of the day", booking_url: null, address: "Old 32B Street, Fishing Harbour 2, Dubai", latitude: 25.1515093, longitude: 55.1971669 }),
-    dinner({ id: "sample-orfali", name: "Orfali Bros Bistro", area: "Jumeirah", cuisine: "Middle Eastern", price_band: "$$", min_spend: 160, open_till: "11pm", vibe: "Three brothers, inventive small plates, worth the queue", booking_url: null }),
+    dinner({ id: "c0900000-0000-0000-0001-0002967011ea", name: "Il Pastaio Dubai", photo_url: "/venues/c0900000-0000-0000-0001-0002967011ea.webp", photo_source: "venue_site", area: "Business Bay", cuisine: "Italian", price_band: null, min_spend: 0, open_till: "", vibe: "Sicilian-rooted Italian with a lemon-tree terrace", booking_url: "https://www.ilpastaiodubai.ae/", latitude: 25.180869, longitude: 55.252672 }),
     dinner({ id: "sample-baitmaryam", name: "Bait Maryam", photo_url: "/venues/sample-baitmaryam.webp", photo_source: "venue_site", area: "JLT", cuisine: "Levantine", price_band: "$$", min_spend: 110, open_till: "11pm", vibe: "Home style Levantine, like dinner at an aunt's", booking_url: null }),
   ],
   [
-    dinner({ id: "sample-alustad", name: "Al Ustad Special Kebab", area: "Bur Dubai", cuisine: "Persian", price_band: "$", min_spend: 0, open_till: "", vibe: "Family-run kebab house, walls of framed photos", booking_url: null }),
+    dinner({ id: "c0900000-0000-0000-0001-00018440d40a", name: "Farsi", photo_url: "/venues/c0900000-0000-0000-0001-00018440d40a.webp", photo_source: "venue_site", area: "Business Bay", cuisine: "Persian", price_band: null, min_spend: 0, open_till: "11:30pm", vibe: "Iranian kebabs from an Iranian chef on Bay Avenue", booking_url: null, latitude: 25.18921, longitude: 55.265102 }),
     dinner({ id: "sample-zuma", name: "Zuma", photo_url: "/venues/sample-zuma.webp", photo_source: "venue_site", area: "DIFC", cuisine: "Japanese izakaya", price_band: "$$$", min_spend: 400, open_till: "1am", vibe: "Robata grill, loud room, see and be seen", booking_url: null }),
-    dinner({ id: "sample-almallah", name: "Al Mallah", area: "Al Satwa", cuisine: "Lebanese", price_band: "$", min_spend: 40, open_till: "3am", vibe: "Shawarma institution, pavement tables, open late", booking_url: null }),
+    dinner({ id: "c0900000-0000-0000-0001-00004809e103", name: "Al Khayma", photo_url: "/venues/c0900000-0000-0000-0001-00004809e103.webp", photo_source: "venue_site", area: "Dubai Marina", cuisine: "Lebanese", price_band: null, min_spend: 0, open_till: "", vibe: "Mezze and Lebanese grills in a majlis tent", booking_url: null, latitude: 25.085506, longitude: 55.139311 }),
   ],
 ];
 
