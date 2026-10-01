@@ -283,3 +283,20 @@ been regenerated from the broken screens.
 - Open: source photos for the 101 hidden places; an empty family now 503s in
   `readFamily` instead of "too few" (cannot happen today); PRODUCT.md is
   gitignored (updated locally only).
+
+## 2026-10-01 — Guest voting backend (lane/guest-vote), migration 098 STAGED
+
+Owner direction: voters no longer need an account. NOT applied anywhere; the
+apply is the owner's call. Design and threat table: `docs/GUEST_VOTE.md`.
+- **098:** `guest_sessions` (anonymous session bound to one plan, 14-day expiry,
+  20 per plan), `join_plan_as_guest` / `consume_guest_limit` (control secret),
+  `issue_guest_merge_token` / `merge_guest_into_me`, `is_active_guest`; plan
+  reads, presence and `cast_plan_vote` / `set_plan_rsvp` admit an active guest of
+  that plan. A guest counts as age 13: adults-only plans refuse it. No new write
+  policy. Mirrored in `schema.sql`; `lib/types.ts` gains the RPC result types.
+- **Code:** `lib/guest.ts`, `POST /api/guest/join`, `lib/security/controls.ts`.
+- **Tests:** `tests/guest-vote.dbtest.ts` (25), `tests/guest-join.test.ts`; 20
+  sed mutants on a throwaway DB, all killed. Plain-Postgres shim only, not the
+  Supabase stack.
+- **Not done:** `proxy.ts` and the plan UI still send a guest to /login; the
+  root `CLAUDE.md` identity invariant changes when 098 is applied.

@@ -484,3 +484,24 @@ export interface PlanTimeVote {
   seat_key: string;
   created_at: string;
 }
+
+// 098: guest voting. guest_sessions is server-only (no select policy); these
+// are the answers of its RPCs. A refusal is a status, never an error code.
+export type GuestJoinStatus =
+  | "joined" | "already"
+  | "full" | "age_gated" | "other_plan" | "expired" | "merged" | "removed";
+
+export interface GuestJoinResult {
+  status: GuestJoinStatus;
+  name?: string;
+}
+
+// merge_guest_into_me. "gone": the plan no longer exists.
+export type GuestMergeStatus = "merged" | "already" | "linked" | "gone";
+
+export interface GuestMergeResult {
+  status: GuestMergeStatus;
+  plan_id: string;
+  votes_moved?: number;
+  rsvps_moved?: number;
+}

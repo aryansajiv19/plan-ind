@@ -4,6 +4,7 @@ import { createHmac } from "node:crypto";
 import { headers } from "next/headers";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { rateLimitKey } from "@/lib/security/request";
+import type { GuestJoinResult } from "@/lib/types";
 
 // The Vercel-assigned id for the current request, for correlating a
 // security_events row back to a specific request/log line. null off Vercel
@@ -113,6 +114,38 @@ export function consumePhotoVisitorLimit(supabase: SupabaseClient, request: Requ
 // Migration 072: the signed-out sample deal, keyed on the HMAC'd client IP.
 export function consumeDealPreviewLimit(supabase: SupabaseClient, request: Request): Promise<ControlResult> {
   return consumeOtpLimit(supabase, "deal-preview", `ip:${rateLimitKey(clientIp(request))}`);
+}
+
+// Migration 098: guest sessions, per hashed client IP plus a global daily
+// ceiling. Counted before the anonymous session is minted.
+export async function consumeGuestLimit(supabase: SupabaseClient, request: Request): Promise<ControlResult> {
+  const { data, error } = await supabase.rpc("consume_guest_limit", {
+    p_secret: controlSecret(),
+    p_subject: privateSubject(`ip:${rateLimitKey(clientIp(request))}`),
+  });
+  return controlResult(data, error, "guest-join");
+}
+
+// Migration 098: bind the caller's anonymous session to one plan. Needs the
+// control secret, so only this server can call it. `unavailable` is a failed
+// RPC (not the guest's doing); a refusal is a status inside `result`.
+export async function joinPlanAsGuest(
+  supabase: SupabaseClient,
+  planId: string,
+  name: string,
+): Promise<{ result: GuestJoinResult } | { error: "unavailable" | "no-plan" | "forbidden" }> {
+  const { data, error } = await supabase.rpc("join_plan_as_guest", {
+    p_secret: controlSecret(),
+    p_plan_id: planId,
+    p_name: name,
+  });
+  if (error) {
+    if (error.code === "22023") return { error: "no-plan" };
+    if (error.code === "42501") return { error: "forbidden" };
+    console.error("Guest join failed", JSON.stringify({ code: error.code }));
+    return { error: "unavailable" };
+  }
+  return { result: data as GuestJoinResult };
 }
 
 export async function recordSecurityEvent(
