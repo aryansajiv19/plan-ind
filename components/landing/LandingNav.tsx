@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { TAB_VIEWS, VIEW_LABELS } from "@/lib/home-views";
 import { dubaiMinuteOfDay } from "@/lib/dubai-phase";
 import { useMinuteClock } from "@/hooks/use-minute-clock";
@@ -13,21 +14,36 @@ function dubaiClock(now: Date): string {
   return `${hour % 12 || 12}:${String(minutes % 60).padStart(2, "0")} ${hour < 12 ? "am" : "pm"}`;
 }
 
-// The shared top nav for every page outside /home's own. Signed out, the
-// app's tabs open their /demo view (fixtures, no account); signed in, they
-// open the real tab on /home. Same classes as the /home nav, so the same
-// breakpoints apply, including the bottom tab bar below 520px.
+// The shared top nav for every page outside /home's own. Signed in: the
+// app's tabs (open on /home), the Dubai clock, "Start a plan". Signed out, a
+// visitor has no app yet, so only the wordmark, the theme, "Sign in" and one
+// filled action: "Try the demo", or "Start a plan" once already in it.
 export default function LandingNav({ signedIn = false }: { signedIn?: boolean }) {
   const now = useMinuteClock(); // null during SSR, so the clock never mismatches
+  const inDemo = usePathname()?.startsWith("/demo") ?? false;
+  if (!signedIn) {
+    return (
+      <header className="home-nav">
+        <Link href="/" className="home-logo" aria-label="Planind home">Planind</Link>
+        <div className="home-nav__right">
+          <ThemeToggle />
+          <Link href="/login" className="home-nav__login">Sign in</Link>
+          {inDemo
+            ? <Link href="/#plan-lab" className="home-nav__signin">Start a plan</Link>
+            : <Link href="/demo/vote" className="home-nav__signin">Try the demo</Link>}
+        </div>
+      </header>
+    );
+  }
   return (
     <header className="home-nav">
       <Link href="/" className="home-logo" aria-label="Planind home">
         Planind
       </Link>
 
-      <nav className="home-app-tabs" aria-label={signedIn ? "App" : "Explore the app with sample data"}>
+      <nav className="home-app-tabs" aria-label="App">
         {TAB_VIEWS.map((view) => (
-          <Link key={view} href={signedIn ? `/home?view=${view}` : `/demo?view=${view}`} className="home-app-tab">
+          <Link key={view} href={`/home?view=${view}`} className="home-app-tab">
             {VIEW_LABELS[view]}
           </Link>
         ))}
@@ -36,8 +52,7 @@ export default function LandingNav({ signedIn = false }: { signedIn?: boolean })
       <div className="home-nav__right">
         {now && <span className="home-nav__clock">Dubai · {dubaiClock(now)}</span>}
         <ThemeToggle />
-        {!signedIn && <Link href="/login" className="home-nav__login">Sign in</Link>}
-        <Link href={signedIn ? "/home" : "/#plan-lab"} className="home-nav__signin">
+        <Link href="/home" className="home-nav__signin">
           Start a plan
         </Link>
       </div>

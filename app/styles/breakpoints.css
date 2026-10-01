@@ -31,23 +31,23 @@
 }
 
 @media (max-width: 850px) {
-  /* A phone stacks the cover: band, photos, then the cover line on ink. */
+  /* A phone stacks the cover: the line and the action first, so both are on
+     the first screen, then a strip of three photos. */
   .home-hero {
-    grid-template-rows: auto auto auto;
+    min-height: 0;
+    grid-template-rows: auto auto;
   }
   .cover__mosaic {
+    grid-row: 2;
     margin-left: 0;
-    height: 46svh;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    grid-template-rows: repeat(3, minmax(0, 1fr));
+    height: 24svh;
+    grid-template-rows: 1fr;
   }
   .cover__mosaic::after {
-    background: linear-gradient(0deg, var(--color-paper) 0%, transparent 35%);
+    background: linear-gradient(180deg, var(--color-paper) 0%, transparent 30%);
   }
-  .home-hero__copy { grid-row: 3; }
-  .cover__tile:nth-child(n + 7) { display: none; }
-  .cover__tile:nth-child(5),
-  .cover__tile:nth-child(8) { grid-column: auto; grid-row: auto; }
+  .cover__tile:first-child { grid-column: auto; grid-row: auto; }
+  .cover__tile:nth-child(n + 4) { display: none; }
   .home-nav {
     padding-bottom: 0.75rem;
   }

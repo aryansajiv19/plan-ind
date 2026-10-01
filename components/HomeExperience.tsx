@@ -293,7 +293,7 @@ export default function HomeExperience({
       {/* The pitch is for the front door only; /demo is an account, so it
           opens on the app's first screen like a signed-in one. */}
       {demoMode && !fixtures ? (
-      <HomeHero spots={spots} counts={counts} />
+      <HomeHero />
       ) : (
         <section id="top" className="home-appbar" aria-labelledby="home-title">
           {/* The heading speaks first; the greeting follows it, not a label above it. */}
