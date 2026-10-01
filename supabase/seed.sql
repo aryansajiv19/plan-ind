@@ -95,29 +95,39 @@ update spots set photo_url = '/venues/d0000000-0000-0000-0000-000000000003.webp'
     photo_attribution = 'Diego Delso / Wikimedia Commons / CC BY-SA 4.0'
   where id = 'd0000000-0000-0000-0000-000000000003';
 
+-- E2E fixture (tests/e2e/deal-sample.spec.ts): the water category, five with
+-- a photo and three without. With the 4 seeded beaches the beach family holds
+-- exactly nine dealable places, so a deal must be all of them and never a
+-- photo-less one. Seeded, not inserted by the spec: the deal pool is cached
+-- for an hour, so rows a spec inserts may never reach it.
+insert into spots (id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, photo_url) values
+  ('e2e00000-0000-0000-0000-000000000001', 'E2E water photo 1', 'water', 'JBR', 'Water park', '$$', 0, '', 'E2E fixture spot', '/icon.svg'),
+  ('e2e00000-0000-0000-0000-000000000002', 'E2E water photo 2', 'water', 'JBR', 'Water park', '$$', 0, '', 'E2E fixture spot', '/icon.svg'),
+  ('e2e00000-0000-0000-0000-000000000003', 'E2E water photo 3', 'water', 'JBR', 'Water park', '$$', 0, '', 'E2E fixture spot', '/icon.svg'),
+  ('e2e00000-0000-0000-0000-000000000004', 'E2E water photo 4', 'water', 'JBR', 'Water park', '$$', 0, '', 'E2E fixture spot', '/icon.svg'),
+  ('e2e00000-0000-0000-0000-000000000005', 'E2E water photo 5', 'water', 'JBR', 'Water park', '$$', 0, '', 'E2E fixture spot', '/icon.svg'),
+  ('e2e00000-0000-0000-0000-000000000006', 'E2E water bare 6', 'water', 'JBR', 'Water park', '$$', 0, '', 'E2E fixture spot', null),
+  ('e2e00000-0000-0000-0000-000000000007', 'E2E water bare 7', 'water', 'JBR', 'Water park', '$$', 0, '', 'E2E fixture spot', null),
+  ('e2e00000-0000-0000-0000-000000000008', 'E2E water bare 8', 'water', 'JBR', 'Water park', '$$', 0, '', 'E2E fixture spot', null);
+
 -- Test data only (seed.sql never runs on the live project: it deletes every
 -- spot). Discover, search and the deal list a curated place only when it can
 -- show a real photo (lib/venue-photo.ts), so every seeded spot needs one or
--- local stacks and CI deal nothing. A spot whose own image is already in
--- public/venues uses it; the rest point at the app icon, a placeholder that
--- exists, so no image is broken and none is invented.
-update spots set photo_url = case id
-    when '10000000-0000-0000-0000-000000000002' then '/venues/10000000-0000-0000-0000-000000000002.webp'
-    when '10000000-0000-0000-0000-000000000003' then '/venues/10000000-0000-0000-0000-000000000003.webp'
-    when '30000000-0000-0000-0000-000000000001' then '/venues/30000000-0000-0000-0000-000000000001.webp'
-    when '30000000-0000-0000-0000-000000000002' then '/venues/30000000-0000-0000-0000-000000000002.webp'
-    when '30000000-0000-0000-0000-000000000004' then '/venues/30000000-0000-0000-0000-000000000004.webp'
-    when '40000000-0000-0000-0000-000000000001' then '/venues/40000000-0000-0000-0000-000000000001.webp'
-    when '40000000-0000-0000-0000-000000000002' then '/venues/40000000-0000-0000-0000-000000000002.webp'
-    when '40000000-0000-0000-0000-000000000004' then '/venues/40000000-0000-0000-0000-000000000004.webp'
-    when '50000000-0000-0000-0000-000000000001' then '/venues/50000000-0000-0000-0000-000000000001.webp'
-    when '50000000-0000-0000-0000-000000000003' then '/venues/50000000-0000-0000-0000-000000000003.webp'
-    when '70000000-0000-0000-0000-000000000001' then '/venues/70000000-0000-0000-0000-000000000001.webp'
-    when 'a0000000-0000-0000-0000-000000000004' then '/venues/a0000000-0000-0000-0000-000000000004.webp'
-    when 'a0000000-0000-0000-0000-000000000005' then '/venues/a0000000-0000-0000-0000-000000000005.webp'
-    when 'd0000000-0000-0000-0000-000000000002' then '/venues/d0000000-0000-0000-0000-000000000002.webp'
-    when 'd0000000-0000-0000-0000-000000000003' then '/venues/d0000000-0000-0000-0000-000000000003.webp'
-  end
-  where photo_url is null and id in ('10000000-0000-0000-0000-000000000002', '10000000-0000-0000-0000-000000000003', '30000000-0000-0000-0000-000000000001', '30000000-0000-0000-0000-000000000002', '30000000-0000-0000-0000-000000000004', '40000000-0000-0000-0000-000000000001', '40000000-0000-0000-0000-000000000002', '40000000-0000-0000-0000-000000000004', '50000000-0000-0000-0000-000000000001', '50000000-0000-0000-0000-000000000003', '70000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000004', 'a0000000-0000-0000-0000-000000000005', 'd0000000-0000-0000-0000-000000000002', 'd0000000-0000-0000-0000-000000000003');
+-- local stacks and CI deal nothing. The Wikimedia photos live already uses
+-- (public/venues) come with the credit /credits must show; every other spot
+-- points at the app icon, a placeholder that exists and is not an own photo.
+update spots set photo_url = '/venues/10000000-0000-0000-0000-000000000003.webp', photo_source = 'wikimedia', photo_attribution = 'Jackardsiffant / Wikimedia Commons / CC BY 3.0'
+  where id = '10000000-0000-0000-0000-000000000003' and photo_url is null;
+update spots set photo_url = '/venues/30000000-0000-0000-0000-000000000004.webp', photo_source = 'wikimedia', photo_attribution = 'Chris Olszewski / Wikimedia Commons / CC BY-SA 4.0'
+  where id = '30000000-0000-0000-0000-000000000004' and photo_url is null;
+update spots set photo_url = '/venues/40000000-0000-0000-0000-000000000001.webp', photo_source = 'wikimedia', photo_attribution = 'MaryJaneB / Wikimedia Commons / CC BY-SA 4.0'
+  where id = '40000000-0000-0000-0000-000000000001' and photo_url is null;
+update spots set photo_url = '/venues/40000000-0000-0000-0000-000000000002.webp', photo_source = 'wikimedia', photo_attribution = 'Safasaleem / Wikimedia Commons / CC BY-SA 4.0'
+  where id = '40000000-0000-0000-0000-000000000002' and photo_url is null;
+update spots set photo_url = '/venues/50000000-0000-0000-0000-000000000001.webp', photo_source = 'wikimedia', photo_attribution = 'JSPhotography2016 / Wikimedia Commons / CC BY-SA 4.0'
+  where id = '50000000-0000-0000-0000-000000000001' and photo_url is null;
+update spots set photo_url = '/venues/50000000-0000-0000-0000-000000000003.webp', photo_source = 'wikimedia', photo_attribution = 'Francisco Anzola / Wikimedia Commons / CC BY 3.0'
+  where id = '50000000-0000-0000-0000-000000000003' and photo_url is null;
 update spots set photo_url = '/icon.svg'
-  where source = 'curated' and photo_url is null and google_place_id is null;
+  where source = 'curated' and photo_url is null and google_place_id is null
+    and id::text not like 'e2e00000-%'; -- the photo-less fixtures stay photo-less

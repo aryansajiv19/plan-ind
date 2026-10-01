@@ -115,9 +115,24 @@ function collect(page: Page): Collected {
  */
 async function loadEveryImage(page: Page) {
   await page.evaluate(async () => {
+    const pause = () => new Promise((resolve) => setTimeout(resolve, 120));
+    // A horizontal row (the deal deck) holds lazy cards far right of the
+    // viewport: scroll each row through too, or they never load and would be
+    // judged without being given the chance (a user can scroll to them).
+    const rowsDone = new Set<Element>();
     for (let y = 0; y < document.documentElement.scrollHeight; y += window.innerHeight / 2) {
       window.scrollTo(0, y);
-      await new Promise((resolve) => setTimeout(resolve, 120));
+      await pause();
+      for (const row of Array.from(document.querySelectorAll("*"))) {
+        if (rowsDone.has(row) || row.scrollWidth <= row.clientWidth + 1) continue;
+        if (!["auto", "scroll"].includes(getComputedStyle(row).overflowX)) continue;
+        rowsDone.add(row);
+        for (let x = 0; x < row.scrollWidth; x += row.clientWidth / 2) {
+          row.scrollLeft = x;
+          await pause();
+        }
+        row.scrollLeft = 0;
+      }
     }
     window.scrollTo(0, 0);
   });
