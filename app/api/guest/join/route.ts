@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-// Guest voting (migration 098, docs/GUEST_VOTE.md): bind an anonymous session
+// Guest voting (migration 099, docs/GUEST_VOTE.md): bind an anonymous session
 // to ONE plan. Body: { planId, name, captchaToken }. The Turnstile token goes
 // to Supabase Auth, which verifies it when it mints the session.
 export async function POST(request: Request) {

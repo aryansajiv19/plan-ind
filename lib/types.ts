@@ -485,7 +485,7 @@ export interface PlanTimeVote {
   created_at: string;
 }
 
-// 098: guest voting. guest_sessions is server-only (no select policy); these
+// 099: guest voting. guest_sessions is server-only (no select policy); these
 // are the answers of its RPCs. A refusal is a status, never an error code.
 export type GuestJoinStatus =
   | "joined" | "already"

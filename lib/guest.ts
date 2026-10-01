@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { GuestJoinResult, GuestMergeResult } from "@/lib/types";
 
-// Guest voting (migration 098, docs/GUEST_VOTE.md). The orchestration of
+// Guest voting (migration 099, docs/GUEST_VOTE.md). The orchestration of
 // POST /api/guest/join, with every side effect injected so it runs in a unit
 // test. The route wires the real Supabase client and the control RPCs in.
 

@@ -284,11 +284,11 @@ been regenerated from the broken screens.
   `readFamily` instead of "too few" (cannot happen today); PRODUCT.md is
   gitignored (updated locally only).
 
-## 2026-10-01 — Guest voting backend (lane/guest-vote), migration 098 STAGED
+## 2026-10-01 — Guest voting backend (lane/guest-vote), migration 099 STAGED
 
 Owner direction: voters no longer need an account. NOT applied anywhere; the
 apply is the owner's call. Design and threat table: `docs/GUEST_VOTE.md`.
-- **098:** `guest_sessions` (anonymous session bound to one plan, 14-day expiry,
+- **099:** `guest_sessions` (anonymous session bound to one plan, 14-day expiry,
   20 per plan), `join_plan_as_guest` / `consume_guest_limit` (control secret),
   `issue_guest_merge_token` / `merge_guest_into_me`, `is_active_guest`; plan
   reads, presence and `cast_plan_vote` / `set_plan_rsvp` admit an active guest of
@@ -299,4 +299,4 @@ apply is the owner's call. Design and threat table: `docs/GUEST_VOTE.md`.
   sed mutants on a throwaway DB, all killed. Plain-Postgres shim only, not the
   Supabase stack.
 - **Not done:** `proxy.ts` and the plan UI still send a guest to /login; the
-  root `CLAUDE.md` identity invariant changes when 098 is applied.
+  root `CLAUDE.md` identity invariant changes when 099 is applied.

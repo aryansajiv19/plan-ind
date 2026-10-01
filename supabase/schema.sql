@@ -8135,8 +8135,8 @@ end $$;
 revoke all on function crew_streak(uuid) from public, anon, authenticated;
 grant execute on function crew_streak(uuid) to authenticated;
 
--- 098: guest voting -- see migration-098-guest-vote.sql and docs/GUEST_VOTE.md.
--- Migration 098: guest voting. Apply after 097. STAGED -- written and tested on
+-- 099: guest voting -- see migration-099-guest-vote.sql and docs/GUEST_VOTE.md.
+-- Migration 099: guest voting. Apply after 097. STAGED -- written and tested on
 -- a local database only, NOT applied to the live project. Applying it is an
 -- owner decision. Design note: docs/GUEST_VOTE.md.
 --
@@ -8481,7 +8481,7 @@ declare
     (select gs.display_name from guest_sessions gs where gs.user_id = auth.uid()), p_voter_name));
   caller uuid := auth.uid();
 begin
-  -- 064 + 098: a permanent account, or an active guest of this very plan.
+  -- 064 + 099: a permanent account, or an active guest of this very plan.
   if not is_permanent_user() and not guest_may_act(p_plan_id) then
     raise exception 'Sign in to vote on this plan' using errcode = '42501';
   end if;
@@ -8557,7 +8557,7 @@ declare
     (select gs.display_name from guest_sessions gs where gs.user_id = auth.uid()), p_voter_name));
   caller uuid := auth.uid();
 begin
-  -- 064 + 098: a permanent account, or an active guest of this very plan.
+  -- 064 + 099: a permanent account, or an active guest of this very plan.
   if not is_permanent_user() and not guest_may_act(p_plan_id) then
     raise exception 'Sign in to reply to this plan' using errcode = '42501';
   end if;

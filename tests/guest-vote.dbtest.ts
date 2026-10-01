@@ -1,4 +1,4 @@
-// Migration 098: guest voting. A guest is an anonymous session bound to ONE
+// Migration 099: guest voting. A guest is an anonymous session bound to ONE
 // plan by guest_sessions. Every refusal below is paired with a positive
 // control in the same test (a guest who CAN do the neighbouring thing), so a
 // broken rig cannot pass them. Everything created is swept in `after`; the
@@ -28,11 +28,11 @@ async function psql(sql: string): Promise<string> {
 }
 
 const SKIP = await psql("select 1 from pg_proc where proname = 'join_plan_as_guest'").then(
-  (out) => (out ? (false as const) : "migration 098 is not applied to this database"),
+  (out) => (out ? (false as const) : "migration 099 is not applied to this database"),
   () => `no Supabase-shaped Postgres at ${DB_URL} — set TEST_DATABASE_URL to a LOCAL database (never the live project)`,
 );
 
-const SECRET = "098-guest-test-secret";
+const SECRET = "099-guest-test-secret";
 const sha256 = (s: string) => createHash("sha256").update(s).digest("hex");
 let savedSecret = "";
 const made = { spots: [] as string[], users: [] as string[] };
@@ -81,7 +81,7 @@ async function anon(): Promise<string> {
 async function spot(minimumAge = 0): Promise<string> {
   const id = randomUUID();
   await psql(`insert into spots (id,name,category,area,cuisine,price_band,min_spend,open_till,vibe,minimum_age)
-    values ('${id}','QA-098','dinner','Dubai','Test','$$',100,'12am','test',${minimumAge})`);
+    values ('${id}','QA-099','dinner','Dubai','Test','$$',100,'12am','test',${minimumAge})`);
   made.spots.push(id);
   return id;
 }
@@ -92,7 +92,7 @@ async function plan(creator: string, minimumAge = 0): Promise<Plan> {
   const spots = [await spot(minimumAge), await spot(), await spot()];
   await psql(`
     insert into plans (id,title,category,area,deadline,status,stage,pool_count,budget_per_person,created_by_user_id)
-      values ('${id}','QA-098 plan','dinner','Dubai',now() + interval '1 day','open','pool',1,200,'${creator}');
+      values ('${id}','QA-099 plan','dinner','Dubai',now() + interval '1 day','open','pool',1,200,'${creator}');
     insert into plan_spots (plan_id,spot_id,pool_number,advanced) values ${spots.map((s) => `('${id}','${s}',1,false)`).join(",")};
     insert into plan_access (plan_id,user_id) values ('${id}','${creator}');`);
   return { id, spots };

@@ -116,7 +116,7 @@ export function consumeDealPreviewLimit(supabase: SupabaseClient, request: Reque
   return consumeOtpLimit(supabase, "deal-preview", `ip:${rateLimitKey(clientIp(request))}`);
 }
 
-// Migration 098: guest sessions, per hashed client IP plus a global daily
+// Migration 099: guest sessions, per hashed client IP plus a global daily
 // ceiling. Counted before the anonymous session is minted.
 export async function consumeGuestLimit(supabase: SupabaseClient, request: Request): Promise<ControlResult> {
   const { data, error } = await supabase.rpc("consume_guest_limit", {
@@ -126,7 +126,7 @@ export async function consumeGuestLimit(supabase: SupabaseClient, request: Reque
   return controlResult(data, error, "guest-join");
 }
 
-// Migration 098: bind the caller's anonymous session to one plan. Needs the
+// Migration 099: bind the caller's anonymous session to one plan. Needs the
 // control secret, so only this server can call it. `unavailable` is a failed
 // RPC (not the guest's doing); a refusal is a status inside `result`.
 export async function joinPlanAsGuest(

@@ -1,4 +1,4 @@
-# Guest voting (migration 098, STAGED)
+# Guest voting (migration 099, STAGED)
 
 Owner direction 2026-10-01: a friend taps a plan link, types a first name and
 votes in about ten seconds. This reverses the sign-in wall of 064 for
@@ -87,7 +87,7 @@ friends, folders, visits, uploads, profiles. A guest who wants these signs in.
 - Supabase Auth: **anonymous sign-ins on** and **CAPTCHA (Turnstile) on**. The
   route requires a token in production but Auth does the verifying; if CAPTCHA
   is ever off, minting falls back to the per-IP limit alone.
-- Apply 098 (owner decision). Update the root `CLAUDE.md` identity invariant
+- Apply 099 (owner decision). Update the root `CLAUDE.md` identity invariant
   and the `proxy.ts` plan-page gate in the same change.
 - Optional: periodic cleanup of anonymous `auth.users` older than the expiry.
 
