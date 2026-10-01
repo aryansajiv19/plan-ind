@@ -4671,3 +4671,46 @@ everyone, all screens, nothing off limits, place ids approved.
 - Data (owner-approved 2026-09-28): Tresind Studio's unlicensed venue-site photo cleared live (photo_url/photo_source null); its credited Google photo shows instead. The object stays in the spot-photos bucket, unreferenced; delete it from Storage when convenient. Demo moodboard fixture updated to match.
 - Merged: B folders (081 live), B Tonight-at-a-glance panel, C Luna fixes (honest age-gate note, sign-in-again, demo Luna sample, luna.spec). Luna moved to the composer's first line.
 
+
+## 2026-09-28 (late) — audits, the lead's merges, CI back to green
+
+- **Three audits** (read-only subagents): UX from a Dubai user's view (12
+  findings), architecture/scale (11), whole-app security (no Critical, High or Medium). Routed:
+  lead took the plan/decided UX; C the login/demo copy; B the rail (winner,
+  "your vote needed"), migration 082 (freeze an in-plan custom spot's
+  details; revoke stray anon/authenticated grants; STAGED, reviewed twice),
+  and the match.ts split; a worktree subagent the hooks fixes (refetch with
+  no row re-checks access, livePaused + catch-up on visibility, when-poll
+  join-gap handler, serialized cast_plan_vote, expire retry, dead
+  livePoolLoader). Accepted, recorded: a removed member can rejoin under a new
+  account (removal is a social signal; rotatable invite tokens only if it
+  matters); Google photo cost scales with visitors (terms forbid CDN-caching
+  photo URIs).
+- **Shipped since the last entry:** story share cards (+ JPEG twins; Satori
+  can't read WebP), Discover's constellation map (61/76 venues have
+  coordinates), Tonight→"At a glance" by day, Folders/For you/rail styled,
+  Luna first in the composer, glints over the night sky, client error
+  reporting (/api/client-error), "Live updates paused" chip, UX pass
+  (share-first when alone, honest waiting + nudge the host, RSVP under the
+  answer, rating first after the night, "Plan another like this").
+- **Places discovery** (B): `npm run places:discover` dry-run script; running
+  it is the owner's spend call (PRIORITIES O8).
+- **Mistakes caught:** removing "Hey {name}" broke 13 E2E anchors (restored,
+  66089a4); an agent worktree's node_modules symlink under .claude/worktrees
+  broke `next build` (worktree removed); a main push cancels a baseline
+  dispatch (concurrency). One unit flake under heavy parallel load, 0/11
+  reproduced.
+- **CI:** visual baselines regenerated in CI (run 36478485875), the full
+  suite green there.
+
+
+- **Later still:** perf (paired Lighthouse, 5 reps): Hanken → Latin WOFF2
+  (fonts −30%), composer lazy on the landing (JS −89 KB); mobile LCP on /
+  4.78 s → ~4.16 s simulated Slow 4G. Signed-out pages use own photos only
+  (Google photo calls per visit 19 → 3); the wall prefers own-photo rows;
+  empty photo boxes become the dune. A failed auth read is 'couldn't check'
+  (readAccount, retried), never 'signed out'/'no name' (auth-transient.spec
+  pins it). Demo numbers derived from fixtures. 082/083/084 staged on main
+  (schema.sql verified on a fresh stack, test:db 140/140). CI green at
+  134676d, baselines from run 36487685828.
+

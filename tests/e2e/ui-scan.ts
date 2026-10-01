@@ -84,8 +84,18 @@ export async function scanPage(page: Page): Promise<Finding[]> {
       // Text a photo is drawn over (the cover mosaic keeps each venue's name
       // under its picture) is not seen; the photo counts as covering it.
       const cx = Math.min(Math.max(r.left + r.width / 2, 0), vw - 1), cy = r.top + r.height / 2;
-      const top = cy >= 0 && cy < window.innerHeight ? document.elementFromPoint(cx, cy) : null;
-      if (top && /^(IMG|PICTURE|VIDEO|CANVAS)$/.test(top.tagName) && !el.contains(top)) continue;
+      // A loaded photo later in the same card, covering the text, hides it
+      // (the art word under a Google photo): works off-screen too.
+      let photoOver = false;
+      const mx = r.left + r.width / 2, my = r.top + r.height / 2;
+      for (let up: Element | null = el, depth = 0; up && up !== document.body && depth < 6 && !photoOver; up = up.parentElement, depth++) {
+        for (const img of Array.from(up.querySelectorAll("img"))) {
+          if (!(img.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_PRECEDING)) continue; // the image must come after the text
+          const q = img.getBoundingClientRect();
+          if (img.complete && img.naturalWidth > 0 && mx >= q.left && mx <= q.right && my >= q.top && my <= q.bottom) { photoOver = true; break; }
+        }
+      }
+      if (photoOver) continue;
       const lines = Array.from(range.getClientRects()).filter((q) => q.width > 1 && q.height > 1);
       boxes.push({ el, r, text, lines: lines.length ? lines : [r], floating });
     }

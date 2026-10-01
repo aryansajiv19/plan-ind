@@ -37,7 +37,7 @@ const PAGES = [
 ];
 
 async function settle(page: Page) {
-  await page.waitForLoadState("networkidle").catch(() => {});
+  await page.waitForLoadState("networkidle", { timeout: 4000 }).catch(() => {}); // the login page never idles: Turnstile keeps polling
   await page.waitForTimeout(700); // entrance animations (the app gates content behind rAF)
 }
 
@@ -54,6 +54,7 @@ test.describe("ui bug scan", () => {
       const tag = `${theme} ${viewport.width}`;
 
       test(`pages: ${tag}`, async ({ browser, baseURL }) => {
+        test.setTimeout(180_000); // 15 pages, a real server
         const context = await browser.newContext({ viewport });
         await context.addCookies([{ name: "deal-three-theme", value: theme, url: baseURL! }]);
         const page = await context.newPage();
