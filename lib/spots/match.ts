@@ -116,7 +116,7 @@ export function categoryFamily(category: string): string[] {
   return family ? [...family] : [category];
 }
 
-function searchText(spot: DealSpotRow): string {
+export function searchText(spot: DealSpotRow): string {
   return `${spot.name} ${spot.cuisine} ${spot.vibe} ${spot.description ?? ""}`.toLowerCase();
 }
 
@@ -134,7 +134,7 @@ function shuffle<T>(arr: T[], rng: () => number): T[] {
  * "Al Barsha". A letter or digit in any script counts as part of a word: \b
  * is ASCII-only and would misread "café" or Arabic.
  */
-function avoidMatcher(keywords: readonly string[] = []): (spot: DealSpotRow) => boolean {
+export function avoidMatcher(keywords: readonly string[] = []): (spot: DealSpotRow) => boolean {
   if (keywords.length === 0) return () => false;
   const words = keywords.map((keyword) => keyword.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
   const pattern = new RegExp(`(?<![\\p{L}\\p{N}])(?:${words.join("|")})(?![\\p{L}\\p{N}])`, "u");
@@ -217,6 +217,8 @@ export function dealFromPool(input: {
   rng?: () => number;
   embed?: SpotAffinity;
   today?: string;
+  /** Shortlist = needed x this per tier before the shuffle. 2 (default) keeps the old draw; 1 deals strictly the top ranked. */
+  shortlistFactor?: number;
 }): string[] | null {
   const eligible = eligibleDealSpots(input);
   if (!eligible) return null;
@@ -268,7 +270,7 @@ export function dealFromPool(input: {
     const tier = tiers.get(d)!;
     tiersUsed += 1;
     if (tier.length <= needed) { picked.push(...tier); continue; }
-    const shortlist = tier.slice(0, Math.min(needed * 2, tier.length));
+    const shortlist = tier.slice(0, Math.min(Math.ceil(needed * (input.shortlistFactor ?? 2)), tier.length));
     picked.push(...shuffle(shortlist, rng).slice(0, needed));
     drewPartial = true;
   }
