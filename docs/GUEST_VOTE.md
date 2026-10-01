@@ -5,6 +5,12 @@ votes in about ten seconds. This reverses the sign-in wall of 064 for
 **voters only**. Hosts, Luna, plan creation and everything social stay
 account-only.
 
+## Owner checks before applying 099
+
+In the Supabase dashboard (Authentication) confirm BOTH are on: **anonymous
+sign-ins**, and **CAPTCHA** with the Turnstile secret (the one email OTP uses).
+Auth verifies the token; with CAPTCHA off, only the per-IP limit brakes minting.
+
 ## Model
 
 A guest is a **Supabase anonymous session** (`is_anonymous` claim) bound to
@@ -64,7 +70,7 @@ refused. Same-uid upgrade (Supabase `linkIdentity`/`updateUser`) answers
 
 | Threat | Mitigation |
 |---|---|
-| Script mints guests / drains Luna (the pre-064 problem) | Guests are anonymous: Luna, smart-search, deal, plan create, import, photos quota are account-only at route and RPC. Turnstile at mint (Auth), 10/min and 60/day per IP (/64 for IPv6), 800/day global, 20 per plan |
+| Script mints guests / drains Luna (the pre-064 problem) | Guests are anonymous: Luna, smart-search, deal, plan create, import, photos quota are account-only at route and RPC. Turnstile at mint (Auth); 10/min and 60/day per IP (/64 for IPv6) before minting; 800/day global counted only when a guest row is really created, so garbage tokens cannot burn it; 20 per plan |
 | Same person votes many times | Per-guest one ballot per round; extra ballots cost a Turnstile + IP slot each and are capped per plan. Not preventable without an account, by design |
 | Guest reads/votes in another plan | Reads: `plan_access` row per plan; writes: `guest_may_act(p_plan_id)` plus the membership trigger. Tested both ways |
 | Guest sees adults-only places | Age treated as 13; refused at join, re-checked at every read/vote |
@@ -72,8 +78,17 @@ refused. Same-uid upgrade (Supabase `linkIdentity`/`updateUser`) answers
 | Direct table writes | None added. `votes`/`rsvps`/`ratings` keep no write policy |
 | Realtime leak | Publication unchanged; table RLS and presence policies use the same predicate; `guest_sessions` is not published |
 | Stolen merge secret | 256-bit, stored hashed, 24 h, single owner (first permanent claimant), needs a permanent session |
-| Host removes a guest, who rejoins | `removed` answered per uid; a fresh session needs a fresh Turnstile and IP slot |
+| Host removes a guest, who returns | `removed` per uid; removal ends the pass; sign-in + merge is refused (merge checks the guest uid too); a fresh session costs a Turnstile and an IP slot |
+| Link holder fills a plan with guests | The cap counts only guests still holding access; removing one frees a slot |
+| Guest deletes its account to vote again, or uses place import | `delete_my_account` and `/api/place-import` refuse anonymous sessions (099) |
 | Stale pre-064 anonymous users | No `guest_sessions` row, so still inert (tested) |
+
+## Cleanup (not staged)
+
+Anonymous `auth.users` rows pile up. pg_cron is already used here (migration
+031), but a job that deletes from `auth.users` is the owner's call: daily,
+delete anonymous users older than 14 days that have a `guest_sessions` row.
+The cascade clears the guest row and access; ballots stay, anonymised.
 
 ## Stays account-only
 
@@ -84,12 +99,8 @@ friends, folders, visits, uploads, profiles. A guest who wants these signs in.
 
 ## Needs the owner
 
-- Supabase Auth: **anonymous sign-ins on** and **CAPTCHA (Turnstile) on**. The
-  route requires a token in production but Auth does the verifying; if CAPTCHA
-  is ever off, minting falls back to the per-IP limit alone.
-- Apply 099 (owner decision). Update the root `CLAUDE.md` identity invariant
+- Apply 099 (owner decision, after the checks above). Update the root `CLAUDE.md` identity invariant
   and the `proxy.ts` plan-page gate in the same change.
-- Optional: periodic cleanup of anonymous `auth.users` older than the expiry.
 
 ## UI/proxy changes (frontend)
 

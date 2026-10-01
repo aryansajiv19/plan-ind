@@ -25,6 +25,7 @@ export interface GuestJoinReply {
 const REFUSALS: Record<string, { status: number; error: string; needsAccount?: boolean }> = {
   full: { status: 409, error: "This plan has reached its guest limit. Sign in to join.", needsAccount: true },
   age_gated: { status: 403, error: "This plan has places with an age limit. Sign in to join.", needsAccount: true },
+  limited: { status: 429, error: "Guest voting is very busy right now. Try again later, or sign in." },
   removed: { status: 403, error: "The host removed you from this plan." },
   merged: { status: 409, error: "You have signed in. Open the plan with your account.", needsAccount: true },
   expired: { status: 409, error: "Your guest pass has expired. Sign in to keep voting.", needsAccount: true },

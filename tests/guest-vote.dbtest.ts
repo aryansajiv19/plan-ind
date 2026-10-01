@@ -426,3 +426,86 @@ describe("consume_guest_limit", { skip: SKIP }, () => {
     assert.match(await reason(limit("x", "wrong")), /Server authorization required/);
   });
 });
+
+// ── security review fixes ───────────────────────────────────────────────────
+describe("global ceiling and cap accounting", { skip: SKIP }, () => {
+  const globalCount = async () =>
+    Number(await psql(`select coalesce(sum(request_count),0) from app_rate_limits where scope = 'guest-join-global'`));
+
+  test("consume_guest_limit never spends the global ceiling; only a minted guest does", async () => {
+    const before = await globalCount();
+    for (let i = 0; i < 5; i++) await psql(`select consume_guest_limit('${SECRET}','g-${randomUUID()}')`);
+    assert.equal(await globalCount(), before);
+    const host = await account();
+    const [gated, plain] = [await plan(host, 21), await plan(host)];
+    const g = await anon();
+    assert.equal(await join(g, gated.id), "age_gated");
+    assert.equal(await globalCount(), before); // a refused join spends nothing
+    assert.equal(await join(g, plain.id), "joined");
+    assert.equal(await globalCount(), before + 1);
+    assert.equal(await join(g, plain.id), "already");
+    assert.equal(await globalCount(), before + 1); // re-entry spends nothing
+  });
+
+  test("at the ceiling a new guest is told 'limited' and gets no access", async () => {
+    const p = await plan(await account());
+    await psql(`insert into app_rate_limits values ('guest-join-global','global',date_trunc('day',now()),800)
+      on conflict (scope,subject,window_start) do update set request_count = 800`);
+    const g = await anon();
+    assert.equal(await join(g, p.id), "limited");
+    assert.equal(await n(`select count(*) from plan_access where plan_id = '${p.id}' and user_id = '${g}'`), "0");
+    await psql(`delete from app_rate_limits where scope = 'guest-join-global'`);
+    assert.equal(await join(g, p.id), "joined"); // positive control once the counter is cleared
+  });
+
+  test("removing a guest frees its slot: fill to the cap, remove one, a new guest joins", async () => {
+    const host = await account();
+    const p = await plan(host);
+    const guests = await Promise.all(Array.from({ length: 21 }, anon));
+    for (const g of guests.slice(0, 20)) assert.equal(await join(g, p.id), "joined");
+    assert.equal(await join(guests[20], p.id), "full");
+    const seat = createHash("md5").update(`${p.id}:${guests[0]}`).digest("hex");
+    assert.equal(JSON.parse(await asAccount(host, `select remove_plan_member('${p.id}','${seat}')`)).result, "removed");
+    assert.equal(await n(`select expires_at <= now() from guest_sessions where user_id = '${guests[0]}'`), "t");
+    assert.equal(await join(guests[20], p.id), "joined");
+    assert.equal(await join(guests[0], p.id), "removed");
+  });
+
+  test("the cap counts only guests that still hold access", async () => {
+    const p = await plan(await account());
+    const guests = await Promise.all(Array.from({ length: 21 }, anon));
+    for (const g of guests.slice(0, 20)) await join(g, p.id);
+    await psql(`delete from plan_access where plan_id = '${p.id}' and user_id = '${guests[3]}'`);
+    assert.equal(await join(guests[20], p.id), "joined");
+  });
+});
+
+describe("removed guests and guest accounts", { skip: SKIP }, () => {
+  test("a guest the host removed cannot come back by signing in and merging", async () => {
+    const host = await account();
+    const p = await plan(host);
+    const g = await anon();
+    await join(g, p.id);
+    const t = (await asGuest(g, `select issue_guest_merge_token()`)).split("\n")[0];
+    const seat = createHash("md5").update(`${p.id}:${g}`).digest("hex");
+    await asAccount(host, `select remove_plan_member('${p.id}','${seat}')`);
+    const me = await account();
+    assert.match(await reason(asAccount(me, `select merge_guest_into_me('${t}')`)), /host removed you/);
+    assert.equal(await n(`select count(*) from plan_access where plan_id = '${p.id}' and user_id = '${me}'`), "0");
+    // positive control: an unremoved guest's merge works
+    const g2 = await anon();
+    await join(g2, p.id);
+    const t2 = (await asGuest(g2, `select issue_guest_merge_token()`)).split("\n")[0];
+    assert.equal(JSON.parse(await asAccount(me, `select merge_guest_into_me('${t2}')`)).status, "merged");
+  });
+
+  test("a guest cannot delete an account; a permanent account still can", async () => {
+    const p = await plan(await account());
+    const g = await anon();
+    await join(g, p.id);
+    assert.match(await reason(asGuest(g, `select delete_my_account(false)`)), /Sign in required/);
+    assert.equal(await n(`select count(*) from guest_sessions where user_id = '${g}'`), "1");
+    const me = await account();
+    assert.notEqual(await reason(asAccount(me, `select delete_my_account(true)`)), "Sign in required");
+  });
+});

@@ -489,7 +489,7 @@ export interface PlanTimeVote {
 // are the answers of its RPCs. A refusal is a status, never an error code.
 export type GuestJoinStatus =
   | "joined" | "already"
-  | "full" | "age_gated" | "other_plan" | "expired" | "merged" | "removed";
+  | "full" | "age_gated" | "other_plan" | "expired" | "merged" | "removed" | "limited";
 
 export interface GuestJoinResult {
   status: GuestJoinStatus;

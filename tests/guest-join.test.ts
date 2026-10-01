@@ -54,7 +54,7 @@ test("a failed captcha or a limited Auth is not read as an outage", async () => 
 
 test("each refusal says what to do and ends the plan-less session it just minted", async () => {
   for (const [status, http, needsAccount] of [
-    ["full", 409, true], ["age_gated", 403, true], ["removed", 403, undefined],
+    ["full", 409, true], ["age_gated", 403, true], ["removed", 403, undefined], ["limited", 429, undefined],
   ] as const) {
     const { deps, calls } = rig({ joins: [status] });
     const r = await guestJoin(input, deps);

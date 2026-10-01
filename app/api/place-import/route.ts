@@ -30,7 +30,7 @@ export async function POST(request: Request) {
   const supabase = await createClient();
   const user = await sessionUser(supabase);
   if (user === "unavailable") return Response.json({ error: AUTH_UNAVAILABLE_MESSAGE }, { status: 503 });
-  if (user === "signed-out") {
+  if (user === "signed-out" || user.is_anonymous) {
     return Response.json({ error: "Sign in to save a place." }, { status: 401 });
   }
   const quota = await consumeQuota(supabase, "place-import");
@@ -121,7 +121,7 @@ export async function GET() {
   const supabase = await createClient();
   const user = await sessionUser(supabase);
   if (user === "unavailable") return Response.json({ error: AUTH_UNAVAILABLE_MESSAGE }, { status: 503 });
-  if (user === "signed-out") return Response.json({ error: "Sign in to view saved places." }, { status: 401 });
+  if (user === "signed-out" || user.is_anonymous) return Response.json({ error: "Sign in to view saved places." }, { status: 401 });
   try {
     const personId = await authenticatedProfile(supabase, user);
     const { data, error } = await supabase
@@ -177,7 +177,7 @@ export async function DELETE(request: Request) {
   const supabase = await createClient();
   const user = await sessionUser(supabase);
   if (user === "unavailable") return Response.json({ error: AUTH_UNAVAILABLE_MESSAGE }, { status: 503 });
-  if (user === "signed-out") return Response.json({ error: "Sign in to remove a saved link." }, { status: 401 });
+  if (user === "signed-out" || user.is_anonymous) return Response.json({ error: "Sign in to remove a saved link." }, { status: 401 });
   try {
     const personId = await authenticatedProfile(supabase, user);
     // Scoped to the caller twice (this filter and RLS); its collection items cascade.

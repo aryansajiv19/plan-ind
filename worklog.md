@@ -288,7 +288,7 @@ been regenerated from the broken screens.
 
 Owner direction: voters no longer need an account. NOT applied anywhere; the
 apply is the owner's call. Design and threat table: `docs/GUEST_VOTE.md`.
-- **099:** `guest_sessions` (anonymous session bound to one plan, 14-day expiry,
+- **099 (+ security fixes):** `guest_sessions` (anonymous session bound to one plan, 14-day expiry,
   20 per plan), `join_plan_as_guest` / `consume_guest_limit` (control secret),
   `issue_guest_merge_token` / `merge_guest_into_me`, `is_active_guest`; plan
   reads, presence and `cast_plan_vote` / `set_plan_rsvp` admit an active guest of

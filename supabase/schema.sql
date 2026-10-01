@@ -8192,8 +8192,9 @@ revoke all on table guest_sessions from public, anon, authenticated;
 -- Called by the server route BEFORE it creates the anonymous session (there is
 -- no session yet, so like consume_otp_limit it is keyed on an HMAC'd client IP
 -- and needs the control secret). Per IP: 10/minute, 60/day -- a table of
--- friends on one carrier IP still fits. Globally: 800 guest sessions/day, so
--- auth.users cannot be flooded; refused attempts do not count against it.
+-- friends on one carrier IP still fits. The GLOBAL daily ceiling (800) is not
+-- here: it is counted in join_plan_as_guest, only when a new guest row is
+-- really created, so garbage Turnstile tokens cannot burn it.
 create or replace function consume_guest_limit(p_secret text, p_subject text)
 returns boolean language plpgsql security definer set search_path = public, extensions, pg_temp as $$
 declare
@@ -8213,12 +8214,7 @@ begin
     on conflict (scope, subject, window_start) do update set request_count = app_rate_limits.request_count + 1
     returning request_count into current_count;
   if current_count > 60 then return false; end if;
-  current_count := null;
-  insert into app_rate_limits values ('guest-join-global', 'global', day_start, 1)
-    on conflict (scope, subject, window_start) do update set request_count = app_rate_limits.request_count + 1
-      where app_rate_limits.request_count < 800
-    returning request_count into current_count;
-  return current_count is not null;
+  return true;
 end; $$;
 revoke all on function consume_guest_limit(text, text) from public, anon, authenticated;
 grant execute on function consume_guest_limit(text, text) to anon, authenticated;
@@ -8264,13 +8260,14 @@ revoke all on function guest_may_act(uuid) from public, anon, authenticated;
 -- Turnstile check (done by Supabase Auth when it created the session) and
 -- consume_guest_limit. Needs the control secret, so a browser cannot call it
 -- directly. Expected refusals come back as a status, not an error:
---   joined | already | full | age_gated | other_plan | expired | merged | removed
+--   joined | already | full | age_gated | other_plan | expired | merged | removed | limited
 create or replace function join_plan_as_guest(p_secret text, p_plan_id uuid, p_name text)
 returns jsonb language plpgsql security definer set search_path = public, extensions, pg_temp as $$
 declare
   uid uuid := auth.uid();
   clean_name text := clean_display_name(p_name);
   existing guest_sessions%rowtype;
+  global_count integer;
 begin
   if uid is null or not valid_control_secret(p_secret) then
     raise exception 'Server authorization required' using errcode = '42501';
@@ -8303,9 +8300,20 @@ begin
   if coalesce(plan_required_age(p_plan_id), 99) > 13 then
     return jsonb_build_object('status', 'age_gated');
   end if;
-  if (select count(*) from guest_sessions
-      where plan_id = p_plan_id and merged_into is null and expires_at > now()) >= 20 then
+  -- The cap counts guests that still hold access: a removed guest frees its slot.
+  if (select count(*) from guest_sessions g
+      join plan_access a on a.plan_id = g.plan_id and a.user_id = g.user_id
+      where g.plan_id = p_plan_id and g.merged_into is null and g.expires_at > now()) >= 20 then
     return jsonb_build_object('status', 'full');
+  end if;
+  -- Global ceiling: 800 new guest sessions a day. Counted only here, on the
+  -- branch that mints a row, so a refused or invalid attempt never spends it.
+  insert into app_rate_limits values ('guest-join-global', 'global', date_trunc('day', now()), 1)
+    on conflict (scope, subject, window_start) do update set request_count = app_rate_limits.request_count + 1
+      where app_rate_limits.request_count < 800
+    returning request_count into global_count;
+  if global_count is null then
+    return jsonb_build_object('status', 'limited');
   end if;
 
   insert into guest_sessions (user_id, plan_id, display_name) values (uid, p_plan_id, clean_name);
@@ -8378,7 +8386,7 @@ begin
   if not found then
     return jsonb_build_object('status', 'gone', 'plan_id', g.plan_id);
   end if;
-  if exists (select 1 from plan_removed_members where plan_id = g.plan_id and user_id = uid) then
+  if exists (select 1 from plan_removed_members where plan_id = g.plan_id and user_id in (uid, g.user_id)) then
     raise exception 'The host removed you from this plan.' using errcode = '42501';
   end if;
   -- A new member meets the plan's age gate exactly as in claim_plan_access
@@ -8607,3 +8615,245 @@ begin
 end; $$;
 revoke all on function set_plan_rsvp(uuid, text, boolean, text, text, text, smallint) from public, anon, authenticated;
 grant execute on function set_plan_rsvp(uuid, text, boolean, text, text, text, smallint) to authenticated;
+
+-- ── 8. Host removal ends a guest's pass; guests cannot delete accounts ────
+-- remove_plan_member and delete_my_account: current bodies verbatim, one change each.
+create or replace function remove_plan_member(p_plan_id uuid, p_seat_key text)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  uid uuid := auth.uid();
+  target plans%rowtype;
+  member uuid;
+begin
+  if not is_permanent_user() or uid is null then
+    raise exception 'Sign in to manage this plan' using errcode = '42501';
+  end if;
+
+  -- Same lock order as leave_plan (plans, then child rows).
+  select * into target from plans where id = p_plan_id for update;
+  if target.id is null then
+    return jsonb_build_object('result', 'not_found');
+  end if;
+  if target.created_by_user_id is distinct from uid then
+    return jsonb_build_object('result', 'not_host');
+  end if;
+
+  select a.user_id into member from plan_access a
+  where a.plan_id = p_plan_id and md5(p_plan_id::text || ':' || a.user_id::text) = p_seat_key;
+  if member is null then
+    return jsonb_build_object('result', 'not_member');
+  end if;
+  if member = uid then
+    return jsonb_build_object('result', 'cannot_remove_host');
+  end if;
+
+  if target.booked is not true
+     and exists (select 1 from plan_booking_owners b where b.plan_id = p_plan_id and b.user_id = member) then
+    update plans set booking_owner = null where id = p_plan_id;
+    delete from plan_booking_owners where plan_id = p_plan_id;
+  end if;
+
+  if target.status = 'open' then
+    delete from votes where plan_id = p_plan_id and user_id = member;
+    delete from plan_time_votes where plan_id = p_plan_id and seat_key = p_seat_key;
+  end if;
+  delete from rsvps where plan_id = p_plan_id and user_id = member;
+  if target.status <> 'open' then
+    delete from ratings where plan_id = p_plan_id and user_id = member;
+  end if;
+  -- 099: a removed guest's pass ends with its access (the guest cap also counts access).
+  update guest_sessions set expires_at = now() where user_id = member and plan_id = p_plan_id;
+  delete from plan_access where plan_id = p_plan_id and user_id = member;
+  insert into plan_removed_members (plan_id, user_id) values (p_plan_id, member)
+  on conflict do nothing;
+
+  return jsonb_build_object('result', 'removed');
+end;
+$$;
+revoke all on function remove_plan_member(uuid, text) from public, anon, authenticated;
+grant execute on function remove_plan_member(uuid, text) to authenticated;
+
+create or replace function delete_my_account(p_probe boolean default false)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+as $$
+declare
+  uid uuid := auth.uid();
+  left_over integer;
+  deleted_logins integer;
+  plans_deleted integer := 0;
+  plans_kept integer := 0;
+  votes_kept integer := 0;
+  spots_deleted integer := 0;
+  spots_orphaned integer := 0;
+begin
+  -- 099: guests (anonymous sessions) do not delete accounts: it would free a
+  -- guest slot and anonymise a ballot, then let the same person vote again.
+  if uid is null or not is_permanent_user() then
+    raise exception 'Sign in required' using errcode = '42501';
+  end if;
+
+  -- p_probe: can this function actually remove the login? The route asks
+  -- BEFORE it deletes any photo, because photo deletion cannot be undone and
+  -- the rest of this function rolls back. auth.users is owned by
+  -- supabase_auth_admin and has RLS with no policies, so a definer that lacks
+  -- the privilege would either raise (caught here) or -- the dangerous one --
+  -- delete 0 rows and look like success. The probe deletes for real inside a
+  -- block, checks the row count, then raises to roll that delete back.
+  if p_probe then
+    begin
+      delete from auth.users where id = uid;
+      get diagnostics deleted_logins = row_count;
+      if deleted_logins <> 1 then
+        return jsonb_build_object('result', 'cannot_delete_login', 'rows', deleted_logins);
+      end if;
+      -- A private SQLSTATE, not the default P0001: a trigger or a constraint on
+      -- auth.users raising P0001 of its own would otherwise be caught here and
+      -- read as success. Anything but this code propagates and fails the call.
+      raise exception 'probe' using errcode = 'PT060';
+    exception
+      when sqlstate 'PT060' then return jsonb_build_object('result', 'ready');
+      when insufficient_privilege then return jsonb_build_object('result', 'cannot_delete_login');
+    end;
+  end if;
+
+  -- The route has already emptied the bucket folder and confirmed by listing.
+  -- This is the server-side proof of that, before anything is deleted. Both
+  -- halves matter: owner_id is what the delete policy keys on, and the path
+  -- prefix is what the UPLOAD policy keys on, so an object with a null or
+  -- mismatched owner_id under this user's folder is still counted here rather
+  -- than left behind for ever.
+  select count(*) into left_over from storage.objects
+  where bucket_id = 'visit-photos'
+    and (owner_id = uid::text or name like uid::text || '/%');
+  if left_over > 0 then
+    return jsonb_build_object('result', 'storage_remaining', 'files', left_over);
+  end if;
+
+  -- Every plans row this function touches, locked in id order, before any
+  -- write: the plans it hosts AND the plans it only belongs to, whose votes and
+  -- booking_owner are edited below. Locking only the hosted ones left a
+  -- votes-then-plans order on the others, which is the opposite of
+  -- delete_plan/leave_plan/advance/decide (plans, then child rows) and could
+  -- deadlock against them.
+  perform 1 from plans p
+  where p.created_by_user_id = uid
+     or exists (select 1 from plan_access a where a.plan_id = p.id and a.user_id = uid)
+     or exists (select 1 from votes v where v.plan_id = p.id and v.user_id = uid)
+     or exists (select 1 from rsvps r where r.plan_id = p.id and r.user_id = uid)
+  order by p.id for update;
+
+  with doomed as (
+    select p.id from plans p
+    where p.created_by_user_id = uid
+      and (p.status = 'open'
+           or not exists (select 1 from plan_access a
+                          where a.plan_id = p.id and a.user_id <> uid))
+  ), gone as (
+    delete from plans where id in (select id from doomed) returning 1
+  )
+  select count(*) into plans_deleted from gone;
+
+  -- What is left is a decided plan someone else joined: keep it, but make sure
+  -- no host command can ever run on it again.
+  delete from plan_host_tokens t
+  using plans p where p.id = t.plan_id and p.created_by_user_id = uid;
+  select count(*) into plans_kept from plans where created_by_user_id = uid;
+
+  delete from votes v using plans p
+  where p.id = v.plan_id and v.user_id = uid and p.status = 'open';
+
+  with anon_votes as (
+    update votes set voter_name = 'Former member', participant_token_hash = null, user_id = null
+    where user_id = uid returning 1
+  )
+  select count(*) into votes_kept from anon_votes;
+
+  -- Only where the name on THIS plan is this user's RSVP name on THIS plan.
+  -- Matching on every name the user ever used, anywhere, would rename a
+  -- different member who happens to share it (two people called Sara), and
+  -- would let someone RSVP under another plan's booking_owner name in a
+  -- throwaway plan and wipe it by deleting their account.
+  -- booked is true means the reservation exists in the real world: leave the
+  -- name alone, exactly as leave_plan does.
+  -- 069: matched by the account that claimed the booking, not by name.
+  -- 078: an unbooked claim goes with the account -- name cleared, row
+  -- removed -- so any member is offered "I'll book it" again. A 'Former
+  -- member' label kept it held by nobody (security review F1).
+  update plans p set booking_owner = null
+  where p.booked is not true
+    and exists (select 1 from plan_booking_owners b where b.plan_id = p.id and b.user_id = uid);
+  delete from plan_booking_owners b using plans p
+  where b.plan_id = p.id and b.user_id = uid and p.booked is not true;
+
+  -- 073: "When" ticks carry only the per-plan seat_key, so it is matched plan
+  -- by plan. ponytail: scans plan_time_votes; index seat_key if it ever grows.
+  delete from plan_time_votes t where t.seat_key = md5(t.plan_id::text || ':' || uid::text);
+  delete from rsvps where user_id = uid;
+  delete from ratings where user_id = uid;
+
+
+  -- app_rate_limits.subject is the raw uid as text with no FK, so these rows
+  -- would outlive the account.
+  delete from app_rate_limits where subject = uid::text;
+
+  -- The profile carries the personal layer: visits and their photos rows,
+  -- collections, moodboards, place lists and imports, friendships both ways,
+  -- invites sent, and this profile's companion tags on other people's visits.
+  delete from people where auth_user_id = uid;
+
+  -- Custom spots nothing else points at go with the account; the rest are kept
+  -- as ownerless community data by the FK above.
+  with mine as (
+    select s.id from spots s
+    where s.created_by_user_id = uid and s.source <> 'curated'
+      and not exists (select 1 from plan_spots x where x.spot_id = s.id)
+      and not exists (select 1 from votes x where x.spot_id = s.id)
+      and not exists (select 1 from ratings x where x.spot_id = s.id)
+      and not exists (select 1 from visits x where x.spot_id = s.id)
+      and not exists (select 1 from plans x where x.winner_spot_id = s.id)
+      and not exists (select 1 from place_collection_items x where x.spot_id = s.id)
+      and not exists (select 1 from place_imports x where x.resolved_spot_id = s.id)
+  ), gone as (
+    delete from spots where id in (select id from mine) returning 1
+  )
+  select count(*) into spots_deleted from gone;
+  select count(*) into spots_orphaned from spots where created_by_user_id = uid;
+
+  -- Counts only: no name, no email, no dates. actor_user_id is set null by its
+  -- own FK a moment later, so the row survives the account without pointing at
+  -- a person.
+  insert into security_events (event_type, outcome, actor_user_id, metadata)
+  values ('account_deleted', 'success', uid, jsonb_build_object(
+    'plans_deleted', plans_deleted, 'plans_kept', plans_kept,
+    'votes_anonymised', votes_kept, 'spots_deleted', spots_deleted,
+    'spots_orphaned', spots_orphaned));
+
+  -- Last: the login, and with it member_ages, plan_access, the auth sessions
+  -- and identities. Nothing below this line.
+  -- RLS on auth.users with no policies removes 0 rows instead of raising, so a
+  -- missing privilege would read as success and leave a login with no data --
+  -- this repo's own commonest bug shape. Assert the row count and let the
+  -- whole transaction roll back if it is not exactly one.
+  delete from auth.users where id = uid;
+  get diagnostics deleted_logins = row_count;
+  if deleted_logins <> 1 then
+    raise exception 'delete_my_account removed % auth.users rows', deleted_logins
+      using errcode = '42501';
+  end if;
+
+  return jsonb_build_object(
+    'result', 'deleted',
+    'plans_deleted', plans_deleted, 'plans_kept', plans_kept,
+    'votes_anonymised', votes_kept, 'spots_deleted', spots_deleted,
+    'spots_orphaned', spots_orphaned);
+end;
+$$;
+revoke all on function delete_my_account(boolean) from public, anon, authenticated;
+grant execute on function delete_my_account(boolean) to authenticated;
