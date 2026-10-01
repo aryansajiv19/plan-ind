@@ -95,6 +95,45 @@ update spots set photo_url = '/venues/d0000000-0000-0000-0000-000000000003.webp'
     photo_attribution = 'Diego Delso / Wikimedia Commons / CC BY-SA 4.0'
   where id = 'd0000000-0000-0000-0000-000000000003';
 
+-- The landing cover's two spots that the seed lacked (components/landing/
+-- heroTiles.ts): DRIFT Beach and Soho Garden, as live holds them -- 008's row,
+-- 070's checked facts and 079's Wikimedia photo with its credit, replayed
+-- verbatim -- so /credits credits every own photo the front door shows.
+insert into spots (id, name, category, area, cuisine, price_band, min_spend, open_till, vibe, booking_url) values
+  ('83000000-0000-0000-0000-000000000001', 'DRIFT Beach Dubai', 'beach_club', 'One&Only Royal Mirage', 'Beach club', '$$$', 350, '8pm', 'Quiet luxury, a long pool and a polished beachfront lunch', null),
+  ('81000000-0000-0000-0000-000000000001', 'Soho Garden Meydan', 'nightlife', 'Meydan', 'Nightclub', '$$$', 250, '4am', 'Large-scale club nights and international DJ sets', null);
+update spots set
+  address = 'DRIFT Beach, One&Only Royal Mirage, Al Sufouh, Dubai',
+  latitude = 25.095009,
+  longitude = 55.150372,
+  phone = '+971 4 315 2200',
+  website = 'https://www.driftbeachdubai.com/',
+  licensed = true,
+  reservations = 'recommended',
+  good_to_know = 'Sun loungers are first-come, first-served, so book a cabana (from AED 600 for two) for a guaranteed spot. Age: 21+ for pool and beach; 16-20 only with a parent; no under-16s.',
+  nearest_station = 'Dubai Media City',
+  station_line = 'Dubai Tram',
+  station_walk_min = 3,
+  facts_checked_on = '2026-09-27',
+  facts_sources = '[{"field":"reservations","fact":"Location One&Only Royal Mirage; reservations +971 4 315 2200; pool and beach open 10am-7pm daily","url":"https://www.driftbeachdubai.com/"},{"field":"minimum_age","fact":"Adults-only: pool and beach for 21+; ages 16-20 must be with a parent","url":"https://www.driftbeachdubai.com/"},{"field":"licensed","fact":"French cuisine with a cocktail and wine menu","url":"https://www.driftbeachdubai.com/"},{"field":"spend_pp_aed","fact":"September 2026: sun loungers AED 150 Mon-Thu and AED 200 Fri-Sun, fully redeemable; first-come, first-served","url":"https://www.driftbeachdubai.com/beach-club.html"},{"field":"spend_pp_aed","fact":"No children under 16 in the restaurant or beach club; cabanas from AED 600 for 2 guests","url":"https://www.driftbeachdubai.com/beach-club.html"},{"field":"good_to_know","fact":"Reopened for the new season at One&Only Royal Mirage, Al Safouh","url":"https://whatson.ae/2026/09/11-beach-clubs-in-dubai-reopening-for-the-new-season/"},{"field":"phone","fact":"Royal Mirage coordinates 25.0950093, 55.1503723","url":"https://www.openstreetmap.org/node/5488845421"}]'::jsonb
+where id = '83000000-0000-0000-0000-000000000001' and source = 'curated';
+update spots set
+  address = 'Meydan Racecourse Grandstand, Nad Al Sheba, Dubai',
+  latitude = 25.1581391,
+  longitude = 55.3001114,
+  phone = '+971 56 793 3366',
+  website = 'https://sohogardendxb.com/',
+  licensed = true,
+  nearest_station = 'Business Bay',
+  station_line = 'Red Line',
+  facts_checked_on = '2026-09-27',
+  facts_sources = '[{"field":"good_to_know","fact":"Soho Garden, Racecourse, Meydan Grandstand, Nad Al Sheba, open daily 7pm-4am, closed Sun and Tue; Black for afrobeats/urban, The Code and The Hive for techno","url":"https://whatson.ae/2024/04/these-are-the-best-nightclubs-in-dubai-right-now/"},{"field":"licensed","fact":"Black at Soho Garden serves signature spirits, wine and beer (licensed)","url":"https://whatson.ae/2021/06/black-club-soho-garden/"},{"field":"reservations","fact":"Venues include CODE DXB, Playroom, Black and The Soho Club; WhatsApp booking 971567933366","url":"https://sohogardendxb.com/"},{"field":"address","fact":"Coordinates 25.1581391, 55.3001114","url":"https://www.openstreetmap.org/way/1126015425"}]'::jsonb
+where id = '81000000-0000-0000-0000-000000000001' and source = 'curated';
+update public.spots set photo_url = '/venues/83000000-0000-0000-0000-000000000001.webp', photo_source = 'wikimedia', photo_attribution = 'Aidas U. / Wikimedia Commons / CC BY 3.0'
+  where id = '83000000-0000-0000-0000-000000000001' and source = 'curated' and photo_url is null;
+update public.spots set photo_url = '/venues/81000000-0000-0000-0000-000000000001.webp', photo_source = 'wikimedia', photo_attribution = 'Sakena / Wikimedia Commons / CC BY 2.0'
+  where id = '81000000-0000-0000-0000-000000000001' and source = 'curated' and photo_url is null;
+
 -- E2E fixture (tests/e2e/deal-sample.spec.ts): the water category, five with
 -- a photo and three without. With the 4 seeded beaches the beach family holds
 -- exactly nine dealable places, so a deal must be all of them and never a
