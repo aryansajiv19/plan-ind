@@ -53,7 +53,8 @@ changes and presence follow the existing membership rule, unchanged.
   body. One ballot per account per round (`votes_user_round_key`) holds for
   guests: a second vote replaces the first.
 - **Merge locking:** `guest_may_act` takes a share lock on the guest row;
-  `merge_guest_into_me` holds it for update, so no vote lands mid-merge.
+  `merge_guest_into_me` holds it for update, so no vote lands mid-merge. Lock
+  order is plan first, then guest row, as in `remove_plan_member` (no deadlock; tested).
 
 ## Upgrade
 

@@ -509,3 +509,47 @@ describe("removed guests and guest accounts", { skip: SKIP }, () => {
     assert.notEqual(await reason(asAccount(me, `select delete_my_account(true)`)), "Sign in required");
   });
 });
+
+describe("lock order", { skip: SKIP }, () => {
+  const tokenOf = async (g: string) => (await asGuest(g, `select issue_guest_merge_token()`)).split("\n")[0];
+  const settle = (ps: Promise<unknown>[]) => Promise.allSettled(ps);
+  const noDeadlock = (rs: PromiseSettledResult<unknown>[]) =>
+    assert.deepEqual(rs.filter((r) => r.status === "rejected" && /deadlock/i.test(String((r as PromiseRejectedResult).reason))), []);
+
+  test("a merge and a removal that overlap in time do not deadlock (removal's order, held open)", async () => {
+    const host = await account();
+    const p = await plan(host);
+    const g = await anon();
+    await join(g, p.id);
+    const t = await tokenOf(g);
+    const me = await account();
+    // remove_plan_member's lock order -- the plan, then the guest row -- held open half a second
+    const removal = psql(`begin; select 1 from plans where id = '${p.id}' for update; select pg_sleep(0.6);
+      update guest_sessions set expires_at = now() where user_id = '${g}'; commit;`);
+    await new Promise((r) => setTimeout(r, 250));
+    const merge = asAccount(me, `select merge_guest_into_me('${t}')`);
+    const rs = await settle([removal, merge]);
+    noDeadlock(rs);
+    assert.deepEqual(rs.map((r) => r.status), ["fulfilled", "fulfilled"]);
+  });
+
+  test("the real removal and merge, raced several times, never deadlock", async () => {
+    const host = await account();
+    for (let i = 0; i < 6; i++) {
+      const p = await plan(host);
+      const g = await anon();
+      await join(g, p.id);
+      const t = await tokenOf(g);
+      const me = await account();
+      const seat = createHash("md5").update(`${p.id}:${g}`).digest("hex");
+      const rs = await settle([
+        asAccount(host, `select remove_plan_member('${p.id}','${seat}')`),
+        asAccount(me, `select merge_guest_into_me('${t}')`),
+      ]);
+      noDeadlock(rs);
+      assert.equal(rs[0].status, "fulfilled", `removal ${i}`);
+      // the merge either won (merged) or lost cleanly (the host removed you)
+      if (rs[1].status === "rejected") assert.match(String(rs[1].reason), /host removed you|not valid/);
+    }
+  });
+});

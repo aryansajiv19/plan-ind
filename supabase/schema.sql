@@ -8359,13 +8359,22 @@ declare
   age_value integer;
   votes_moved integer;
   rsvps_moved integer;
+  token_hash text := encode(digest(coalesce(p_token, ''), 'sha256'), 'hex');
+  plan_of_token uuid;
 begin
   if not is_permanent_user() then
     raise exception 'Sign in to keep your votes' using errcode = '42501';
   end if;
+  -- Lock order: plan first, then the guest row -- the order remove_plan_member
+  -- uses (plans for update, then guest_sessions), so the two cannot deadlock.
+  -- The plan id comes from a plain read; the row is locked and re-read after.
+  select plan_id into plan_of_token from guest_sessions
+    where merge_token_hash = token_hash and merge_token_at > now() - interval '1 day';
+  if plan_of_token is not null then
+    perform 1 from plans where id = plan_of_token for key share;
+  end if;
   select * into g from guest_sessions
-    where merge_token_hash = encode(digest(coalesce(p_token, ''), 'sha256'), 'hex')
-      and merge_token_at > now() - interval '1 day'
+    where merge_token_hash = token_hash and merge_token_at > now() - interval '1 day'
     for update;
   if not found then
     raise exception 'That guest link is not valid' using errcode = '42501';
@@ -8382,10 +8391,6 @@ begin
     return jsonb_build_object('status', 'linked', 'plan_id', g.plan_id);
   end if;
 
-  perform 1 from plans where id = g.plan_id for key share;
-  if not found then
-    return jsonb_build_object('status', 'gone', 'plan_id', g.plan_id);
-  end if;
   if exists (select 1 from plan_removed_members where plan_id = g.plan_id and user_id in (uid, g.user_id)) then
     raise exception 'The host removed you from this plan.' using errcode = '42501';
   end if;

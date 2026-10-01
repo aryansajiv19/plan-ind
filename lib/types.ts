@@ -496,8 +496,8 @@ export interface GuestJoinResult {
   name?: string;
 }
 
-// merge_guest_into_me. "gone": the plan no longer exists.
-export type GuestMergeStatus = "merged" | "already" | "linked" | "gone";
+// merge_guest_into_me.
+export type GuestMergeStatus = "merged" | "already" | "linked";
 
 export interface GuestMergeResult {
   status: GuestMergeStatus;
