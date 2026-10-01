@@ -2,8 +2,9 @@
 // draw the solo deal uses. Pure -- no I/O, no clock, no Math.random -- so
 // the route and the tests drive it with plain values.
 import { coordinatesForArea, distanceKm, DUBAI_ORIGINS, type Coordinates } from "./dubai-areas.ts";
+import { avoidMatches, knownPrice, typicalSpend, vibeMatches } from "./group-prefs-rules.ts";
 import {
-  avoidMatcher, dealFromPool, dubaiToday, eligibleDealSpots, searchText,
+  dealFromPool, dubaiToday, eligibleDealSpots,
   type DealConstraints, type DealRatingRow, type DealSpotRow, type SpotAffinity,
 } from "./spots/match.ts";
 
@@ -32,8 +33,7 @@ export const GROUP_VIBE_OPTIONS = [
   { value: "outdoor", label: "Outdoors" }, { value: "upscale", label: "Upscale" },
 ] as const;
 export const GROUP_AVOID_OPTIONS = [
-  { value: "loud", label: "Loud" }, { value: "crowded", label: "Crowded" },
-  { value: "shisha", label: "Shisha" }, { value: "alcohol", label: "Alcohol" },
+  { value: "loud", label: "Loud" }, { value: "shisha", label: "Shisha" }, { value: "alcohol", label: "Alcohol" },
 ] as const;
 
 /** Origin by stored value; null for "anywhere" and for anything unknown (never free text). */
@@ -49,6 +49,7 @@ const GROUP_DEAL_COUNT = 9;
 const FAIRNESS_PER_KM = 0.15;
 const VIBE_BOOST = 0.8;
 const AVOID_PENALTY = 1.5;
+const TYPICAL_OVER_CAP_PENALTY = 0.5; // an unpriced spot whose category usually costs more than the cap
 
 const hasAnswer = (p: GroupPref) => p.budgetCap != null || p.origin != null || p.vibes.length > 0 || p.avoid.length > 0;
 const lower = (words: readonly string[]) => words.map((w) => w.toLowerCase());
@@ -80,7 +81,7 @@ function fairPoint(prefs: readonly GroupPref[]): Coordinates | null {
   return best;
 }
 
-/** Words two or more people avoid: the only avoids that exclude. */
+/** Words two or more people avoid: the only avoids that exclude (by rule, not text; see group-prefs-rules). */
 function sharedAvoids(prefs: readonly GroupPref[]): string[] {
   const seen = new Map<string, number>();
   for (const p of prefs) for (const w of new Set(lower(p.avoid))) seen.set(w, (seen.get(w) ?? 0) + 1);
@@ -103,7 +104,8 @@ export function groupConstraints(prefs: GroupPref[], relax: GroupRelax = {}): De
     maxBudget: caps(answered)[Math.min(relax.budgetStep ?? 0, 1)] ?? caps(answered)[0] ?? null,
     origin,
     radiusKm: origin ? RADIUS_STEPS_KM[radiusStep] : null,
-    avoidKeywords: sharedAvoids(answered),
+    // Avoids are rules over structured columns, applied in dealForGroup, not text keywords.
+    avoidKeywords: [],
   };
 }
 
@@ -120,11 +122,10 @@ function worstTrip(spot: DealSpotRow, prefs: readonly GroupPref[]): number | nul
   return to && from.length ? Math.max(...from.map((o) => distanceKm(o, to))) : null;
 }
 
-/** Vibe words that appear in the spot's text, mapped to how many members hold each. */
+/** Vibe words whose rule matches the spot, mapped to how many members hold each. */
 function vibeHits(spot: DealSpotRow, prefs: readonly GroupPref[]): Map<string, number> {
-  const text = searchText(spot);
   const hits = new Map<string, number>();
-  for (const p of prefs) for (const v of new Set(lower(p.vibes))) if (text.includes(v)) hits.set(v, (hits.get(v) ?? 0) + 1);
+  for (const p of prefs) for (const v of new Set(lower(p.vibes))) if (vibeMatches(v, spot)) hits.set(v, (hits.get(v) ?? 0) + 1);
   return hits;
 }
 
@@ -134,12 +135,14 @@ function vibeHits(spot: DealSpotRow, prefs: readonly GroupPref[]): Map<string, n
  */
 export function groupAffinity(prefs: GroupPref[]): SpotAffinity {
   const answered = prefs.filter(hasAnswer);
-  const avoiders = answered.map((p) => avoidMatcher(p.avoid));
+  const cap = caps(answered)[0];
   return (spot) => {
     const trip = worstTrip(spot, answered);
     const vibes = [...vibeHits(spot, answered).values()].reduce((t, n) => t + n, 0);
-    const avoided = avoiders.filter((matches) => matches(spot)).length;
-    return (trip == null ? 0 : -trip * FAIRNESS_PER_KM) + vibes * VIBE_BOOST - avoided * AVOID_PENALTY;
+    const avoided = answered.filter((p) => p.avoid.some((word) => avoidMatches(word, spot))).length;
+    const typical = typicalSpend(spot.category);
+    const dear = cap != null && knownPrice(spot) == null && typical != null && typical > cap;
+    return (trip == null ? 0 : -trip * FAIRNESS_PER_KM) + vibes * VIBE_BOOST - avoided * AVOID_PENALTY - (dear ? TYPICAL_OVER_CAP_PENALTY : 0);
   };
 }
 
@@ -156,10 +159,11 @@ export function fitFor(spot: DealSpotRow, prefs: GroupPref[]): string[] {
   }
 
   const cap = caps(answered)[0];
-  // A zero price is how an unpriced row looks, so it proves nothing either.
-  if (cap != null && Number.isFinite(spot.min_spend) && spot.min_spend > 0 && spot.min_spend <= cap) {
-    out.push(`Fits everyone's budget (up to AED ${cap})`);
-  }
+  const price = knownPrice(spot);
+  const typical = typicalSpend(spot.category);
+  if (cap != null && price != null && price <= cap) out.push(`Fits everyone's budget (up to AED ${cap})`);
+  // No price on file: only a category estimate, and worded as one.
+  else if (cap != null && price == null && typical != null && typical <= cap) out.push(`Usually under AED ${cap} here`);
 
   const top = [...vibeHits(spot, answered)].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0];
   if (top) {
@@ -222,21 +226,26 @@ export function dealForGroup(input: {
     return finish(dealFromPool({ ...base, constraints }), summariseGroup(answered), constraints.radiusKm ?? null);
   }
 
+  const shared = sharedAvoids(answered);
+  const keepsAvoids = (s: DealSpotRow) => !shared.some((word) => avoidMatches(word, s));
   const sorted = caps(answered);
   const budgetStep = sorted.length > 1 ? 1 : 0;
   const steps: GroupRelax[] = [{}];
   if (budgetStep) steps.push({ budgetStep });
   if (origins(answered).length > 0) for (let radiusStep = 1; radiusStep < RADIUS_STEPS_KM.length; radiusStep++) steps.push({ budgetStep, radiusStep });
 
-  for (const step of steps) {
+  // A shared avoid excludes while the rest can still fill nine (budget and radius
+  // relax first); only then is it dropped to a ranking penalty, never a deal of none.
+  const attempts = shared.length ? [pool.filter(keepsAvoids), pool] : [pool];
+  for (const [step, source] of attempts.flatMap((list) => steps.map((st) => [st, list] as const))) {
     const constraints = { ...groupConstraints(answered, step), ...age };
-    if (!eligibleDealSpots({ pool, count: GROUP_DEAL_COUNT, constraints, today })) continue;
+    if (!eligibleDealSpots({ pool: source, count: GROUP_DEAL_COUNT, constraints, today })) continue;
     const summary = summariseGroup(answered);
     summary.budgetCap = constraints.maxBudget ?? null;
     if (step.budgetStep) summary.relaxed.push("budget");
     if (step.radiusStep) summary.relaxed.push("distance");
     // shortlistFactor 1: the nine are the top nine by fit, not nine at random from the top eighteen.
-    const ids = dealFromPool({ ...base, constraints, embed: groupAffinity(answered), shortlistFactor: 1 });
+    const ids = dealFromPool({ ...base, pool: source, constraints, embed: groupAffinity(answered), shortlistFactor: 1 });
     return finish(ids, summary, constraints.radiusKm ?? null);
   }
   return { tooFew: true };

@@ -33,6 +33,9 @@ export interface DealSpotRow {
   photo_url?: string | null;
   photo_attribution?: string | null;
   google_place_id?: string | null;
+  // Group deal rules (lib/group-prefs-rules.ts). Null/absent = unknown, never a claim.
+  licensed?: boolean | null;
+  price_band?: string | null;
 }
 
 export interface DealRatingRow {
@@ -55,7 +58,7 @@ export type SpotAffinity = (spot: DealSpotRow) => number | null;
 const noAffinity: SpotAffinity = () => null;
 
 export const DEAL_SPOT_COLUMNS =
-  "id,name,category,area,cuisine,min_spend,vibe,description,latitude,longitude,minimum_age,visibility,reopens_on,photo_url,photo_attribution,google_place_id";
+  "id,name,category,area,cuisine,min_spend,vibe,description,latitude,longitude,minimum_age,visibility,reopens_on,photo_url,photo_attribution,google_place_id,licensed,price_band";
 
 /** Today's calendar date in Dubai, as YYYY-MM-DD (reopens_on is a Dubai date). */
 export function dubaiToday(now: Date = new Date()): string {

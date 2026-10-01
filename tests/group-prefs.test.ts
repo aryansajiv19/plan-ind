@@ -4,6 +4,7 @@ import {
   dealForGroup, fitFor, groupAffinity, groupConstraints, originFor, summariseGroup,
   type GroupPref,
 } from "../lib/group-prefs.ts";
+import { avoidMatches, vibeMatches } from "../lib/group-prefs-rules.ts";
 import { distanceKm } from "../lib/dubai-areas.ts";
 import { dealFromPool, type DealSpotRow } from "../lib/spots/match.ts";
 import { seededRng } from "../lib/group-prefs.ts";
@@ -90,25 +91,77 @@ test("tooFew when even the widest relaxation cannot fill nine", () => {
 });
 
 test("avoid: shared by two it excludes, held by one it only penalises", () => {
-  const pool = [...cluster("ok", 9, MIDDLE), ...cluster("loud", 3, MIDDLE, { vibe: "loud party" })];
-  const shared = deal(pool, [pref("A", { avoid: ["loud"] }), pref("B", { avoid: ["loud"] })]);
+  const pool = [...cluster("ok", 9, MIDDLE), ...cluster("bar", 3, MIDDLE, { licensed: true })];
+  const shared = deal(pool, [pref("A", { avoid: ["alcohol"] }), pref("B", { avoid: ["alcohol"] })]);
   assert.ok(idsOf(shared).every((id) => id.startsWith("ok")));
 
-  const lone = [pref("A", { avoid: ["loud"] }), pref("B", { budgetCap: 200 })];
+  const lone = [pref("A", { avoid: ["alcohol"] }), pref("B", { budgetCap: 200 })];
   assert.deepEqual(groupConstraints(lone).avoidKeywords, []);
-  // One person's avoid is not a filter: loud spots stay eligible...
-  assert.ok(deal(cluster("loud", 9, MIDDLE, { vibe: "loud party" }), lone) && "ids" in deal(cluster("loud", 9, MIDDLE, { vibe: "loud party" }), lone));
-  // ...but score lower than a quiet one.
+  // One person's avoid is not a filter: licensed spots stay dealable when nothing else fills nine...
+  assert.equal(idsOf(deal(cluster("bar", 9, MIDDLE, { licensed: true }), lone)).length, 9);
+  // ...but rank below an unlicensed one, so they are left out when there is room.
   const score = groupAffinity(lone);
-  assert.ok(score(spot("q"))! > score(spot("l", { vibe: "loud party" }))!);
-  assert.ok(idsOf(deal(pool, lone)).every((id) => id.startsWith("ok")), "penalty keeps loud spots out when there is room");
+  assert.ok(score(spot("q"))! > score(spot("l", { licensed: true }))!);
+  assert.ok(idsOf(deal(pool, lone)).every((id) => id.startsWith("ok")));
+});
+
+test("avoid exclusion beats a strong vibe pull; a single avoid does not", () => {
+  const fans = ["C", "D", "E", "F"].map((n) => pref(n, { vibes: ["upscale"] }));
+  const pool = [...cluster("ok", 9, MIDDLE), ...cluster("bar", 3, MIDDLE, { licensed: true, min_spend: 300 })];
+  const two = idsOf(deal(pool, [pref("A", { avoid: ["alcohol"] }), pref("B", { avoid: ["alcohol"] }), ...fans]));
+  assert.ok(two.every((id) => id.startsWith("ok")), "two avoiders: excluded however much the vibe pulls");
+  const one = idsOf(deal(pool, [pref("A", { avoid: ["alcohol"] }), ...fans]));
+  assert.equal(one.filter((id) => id.startsWith("bar")).length, 3, "one avoider: only a penalty, the vibe outweighs it");
+});
+
+test("a shared avoid is dropped, not the deal, when only avoided spots remain", () => {
+  const both = [pref("A", { avoid: ["alcohol"] }), pref("B", { avoid: ["alcohol"] })];
+  assert.equal(idsOf(deal(cluster("bar", 9, MIDDLE, { licensed: true }), both)).length, 9);
 });
 
 test("vibes are a soft boost: matching spots are dealt first, others fill the rest", () => {
-  const pool = [...cluster("zchill", 5, MIDDLE, { vibe: "chill lounge" }), ...cluster("plain", 12, MIDDLE)];
-  const ids = idsOf(deal(pool, [pref("A", { vibes: ["chill"] }), pref("B", { vibes: ["chill"] })]));
-  assert.equal(ids.filter((id) => id.startsWith("zchill")).length, 5);
+  const pool = [...cluster("zup", 5, MIDDLE, { min_spend: 300 }), ...cluster("plain", 12, MIDDLE)];
+  const ids = idsOf(deal(pool, [pref("A", { vibes: ["upscale"] }), pref("B", { vibes: ["upscale"] })]));
+  assert.equal(ids.filter((id) => id.startsWith("zup")).length, 5);
   assert.equal(ids.length, 9);
+});
+
+test("budget: an unpriced spot is never excluded by the floor; a known dear one is", () => {
+  const pool = [...cluster("none", 9, MIDDLE, { min_spend: 0, category: "dinner" }), ...cluster("dear", 5, MIDDLE, { min_spend: 300 })];
+  const ids = idsOf(deal(pool, [pref("A", { budgetCap: 100 }), pref("B", { budgetCap: 200 })]));
+  assert.ok(ids.every((id) => id.startsWith("none")));
+});
+
+test("budget: an unpriced spot whose category usually costs more than the cap ranks lower", () => {
+  const score = groupAffinity([pref("A", { budgetCap: 100 }), pref("B")]);
+  assert.ok(score(spot("c", { category: "cafe", min_spend: 0 }))! > score(spot("n", { category: "nightlife", min_spend: 0 }))!);
+  assert.equal(score(spot("c", { category: "nightlife", min_spend: 90 })), score(spot("d", { category: "nightlife", min_spend: 90 })));
+});
+
+// Real-looking rows for the one rules table.
+const row = (o: Partial<DealSpotRow>) => spot("r", o);
+test("vibe rules: structure first, text second, unknown never matches", () => {
+  const yes = (v: string, o: Partial<DealSpotRow>) => assert.equal(vibeMatches(v, row(o)), true, `${v} ${JSON.stringify(o)}`);
+  const no = (v: string, o: Partial<DealSpotRow>) => assert.equal(vibeMatches(v, row(o)), false, `${v} ${JSON.stringify(o)}`);
+  yes("chill", { category: "cafe" }); no("chill", { category: "nightlife" });
+  yes("lively", { category: "karaoke" }); no("lively", { category: "dinner" });
+  yes("quiet", { category: "culture" }); no("quiet", { category: "games" });
+  yes("outdoor", { category: "padel" }); yes("outdoor", { category: "dinner", description: "Seats on a sunny terrace" }); no("outdoor", { category: "dinner" });
+  yes("rooftop", { category: "dinner", description: "Rooftop views" }); no("rooftop", { category: "dinner", description: "Roof garden" });
+  yes("waterfront", { category: "dinner", area: "Dubai Marina" }); yes("waterfront", { name: "Creek Lagoon Grill" }); no("waterfront", { category: "dinner", area: "Al Barsha" });
+  yes("upscale", { price_band: "$$$" }); yes("upscale", { min_spend: 250 }); no("upscale", { min_spend: 249, price_band: "$$" }); no("upscale", { min_spend: 0, price_band: null });
+  yes("romantic", { category: "dinner", min_spend: 400 }); yes("romantic", { category: "vibes", area: "Dubai Marina" });
+  no("romantic", { category: "dinner", min_spend: 100 }); no("romantic", { category: "cafe", min_spend: 400 });
+  assert.equal(vibeMatches("made-up", row({ category: "cafe" })), false);
+});
+
+test("avoid rules: loud, shisha, and alcohol only when licensed is true", () => {
+  const hit = (v: string, o: Partial<DealSpotRow>) => avoidMatches(v, row(o));
+  assert.ok(hit("loud", { category: "nightlife" }) && !hit("loud", { category: "dinner" }));
+  assert.ok(hit("shisha", { category: "shisha" }) && hit("shisha", { description: "Great shisha terrace" }) && !hit("shisha", {}));
+  assert.ok(hit("alcohol", { licensed: true }));
+  assert.ok(!hit("alcohol", { licensed: false }) && !hit("alcohol", { licensed: null }) && !hit("alcohol", {}), "unknown is not alcohol");
+  assert.ok(!hit("crowded", { category: "nightlife" }), "no data, no rule");
 });
 
 test("deterministic: same seed same deal, another seed another order or set", () => {
@@ -142,18 +195,25 @@ test("a spot with no photo is never dealt", () => {
 });
 
 test("fitFor: true claims only, at most three", () => {
-  const prefs = [pref("A", { budgetCap: 150, origin: originFor("marina")!, vibes: ["chill"] }), pref("B", { budgetCap: 200, origin: originFor("mirdif")!, vibes: ["chill"] })];
-  const fits = fitFor(spot("x", { ...MIDDLE, min_spend: 120, vibe: "chill" }), prefs);
-  assert.deepEqual(fits, ["17 km or less for all 2", "Fits everyone's budget (up to AED 150)", "Matches the chill vibe for 2"]);
+  const prefs = [pref("A", { budgetCap: 150, origin: originFor("marina")!, vibes: ["rooftop"] }), pref("B", { budgetCap: 200, origin: originFor("mirdif")!, vibes: ["rooftop"] })];
+  const fits = fitFor(spot("x", { ...MIDDLE, min_spend: 120, description: "Rooftop dining" }), prefs);
+  assert.deepEqual(fits, ["17 km or less for all 2", "Fits everyone's budget (up to AED 150)", "Matches the rooftop vibe for 2"]);
 });
 
 test("fitFor omits what it cannot prove", () => {
   const prefs = [pref("A", { budgetCap: 150, origin: originFor("marina")!, vibes: ["chill"] }), pref("B", { budgetCap: 200 })];
-  const over = fitFor(spot("o", { ...MIDDLE, min_spend: 400, vibe: "loud" }), prefs);
-  assert.ok(!over.some((s) => s.includes("budget")), "over the cap");
-  assert.ok(!over.some((s) => s.includes("vibe")), "vibe absent from the text");
-  const unknown = fitFor(spot("u", { min_spend: 0 }), prefs);
-  assert.deepEqual(unknown, [], "no price, no coordinates, no area match: no claims");
+  const over = fitFor(spot("o", { ...MIDDLE, min_spend: 400 }), prefs);
+  assert.ok(!over.some((s) => s.includes("budget") || s.includes("Usually")), "known price over the cap");
+  assert.ok(!over.some((s) => s.includes("vibe")), "rule does not match");
+  assert.deepEqual(fitFor(spot("k", { category: "cafe", min_spend: 400 }), prefs).filter((s) => /budget|Usually/.test(s)), [], "a known price beats the category estimate");
+  assert.deepEqual(fitFor(spot("u", { min_spend: 0 }), prefs), [], "dinner: unknown price, usually dearer; no coordinates");
   assert.ok(fitFor(spot("p", MIDDLE), prefs)[0].endsWith("for 1 of 2"), "partial origins are not 'all'");
   assert.deepEqual(fitFor(spot("n", MIDDLE), []), []);
+});
+
+test("fitFor: an unpriced spot gets only a hedged estimate, never 'fits'", () => {
+  const prefs = [pref("A", { budgetCap: 100 }), pref("B")];
+  assert.deepEqual(fitFor(spot("c", { category: "cafe", min_spend: 0 }), prefs), ["Usually under AED 100 here"]);
+  assert.deepEqual(fitFor(spot("n", { category: "nightlife", min_spend: 0 }), prefs), []);
+  assert.deepEqual(fitFor(spot("k", { category: "cafe", min_spend: 60 }), prefs), ["Fits everyone's budget (up to AED 100)"]);
 });
