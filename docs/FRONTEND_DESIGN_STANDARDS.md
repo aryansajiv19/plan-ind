@@ -174,11 +174,12 @@ a typed name is everything the app knows about them.
 
 ## Typography
 
-- Two font families: **Plus Jakarta Sans** (variable, wght 200–800) for
-  display — hero, titles, section heads, the wordmark — and **Hanken
-  Grotesk** for body, labels, chips, numerals. **No slanted type anywhere**
-  (owner, 2026-09-30: replaced the Cormorant italic); emphasis is colour
-  and weight.
+- One family: the **system UI font** (`--font-system`: SF Pro on Apple,
+  Roboto on Android, Segoe UI on Windows), as Instagram and Pinterest read
+  in-app (owner, 2026-10-01). Display differs from body by weight only.
+  **No slanted type anywhere**; emphasis is colour and weight. Share
+  images (Satori) cannot use system fonts and keep static TTFs in
+  `public/fonts/`.
 - Display sits at weight 400–600 for most uses, not 800 — a serif's own
   stroke contrast carries a headline, and 800 goes blobby at display
   sizes. The one exception is a **one-shot** weight-rise entrance (300→800

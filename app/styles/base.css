@@ -10,7 +10,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Display type is Plus Jakarta Sans, upright (layout.tsx); body is Hanken. */
+/* Display type is the system font, upright and heavier than body. */
 h1,
 h2,
 h3,

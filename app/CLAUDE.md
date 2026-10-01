@@ -4,7 +4,7 @@ Loads for sessions touching UI (`components/CLAUDE.md` imports this file). Root 
 
 ## Naming
 
-- The public name is **Planind** (owner, 2026-09-30), set as a Plus Jakarta Sans wordmark;
+- The public name is **Planind** (owner, 2026-09-30), set as a system-font wordmark;
   "Deal three" and D/03 are retired. Internal keys keep their old names on
   purpose (`deal-three-*` storage and cookie, calendar UID): renaming them
   logs people out of settings and breaks imported events.

@@ -64,7 +64,7 @@
 .demo-view__header h1,
 .demo-profile-head h1 {
   max-width: 48rem;
-  font-size: clamp(1.69rem, 3.25vw, 2.93rem);
+  font-size: var(--type-title);
 }
 
 .demo-view__header > p {
@@ -633,7 +633,7 @@
   margin-block: 2rem;
 }
 .discover-suggested h2 {
-  font-size: clamp(1.6rem, 1.2rem + 1vw, 2.2rem);
+  font-size: var(--type-section);
 }
 .discover-suggested ul {
   display: grid;
@@ -749,7 +749,7 @@
   margin-block: 2rem;
 }
 .saved-folders h2 {
-  font-size: clamp(1.6rem, 1.2rem + 1vw, 2.2rem);
+  font-size: var(--type-section);
 }
 .saved-folders > form {
   display: flex;
@@ -956,7 +956,7 @@
   gap: 0.6rem;
 }
 .top-places__head h2 {
-  font-size: clamp(1.6rem, 1.2rem + 1vw, 2.2rem);
+  font-size: var(--type-section);
 }
 .top-places__head select {
   min-height: 2.5rem;
@@ -1036,7 +1036,7 @@
 }
 .explored h2 {
   font-family: var(--font-display);
-  font-size: clamp(1.5rem, 2.4vw, 1.9rem);
+  font-size: var(--type-section);
 }
 .explored__percent {
   color: var(--color-muted);

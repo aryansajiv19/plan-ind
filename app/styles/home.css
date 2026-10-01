@@ -531,7 +531,7 @@
   max-width: none;
   margin-top: 0;
   color: var(--color-ink);
-  font-size: clamp(1.43rem, 0.91rem + 1.56vw, 2.21rem);
+  font-size: clamp(1.4rem, 1rem + 1vw, 1.75rem);
   font-weight: 600;
   line-height: 1;
 }

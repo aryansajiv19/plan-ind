@@ -5,6 +5,13 @@
    screen. Phones had no floor, and the tab bar and chips fell to 10px.
    --page-gutter is the one side margin every rail shares. */
 :root {
+  /* Read via var() only, so :root (Tailwind drops unused @theme vars). */
+  --font-system: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  /* App type scale (owner, 2026-10-01: some headings were poster-sized).
+     Page title ~34px max, section head 24px max; the landing hero is the
+     one place allowed to be big. */
+  --type-title: clamp(1.6rem, 1.2rem + 1.2vw, 2.1rem);
+  --type-section: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
   --type-floor: 0.75rem;
   --page-gutter: 1rem;
 }
@@ -37,10 +44,12 @@
   --color-grape: #0c657c;
   --color-mint: #0c657c;
 
-  /* Plus Jakarta Sans for display (hero, titles), Hanken Grotesk for
-     everything else (layout.tsx). */
-  --font-display: var(--font-display-family), system-ui, sans-serif;
-  --font-body: var(--font-hanken), system-ui, sans-serif;
+  /* The device's own UI font, as Instagram and Pinterest read inside their
+     apps (owner, 2026-10-01): SF Pro on Apple, Roboto on Android, Segoe UI
+     on Windows. Nothing to download. Display differs only in weight. */
+  --font-display: var(--font-system);
+
+  --font-body: var(--font-system);
 
   /* Two curves only: --ease-settle for entrances and returns, --ease-spring
      for press feedback. Neither overshoots: a press that bounces past its

@@ -12,7 +12,7 @@
 .home-appbar__title {
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(1.69rem, 3.58vw, 2.93rem);
+  font-size: var(--type-title);
   font-weight: 700;
   line-height: 0.9;
 }

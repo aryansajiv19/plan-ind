@@ -890,7 +890,7 @@
 /* My ranking: bands with 0-10 scores; places to rate as tap cards. */
 .my-ranking h2 {
   margin-top: 1.5rem;
-  font-size: 1.8rem;
+  font-size: var(--type-section);
 }
 .my-ranking h2 span {
   margin-left: 0.4rem;

@@ -824,7 +824,7 @@
   border-top: 1px solid var(--color-line);
 }
 .settings-block h2 {
-  font-size: 1.9rem;
+  font-size: var(--type-section);
 }
 .settings-block__account {
   display: grid;
@@ -921,7 +921,7 @@
   gap: 0.6rem;
 }
 .boards h2 {
-  font-size: 1.9rem;
+  font-size: var(--type-section);
 }
 .boards__period,
 .boards__scopes {

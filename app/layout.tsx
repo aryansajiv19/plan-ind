@@ -1,28 +1,8 @@
 import type { Metadata, Viewport } from "next";
-import localFont from "next/font/local";
 import ThemeSync from "@/components/ThemeSync";
 import { cookies } from "next/headers";
 import { THEME_COOKIE, readPreference, resolveGround } from "@/lib/dubai-phase";
 import "./globals.css";
-
-// Plus Jakarta Sans for display (hero, titles): clean, upright, variable
-// 200-800 so WeightRise can animate the axis. Hanken Grotesk carries body,
-// labels, chips and numerals. Owner, 2026-09-30: no slanted type anywhere.
-const display = localFont({
-  src: [{ path: "../public/fonts/plus-jakarta-sans-variable-latin.woff2", weight: "200 800", style: "normal" }],
-  variable: "--font-display-family",
-  display: "swap",
-});
-
-const hanken = localFont({
-  src: [
-    { path: "../public/fonts/hanken-grotesk-400-latin.woff2", weight: "400" },
-    { path: "../public/fonts/hanken-grotesk-500-latin.woff2", weight: "500" },
-    { path: "../public/fonts/hanken-grotesk-700-latin.woff2", weight: "700" },
-  ],
-  variable: "--font-hanken",
-  display: "swap",
-});
 
 const DESCRIPTION = "Stop deciding, start doing. Pick a vibe, deal three spots, vote, let the app call it.";
 
@@ -87,7 +67,7 @@ export default async function RootLayout({
     <html
       lang="en"
       data-theme={ground}
-      className={`${display.variable} ${hanken.variable} h-full`}
+      className="h-full"
     >
       <body className="min-h-full flex flex-col">
         <ThemeSync serverGround={ground} />
