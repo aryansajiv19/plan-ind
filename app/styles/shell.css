@@ -173,7 +173,7 @@
   place-items: center;
   width: 1.55rem;
   height: 1.55rem;
-  margin-left: -0.4rem;
+  margin-left: -0.15rem; /* the initials stay whole: -0.4rem cut "MH" under "SC" */
   border: 1px solid var(--color-card);
   border-radius: 50%;
   font-size: max(0.6rem, var(--type-floor));

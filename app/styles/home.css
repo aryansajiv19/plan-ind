@@ -405,10 +405,6 @@
 
 /* One line of the sample group mid-vote: faces first, so "friends deciding
    together" reads on the first screen. */
-/* A little less overlap than the vote cards' stack, so every initial reads. */
-.home-hero__group .vote-face-stack > span + span {
-  margin-left: -0.2rem;
-}
 .home-hero__group {
   margin-top: 1.5rem;
   min-height: 2.75rem;
