@@ -198,8 +198,8 @@ export function useComposer({ age, demoMode, prefill: rawPrefill }: { age: numbe
     return { id: result.id };
   }
 
-  async function start(e: React.FormEvent) {
-    e.preventDefault();
+  async function start(e?: React.FormEvent) {
+    e?.preventDefault();
     const clean = title.trim();
     if (!clean) return;
     setError(null);

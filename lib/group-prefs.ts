@@ -155,7 +155,10 @@ export function fitFor(spot: DealSpotRow, prefs: GroupPref[]): string[] {
   const withOrigin = origins(answered).length;
   if (trip != null) {
     const km = Math.max(1, Math.ceil(trip));
-    out.push(withOrigin === answered.length ? `${km} km or less for all ${withOrigin}` : `${km} km or less for ${withOrigin} of ${answered.length}`);
+    // Wording only: "both of you" for two, "all N of you" for more, no group claim for one person.
+    if (withOrigin !== answered.length) out.push(`${km} km or less for ${withOrigin} of ${answered.length}`);
+    else if (withOrigin === 2) out.push(`${km} km or less for both of you`);
+    else if (withOrigin > 2) out.push(`${km} km or less for all ${withOrigin} of you`);
   }
 
   const cap = caps(answered)[0];

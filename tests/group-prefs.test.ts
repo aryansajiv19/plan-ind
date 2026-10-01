@@ -197,7 +197,15 @@ test("a spot with no photo is never dealt", () => {
 test("fitFor: true claims only, at most three", () => {
   const prefs = [pref("A", { budgetCap: 150, origin: originFor("marina")!, vibes: ["rooftop"] }), pref("B", { budgetCap: 200, origin: originFor("mirdif")!, vibes: ["rooftop"] })];
   const fits = fitFor(spot("x", { ...MIDDLE, min_spend: 120, description: "Rooftop dining" }), prefs);
-  assert.deepEqual(fits, ["17 km or less for all 2", "Fits everyone's budget (up to AED 150)", "Matches the rooftop vibe for 2"]);
+  assert.deepEqual(fits, ["17 km or less for both of you", "Fits everyone's budget (up to AED 150)", "Matches the rooftop vibe for 2"]);
+});
+
+test("fitFor wording: both of you, all N of you, and no group claim for one person", () => {
+  const at = (n: number) => Array.from({ length: n }, (_, i) => pref(`P${i}`, { origin: originFor("marina")! }));
+  const km = (n: number) => fitFor(spot("w", MIDDLE), at(n)).filter((s) => s.includes("km"));
+  assert.deepEqual(km(1), []);
+  assert.match(km(2)[0], /^\d+ km or less for both of you$/);
+  assert.match(km(3)[0], /^\d+ km or less for all 3 of you$/);
 });
 
 test("fitFor omits what it cannot prove", () => {
