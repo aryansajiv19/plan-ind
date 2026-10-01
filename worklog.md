@@ -283,3 +283,17 @@ been regenerated from the broken screens.
 - Open: source photos for the 101 hidden places; an empty family now 503s in
   `readFamily` instead of "too few" (cannot happen today); PRODUCT.md is
   gitignored (updated locally only).
+
+
+## 2026-10-01 — Group preferences, database layer (migration 100, STAGED, not applied)
+
+Lane gp-db, docs/GROUP_PREFS.md "Schema". `supabase/migration-100-group-prefs.sql`
+(additive, re-run safe; the integrator may renumber):
+- `plans.stage` gains `'gathering'`; `plans.group_summary jsonb` (granted to authenticated).
+- `plan_preferences`: members SELECT their plan's rows, no write grant or policy, in `supabase_realtime`.
+  A `plan_access` delete trigger removes a leaver's answers.
+- RPCs: `create_gathering_plan` (permanent account), `set_plan_preferences` (any member, `auth.uid()` +
+  `plan_access` only, so guests work), `start_group_plan` (creator only, 9 distinct places, stage-guarded).
+  State conflicts return `{result:'not_gathering'}`; access and input errors raise 42501 / 22023.
+- `gathering_origins()` holds the origin list in SQL; a dbtest compares it to `DUBAI_ORIGINS`.
+- Tests: `tests/group-prefs.dbtest.ts` (9, 15 of 16 sed mutants killed; the survivor is an equivalent mutant).
