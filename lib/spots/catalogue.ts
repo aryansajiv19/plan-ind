@@ -4,6 +4,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { log, serializeError } from "@/lib/observability/log";
 import { getSupabaseConfig } from "@/lib/supabase/config";
 import { fetchAllRows } from "@/lib/supabase/paginate";
+import { REAL_PHOTO_FILTER } from "@/lib/venue-photo";
 import { categoryFamily, DEAL_SPOT_COLUMNS, dubaiToday, isKnownCategory, type DealSpotRow } from "./match";
 
 // ── The curated catalogue, cached across requests ────────────────────────
@@ -81,6 +82,7 @@ const readWall = cached("curated-wall", async (size: number): Promise<WallSpotRo
     .eq("source", "curated")
     .neq("visibility", "private") // 070: retired
     .or(`reopens_on.is.null,reopens_on.lte.${dubaiToday()}`) // 070: closed until a later date
+    .or(REAL_PHOTO_FILTER) // only places that can show a real photo
     .order("photo_url", { nullsFirst: false })
     .order("google_place_id", { nullsFirst: false })
     .order("name")
@@ -104,6 +106,7 @@ const readCounts = cached("curated-counts", async (): Promise<CuratedCounts> => 
     .eq("source", "curated")
     .neq("visibility", "private")
     .or(`reopens_on.is.null,reopens_on.lte.${dubaiToday()}`)
+    .or(REAL_PHOTO_FILTER)
     .range(0, 999);
   if (error || !count || !data) throw new CatalogueReadError("counts", error);
   return { places: count, categories: data.length === count ? new Set(data.map((row) => row.category)).size : null };
@@ -132,6 +135,7 @@ const readDiscover = cached("curated-discover", async (limit: number): Promise<D
     .eq("source", "curated")
     .neq("visibility", "private")
     .or(`reopens_on.is.null,reopens_on.lte.${dubaiToday()}`)
+    .or(REAL_PHOTO_FILTER)
     .order("name")
     .order("id")
     .limit(limit);
@@ -146,6 +150,7 @@ const readFamily = cached("curated-deal-family", async (family: string[]): Promi
     (from, to) => anon().from("spots").select(DEAL_SPOT_COLUMNS)
       .eq("source", "curated")
       .in("category", family)
+      .or(REAL_PHOTO_FILTER)
       .order("id").range(from, to) as unknown as PromiseLike<{ data: DealSpotRow[] | null; error: unknown }>,
     "catalogue.dealFamily",
   );

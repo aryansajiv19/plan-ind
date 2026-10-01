@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { photoCheck } from "@/lib/spots/deal-spots";
 import { AUTH_UNAVAILABLE_MESSAGE, sessionUser } from "@/lib/auth";
 import { CONTROL_UNAVAILABLE_MESSAGE, consumeQuota, recordSecurityEvent, reportControlUnavailable } from "@/lib/security/controls";
 import {
@@ -59,6 +60,10 @@ export async function POST(request: Request) {
       || spotIds.length !== 9 || new Set(spotIds).size !== 9) {
     return Response.json({ error: "A plan needs a title, category, and nine different places." }, { status: 400 });
   }
+
+  const photos = await photoCheck(supabase, spotIds);
+  if (photos === "unavailable") return Response.json({ error: "Couldn't check those places. Try again in a moment." }, { status: 503 });
+  if (photos === "photoless") return Response.json({ error: "One of these places can't be dealt any more. Deal again." }, { status: 400 });
 
   const planInput = { ...raw };
   delete planInput.spotIds;

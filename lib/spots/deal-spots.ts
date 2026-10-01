@@ -2,6 +2,7 @@
 // pool, read ratings under the caller's RLS, then the pure draw.
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { fetchAllRows } from "../supabase/paginate.ts";
+import { hasRealPhoto } from "../venue-photo.ts";
 import { dealFromPool, eligibleDealSpots, type DealConstraints, type DealRatingRow, type DealSpotRow, type SpotAffinity } from "./match.ts";
 
 type Db = SupabaseClient;
@@ -93,4 +94,17 @@ export async function dealSpotIds(db: Db, input: {
   if (!dealt) return { tooFew: true };
   const byId = new Map(pool.map((spot) => [spot.id, spot]));
   return { ids: dealt, spots: dealt.map((id) => byId.get(id)!) }; // spots[i] is ids[i]
+}
+
+/**
+ * Before a plan is created from client-sent ids: is any of them a curated
+ * place that can't show a real photo (owner, 2026-10-01)? The deal never
+ * offers one; this stops a hand-built request. Custom places are the host's
+ * own and pass; ids the caller can't read are left to the RPC to refuse.
+ */
+export async function photoCheck(db: Db, ids: readonly string[]): Promise<"ok" | "photoless" | "unavailable"> {
+  const { data, error } = await db.from("spots").select("id, source, photo_url, google_place_id").in("id", [...ids]);
+  if (error || !data) return "unavailable";
+  return (data as { id: string; source: string; photo_url: string | null; google_place_id: string | null }[])
+    .some((row) => row.source === "curated" && !hasRealPhoto({ ...row, photo_attribution: null })) ? "photoless" : "ok";
 }
