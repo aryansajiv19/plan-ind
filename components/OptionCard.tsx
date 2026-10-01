@@ -34,6 +34,8 @@ interface OptionCardProps {
   viewerFrom?: Coordinates | null;
   /** "Why this?" chips from `dealReasons()`. Omitted means none render. */
   reasons?: readonly DealReason[];
+  /** A plan dealt from group answers: why it fits everyone (lib/group-prefs.ts fitFor). Replaces `reasons`. */
+  fit?: readonly string[];
   onToggle: () => void;
 }
 
@@ -56,6 +58,7 @@ export default function OptionCard({
   distanceKm,
   viewerFrom = null,
   reasons: dealtReasons,
+  fit,
   onToggle,
 }: OptionCardProps) {
   const dimmed = decided && !isWinner;
@@ -160,6 +163,13 @@ export default function OptionCard({
         {isLeader && !decided && <>{facts.length > 0 ? " · " : null}<span className="vote-option__leading">Leading</span></>}
       </p>
 
+      {/* Why this fits the whole group: the product's promise, so it is not folded away. */}
+      {fit && fit.length > 0 && (
+        <p className="mt-1 text-sm font-medium">
+          <span className="sr-only">Fits the group: </span>{fit.join(" · ")}
+        </p>
+      )}
+
       {/* Everything else, one tap away: the card leads with the choice. */}
       <details className="vote-option__more">
         <summary>More</summary>
@@ -168,7 +178,7 @@ export default function OptionCard({
         <p className="text-sm leading-snug text-ink/80">{spot.description ?? spot.vibe}</p>
         {when && <p className="text-xs text-muted">{when}</p>}
         {/* Why the deal picked it: one muted fact line. It explains; it is not state. */}
-        {reasons && reasons.length > 0 && (
+        {!(fit && fit.length > 0) && reasons && reasons.length > 0 && (
           <p className="text-xs font-semibold text-muted">
             <span className="sr-only">Why this: </span>
             {reasons.map((reason, index) => (

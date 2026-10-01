@@ -25,7 +25,7 @@ test("a host deals nine, sees the reveal, and lands on a plan holding exactly th
     await expect(times.nth(1)).toHaveAttribute("aria-pressed", "true");
 
     const dealt = page.waitForResponse((r) => r.url().endsWith("/api/spots/deal") && r.request().method() === "POST");
-    await page.getByRole("button", { name: "Deal nine", exact: true }).click();
+    await page.getByRole("button", { name: "Deal nine with my settings", exact: true }).click();
     const deal = await (await dealt).json() as { ids: string[] | null };
     expect(deal.ids).toHaveLength(9);
     await expect(page.getByRole("list", { name: "Nine places in three rounds" })).toBeVisible();

@@ -178,6 +178,13 @@ export function usePlanData(id: string) {
         setLoad("notfound");
         return;
       }
+      // A gathering plan has no places yet: that is its normal state, not a
+      // failed spots read. The deal reloads this (use-plan-preferences.ts).
+      if ((planRow as Plan).stage === "gathering") {
+        setPlan(planRow as Plan);
+        setLoad("ready");
+        return;
+      }
 
       const { data: links, error: linksErr } = await getSupabase()
         .from("plan_spots")

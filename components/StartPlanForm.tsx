@@ -11,6 +11,7 @@ import TuneIt from "@/components/composer/TuneIt";
 import MyPlacesShelf from "@/components/composer/MyPlacesShelf";
 import { SAMPLE_POOLS } from "@/components/demo/sampleDecision";
 import { useComposer } from "@/hooks/use-composer";
+import { useStartGathering } from "@/hooks/use-start-gathering";
 import type { PlanPrefill } from "@/lib/board-plan";
 
 export default function StartPlanForm({
@@ -38,6 +39,10 @@ export default function StartPlanForm({
   // reasoning as gating PlaceDirectPlanCta on a real user.
   const [mode, setMode] = useState<"deal" | "direct">("deal");
   const composer = useComposer({ age, demoMode, prefill });
+  const { when, pinnedIds } = composer;
+  const gather = useStartGathering({ category: composer.category, title: composer.title, times: when.picks });
+  // Ask first unless a place is pinned: pins live in the nine, which only exist after a deal.
+  const askFirst = !demoMode && pinnedIds.length === 0;
   const { category, title, creating, error, revealing, setRevealing, revealCards, revealShown, smartQuery, setSmartQuery, smartIntent, setSmartIntent, applyIntent, stashDraft, signIn, start, constraintChips } = composer;
 
   if (revealing) {
@@ -126,18 +131,27 @@ export default function StartPlanForm({
         {/* The deal stays in reach from anywhere in the form, Tune it included:
             sticky at the bottom edge, on the card's own surface. */}
         <div className="plan-deal-bar">
-          {error && (
+          {(error || gather.error) && (
             <p role="alert" className="plan-form__error">
-              {error}
+              {error ?? gather.error}
             </p>
           )}
-          {!title.trim() && <p className="plan-form__demo-note">Give it a title under Tune it to deal.</p>}
+          {!title.trim() && <p className="plan-form__demo-note">Give it a title under Tune it to continue.</p>}
+          {askFirst && (
+            <>
+              {/* The default: ask the group first, deal after (docs/GROUP_PREFS.md). */}
+              <button type="button" disabled={gather.asking || creating || !title.trim() || !when.valid} onClick={() => void gather.ask()} className="plan-submit">
+                {gather.asking ? "Setting up…" : "Share and ask the group"}
+              </button>
+              <p className="plan-form__demo-note">Friends answer three quick taps, then you deal places that suit everyone.</p>
+            </>
+          )}
           <button
             type="submit"
-            disabled={creating || !title.trim()}
-            className="plan-submit"
+            disabled={creating || gather.asking || !title.trim()}
+            className={askFirst ? "vote-secondary-action mt-2 w-full" : "plan-submit"}
           >
-            {creating ? (demoMode ? "Dealing…" : "Dealing nine…") : demoMode ? "Preview the deal" : "Deal nine"}
+            {creating ? (demoMode ? "Dealing…" : "Dealing nine…") : demoMode ? "Preview the deal" : askFirst ? "Deal nine with my settings" : "Deal nine"}
           </button>
         </div>
       </ComposerDeck>

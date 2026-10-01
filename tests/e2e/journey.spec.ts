@@ -38,7 +38,7 @@ test("a new member onboards, deals, a friend joins by link and votes, the host d
     // ── Create: deal nine and land on the plan ──────────────────────────────
     await hostPage.locator("summary", { hasText: "Tune it" }).click();
     await hostPage.locator("#plan-title").fill(`E2E journey ${stamp}`);
-    await hostPage.getByRole("button", { name: "Deal nine", exact: true }).click();
+    await hostPage.getByRole("button", { name: "Deal nine with my settings", exact: true }).click();
     await hostPage.waitForURL(/\/plan\/[0-9a-f-]{36}$/, { timeout: 30_000 });
     planId = new URL(hostPage.url()).pathname.split("/").pop()!;
     await expect(hostPage.getByText(`Hey ${host.name}`, { exact: true })).toBeVisible({ timeout: 20_000 });

@@ -8,6 +8,8 @@ import VoteOptionsGrid from "@/components/vote/VoteOptionsGrid";
 import { RoundDots, RoundLabel } from "@/components/vote/RoundProgress";
 import { useFaceFlight } from "@/components/vote/useFaceFlight";
 import SampleDecided from "@/components/demo/SampleDecided";
+import SampleGroupAnswers, { SAMPLE_GROUP } from "@/components/demo/SampleGroupAnswers";
+import { fitFor } from "@/lib/group-prefs";
 import { haptic } from "@/lib/interaction";
 import { coordinatesForArea } from "@/lib/dubai-areas";
 import { dealReasons, spotDistanceKm } from "@/lib/deal-reasons";
@@ -206,6 +208,8 @@ function SampleRun({ deck, eventTime, onReplay }: { deck: DemoDeck; eventTime: s
         </div>
       )}
 
+      {!decided && <SampleGroupAnswers />}
+
       {!foldDone && (
         <VoteOptionsGrid
           key={`round-${round.phase}-${round.poolNumber}`}
@@ -230,6 +234,7 @@ function SampleRun({ deck, eventTime, onReplay }: { deck: DemoDeck; eventTime: s
                 decided={decided}
                 distanceKm={km}
                 reasons={dealReasons({ spot, maxBudget: SAMPLE_PLAN.budgetPerPerson, radiusKm: SAMPLE_PLAN.radiusKm, distanceKm: km })}
+                fit={fitFor(spot, SAMPLE_GROUP)}
                 onToggle={() => pick(spot.id)}
               />
             );
