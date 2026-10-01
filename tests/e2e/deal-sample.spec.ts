@@ -1,7 +1,4 @@
-import { randomUUID } from "node:crypto";
 import { test, expect } from "@playwright/test";
-import { canProvision } from "./plan-factory";
-import { localAdmin } from "./local-stack";
 
 // P8: GET /api/spots/deal/sample -- the signed-out "Preview the deal": nine
 // real cards for the visitor's settings, at the strictest age gate, writing
@@ -31,33 +28,22 @@ test("an unknown category is a 400", async ({ request }) => {
   expect((await request.get("/api/spots/deal/sample?category=nope")).status()).toBe(400);
 });
 
-// Owner (2026-10-01): a curated place with no real photo is never dealt. The
-// beach family is asked for by no other spec or demo deck, so its cached pool
-// is first read here, after the inserts. 4 seeded beaches + 5 water spots with
-// photos are exactly nine, so all five must come back (the positive control:
-// proves the pool saw the inserts); without the rule 14 qualify and a deal
-// with none of the five photo-less ones would be a 1-in-2,002 fluke.
+// Owner (2026-10-01): a curated place with no real photo is never dealt.
+// supabase/seed.sql holds the fixture: 5 water spots with a photo and 3
+// without (e2e00000-...0006 to 0008), so with the 4 seeded beaches the beach
+// family has exactly nine dealable places. Seeded rather than inserted here
+// because the deal pool is cached for an hour (a second project or a retry
+// would never see a spec's inserts). All five must be dealt, the positive
+// control; without the rule twelve qualify and a deal with none of the three
+// photo-less ones is a 1-in-220 fluke.
+const fixture = (n: number) => `e2e00000-0000-0000-0000-00000000000${n}`;
+
 test("a curated place with no photo is never dealt; places with one are", async ({ request }) => {
-  test.skip(!canProvision(), "needs the local stack to insert spots");
-  const admin = localAdmin();
-  const row = (photo: boolean) => ({
-    id: randomUUID(), name: `E2E water ${photo ? "photo" : "bare"} ${randomUUID().slice(0, 6)}`, category: "water", area: "JBR",
-    cuisine: "Water park", price_band: "$$", min_spend: 0, open_till: "", vibe: "E2E fixture spot", source: "curated",
-    photo_url: photo ? "/icon.svg" : null,
-  });
-  const withPhoto = Array.from({ length: 5 }, () => row(true));
-  const bare = Array.from({ length: 5 }, () => row(false));
-  const { error } = await admin.from("spots").insert([...withPhoto, ...bare]);
-  expect(error, error?.message).toBeNull();
-  try {
-    const res = await request.get("/api/spots/deal/sample?category=water&origin=anywhere");
-    expect(res.status()).toBe(200);
-    const body = await res.json() as { cards: { id: string }[] | null; reason?: string };
-    expect(body.cards, `no cards: ${body.reason}`).not.toBeNull();
-    const dealt = new Set(body.cards!.map((c) => c.id));
-    for (const spot of withPhoto) expect(dealt.has(spot.id), `${spot.name} has a photo and should be dealt`).toBe(true);
-    for (const spot of bare) expect(dealt.has(spot.id), `${spot.name} has no photo and was dealt`).toBe(false);
-  } finally {
-    await admin.from("spots").delete().in("id", [...withPhoto, ...bare].map((s) => s.id));
-  }
+  const res = await request.get("/api/spots/deal/sample?category=water&origin=anywhere");
+  expect(res.status()).toBe(200);
+  const body = await res.json() as { cards: { id: string }[] | null; reason?: string };
+  expect(body.cards, `no cards: ${body.reason}`).not.toBeNull();
+  const dealt = new Set(body.cards!.map((c) => c.id));
+  for (const n of [1, 2, 3, 4, 5]) expect(dealt.has(fixture(n)), `${fixture(n)} has a photo and should be dealt`).toBe(true);
+  for (const n of [6, 7, 8]) expect(dealt.has(fixture(n)), `${fixture(n)} has no photo and was dealt`).toBe(false);
 });
