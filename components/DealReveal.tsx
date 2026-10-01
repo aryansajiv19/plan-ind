@@ -146,7 +146,7 @@ export default function DealReveal({
                         </span>
                       </span>
                       <span className="px-2.5 py-1.5">
-                        <span className="block truncate text-[0.7rem] text-muted">{card.area}</span>
+                        <span className="block truncate text-xs text-muted">{card.area}</span>
                       </span>
                     </motion.li>
                   );

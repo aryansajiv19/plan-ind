@@ -154,7 +154,7 @@ export default function DecidedPlan({
   );
 
   return (
-    <div className="vote-result mt-6 rounded-2xl border-2 border-punch bg-punch/5 p-4 sm:p-5">
+    <div className="vote-result mt-6">
       {/* SPECS.md §14.2: the winner assembling from scattered particles.
           Ungated — it reconstructs the NAME, which every plan has, so it
           runs on every decided plan rather than the 7% with a photo. When

@@ -34,6 +34,7 @@ import { planStateScreen } from "@/components/vote/PlanStates";
 import { HostPlanControls, LeaveControl, ReopenControl } from "@/components/vote/PlanControls";
 import { participantFailure } from "@/lib/participant-errors";
 import { mineFrom } from "@/lib/my-rows";
+import { isPlanId } from "@/lib/share-preview";
 
 export default function VotePage() {
   const { id } = useParams<{ id: string }>();
@@ -113,7 +114,9 @@ export default function VotePage() {
   useFaceFlight();
 
   const stateScreen = planStateScreen({
-    deleted, left, plan, access, accessMessage, load, retryAccess, setLoad, setReloadKey,
+    // A link that is not even a plan id (mistyped, cut off) is a cold link, not
+    // "sign in, this link works".
+    deleted, left, plan, access: isPlanId(id) ? access : "not-found", accessMessage, load, retryAccess, setLoad, setReloadKey,
   });
   if (stateScreen) return stateScreen;
 

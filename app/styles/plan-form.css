@@ -476,17 +476,16 @@
   justify-self: start;
   align-self: flex-start;
   max-width: 100%;
-  overflow: hidden;
   color: var(--color-punch-text);
   font-size: max(0.66rem, var(--type-floor));
   font-weight: 700;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 /* On a photo the code is a gold chip, like the vote card's. */
 .plan-deck__band[data-photo] .plan-deck__code {
-  max-width: 50%;
-  padding: 0.15rem 0.35rem;
+  max-width: 80%;
+  padding: 0.25rem 0.5rem;
   background: var(--color-punch);
   color: var(--primary-ink);
 }

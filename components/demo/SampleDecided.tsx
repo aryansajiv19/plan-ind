@@ -93,7 +93,7 @@ export default function SampleDecided({
           <ul className="mt-2 grid gap-2 text-sm">
             {SAMPLE_WHOS_IN.map((person) => (
               <li key={person.name} className="flex items-center gap-3">
-                <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-[0.65rem] font-medium" style={avatarStyle(person.name)} aria-hidden="true">
+                <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs font-medium" style={avatarStyle(person.name)} aria-hidden="true">
                   {initialsOf(person.name)}
                 </span>
                 <span className="font-medium">{person.name}</span>

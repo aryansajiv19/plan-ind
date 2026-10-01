@@ -133,7 +133,9 @@ export default function Turnstile({
       console.error("Turnstile: NEXT_PUBLIC_TURNSTILE_SITE_KEY is not set");
       onStatus?.("failed");
     });
-    return process.env.NODE_ENV === "production"
+    // Same rule as below: a caller that takes onStatus explains it in its own
+    // words (AuthForm's note); saying it here too printed two alerts for one cause.
+    return process.env.NODE_ENV === "production" && !onStatus
       ? <p role="alert" className="auth-error">Sign-in isn’t available right now. Please try again later.</p>
       : null;
   }

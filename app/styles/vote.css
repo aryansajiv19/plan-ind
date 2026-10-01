@@ -393,7 +393,7 @@
 /* Leading is live state: the live accent, as text, no box. */
 .vote-option__leading {
   color: var(--color-live);
-  font-size: 0.6875rem;
+  font-size: max(0.72rem, var(--type-floor));
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -587,10 +587,16 @@
 }
 
 .vote-result {
+  padding: 1rem;
   border-width: 1px;
   border-radius: var(--radius-control);
   border-color: var(--color-punch-text);
   background: color-mix(in srgb, var(--vote-metal) 5%, var(--color-card));
+}
+@media (min-width: 641px) {
+  .vote-result {
+    padding: 1.25rem;
+  }
 }
 
 /* Secondary facts; the summary sits above the Select's card-wide ::after. */

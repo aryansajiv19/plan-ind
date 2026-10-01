@@ -92,6 +92,11 @@
   from { opacity: 0; transform: scale(1.6) rotate(-8deg); }
   to { opacity: 1; transform: scale(1) rotate(-2deg); }
 }
+/* A photo-less winner: the name IS the card. The art's word would print
+   behind the name and under the lock chip, so the art keeps only its ground. */
+.winner-reveal .category-art__word {
+  display: none;
+}
 .winner-reveal__when {
   position: absolute;
   bottom: 0.85rem;
@@ -159,12 +164,9 @@
   .vote-action-hint {
     font-size: 0.8125rem;
   }
-  /* Decided: the reveal spans the panel so it shares both edges with the
-     rows below it (the 42rem cap inset it ~46px each side at 1280), and the
-     copy action sizes to its label instead of a 764px bar. */
-  .vote-result .winner-reveal {
-    max-width: none;
-  }
+  /* Decided: the reveal keeps its 42rem cap (uncapped, a name with no photo
+     filled a 1100px x 600px card at 1440). The copy action sizes to its
+     label instead of a wide bar. */
   .vote-result__primary.w-full {
     width: auto;
     min-width: 18rem;

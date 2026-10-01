@@ -2,6 +2,8 @@
 
 html {
   background: var(--color-paper);
+  /* Anchors and scrollIntoView land below the sticky nav, whatever the target is. */
+  scroll-padding-top: 6.5rem;
 }
 body {
   background: var(--color-paper);
@@ -73,14 +75,11 @@ em {
   }
 }
 
-/* Tab must never park a control under the sticky header (74px, z-index 20):
-   the browser scrolls a focused element flush to the viewport top, which put
-   it 25px behind the nav and hid the top of its ring. Measured on the photo
-   wall. This is the fix for that -- an inset ring cannot help, because the
-   CONTROL is under the bar, not just its outline. */
-:where(a, button, input, select, textarea, summary, [tabindex]) {
-  scroll-margin-top: 5.5rem;
-}
+/* Nothing may land under the sticky header (about 90px, z-index 20):
+   scroll-padding-top on <html> above covers Tab focus, anchors and every
+   scrollIntoView. It replaces a per-control scroll-margin that missed
+   headings, sections and the vote shell. tests/e2e/ui-bugs.spec.ts checks it. */
+
 
 /* Visible keyboard focus everywhere: drawn INSIDE the control (they sit
    0-9px apart) in currentColor, so it shows on filled buttons too. */

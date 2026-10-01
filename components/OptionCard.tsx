@@ -135,7 +135,7 @@ export default function OptionCard({
           <>
             <VenuePhoto spot={spot} sizes="(min-width: 641px) 22rem, 85vw" />
             <div className="vote-option__overlay">
-              <span className="vote-option__category self-start px-2 py-0.5 text-xs">{kind}</span>
+              <span className="vote-option__category self-start px-2 py-1 text-xs">{kind}</span>
               <div>
                 <h3 className="vote-option__name">{spot.name}</h3>
                 <p className="vote-option__where">{spot.area}</p>
