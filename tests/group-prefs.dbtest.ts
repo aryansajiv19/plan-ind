@@ -1,4 +1,4 @@
-// Integration tests for migration 098 (group preferences) against a LOCAL
+// Integration tests for migration 100 (group preferences) against a LOCAL
 // Supabase Postgres. NEVER point TEST_DATABASE_URL at the live project.
 import test, { after, describe } from "node:test";
 import assert from "node:assert/strict";
@@ -25,7 +25,7 @@ async function psql(sql: string): Promise<string> {
 }
 
 const SKIP = await psql("select to_regclass('public.plan_preferences') is not null").then(
-  (out) => out === "t" ? false as const : "plan_preferences is missing: apply migration 098 to this LOCAL database",
+  (out) => out === "t" ? false as const : "plan_preferences is missing: apply migration 100 to this LOCAL database",
   () => `no Supabase-shaped Postgres at ${DB_URL} — set TEST_DATABASE_URL to a LOCAL database (never the live project)`,
 );
 
@@ -74,7 +74,7 @@ after(async () => {
   if (made.spots.length) await psql(`delete from spots where id in (${ids(made.spots)})`);
 });
 
-describe("098 create_gathering_plan", { skip: SKIP }, () => {
+describe("100 create_gathering_plan", { skip: SKIP }, () => {
   test("a permanent host gets a gathering plan with no places, hosted and joined; an anonymous session is refused", async () => {
     const host = await user();
     const plan = await gathering(host);
@@ -95,7 +95,7 @@ describe("098 create_gathering_plan", { skip: SKIP }, () => {
   });
 });
 
-describe("098 set_plan_preferences and RLS", { skip: SKIP }, () => {
+describe("100 set_plan_preferences and RLS", { skip: SKIP }, () => {
   test("a member upserts their own row, name from the profile; a non-member can neither read nor write", async () => {
     const host = await user("Hosty");
     const friend = await user("Friendy");
@@ -142,13 +142,15 @@ describe("098 set_plan_preferences and RLS", { skip: SKIP }, () => {
     await assert.rejects(() => prefs(host, plan, "10001"), /Invalid budget/);
     await assert.rejects(() => prefs(host, plan, "-1"), /Invalid budget/);
     await assert.rejects(() => prefs(host, plan, "100", "'atlantis-bar'"), /Unknown starting point/);
-    await assert.rejects(() => prefs(host, plan, "100", "'marina'", "array['a','b','c']"), /At most two/);
-    await assert.rejects(() => prefs(host, plan, "100", "'marina'", "array['a']", "array['a','b','c']"), /At most two/);
-    await assert.rejects(() => prefs(host, plan, "100", "'marina'", "array['same','same']"), /Invalid vibe/);
-    await assert.rejects(() => prefs(host, plan, "100", "'marina'", "array['']"), /Invalid vibe/);
+    await assert.rejects(() => prefs(host, plan, "100", "'marina'", "array['chill','lively','quiet']"), /At most two/);
+    await assert.rejects(() => prefs(host, plan, "100", "'marina'", "array['a']", "array['chill','lively','quiet']"), /At most two/);
+    await assert.rejects(() => prefs(host, plan, "100", "'marina'", "array['chill','chill']"), /Invalid vibe/);
+    await assert.rejects(() => prefs(host, plan, "100", "'marina'", "array['karaoke']"), /Invalid vibe/);
+    await assert.rejects(() => prefs(host, plan, "100", "'marina'", "array['chill']", "array['spicy']"), /Invalid avoid/);
+    await assert.rejects(() => prefs(host, plan, "100", "'marina'", "array['loud']"), /Invalid vibe/, "an avoid word is not a vibe");
     assert.equal(await psql(`select count(*) from plan_preferences where plan_id='${plan}'`), "0");
     // positive control: the boundary values are accepted, "Any" (all null) too.
-    assert.equal(lastJson(await prefs(host, plan, "10000", "'anywhere'", "array['a','b']", "array['c','d']")).result, "saved");
+    assert.equal(lastJson(await prefs(host, plan, "10000", "'anywhere'", "array['upscale','waterfront']", "array['loud','shisha']")).result, "saved");
     assert.equal(lastJson(await prefs(host, plan, "null", "null", "null", "null")).result, "saved");
     assert.equal(await psql(`select budget_cap is null and origin_value is null and vibes='{}' from plan_preferences where plan_id='${plan}'`), "t");
   });
@@ -178,7 +180,7 @@ describe("098 set_plan_preferences and RLS", { skip: SKIP }, () => {
   });
 });
 
-describe("098 start_group_plan", { skip: SKIP }, () => {
+describe("100 start_group_plan", { skip: SKIP }, () => {
   const group = `'{"budgetCap":150,"centroid":{"latitude":25.1,"longitude":55.2},"radiusKm":12,"relaxed":["distance"]}'::jsonb`;
 
   test("host only; deals exactly nine, sets stage, budget, origin and a server-counted summary; prefs close after", async () => {

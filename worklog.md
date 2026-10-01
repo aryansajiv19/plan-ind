@@ -285,9 +285,9 @@ been regenerated from the broken screens.
   gitignored (updated locally only).
 
 
-## 2026-10-01 — Group preferences, database layer (migration 098, STAGED, not applied)
+## 2026-10-01 — Group preferences, database layer (migration 100, STAGED, not applied)
 
-Lane gp-db, docs/GROUP_PREFS.md "Schema". `supabase/migration-098-group-prefs.sql`
+Lane gp-db, docs/GROUP_PREFS.md "Schema". `supabase/migration-100-group-prefs.sql`
 (additive, re-run safe; the integrator may renumber):
 - `plans.stage` gains `'gathering'`; `plans.group_summary jsonb` (granted to authenticated).
 - `plan_preferences`: members SELECT their plan's rows, no write grant or policy, in `supabase_realtime`.

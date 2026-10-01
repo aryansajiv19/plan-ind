@@ -1,4 +1,4 @@
--- Migration 098: group preferences (docs/GROUP_PREFS.md, "Schema").
+-- Migration 100: group preferences (docs/GROUP_PREFS.md, "Schema").
 --
 -- STAGED -- written, not applied anywhere. Apply only with the owner's
 -- approval (after the security review), then record it in worklog.md the same day.
@@ -161,7 +161,7 @@ grant execute on function create_gathering_plan(jsonb) to authenticated;
 -- {result:'saved'} or {result:'not_gathering'} (the plan moved on or is gone
 -- from under you: a clean no-op, nothing written). Raises 42501 for a
 -- non-member, 22023 for bad input (budget outside 0..10000, an origin not in
--- gathering_origins(), more than 2 vibes/avoids, blank or over-30-char items).
+-- gathering_origins(), more than 2 vibes/avoids, vibes outside the 8 allowed, avoids outside the 3 allowed).
 -- Idempotent: the same call twice leaves the same row.
 create or replace function set_plan_preferences(
   p_plan_id uuid, p_budget_cap int, p_origin_value text, p_vibes text[], p_avoid text[]
@@ -197,17 +197,20 @@ begin
   if coalesce(cardinality(p_vibes), 0) > 2 or coalesce(cardinality(p_avoid), 0) > 2 then
     raise exception 'At most two of each' using errcode = '22023';
   end if;
+  -- Closed vocabularies (owner decision 2026-10-01); duplicates refused.
   if p_vibes is not null then
-    select coalesce(array_agg(distinct clean_app_text(v, 30)), '{}') into vibe_values from unnest(p_vibes) v;
-    if '' = any(vibe_values) or cardinality(vibe_values) <> cardinality(p_vibes) then
+    if not (p_vibes <@ array['chill','lively','romantic','rooftop','waterfront','quiet','outdoor','upscale'])
+       or (select count(distinct v) from unnest(p_vibes) v) <> cardinality(p_vibes) then
       raise exception 'Invalid vibe' using errcode = '22023';
     end if;
+    vibe_values := p_vibes;
   end if;
   if p_avoid is not null then
-    select coalesce(array_agg(distinct clean_app_text(v, 30)), '{}') into avoid_values from unnest(p_avoid) v;
-    if '' = any(avoid_values) or cardinality(avoid_values) <> cardinality(p_avoid) then
+    if not (p_avoid <@ array['loud','shisha','alcohol'])
+       or (select count(distinct v) from unnest(p_avoid) v) <> cardinality(p_avoid) then
       raise exception 'Invalid avoid item' using errcode = '22023';
     end if;
+    avoid_values := p_avoid;
   end if;
 
   if target.stage <> 'gathering' or target.status <> 'open' then
