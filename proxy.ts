@@ -28,11 +28,13 @@ export async function proxy(request: NextRequest) {
   // still refused by the database without a member session; this is routing.
   // Only /login and /invite end a guest session (they are sign-in doors).
   const pathname = request.nextUrl.pathname;
-  // Not on a prefetch: the signed-out nav and the join card link to /login, and
-  // Next prefetches those links in the background. A prefetch ended the guest's
-  // session (its cookies clear on that response), so guests were dropped unprompted.
-  const prefetch = request.headers.has("next-router-prefetch") || request.headers.get("purpose") === "prefetch";
-  const signOutAnonymous = (pathname === "/login" || pathname === "/invite") && !prefetch;
+  // Only on a real page load: the signed-out nav and the join card link to /login,
+  // and Next prefetches those links in the background, which ended the guest's
+  // session unprompted. Next strips its router headers (next-router-prefetch and
+  // the rest) before the proxy runs (next/dist/server/web/adapter.js), so the URL's
+  // `_rsc` param, on every in-app router request, is the only signal left here.
+  const routerRequest = request.nextUrl.searchParams.has("_rsc");
+  const signOutAnonymous = (pathname === "/login" || pathname === "/invite") && !routerRequest;
 
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
   const isDev = process.env.NODE_ENV === "development";
