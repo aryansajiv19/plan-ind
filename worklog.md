@@ -272,3 +272,24 @@ group in minutes, not "flashy features". Lanes, integrated on lane/focus-integra
   rules use structured columns (category, price_band, min_spend, licensed).
 - Open: the guest-join CI step needs a token with `workflow` scope
   (scratchpad ci.patch); root CLAUDE.md's identity invariant changes when 099 is applied.
+
+## 2026-11-03 — Shipped the focus integration; Next RCE patch; guest prefetch fix
+
+- **Security:** Next 16.3.6 -> 16.4.4 (two critical unauthenticated RCE advisories,
+  Image Optimization SVG and `use cache`; neither path was reachable here) plus
+  sharp/zod/source-map-js. `npm audit --omit=dev --audit-level=high` clean; 19
+  moderate left in dev-only tooling (eslint, autocannon), major downgrades only.
+- **Merged lane/focus-integration to main** (group prefs + guest voting code, the
+  landing and vote focus). It had never passed E2E: CI runs were cancelled or red.
+  Code is safe before 099/100 (group routes 503, composer falls back; the join card
+  says guest joining is unavailable without the Turnstile key).
+- **Guest sign-out bug:** Next strips `next-router-*` headers (adapter.js) AND the
+  `_rsc` param (internal-utils.js) before the proxy runs, so the 2026-10-01 prefetch
+  check was always false and every background prefetch of /login ended a guest's
+  session. Probed a real `next start`: the proxy keys on `Sec-Fetch-Dest: document`
+  (Accept text/html fallback). Unit test sends the probed headers; mutant fails it.
+- Visual baselines regenerated (landing cover photos, group-fit line, sharp re-encode).
+- **Waiting on the owner, unchanged:** apply 099 then 100 (then 098); Supabase:
+  anonymous sign-ins ON + CAPTCHA with the Turnstile secret; Vercel:
+  `NEXT_PUBLIC_TURNSTILE_SITE_KEY`; `gh auth refresh -s workflow` for the guest-join
+  CI step and E2E timeout.
