@@ -130,9 +130,10 @@ export default function VotePage() {
   useFaceFlight();
 
   // No member session: join as a guest with a first name (or sign in).
-  // NEXT_PUBLIC_GUEST_VOTING=off (production until migration 099 is applied)
-  // keeps the sign-in card: without 099 every guest join fails with a 503.
-  if (access === "signed-out" && isPlanId(id) && !deleted && process.env.NEXT_PUBLIC_GUEST_VOTING !== "off") return <JoinPlan planId={id} />;
+  // Guest joining needs migration 099; without it every join fails with a 503.
+  // Off unless NEXT_PUBLIC_GUEST_VOTING=on (the E2E build sets it; set it in
+  // Vercel once 099 is applied): until then the sign-in card shows instead.
+  if (access === "signed-out" && isPlanId(id) && !deleted && process.env.NEXT_PUBLIC_GUEST_VOTING === "on") return <JoinPlan planId={id} />;
 
   const stateScreen = planStateScreen({
     // A link that is not even a plan id (mistyped, cut off) is a cold link, not

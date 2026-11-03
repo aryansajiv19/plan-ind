@@ -76,7 +76,9 @@ export default defineConfig({
   // starts one itself. The production build sidesteps this worktree's
   // Turbopack-dev-server symlink issue (see tests/README.md).
   webServer: process.env.PLAYWRIGHT_BASE_URL ? undefined : {
-    command: "npm run build && npm run start",
+    // Guest voting is off by default (it needs migration 099, which the local
+    // stack's schema.sql already has); NEXT_PUBLIC_* is inlined at build time.
+    command: "NEXT_PUBLIC_GUEST_VOTING=on npm run build && npm run start",
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,
