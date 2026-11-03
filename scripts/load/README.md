@@ -326,6 +326,30 @@ since migration 049, which silently failed every refetch until 2026-09-25.
 Smoke, local Docker, 2026-09-25: `--plans 2 --per-plan 2 --rate 2` PASS
 (insert/delete delivery 1.0, 0 stale clients), twice.
 
+## Group preferences — `group-concurrency.mjs` (2026-11-03, local stack)
+
+Bursts against the migration-100 RPCs through PostgREST, each rep on a fresh
+plan, each checked against the rows in Postgres (not just the replies).
+Environment: Supabase CLI 2.118.0 stack in Docker on the owner's MacBook,
+driver on the same machine: loopback numbers, a ceiling, not a field figure.
+
+| Scenario | Invariant checked | n=8 p50 / p99 | n=50 p50 / p99 |
+|---|---|---|---|
+| `prefs-burst` (each member double-taps Save, 2n calls) | exactly n rows, each one of that member's two values | 8.1 / 23.2 ms | 48.6 / 79.1 ms |
+| `deal-race` (host fires Deal n times) | exactly 1 dealt, n-1 `not_gathering`, 9 places | 7.1 / 13.0 ms | 34.0 / 92.9 ms |
+| `prefs-vs-deal` (n saves racing the deal, then n late saves) | every "saved" has a row; every late save refused, none written | 4.6 / 7.5 ms | 27.6 / 138.5 ms |
+
+All 30 reps correct. Server-side (pg_stat_statements) the functions average
+0.55 ms (`set_plan_preferences`) and 5.3 ms (`start_group_plan`, including its
+row-lock wait), so the growth with n is queueing in front of Postgres
+(PostgREST's pool), not the functions. Nothing to fix at this app's scale.
+
+**Proved to bite** (planted in the local stack's functions, then restored):
+no `for update` in `start_group_plan` failed `deal-race` in 2 of 3 reps
+(racing deals hit `23505` instead of a clean `not_gathering`); no stage check
+in `set_plan_preferences` failed `prefs-vs-deal` 2/2 (10 late saves written);
+a plain insert instead of the upsert failed `prefs-burst` 2/2 (`23505`).
+
 ## Not yet measured
 
 - Anything under real network conditions or a real (Vercel) deployment —
