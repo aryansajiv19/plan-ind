@@ -289,7 +289,11 @@ group in minutes, not "flashy features". Lanes, integrated on lane/focus-integra
   session. Probed a real `next start`: the proxy keys on `Sec-Fetch-Dest: document`
   (Accept text/html fallback). Unit test sends the probed headers; mutant fails it.
 - Visual baselines regenerated (landing cover photos, group-fit line, sharp re-encode).
-- **Waiting on the owner, unchanged:** apply 099 then 100 (then 098); Supabase:
+- **Guest voting is OFF by default** (`NEXT_PUBLIC_GUEST_VOTING === "on"` shows the
+  join card; the E2E build sets it). The merge had shown production a join card whose
+  every submit 503'd (Turnstile key set, 099 not applied). Live UI scan after the
+  deploy: 12/12 public pages and sample-vote steps clean (1440/768/390, day/night).
+- **Waiting on the owner:** after 099, set `NEXT_PUBLIC_GUEST_VOTING=on` in Vercel. Unchanged: apply 099 then 100 (then 098); Supabase:
   anonymous sign-ins ON + CAPTCHA with the Turnstile secret; Vercel:
   `NEXT_PUBLIC_TURNSTILE_SITE_KEY`; `gh auth refresh -s workflow` for the guest-join
   CI step and E2E timeout.
