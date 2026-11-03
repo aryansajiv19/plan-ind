@@ -30,11 +30,13 @@ export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   // Only on a real page load: the signed-out nav and the join card link to /login,
   // and Next prefetches those links in the background, which ended the guest's
-  // session unprompted. Next strips its router headers (next-router-prefetch and
-  // the rest) before the proxy runs (next/dist/server/web/adapter.js), so the URL's
-  // `_rsc` param, on every in-app router request, is the only signal left here.
-  const routerRequest = request.nextUrl.searchParams.has("_rsc");
-  const signOutAnonymous = (pathname === "/login" || pathname === "/invite") && !routerRequest;
+  // session unprompted. Next strips both its router headers (next-router-prefetch,
+  // adapter.js) and the `_rsc` param (internal-utils.js) before the proxy runs, so
+  // the browser's own Sec-Fetch-Dest is the signal: "document" only for a page load.
+  // Browsers without it (Safari < 16.4) fall back to asking for HTML.
+  const dest = request.headers.get("sec-fetch-dest");
+  const pageLoad = dest ? dest === "document" : (request.headers.get("accept") ?? "").includes("text/html");
+  const signOutAnonymous = (pathname === "/login" || pathname === "/invite") && pageLoad;
 
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
   const isDev = process.env.NODE_ENV === "development";
